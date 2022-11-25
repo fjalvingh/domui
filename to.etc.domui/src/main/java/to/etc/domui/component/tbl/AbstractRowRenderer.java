@@ -351,7 +351,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 				m_sortImages[ix] = img;
 
 				// Add the label;
-				if(label == null || label.trim().length() == 0)
+				if(label == null || label.trim().isEmpty())
 					label = getUnknownColumnCaption();
 				cellSpan.add(new Span(label));
 				final SimpleColumnDef< ? > scd = cd;
@@ -361,7 +361,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 				String lbl = cd.getPropertyName();
 				if(null == lbl)
 					lbl = label;
-				if(null == lbl || lbl.length() == 0)
+				if(null == lbl || lbl.isEmpty())
 					lbl = Integer.toString(m_columnList.indexOf(cd));
 				th.setCalculcatedId("H-" + lbl, tbl.calcTestID());
 			}
@@ -564,7 +564,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		String lbl = cd.getPropertyName();
 		if(null == lbl)
 			lbl = label;
-		if(null == lbl || lbl.length() == 0)
+		if(null == lbl || lbl.isEmpty())
 			lbl = Integer.toString(m_columnList.indexOf(cd));
 		cell.setCalculcatedId("C-" + lbl, tbl.calcTestID());
 	}

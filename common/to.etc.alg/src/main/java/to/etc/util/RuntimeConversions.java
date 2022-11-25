@@ -24,10 +24,23 @@
  */
 package to.etc.util;
 
-import java.lang.reflect.*;
-import java.math.*;
-import java.text.*;
-import java.util.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * This static class contains a sh..tload of code which converts
@@ -45,10 +58,9 @@ public class RuntimeConversions {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Conversion to primitive types.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Convert an object to an integer. This accepts most of the base classes.
-	 * @param o
-	 * @return
 	 */
 	static public int convertToInt(Object o) {
 		if(o == null)
@@ -69,8 +81,6 @@ public class RuntimeConversions {
 
 	/**
 	 * Convert an object to a long.
-	 * @param o
-	 * @return
 	 */
 	static public long convertToLong(Object o) {
 		if(o == null)
@@ -91,8 +101,6 @@ public class RuntimeConversions {
 
 	/**
 	 * Convert an object to a byte.
-	 * @param o
-	 * @return
 	 */
 	static public byte convertToByte(Object o) {
 		if(o == null)
@@ -113,8 +121,6 @@ public class RuntimeConversions {
 
 	/**
 	 * Convert an object to a Short.
-	 * @param o
-	 * @return
 	 */
 	static public short convertToShort(Object o) {
 		if(o == null)
@@ -135,8 +141,6 @@ public class RuntimeConversions {
 
 	/**
 	 * Convert an object to a double.
-	 * @param o
-	 * @return
 	 */
 	static public double convertToDouble(Object o) {
 		if(o == null)
@@ -157,8 +161,6 @@ public class RuntimeConversions {
 
 	/**
 	 * Convert an object to a char.
-	 * @param o
-	 * @return
 	 */
 	static public char convertToChar(Object o) {
 		if(o == null)
@@ -169,7 +171,7 @@ public class RuntimeConversions {
 			return ((Boolean) o).booleanValue() ? 't' : 'f';
 		if(o instanceof String) {
 			String s = (String) o;
-			if(s.length() == 0)
+			if(s.isEmpty())
 				return 0;
 			return s.charAt(0);
 		}
@@ -178,8 +180,6 @@ public class RuntimeConversions {
 
 	/**
 	 * Convert an object to a boolean.
-	 * @param o
-	 * @return
 	 */
 	static public boolean convertToBool(Object o) {
 		if(o == null)
@@ -190,7 +190,7 @@ public class RuntimeConversions {
 			return ((Number) o).intValue() != 0;
 		if(o instanceof String) {
 			String trimmed = ((String) o).trim();
-			if ("Y".equalsIgnoreCase(trimmed)) {
+			if("Y".equalsIgnoreCase(trimmed)) {
 				return true;
 			}
 			return Boolean.parseBoolean(trimmed);
@@ -202,10 +202,9 @@ public class RuntimeConversions {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Object / wrapper conversions						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Converts a string. The null string is converted to the empty string.
-	 * @param o
-	 * @return
 	 */
 	static public String convertToString(Object o) {
 		if(o == null)
@@ -224,7 +223,7 @@ public class RuntimeConversions {
 		if(in instanceof BigInteger)
 			return new BigDecimal((BigInteger) in);
 		if(in instanceof Number)
-			return new BigDecimal(((Number) in).doubleValue());
+			return BigDecimal.valueOf(((Number) in).doubleValue());
 		if(in instanceof String) {
 			try {
 				return convertStringToNumber((String) in, BigDecimal.class);
@@ -242,7 +241,7 @@ public class RuntimeConversions {
 			df.setParseIntegerOnly(true);
 			return (T) new BigInteger(df.parse(in).toString());
 		} else if(type == BigDecimal.class) {
-			return (T) new BigDecimal(df.parse(in).doubleValue());
+			return (T) BigDecimal.valueOf(df.parse(in).doubleValue());
 		} else {
 			throw new IllegalArgumentException("Not supported type:" + type);
 		}
@@ -279,7 +278,8 @@ public class RuntimeConversions {
 		if(in instanceof String) {
 			try {
 				return Double.valueOf((String) in);
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 		throw new RuntimeConversionException(in, "Double");
 	}
@@ -310,12 +310,13 @@ public class RuntimeConversions {
 			return Integer.valueOf(((Number) in).intValue());
 		if(in instanceof String) {
 			String s = ((String) in).trim();
-			if(s.length() == 0)
+			if(s.isEmpty())
 				return Integer.valueOf(0);
 			try {
 				int val = Integer.parseInt(s);
 				return Integer.valueOf(val);
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 		throw new RuntimeConversionException(in, "Integer");
 	}
@@ -330,7 +331,8 @@ public class RuntimeConversions {
 		if(in instanceof String) {
 			try {
 				return Short.valueOf((String) in);
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 		throw new RuntimeConversionException(in, "Short");
 	}
@@ -344,7 +346,7 @@ public class RuntimeConversions {
 			return Character.valueOf((char) ((Number) in).intValue());
 		if(in instanceof String) {
 			String s = (String) in;
-			if(s.length() == 0)
+			if(s.isEmpty())
 				return Character.valueOf((char) 0);
 			return Character.valueOf(s.charAt(0));
 		}
@@ -361,7 +363,8 @@ public class RuntimeConversions {
 		if(in instanceof String) {
 			try {
 				return Byte.valueOf((String) in);
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 		throw new RuntimeConversionException(in, "Byte");
 	}
@@ -377,6 +380,7 @@ public class RuntimeConversions {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Conversions to a user-specified type.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Converts an input type to whatever type is needed.
 	 */
@@ -385,7 +389,7 @@ public class RuntimeConversions {
 			return (T) o;
 		if(o != null) {
 			//-- Try if the class types match
-			Class< ? > from = o.getClass();
+			Class<?> from = o.getClass();
 			if(from == to) // Same class-> ok
 				return (T) o;
 			if(to.isAssignableFrom(from)) // Can we assign 'o' to the TO class?
@@ -414,7 +418,13 @@ public class RuntimeConversions {
 		if(to == BigDecimal.class)
 			return (T) convertToBigDecimal(o);
 		if(Enum.class.isAssignableFrom(to)) {
-			return (T) convertToEnum((Class<Enum<?>>)to, o);
+			return (T) convertToEnum((Class<Enum<?>>) to, o);
+		}
+		if(to == java.util.Date.class) {
+			return (T) convertToDate(to);
+		}
+		if(to == java.sql.Date.class) {
+			return (T) convertToSqlDate(to);
 		}
 
 		if(o == null && !to.isPrimitive()) // Accept null for all non-primitives
@@ -432,7 +442,7 @@ public class RuntimeConversions {
 			if(totype.isArray())
 				return convertToArray(totype, source);
 			if(totype.isEnum())
-				return (T) convertToEnum((Class<Enum< ? >>) totype, source);
+				return (T) convertToEnum((Class<Enum<?>>) totype, source);
 
 		}
 		//-- As a last resort: handle basic conversions as specified by EL. This throws up if impossible
@@ -442,21 +452,21 @@ public class RuntimeConversions {
 	static public <T> T convertToArray(Class<T> totype, Object src) {
 		if(totype.isAssignableFrom(src.getClass()))
 			return (T) src;
-		Class< ? > ccl = totype.getComponentType(); // Array of what, exactly?
-		Class< ? > scl = src.getClass();
+		Class<?> ccl = totype.getComponentType(); // Array of what, exactly?
+		Class<?> scl = src.getClass();
 		if(scl.isArray()) {
 			//-- Try to convert every component of source array to dest array using complex semantics
 			int len = Array.getLength(src); // #elements in source,
 			Object res = Array.newInstance(ccl, len); // Create new result
-			for(int i = len; --i >= 0;) { // Convert all members.
+			for(int i = len; --i >= 0; ) { // Convert all members.
 				Object val = Array.get(src, i); // Get source item
 				Array.set(res, i, convertToComplex(val, ccl));
 			}
 			return (T) res;
 		}
 
-		if(src instanceof Collection< ? >) {
-			Collection< ? > c = (Collection< ? >) src;
+		if(src instanceof Collection<?>) {
+			Collection<?> c = (Collection<?>) src;
 			Object res = Array.newInstance(ccl, c.size()); // Create new result
 			int i = 0;
 			for(Object o : c) {
@@ -472,6 +482,7 @@ public class RuntimeConversions {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Iterator conversion.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This creates an iterator which can iterate over the object passed. The
 	 * object must contain some thing which allows for iteration. The following
@@ -486,25 +497,25 @@ public class RuntimeConversions {
 	 * Any other type will throw a RuntimeConversionException.
 	 * converts
 	 */
-	static public Iterator< ? > makeIterator(Object val) throws Exception {
+	static public Iterator<?> makeIterator(Object val) throws Exception {
 		if(val == null)
 			throw new RuntimeConversionException("Cannot convert null to an iterator.");
-		if(val instanceof Collection< ? >)
-			return ((Collection< ? >) val).iterator();
-		if(val instanceof Map< ? , ? >)
-			return ((Map< ? , ? >) val).values().iterator();
-		Class< ? > acl = val.getClass();
+		if(val instanceof Collection<?>)
+			return ((Collection<?>) val).iterator();
+		if(val instanceof Map<?, ?>)
+			return ((Map<?, ?>) val).values().iterator();
+		Class<?> acl = val.getClass();
 		if(acl.isArray())
 			return new ArrayIterator(val);
 		throw new RuntimeConversionException("Cannot convert a " + acl.getName() + " to an iterator.");
 	}
 
 	static private final class ArrayIterator implements Iterator<Object> {
-		private Object	m_array;
+		private Object m_array;
 
-		private int		m_len;
+		private int m_len;
 
-		private int		m_index;
+		private int m_index;
 
 		public ArrayIterator(Object arr) {
 			m_array = arr;
@@ -517,36 +528,32 @@ public class RuntimeConversions {
 
 		public Object next() {
 			if(m_index >= m_len)
-				return null;
+				throw new NoSuchElementException();
 			return Array.get(m_array, m_index++);
 		}
 
 		public void remove() {
-			throw new IllegalStateException("Cannot remove items from an array");
+			throw new UnsupportedOperationException("Cannot remove items from an array");
 		}
 	}
 
 	/**
 	 * Returns T if the object passed can be iterated over using the makeIterator
 	 * call.
-	 *
-	 * @param val
-	 * @return
-	 * @see #makeIterator(Object val)
 	 */
 	static public boolean isIterable(Object val) {
 		if(val == null)
 			return false;
-		if(val instanceof Collection< ? > || val instanceof Map< ? , ? >)
+		if(val instanceof Collection<?> || val instanceof Map<?, ?>)
 			return true;
-		Class< ? > cla = val.getClass();
+		Class<?> cla = val.getClass();
 		return cla.isArray();
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Conversions to Listable.							*/
 	/*--------------------------------------------------------------*/
-	static private final IListable<Object>	NO_VALUES	= new IListable<Object>() {
+	static private final IListable<Object> NO_VALUES = new IListable<Object>() {
 		public Object get(int ix) throws Exception {
 			return null;
 		}
@@ -559,24 +566,22 @@ public class RuntimeConversions {
 	/**
 	 * Converts any collection-like structure to a Listable. In addition, maps are
 	 * converted to Mappable too.
-	 * @param o
-	 * @return
 	 */
-	static public IListable< ? > convertToListable(Object o) {
+	static public IListable<?> convertToListable(Object o) {
 		if(o == null)
 			return NO_VALUES;
-		if(o instanceof IListable< ? >)
-			return (IListable< ? >) o;
-		if(o instanceof List< ? >)
-			return new ListableListWrapper((List< ? >) o);
-		if(o instanceof Collection< ? >) {
-			Collection< ? > col = (Collection< ? >) o;
+		if(o instanceof IListable<?>)
+			return (IListable<?>) o;
+		if(o instanceof List<?>)
+			return new ListableListWrapper((List<?>) o);
+		if(o instanceof Collection<?>) {
+			Collection<?> col = (Collection<?>) o;
 			return new ListableArrayWrapper(col.toArray());
 		}
-		if(o instanceof Map< ? , ? >) {
-			return new ListableMapWrapper((Map< ? , ? >) o);
+		if(o instanceof Map<?, ?>) {
+			return new ListableMapWrapper((Map<?, ?>) o);
 		}
-		Class< ? > acl = o.getClass();
+		Class<?> acl = o.getClass();
 		if(acl.isArray()) {
 			//-- Allow only object arrays, not thingies of primitive type
 			if(acl.getComponentType().isPrimitive())
@@ -588,7 +593,7 @@ public class RuntimeConversions {
 	}
 
 	static private class ListableArrayWrapper implements IListable<Object> {
-		private Object[]	m_val;
+		private Object[] m_val;
 
 		public ListableArrayWrapper(Object[] val) {
 			m_val = val;
@@ -604,9 +609,9 @@ public class RuntimeConversions {
 	}
 
 	static private final class ListableMapWrapper extends ListableArrayWrapper implements IMappable<Object, Object> {
-		private Map<Object, Object>	m_map;
+		private Map<Object, Object> m_map;
 
-		public ListableMapWrapper(Map< ? , ? > m) {
+		public ListableMapWrapper(Map<?, ?> m) {
 			super(m.values().toArray());
 			m_map = (Map<Object, Object>) m;
 		}
@@ -625,9 +630,9 @@ public class RuntimeConversions {
 	}
 
 	static private final class ListableListWrapper implements IListable<Object> {
-		private List<Object>	m_val;
+		private List<Object> m_val;
 
-		public ListableListWrapper(List< ? > val) {
+		public ListableListWrapper(List<?> val) {
 			m_val = (List<Object>) val;
 		}
 
@@ -640,11 +645,10 @@ public class RuntimeConversions {
 		}
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Conversions to Mappable.							*/
 	/*--------------------------------------------------------------*/
-	static private final IMappable<Object, Object>	EMPTY_MAP	= new IMappable<Object, Object>() {
+	static private final IMappable<Object, Object> EMPTY_MAP = new IMappable<Object, Object>() {
 		public Object get(Object key) {
 			return null;
 		}
@@ -663,9 +667,9 @@ public class RuntimeConversions {
 	};
 
 	static private class MapWrap implements IMappable<Object, Object> {
-		private Map<Object, Object>	m_map;
+		private Map<Object, Object> m_map;
 
-		MapWrap(Map< ? , ? > m) {
+		MapWrap(Map<?, ?> m) {
 			m_map = (Map<Object, Object>) m;
 		}
 
@@ -686,13 +690,13 @@ public class RuntimeConversions {
 		}
 	}
 
-	static public IMappable< ? , ? > convertToMappable(Object o) {
+	static public IMappable<?, ?> convertToMappable(Object o) {
 		if(o == null)
 			return EMPTY_MAP;
-		if(o instanceof IMappable< ? , ? >)
-			return (IMappable< ? , ? >) o;
-		if(o instanceof Map< ? , ? >)
-			return new MapWrap((Map< ? , ? >) o);
+		if(o instanceof IMappable<?, ?>)
+			return (IMappable<?, ?>) o;
+		if(o instanceof Map<?, ?>)
+			return new MapWrap((Map<?, ?>) o);
 		throw new RuntimeConversionException("Cannot convert a " + o.getClass().getName() + " to a Mappable.");
 	}
 
@@ -702,6 +706,12 @@ public class RuntimeConversions {
 	static public java.util.Date convertToDate(Object o) {
 		if(o == null)
 			return null;
+		if(o instanceof java.sql.Date) {
+			return new java.util.Date(((Date) o).getTime());
+		}
+		if(o instanceof java.sql.Timestamp) {
+			return new java.util.Date(((Timestamp) o).getTime());
+		}
 		if(o instanceof java.util.Date)
 			return (java.util.Date) o;
 		if(o instanceof Calendar)
@@ -709,18 +719,34 @@ public class RuntimeConversions {
 		throw new RuntimeConversionException("Cannot convert a " + o.getClass().getName() + " to a java.util.Date");
 	}
 
-	static public Enum< ? > convertToEnum(Class<Enum< ? >> cl, Object o) {
+	static public java.sql.Date convertToSqlDate(Object o) {
 		if(o == null)
 			return null;
-		if(o instanceof Enum< ? >)
-			return (Enum< ? >) o;
+		if(o.getClass() == java.util.Date.class) {
+			return new java.sql.Date(((java.util.Date) o).getTime());
+		}
+		if(o instanceof java.sql.Timestamp) {
+			return new java.sql.Date(((Timestamp) o).getTime());
+		}
+		if(o instanceof java.sql.Date)
+			return (java.sql.Date) o;
+		if(o instanceof Calendar)
+			return new java.sql.Date(((Calendar) o).getTimeInMillis());
+		throw new RuntimeConversionException("Cannot convert a " + o.getClass().getName() + " to a java.sql.Date");
+	}
+
+	static public Enum<?> convertToEnum(Class<Enum<?>> cl, Object o) {
+		if(o == null)
+			return null;
+		if(o instanceof Enum<?>)
+			return (Enum<?>) o;
 		if(o instanceof String) {
 			String value = (String) o;
 			value = value.trim();
-			Enum< ? >[] ar = cl.getEnumConstants();
+			Enum<?>[] ar = cl.getEnumConstants();
 			if(ar == null)
 				throw new IllegalStateException("!? No enum constants for enum class " + cl.getCanonicalName());
-			for(Enum< ? > en : ar) {
+			for(Enum<?> en : ar) {
 				if(en.name().equalsIgnoreCase(value))
 					return en;
 			}
@@ -732,12 +758,13 @@ public class RuntimeConversions {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Collection and array set assignment.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns T if this is a supported collection type. Collection
 	 * types are Array, List, Set and Collection and concrete
 	 * implementations of those.
 	 */
-	static public boolean isCollectionType(Class< ? > cl) {
+	static public boolean isCollectionType(Class<?> cl) {
 		if(cl.isArray())
 			return true;
 		return Collection.class.isAssignableFrom(cl);
@@ -746,10 +773,8 @@ public class RuntimeConversions {
 	/**
 	 * Create a concrete instance of some collection type, i.e. something
 	 * implementing Collection.
-	 * @param colltype
-	 * @return
 	 */
-	static public Object createConcreteCollection(Class< ? > ct) {
+	static public Object createConcreteCollection(Class<?> ct) {
 		if(ct.isInterface() || Modifier.isAbstract(ct.getModifiers())) {
 			//-- Handle concrete cases here
 			if(List.class.isAssignableFrom(ct))
@@ -778,50 +803,48 @@ public class RuntimeConversions {
 
 	/**
 	 * Return T if this class is int or Integer.
-	 * @param clz
-	 * @return
 	 */
-	static public boolean isInt(Class< ? > clz) {
+	static public boolean isInt(Class<?> clz) {
 		return clz == Integer.class || clz == int.class;
 	}
 
-	static public boolean isLong(Class< ? > clz) {
+	static public boolean isLong(Class<?> clz) {
 		return clz == Long.class || clz == long.class;
 	}
 
-	static public boolean isShort(Class< ? > clz) {
+	static public boolean isShort(Class<?> clz) {
 		return clz == Short.class || clz == short.class;
 	}
 
-	static public boolean isByte(Class< ? > clz) {
+	static public boolean isByte(Class<?> clz) {
 		return clz == Byte.class || clz == byte.class;
 	}
 
-	static public boolean isCharacter(Class< ? > clz) {
+	static public boolean isCharacter(Class<?> clz) {
 		return clz == Character.class || clz == char.class;
 	}
 
-	static public boolean isDouble(Class< ? > clz) {
+	static public boolean isDouble(Class<?> clz) {
 		return clz == Double.class || clz == double.class;
 	}
 
-	static public boolean isFloat(Class< ? > clz) {
+	static public boolean isFloat(Class<?> clz) {
 		return clz == Float.class || clz == float.class;
 	}
 
-	static public boolean isBoolean(Class< ? > clz) {
+	static public boolean isBoolean(Class<?> clz) {
 		return clz == Boolean.class || clz == boolean.class;
 	}
 
-	static public boolean isNumeric(Class< ? > clz) {
+	static public boolean isNumeric(Class<?> clz) {
 		return Number.class.isAssignableFrom(clz) || isInt(clz) || isLong(clz) || isShort(clz) || isByte(clz) || isDouble(clz) || isFloat(clz);
 	}
 
-	static public boolean isSimpleType(Class< ? > clz) {
+	static public boolean isSimpleType(Class<?> clz) {
 		return clz.isPrimitive() || isNumeric(clz) || clz == String.class || isBoolean(clz);
 	}
 
-	static public boolean isEnumType(Class< ? > clz) {
+	static public boolean isEnumType(Class<?> clz) {
 		return Enum.class.isAssignableFrom(clz);
 	}
 

@@ -13,6 +13,7 @@ import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,13 +119,13 @@ abstract public class AbstractSassResolver<O> {
 			//-- If we have a path: prepare the absolute path
 			String absPath = fileBase;
 
-			if(idPath.length() > 0) {
+			if(!idPath.isEmpty()) {
 				String[] segs = idPath.split("/");
 				for(int i = 0; i < segs.length; i++) {
 					String seg = segs[i];
 					if(seg.equals("..")) {
 						//-- remove one segment from basePath, if still possible.
-						if(absPath.length() == 0)		// Cannot go higher
+						if(absPath.isEmpty())		// Cannot go higher
 							return null;
 
 						int slp = absPath.lastIndexOf('/');
@@ -136,7 +137,7 @@ abstract public class AbstractSassResolver<O> {
 					} else if(seg.equals(".")) {
 						// Ignore
 					} else {
-						if(absPath.length() > 0) {
+						if(!absPath.isEmpty()) {
 							absPath += "/" + seg;
 						} else {
 							absPath = seg;
@@ -184,7 +185,7 @@ abstract public class AbstractSassResolver<O> {
 			try(InputStream is = ref.getInputStream()) {
 				if(is == null)
 					throw new IllegalStateException("Null inputstream from existing resource " + ref);
-				content = FileTool.readStreamAsString(is, "utf-8");
+				content = FileTool.readStreamAsString(is, StandardCharsets.UTF_8);
 			}
 			O imp = createInput(name, content);
 			m_map.put(name, new Line<>(name, imp));

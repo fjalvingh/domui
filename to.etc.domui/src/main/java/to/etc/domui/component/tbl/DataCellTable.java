@@ -176,7 +176,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 
 		//-- If we've nothing to show- show nothing beautifully.
 		List<T> list = getPageItems(); // Data to show
-		if(list.size() == 0) {
+		if(list.isEmpty()) {
 			Div error = new Div();
 			error.setCssClass("ui-dct-nores");
 			error.setText(Msgs.uiDatatableEmpty.getString());

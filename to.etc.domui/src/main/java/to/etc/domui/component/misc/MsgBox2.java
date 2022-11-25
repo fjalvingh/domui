@@ -26,6 +26,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.bugs.Bug;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ final public class MsgBox2 extends Window {
 	public interface IAnswer {
 		void onAnswer(@NonNull MsgBoxButton result) throws Exception;
 	}
+
 	public interface IAnswer2 {
 		void onAnswer(Object result) throws Exception;
 	}
@@ -55,7 +57,7 @@ final public class MsgBox2 extends Window {
 
 	private final class InputPair {
 		@Nullable
-		private final NodeBase	m_label;
+		private final NodeBase m_label;
 
 		@Nullable
 		private final NodeBase m_input;
@@ -84,7 +86,11 @@ final public class MsgBox2 extends Window {
 	}
 
 	public enum Type {
-		INFO, WARNING, ERROR, DIALOG, INPUT
+		INFO,
+		WARNING,
+		ERROR,
+		DIALOG,
+		INPUT
 	}
 
 	/** Autoclose behavior. */
@@ -116,7 +122,7 @@ final public class MsgBox2 extends Window {
 
 	private MsgBoxButton m_closeButtonObject;
 
-	private IInput< ? > m_oninput;
+	private IInput<?> m_oninput;
 
 	/**
 	 * Custom dialog message text renderer.
@@ -125,9 +131,9 @@ final public class MsgBox2 extends Window {
 
 	private NodeContainer m_content;
 
-	private MsgBoxButton	m_assumedOkButton;
+	private MsgBoxButton m_assumedOkButton;
 
-	private MsgBoxButton 	m_assumedCancelButton = MsgBoxButton.CANCEL; //for now we keep it always CANCEL, later if needed we could expose some setter to it
+	private MsgBoxButton m_assumedCancelButton = MsgBoxButton.CANCEL; //for now we keep it always CANCEL, later if needed we could expose some setter to it
 
 	@NonNull
 	private List<InputPair> m_inputList = new ArrayList<>();
@@ -163,22 +169,23 @@ final public class MsgBox2 extends Window {
 		});
 	}
 
-	@Override public void createContent() throws Exception {
+	@Override
+	public void createContent() throws Exception {
 		/*
 		 * Autoclose: default to autoclose for message/question; do not for inputs.
 		 */
 		Boolean autoClose = m_autoClose;
 		if(null == autoClose) {
-			autoClose = Boolean.valueOf(m_inputList.size() == 0);
+			autoClose = Boolean.valueOf(m_inputList.isEmpty());
 		}
 		setAutoClose(autoClose.booleanValue());
 
 		//-- If no buttons added: just add continue.
-		if(m_theButtons.size() == 0) {
+		if(m_theButtons.isEmpty()) {
 			button(MsgBoxButton.CONTINUE);
 
 			//-- If we have inputs then also add CANCEL
-			if(m_inputList.size() > 0) {
+			if(!m_inputList.isEmpty()) {
 				button(MsgBoxButton.CANCEL);
 			}
 		}
@@ -186,8 +193,8 @@ final public class MsgBox2 extends Window {
 		if(m_closeButtonObject == null) {
 			m_closeButtonObject = m_assumedCancelButton;
 		}
-		if(! m_typeSet) {
-			if(m_inputList.size() > 0) {
+		if(!m_typeSet) {
+			if(!m_inputList.isEmpty()) {
 				type(Type.DIALOG);
 			} else if(m_theButtons.size() < 2)
 				type(Type.INFO);
@@ -237,14 +244,14 @@ final public class MsgBox2 extends Window {
 
 		//-- Start adding inputs, if applicable
 		boolean unfocused = true;
-		if(m_inputList.size() > 0) {
+		if(!m_inputList.isEmpty()) {
 			unfocused = renderInputs(td);
 		}
 
 		Div bd = m_buttonDiv = new Div();
 		add(bd);
 		bd.addCssClass("ui-mbx-btns");
-		for(Button btn: m_theButtons) {
+		for(Button btn : m_theButtons) {
 			bd.add(btn);
 		}
 
@@ -258,7 +265,7 @@ final public class MsgBox2 extends Window {
 		nc.add(area);
 		area.setCssClass("ui-mbx2-input-area");
 		TBody tb = area.addTable();
-		for(InputPair ip: m_inputList) {
+		for(InputPair ip : m_inputList) {
 			NodeBase input = ip.getInput();
 			NodeBase label = ip.getLabel();
 
@@ -304,8 +311,6 @@ final public class MsgBox2 extends Window {
 
 	/**
 	 * Create a message box and link it to the page.
-	 * @param parent
-	 * @return
 	 */
 	@NonNull
 	static public MsgBox2 on(@NonNull NodeBase parent) {
@@ -322,11 +327,18 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
+	@Override
+	@NonNull
+	public MsgBox2 title(IBundleCode code, Object... param) {
+		super.title(code, param);
+		return this;
+	}
+
 	@NonNull
 	public MsgBox2 type(@NonNull Type type) {
 		String ttl;
 		IIconRef icon;
-		switch(type){
+		switch(type) {
 			default:
 				throw new IllegalStateException(type + " ??");
 			case ERROR:
@@ -406,8 +418,6 @@ final public class MsgBox2 extends Window {
 
 	/**
 	 * Set the message box's content text. Alternatively call {@link #content(to.etc.domui.dom.html.NodeContainer)}.
-	 * @param txt
-	 * @return
 	 */
 	@NonNull
 	public MsgBox2 text(String txt) {
@@ -415,10 +425,14 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
+	@NonNull
+	public MsgBox2 text(IBundleCode code, Object... param) {
+		m_theText = code.format(param);
+		return this;
+	}
+
 	/**
 	 * Set the box's content.
-	 * @param content
-	 * @return
 	 */
 	@NonNull
 	public MsgBox2 content(NodeContainer content) {
@@ -435,10 +449,9 @@ final public class MsgBox2 extends Window {
 
 	/**
 	 * Add a default kind of button.
-	 * @param mbb
 	 */
 	@NonNull
-	public MsgBox2  button(@NonNull final MsgBoxButton mbb) {
+	public MsgBox2 button(@NonNull final MsgBoxButton mbb) {
 		String lbl = MetaManager.findEnumLabel(mbb);
 		if(lbl == null)
 			lbl = mbb.name();
@@ -449,7 +462,7 @@ final public class MsgBox2 extends Window {
 			}
 		});
 		btn.setTestID(mbb.name());
-		if(m_theButtons.size() == 0) {
+		if(m_theButtons.isEmpty()) {
 			m_assumedOkButton = mbb;
 		}
 		m_theButtons.add(btn);
@@ -499,13 +512,18 @@ final public class MsgBox2 extends Window {
 	}
 
 	@NonNull
-	public MsgBox2 onAnswer(@NonNull IAnswer2 onAnswer) {
+	public MsgBox2 onAnswer2(@NonNull IAnswer2 onAnswer) {
 		m_onAnswer2 = onAnswer;
 		return this;
 	}
 
+	/**
+	 * This handles the usual "confirmation" button and ignores all other type of responses.
+	 * <b>This has been renamed; it used to be called onAnswer too causing big trouble with
+	 * lambda's</b>
+	 */
 	@NonNull
-	public MsgBox2 onAnswer(@NonNull IClicked<MsgBox2> clicked) {
+	public MsgBox2 onClicked(@NonNull IClicked<MsgBox2> clicked) {
 		m_clicked = clicked;
 		return this;
 	}
@@ -535,7 +553,6 @@ final public class MsgBox2 extends Window {
 					return;
 				}
 			}
-
 
 			if(m_onAnswer != null) {
 				m_onAnswer.onAnswer((MsgBoxButton) m_selectedChoice);
@@ -577,9 +594,6 @@ final public class MsgBox2 extends Window {
 
 	/**
 	 * Add an input line with label and control.
-	 * @param label
-	 * @param control
-	 * @return
 	 */
 	@NonNull
 	public MsgBox2 input(@NonNull String label, @NonNull NodeBase control) {
@@ -590,17 +604,14 @@ final public class MsgBox2 extends Window {
 
 	/**
 	 * Add an input line with label and control.
-	 * @param label
-	 * @param control
-	 * @return
 	 */
 	@NonNull
 	public MsgBox2 input(@NonNull Label label, @NonNull NodeBase control) {
-		_input(label, control);
+		inputInternal(label, control);
 		return this;
 	}
 
-	private void _input(@Nullable NodeBase label, @Nullable NodeBase control) {
+	private void inputInternal(@Nullable NodeBase label, @Nullable NodeBase control) {
 		if(m_oninput != null)
 			throw new IllegalStateException("You cannot combine an IInput-based answer with a list-of-controls");
 
@@ -611,10 +622,10 @@ final public class MsgBox2 extends Window {
 	@NonNull
 	public <T> MsgBox2 input(@NonNull String label, @NonNull IControl<T> control, @NonNull IInput<T> onanswer) {
 		//-- Only allowed with input list empty
-		if(m_inputList.size() != 0)
+		if(!m_inputList.isEmpty())
 			throw new IllegalStateException("You cannot combine this with other input controls as there's only one answer.");
-		_input(new Label((NodeBase) control, label), (NodeBase) control);
-		m_oninput = onanswer;					// Ordered
+		inputInternal(new Label((NodeBase) control, label), (NodeBase) control);
+		m_oninput = onanswer;                    // Ordered
 		return this;
 	}
 
@@ -624,14 +635,14 @@ final public class MsgBox2 extends Window {
 			throw new IllegalStateException("Duplicate IInput<> set");
 
 		//-- Only allowed with input list empty
-		if(m_inputList.size() != 0)
+		if(!m_inputList.isEmpty())
 			throw new IllegalStateException("You cannot combine this with other input controls as there's only one answer.");
-		_input(null, (NodeBase) control);
-		m_oninput = onanswer;					// Ordered
+		inputInternal(null, (NodeBase) control);
+		m_oninput = onanswer;                    // Ordered
 		return this;
 	}
 
-	public <T> MsgBox2 icon(@NonNull IIconRef icon){
+	public <T> MsgBox2 icon(@NonNull IIconRef icon) {
 		m_theImage = icon.createNode();
 		return this;
 	}

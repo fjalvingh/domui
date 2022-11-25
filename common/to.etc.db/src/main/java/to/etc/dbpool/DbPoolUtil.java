@@ -94,7 +94,8 @@ public class DbPoolUtil {
 		}
 	}
 
-	private DbPoolUtil() {}
+	private DbPoolUtil() {
+	}
 
 	static private final String[] PRESET = {"xxxto.etc.dbpool.", "xxxxoracle.", "xxxnl.itris.viewpoint.db.hibernate."};
 
@@ -110,10 +111,6 @@ public class DbPoolUtil {
 
 	/**
 	 * Report a filtered location stack trace, where the start of the stack trace and the end can be removed.
-	 * @param sb
-	 * @param t
-	 * @param skipbefore
-	 * @param skipafter
 	 */
 	static public void strStacktraceFiltered(final Appendable sb, final Throwable t, String[] skipbefore, String[] skipafter, int linelimit, int indent) {
 		StackTraceElement[] se = t.getStackTrace();
@@ -145,7 +142,7 @@ public class DbPoolUtil {
 		}
 		for(int i = sx; i < ex; i++) {
 			try {
-				for(int j = indent; --j >= 0;)
+				for(int j = indent; --j >= 0; )
 					sb.append(' ');
 				sb.append(se[i].toString() + "\n");
 			} catch(IOException x) {
@@ -158,14 +155,13 @@ public class DbPoolUtil {
 		strStacktraceFiltered(sb, se, PRESET, ENDSET, linelimit, indent);
 		//		strStacktraceFiltered(sb, se, new String[]{"XAXAXAXAXAXXAXX"}, ENDSET, linelimit, indent);
 	}
+
 	static public void strStacktraceFiltered(StringBuilder sb, final StackTraceElement[] se) {
 		strStacktraceFiltered(sb, se, 50, 4);
 	}
 
 	/**
 	 * Append a filtered stack trace.
-	 * @param sb
-	 * @param t
 	 */
 	@Deprecated
 	static public void getFilteredStacktrace(StringBuilder sb, Throwable t) {
@@ -184,7 +180,7 @@ public class DbPoolUtil {
 		}
 	}
 
-	static public final void getThreadAndLocation(StringBuilder sb) {
+	static public void getThreadAndLocation(StringBuilder sb) {
 		sb.append("At ");
 		sb.append(new java.util.Date().toString());
 		sb.append(" in thread ");
@@ -200,7 +196,7 @@ public class DbPoolUtil {
 		}
 	}
 
-	static public final String getLocation() {
+	static public String getLocation() {
 		StringBuilder sb = new StringBuilder(1024);
 		getThreadAndLocation(sb);
 		return sb.toString();
@@ -208,10 +204,6 @@ public class DbPoolUtil {
 
 	/**
 	 * Copies the inputstream to the output stream.
-	 *
-	 * @param destf     the destination
-	 * @param srcf      the source
-	 * @throws IOException  the error
 	 */
 	static public void copyFile(OutputStream os, InputStream is) throws IOException {
 		byte[] buf = new byte[8192];
@@ -231,7 +223,6 @@ public class DbPoolUtil {
 	static private final long DAYS = 24 * 60 * 60;
 
 	static private final long HOURS = 60 * 60;
-
 
 	static public String strMillisOLD(long dlt) {
 		StringBuffer sb = new StringBuffer();
@@ -304,8 +295,6 @@ public class DbPoolUtil {
 
 	/**
 	 * Return a nanotime timestamp with 2 thousands of precision max.
-	 * @param ns
-	 * @return
 	 */
 	static public String strNanoTime(final long ns) {
 		if(ns < 1000)
@@ -331,8 +320,6 @@ public class DbPoolUtil {
 
 	/**
 	 * Return a nanotime timestamp with 2 thousands of precision max.
-	 * @param ns
-	 * @return
 	 */
 	static public String strNanoTime2(final long ns) {
 		if(ns < 1000)
@@ -349,7 +336,6 @@ public class DbPoolUtil {
 		}
 		return ns + "ns";
 	}
-
 
 	static public String strMillis(final long ns) {
 		if(ns < 1000)
@@ -386,9 +372,9 @@ public class DbPoolUtil {
 		}
 
 		@Override
-		protected synchronized Class< ? > loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+		protected synchronized Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
 			// First, check if the class has already been loaded
-			Class< ? > c = findLoadedClass(name);
+			Class<?> c = findLoadedClass(name);
 			//            System.out.println(name+": findLoadedClass="+c);
 			if(c == null) {
 				//-- Try to load by THIS loader 1st,
@@ -412,11 +398,9 @@ public class DbPoolUtil {
 
 	/**
 	 * Loads the appropriate driver class.
-	 * @return
-	 * @throws Exception
 	 */
 	static public Driver loadDriver(File driverPath, String driverClassName) throws Exception {
-		Class< ? > cl = null;
+		Class<?> cl = null;
 		if(driverPath == null) {
 			//-- Default method: instantiate the driver using the normal mechanism.
 			try {
@@ -458,32 +442,31 @@ public class DbPoolUtil {
 		return DbType.UNKNOWN;
 	}
 
-	static public final String	CSS_ALLOC = "h-alloc";
-	static public final String	CSS_TRACEPT = "h-usepoint";
-	static public final String	CSS_STACK = "h-stack";
+	static public final String CSS_ALLOC = "h-alloc";
 
+	static public final String CSS_TRACEPT = "h-usepoint";
+
+	static public final String CSS_STACK = "h-stack";
 
 	/**
 	 * Print all tracepoints as a timestamp-since followed by a filtered stack trace.
-	 * @param sb
-	 * @param pc
 	 */
 	public static void printTracepoints(IPrinter p, ConnectionProxy pc, boolean full) {
-		List<Tracepoint>	list = pc.getTraceList();
-		if(list == null || list.size() == 0) {
+		List<Tracepoint> list = pc.getTraceList();
+		if(list == null || list.isEmpty()) {
 			p.warning("Connection usage tracing has not been enabled");
 			return;
 		}
 
 		//-- 1st entry is ALWAYS the allocation point and will always be displayed
 		long cts = System.currentTimeMillis();
-		Tracepoint	tp = list.get(0);
+		Tracepoint tp = list.get(0);
 		long ats = tp.getTimestamp();
 		p.header(CSS_ALLOC, "Connection's allocation point");
-		p.text("Connection ").text(""+pc.getId()).text(" allocated at ").text(strTime(pc.getAllocationTime())+" ("+strMilli(cts, ats)+" ago)") //
-		.text(", used ").text(strMilli(cts, pc.getLastUsedTime())).text(" ago") //
-		.nl();
-		StringBuilder	sb = new StringBuilder();
+		p.text("Connection ").text("" + pc.getId()).text(" allocated at ").text(strTime(pc.getAllocationTime()) + " (" + strMilli(cts, ats) + " ago)") //
+			.text(", used ").text(strMilli(cts, pc.getLastUsedTime())).text(" ago") //
+			.nl();
+		StringBuilder sb = new StringBuilder();
 		strStacktraceFiltered(sb, tp.getElements());
 		p.pre(CSS_STACK, sb.toString());
 		sb.setLength(0);
@@ -504,14 +487,8 @@ public class DbPoolUtil {
 		}
 	}
 
-
-
-
 	/**
 	 * Report the delta time between a and b, as milli's. Order is not important.
-	 * @param a
-	 * @param b
-	 * @return
 	 */
 	static public String strMilli(long a, long b) {
 		long dt = (a > b) ? a - b : b - a;
@@ -520,7 +497,7 @@ public class DbPoolUtil {
 
 	static public String strTime(long ts) {
 		Date dt = new Date(ts);
-		DateFormat	df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 		return df.format(dt);
 	}
 
@@ -542,8 +519,6 @@ public class DbPoolUtil {
 
 	/**
 	 * Returns a properly formatted commad string for a number [english only].
-	 * @param val
-	 * @return
 	 */
 	static public String strCommad(final long val) {
 		String v = Long.toString(val);
@@ -580,7 +555,7 @@ public class DbPoolUtil {
 		int len = str.length();
 		for(int i = 0; i < len; i++) {
 			char c = str.charAt(i);
-			switch(c){
+			switch(c) {
 				default:
 					sb.append(c);
 					break;
@@ -605,8 +580,8 @@ public class DbPoolUtil {
 	}
 
 	/**
-	 *	Returns a string representing some size, in bytes. Depending on the size
-	 *  it will be represented as KB, MB, GB or TB.
+	 * Returns a string representing some size, in bytes. Depending on the size
+	 * it will be represented as KB, MB, GB or TB.
 	 */
 	public static String strSize(final long sz) {
 		final long kb = 1024;
@@ -661,27 +636,18 @@ public class DbPoolUtil {
 		File f = new File(new File(s), ".developer.properties");
 		if(!f.exists())
 			return null;
-		InputStream is = null;
-		try {
-			is = new FileInputStream(f);
+		try(InputStream is = new FileInputStream(f)) {
 			Properties p = new Properties();
 			p.load(is);
 			return p;
 		} catch(Exception x) {
 			System.out.println("PoolManager: exception while reading " + f + ": " + x);
 			return null;
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {}
 		}
 	}
 
 	/**
 	 * Return the connect string if PL/SQL debugging is enabled for the specified pool.
-	 * @param poolName
-	 * @return
 	 */
 	@Nullable
 	static public String getPlSqlDebug(String poolName) {
@@ -699,22 +665,31 @@ public class DbPoolUtil {
 
 	/**
 	 * Executes dbms_debug_jdwp.connect_tcp(host, port) on specified connection. That enables remote debug.
-	 *
-	 * @param con
-	 * @param hostAndPort
-	 * @throws SQLException
 	 */
 	public static void enableRemoteDebug(@NonNull Connection con, @NonNull HostAndPort hostAndPort) throws SQLException {
 		final String cmd = "begin dbms_debug_jdwp.connect_tcp('" + hostAndPort.getHost() + "'," + hostAndPort.getPort() + ");end;";
-		PreparedStatement st = con.prepareStatement(cmd);
-		try {
+		try(PreparedStatement st = con.prepareStatement(cmd)) {
 			st.execute();
 		} catch(Exception x) {
 			//-- Ignore any error.
-		} finally {
-			try {
-				st.close();
-			} catch(Exception x) {}
 		}
+	}
+
+	/**
+	 * This method checks that the name passed only contains a name,
+	 * and nothing that looks like a SQL injection.
+	 */
+	static public void sqlCheckNameOnly(@Nullable String name) {
+		if(null == name)
+			return;
+		for(int i = 0, len = name.length(); i < len; i++) {
+			char c = name.charAt(i);
+			if(!isValidSqlNameChar(c))
+				throw new IllegalArgumentException("Invalid characters in SQL name");
+		}
+	}
+
+	private static boolean isValidSqlNameChar(char c) {
+		return Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '[' || c == ']' || c == '"';
 	}
 }

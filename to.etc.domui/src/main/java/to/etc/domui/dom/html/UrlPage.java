@@ -108,6 +108,10 @@ public class UrlPage extends AbstractPage {
 		onDestroy();
 	}
 
+	public void onAfterRequest() throws Exception {
+
+	}
+
 	/**
 	 * Get the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
 	 * "title" property.

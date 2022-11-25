@@ -53,7 +53,7 @@ final public class StatisticsCollector extends StatisticsCollectorBase implement
 		m_collectOraclePerformanceData = collectOraclePerformanceData;
 		//String snid = collectOraclePerformanceData ? nextID() : null;
 		//m_sessionID = snid;
-		if(queryString == null || queryString.length() == 0)
+		if(queryString == null || queryString.isEmpty())
 			m_fullRequestURL = ident;
 		else
 			m_fullRequestURL = ident + "?" + queryString;

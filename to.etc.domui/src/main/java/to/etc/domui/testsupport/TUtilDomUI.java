@@ -42,10 +42,13 @@ import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
+import to.etc.util.StringTool;
 
 import java.io.File;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 
 public class TUtilDomUI {
 	static private volatile AppSession m_session;
@@ -68,8 +71,16 @@ public class TUtilDomUI {
 			@NonNull
 			@Override
 			public URL getResourcePath(@NonNull String path) throws Exception {
+				if(!StringTool.isValidRelativePath(path))
+					throw new SecurityException("Invalid relative path: " + path);
 				File f = new File(getWebFileRoot(), path);
 				return f.toURL();
+			}
+
+			@NonNull
+			@Override
+			public List<String> getParameterNames() {
+				return Collections.emptyList();
 			}
 		};
 		application.addHeaderContributor(HeaderContributor.loadStylesheet("font-awesome"), 11);
@@ -81,7 +92,7 @@ public class TUtilDomUI {
 		if(m_application == null) {
 			m_application = new DomApplication() {
 				@Override
-				public Class< ? extends UrlPage> getRootPage() {
+				public Class<? extends UrlPage> getRootPage() {
 					return null;
 				}
 			};
@@ -101,8 +112,16 @@ public class TUtilDomUI {
 				@NonNull
 				@Override
 				public URL getResourcePath(@NonNull String path) throws Exception {
+					if(!StringTool.isValidRelativePath(path))
+						throw new SecurityException("Invalid relative path: " + path);
 					File f = new File(getWebFileRoot(), path);
 					return f.toURL();
+				}
+
+				@NonNull
+				@Override
+				public List<String> getParameterNames() {
+					return Collections.emptyList();
 				}
 			};
 
@@ -140,7 +159,6 @@ public class TUtilDomUI {
 		return BrowserVersion.parseUserAgent("Mozilla/5.0 (compatible; Konqueror/3.5; Linux; en_US) KHTML/3.5.10 (like Gecko) (Debian)");
 	}
 
-
 	/**
 	 * Create a page structure valid for testing pps. Do not make public: using UrlPage is unsafe before this
 	 * is called, so a page must be fully created using one of these methods here.
@@ -160,7 +178,7 @@ public class TUtilDomUI {
 		return p;
 	}
 
-	static public Page createPage(Class< ? extends UrlPage> clz, PageParameters pp) throws Exception {
+	static public Page createPage(Class<? extends UrlPage> clz, PageParameters pp) throws Exception {
 		if(pp == null)
 			pp = new PageParameters();
 		UrlPage pg = clz.newInstance(); // Should have parameterless ctor
@@ -168,7 +186,7 @@ public class TUtilDomUI {
 		return p;
 	}
 
-	static public Page createPage(Class< ? extends UrlPage> clz) throws Exception {
+	static public Page createPage(Class<? extends UrlPage> clz) throws Exception {
 		return createPage(clz, null);
 	}
 
@@ -214,7 +232,6 @@ public class TUtilDomUI {
 		return (T) createPage(clz, null).getBody();
 	}
 
-
 	static public HtmlFullRenderer getFullRenderer(IBrowserOutput o) throws Exception {
 		BrowserVersion bv = getBrowserVersion();
 		return TUtilDomUI.getApplication().findRendererFor(bv, o);
@@ -242,6 +259,5 @@ public class TUtilDomUI {
 		pg.internalClearDeltaFully();
 		return sw.getBuffer().toString();
 	}
-
 
 }

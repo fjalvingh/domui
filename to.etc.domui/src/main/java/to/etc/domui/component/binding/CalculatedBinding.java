@@ -6,7 +6,10 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.state.UIContext;
 import to.etc.function.SupplierEx;
 
 /**
@@ -24,37 +27,86 @@ public class CalculatedBinding<CV> implements IBinding {
 
 	private final SupplierEx<Object> m_acceptor;
 
+	private final boolean m_updateAlways;
+
 	@Nullable
-	private CV m_lastValueFromControlAsModelValue;
+	private Object m_lastValueFromControlAsModelValue;
 
 	public CalculatedBinding(NodeBase control, PropertyMetaModel<CV> controlProperty, SupplierEx<Object> acceptor) {
 		m_control = control;
 		m_controlProperty = controlProperty;
 		m_acceptor = acceptor;
+		m_updateAlways = false;
 	}
 
-	@Nullable @Override public BindingValuePair<?> getBindingDifference() throws Exception {
+	public CalculatedBinding(NodeBase control, PropertyMetaModel<CV> controlProperty, SupplierEx<Object> acceptor, boolean updateAlways) {
+		m_control = control;
+		m_controlProperty = controlProperty;
+		m_acceptor = acceptor;
+		m_updateAlways = updateAlways;
+	}
+
+	@Nullable
+	@Override
+	public BindingValuePair<?> getBindingDifference() throws Exception {
 		return null;
 	}
 
-	@Override public void moveModelToControl() throws Exception {
+	@Override
+	public void moveModelToControl() throws Exception {
 		CV modelValue = (CV) m_acceptor.get();
 
-		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControlAsModelValue)) {
+		if(m_updateAlways) {
+			IRequestContext fakeValue = UIContext.getRequestContext();
+			if(fakeValue != m_lastValueFromControlAsModelValue) {
+				m_lastValueFromControlAsModelValue = fakeValue;
+				if(m_controlProperty.getReadOnly() != YesNoType.YES) {
+					m_controlProperty.setValue(m_control, modelValue);
+					m_control.forceRebuild();
+				}
+			}
+		} else if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControlAsModelValue)) {
 			//-- Value in instance differs from control's
 			m_lastValueFromControlAsModelValue = modelValue;
 			if(m_controlProperty.getReadOnly() != YesNoType.YES) {
 				m_controlProperty.setValue(m_control, modelValue);
-//					System.out.println(this + ": m2c " + controlValue);
+				if(m_updateAlways) {
+					m_control.forceRebuild();
+				}
 			}
 		}
 	}
 
-	@Nullable @Override public UIMessage getBindError() {
+	@Nullable
+	@Override
+	public UIMessage getBindError() {
 		return null;
 	}
 
-	@Override public <T> void setModelValue(@Nullable T value) {
+	@Override
+	public <T> void setModelValue(@Nullable T value) {
 		//-- Data is never moved back to the model.
+	}
+
+	public static <C extends NodeBase & IControl<X>, X, T> void bind(C control, SupplierEx<Object> acceptor) throws Exception {
+		PropertyMetaModel<?> cpmm = MetaManager.findPropertyMeta(control.getClass(), "bindValue");
+		if(null == cpmm) {
+			cpmm = MetaManager.findPropertyMeta(control.getClass(), "value");
+			if(null == cpmm)
+				throw new IllegalStateException("No binding value property found");
+		}
+		CalculatedBinding<?> cb = new CalculatedBinding<>(control, cpmm, acceptor);
+		control.addBinding(cb);
+	}
+
+	public static <C extends NodeBase & IControl<X>, X, T> void bindForced(C control, SupplierEx<Object> acceptor) throws Exception {
+		PropertyMetaModel<?> cpmm = MetaManager.findPropertyMeta(control.getClass(), "bindValue");
+		if(null == cpmm) {
+			cpmm = MetaManager.findPropertyMeta(control.getClass(), "value");
+			if(null == cpmm)
+				throw new IllegalStateException("No binding value property found");
+		}
+		CalculatedBinding<?> cb = new CalculatedBinding<>(control, cpmm, acceptor, true);
+		control.addBinding(cb);
 	}
 }

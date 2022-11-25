@@ -168,7 +168,7 @@ public class CompoundKeyConverter {
 	 * @throws UIException
 	 */
 	public Object unmarshal(QDataContext dc, Class< ? > pkclass, String in) throws Exception {
-		if(in.trim().length() == 0)
+		if(in.trim().isEmpty())
 			return null;
 		Scanner ts = new Scanner(dc, pkclass, in);
 		return ts.scanAnything(pkclass);

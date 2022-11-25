@@ -184,7 +184,7 @@ public class DOMDecoderBase {
 	 */
 	public Date dateOnly(String name, Date deflt) {
 		String s = string(name, null);
-		if(s == null || s.length() == 0)
+		if(s == null || s.isEmpty())
 			return deflt;
 		try {
 			return W3CSchemaCoder.decodeDate(s).getTime();

@@ -75,6 +75,6 @@ public class PercentageDoubleConverter implements IConverter<Double> {
 				return Double.valueOf(value);
 		} catch(NumberFormatException ex) {
 		}
-		throw new ValidationException(Msgs.V_BAD_PERCENTAGE, in);
+		throw new ValidationException(Msgs.vBadPercentage, in);
 	}
 }

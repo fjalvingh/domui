@@ -295,7 +295,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 
 				//-- Load all other members in the group, and check if they are runnable/complete
 				List<PendingOperation> grouplist = loadGroup(dbc, po);
-				if(grouplist != null && grouplist.size() > 0) {
+				if(grouplist != null && !grouplist.isEmpty()) {
 					resultlist = grouplist;
 					break;
 				}
@@ -385,7 +385,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			 */
 			//-- The first member in this list must be executable at this time, or the group is invalid.
 			for(;;) {
-				if(res.size() == 0)
+				if(res.isEmpty())
 					return null;
 				PendingOperation op = res.get(0);
 				if(op.getState() == PendingOperationState.EXEC)				// If already executing somewhere else-> exit.

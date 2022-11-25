@@ -8,7 +8,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -91,7 +90,10 @@ public class TarUtil {
 			? FileSystems.getDefault().getUserPrincipalLookupService()
 			: null;
 		while((entry = tarIs.getNextTarEntry()) != null) {
-			final File file = new File(rootLocation, entry.getName());
+			String name = entry.getName();
+			if(! StringTool.isValidRelativePath(name))
+				throw new IOException("Invalid zip file path entry: " + name);
+			final File file = new File(rootLocation, name);
 			final File parent = file.getParentFile();
 			if(! parent.exists()) {
 				parent.mkdirs();

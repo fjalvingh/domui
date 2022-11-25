@@ -26,7 +26,7 @@ public class ListExporter<T> extends AbstractObjectExporter<T> {
 	}
 
 	public ExportResult export(Progress p) throws Exception {
-		if(m_columnList.size() == 0)
+		if(m_columnList.isEmpty())
 			return ExportResult.EMPTY;
 		List<T> list = m_list;
 		m_exportWriter.startExport(m_columnList);

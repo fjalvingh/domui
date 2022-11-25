@@ -112,7 +112,7 @@ public final class MetaInitializer {
 
 	@NonNull
 	static public synchronized List<IClassMetaModelFactory> getList() {
-		if(m_modelList.size() == 0)
+		if(m_modelList.isEmpty())
 			registerModel(new DefaultJavaClassMetaModelFactory());
 		return m_modelList;
 	}

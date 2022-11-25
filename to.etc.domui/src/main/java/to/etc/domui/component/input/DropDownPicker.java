@@ -64,6 +64,9 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	@Nullable
 	private NodeBase m_alignmentBase;
 
+	@Nullable
+	private NodeBase m_focusOnBlur;
+
 	/**
 	 * DropDownPicker constructor. By default size of drop down list is DropDownPicker.DEFAULT_COMBO_SIZE.
 	 */
@@ -93,6 +96,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
+		m_picker.addCssClass("ddp-cmb");
 		if(getSrc() == null) {
 			setSrc(Theme.BTN_FIND);
 		}
@@ -131,13 +135,14 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		List<T> data = m_data;
 		if(m_selected != null) {
 			m_picker.setValue(m_selected);
-		} else if(data != null && data.size() > 0 && isMandatory()) {
+		} else if(data != null && !data.isEmpty() && isMandatory()) {
 			m_picker.setValue(data.get(0));
 		}
 
 		m_picker.setMandatory(isMandatory());
 
-		m_picker.setSpecialAttribute("onblur", "$(this).css('display','none');$(this).triggerHandler('click')");
+		String focusPartJs = null != m_focusOnBlur ? ", $('#" + m_focusOnBlur.getActualID() + "').focus()" : "";
+		m_picker.setSpecialAttribute("onblur", "$('#" + m_picker.getActualID() + "').css('display','none')" + focusPartJs);
 
 		if(getClicked() == null) {
 			setClicked(m_defaultClickHandler);
@@ -391,5 +396,14 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	@Override
 	public void setReadOnly(boolean ro) {
 		throw new UnsupportedOperationException("setReadOnly() not supported in " + getClass().getName());
+	}
+
+	@Nullable
+	public NodeBase getFocusOnBlur() {
+		return m_focusOnBlur;
+	}
+
+	public void setFocusOnBlur(@Nullable NodeBase focusOnBlur) {
+		m_focusOnBlur = focusOnBlur;
 	}
 }

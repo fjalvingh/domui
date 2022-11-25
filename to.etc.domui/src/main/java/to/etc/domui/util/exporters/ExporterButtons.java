@@ -3,6 +3,7 @@ package to.etc.domui.util.exporters;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.menu.PopupMenu;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -68,7 +69,7 @@ public class ExporterButtons {
 	//
 	//}
 
-	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<IExportColumn<?>> columns, String fileName) {
+	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<? extends IExportColumn<?>> columns, String fileName) {
 		QueryExporterTask<T> x = new QueryExporterTask<>(xf, query, columns);
 		AsyncDialog.runInDialog(node, x, "Export", true, task -> {
 			File target = Objects.requireNonNull(task.getOutputFile());
@@ -85,10 +86,18 @@ public class ExporterButtons {
 		});
 	}
 
-	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<? extends IExportColumn<?>> columns, String fileName) {
+	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<? extends IExportColumn<?>> columns, String fileName) throws Exception {
 		ListExporterTask<T> exporterTask = new ListExporterTask<>(xf, baseClass, list, columns);
-		AsyncDialog.runInDialog(node, exporterTask, "Export", true, task -> {
-			File target = Objects.requireNonNull(task.getOutputFile());
+
+		/*
+		 * The list variant of the exporter should NOT run in an async task, as its
+		 * members are probably loaded by the calling page's QDataContext. Exporting
+		 * the list async causes the page's context to detach while the async task
+		 * executes. This causes exceptions when the list contains lazily loaded objects.
+		 */
+		node.executeWithDialog("Exporting list", () -> {
+			exporterTask.run(new Progress(""));
+			File target = Objects.requireNonNull(exporterTask.getOutputFile());
 			String fn = fileName;
 			if(null == fn) {
 				fn = target.getName();
@@ -98,14 +107,29 @@ public class ExporterButtons {
 				}
 			}
 
-			TempFilePart.createDownloadAction(node, target, task.getMimeType(), Disposition.Attachment, fn);
+			TempFilePart.createDownloadAction(node, target, exporterTask.getMimeType(), Disposition.Attachment, fn);
 		});
+		//
+		//AsyncDialog.runInDialog(node, exporterTask, "Export", true, task -> {
+		//	File target = Objects.requireNonNull(task.getOutputFile());
+		//	String fn = fileName;
+		//	if(null == fn) {
+		//		fn = target.getName();
+		//	} else {
+		//		if(fn.lastIndexOf('.') == -1) {
+		//			fn += "." + xf.extension();
+		//		}
+		//	}
+		//
+		//	TempFilePart.createDownloadAction(node, target, task.getMimeType(), Disposition.Attachment, fn);
+		//});
 	}
 
 
 	static public <T> ExportButtonBuilder<T> from(Class<T> baseClass, SupplierEx<QCriteria<T>> supplier) {
 		return new ExportButtonBuilder<>(baseClass, supplier);
 	}
+
 	static public <T> ExportButtonBuilder<T> fromList(Class<T> baseClass, SupplierEx<List<T>> supplier) {
 		return new ExportButtonBuilder<>(MetaManager.findClassMeta(baseClass), supplier);
 	}
@@ -117,9 +141,9 @@ public class ExporterButtons {
 	static private class QueryExporterTask<T> extends AbstractExporter<T> {
 		final private QCriteria<T> m_criteria;
 
-		final private List<IExportColumn<?>> m_columns;
+		final private List<? extends IExportColumn<?>> m_columns;
 
-		public QueryExporterTask(IExportFormat format, QCriteria<T> criteria, List<IExportColumn<?>> columns) {
+		public QueryExporterTask(IExportFormat format, QCriteria<T> criteria, List<? extends IExportColumn<?>> columns) {
 			super(format);
 			m_criteria = criteria;
 			m_columns = columns;
@@ -325,7 +349,7 @@ public class ExporterButtons {
 			if(null == rr)
 				return this;
 
-			if(m_columnList.size() > 0)
+			if(!m_columnList.isEmpty())
 				throw new IllegalArgumentException("Columns have been added already, a row renderer can only be used as a definition for all columns");
 			for(ColumnDef<T, ?> rrCol : rr.getColumnList()) {
 				appendColumn(rrCol);
@@ -341,7 +365,7 @@ public class ExporterButtons {
 
 		public List<IExportColumn<?>> calculateColumnList() {
 			List<IExportColumn<?>> columnList = m_columnList;
-			if(columnList.size() > 0)
+			if(!columnList.isEmpty())
 				return columnList;
 
 			//-- Try to create a column list.
@@ -379,7 +403,7 @@ public class ExporterButtons {
 			if(customizer != null && criteria != null)
 				customizer.accept(criteria);
 			List<T> result = criteria == null ? sourceRecords : MetaManager.query(sourceRecords, criteria);
-			if(result.size() == 0) {
+			if(result.isEmpty()) {
 				MsgBox.info(targetNode, "Er zijn geen resultaten om te exporteren.");
 				return;
 			}
@@ -497,6 +521,32 @@ public class ExporterButtons {
 			});
 
 			return button;
+		}
+
+		public LinkButton buildLinkButton() {
+			String buttonName = m_buttonName == null ? Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON) : m_buttonName;
+			LinkButton button = new LinkButton(buttonName, Icon.faFileExcelO);
+			button.setClicked(ab -> {
+				IExportFormat forceFormat = m_forceFormat;
+				if(null == forceFormat) {
+					showFormatPopup(format -> {
+						if(m_sourceSupplier != null) {
+							executeExportFromList(ab.getParent(), format);
+						} else {
+							executeExportByQuery(ab.getParent(), format);
+						}
+					}, ab);
+				} else {
+					if(m_sourceSupplier != null) {
+						executeExportFromList(ab.getParent(), forceFormat);
+					} else {
+						executeExportByQuery(ab.getParent(), forceFormat);
+					}
+				}
+			});
+
+			return button;
+
 		}
 	}
 

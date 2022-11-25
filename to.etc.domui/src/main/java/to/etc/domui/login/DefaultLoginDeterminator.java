@@ -18,7 +18,7 @@ final public class DefaultLoginDeterminator implements ILoginDeterminator {
 	public String getLoginData(@NonNull HttpServletRequest req) throws Exception {
 		//-- Decode: input must be for a logged-on user and for a .jsp/.ajax.
 		String remoteUser = req.getRemoteUser();
-		if(remoteUser == null || remoteUser.length() == 0) {
+		if(remoteUser == null || remoteUser.isEmpty()) {
 			HttpSession hs = req.getSession();
 			Object sval = hs.getAttribute(UILogin.LOGIN_KEY); // Try to find the key,
 			if(sval == null)

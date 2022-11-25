@@ -51,7 +51,7 @@ final class ResourceLock {
 		synchronized(m_coreLock) {
 			if(!m_lockerList.remove(l))
 				throw new IllegalStateException(l + ": not part of list!?");
-			if(m_lockerList.size() == 0)
+			if(m_lockerList.isEmpty())
 				m_lockType = LockType.UNLOCKED;
 		}
 	}
@@ -118,7 +118,7 @@ final class ResourceLock {
 
 	boolean hasLockers() {
 		synchronized(m_coreLock) {
-			return m_lockerList.size() > 0;
+			return !m_lockerList.isEmpty();
 		}
 	}
 

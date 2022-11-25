@@ -26,9 +26,9 @@ import java.lang.reflect.Type;
 public class JsonWebActionFactory implements WebActionRegistry.IFactory {
 	@Override
 	@Nullable
-	public IWebActionHandler createHandler(@NonNull Class< ? extends NodeBase> node, @NonNull String actionCode) {
+	public IWebActionHandler createHandler(@NonNull Class< ? extends NodeBase> node, @NonNull String actionMethodName) {
 		for(Method m: node.getMethods()) {
-			if(m.getName().equals(actionCode)) {
+			if(m.getName().equals(actionMethodName)) {
 				Class< ? >[] par = m.getParameterTypes();
 				if(par.length == 1) {
 					Class< ? > formal = par[0];

@@ -100,9 +100,6 @@ final public class VersionNumber implements Comparable<VersionNumber> {
 	 * Parses a version number in the format: pppx.x.xsss, where ppp is any non-numeric string, x.x.x is a repeated set of numbers separated by dots, and
 	 * sss is another non-numeric string. In the version number part (x.x.x) the code will always remove all trailing zeroes to normalize the version
 	 * number.
-	 * @param input
-	 * @return
-	 * @throws InvalidVersionNumberException
 	 */
 	static public VersionNumber parse(String input) throws InvalidVersionNumberException {
 		if(input.trim().equalsIgnoreCase("trunk"))
@@ -181,10 +178,6 @@ final public class VersionNumber implements Comparable<VersionNumber> {
 			return -1;
 		else if(a == null && b != null)
 			return 1;
-
-		if(a == null) {
-			throw new IllegalStateException("This is not possible because of the previous checks.");
-		}
 
 		if(a.length == 0 && b.length == 0)
 			return 0;

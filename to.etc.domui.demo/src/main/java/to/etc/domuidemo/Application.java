@@ -26,7 +26,7 @@ import to.etc.domui.util.Msgs;
 import to.etc.domuidemo.components.PageHeader;
 import to.etc.domuidemo.pages.HomePage;
 import to.etc.domuidemo.sourceviewer.SourcePage;
-import to.etc.formbuilder.pages.FormDesigner;
+import to.etc.util.FileTool;
 import to.etc.webapp.query.QContextManager;
 
 import javax.servlet.UnavailableException;
@@ -45,7 +45,8 @@ public class Application extends DomApplication {
 	 */
 	@Override
 	protected void initialize(final ConfigParameters pp) throws Exception {
-		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
+		File imagecache = new File(FileTool.getTmpDir(), "imagecache");
+		ImageCache.initialize(32 * 1024L * 1024L, 5L * 1024L * 1024L * 1024L, imagecache);
 
 		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
 
@@ -153,8 +154,6 @@ public class Application extends DomApplication {
 	 * Initialize the database. This code uses the embedded Derby database but the same logic
 	 * as shown here can be used to open any database. In addition, this code will see if the
 	 * database is empty and if so will re-create the demo/example tables and populate them.
-	 *
-	 * @throws Exception
 	 */
 	private void initDatabase() throws Exception {
 		File appFile = getAppFile(".").getAbsoluteFile();

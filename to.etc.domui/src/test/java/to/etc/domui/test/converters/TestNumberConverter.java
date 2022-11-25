@@ -99,9 +99,9 @@ public class TestNumberConverter {
 			T object = nc.convertStringToObject(NlsContext.getLocale(), in);
 			badAsConverted = nc.convertObjectToString(NlsContext.getLocale(), object);
 		} catch(ValidationException vx) {
-			if(vx.getCode().equals(Msgs.V_BAD_AMOUNT) && monetary)
+			if(vx.getCode().equals(Msgs.vBadAmount) && monetary)
 				return;
-			if(vx.getCode().equals(Msgs.V_INVALID) && !monetary)
+			if(vx.getCode().equals(Msgs.vInvalid) && !monetary)
 				return;
 			Assert.fail("Unexpected ValidationException!? " + vx.getLocalizedMessage());
 		}

@@ -67,7 +67,7 @@ public class RpcClassDefinition {
 		List<String> l = new ArrayList<String>();
 		while(st.hasMoreTokens()) {
 			String s = st.nextToken().trim();
-			if(s.length() > 0)
+			if(!s.isEmpty())
 				l.add(s);
 		}
 		m_roles = l.toArray(new String[l.size()]);

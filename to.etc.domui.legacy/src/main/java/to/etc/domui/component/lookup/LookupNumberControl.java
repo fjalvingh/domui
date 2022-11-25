@@ -138,20 +138,20 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 	protected void checkNumber(T value) {
 		if(value instanceof Double || value instanceof BigDecimal) { // FIXME BigDecimal is wrongly compared here (vmijic - what would be right compare ?)
 			if(m_maxValue != null && value.doubleValue() > m_maxValue.doubleValue())
-				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
+				throw new ValidationException(Msgs.vTooLarge, m_maxValue);
 			if(m_minValue != null && value.doubleValue() < m_minValue.doubleValue())
-				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_minValue);
+				throw new ValidationException(Msgs.vTooSmall, m_minValue);
 
 			// In case that other validations pass, we need to check for implicit JDBC parameter validation range (for Oracle it is 10^126 and -10^126)
 			if(value.doubleValue() >= m_max_jdbc_column_value.doubleValue())
-				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_max_jdbc_column_value);
+				throw new ValidationException(Msgs.vTooLarge, m_max_jdbc_column_value);
 			if(value.doubleValue() <= m_min_jdbc_column_value.doubleValue())
-				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_min_jdbc_column_value);
+				throw new ValidationException(Msgs.vTooSmall, m_min_jdbc_column_value);
 		} else if(value instanceof Long || value instanceof Integer) {
 			if(m_maxValue != null && value.longValue() > m_maxValue.longValue())
-				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
+				throw new ValidationException(Msgs.vTooLarge, m_maxValue);
 			if(m_minValue != null && value.longValue() < m_minValue.longValue())
-				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_minValue);
+				throw new ValidationException(Msgs.vTooSmall, m_minValue);
 		} else
 			throw new IllegalStateException("Unsupported value type: " + value.getClass());
 	}
@@ -166,7 +166,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 			if(in == null)
 				return AppendCriteriaResult.EMPTY;
 			in = in.trim();
-			if(in.length() == 0)
+			if(in.isEmpty())
 				return AppendCriteriaResult.EMPTY;
 
 			//-- Handle single operators: currently only the '!' to indicate 'not-null'
@@ -188,11 +188,11 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 				//-- Does not start with operation: can only be number [%].
 				String v = scanNumeric(true);
 				if(v == null || "".equals(v))
-					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+					throw new ValidationException(Msgs.uiLookupInvalid);
 				if(v.contains("%") && m_allowLike) {
 					m_s.skipWs();
 					if(!m_s.eof()) // Must have eof
-						throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+						throw new ValidationException(Msgs.uiLookupInvalid);
 					crit.add(new QPropertyComparison(QOperation.LIKE, m_propertyName, new QLiteral(v)));
 					return AppendCriteriaResult.VALID;
 				}
@@ -210,7 +210,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 			//-- 2nd part MUST be numeric, so scan a value
 			String v = scanNumeric(false);
 			if(v == null || "".equals(v))
-				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+				throw new ValidationException(Msgs.uiLookupInvalid);
 			T value = parseNumber(v); // Convert to appropriate type,
 			checkNumber(value);
 
@@ -223,7 +223,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 			QOperation op2 = scanOperation();
 			m_s.skipWs();
 			if(m_s.eof())
-				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+				throw new ValidationException(Msgs.uiLookupInvalid);
 
 			//-- 2nd fragment of 2nd part MUST be numeric, so scan a value
 			v = scanNumeric(false);
@@ -245,7 +245,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 					return AppendCriteriaResult.INVALID;
 				}
 			} else
-				throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_BAD_OPERATOR_COMBI);
+				throw new ValidationException(Msgs.uiLookupOpCombi);
 		} catch(UIException x) {
 			m_input.setMessage(UIMessage.error(x));
 			return AppendCriteriaResult.INVALID;
@@ -292,7 +292,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 					break;
 				m_s.copy();
 			}
-			throw new ValidationException(Msgs.V_INVALID_OPERATOR, m_s.getStringResult());
+			throw new ValidationException(Msgs.vInvalidOperator, m_s.getStringResult());
 		}
 	}
 
@@ -320,12 +320,12 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 			 * exception with the actual ones defined here. If not the user gets a different maximum value for large values
 			 * than for smaller ones.
 			 */
-			if(vx.getCode().equals(Msgs.V_TOOLARGE)) {
+			if(vx.getCode().equals(Msgs.vTooLarge)) {
 				if(m_maxValue != null)
-					throw new ValidationException(Msgs.V_TOOLARGE, m_maxValue);
-			} else if(vx.getCode().equals(Msgs.V_TOOSMALL)) {
+					throw new ValidationException(Msgs.vTooLarge, m_maxValue);
+			} else if(vx.getCode().equals(Msgs.vTooSmall)) {
 				if(m_minValue != null)
-					throw new ValidationException(Msgs.V_TOOSMALL, m_minValue);
+					throw new ValidationException(Msgs.vTooSmall, m_minValue);
 			}
 			throw vx;
 		}

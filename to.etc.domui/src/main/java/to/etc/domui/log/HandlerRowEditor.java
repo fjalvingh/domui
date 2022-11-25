@@ -137,7 +137,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 			@Override
 			public boolean onRowChanged(@NonNull TableModelTableBase<Matcher> tablecomponent, @NonNull RowEditorBase<Matcher> editor, @NonNull Matcher instance, boolean isNew) throws Exception {
 				if(MetaManager.hasDuplicates(m_modelMatchers.getItems(0, m_modelMatchers.getRows()), instance, Matcher.pNAME)) {
-					editor.setMessage(UIMessage.error(Matcher.pNAME, Msgs.BUNDLE, Msgs.V_INVALID_NOT_UNIQUE));
+					editor.setMessage(UIMessage.error(Matcher.pNAME, Msgs.vInvalidNotUnique));
 					return false;
 				}
 				return true;
@@ -177,7 +177,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 			@Override
 			public boolean onRowChanged(@NonNull TableModelTableBase<Filter> tablecomponent, @NonNull FilterRowEditor editor, @NonNull Filter instance, boolean isNew) throws Exception {
 				if(MetaManager.hasDuplicates(m_modelFilters.getItems(0, m_modelFilters.getRows()), instance, Filter.pKEY)) {
-					editor.setMessage(UIMessage.error(Filter.pKEY, Msgs.BUNDLE, Msgs.V_INVALID_NOT_UNIQUE));
+					editor.setMessage(UIMessage.error(Filter.pKEY, Msgs.vInvalidNotUnique));
 					return false;
 				}
 				return true;

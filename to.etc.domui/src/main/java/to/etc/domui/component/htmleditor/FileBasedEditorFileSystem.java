@@ -67,7 +67,7 @@ public class FileBasedEditorFileSystem implements IEditorFileSystem {
 					String ext = FileTool.getFileExtension(name).toLowerCase();
 					if(m_imageDenied.contains(ext))
 						continue;
-					if(m_imageAllowed.size() == 0 || m_imageAllowed.contains(ext)) {
+					if(m_imageAllowed.isEmpty() || m_imageAllowed.contains(ext)) {
 						EditorFile ef = new EditorFile(name, (int) f.length(), new Date(f.lastModified()));
 						res.add(ef);
 					}

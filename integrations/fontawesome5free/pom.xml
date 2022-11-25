@@ -16,7 +16,20 @@
     <packaging>jar</packaging>
     <name>domui :: integrations :: fontawesome 5 FREE</name>
     <description>FontAwesome 5 integration, free version</description>
-    <inceptionYear>2018</inceptionYear>
+    <inceptionYear>2020</inceptionYear>
+
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.skip>false</sonar.skip>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>

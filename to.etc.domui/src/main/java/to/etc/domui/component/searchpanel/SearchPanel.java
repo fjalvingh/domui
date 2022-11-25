@@ -268,7 +268,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//}
 		//-- ORDERED
 		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0)                            // If we don't have an item set yet....
+		if(m_itemList.isEmpty())                            // If we don't have an item set yet....
 			internalAddMetadata();
 
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in its own div.
@@ -282,9 +282,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		formBuilder.setTarget(sroot);
 		for(Object o : m_itemList) {
 			if(o instanceof SearchControlLine) {
-				SearchControlLine<?> it = (SearchControlLine<?>) o;
+				SearchControlLine<T, ?> it = (SearchControlLine<T, ?>) o;
 				appendControlLine(formBuilder, it);
-			} else if(o instanceof  IExecute) {
+			} else if(o instanceof IExecute) {
 				((IExecute) o).execute();
 			}
 		}
@@ -324,10 +324,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 			if(m_clicker != null)
 				m_clicker.clicked(SearchPanel.this);
 		});
-		m_hasBeenUsed = true;							// Indicate that we need to use defaultValue instead of initialValue next time.
+		m_hasBeenUsed = true;                            // Indicate that we need to use defaultValue instead of initialValue next time.
 	}
 
-	private <P> void appendControlLine(ISearchFormBuilder formBuilder, SearchControlLine<P> it) throws Exception {
+	private <P> void appendControlLine(ISearchFormBuilder formBuilder, SearchControlLine<T, P> it) throws Exception {
 		P initialValue = it.getInitialValue();
 		P value = m_hasBeenUsed || initialValue == null ? it.getDefaultValue() : initialValue;
 		it.getControl().setValue(value);
@@ -532,7 +532,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	@Nullable
 	public QCriteria<T> getCriteria() throws Exception {
-		if(! isBuilt())
+		if(!isBuilt())
 			build();
 		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root;
@@ -548,7 +548,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		boolean success = true;
 		for(Object obj : m_itemList) {
 			if(obj instanceof SearchControlLine) {
-				SearchControlLine<?> it = (SearchControlLine<?>) obj;
+				SearchControlLine<T, ?> it = (SearchControlLine<T, ?>) obj;
 				LookupQueryBuilderResult res = appendCriteria(root, it);
 				if(res == LookupQueryBuilderResult.INVALID) {
 					success = false;
@@ -564,9 +564,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return root;
 	}
 
-	private <D> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, SearchControlLine<D> it) {
+	private <D> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, SearchControlLine<T, D> it) {
 		IControl<D> control = it.getControl();
-		ILookupQueryBuilder<D> builder = it.getQueryBuilder();
+		ILookupQueryBuilder<T, D> builder = it.getQueryBuilder();
 		if(null != control && null != builder) {
 			try {
 				return builder.appendCriteria(criteria, control.getValue());
@@ -589,14 +589,13 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	public void clearInput() {
 		for(Object o : m_itemList) {
 			if(o instanceof SearchControlLine) {
-				((SearchControlLine<?>) o).clear();
+				((SearchControlLine<T, ?>) o).clear();
 			}
 		}
 	}
 
 	/**
 	 * Sets the onNew handler. When set this will render a "new" button in the form's button bar.
-	 * @return
 	 */
 	public IClicked<SearchPanel<T>> getOnNew() {
 		return m_onNew;
@@ -604,7 +603,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Returns the onNew handler. When set this will render a "new" button in the form's button bar.
-	 * @param onNew
 	 */
 	public void setOnNew(final IClicked<SearchPanel<T>> onNew) {
 		if(m_onNew != onNew) {
@@ -881,7 +879,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return m_clearButton;
 	}
 
-	@NonNull public ISearchFormBuilder getFormBuilder() {
+	@NonNull
+	public ISearchFormBuilder getFormBuilder() {
 		ISearchFormBuilder builder = m_formBuilder;
 		if(null == builder) {
 			Supplier<ISearchFormBuilder> factory = m_defaultFormBuilderFactory;
@@ -905,7 +904,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	static public void setDefaultSearchFormBuilder(Supplier<ISearchFormBuilder> factory) {
 		m_defaultFormBuilderFactory = factory;
 	}
-
 
 	/**
 	 * Return the metamodel that this class uses to get its data from.
@@ -945,10 +943,11 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return item;
 	}
 
-	@NonNull <D> SearchControlLine<D> finishBuilder(SearchItemBuilder<T> builder) {
+	@NonNull
+	<D> SearchControlLine<T, D> finishBuilder(SearchItemBuilder<T> builder) {
 		if(m_currentBuilder != builder)
 			throw new IllegalStateException(this + ": the item builder " + builder + " is not the 'current' item - call order problem");
-		SearchControlLine<D> line = createLine(builder);
+		SearchControlLine<T, D> line = createLine(builder);
 		forceRebuild();
 		m_currentBuilder = null;
 		return line;
@@ -963,14 +962,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	}
 
 	@NonNull
-	private <D> SearchControlLine<D> createLine(SearchItemBuilder<T> builder) {
+	private <D> SearchControlLine<T, D> createLine(SearchItemBuilder<T> builder) {
 		IExecute action = builder.getAction();
 		if(action != null) {
 			throw new IllegalStateException("Combining action with control is not allowed");
 		}
 
 		IControl<D> control = (IControl<D>) builder.getControl();
-		ILookupQueryBuilder<D> qb = builder.getQueryBuilder();
+		ILookupQueryBuilder<T, D> qb = builder.getQueryBuilder();
 		PropertyMetaModel<?> property = builder.getProperty();
 		if(null == control) {
 			//-- No control, no query builder: use the property to get one
@@ -980,7 +979,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				throw new ProgrammerErrorException(builder + ": cannot set a query builder without also specifying a control.");
 
 			SearchPropertyMetaModelImpl spm = mergePropertyModels(builder, property);
-			FactoryPair<D> pair = (FactoryPair<D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
+			FactoryPair<T, D> pair = (FactoryPair<T, D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
 			if(null == pair)
 				throw new ProgrammerErrorException(builder + ": no lookup control factory found for property " + spm);
 			control = pair.getControl();
@@ -1016,7 +1015,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//	FIXME cannot set hint here because setHint is not part of IControl
 		//}
 
-		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, builder.getDefaultValue(), builder.getInitialValue(), labelNode, false);
+		SearchControlLine<T, D> ll = new SearchControlLine<>(control, qb, property, builder.getDefaultValue(), builder.getInitialValue(), labelNode, false);
 		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;
@@ -1048,9 +1047,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	@NonNull
 	private List<SearchPropertyMetaModel> getMetadataSearchPropertyList() {
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
-		if(list == null || list.size() == 0) {
+		if(list == null || list.isEmpty()) {
 			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
-			if(list == null || list.size() == 0)
+			if(list == null || list.isEmpty())
 				return Collections.emptyList();
 		}
 		return list;
@@ -1058,7 +1057,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	private void internalAddMetadata() {
 		List<SearchPropertyMetaModel> list = getMetadataSearchPropertyList();
-		if(list.size() == 0)
+		if(list.isEmpty())
 			throw new IllegalStateException(getMetaModel() + " has no search properties defined in its meta data.");
 		appendMetadataProperties(list);
 	}
@@ -1071,7 +1070,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	public void addDefault() {
 		List<SearchPropertyMetaModel> list = getMetadataSearchPropertyList();
-		if(list.size() > 0)
+		if(!list.isEmpty())
 			appendMetadataProperties(list);
 	}
 
@@ -1090,13 +1089,13 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		addMetadataProperty(spm, false);
 	}
 
-	private <D> SearchControlLine<D> addMetadataProperty(SearchPropertyMetaModel spm, boolean fromMetadata) {
+	private <D> SearchControlLine<T, D> addMetadataProperty(SearchPropertyMetaModel spm, boolean fromMetadata) {
 		PropertyMetaModel<?> property = spm.getProperty();
-		FactoryPair<D> pair = (FactoryPair<D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
+		FactoryPair<T, D> pair = (FactoryPair<T, D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
 		if(null == pair)
 			throw new ProgrammerErrorException("No lookup control factory found for property " + spm);
 		IControl<D> control = pair.getControl();
-		ILookupQueryBuilder<D> qb = pair.getQueryBuilder();
+		ILookupQueryBuilder<T, D> qb = pair.getQueryBuilder();
 
 		//-- Try to get a label
 		String labelText = property.getDefaultLabel();
@@ -1107,7 +1106,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//	FIXME cannot set hint here because setHint is not part of IControl
 		//}
 
-		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, null, null, labelNode, fromMetadata);
+		SearchControlLine<T, D> ll = new SearchControlLine<>(control, qb, property, null, null, labelNode, fromMetadata);
 		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;
@@ -1115,7 +1114,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Set the search properties to use from a list of metadata properties.
-	 * @param list
 	 */
 	public void setSearchProperties(List<SearchPropertyMetaModel> list) {
 		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
@@ -1123,14 +1121,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		}
 	}
 
-	private <D> void addLookupLine(SearchControlLine<D> line) {
+	private <D> void addLookupLine(SearchControlLine<T, D> line) {
 		PropertyMetaModel<?> property = line.getProperty();
 		if(null != property) {
 			//-- Do we already have this one?
 			for(int i = m_itemList.size(); --i >= 0; ) {
 				Object obj = m_itemList.get(i);
 				if(obj instanceof SearchControlLine) {
-					SearchControlLine<?> old = (SearchControlLine<?>) obj;
+					SearchControlLine<T, ?> old = (SearchControlLine<T, ?>) obj;
 					if(old.getProperty() == property) {
 						//-- Existing property: if this one comes from metadata do not add it
 						if(line.isFromMetadata())
@@ -1151,7 +1149,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		forceRebuild();
 	}
 
-	private <D> void assignCalcTestID(@NonNull SearchControlLine<D> item, @Nullable PropertyMetaModel<?> pmm, @Nullable String labelText) {
+	private <D> void assignCalcTestID(@NonNull SearchControlLine<T, D> item, @Nullable PropertyMetaModel<?> pmm, @Nullable String labelText) {
 		String testID = item.getControl().getTestID();
 		if(null != testID)
 			return;

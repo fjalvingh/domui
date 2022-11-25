@@ -64,7 +64,7 @@ public abstract class AbstractTreeNodeBase<T extends ITreeNode<T>> implements IT
 	public boolean hasChildren() throws Exception {
 		if(m_childList == null)
 			return true;
-		return m_childList.size() != 0;
+		return !m_childList.isEmpty();
 	}
 
 	@Override

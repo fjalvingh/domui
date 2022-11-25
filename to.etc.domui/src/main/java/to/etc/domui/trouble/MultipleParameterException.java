@@ -29,6 +29,6 @@ import to.etc.webapp.nls.*;
 
 public class MultipleParameterException extends CodeException {
 	public MultipleParameterException(String name) {
-		super(Msgs.BUNDLE, Msgs.X_MULTIPLE_PARAMETER, name);
+		super(Msgs.xMultipleParameter, name);
 	}
 }

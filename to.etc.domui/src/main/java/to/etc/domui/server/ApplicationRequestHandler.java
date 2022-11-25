@@ -50,7 +50,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	private final DomApplication m_application;
 
 	@NonNull
-	private OopsFrameRenderer m_oopsRenderer = new OopsFrameRenderer();
+	private final OopsFrameRenderer m_oopsRenderer = new OopsFrameRenderer();
 
 	@NonNull
 	private ResponseCommandWriter m_commandWriter = new ResponseCommandWriter();
@@ -66,14 +66,14 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private boolean accepts(@NonNull IRequestContext ctx) {
 		return m_application.getUrlExtension().equals(ctx.getExtension())
-				|| ctx.getExtension().equals("obit")
-				|| (m_application.getRootPage() != null && ctx.getPageName() == null && ! m_application.isIgnoredUrlPrefix(ctx.getPageParameters().getInputPath()))
-				;
+			|| ctx.getExtension().equals("obit")
+			|| (m_application.getRootPage() != null && ctx.getPageName() == null && !m_application.isIgnoredUrlPrefix(ctx.getPageParameters().getInputPath()))
+			;
 	}
 
 	@Override
 	public boolean handleRequest(@NonNull final RequestContextImpl ctx) throws Exception {
-		if(! accepts(ctx))
+		if(!accepts(ctx))
 			return false;
 
 		PageRequestHandler ph = new PageRequestHandler(m_application, this, m_commandWriter, ctx);
@@ -90,7 +90,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	static public void generateHttpRedirect(RequestContextImpl ctx, String to, String rsn, boolean hashToParameter) throws Exception {
 		to = appendPersistedParameters(to, ctx);
-		if(! to.startsWith("/") && ! to.startsWith("http")) {
+		if(!to.startsWith("/") && !to.startsWith("http")) {
 			to = "/" + ctx.getRequestResponse().getWebappContext() + to;
 		}
 		IRequestResponse rr = ctx.getRequestResponse();
@@ -98,7 +98,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 			throw new IllegalStateException("Invalid TO url generated");
 
 		//-- Output all headers
-		ctx.renderResponseHeaders(null);							// We do not have a page instance here.
+		ctx.renderResponseHeaders(null);                            // We do not have a page instance here.
 
 		String extra = "";
 		//if(hashToParameter) {
@@ -142,7 +142,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Generate an AJAX redirect command. Should be used by all COMMAND actions.
 	 */
 	static public void generateAjaxRedirect(RequestContextImpl ctx, String url, boolean hashToParameter) throws Exception {
-		if(! url.startsWith("/") && ! url.startsWith("http")) {
+		if(!url.startsWith("/") && !url.startsWith("http")) {
 			url = "/" + ctx.getRequestResponse().getWebappContext() + url;
 		}
 		IRequestResponse rr = ctx.getRequestResponse();
@@ -163,11 +163,11 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	private static String appendPersistedParameters(String url, RequestContextImpl ctx) {
 		Set<String> nameSet = ctx.getApplication().getPersistentParameterSet();
-		if(nameSet.size() == 0)
+		if(nameSet.isEmpty())
 			return url;
 		Map<String, String> map = ctx.getPersistedParameterMap();
 		StringBuilder sb = new StringBuilder(url);
-		boolean first = ! url.contains("?");
+		boolean first = !url.contains("?");
 		for(Entry<String, String> entry : map.entrySet()) {
 			if(first) {
 				sb.append('?');

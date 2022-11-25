@@ -154,7 +154,7 @@ public class DynaIma extends Img {
 		if(m_bufferedImage != null) {
 			//-- Encode the buffered image to the specified mime format.
 			String mime = m_cachedMime;
-			if(mime == null || mime.trim().length() == 0)
+			if(mime == null || mime.trim().isEmpty())
 				mime = "image/jpeg";
 			ByteBufferOutputStream bbos = new ByteBufferOutputStream(32768);
 			ImaTool.saveImageByMime(bbos, m_bufferedImage, mime); // Copy to byte buffers

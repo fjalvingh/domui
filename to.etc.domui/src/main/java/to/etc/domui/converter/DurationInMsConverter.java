@@ -74,7 +74,7 @@ public class DurationInMsConverter implements IConverter<Long> {
 		if(null == in)
 			return null;
 		in = in.trim();
-		if(in.length() == 0)
+		if(in.isEmpty())
 			return null;
 		MiniScanner ms = MiniScanner.getInstance();
 		ms.init(in);
@@ -84,19 +84,19 @@ public class DurationInMsConverter implements IConverter<Long> {
 		while(!ms.eof()) {
 			int nr = scanNumber(ms);
 			if(nr == -1)
-				throw new ValidationException(Msgs.V_BAD_DURATION);
+				throw new ValidationException(Msgs.vBadDuration);
 
 			ms.skipWs();
 			int mc = ms.LA();
 			switch(mc) {
 				default:
-					throw new ValidationException(Msgs.V_BAD_DURATION);
+					throw new ValidationException(Msgs.vBadDuration);
 
 				case -1:
 				case 'd':
 				case 'D':
 					if(nr >= 100000)
-						throw new ValidationException(Msgs.V_BAD_DURATION);
+						throw new ValidationException(Msgs.vBadDuration);
 					dur += nr * DAYS * 1000;
 					break;
 
@@ -124,7 +124,7 @@ public class DurationInMsConverter implements IConverter<Long> {
 
 			}
 			if(dur < pdur)
-				throw new ValidationException(Msgs.V_BAD_DURATION);
+				throw new ValidationException(Msgs.vBadDuration);
 			pdur = dur;
 
 			ms.accept();

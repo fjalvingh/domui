@@ -32,7 +32,7 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 
 /**
- * Converter for Date and Time. 
+ * Converter for Date and Time.
  * Done by analogy to DateConverter @see {@link DateConverter}
  *
  * @author <a href="mailto:btadic@execom.eu">Bojan Tadic</a>
@@ -77,7 +77,7 @@ public class DateTimeConverter implements IConverter<Date> {
 		if(input == null)
 			return null;
 		input = input.trim();
-		if(input.length() == 0)
+		if(input.isEmpty())
 			return null;
 
 		DateFormat df = null;
@@ -100,7 +100,7 @@ public class DateTimeConverter implements IConverter<Date> {
 			if(datePattern == null && df != null) {
 				datePattern = df.format(new Date());
 			}
-			throw new ValidationException(Msgs.V_INVALID_DATE, datePattern);
+			throw new ValidationException(Msgs.vInvalidDate, datePattern);
 		}
 	}
 }

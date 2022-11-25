@@ -81,7 +81,7 @@ final public class HeaderContainer<T> {
 				tr.appendBeforeMe(header);
 			}
 		}
-		header.addCssClass("ui-dt-hdr-extra");
+		//header.addCssClass("ui-dt-hdr-extra");
 	}
 
 	/**
@@ -120,7 +120,7 @@ final public class HeaderContainer<T> {
 	public HeaderContainerCell add(@Nullable String txt) {
 		if(txt != null) {
 			txt = txt.trim();
-			if(txt != null && txt.length() > 0) {
+			if(txt != null && !txt.isEmpty()) {
 				return add(new TextNode(txt));
 			}
 		}

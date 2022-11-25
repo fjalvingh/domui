@@ -574,7 +574,7 @@ final public class FormBuilder {
 			String txt = m_nextLabel;
 			if(null != txt) {
 				//m_nextLabel = null;
-				if(txt.length() != 0)					// Not "unlabeled"?
+				if(!txt.isEmpty())					// Not "unlabeled"?
 					res = new Label(txt);
 			} else {
 				res = m_nextLabelControl;
@@ -583,7 +583,7 @@ final public class FormBuilder {
 					PropertyMetaModel< ? > pmm = m_propertyMetaModel;
 					if(null != pmm) {
 						txt = pmm.getDefaultLabel();
-						if(txt != null && txt.length() > 0)
+						if(txt != null && !txt.isEmpty())
 							res = new Label(txt);
 					}
 				}
@@ -610,7 +610,7 @@ final public class FormBuilder {
 		private String labelTextCalculated() {
 			String txt = m_nextLabel;
 			if(null != txt) {
-				if(txt.length() != 0)					// Not "unlabeled"?
+				if(!txt.isEmpty())					// Not "unlabeled"?
 					return txt;
 				return null;
 			} else {
@@ -622,7 +622,7 @@ final public class FormBuilder {
 					PropertyMetaModel< ? > pmm = m_propertyMetaModel;
 					if(null != pmm) {
 						txt = pmm.getDefaultLabel();
-						if(txt != null && txt.length() > 0)
+						if(txt != null && !txt.isEmpty())
 							return txt;
 					}
 				}

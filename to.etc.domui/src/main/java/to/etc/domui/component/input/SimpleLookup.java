@@ -128,7 +128,7 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 		setOnClose(new IWindowClosed() {
 			@Override
 			public void closed(@NonNull String closeReason) throws Exception {
-				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+				clearGlobalMessage(Msgs.vMissingSearch);
 				m_result = null;
 			}
 		});
@@ -164,9 +164,9 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 				return;
 			}
 		}
-		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		clearGlobalMessage(Msgs.vMissingSearch);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
-			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
+			addGlobalMessage(UIMessage.error(Msgs.vMissingSearch)); // Missing inputs
 			return;
 		} else
 			clearGlobalMessage();
@@ -202,7 +202,7 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
 				public void cellClicked(@NonNull T val) throws Exception {
-					clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+					clearGlobalMessage(Msgs.vMissingSearch);
 					close();
 					if(getOnValueSelected() != null) {
 						getOnValueSelected().valueSelected(val);

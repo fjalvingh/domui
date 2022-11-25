@@ -83,8 +83,8 @@ public class MIDomuiClassAnnotations extends AbstractClassAnnotationProvider {
 				mm.setIgnoreCase(msi.ignoreCase());
 				mm.setOrder(msi.order() == -1 ? index : msi.order());
 				mm.setMinLength(msi.minLength());
-				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
-				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
+				mm.setLookupLabelKey(msi.lookupLabelKey().isEmpty() ? null : msi.lookupLabelKey());
+				mm.setLookupHintKey(msi.lookupHintKey().isEmpty() ? null : msi.lookupHintKey());
 				if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
 					searchList.add(mm);
 				}

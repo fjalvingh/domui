@@ -88,7 +88,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			String[] patar = emu.split("\\s");				// pat:mode pat:mode
 			for(String patmode : patar) {
 				patmode = patmode.trim();
-				if(patmode.length() == 0)
+				if(patmode.isEmpty())
 					continue;
 				int pos = patmode.lastIndexOf(':');
 				if(pos == -1)
@@ -103,7 +103,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 				}
 
 				String xv = patmode.substring(pos + 1).trim();
-				if(xv.length() != 0)
+				if(!xv.isEmpty())
 					m_ieEmulationList.add(new Pair(par, xv));
 			}
 		}
@@ -171,7 +171,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 	}
 
 	private void handleDoFilter(@NonNull FilterChain chain, @NonNull HttpServletRequest request, @NonNull HttpServletResponse response) throws ServletException, IOException {
-		if(m_ieEmulationList.size() == 0) {
+		if(m_ieEmulationList.isEmpty()) {
 			chain.doFilter(request, response);
 			return;
 		}

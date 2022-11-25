@@ -18,8 +18,8 @@ import to.etc.domui.dom.html.NodeContainer;
  * Created on Jul 31, 2009
  */
 @NonNullByDefault
-public class SearchControlLine<D> {
-	final private ILookupQueryBuilder<D> m_queryBuilder;
+public class SearchControlLine<Q, D> {
+	final private ILookupQueryBuilder<Q, D> m_queryBuilder;
 
 	final private IControl<D> m_control;
 
@@ -40,7 +40,7 @@ public class SearchControlLine<D> {
 
 	private final boolean m_fromMetadata;
 
-	public SearchControlLine(IControl<D> control, ILookupQueryBuilder<D> qb, @Nullable PropertyMetaModel<?> pmm, @Nullable D defaultValue, @Nullable D initialValue, @Nullable NodeContainer labelNode, boolean fromMetadata) {
+	public SearchControlLine(IControl<D> control, ILookupQueryBuilder<Q, D> qb, @Nullable PropertyMetaModel<?> pmm, @Nullable D defaultValue, @Nullable D initialValue, @Nullable NodeContainer labelNode, boolean fromMetadata) {
 		m_control = control;
 		m_defaultValue = defaultValue;
 		m_initialValue = initialValue;
@@ -67,7 +67,7 @@ public class SearchControlLine<D> {
 		return m_initialValue;
 	}
 
-	public ILookupQueryBuilder<D> getQueryBuilder() {
+	public ILookupQueryBuilder<Q, D> getQueryBuilder() {
 		return m_queryBuilder;
 	}
 

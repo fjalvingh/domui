@@ -177,7 +177,7 @@ final public class MetaInitContext {
 	void initializationLoop() throws Exception {
 		m_worked = false;
 		int notWorkCount = 0;
-		while(m_todoProviderClassList.size() > 0) {
+		while(!m_todoProviderClassList.isEmpty()) {
 			int currentCount = m_todoProviderClassList.size();
 			handlePendingAction();
 			if(! m_worked && m_todoProviderClassList.size() == currentCount) {
@@ -239,7 +239,7 @@ final public class MetaInitContext {
 			List<PropertyMetaModel<?>> propList = ci.getTodoPropertyList();
 			IPropertyMetaProvider<ClassMetaModel, PropertyMetaModel<?>> currentProvider = (IPropertyMetaProvider<ClassMetaModel, PropertyMetaModel<?>>) ci.getPropertyProvider();
 			ClassMetaModel cmm = ci.getModel();
-			if(null == propList || propList.size() == 0 || currentProvider == null) {
+			if(null == propList || propList.isEmpty() || currentProvider == null) {
 				//-- We're at the start of a new list.
 				currentProvider = newProvider;
 				if(! currentProvider.getClassModelClass().isAssignableFrom(ci.getModel().getClass())) {
@@ -255,7 +255,7 @@ final public class MetaInitContext {
 			} else if(newProvider != currentProvider)
 				throw new IllegalStateException("Continuation for property provider with new provider requested!?");
 
-			while(propList.size() > 0) {
+			while(!propList.isEmpty()) {
 				PropertyMetaModel<?> pmm = propList.get(0);
 				currentProvider.provide(this, cmm, pmm);
 				propList.remove(0);

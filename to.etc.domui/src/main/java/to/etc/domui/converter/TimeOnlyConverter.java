@@ -44,7 +44,7 @@ public class TimeOnlyConverter implements IConverter<Date> {
 		try {
 			return (Date) df.parseObject(in);
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID_DATE);
+			throw new ValidationException(Msgs.vInvalidDate);
 		}
 	}
 }

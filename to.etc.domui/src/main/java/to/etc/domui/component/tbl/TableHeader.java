@@ -2,6 +2,7 @@ package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TH;
 import to.etc.domui.dom.html.TR;
@@ -13,8 +14,19 @@ import to.etc.domui.dom.html.TR;
  * Created on 1/26/15.
  */
 @NonNullByDefault
-abstract public class TableHeader extends TR {
-	@Override abstract public void createContent() throws Exception;
+public class TableHeader extends TR {
+	public TableHeader() {
+		this("ui-dt-hdr-extra");
+	}
+
+	public TableHeader(@Nullable String css) {
+		if(null != css)
+			addCssClass(css);
+	}
+
+	@Override
+	public void createContent() throws Exception {
+	}
 
 	public TH addHeader() {
 		TH th = new TH();

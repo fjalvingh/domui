@@ -56,6 +56,9 @@ final public class ColumnDef<I, T> {
 	/** Set from metadata, specifies the width in characters. */
 	private int m_characterWidth;
 
+	/** Specifies the max width in characters. */
+	private int m_maxCharacterWidth;
+
 	private boolean m_nowrap = true;
 
 	/** If bound to a property: the metamodel for the property. This is null if the column binds to the entire row object. */
@@ -90,6 +93,8 @@ final public class ColumnDef<I, T> {
 
 	@Nullable
 	private ColumnStyleBindingBuilder<I, T> m_columnStyleBinding;
+
+	private boolean m_rerenderOnBind;
 
 	ColumnDef(@NonNull ColumnList<I> cdl, @NonNull Class<T> valueClass) {
 		m_actualClass = valueClass;
@@ -215,6 +220,25 @@ final public class ColumnDef<I, T> {
 		return this;
 	}
 
+	/**
+	 * The requested max width in characters.
+	 * It would ensure that column never grows over that value in em units.
+	 * In case that text content is larger, it would automatically add whole content text as cell hover.
+	 */
+	public int getMaxCharacterWidth() {
+		return m_maxCharacterWidth;
+	}
+
+	/**
+	 * The requested max width in characters.
+	 * It would ensure that column never grows over that value in em units.
+	 * In case that text content is larger, it would automatically add whole content text as cell hover.
+	 */
+	public ColumnDef<I, T> maxWidth(int characters) {
+		m_maxCharacterWidth = characters;
+		return this;
+	}
+
 	@Nullable
 	public String getPropertyName() {
 		return m_propertyName;
@@ -255,7 +279,8 @@ final public class ColumnDef<I, T> {
 		return m_cellClicked;
 	}
 
-	@Nullable public Predicate<I> getShowCellClickedWhen() {
+	@Nullable
+	public Predicate<I> getShowCellClickedWhen() {
 		return m_showCellClickedWhen;
 	}
 
@@ -340,7 +365,6 @@ final public class ColumnDef<I, T> {
 		return this;
 	}
 
-
 	/**
 	 * Set the node content renderer.
 	 */
@@ -393,6 +417,14 @@ final public class ColumnDef<I, T> {
 	public ColumnDef<I, T> numeric(@NonNull NumericPresentation np) {
 		m_numericPresentation = np;
 		return this;
+	}
+
+	/**
+	 * Set the hint for a column as localized code.
+	 */
+	@NonNull
+	public ColumnDef<I, T> hint(IBundleCode code) {
+		return hint(code.getString());
 	}
 
 	/**
@@ -481,6 +513,20 @@ final public class ColumnDef<I, T> {
 		return this;
 	}
 
+	public boolean isRerenderOnBind() {
+		return m_rerenderOnBind;
+	}
+
+	public ColumnDef<I, T> rerenderOnBind() {
+		m_rerenderOnBind = true;
+		return this;
+	}
+
+	public ColumnDef<I, T> rerenderOnBind(boolean yes) {
+		m_rerenderOnBind = yes;
+		return this;
+	}
+
 	/**
 	 * Return the control factory to create the control to use to show the column's value.
 	 */
@@ -498,6 +544,7 @@ final public class ColumnDef<I, T> {
 		ColumnStyleBindingBuilder<I, T> csb = new ColumnStyleBindingBuilder<I, T>(this, style);
 		return csb;
 	}
+
 	void styleBindingComplete(ColumnStyleBindingBuilder<I, T> csb) {
 		m_columnStyleBinding = csb;
 	}

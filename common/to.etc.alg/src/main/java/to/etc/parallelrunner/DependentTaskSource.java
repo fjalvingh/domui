@@ -61,6 +61,8 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 
 	private int m_maxParallel;
 
+	private final boolean m_logErrors;
+
 	@Nullable
 	private List<Task<T, X>> m_runnableTasks;
 
@@ -75,7 +77,12 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 	}
 
 	public DependentTaskSource(FunctionEx<Task<T, X>, X> executorFactory) {
+		this(executorFactory, true);
+	}
+
+	public DependentTaskSource(FunctionEx<Task<T, X>, X> executorFactory, boolean logErrors) {
 		m_executorFactory = executorFactory;
+		m_logErrors = logErrors;
 	}
 
 	public synchronized void addItem(T item, Collection<? extends T> itemChildren) {
@@ -186,9 +193,9 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			m_todo.addAll(m_taskMap.values());
 			m_runnableTasks = runnableTasks = new ArrayList<>();
 			calculateRunnableTasks();
-		} else if(runnableTasks.size() == 0) {
-			if(m_running.size() == 0 && m_scheduled.isEmpty()) {
-				if(m_todo.size() > 0)
+		} else if(runnableTasks.isEmpty()) {
+			if(m_running.isEmpty() && m_scheduled.isEmpty()) {
+				if(!m_todo.isEmpty())
 					throw new IllegalStateException("There are no tasks running, but none of the todo tasks became available");
 			}
 		}
@@ -209,7 +216,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 				runnableTasks.add(task);
 			}
 		}
-		if(runnableTasks.size() == 0)
+		if(runnableTasks.isEmpty())
 			throw new IllegalStateException("Nothing is runnable: loops in dependencies");
 	}
 
@@ -230,11 +237,13 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			task.setStartTime(new Date());
 			executor.run(progress);
 		} catch(Exception | Error x) {
-			if(x instanceof MessageException) {
-				System.out.println("ERROR " + task + ": " + x.getMessage());
-			} else {
-				System.out.println("ERROR " + task + ": " + x);
-				x.printStackTrace(System.out);
+			if(m_logErrors) {
+				if(x instanceof MessageException) {
+					System.out.println("ERROR " + task + ": " + x.getMessage());
+				} else {
+					System.out.println("ERROR " + task + ": " + x);
+					x.printStackTrace(System.out);
+				}
 			}
 			errorX = x;
 		} finally {
@@ -515,7 +524,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 
 		@Override
 		public String toString() {
-			return "task " + m_item;
+			return m_item.toString();
 		}
 
 		@Nullable

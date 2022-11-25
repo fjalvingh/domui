@@ -24,28 +24,29 @@
  */
 package to.etc.lexer;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
 
 public class ReaderScannerBase extends TextReaderBase {
-	static public final int		T_EOF				= -1;
+	static public final int T_EOF = -1;
 
-	static public final int		T_STRING			= -2;
+	static public final int T_STRING = -2;
 
-	static public final int		T_NUMBER			= -3;
+	static public final int T_NUMBER = -3;
 
-	static public final int		T_IPADDR			= -4;
+	static public final int T_IPADDR = -4;
 
-	static public final int		T_IDENT				= -5;
+	static public final int T_IDENT = -5;
 
-	static public final int		T_COMMENT			= -6;
+	static public final int T_COMMENT = -6;
 
-	static public final int		T_BASE_LAST			= -7;
+	static public final int T_BASE_LAST = -7;
 
-	private int					m_token_lnr;
+	private int m_tokenLine;
 
-	private int					m_token_cnr;
+	private int m_tokenColumn;
 
-	private boolean				m_allowNewlineInString;
+	private boolean m_allowNewlineInString;
 
 	public ReaderScannerBase(Object source, Reader r) {
 		super(source, r);
@@ -60,7 +61,7 @@ public class ReaderScannerBase extends TextReaderBase {
 	}
 
 	public String tokenString(int type) {
-		switch(type){
+		switch(type) {
 			default:
 				return Character.toString((char) type);
 			case T_EOF:
@@ -86,11 +87,11 @@ public class ReaderScannerBase extends TextReaderBase {
 	//	}
 
 	public int getTokenLine() {
-		return m_token_lnr;
+		return m_tokenLine;
 	}
 
 	public int getTokenColumn() {
-		return m_token_cnr;
+		return m_tokenColumn;
 	}
 
 	public SourceLocation getSourceLocation() {
@@ -104,12 +105,12 @@ public class ReaderScannerBase extends TextReaderBase {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Lexical Construct handlers.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Skips whitespace until current character is either EOF or non-ws.
-	 * @throws IOException
 	 */
 	public void skipWs() throws IOException {
-		for(;;) {
+		for(; ; ) {
 			int c = LA();
 			if(c == -1 || !Character.isWhitespace((char) c))
 				return;
@@ -119,10 +120,9 @@ public class ReaderScannerBase extends TextReaderBase {
 
 	/**
 	 * Skips whitespace until current character is either EOF or non-ws.
-	 * @throws IOException
 	 */
 	public void skipWsNoNL() throws IOException {
-		for(;;) {
+		for(; ; ) {
 			int c = LA();
 			if(c == -1 || c == '\n' || !Character.isWhitespace((char) c))
 				return;
@@ -133,7 +133,6 @@ public class ReaderScannerBase extends TextReaderBase {
 	/**
 	 * Scans a very simple string: something starting with something, terminating
 	 * with the same something and not allowing anything ugly in between.
-	 * @throws IOException
 	 */
 	public void scanSimpleString(boolean keepquotes) throws IOException, SourceErrorException {
 		int qc = LA(); // Get quote start
@@ -142,15 +141,15 @@ public class ReaderScannerBase extends TextReaderBase {
 			clearCopy();
 		else
 			append((char) qc);
-		for(;;) {
+		for(; ; ) {
 			int c = LA();
 			if(c == qc)
 				break;
 			else if(c == -1) {
-				error("Unexpected EOF in string constant started at line " + m_token_lnr + ":" + m_token_cnr);
+				error("Unexpected EOF in string constant started at line " + m_tokenLine + ":" + m_tokenColumn);
 				//				throw new IllegalStateException("Unexpected EOF in string constant started at line " + m_token_lnr + ":" + m_token_cnr);
 			} else if(c == '\n' && !isAllowNewlineInString())
-				error("Unexpected newline in string constant started at line " + m_token_lnr + ":" + m_token_cnr + " (collected was " + getCopied() + ")");
+				error("Unexpected newline in string constant started at line " + m_tokenLine + ":" + m_tokenColumn + " (collected was " + getCopied() + ")");
 			//				throw new IllegalStateException("Unexpected newline in string constant started at line " + m_token_lnr + ":" + m_token_cnr + " (collected was " + m_sb.toString() + ")");
 			append((char) c);
 			accept();
@@ -167,8 +166,7 @@ public class ReaderScannerBase extends TextReaderBase {
 		int c2 = LA();
 		int base = 10;
 		if(c == '0') {
-			if(c2 == 'x' || c2 == 'X') // Hex #?
-			{
+			if(c2 == 'x' || c2 == 'X') {             // Hex #?
 				base = 16;
 				append(c2);
 				accept();
@@ -176,7 +174,7 @@ public class ReaderScannerBase extends TextReaderBase {
 				base = 8;
 		}
 
-		for(;;) {
+		for(; ; ) {
 			c = LA();
 			if(c == -1)
 				break;
@@ -204,8 +202,7 @@ public class ReaderScannerBase extends TextReaderBase {
 		int c2 = LA();
 		int base = 10;
 		if(c == '0') {
-			if(c2 == 'x' || c2 == 'X') // Hex #?
-			{
+			if(c2 == 'x' || c2 == 'X') {             // Hex #?
 				base = 16;
 				append(c2);
 				accept();
@@ -214,7 +211,7 @@ public class ReaderScannerBase extends TextReaderBase {
 		}
 
 		int ndots = 0;
-		for(;;) {
+		for(; ; ) {
 			c = LA();
 			if(c == -1)
 				break;
@@ -247,11 +244,11 @@ public class ReaderScannerBase extends TextReaderBase {
 		else if(ndots == 3)
 			return T_IPADDR;
 		else
-			throw new IllegalStateException("Odd number or IP address started at line " + m_token_lnr + ":" + m_token_cnr);
+			throw new IllegalStateException("Odd number or IP address started at line " + m_tokenLine + ":" + m_tokenColumn);
 	}
 
 	public int scanIdentifier() throws IOException {
-		for(;;) {
+		for(; ; ) {
 			int c = LA();
 			if(!isIdChar((char) c))
 				return T_IDENT;
@@ -274,8 +271,8 @@ public class ReaderScannerBase extends TextReaderBase {
 	 * resets the token collection buffer.
 	 */
 	public void startToken() {
-		m_token_cnr = getCurrentColumn();
-		m_token_lnr = getCurrentLine();
+		m_tokenColumn = getCurrentColumn();
+		m_tokenLine = getCurrentLine();
 		clearCopy();
 	}
 }

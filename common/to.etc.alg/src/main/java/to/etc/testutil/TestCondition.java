@@ -49,14 +49,14 @@ public class TestCondition {
 			if(m_exception != null)							// Already failed before
 				return;
 			m_resolved = true;
-			m_scenario.notify();
+			m_scenario.notifyAll();
 		}
 	}
 
 	public void failed(Exception e) {
 		synchronized(m_scenario) {
 			m_exception = e;
-			m_scenario.notify();
+			m_scenario.notifyAll();
 		}
 	}
 

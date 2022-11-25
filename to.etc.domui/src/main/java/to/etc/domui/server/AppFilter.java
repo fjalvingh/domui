@@ -78,6 +78,8 @@ public class AppFilter implements Filter {
 
 	static private String m_appContext;
 
+	static private boolean m_testMode;
+
 	@Nullable
 	static private IRequestResponseWrapper m_ioWrapper;
 
@@ -93,6 +95,10 @@ public class AppFilter implements Filter {
 
 	private static List<HttpSession> m_activeSessionList = new ArrayList<>();
 
+	public static boolean isTestMode() {
+		return m_testMode;
+	}
+
 	@Override
 	public void destroy() {
 		//-- Pass DESTROY on to Application, if present.
@@ -107,8 +113,17 @@ public class AppFilter implements Filter {
 
 	@Override
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
+		boolean logRequired = false;
+		Throwable failure = null;
+		String path = null;
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
+			path = rq.getRequestURI();            // getPathInfo() always returns null - what an idiots.
+			logRequired = isLogRequired(path);
+			if(logRequired) {
+				LOG.error("ENTERED " + rq.getPathInfo());
+			}
+
 			if(LOG.isDebugEnabled()) {
 				LOG.debug("--- Request entering the server");
 
@@ -152,20 +167,34 @@ public class AppFilter implements Filter {
 			}
 			m_contextMaker.handleRequest(rq, response, chain);
 		} catch(RuntimeException | ServletException x) {
+			failure = x;
 			DomUtil.dumpExceptionIfSevere(x);
 			throw x;
 		} catch(IOException x) {
+			failure = x;
 			if(x.getClass().getName().endsWith("ClientAbortException")) // Do not log these.
 				throw x;
 			DomUtil.dumpExceptionIfSevere(x);
 			throw x;
 		} catch(Exception x) {
+			failure = x;
 			DomUtil.dumpExceptionIfSevere(x);
 			throw new WrappedException(x); // checked exceptions are idiotic
 		} catch(Error x) {
 			LOG.error("Request error: " + x, x);
+			failure = x;
 			throw x;
+		} finally {
+			if(logRequired) {
+				LOG.error("EXITED " + path + " exception=" + failure);
+			}
 		}
+	}
+
+	private boolean isLogRequired(String s) {
+		if(s == null)
+			return false;
+		return s.contains("rest/appliance2/loadResultTable");
 	}
 
 	//static synchronized private void initContext(ServletRequest req) {
@@ -192,7 +221,7 @@ public class AppFilter implements Filter {
 
 		initLogConfig(approot, config.getInitParameter("logpath"));
 
-		if(DeveloperOptions.isDeveloperWorkstation() ) {
+		if(DeveloperOptions.isDeveloperWorkstation()) {
 			config.getServletContext().getSessionCookieConfig().setHttpOnly(false);
 			config.getServletContext().getSessionCookieConfig().setSecure(false);
 		}
@@ -223,15 +252,18 @@ public class AppFilter implements Filter {
 
 			//-- Are we running in development mode?
 			String domUiReload = DeveloperOptions.getString("domui.reload");
-			String autoload = domUiReload != null ? domUiReload : m_config.getString("auto-reload"); 			// Allow override of web.xml values.
+			String autoload = domUiReload != null ? domUiReload : m_config.getString("auto-reload");            // Allow override of web.xml values.
 
 			//these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Found bundles and MetaData will be reloaded only.
 			String autoloadWatchOnly = m_config.getString("auto-reload-watch-only");
 
-			if(DeveloperOptions.isDeveloperWorkstation() && DeveloperOptions.getBool("domui.developer", true) && autoload != null && autoload.trim().length() > 0)
+			if(DeveloperOptions.isDeveloperWorkstation() && DeveloperOptions.getBool("domui.developer", true) && autoload != null && !autoload.trim().isEmpty()) {
 				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload, autoloadWatchOnly);
-			else
+				m_testMode = true;
+			} else {
 				m_contextMaker = new NormalContextMaker(m_applicationClassName, m_config);
+				m_testMode = false;
+			}
 
 			config.getServletContext().addListener(new ActiveSessionListener());
 		} catch(RuntimeException x) {

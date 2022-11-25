@@ -202,7 +202,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			raw = raw.trim();
 
 		//-- Do mandatory checking && exit if value is missing.
-		if(raw == null || raw.length() == 0) {
+		if(raw == null || raw.isEmpty()) {
 			//-- Field is empty.
 			if(isMandatory()) {
 				throw new ValidationException(Msgs.mandatory);
@@ -218,9 +218,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			if(!Pattern.matches(getValidationRegexp(), raw)) {
 				//-- We have a validation error.
 				if(getRegexpUserString() != null)
-					throw new ValidationException(Msgs.V_NO_RE_MATCH, getRegexpUserString());		// Input format must be {0}
+					throw new ValidationException(Msgs.vNoReMatch, getRegexpUserString());		// Input format must be {0}
 				else
-					throw new ValidationException(Msgs.V_INVALID);
+					throw new ValidationException(Msgs.vInvalid);
 			}
 		}
 
@@ -240,7 +240,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 				((IValueValidator<Object>) vv).validate(converted);
 			m_value = (T) converted;
 		} catch(UIException x) {
-			throw new ValidationException(x.getBundle(), x.getCode(), x.getParameters());
+			throw new ValidationException(x);
 		} catch(RuntimeConversionException x) {
 			throw new ValidationException(Msgs.notValid, raw);
 		} catch(Exception x) {
@@ -397,7 +397,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			else
 				converted = RuntimeConversions.convertTo(value, String.class);
 		} catch(UIException x) {
-			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
+			setMessage(UIMessage.error(x));
 			return;
 		} catch(Exception x) {
 			LOG.error("setValue error: " + x, x);
@@ -409,7 +409,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		clearMessage();
 
 		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
-		if((converted == null || converted.trim().length() == 0) && isMandatory())
+		if((converted == null || converted.trim().isEmpty()) && isMandatory())
 			m_validated = false;
 		else {
 			m_validated = true;

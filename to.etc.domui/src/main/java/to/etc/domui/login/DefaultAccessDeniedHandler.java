@@ -31,7 +31,7 @@ public class DefaultAccessDeniedHandler implements IAccessDeniedHandler {
 
 		//-- If we have a message use it
 		String failureReason = null;
-		if(result.getMessageList().size() > 0) {
+		if(!result.getMessageList().isEmpty()) {
 			failureReason = result.getMessageList().get(0).getMessage();
 		}
 		String[] rann = result.getRights();

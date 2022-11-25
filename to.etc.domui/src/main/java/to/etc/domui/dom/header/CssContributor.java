@@ -37,7 +37,7 @@ final class CssContributor extends HeaderContributor {
 	CssContributor(@NonNull String path, boolean offline, String... options) {
 		m_offline = offline;
 		m_options = options;
-		if(path == null || path.length() == 0)
+		if(path == null || path.isEmpty())
 			throw new IllegalArgumentException("Null path not allowed");
 		m_path = path;
 	}

@@ -122,7 +122,7 @@ public class HtmlTextScanner extends TextScanner {
 		}
 
 		//-- Just flush the open tag stack
-		while(m_tagStack.size() > 0) {
+		while(!m_tagStack.isEmpty()) {
 			sb.append("</");
 			sb.append(m_tagStack.remove(m_tagStack.size() - 1));
 			sb.append(">");
@@ -263,7 +263,7 @@ public class HtmlTextScanner extends TextScanner {
 	}
 
 	private boolean popStackIf(String s) {
-		if(m_tagStack.size() == 0)
+		if(m_tagStack.isEmpty())
 			return false;
 		if(m_tagStack.get(m_tagStack.size() - 1).equalsIgnoreCase(s)) {
 			m_tagStack.remove(m_tagStack.size() - 1);

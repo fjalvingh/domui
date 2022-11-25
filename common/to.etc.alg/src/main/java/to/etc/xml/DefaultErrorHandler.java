@@ -37,9 +37,9 @@ public class DefaultErrorHandler implements ErrorHandler {
 		if(m_xmlerr_sb.length() > 0)
 			m_xmlerr_sb.append("\n");
 		String id = exception.getPublicId();
-		if(id == null || id.length() == 0)
+		if(id == null || id.isEmpty())
 			id = exception.getPublicId();
-		if(id == null || id.length() == 0)
+		if(id == null || id.isEmpty())
 			id = "unknown-source";
 		m_xmlerr_sb.append(id);
 		m_xmlerr_sb.append('(');

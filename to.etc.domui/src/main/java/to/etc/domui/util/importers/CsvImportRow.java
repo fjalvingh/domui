@@ -78,7 +78,7 @@ public class CsvImportRow implements IImportRow {
 			if(null == stringValue)
 				return null;
 			stringValue = stringValue.trim();
-			if(stringValue.length() == 0)
+			if(stringValue.isEmpty())
 				return null;
 			try {
 				return df.parse(stringValue);
@@ -94,7 +94,7 @@ public class CsvImportRow implements IImportRow {
 			if(null == stringValue)
 				return null;
 			stringValue = stringValue.trim();
-			if(stringValue.length() == 0)
+			if(stringValue.isEmpty())
 				return null;
 
 			DateFormat sdf = m_reader.getDateFormat(dateFormat);

@@ -50,6 +50,9 @@ final public class NlsContext {
 
 	static private String m_dialect;
 
+	/** Contains the perhaps fixed default locale as reported by the JDK */
+	static private Locale m_defaultLocale;
+
 	/** The default currency locale; used when no currency is explicitly set. */
 	static private Locale m_defaultCurrencyLocale;
 
@@ -85,14 +88,23 @@ final public class NlsContext {
 	 */
 	private NlsContext() {}
 
+	static {
+		Locale dl = Locale.getDefault();
+		String country = dl.getCountry();
+		String language = dl.getLanguage();
+		if(country == null || country.isEmpty() || language == null || language.isEmpty()) {
+			m_defaultLocale = Locale.US;
+		} else {
+			m_defaultLocale = dl;
+		}
+	}
 
 	/**
 	 * Returns the default Application locale. <b>DO NOT USE!!!!</b>, except when absolutely necessary! To get
 	 * the actual locale that is being used by a request call getLocale()!
-	 * @return
 	 */
 	static public Locale getDefault() {
-		return Locale.getDefault();
+		return m_defaultLocale;
 	}
 
 	public synchronized static void setDefaultCurrencyLocale(Locale defaultCurrencyLocale) {
@@ -110,7 +122,6 @@ final public class NlsContext {
 	 * an application uses multiple currencies the application itself must provide services to
 	 * handle the "current" currency and monetary conversions of currencies.</p>
 	 * <p>This will return the <i>default locale</i> if not explicitly set.</p>
-	 * @return
 	 */
 	static public Locale getCurrencyLocale() {
 		Locale loc = m_currencyLocale.get();
@@ -119,7 +130,6 @@ final public class NlsContext {
 
 	/**
 	 * Sets the currency locale to use for this request.
-	 * @param loc
 	 */
 	static public void setCurrencyLocale(Locale loc) {
 		m_currencyLocale.set(loc);
@@ -128,7 +138,6 @@ final public class NlsContext {
 
 	/**
 	 * Returns a Currency object for the current currency locale.
-	 * @return
 	 */
 	static public Currency getCurrency() {
 		Currency c = m_currency.get();
@@ -142,7 +151,6 @@ final public class NlsContext {
 	/**
 	 * Returns the currency symbol (not the currency code, damnit) for the current currency locale. This will
 	 * return the euro sign € instead of EUR.
-	 * @return
 	 */
 	static public String getCurrencySymbol() {
 		Currency c = getCurrency();
@@ -163,7 +171,6 @@ final public class NlsContext {
 	/**
 	 * Gets the current locale in use by the request we're executing at this time - this is
 	 * the PROPER call to use from normal user code.
-	 * @return
 	 */
 	static public Locale getLocale() {
 		Locale loc = m_currentLocale.get();
@@ -175,7 +182,6 @@ final public class NlsContext {
 	/**
 	 * Sets the current locale. <b>DO NOT USE!!!!!</b> This method should ONLY be
 	 * called from system (server) code! It sets the per-request locale.
-	 * @param loc
 	 */
 	static public void setLocale(final Locale loc) {
 		m_currentLocale.set(loc);
@@ -188,7 +194,6 @@ final public class NlsContext {
 	 * Get the BundleRef for the specified bundle key. This represents a given set of
 	 * messages for all possible locales.
 	 * @param bundlekey     The key (package/filename) of the resource bundle without .properties!
-	 * @return
 	 */
 	static synchronized public BundleRef getBundleRef(final String bundlekey) {
 		BundleRef r = m_refMap.get(bundlekey);

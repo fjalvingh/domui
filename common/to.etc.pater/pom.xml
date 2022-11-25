@@ -16,6 +16,19 @@
     <description>TestRunner interface code for interfacing with the test runner from JUnit tests</description>
     <inceptionYear>2017</inceptionYear>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.skip>false</sonar.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <!-- Test dependencies  -->
         <dependency>

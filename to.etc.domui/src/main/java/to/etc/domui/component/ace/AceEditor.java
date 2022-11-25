@@ -4,9 +4,11 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IHasChangeListener;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IManualFocus;
 import to.etc.domui.dom.html.IValueChanged;
@@ -14,13 +16,15 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.state.IPageParameters;
+import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
-import java.awt.*;
+import java.awt.Point;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,13 +45,17 @@ import java.util.function.Predicate;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 23-12-17.
  */
-public class AceEditor extends Div implements IControl<String>, IComponentJsonProvider, IHasModifiedIndication, IManualFocus {
-	static private String m_version = "1.2.9";
+public class AceEditor extends Div implements IControl<String>, IHasModifiedIndication, IManualFocus {
+	//static private String m_version = "1.2.9";
+	static private String m_version = "1.4.13";
 
 	private int m_nextId;
 
 	@Nullable
 	private String m_value;
+
+	@Nullable
+	private String m_selectedText;
 
 	@Nullable
 	private String m_theme;
@@ -77,6 +85,66 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	private boolean m_completerDefined;
 
+	private Div m_editDiv = new RealEditor("ui-acedit-e");
+
+	private final class RealEditor extends Div implements IComponentJsonProvider, IHasChangeListener {
+		public RealEditor(String css) {
+			super(css);
+		}
+
+		@Override
+		public boolean acceptRequestParameter(@NonNull String[] values, @NonNull IPageParameters allParameters) throws Exception {
+			if(values.length != 1)
+				throw new IllegalStateException("? Expecting but one value?");
+			String value = values[0];
+			String selected = allParameters.getString(getActualID() + "_s", null);
+			if(selected != null && selected.isEmpty())
+				selected = null;
+			m_selectedText = selected;
+
+			if(Objects.equals(m_value, value))
+				return false;
+
+			m_value = value;
+			DomUtil.setModifiedFlag(this);
+			return true;
+		}
+
+		@Override
+		public IValueChanged<?> getOnValueChanged() {
+			return m_valueChanged;
+		}
+
+		@Override
+		public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+			m_valueChanged = onValueChanged;
+		}
+
+		@Override
+		public Object provideJsonData(IPageParameters parameterSource) throws Exception {
+			int col = parameterSource.getInt(getEditorId() + "_col");
+			int row = parameterSource.getInt(getEditorId() + "_row");
+			String prefix = parameterSource.getString(getEditorId() + "_prefix");
+			ICompletionHandler ch = getCompletionHandler();
+			String value = m_value;
+			if(ch == null || prefix == null || value == null) {
+				return Collections.emptyList();
+			}
+
+			//-- Do we need to change the prefix?
+			Predicate<Character> prefixValidator = m_prefixValidator;
+			if(null != prefixValidator) {
+				String dotted = getDottedPrefix(row, col, prefixValidator);
+				if(null != dotted)
+					prefix = dotted;
+
+			}
+			return ch.getCompletions(value, row, col, prefix);
+		}
+	}
+
+	private Div m_barDiv = new Div("ui-acedit-b");
+
 	@Override
 	public boolean isModified() {
 		return m_modified;
@@ -96,24 +164,49 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	@Nullable
 	private ICompletionHandler m_completionHandler;
 
-	@Override public void createContent() throws Exception {
+	private String getEditorId() {
+		return m_editDiv.getActualID();
+	}
+
+	@Override
+	public void createContent() throws Exception {
+		addCssClass("ui-acedit");
+		m_editDiv.addCssClass("ui-aced ace_editor");
+		//m_editDiv.addCssClass("ui-aced ace_editor ace-iplastic");
+		add(m_editDiv);
+		add(m_barDiv);
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
-		sb.append("let ed = ace.edit('").append(getActualID()).append("');\n");
-		sb.append("ed.__id='").append(getActualID()).append("';\n");
+		String editorId = m_editDiv.getActualID();
+		sb.append("let ed = ace.edit('").append(editorId).append("');\n");
+		sb.append("ed.__id='").append(editorId).append("';\n");
 		sb.append("var Range = require('ace/range').Range;\n");
-		sb.append("window['").append(getActualID()).append("'] = ed;\n");
-		sb.append("WebUI.registerInputControl('").append(getActualID()).append("', {getInputField: function() {");
+		sb.append("window['").append(editorId).append("'] = ed;\n");
+		sb.append("WebUI.registerInputControl('").append(editorId).append("', {getInputField: function(fields) {");
+		sb.append(" let select = ed.getSelectedText();\n");
+		sb.append(" fields['").append(editorId).append("_s'] = select;\n");
 		sb.append(" return ed.getValue();\n");
-		sb.append("},"
+		sb.append("}");
+
+		sb.append(","
 			+ "onVisibilityChanged: function() {"
 			+ "  ed.resize();"
 			//+ "  alert('rezi');"
 			+ "}"
-			+ "});\n");
+		);
+
+		sb.append(","
+			+ "onResize: function() {"
+			+ "  ed.resize();"
+			//+ "  console.log('resize editor');"
+			//+ "  alert('rezi');"
+			+ "}"
+		);
+
+		sb.append("});\n");
 		sb.append("ed.__markermap = {};\n");
 		sb.append("ed.on(\"change\", ed.$onChangeBackMarker);\n");
 
@@ -126,18 +219,19 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 			sb.append("  ed.__utimer = setTimeout(function() {\n");
 			sb.append("    delete ed.__utimer;\n");
-			sb.append("    WebUI.valuechanged('', '").append(getActualID()).append("');\n");
+			sb.append("    WebUI.valuechanged('', '").append(editorId).append("');\n");
 
 			sb.append("}, 500);\n");
 
 			sb.append("});");
 		}
+		sb.append("WebUI.aceMakeResizable('" + editorId + "', '" + m_barDiv.getActualID() + "');\n");
 
 		//-- Autocomplete?
 		ICompletionHandler ch = getCompletionHandler();
 		if(null != ch) {
 			String js = FileTool.readResourceAsString(getClass(), "/resources/ace/acecompletion.js", "utf-8");
-			sb.append(js.replace("$ID$", getActualID()));
+			sb.append(js.replace("$ID$", editorId));
 			m_completerDefined = true;
 		}
 		sb.append("};\n");
@@ -149,9 +243,9 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			return;
 		try {
 			StringBuilder sb = new StringBuilder();
-			sb.append("{ var ed = window['").append(getActualID()).append("'];");
+			sb.append("{ var ed = window['").append(getEditorId()).append("'];");
 			String js = FileTool.readResourceAsString(getClass(), "/resources/ace/acecompletion.js", "utf-8");
-			sb.append(js.replace("$ID$", getActualID()));
+			sb.append(js.replace("$ID$", getEditorId()));
 			m_completerDefined = true;
 			sb.append("}\n");
 			appendJavascript(sb);
@@ -160,28 +254,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		}
 	}
 
-	@Override public Object provideJsonData(IPageParameters parameterSource) throws Exception {
-		int col = parameterSource.getInt(getActualID() + "_col");
-		int row = parameterSource.getInt(getActualID() + "_row");
-		String prefix = parameterSource.getString(getActualID() + "_prefix");
-		ICompletionHandler ch = getCompletionHandler();
-		String value = m_value;
-		if(ch == null || prefix == null || value == null) {
-			return Collections.emptyList();
-		}
-
-		//-- Do we need to change the prefix?
-		Predicate<Character> prefixValidator = m_prefixValidator;
-		if(null != prefixValidator) {
-			String dotted = getDottedPrefix(row, col, prefixValidator);
-			if(null != dotted)
-				prefix = dotted;
-
-		}
-		return ch.getCompletions(value, row, col, prefix);
-	}
-
-	@Override public void renderJavascriptState(StringBuilder sb) throws Exception {
+	@Override
+	public void renderJavascriptState(StringBuilder sb) throws Exception {
 		updateTheme();
 		updateMode();
 		updateValue();
@@ -196,13 +270,21 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
 	}
 
-	@Override
-	@Nullable public String getValue() {
-		return m_value;
+	@Nullable
+	public String getBindValue() {
+		String value = m_value;
+		if(isMandatory() && (value == null || value.isEmpty())) {
+			throw new ValidationException(Msgs.mandatory);
+		}
+		return value;
 	}
 
-	@Override
-	public void setValue(@Nullable String value) {
+	@Nullable
+	public String getSelectedText() {
+		return m_selectedText;
+	}
+
+	public void setBindValue(@Nullable String value) {
 		if(Objects.equals(value, m_value))
 			return;
 		markerClear();
@@ -215,6 +297,32 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		} else {
 			forceRebuild();
 		}
+	}
+
+	@Override
+	@Nullable
+	public String getValue() {
+		try {
+			String bindValue = getBindValue();
+			setMessage(null);
+			return bindValue;
+		} catch(ValidationException x) {
+			handleValidationException(x);
+			throw x;
+		}
+	}
+
+	private void handleValidationException(@Nullable ValidationException x) {
+		UIMessage message = null;
+		if(null != x) {
+			message = UIMessage.error(x);
+		}
+		setMessage(message);
+	}
+
+	@Override
+	public void setValue(@Nullable String value) {
+		setBindValue(value);
 	}
 
 	private void callStringMethod(String methodName, String value) {
@@ -252,7 +360,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		appendJavascript(sb);
 	}
 
-	@Nullable public String getTheme() {
+	@Nullable
+	public String getTheme() {
 		return m_theme;
 	}
 
@@ -268,9 +377,11 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	private void updateTheme() {
 		String theme = m_theme;
 		if(null == theme) {
-			theme = "ace/theme/monokai";
+			theme = "monokai";
 		}
-		callStringMethod("setTheme", theme);
+
+		//-- Convert the theme name to a theme name on the cdn (see https://cdnjs.com/libraries/ace)
+		callStringMethod("setTheme", "ace/theme/" + theme);
 	}
 
 	private void updateMode() {
@@ -297,7 +408,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		callMethod("setReadOnly", Boolean.valueOf(m_internalRo).toString());
 	}
 
-	@Nullable public String getMode() {
+	@Nullable
+	public String getMode() {
 		return m_mode;
 	}
 
@@ -322,7 +434,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	}
 
 	private StringBuilder handle(StringBuilder sb) {
-		sb.append("window['").append(getActualID()).append("'].");
+		sb.append("window['").append(getEditorId()).append("'].");
 		return sb;
 	}
 
@@ -404,30 +516,37 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		updateInternalRo(m_disabled || m_readOnly);
 	}
 
-	@Override public boolean isMandatory() {
+	@Override
+	public boolean isMandatory() {
 		return m_mandatory;
 	}
 
-	@Override public void setMandatory(boolean mandatory) {
+	@Override
+	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
 	}
 
-	@Override public IValueChanged<?> getOnValueChanged() {
+	@Override
+	public IValueChanged<?> getOnValueChanged() {
 		return m_valueChanged;
 	}
 
-	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	@Override
+	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		m_valueChanged = onValueChanged;
 	}
 
 	/**
 	 * The editor does not support being used as a label for= target.
 	 */
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return null;
 	}
 
-	@Override public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
+	@Override
+	public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
 		if(values.length != 1)
 			throw new IllegalStateException("? Expecting but one value?");
 		String value = values[0];
@@ -563,7 +682,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	}
 
 	public int markerAdd(MsgType sev, int startPosition, int endPosition, String message, @Nullable String css) {
-		String value = getValue();
+		String value = m_value;
 		if(null == value || endPosition <= startPosition)
 			return -1;
 		PositionCalculator calculator = m_calculator;
@@ -606,11 +725,12 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		}
 	}
 
-	@Override protected void renderJavascriptDelta(JavascriptStmt b) throws Exception {
+	@Override
+	protected void renderJavascriptDelta(JavascriptStmt b) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
 		sb.append("let ed = ");
-		sb.append("window['").append(getActualID()).append("'];\n");
+		sb.append("window['").append(getEditorId()).append("'];\n");
 		sb.append("let session = ed.getSession();\n");
 		sb.append("let range_ = ace.require(\"ace/range\");\n");
 
@@ -752,7 +872,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			return m_cssClass;
 		}
 
-		@Override public boolean equals(@Nullable Object o) {
+		@Override
+		public boolean equals(@Nullable Object o) {
 			if(this == o)
 				return true;
 			if(o == null || getClass() != o.getClass())
@@ -768,11 +889,13 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 				Objects.equals(m_cssClass, marker.m_cssClass);
 		}
 
-		@Override public int hashCode() {
+		@Override
+		public int hashCode() {
 			return Objects.hash(m_type, m_message, m_line, m_column, m_endColumn, m_endLine, m_cssClass, m_id);
 		}
 
-		@Override public String toString() {
+		@Override
+		public String toString() {
 			return "id=" + m_id + "(" + m_line + "," + m_column + ")";
 		}
 	}
@@ -782,7 +905,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		callMethod("focus");
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		//setTitle(hintText);
 	}
 

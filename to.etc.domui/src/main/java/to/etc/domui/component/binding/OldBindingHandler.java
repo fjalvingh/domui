@@ -27,8 +27,6 @@ final public class OldBindingHandler {
 
 	/**
 	 * System helper method to move all bindings from control into the model (called at request start).
-	 * @param root
-	 * @throws Exception
 	 */
 	static public void controlToModel(@NonNull NodeBase root) throws Exception {
 		DomApplication.get().getBindingHandler(root).controlToModel();
@@ -36,8 +34,6 @@ final public class OldBindingHandler {
 
 	/**
 	 * System helper method to move all bindings from model to control (called at request end).
-	 * @param root
-	 * @throws Exception
 	 */
 	static public void modelToControl(@NonNull NodeBase root) throws Exception {
 		DomApplication.get().getBindingHandler(root).modelToControl();
@@ -46,9 +42,6 @@ final public class OldBindingHandler {
 	/**
 	 * Get a list of binding errors starting at (and including) the parameter node. Each
 	 * message will contain the NodeBase control that failed inside {@link UIMessage#getErrorNode()}.
-	 * @param root
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	static public List<UIMessage> getBindingErrors(@NonNull NodeBase root) throws Exception {
@@ -78,9 +71,6 @@ final public class OldBindingHandler {
 	/**
 	 * If the specified subtree has binding errors: report them, and return TRUE if there are
 	 * errors.
-	 * @param root
-	 * @return true if errors are present
-	 * @throws Exception
 	 */
 	static public boolean reportBindingErrors(@NonNull NodeBase root) throws Exception {
 		final boolean[] silly = new boolean[1];					// Not having free variables is a joke.
@@ -103,7 +93,7 @@ final public class OldBindingHandler {
 					}
 
 					//-- If there is an error somewhere- report the 1st one on the component
-					if(bindErrorList.size() > 0) {
+					if(!bindErrorList.isEmpty()) {
 						UIMessage message = bindErrorList.get(0);		// Report the first error as the binding error.
 						message.group(BINDING_ERROR);
 						silly[0] = true;

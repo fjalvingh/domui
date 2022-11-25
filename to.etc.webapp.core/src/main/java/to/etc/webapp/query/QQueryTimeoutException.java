@@ -11,10 +11,10 @@ import java.sql.*;
  */
 public class QQueryTimeoutException extends QDbException {
 	public QQueryTimeoutException() {
-		super("query.timeout");
+		super(QMessages.queryTimeout);
 	}
 
 	public QQueryTimeoutException(Throwable x) {
-		super(x, "query.timeout");
+		super(x, QMessages.queryTimeout);
 	}
 }

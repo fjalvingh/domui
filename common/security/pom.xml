@@ -19,6 +19,19 @@
     <description>Security and encryption code</description>
     <inceptionYear>2019</inceptionYear>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.skip>false</sonar.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>to.etc.domui</groupId>

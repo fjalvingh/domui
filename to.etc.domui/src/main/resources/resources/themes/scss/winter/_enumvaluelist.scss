@@ -1,0 +1,21 @@
+.ui-evli {
+	display: inline;
+	.ui-evli-c {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+
+		.ui-evli-p {
+			padding-right: 10px;
+			display: flex;
+			align-items: center;
+			column-gap: 5px;
+		}
+
+		input, span, label {
+			vertical-align: middle;
+		}
+	}
+}
+
+

@@ -63,7 +63,7 @@ abstract public class QOperatorNode extends QNodeBase {
 			QOperatorNode child = mn.getChildren().get(i);
 			if(child instanceof QMultiNode) {
 				QMultiNode chn = (QMultiNode) child;
-				if(chn.getChildren().size() == 0) {
+				if(chn.getChildren().isEmpty()) {
 					mn.getChildren().remove(i);
 				}
 			}

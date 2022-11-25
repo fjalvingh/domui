@@ -193,7 +193,7 @@ public class SshKeyUtils {
 	static private final byte[] readPemFormat(String in) {
 		StringBuilder sb = new StringBuilder();
 		for(String line: new LineIterator(in)) {
-			if(! line.startsWith("--") && line.length() > 0) {
+			if(! line.startsWith("--") && !line.isEmpty()) {
 				sb.append(line);
 
 			}

@@ -32,30 +32,24 @@ public class UnknownDB extends BaseDB {
 		super("unknown");
 	}
 
-	/**
-	 * Returns a SQL statement that is the cheapest way to check the validity of a connection.
-	 * @return
-	 */
-	@Override
-	protected String getCheckString() {
-		return "select 1";
-	}
-
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Sequences.											*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Uses a table sequence to generate a value.
-	 * @param dbc			the connection
-	 * @return				the id
-	 * @throws SQLException	if the sequence could not be obtained
+	 *
+	 * @param dbc the connection
+	 * @throws SQLException if the sequence could not be obtained
+	 * @return the id
 	 */
 	@Override
 	protected int getFullSequenceID(Connection dbc, String seqname) throws SQLException {
 		try {
 			return trySequenceID(dbc, seqname);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+			//-- Ignore
+		}
 
 		//-- When here the above failed. Try to create the table then retry.
 		createSequence(dbc, seqname); // Create the sequence table
@@ -79,7 +73,9 @@ public class UnknownDB extends BaseDB {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- Ignore
+			}
 		}
 	}
 
@@ -96,11 +92,15 @@ public class UnknownDB extends BaseDB {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- Ignore
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- Ignore
+			}
 		}
 	}
 
@@ -108,38 +108,9 @@ public class UnknownDB extends BaseDB {
 	/*	CODING:	Blob writing.										*/
 	/*--------------------------------------------------------------*/
 
-	@Override
-	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is, int len) throws SQLException {
-		PreparedStatement ps = null;
-		try {
-			StringBuilder sb = new StringBuilder();
-			sb.append("update ");
-			sb.append(table);
-			sb.append(" set ");
-			sb.append(column);
-			sb.append('=');
-			if(is == null)
-				sb.append("null");
-			else
-				sb.append('?');
-			sb.append(" where ");
-			ps = mkKeyedSQL(dbc, sb, pkfields, key, is == null ? 1 : 2, null);
-			if(is != null)
-				ps.setBinaryStream(1, is, len);
-			int rc = ps.executeUpdate();
-			if(rc != 1)
-				throw new SQLException("Record in table " + table + " not found for BLOB update.");
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-		}
-	}
-
 	/**
-	 *	Writes a blob to the requested record using the normal setBinaryStream
-	 *  call. Used for jdbc-compliant databases.
+	 * Writes a blob to the requested record using the normal setBinaryStream
+	 * call. Used for jdbc-compliant databases.
 	 */
 	@Override
 	protected void setBlob(Connection dbc, String table, String column, String where, InputStream is, int len) throws SQLException {
@@ -158,90 +129,10 @@ public class UnknownDB extends BaseDB {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
-		}
-	}
-
-	/**
-	 *	Writes a blob to the requested record using the normal setBinaryStream
-	 *  call. Used for jdbc-compliant databases.
-	 */
-	@Override
-	protected void setClob(Connection dbc, String table, String column, String where, Reader r) throws Exception {
-		PreparedStatement ps = null;
-		try {
-			if(r == null)
-				ps = dbc.prepareStatement("update " + table + " set " + column + " = null where " + where);
-			else {
-				ps = dbc.prepareStatement("update " + table + " set " + column + " = ? where " + where);
-				ps.setCharacterStream(1, r, Integer.MAX_VALUE);
+			} catch(Exception x) {
+				//-- Ignore
 			}
-			int rc = ps.executeUpdate();
-			if(rc != 1)
-				throw new SQLException("Record in table " + table + " with key " + where + " not found for BLOB update.");
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
 		}
 	}
 
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Getting streams/readers from a resultset.			*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Returns a Reader from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected Reader getLobReader(Connection dbc, ResultSet rs, int col) throws Exception {
-		InputStream is = rs.getBinaryStream(col);
-		if(is == null)
-			return null;
-		return new InputStreamReader(is);
-	}
-
-	/**
-	 * Returns a Reader from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected Reader getLobReader(Connection dbc, ResultSet rs, String col) throws Exception {
-		InputStream is = rs.getBinaryStream(col);
-		if(is == null)
-			return null;
-		return new InputStreamReader(is);
-	}
-
-	/**
-	 * Returns an InputStream from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected InputStream getLobStream(Connection dbc, ResultSet rs, int col) throws Exception {
-		return rs.getBinaryStream(col);
-	}
-
-	/**
-	 * Returns an InputStream from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected InputStream getLobStream(Connection dbc, ResultSet rs, String col) throws Exception {
-		return rs.getBinaryStream(col);
-	}
 }

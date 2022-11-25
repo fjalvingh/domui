@@ -28,10 +28,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -55,9 +53,7 @@ import java.util.regex.Pattern;
  * @version 1.0
  */
 public class StringTool {
-	static private final Pattern	NORMALIZE_PATTERN	= Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-
-	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?:(https?|ftp|file)://|www\\.)?([\\w-]+[\\.\\:\\-])+[\\w-]+(/[\\w- ;#,./?%&=]*)?", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+	static private final Pattern NORMALIZE_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
 	/**
 	 * PLEASE DO NOT USE ANYMORE - this limit will change in Oracle 12. To get the
@@ -66,37 +62,42 @@ public class StringTool {
 	 * used.
 	 */
 	@Deprecated
-	public static final int	MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2	= 4000;
+	public static final int MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2 = 4000;
 
-	/** According to RFC 3696 */
+	/**
+	 * According to RFC 3696
+	 */
 	public static final int MAX_EMAIL_LENGTH = 255;
 
-	private final static String	m_charString	= "bcdfghjklmnpqrstvwxyz";
+	private final static String m_charString = "bcdfghjklmnpqrstvwxyz";
 
-	private final static char[]	m_characters	= m_charString.toCharArray();
+	private final static char[] m_characters = m_charString.toCharArray();
 
-	static private final long	DAYS	= 24 * 60 * 60;
+	static private final long DAYS = 24L * 60 * 60;
 
-	static private final long	HOURS	= 60 * 60;
+	static private final long HOURS = 60L * 60;
 
-	/** JRE version as a packed integer: 1.4.2.1 */
-	static private int		m_jre_version;
+	/**
+	 * JRE version as a packed integer: 1.4.2.1
+	 */
+	static private int m_jre_version;
 
-	static private boolean	m_jre_checked;
+	static private boolean m_jre_checked;
 
-	static private int			m_guidSeed;
+	static private int m_guidSeed;
 
-	static private final char[]	GUIDBASE64MAP	= "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_".toCharArray();
-
+	static private final char[] GUIDBASE64MAP = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_".toCharArray();
 
 	// rfc-2045: Base64 Alphabet
-	static private final byte[]	BASE64MAP	= {(byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D', (byte) 'E', (byte) 'F', (byte) 'G', (byte) 'H', (byte) 'I', (byte) 'J', (byte) 'K', (byte) 'L',
+	static private final byte[] BASE64MAP = {(byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D', (byte) 'E', (byte) 'F', (byte) 'G', (byte) 'H', (byte) 'I', (byte) 'J', (byte) 'K', (byte) 'L',
 		(byte) 'M', (byte) 'N', (byte) 'O', (byte) 'P', (byte) 'Q', (byte) 'R', (byte) 'S', (byte) 'T', (byte) 'U', (byte) 'V', (byte) 'W', (byte) 'X', (byte) 'Y', (byte) 'Z', (byte) 'a', (byte) 'b',
 		(byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f', (byte) 'g', (byte) 'h', (byte) 'i', (byte) 'j', (byte) 'k', (byte) 'l', (byte) 'm', (byte) 'n', (byte) 'o', (byte) 'p', (byte) 'q', (byte) 'r',
 		(byte) 's', (byte) 't', (byte) 'u', (byte) 'v', (byte) 'w', (byte) 'x', (byte) 'y', (byte) 'z', (byte) '0', (byte) '1', (byte) '2', (byte) '3', (byte) '4', (byte) '5', (byte) '6', (byte) '7',
 		(byte) '8', (byte) '9', (byte) '+', (byte) '/'};
 
-	static private final byte[]	BASE64DECMAP;
+	static private final byte[] BASE64DECMAP;
+
+	private static final Random m_random = new Random();
 
 	static {
 		BASE64DECMAP = new byte[128];
@@ -119,11 +120,8 @@ public class StringTool {
 
 	/**
 	 * This methods creates a random String with the specified prefix and length given.
-	 *
+	 * <p>
 	 * The generated string does not contain vowels (a, e, i, o, u)
-	 * @param length
-	 * @param prefix
-	 * @return
 	 */
 	@NonNull
 	public static String getRandomStringWithPrefix(int length, @NonNull String prefix) {
@@ -134,9 +132,8 @@ public class StringTool {
 		StringBuilder randomString = new StringBuilder(length);
 		randomString.append(prefix);
 
-		Random random = new Random();
 		for(int i = prefix.length(); i < length; i++) {
-			int position = random.nextInt(m_charString.length());
+			int position = m_random.nextInt(m_charString.length());
 			randomString.append(m_characters[position]);
 		}
 		return randomString.toString();
@@ -146,9 +143,6 @@ public class StringTool {
 	 * Checks if the name is a valid domain name. These can contain only
 	 * letters (a..z), digits (0..9), the dash and dots. Dots cannot start or
 	 * end a name, nor can two dots occurs immediately next to another.
-	 *
-	 * @param s
-	 * @return
 	 */
 	static public boolean isValidDomainName(@NonNull final String s) {
 		int len = s.length();
@@ -173,15 +167,54 @@ public class StringTool {
 		return lastdot + 1 != len;
 	}
 
+	static public final boolean isValidIpAddress(@NonNull String ip) {
+		if(ip.isEmpty())
+			return false;
+		String[] split = ip.split("\\.");
+		if(split.length != 4)
+			return false;
+		for(String s : split) {
+			try {
+				int val = Integer.parseInt(s);
+				if(val < 0 || val > 255)
+					return false;
+			} catch(Exception x) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Checks that the path is a valid relative path, not starting with a / and not
+	 * containing the '..' pattern.
+	 */
+	static public boolean isValidRelativePath(@NonNull String path) {
+		path = path.replace("\\", "/");                            // Accept both / and \ as dir separators
+		if(path.startsWith("/"))
+			return false;
+		if(path.contains("/..") || path.contains("../"))
+			return false;
+		return true;
+	}
+
+	/**
+	 * Checks that the path is a valid path (security wise), not containing the '..' pattern.
+	 */
+	static public boolean isValidPath(@NonNull String path) {
+		path = path.replace("\\", "/");                            // Accept both / and \ as dir separators
+		if(path.contains("/..") || path.contains("../"))
+			return false;
+		return true;
+	}
+
 	/**
 	 * Returns TRUE if the string is a number, possibly containing a '.'.
-	 * @param s
-	 * @return
 	 */
 	static public boolean isNumber(@NonNull final String s) {
 		int dots = 0;
 		int digits = 0;
-		for(int i = s.length(); --i >= 0;) {
+		for(int i = s.length(); --i >= 0; ) {
 			char c = s.charAt(i);
 			if(c == '.')
 				dots++;
@@ -202,7 +235,7 @@ public class StringTool {
 	}
 
 	static public boolean isAllSpaces(@NonNull final String s) {
-		for(int i = s.length(); --i >= 0;) {
+		for(int i = s.length(); --i >= 0; ) {
 			if(!isWhiteSpaceOrNbsp(s.charAt(i)))
 				return false;
 		}
@@ -210,7 +243,7 @@ public class StringTool {
 	}
 
 	static public boolean isValidEmail(@NonNull final String em) {
-		if(em.length() > MAX_EMAIL_LENGTH){
+		if(em.length() > MAX_EMAIL_LENGTH) {
 			return false;
 		}
 		int ix = em.indexOf('@');
@@ -226,11 +259,12 @@ public class StringTool {
 
 	/**
 	 * Field name must start with ascii letter, then letters, digits or _.
+	 *
 	 * @param s
 	 * @return
 	 */
 	static public boolean isValidDbFieldName(@NonNull String s) {
-		if(s == null || s.length() == 0)
+		if(s == null || s.isEmpty())
 			return false;
 		if(s.length() > 30)
 			return false;
@@ -239,7 +273,7 @@ public class StringTool {
 		if(c < 'a' || c > 'z')
 			return false;
 
-		for(int i = s.length(); --i > 0;) {
+		for(int i = s.length(); --i > 0; ) {
 			c = s.charAt(i);
 			if((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')
 				;
@@ -249,16 +283,16 @@ public class StringTool {
 		return true;
 	}
 
-//	@Contract(value = "null -> null; !null -> !null")
+	//	@Contract(value = "null -> null; !null -> !null")
 	static public boolean isValidDottedName(String s) {
 		if(s == null)
 			return false;
 		s = s.trim();
-		if(s.length() == 0)
+		if(s.isEmpty())
 			return false;
 
 		//-- Now: only allow names containing ascii chars starting with a nondigit.
-		for(int i = s.length(); --i >= 0;) {
+		for(int i = s.length(); --i >= 0; ) {
 			char ch = s.charAt(i);
 			if(!isValidDottedChar(ch))
 				return false;
@@ -274,7 +308,6 @@ public class StringTool {
 			return true;
 		return c == '.' || c == '_';
 	}
-
 
 	static public boolean isEqual(@Nullable final Object a, @Nullable final Object b) {
 		if(a == b)
@@ -295,7 +328,7 @@ public class StringTool {
 	public static void stringize(@NonNull final StringBuffer sb, @NonNull final String s) {
 		for(int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i); // Get the char to put,
-			switch(c){
+			switch(c) {
 				case '"':
 					sb.append("\\\"");
 					break;
@@ -324,10 +357,9 @@ public class StringTool {
 		}
 	}
 
-
 	/**
-	 *	Converts a string into a java-compilable version of a string, i.e.
-	 *	surrounded by quotes, and with escape sequences escaped..
+	 * Converts a string into a java-compilable version of a string, i.e.
+	 * surrounded by quotes, and with escape sequences escaped..
 	 */
 	public static StringBuffer stringize(@NonNull final String s) {
 		StringBuffer sb = new StringBuffer(s.length() + 20);
@@ -344,10 +376,9 @@ public class StringTool {
 		return sb;
 	}
 
-
 	/**
-	 *	Takes an input string and replaces all occurences of the backslash with
-	 *	a forward slash.
+	 * Takes an input string and replaces all occurences of the backslash with
+	 * a forward slash.
 	 */
 	public static String strBackslashToSlash(@NonNull final String s) {
 		StringBuffer sb = new StringBuffer(s.length());
@@ -367,10 +398,9 @@ public class StringTool {
 		}
 	}
 
-
 	/**
-	 *	Returns a string representing some size, in bytes. Depending on the size
-	 *  it will be represented as KB, MB, GB or TB.
+	 * Returns a string representing some size, in bytes. Depending on the size
+	 * it will be represented as KB, MB, GB or TB.
 	 */
 	public static String strSize(final long sz) {
 		final long kb = 1024;
@@ -413,10 +443,9 @@ public class StringTool {
 		return sb.toString();
 	}
 
-
 	/**
-	 *	Takes a java string, without quotes, and replaces all escape sequences
-	 *	in there with their actual character representation.
+	 * Takes a java string, without quotes, and replaces all escape sequences
+	 * in there with their actual character representation.
 	 */
 	public static void parseString(@NonNull final StringBuilder sb, @NonNull final String s) {
 		int i = 0;
@@ -432,7 +461,7 @@ public class StringTool {
 					return;
 				}
 				c = s.charAt(i++);
-				switch(c){
+				switch(c) {
 					case '"':
 						sb.append('"');
 						break;
@@ -469,8 +498,8 @@ public class StringTool {
 	}
 
 	/**
-	 *	If the input string is too long, returns a substring containing at most
-	 *	maxlen characters.
+	 * If the input string is too long, returns a substring containing at most
+	 * maxlen characters.
 	 */
 //	@Contract("null -> null; !null -> !null")
 	public static String truncLength(@Nullable final String s, final int maxlen) {
@@ -496,8 +525,8 @@ public class StringTool {
 	}
 
 	/**
-	 *	Returns a string with the specified length. If the string is too long
-	 *	it is truncated; if it is too short it is filled with spaces.
+	 * Returns a string with the specified length. If the string is too long
+	 * it is truncated; if it is too short it is filled with spaces.
 	 */
 //	@Contract("null -> null; !null -> !null")
 	public static String strToFixedLength(String s, final int l) {
@@ -526,8 +555,8 @@ public class StringTool {
 	}
 
 	/**
-	 *	Returns a string with the specified length. If the string is too long
-	 *	it is truncated; if it is too short it is filled with c.
+	 * Returns a string with the specified length. If the string is too long
+	 * it is truncated; if it is too short it is filled with c.
 	 */
 	public static String strToFixedLength(@NonNull final String s, final char c, final int l) {
 		if(s.length() == l)
@@ -544,15 +573,13 @@ public class StringTool {
 		return sb.toString();
 	}
 
-
 	/**
-	 *	Returns a coordinate pair as a string.
+	 * Returns a coordinate pair as a string.
 	 */
 	@NonNull
 	static public String toXY(final int x, final int y) {
 		return "(" + x + "," + y + ")";
 	}
-
 
 	/********************************************************************/
 	/*	CODING:	Fuzzy String comparisons..								*/
@@ -622,8 +649,9 @@ public class StringTool {
 	/**
 	 * Returns T if the string starts with the specified string, while ignoring
 	 * case.
-	 * @param st		the string whose start is to be checked
-	 * @param with		the start string
+	 *
+	 * @param st   the string whose start is to be checked
+	 * @param with the start string
 	 * @return
 	 */
 	static public boolean strStartsWithIgnoreCase(@NonNull final String st, @NonNull final String with) {
@@ -637,8 +665,9 @@ public class StringTool {
 	/**
 	 * Returns T if the string ends with the specified string, while ignoring
 	 * case.
-	 * @param st		the string whose end is to be checked
-	 * @param with		the end string
+	 *
+	 * @param st   the string whose end is to be checked
+	 * @param with the end string
 	 * @return
 	 */
 	static public boolean strEndsWithIgnoreCase(@NonNull final String st, @NonNull final String with) {
@@ -650,9 +679,9 @@ public class StringTool {
 		return with.equalsIgnoreCase(p);
 	}
 
-
 	/**
 	 * Tries to locate a substring in a string while ignoring case.
+	 *
 	 * @param txt
 	 * @param match
 	 * @return
@@ -672,7 +701,7 @@ public class StringTool {
 				//-- Try to match this segment, and return if OK
 				int j = 1;
 				int k = i + 1;
-				for(;;) {
+				for(; ; ) {
 					if(j >= lm)
 						return i; // Reached the end -> match
 
@@ -689,11 +718,10 @@ public class StringTool {
 		return -1;
 	}
 
-
 	/**
-	 *	Returns a number in the specified base, and with the specified #of
-	 *	positions. If the number is too large for the #positions then the
-	 *	high values are cut off.
+	 * Returns a number in the specified base, and with the specified #of
+	 * positions. If the number is too large for the #positions then the
+	 * high values are cut off.
 	 */
 	@NonNull
 	static public String intToStr(final int val, final int radix, final int npos) {
@@ -705,11 +733,12 @@ public class StringTool {
 	/**
 	 * Converts the integer to a string with a fixed length, adding leading zeroes
 	 * if needed.
+	 *
 	 * @param sb
 	 * @param val
-	     * @param radix
-	     * @param len
-	     */
+	 * @param radix
+	 * @param len
+	 */
 	static public void strAddIntFixed(@NonNull final Appendable sb, final int val, final int radix, final int len) {
 		try {
 			String iv = Integer.toString(val, radix);
@@ -729,9 +758,9 @@ public class StringTool {
 		}
 	}
 
-
 	/**
 	 * Returns a properly formatted commad string for a number [english only].
+	 *
 	 * @param val
 	 * @return
 	 */
@@ -753,7 +782,6 @@ public class StringTool {
 		}
 		return sb.toString();
 	}
-
 
 	@NonNull
 	static public String strDuration(long dlt) {
@@ -833,7 +861,6 @@ public class StringTool {
 		return sb.toString();
 	}
 
-//	@Contract("null -> null; !null -> !null")
 	static public String strTrunc(@Nullable final String s, final int len) {
 		if(s == null)
 			return null;
@@ -842,21 +869,32 @@ public class StringTool {
 		return s.substring(0, len);
 	}
 
+	static public String strTruncWithEclipses(@Nullable final String s, final int len) {
+		if(s == null)
+			return null;
+		if(s.length() <= len)
+			return s;
+		if(len < 5) {
+			throw new IllegalArgumentException("len needs to be at least 5!");
+		}
+		return s.substring(0, len - 3) + "...";
+	}
 
 	/**
-	 *	Returns a string of hex bytes for a given thing.
-	 *	@parameter	ar: the array that data needs to be gotten from
-	 *      @parameter      bufferIndex: The initial index where the 1st byte is in the array
-	 *      @parameter      bytesPerLine:     The number of bytes to decode.
+	 * Returns a string of hex bytes for a given thing.
+	 *
+	 * @parameter ar: the array that data needs to be gotten from
+	 * @parameter bufferIndex: The initial index where the 1st byte is in the array
+	 * @parameter bytesPerLine:     The number of bytes to decode.
 	 */
 	static public void arrayToHexStr(@NonNull Appendable sb, @NonNull byte[] ar, int bufferIndex, int bytesPerLine, int bufferSize, boolean fillout) throws IOException {
 		int i, ei;
 
 		ei = bytesPerLine + bufferIndex;
 		for(i = bufferIndex; i < ei; i++) {
-			if(i >= ar.length || i >= bufferSize) {				// Past end of array?
-				if(!fillout)									// No need to add spaces?
-					return;										// Then return the result
+			if(i >= ar.length || i >= bufferSize) {                // Past end of array?
+				if(!fillout)                                    // No need to add spaces?
+					return;                                        // Then return the result
 				sb.append("   "); // Add 3 spaces.
 			} else {
 				sb.append(intToStr((ar[i] & 0xff), 16, 2));
@@ -865,9 +903,8 @@ public class StringTool {
 		}
 	}
 
-
 	/**
-	 *      Returns a string containing only printable chars for the given bytes.
+	 * Returns a string containing only printable chars for the given bytes.
 	 */
 	static public void arrayToAsciiStr(@NonNull final Appendable sb, @NonNull final byte[] ar, final int bi, final int nc) throws IOException {
 		int i, ei;
@@ -883,13 +920,13 @@ public class StringTool {
 	}
 
 	/**
-	 *      Returns a dumpstring containing the offset, the hex bytes, and the ascii
-	 *      representation of a given dump buffer.
+	 * Returns a dumpstring containing the offset, the hex bytes, and the ascii
+	 * representation of a given dump buffer.
 	 */
 	static public void arrayToDumpLine(@NonNull Appendable sb, @NonNull byte[] ar, int bi, int bytesPerLine, int bufferSize) throws IOException {
-		sb.append(intToStr(bi, 16, 4));				// Buffer offset
+		sb.append(intToStr(bi, 16, 4));                // Buffer offset
 		sb.append(": ");
-		arrayToHexStr(sb, ar, bi, bytesPerLine, bufferSize, true);	// Get filled-out string of nc bytes in HEX
+		arrayToHexStr(sb, ar, bi, bytesPerLine, bufferSize, true);    // Get filled-out string of nc bytes in HEX
 		sb.append("  ");
 		arrayToAsciiStr(sb, ar, bi, bytesPerLine);
 	}
@@ -923,11 +960,9 @@ public class StringTool {
 		}
 	}
 
-
 	static public void printHex(@NonNull final PrintWriter pw, @NonNull final byte[] arr) {
 		printHex(pw, arr, 0, arr.length);
 	}
-
 
 	static public void printHex(@NonNull final PrintWriter pw, @NonNull final byte[] arr, final int start, final int end) {
 		//-- Dump the data as a hex string, completely.
@@ -941,7 +976,6 @@ public class StringTool {
 		printHex(pw, arr, 0, arr.length);
 	}
 
-
 	static public void printHex(@NonNull final PrintStream pw, @NonNull final byte[] arr, final int start, final int end) {
 		//-- Dump the data as a hex string, completely.
 		for(int i = start; i < end; i++) {
@@ -953,9 +987,10 @@ public class StringTool {
 	/**
 	 * Converts the byte array passed to a hex string. This converts the
 	 * region [start..end&gt;.
-	 * @param arr		the array containing the data to convert
-	 * @param start		the first byte in the array to convert
-	 * @param end		the exclusive end of the region to convert
+	 *
+	 * @param arr   the array containing the data to convert
+	 * @param start the first byte in the array to convert
+	 * @param end   the exclusive end of the region to convert
 	 * @return
 	 */
 	static public String toHex(final byte[] arr, final int start, final int end) {
@@ -964,15 +999,16 @@ public class StringTool {
 		for(int i = start; i < end; i++) {
 			int v = arr[i];
 			int c = (v >> 4) & 0xf;
-			sb.append(c <= 9 ? (char)(c + '0') : (char) (c + 'a' - 10));
+			sb.append(c <= 9 ? (char) (c + '0') : (char) (c + 'a' - 10));
 			c = v & 0xf;
-			sb.append(c <= 9 ? (char)(c + '0') : (char) (c + 'a' - 10));
+			sb.append(c <= 9 ? (char) (c + '0') : (char) (c + 'a' - 10));
 		}
 		return sb.toString();
 	}
 
 	/**
 	 * Converts the byte array to a hex string.
+	 *
 	 * @param arr
 	 * @return
 	 */
@@ -983,9 +1019,10 @@ public class StringTool {
 	/**
 	 * Converts the byte array passed to a hex string. This converts the
 	 * region [start..end&gt;.
-	 * @param arr		the array containing the data to convert
-	 * @param start		the first byte in the array to convert
-	 * @param end		the exclusive end of the region to convert
+	 *
+	 * @param arr   the array containing the data to convert
+	 * @param start the first byte in the array to convert
+	 * @param end   the exclusive end of the region to convert
 	 * @return
 	 */
 	static public String toHexSp(final byte[] arr, final int start, final int end) {
@@ -1000,13 +1037,13 @@ public class StringTool {
 
 	/**
 	 * Converts the byte array to a hex string.
+	 *
 	 * @param arr
 	 * @return
 	 */
 	static public String toHexSp(final byte[] arr) {
 		return toHexSp(arr, 0, arr.length);
 	}
-
 
 	static private int decc(final char c) throws Exception {
 		int rv = Character.toUpperCase(c);
@@ -1021,7 +1058,8 @@ public class StringTool {
 
 	/**
 	 * Decodes a hex string into a byte array.
-	 * @param s		the string
+	 *
+	 * @param s the string
 	 * @return the decoded array
 	 * @throws Exception if the array is malformed.
 	 */
@@ -1046,9 +1084,10 @@ public class StringTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Finding files and constructing search paths.		*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Returns the complete filename of the first file that is found along the
-	 *	path specified.
+	 * Returns the complete filename of the first file that is found along the
+	 * path specified.
 	 */
 	static public File findFileOnPath(final String fname, final String path) {
 		int six;
@@ -1080,9 +1119,8 @@ public class StringTool {
 		return null;
 	}
 
-
 	/**
-	 *	Finds a filename along the classpath..
+	 * Finds a filename along the classpath..
 	 */
 	static public File findFileOnEnv(final String pname, final String env) {
 		String ev = System.getProperty(env);
@@ -1091,12 +1129,12 @@ public class StringTool {
 		return findFileOnPath(pname, ev);
 	}
 
-
 	/**
 	 * Deprecated: use {@link FileTool#getFileExtension(String)}.
-	 *
+	 * <p>
 	 * Returns the extension of a file. The extension includes the . If no
 	 * extension is present then the empty string is returned ("").
+	 *
 	 * @deprecated
 	 */
 	@Deprecated
@@ -1114,10 +1152,9 @@ public class StringTool {
 		return fn.substring(p);
 	}
 
-
 	/**
-	 *	Adds a path to the vector specified, if the path is an existing file
-	 *  or directory, and it doesn't already exist in the vector.
+	 * Adds a path to the vector specified, if the path is an existing file
+	 * or directory, and it doesn't already exist in the vector.
 	 */
 	static public void addPathToVector(final List<String> v, String p) {
 		p = p.trim();
@@ -1136,11 +1173,10 @@ public class StringTool {
 		}
 	}
 
-
 	/**
-	 *	Takes a search path, i.e. a list of directory/file names separated by the
-	 *  system path separator and adds all files/directories specified to the
-	 *  vector v, only if the pathname exists and if it is not already
+	 * Takes a search path, i.e. a list of directory/file names separated by the
+	 * system path separator and adds all files/directories specified to the
+	 * vector v, only if the pathname exists and if it is not already
 	 */
 	static public void addSearchPathToVector(final List<String> v, final String searchpath) {
 		int six = 0;
@@ -1155,8 +1191,9 @@ public class StringTool {
 	}
 
 	/**
-	 *	Adds the value of a "search path environment variable" to the vector.
-	 *  @see addSearchPathToVector()
+	 * Adds the value of a "search path environment variable" to the vector.
+	 *
+	 * @see addSearchPathToVector()
 	 */
 	static public void addSearchEnvToVector(final List<String> v, final String envvar) {
 		String ev = System.getProperty(envvar);
@@ -1165,10 +1202,9 @@ public class StringTool {
 		addSearchPathToVector(v, ev);
 	}
 
-
 	/**
-	 *	Returns a string buffer containing a search path variable from the
-	 *  vector passed.
+	 * Returns a string buffer containing a search path variable from the
+	 * vector passed.
 	 */
 	static public void makeSearchPath(final StringBuilder sb, final List<String> v) {
 		for(int i = 0; i < v.size(); i++) {
@@ -1179,8 +1215,8 @@ public class StringTool {
 	}
 
 	/**
-	 *	Returns a string buffer containing a search path variable from the
-	 *  vector passed.
+	 * Returns a string buffer containing a search path variable from the
+	 * vector passed.
 	 */
 	static public String makeSearchPath(final List<String> v) {
 		StringBuilder sb = new StringBuilder(128);
@@ -1189,8 +1225,8 @@ public class StringTool {
 	}
 
 	/**
-	 *	Returns a string buffer containing a search path variable from the
-	 *  vector passed.
+	 * Returns a string buffer containing a search path variable from the
+	 * vector passed.
 	 */
 	static public void makeSearchPath(final StringBuffer sb, final String[] v) {
 		for(int i = 0; i < v.length; i++) {
@@ -1201,8 +1237,8 @@ public class StringTool {
 	}
 
 	/**
-	 *	Returns a string buffer containing a search path variable from the
-	 *  vector passed.
+	 * Returns a string buffer containing a search path variable from the
+	 * vector passed.
 	 */
 	static public String makeSearchPath(final String v[]) {
 		StringBuffer sb = new StringBuffer(128);
@@ -1210,25 +1246,24 @@ public class StringTool {
 		return sb.toString();
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Get a constant's name from a CLASS by introspection	*/
 	/*--------------------------------------------------------------*/
-	static public String getFinalFrom(final Class< ? > cl, final long sval) {
+	static public String getFinalFrom(final Class<?> cl, final long sval) {
 		return getFinalFrom(cl, sval, null);
 	}
 
 	/**
-	 *	Traverses a given class and tries to find a public
+	 * Traverses a given class and tries to find a public
 	 */
-	static public String getFinalFrom(final Class< ? > cl, final long sval, final String part) {
+	static public String getFinalFrom(final Class<?> cl, final long sval, final String part) {
 		return getFinalFrom(cl, sval, part, null);
 	}
 
 	/**
-	 *	Traverses a given class and tries to find a public
+	 * Traverses a given class and tries to find a public
 	 */
-	static public String getFinalFrom(final Class< ? > cl, final long sval, final String part, final String ign) {
+	static public String getFinalFrom(final Class<?> cl, final long sval, final String part, final String ign) {
 		java.lang.reflect.Field[] far = cl.getFields();
 		java.lang.reflect.Field f;
 
@@ -1240,7 +1275,7 @@ public class StringTool {
 				try {
 					long val = 0;
 					boolean valid = true;
-					Class< ? > ty = f.getType();
+					Class<?> ty = f.getType();
 					if(ty == Integer.TYPE)
 						val = f.getInt(null);
 					else if(ty == Long.TYPE)
@@ -1263,16 +1298,17 @@ public class StringTool {
 								return f.getName();
 						}
 					}
-				} catch(Exception x) {}
+				} catch(Exception x) {
+					//Ignore
+				}
 			}
 		}
 
 		return "[? " + sval + "]";
 	}
 
-
 	/**
-	 *	Returns the last element (document name?) from the url passed.
+	 * Returns the last element (document name?) from the url passed.
 	 */
 	static public String urlLastPart(final String url) {
 		int sp = url.lastIndexOf('/'); // Find last slash,
@@ -1285,10 +1321,11 @@ public class StringTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Unhtmlize											*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Enter with a string; it returns the same string but replaces HTML
-	 *  recognised characters with their &..; equivalent. This allows parts of
-	 *  HTML to be rendered neatly.
+	 * Enter with a string; it returns the same string but replaces HTML
+	 * recognised characters with their &..; equivalent. This allows parts of
+	 * HTML to be rendered neatly.
 	 */
 	static public String htmlStringize(final String is) {
 		StringBuilder sb = new StringBuilder(is.length() + 20);
@@ -1297,35 +1334,35 @@ public class StringTool {
 	}
 
 	/**
-	 *	Enter with a string; it returns the same string but replaces HTML
-	 *  recognised characters with their &..; equivalent. This allows parts of
-	 *  HTML to be rendered neatly.
+	 * Enter with a string; it returns the same string but replaces HTML
+	 * recognised characters with their &..; equivalent. This allows parts of
+	 * HTML to be rendered neatly.
 	 */
 	static public void htmlStringize(final StringBuilder sb, final String is) {
 		htmlStringizeLinefeeds(sb, is, false);
 	}
 
 	/**
-	 *	Enter with a string; it returns the same string but replaces HTML
-	 *  recognised characters with their &..; equivalent. This allows parts of
-	 *  HTML to be rendered neatly.
-	 *  Linefeeds are not removed.
+	 * Enter with a string; it returns the same string but replaces HTML
+	 * recognised characters with their &..; equivalent. This allows parts of
+	 * HTML to be rendered neatly.
+	 * Linefeeds are not removed.
 	 */
 	static public void htmlStringizewithLF(final StringBuilder sb, final String is) {
 		htmlStringizeLinefeeds(sb, is, true);
 	}
 
 	/**
-	 *	Enter with a string; it returns the same string but replaces HTML
-	 *  recognised characters with their &..; equivalent. This allows parts of
-	 *  HTML to be rendered neatly.
-	 *  when linefeeds leave linefeeds in body
+	 * Enter with a string; it returns the same string but replaces HTML
+	 * recognised characters with their &..; equivalent. This allows parts of
+	 * HTML to be rendered neatly.
+	 * when linefeeds leave linefeeds in body
 	 */
 	static private void htmlStringizeLinefeeds(final StringBuilder sb, final String is, final boolean linefeeds) {
 		int len = is.length();
 		for(int i = 0; i < len; i++) {
 			char c = is.charAt(i);
-			switch(c){
+			switch(c) {
 				default:
 					sb.append(c);
 					break;
@@ -1348,16 +1385,16 @@ public class StringTool {
 	}
 
 	/**
-	 *	Enter with a string; it returns the same string but replaces HTML
-	 *  recognised characters with their &..; equivalent. This allows parts of
-	 *  HTML to be rendered neatly.
+	 * Enter with a string; it returns the same string but replaces HTML
+	 * recognised characters with their &..; equivalent. This allows parts of
+	 * HTML to be rendered neatly.
 	 */
 	static public void htmlStringize(final Appendable o, final String is) throws Exception {
 		StringBuffer sb = new StringBuffer(256);
 		int len = is.length();
 		for(int i = 0; i < len; i++) {
 			char c = is.charAt(i);
-			switch(c){
+			switch(c) {
 				default:
 					sb.append(c);
 					if(sb.length() >= 256) {
@@ -1397,9 +1434,9 @@ public class StringTool {
 	}
 
 	/**
-	 *	Enter with a string; it returns the same string but replaces HTML
-	 *  recognised characters with their &..; equivalent. This allows parts of
-	 *  HTML to be rendered neatly.
+	 * Enter with a string; it returns the same string but replaces HTML
+	 * recognised characters with their &..; equivalent. This allows parts of
+	 * HTML to be rendered neatly.
 	 */
 	static public String xmlStringize(final String is) {
 		if(is == null)
@@ -1410,9 +1447,9 @@ public class StringTool {
 	}
 
 	/**
-	 *	Converts input string to xml representation that complies to
-	 *  DOM API 5.2 Character Escaping
-	 *  http://www.w3.org/TR/2000/WD-xml-c14n-20000119.html#charescaping
+	 * Converts input string to xml representation that complies to
+	 * DOM API 5.2 Character Escaping
+	 * http://www.w3.org/TR/2000/WD-xml-c14n-20000119.html#charescaping
 	 */
 	static public String xmlStringizeForDomApi(final String is) {
 		if(is == null)
@@ -1423,9 +1460,9 @@ public class StringTool {
 	}
 
 	/**
-	 *	Enter with a string; it returns the same string but replaces HTML
-	 *  recognised characters with their &..; equivalent. This allows parts of
-	 *  HTML to be rendered neatly.
+	 * Enter with a string; it returns the same string but replaces HTML
+	 * recognised characters with their &..; equivalent. This allows parts of
+	 * HTML to be rendered neatly.
 	 */
 	static public void xmlStringize(final StringBuffer sb, final String is) {
 		if(is == null) {
@@ -1434,7 +1471,7 @@ public class StringTool {
 		}
 		for(int i = 0; i < is.length(); i++) {
 			char c = is.charAt(i);
-			switch(c){
+			switch(c) {
 				case '>':
 					sb.append("&gt;");
 					break;
@@ -1470,10 +1507,9 @@ public class StringTool {
 	}
 
 	/**
-	 *	Converts input string to xml representation that complies to
-	 *  DOM API 5.2 Character Escaping
-	 *  http://www.w3.org/TR/2000/WD-xml-c14n-20000119.html#charescaping
-	 *
+	 * Converts input string to xml representation that complies to
+	 * DOM API 5.2 Character Escaping
+	 * http://www.w3.org/TR/2000/WD-xml-c14n-20000119.html#charescaping
 	 */
 	static public void xmlStringizeForDomApi(final StringBuffer sb, final String is) {
 		if(is == null) {
@@ -1482,7 +1518,7 @@ public class StringTool {
 		}
 		for(int i = 0; i < is.length(); i++) {
 			char c = is.charAt(i);
-			switch(c){
+			switch(c) {
 				case '\n':
 					sb.append("&#xA;");
 					break;
@@ -1516,8 +1552,9 @@ public class StringTool {
 	 * are actually found with their Unicode character code. The resulting
 	 * string is appended to the string buffer.
 	 * WARNING: this does not take HTML tah parameters into consideration!
-	 * @param sb		the buffer to append the string to
-	 * @param str		the string to copy while replacing entities.
+	 *
+	 * @param sb  the buffer to append the string to
+	 * @param str the string to copy while replacing entities.
 	 */
 	static public void entitiesToUnicode(final Appendable sb, final String str, final boolean ignoremarkers) throws IOException {
 		int ix = 0;
@@ -1556,16 +1593,16 @@ public class StringTool {
 		}
 	}
 
-
 	static private boolean isMarker(final int ec) {
 		return ec == '<' || ec == '>' || ec == '&';
 	}
 
 	/**
-	* Replaces all non-ascii stuff with their entities. Also replaces &lt;, &gt; and &amp;.
-	* @param sb
-	* @param str
-	*/
+	 * Replaces all non-ascii stuff with their entities. Also replaces &lt;, &gt; and &amp;.
+	 *
+	 * @param sb
+	 * @param str
+	 */
 	static public void unicodeToEntities(final StringBuffer sb, final String str) {
 		int se = str.length();
 		for(int i = 0; i < se; i++) {
@@ -1586,6 +1623,7 @@ public class StringTool {
 
 	/**
 	 * Translates an entity name to unicode. The entity can also be a numeral.
+	 *
 	 * @param ename
 	 * @return
 	 */
@@ -1637,7 +1675,7 @@ public class StringTool {
 						break;
 				}
 				ix++;
-				switch(c){
+				switch(c) {
 					default:
 						w.append("\\u"); // Unicode escape
 						w.append(StringTool.intToStr(c & 0xffff, 16, 4));
@@ -1687,13 +1725,13 @@ public class StringTool {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 *	Returns a boolean value from some database field. This returns T if
-	 *  the string contains T, Y, 1.
+	 * Returns a boolean value from some database field. This returns T if
+	 * the string contains T, Y, 1.
 	 */
 	static public boolean dbGetBool(final String fv) {
 		if(fv == null)
 			return false;
-		if(fv.length() == 0)
+		if(fv.isEmpty())
 			return false;
 		char c = Character.toUpperCase(fv.charAt(0));
 		if(c == 'Y' || c == 'T')
@@ -1704,12 +1742,11 @@ public class StringTool {
 	}
 
 	/**
-	 *	Returns a char(1) value to store in a database for booleans.
+	 * Returns a char(1) value to store in a database for booleans.
 	 */
 	static public String dbSetBool(final boolean v) {
 		return v ? "T" : "F";
 	}
-
 
 	static public void main(final String[] args) throws Exception {
 		byte[] data = new byte[127];
@@ -1717,44 +1754,6 @@ public class StringTool {
 		dumpData(sb, data, 0, data.length);
 		System.out.println(sb.toString());
 
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Get "REAL" environment variables.					*/
-	/*--------------------------------------------------------------*/
-	/**
-	 *	Returns the list of environment variables of the supported OS's. Because
-	 *  in their infinite wizdom the Java builders deprecated the use of this
-	 *  we need to do something complex..
-	 */
-	static public List<String> getEnvironment() {
-		try {
-			String opsys = System.getProperty("os.name").toLowerCase();
-			//		System.out.println(OS);
-			Process p = null;
-			if(opsys.indexOf("windows 9") > -1)
-				p = Runtime.getRuntime().exec("command.com /c set");
-			else if((opsys.indexOf("nt") > -1) || (opsys.indexOf("windows 2000") > -1))
-				p = Runtime.getRuntime().exec("cmd.exe /c set");
-			else if(opsys.indexOf("unix") > -1 || opsys.indexOf("Linux") > -1 || File.separatorChar == '/')
-				p = Runtime.getRuntime().exec("env");
-			else
-				throw new IllegalStateException("No environment can be found. This should not be possible.");
-
-			//-- Take the result..
-			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			List<String> v = new ArrayList<String>();
-			String line;
-			while((line = br.readLine()) != null) {
-				v.add(line);
-			}
-			p.waitFor();
-			return v;
-		} catch(Exception x) {
-			x.printStackTrace();
-		}
-		return null;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1770,7 +1769,7 @@ public class StringTool {
 	 * specified in RFC-2045 (Section 6.8). It's used for example in the
 	 * "Basic" authorization scheme.
 	 *
-	 * @param  str the string
+	 * @param str the string
 	 * @return the base64-encoded <var>str</var>
 	 */
 	public final static String encodeBase64(final String str) {
@@ -1788,7 +1787,7 @@ public class StringTool {
 	 * This method encodes the given byte[] using the base64-encoding
 	 * specified in RFC-2045 (Section 6.8).
 	 *
-	 * @param  data the data
+	 * @param data the data
 	 * @return the base64-encoded <var>data</var>
 	 */
 	public final static byte[] encodeBase64(final byte[] data) {
@@ -1818,12 +1817,11 @@ public class StringTool {
 		return dest;
 	}
 
-
 	/**
 	 * This method decodes the given string using the base64-encoding
 	 * specified in RFC-2045 (Section 6.8).
 	 *
-	 * @param  str the base64-encoded string.
+	 * @param str the base64-encoded string.
 	 * @return the decoded <var>str</var>.
 	 */
 	public final static String decodeBase64ToString(final String str) {
@@ -1839,7 +1837,7 @@ public class StringTool {
 	 * This method decodes the given string using the base64-encoding
 	 * specified in RFC-2045 (Section 6.8).
 	 *
-	 * @param  str the base64-encoded string.
+	 * @param str the base64-encoded string.
 	 * @return the decoded <var>str</var>.
 	 */
 	public final static byte[] decodeBase64(final String str) {
@@ -1855,7 +1853,7 @@ public class StringTool {
 	 * This method decodes the given byte[] using the base64-encoding
 	 * specified in RFC-2045 (Section 6.8).
 	 *
-	 * @param  data the base64-encoded data.
+	 * @param data the base64-encoded data.
 	 * @return the decoded <var>data</var>.
 	 */
 	public final static byte[] decodeBase64(final byte[] data) {
@@ -1894,7 +1892,6 @@ public class StringTool {
 		}
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Exception stuff..									*/
 	/*--------------------------------------------------------------*/
@@ -1925,6 +1922,7 @@ public class StringTool {
 
 	/**
 	 * Report a filtered location stack trace, where the start of the stack trace and the end can be removed.
+	 *
 	 * @param sb
 	 * @param t
 	 * @param skipbefore
@@ -1967,6 +1965,7 @@ public class StringTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	URL normalization and concatenation.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * <p>Called when generate() is called with a string. This must decode the
 	 * string into a key object that can be used by the decodeInputURL key to
@@ -1990,7 +1989,7 @@ public class StringTool {
 	 * relative then the complete path is appended.</p>
 	 */
 	static public final String normalizeConcat(final String current, final String tpl) throws Exception {
-		if(tpl == null || tpl.length() == 0)
+		if(tpl == null || tpl.isEmpty())
 			return tpl;
 
 		if(tpl.charAt(0) == '/') // Is absolute site-relative?
@@ -2025,8 +2024,9 @@ public class StringTool {
 	 * sublevel is replaced by nothing (removed completely); any '..' is
 	 * replaced by removing the 'upper' level and replacing that with the rest
 	 * of the string.
-	 * @param ins		the input URL
-	 * @return			the output URL.
+	 *
+	 * @param ins the input URL
+	 * @return the output URL.
 	 */
 	static public final String normalizeUndot(final String ins) {
 		//-- Get all chars in the source.
@@ -2099,14 +2099,18 @@ public class StringTool {
 	static public int strToInt(final String v, final int defval) {
 		try {
 			return Integer.parseInt(v);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+			//Ignore
+		}
 		return defval;
 	}
 
 	static public long strToLong(final String v, final long defval) {
 		try {
 			return Long.parseLong(v);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+			//Ignore
+		}
 		return defval;
 	}
 
@@ -2122,7 +2126,6 @@ public class StringTool {
 		}
 		return val;
 	}
-
 
 	/**
 	 * Find the 1st part of the path passed, i.e. the part before the first /.
@@ -2152,7 +2155,7 @@ public class StringTool {
 			return false;
 
 		//-- Compare all strings, in order.
-		for(int i = al.size(); --i >= 0;) {
+		for(int i = al.size(); --i >= 0; ) {
 			String a = al.get(i);
 			String b = inl.get(i);
 			if(caseindependent) {
@@ -2185,7 +2188,7 @@ public class StringTool {
 
 			List<ExceptionDup> dups = new ArrayList<>();
 
-			for(;;) {
+			for(; ; ) {
 				SQLException nx = sx.getNextException();
 				if(nx == null || nx == sx)
 					break;
@@ -2215,7 +2218,6 @@ public class StringTool {
 		}
 		dups.add(new ExceptionDup(msg));
 	}
-
 
 	/**
 	 * Workaround for Java bug delivering file:// instead of file:/// for
@@ -2297,12 +2299,12 @@ public class StringTool {
 	}
 
 	/**
-	 * ! 	* 	' 	( 	) 	; 	: 	@ 	& 	= 	+ 	$ 	, 	/ 	? 	% 	# 	[ 	]
+	 * ! 	* 	' 	( 	) 	; 	: 	@ 	& 	= 	+ 	$ 	, 	/ 	? 	% 	# 	[ 	] { }
 	 */
 	static private boolean isSpecialUrlChar(byte da) {
 		if(da <= 32) // Everything including -1..-128 (0x80..0xff) is special
 			return true;
-		switch(da){
+		switch(da) {
 			case '!':
 			case '*':
 			case '\'':
@@ -2325,6 +2327,8 @@ public class StringTool {
 			case '<':
 			case '>':
 			case '|':
+			case '{':
+			case '}':
 				return true;
 		}
 		return false;
@@ -2346,6 +2350,7 @@ public class StringTool {
 	 * </ul>
 	 * This code undoes the encoding and delivers the original string. If the
 	 * input is badly formed the result is undefined.
+	 *
 	 * @param encoded
 	 * @return
 	 */
@@ -2490,16 +2495,16 @@ public class StringTool {
 	/**
 	 * Handles Oracle truncation rules:
 	 * <ul>
-	 *	<li>If the string is > nchars truncate to nchars</li>
-	 *	<li>Convert the string to bytes in UTF-8 encoding</li>
-	 *	<li>If the string length, in bytes, is > 4000 bytes (the max stupid size of Oracle's stupid varchar2 column, stupid) remove characters until
-	 *		the string fits the stupidly limited Oracle column</li>
+	 * 	<li>If the string is > nchars truncate to nchars</li>
+	 * 	<li>Convert the string to bytes in UTF-8 encoding</li>
+	 * 	<li>If the string length, in bytes, is > 4000 bytes (the max stupid size of Oracle's stupid varchar2 column, stupid) remove characters until
+	 * 		the string fits the stupidly limited Oracle column</li>
 	 * </ul>
 	 */
 	static public String oldStrOracleTruncate(String in, int nchars) {
 		if(in == null)
 			return null;
-		if (nchars > 4000){
+		if(nchars > 4000) {
 			nchars = 4000; //can't set more than 4000 bytes in it anyways
 		}
 		int len = in.length();
@@ -2515,7 +2520,7 @@ public class StringTool {
 
 			//-- Sh*t, exceeded length. Slowly determine the max. size;
 			len = nchars - (data.length - 4000);
-			for(;;) {
+			for(; ; ) {
 				in = in.substring(0, len);
 				data = in.getBytes("UTF-8");
 				if(data.length <= 4000)
@@ -2539,14 +2544,14 @@ public class StringTool {
 		int length = in.length();
 
 		//-- Can we do a quick exit?
-		if(length <= (nbytes/3)) {					// Max UTF-8 size for 16-byte chars is 3 bytes
+		if(length <= (nbytes / 3)) {                    // Max UTF-8 size for 16-byte chars is 3 bytes
 			if(length > nchars) {
 				in = in.substring(0, nchars);
 			}
 			return in;
 		}
 
-		int maxlength = utf8Truncated(in, nchars, nbytes);		// Oracle <= 11g allows maximal 4000 bytes in any varchar2 column
+		int maxlength = utf8Truncated(in, nchars, nbytes);        // Oracle <= 11g allows maximal 4000 bytes in any varchar2 column
 		if(maxlength == length)
 			return in;
 		return in.substring(0, maxlength);
@@ -2599,10 +2604,10 @@ public class StringTool {
 		int suffixLength = suffix.length();
 
 		//-- Can we do a quick exit?
-		if(length <= (nbytes/3)) {												// Max UTF-8 size for 16-byte chars is 3 bytes
+		if(length <= (nbytes / 3)) {                                                // Max UTF-8 size for 16-byte chars is 3 bytes
 			if(length > nchars) {
 				if(nchars <= suffixLength)
-					return in.substring(0, nchars);								// Don't add a suffix if input is silly.
+					return in.substring(0, nchars);                                // Don't add a suffix if input is silly.
 
 				StringBuilder sb = new StringBuilder(nchars);
 				sb.append(in, 0, nchars - suffixLength);
@@ -2612,67 +2617,32 @@ public class StringTool {
 			return in;
 		}
 
-		int maxlength = utf8Truncated(in, nchars, nbytes);						// Oracle <= 11g allows maximal 4000 bytes in any varchar2 column
+		int maxlength = utf8Truncated(in, nchars, nbytes);                        // Oracle <= 11g allows maximal 4000 bytes in any varchar2 column
 		if(maxlength == length)
 			return in;
 
 		//-- We need to truncate..
 		int suffixBytes = utf8Length(suffix);
-		maxlength -= suffixBytes;						// Remove this many chars as there are bytes
+		maxlength -= suffixBytes;                        // Remove this many chars as there are bytes
 		StringBuilder sb = new StringBuilder(nbytes);
 		sb.append(in, 0, maxlength);
 		sb.append(suffix);
 		return sb.toString();
 	}
 
+	static private final long MICROS = 1000L;
 
-	/**
-	 * Returns string that can fix into Oracle column, and in case that it has to be truncated it adds specified suffix to it, that is still
-	 * not exceding Oracle limit in total.
-	 */
-	static public String oldStrOracleTruncate(String in, int nchars, String suffixForTooLong) {
-		if (null == suffixForTooLong || in == null){
-			return strOracleTruncate(in, nchars);
-		}
+	static private final long MILLIS = 1000L * 1000;
 
-		String strOracle = strOracleTruncate(in, nchars);
-		if (in.equals(strOracle)){
-			return in;
-		}
+	static private final long SECONDS = 1000L * 1000 * 1000;
 
-		//we had cutoff, lets deal with suffix too...
-		try {
-			byte[] suffixData = suffixForTooLong.getBytes("UTF-8");
-			int suffixBytesLen = suffixData.length;
+	static private final long MINUTES = 60 * SECONDS;
 
-			//-- Sh*t, exceeded length. Slowly determine the max. size;
-			int len = strOracle.length() - suffixForTooLong.length();
-			in = strOracle;
-			for(;;) {
-				in = in.substring(0, len);
-				byte[] data = in.getBytes("UTF-8");
-				if(data.length + suffixBytesLen <= 4000)
-					return in + suffixForTooLong;
-				len--;
-			}
-		} catch(UnsupportedEncodingException x) {
-			throw new RuntimeException(x); // Should not ever happen. Nice shiny checked exception crap.
-		}
-	}
+	static private final long NSHOURS = 60 * MINUTES;
 
-	static private final long		MICROS		= 1000;
+	static private final long[] TIMESET = {NSHOURS, MINUTES, SECONDS, MILLIS, MICROS, 1};
 
-	static private final long		MILLIS		= 1000 * 1000;
-
-	static private final long		SECONDS		= 1000 * 1000 * 1000;
-
-	static private final long		MINUTES		= 60 * SECONDS;
-
-	static private final long		NSHOURS		= 60 * MINUTES;
-
-	static private final long[]		TIMESET		= {NSHOURS, MINUTES, SECONDS, MILLIS, MICROS, 1};
-
-	static private final String[]	SUFFIXES	= {"H", "m", "s", "ms", "us", "ns"};
+	static private final String[] SUFFIXES = {"H", "m", "s", "ms", "us", "ns"};
 
 	/**
 	 * Return a nanotime timestamp with 2 thousands of precision max.
@@ -2733,7 +2703,7 @@ public class StringTool {
 	 */
 	static public String getExceptionMessage(final Throwable t) {
 		String s = t.getMessage();
-		if(s == null || s.trim().length() == 0)
+		if(s == null || s.trim().isEmpty())
 			return t.toString();
 		return s;
 	}
@@ -2753,7 +2723,9 @@ public class StringTool {
 					String v = st.nextToken();
 					lev = Integer.parseInt(v);
 				}
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//Ignore
+			}
 			ver = (ver << 8) + (lev & 0xff);
 		}
 		m_jre_checked = true;
@@ -2793,8 +2765,8 @@ public class StringTool {
 	}
 
 	/**
-	 * @param lc	last character
-	 * @param count	repeat count of last character
+	 * @param lc    last character
+	 * @param count repeat count of last character
 	 */
 	private static void addRepeatingCharacterOnce(StringBuilder sb, char lc, int count) {
 		if(count < 3) {  //repeated less then 3, eg ee oo like in eet ook, just add unchanged
@@ -2859,13 +2831,14 @@ public class StringTool {
 
 	/**
 	 * Checks if string is blank.
+	 *
 	 * @return true if the string is null, empty or only spaces; false otherwise.
 	 */
 	static public boolean isBlank(String in) {
 		if(null == in)
 			return true;
-		for(int i = in.length(); --i >= 0;) {
-			if(! Character.isWhitespace(in.charAt(i)))
+		for(int i = in.length(); --i >= 0; ) {
+			if(!Character.isWhitespace(in.charAt(i)))
 				return false;
 		}
 		return true;
@@ -2936,7 +2909,7 @@ public class StringTool {
 	 * <pre>
 	 * This method removes the leading characters from the string, if it exceeds the column size
 	 * or needs more then 4000 bytes to store in the database.
-
+	 *
 	 * There's a limit on the size in bytes for an Oracle varchar2. This limit is
 	 * 4000 bytes (MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2). So if you declare a varchar2(4000 char),
 	 * it's possible that for example 3970 characters won't fit, because there are charaters in the string
@@ -2977,10 +2950,53 @@ public class StringTool {
 
 	@NonNull
 	public static String strCapitalized(@NonNull String name) {
-		if(name.length() == 0)
+		if(name.isEmpty())
 			return name;
 		char c = name.charAt(0);
 		return Character.toUpperCase(c) + name.substring(1).toLowerCase();
+	}
+
+	/**
+	 * Just capitalizes first letter and leaves the rest of the string intact
+	 * Example StringTool.strCapitalizedIntact("executeNow") -> "ExecuteNow"
+	 *
+	 * @param name
+	 * @return
+	 */
+	@NonNull
+	public static String strCapitalizedIntact(@NonNull String name) {
+		if(name.isEmpty())
+			return name;
+		char c = name.charAt(0);
+		return Character.toUpperCase(c) + name.substring(1);
+	}
+
+	/**
+	 * Decapitalizes a string and lowercases everything else
+	 * Example: StringTool.strDecapitalized("ExecuteNow") -> "executenow"
+	 * Added for consistency in the API.
+	 *
+	 * @param name
+	 * @return
+	 */
+	@NonNull
+	public static String strDecapitalized(@NonNull String name) {
+		return name.toLowerCase();
+	}
+
+	/**
+	 * Decapitalizes a string and lowercases everything else
+	 * Example: StringTool.strDecapitalized("ExecuteNow") -> "executeNow"
+	 *
+	 * @param name
+	 * @return
+	 */
+	@NonNull
+	public static String strDecapitalizedIntact(@NonNull String name) {
+		if(name.isEmpty())
+			return name;
+		char c = name.charAt(0);
+		return Character.toLowerCase(c) + name.substring(1);
 	}
 
 	/**
@@ -2992,6 +3008,7 @@ public class StringTool {
 
 	/**
 	 * Checks if forwarded string can be parsed into an Integer.
+	 *
 	 * @author jradovic
 	 */
 	public static boolean isInteger(@Nullable String string) {
@@ -3008,7 +3025,7 @@ public class StringTool {
 	/**
 	 * Replaces all end of line characters with space so that content is represented in one line.
 	 *
-	 * @param content that should be without new line characters
+	 * @param content     that should be without new line characters
 	 * @param replacement for new line characters
 	 * @return given string without new line characters
 	 */
@@ -3018,30 +3035,18 @@ public class StringTool {
 	}
 
 	/**
-	 * Loose checks if provided URL is valid.</br>
-	 * It allows URLs with and without http, https, ftp... online PDFs, Images, locally mapped IP addresses and IP
-	 * addresses itself.
-	 */
-	public static boolean validateUrl(@Nullable String urlValue) {
-		if(urlValue == null || urlValue.isEmpty()) {
-			return false;
-		}
-		return URL_PATTERN.matcher(urlValue).matches();
-	}
-
-	/**
 	 * Does some transformation of custom string to html output -> taking into account several customizations.
 	 * If input uses HTML for new line (<br> or <br/>) then it ignores rest or \n characters, otherwise converts \n to <br/>.
 	 * If removeEndingNewLines then it removes all the ending new lines too.
 	 */
-	public static String renderAsRawHtml(@NonNull String input, boolean removeEndingNewLines){
+	public static String renderAsRawHtml(@NonNull String input, boolean removeEndingNewLines) {
 		input = input.replace("<br>", "<br/>");
-		if (input.contains("<br/>")){
+		if(input.contains("<br/>")) {
 			input = input.replace("\n", "");
-		}else {
+		} else {
 			input = input.replace("\n", "<br/>");
 		}
-		if (removeEndingNewLines) {
+		if(removeEndingNewLines) {
 			while(StringTool.strEndsWithIgnoreCase(input, "<br/>")) {
 				input = input.substring(0, input.length() - 5).trim();
 			}
@@ -3050,11 +3055,11 @@ public class StringTool {
 	}
 
 	@Nullable
-	static public String nullIfEmpty(@Nullable  String in) {
+	static public String nullIfEmpty(@Nullable String in) {
 		if(null == in)
 			return null;
-		for(int i = in.length(); --i >= 0;) {
-			if(! Character.isWhitespace(in.charAt(i)))
+		for(int i = in.length(); --i >= 0; ) {
+			if(!Character.isWhitespace(in.charAt(i)))
 				return in;
 		}
 		return null;
@@ -3087,6 +3092,35 @@ public class StringTool {
 				sb.append(c);
 			}
 		}
+	}
+
+	public static String stripAccents(String s) {
+		s = Normalizer.normalize(s, Normalizer.Form.NFD);
+		s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+		return s;
+	}
+
+	/**
+	 * This method checks that the name passed only contains a name,
+	 * and nothing that looks like a SQL injection.
+	 */
+	static public void sqlCheckNameOnly(@Nullable String name) {
+		if(null == name)
+			return;
+		for(int i = 0, len = name.length(); i < len; i++) {
+			char c = name.charAt(i);
+			if(!isValidSqlNameChar(c))
+				throw new IllegalArgumentException("Invalid characters in SQL name");
+		}
+	}
+
+	private static boolean isValidSqlNameChar(char c) {
+		return Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '[' || c == ']' || c == '"';
+	}
+
+	static public void sqlCheckNoQuotes(@Nullable String password) {
+		if(null != password && password.contains("'"))
+			throw new IllegalArgumentException("Invalid characters in SQL");
 	}
 }
 

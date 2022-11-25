@@ -158,7 +158,7 @@ public class BasicContainer implements Container {
 			if(!m_started)
 				return;
 			m_started = false;
-			if(m_destructorList.size() == 0)
+			if(m_destructorList.isEmpty())
 				return;
 			dlist = new ArrayList<Destructor>(m_destructorList); // Copy destructors,
 			m_destructorList.clear();

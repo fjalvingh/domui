@@ -43,8 +43,10 @@ import java.util.List;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 1 Aug 2009
  */
-final class EnumAndBoolLookupFactory2<T> implements ILookupFactory<T> {
-	@NonNull @Override public FactoryPair<T> createControl(@NonNull SearchPropertyMetaModel spm) {
+final class EnumAndBoolLookupFactory2<Q, T> implements ILookupFactory<Q, T> {
+	@NonNull
+	@Override
+	public FactoryPair<Q, T> createControl(@NonNull SearchPropertyMetaModel spm) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
 
 		// Create a domainvalued combobox by default.
@@ -54,10 +56,10 @@ final class EnumAndBoolLookupFactory2<T> implements ILookupFactory<T> {
 		ClassMetaModel ecmm = null;
 		List<ValueLabelPair<T>> vl = new ArrayList<>();
 		for(Object o : vals) {
-			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o);	// Label known to property?
+			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o);    // Label known to property?
 			if(label == null) {
 				if(ecmm == null)
-					ecmm = MetaManager.findClassMeta(pmm.getActualType()); 		// Try to get the property's type.
+					ecmm = MetaManager.findClassMeta(pmm.getActualType());        // Try to get the property's type.
 				label = ecmm.getDomainLabel(NlsContext.getLocale(), o);
 				if(label == null)
 					label = o == null ? "" : o.toString();
@@ -67,6 +69,6 @@ final class EnumAndBoolLookupFactory2<T> implements ILookupFactory<T> {
 
 		final ComboFixed2<T> c = new ComboFixed2<>(vl);
 		UIControlUtil.configure(spm, pmm, c);
-		return new FactoryPair<>(new ObjectLookupQueryBuilder<T>(pmm.getName()), c);
+		return new FactoryPair<>(new ObjectLookupQueryBuilder<Q, T>(pmm.getName()), c);
 	}
 }

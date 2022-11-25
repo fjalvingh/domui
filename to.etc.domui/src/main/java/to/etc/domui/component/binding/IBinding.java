@@ -21,8 +21,6 @@ public interface IBinding {
 
 	/**
 	 * Put the specified value into the bound model property.
-	 * @param value
-	 * @param <T>
 	 */
 	<T> void setModelValue(@Nullable T value);
 }

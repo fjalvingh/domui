@@ -1,9 +1,13 @@
 package to.etc.dbutil.datacompare;
 
-import java.io.*;
-import java.util.*;
+import to.etc.dbutil.schema.Database;
+import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbTable;
 
-import to.etc.dbutil.schema.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Sync database contents between two databases, as optimally as possible.
@@ -63,7 +67,7 @@ public class DataSync {
 		EqualSchemaComparator dp = new EqualSchemaComparator(src.getSchema(), dest.getSchema());
 		dp.run();
 		String del = dp.getChanges();
-		if(del.length() != 0) {
+		if(!del.isEmpty()) {
 			System.err.println("The database schema's are not equal:\n");
 			System.err.println(del);
 			System.exit(10);
@@ -91,11 +95,10 @@ public class DataSync {
 
 	/**
 	 * Try to calculate the best table order.
-	 * @return
 	 */
 	private List<DbTable> calculateBestOrder(Database src) {
-		HashSet<DbTable> doneset = new HashSet();
-		List<DbTable> res = new ArrayList<DbTable>();
+		HashSet<DbTable> doneset = new HashSet<>();
+		List<DbTable> res = new ArrayList<>();
 		for(DbTable t : src.getSchema().getTables()) {
 			calculateBestOrder(res, doneset, t);
 		}
@@ -117,9 +120,6 @@ public class DataSync {
 		res.add(t);
 	}
 
-	/**
-	 * @param args
-	 */
 	private void decodeArgs(String[] args) {
 		int i = 0;
 		int anr = 0;
@@ -164,12 +164,6 @@ public class DataSync {
 		System.out.print(sb.toString());
 	}
 
-	/**
-	 *
-	 * @param src
-	 * @param dest
-	 * @param t
-	 */
 	private void syncTable(Database src, Database dest, DbTable t) {
 		m_currentTable = t;
 		where("Starting sync for table");

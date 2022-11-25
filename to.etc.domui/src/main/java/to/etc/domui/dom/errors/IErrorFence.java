@@ -26,6 +26,7 @@ package to.etc.domui.dom.errors;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.List;
 
@@ -45,11 +46,13 @@ public interface IErrorFence {
 
 	void removeMessage(@NonNull UIMessage uim);
 
-	void clearGlobalMessages(@Nullable String code);
+	void clearGlobalMessagesByGroup(@Nullable String code);
+
+	void clearGlobalMessages(@Nullable IBundleCode code);
 
 	/**
 	 * Experimental, do not use. Return the current set of errors inside this fence.
-	 * @return
 	 */
-	@NonNull List<UIMessage> getMessageList();
+	@NonNull
+	List<UIMessage> getMessageList();
 }

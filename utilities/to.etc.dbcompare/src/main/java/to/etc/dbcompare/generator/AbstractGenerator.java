@@ -32,7 +32,7 @@ import static to.etc.dbcompare.AbstractSchemaComparator.csSQLTYPE;
 
 /**
  * Abstract thingy which is able to generate the appropriate SQL for schema creation.
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 6, 2007
@@ -238,7 +238,7 @@ abstract public class AbstractGenerator {
 	}
 
 	public void renderColumnComment(List<String> sl, DbColumn sc) {
-		if(sc.getComment() != null && sc.getComment().length() > 0) {
+		if(sc.getComment() != null && !sc.getComment().isEmpty()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on column ");
 			renderQualifiedName(sb, sc.getTable().getSchema(), sc.getTable().getName(), sc.getTable().isQuoteName());
@@ -251,12 +251,13 @@ abstract public class AbstractGenerator {
 	}
 
 	public void renderTableComment(List<String> sl, DbTable sc) {
-		if(sc.getComments() != null && sc.getComments().length() > 0) {
+		String comments = sc.getComments();
+		if(comments != null && !comments.isEmpty()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on table ");
 			renderQualifiedName(sb, sc.getSchema(), sc.getName(), sc.isQuoteName());
 			sb.append(" is ");
-			sb.append(quoted(sc.getComments()));
+			sb.append(quoted(comments));
 			sb.append(";\n");
 			sl.add(sb.toString());
 		}

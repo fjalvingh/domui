@@ -186,7 +186,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
 			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			input.setDisabled(isDisabled() || isReadOnly());
-			if(m_allowedExtensions.size() > 0) {
+			if(!m_allowedExtensions.isEmpty()) {
 				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
 				input.setSpecialAttribute("fuallowed", values);
 				input.setSpecialAttribute("accept", values);
@@ -220,7 +220,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
 			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			input.setDisabled(isDisabled() || isReadOnly());
-			if(m_allowedExtensions.size() > 0) {
+			if(!m_allowedExtensions.isEmpty()) {
 				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
 				input.setSpecialAttribute("fuallowed", values);
 				input.setSpecialAttribute("accept", values);

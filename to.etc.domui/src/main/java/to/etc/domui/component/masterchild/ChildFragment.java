@@ -136,7 +136,7 @@ public class ChildFragment<P, C> extends Div {
 		return getRenderer().column();
 	}
 
-	public <V> ColumnDef<C, V> column(QField<P, V> field) {
+	public <V> ColumnDef<C, V> column(QField<C, V> field) {
 		return getRenderer().column(field);
 	}
 

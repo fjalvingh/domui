@@ -209,7 +209,7 @@ public class HtmlEditor extends TextArea {
 			try {
 				//System.out.println("pre-value[" + i + "]=" + s);
 				String nw = HtmlUtil.removeUnsafe(s);
-				if(nw != null && nw.length() == 0)
+				if(nw != null && nw.isEmpty())
 					nw = null;
 				values[i] = nw;
 

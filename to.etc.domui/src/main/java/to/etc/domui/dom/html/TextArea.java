@@ -214,9 +214,9 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 		String nw = (values == null || values.length != 1) ? null : values[0];
 		//fixes problem when no data is entered on form and modified flag is raised
-		if(nw != null && nw.length() == 0)
+		if(nw != null && nw.isEmpty())
 			nw = null;
-		String cur = m_value != null && m_value.length() == 0 ? null : m_value; // Treat empty string and null the same
+		String cur = m_value != null && m_value.isEmpty() ? null : m_value; // Treat empty string and null the same
 
 		//vmijic 20091124 - some existing entries have \r\n, but after client request roundtrip nw get values with \n instead. Prevent differences being raised because of this.
 		if(cur != null) {

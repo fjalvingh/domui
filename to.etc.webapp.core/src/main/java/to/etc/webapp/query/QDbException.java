@@ -24,9 +24,10 @@
  */
 package to.etc.webapp.query;
 
-import java.sql.*;
+import to.etc.webapp.nls.CodeException;
+import to.etc.webapp.nls.IBundleCode;
 
-import to.etc.webapp.nls.*;
+import java.sql.SQLException;
 
 /**
  * Base class for all generic query exceptions.
@@ -35,28 +36,27 @@ import to.etc.webapp.nls.*;
  * Created on Mar 11, 2010
  */
 public class QDbException extends CodeException {
-	static public final BundleRef BUNDLE = BundleRef.create(QDbException.class, "messages");
-
-	public QDbException(BundleRef bundle, String code, Object... parameters) {
-		super(bundle, code, parameters);
+	public QDbException(IBundleCode code, Object... parameters) {
+		super(code, parameters);
 	}
 
-	public QDbException(Throwable t, BundleRef bundle, String code, Object... parameters) {
-		super(t, bundle, code, parameters);
+	public QDbException(Throwable t, IBundleCode code, Object... parameters) {
+		super(t, code, parameters);
 	}
 
-	public QDbException(String code, Object... parameters) {
-		super(BUNDLE, code, parameters);
-	}
-
-	public QDbException(Throwable t, String code, Object... parameters) {
-		super(t, BUNDLE, code, parameters);
-	}
+	//public QDbException(String code, Object... parameters) {
+	//	super(BUNDLE, code, parameters);
+	//}
+	//
+	//public QDbException(Throwable t, String code, Object... parameters) {
+	//	super(t, BUNDLE, code, parameters);
+	//}
 
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Translation code.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Create the proper exception from a SQLException type. If no translation is reasonable this
 	 * returns NULL; that usually indicates that the original exception must be rethrown. We know of\
@@ -74,14 +74,12 @@ public class QDbException extends CodeException {
 	 * 	<li>27 </li>
 	 * 	<li>44 Constraint With check option constraints</li>
 	 * </ul>
-	 * @param sx
-	 * @return
 	 */
 	static public QDbException findTranslation(Exception x) {
-		if(! (x instanceof SQLException))
+		if(!(x instanceof SQLException))
 			return null;
-		SQLException sx = (SQLException)x;
-		String state= calcSQLState(sx);
+		SQLException sx = (SQLException) x;
+		String state = calcSQLState(sx);
 		if(state == null || state.length() < 2)
 			return null;
 		String cat = state.substring(0, 2);
@@ -102,13 +100,11 @@ public class QDbException extends CodeException {
 	/**
 	 * For PostgreSQL the actual SQL exception containing the error is often nested. Find
 	 * the first one that has a SQLState.
-	 * @param x
-	 * @return
 	 */
 	static private String calcSQLState(SQLException x) {
 		while(x != null) {
 			String state = x.getSQLState();
-			if(state != null && state.length() != 0)
+			if(state != null && !state.isEmpty())
 				return state;
 			x = x.getNextException();
 		}

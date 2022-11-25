@@ -24,11 +24,14 @@
  */
 package to.etc.telnet;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import to.etc.util.CmdStringDecoder;
 
-import to.etc.util.*;
+import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Implements a Telnet server for log and debugging tasks. Each session started
@@ -40,34 +43,32 @@ import to.etc.util.*;
  * and to spawn new sessions when these occur.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- *
  */
 public class TelnetServer extends TelnetStateThing implements Runnable {
 	/// This server's debug port
-	private int				m_port;
+	private int m_port;
 
 	/// The server socket for this server
-	private ServerSocket	m_server_socket;
+	private ServerSocket m_server_socket;
 
 	/// The thread for this server.
-	private Thread			m_thread;
+	private Thread m_thread;
 
 	/// The current #of ajacent accept errors...
-	private int				m_error_count;
+	private int m_error_count;
 
 	/// The currently active sessions.
-	private List<TelnetSession>	m_sessions	= new ArrayList<TelnetSession>();
+	private List<TelnetSession> m_sessions = new ArrayList<TelnetSession>();
 
 	/// The command handler list.
-	private List<ITelnetCommandHandler>	m_command_v;
+	private List<ITelnetCommandHandler> m_command_v;
 
 	private TelnetServer(int port) {
 		m_port = port;
 	}
 
-
 	/**
-	 *	Creates a new Telnet server.
+	 * Creates a new Telnet server.
 	 */
 	static public TelnetServer createServer(int port) throws Exception {
 		TelnetServer ts = new TelnetServer(port); // Create'un,
@@ -87,9 +88,10 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Basic initialization & termination code...			*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Initializes by allocating a socket and starting the thread belonging
-	 *  to this server.
+	 * Initializes by allocating a socket and starting the thread belonging
+	 * to this server.
 	 */
 	private void init() throws Exception {
 		setState(tsINITING);
@@ -103,13 +105,14 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 		m_thread.start();
 	}
 
-
 	private void releaseResources() {
 		setState(tsDOWN);
 		try {
 			if(m_server_socket != null)
 				m_server_socket.close();
-		} catch(Exception x) {}
+		} catch(Exception x) {
+			//Ignore
+		}
 		m_server_socket = null;
 	}
 
@@ -117,8 +120,9 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Telnet command handler interface.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Adds a command handler.
+	 * Adds a command handler.
 	 */
 	public void addCommandHandler(ITelnetCommandHandler tch) {
 		synchronized(m_command_v) {
@@ -126,10 +130,9 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 		}
 	}
 
-
 	/**
-	 *	Calls a command handler for a given (session, command) to get it
-	 *  executed.
+	 * Calls a command handler for a given (session, command) to get it
+	 * executed.
 	 */
 	protected void executeTelnetCommand(TelnetPrintWriter tpw, String command) {
 		CmdStringDecoder csd = new CmdStringDecoder(command);
@@ -154,7 +157,6 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 			return;
 		}
 
-
 		ITelnetCommandHandler[] ar;
 		synchronized(m_command_v) {
 			ar = m_command_v.toArray(new ITelnetCommandHandler[m_command_v.size()]);
@@ -171,7 +173,6 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 		}
 	}
 
-
 	private boolean executeTelnetCommand(TelnetPrintWriter tpw, ITelnetCommandHandler tch, CmdStringDecoder cmd) {
 		try {
 			cmd.reset();
@@ -187,11 +188,12 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Accept and new session spawning code...				*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	This is the server's thread. It blocks on accept() on the server socket
-	 *  and accepts new connections. When a new connection is established a new
-	 *  session is started for that connection (using a new thread) and we
-	 *  loop again. On error the server will enter down state.
+	 * This is the server's thread. It blocks on accept() on the server socket
+	 * and accepts new connections. When a new connection is established a new
+	 * session is started for that connection (using a new thread) and we
+	 * loop again. On error the server will enter down state.
 	 */
 	public void run() {
 		System.out.println("TelnetServer: listener thread started OK.");
@@ -212,9 +214,8 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 		System.out.println("TelnetServer: terminated.");
 	}
 
-
 	/**
-	 *	Blocks on the accept() call to accept new sessions.
+	 * Blocks on the accept() call to accept new sessions.
 	 */
 	private void acceptListen() throws Exception {
 		if(!inState(tsRUN))
@@ -235,15 +236,16 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 			try {
 				if(s != null)
 					s.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//Ignore
+			}
 		}
 	}
 
-
 	/**
-	 *	Creates a session with the connecting client. This creates a reader
-	 *  thread and a session structure. The reader thread will accept commands
-	 *  and will call a command handler.
+	 * Creates a session with the connecting client. This creates a reader
+	 * thread and a session structure. The reader thread will accept commands
+	 * and will call a command handler.
 	 */
 	private void createSession(Socket s) throws Exception {
 		TelnetSession ts = new TelnetSession(this, s); // Create the session,
@@ -255,8 +257,8 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	}
 
 	/**
-	 *	Called to remove a session that was closed (due to error or normal
-	 *  circumstances) from this server's tables.
+	 * Called to remove a session that was closed (due to error or normal
+	 * circumstances) from this server's tables.
 	 */
 	protected void sessionClosed(TelnetSession ts) {
 		synchronized(this) {
@@ -264,16 +266,14 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 		}
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Writing to ALL stuff....							*/
 	/*--------------------------------------------------------------*/
 	/// The list of "last written all strings". Used to present new terminals with data.
-	private LinkedList<String>	m_string_cache	= new LinkedList<String>();
-
+	private LinkedList<String> m_string_cache = new LinkedList<String>();
 
 	/**
-	 *	Appends a string to the storage cache.
+	 * Appends a string to the storage cache.
 	 */
 	private void appendToCache(String v) {
 		synchronized(m_string_cache) {
@@ -284,7 +284,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	}
 
 	/**
-	 *	Pumps the current contents of the "all" cache to a session.
+	 * Pumps the current contents of the "all" cache to a session.
 	 */
 	private void pumpShit(TelnetSession ts) {
 		try {
@@ -299,8 +299,8 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	}
 
 	/**
-	 *	Sends a single string to ALL clients. The string gets locally buffered
-	 *  if required.
+	 * Sends a single string to ALL clients. The string gets locally buffered
+	 * if required.
 	 */
 	public void wall(String msg) {
 		//-- 1. Get a list of ALL sessions,
@@ -325,7 +325,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	}
 
 	/**
-	 *	Called to dump data from outputstream and such..
+	 * Called to dump data from outputstream and such..
 	 */
 	public void _write(int ch) {
 		char[] c = new char[1];
@@ -356,13 +356,12 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	/*	CODING:	Main, test subroutine...							*/
 	/*--------------------------------------------------------------*/
 
-
 	static public void main(String[] args) {
 		try {
 			TelnetServer t = TelnetServer.createServer(7171);
 
 			int ct = 0;
-			while(true) {
+			while(ct++ < 1000) {
 				try {
 					Thread.sleep(2000);
 					//					System.out.println("WALL: Doing it NOW..");
@@ -370,7 +369,9 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 					ct++;
 					Runtime.getRuntime().gc();
 
-				} catch(Exception x) {}
+				} catch(Exception x) {
+					// Ignore
+				}
 			}
 
 		} catch(Exception x) {
@@ -380,13 +381,13 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	}
 
 	/// The Telnet server
-	static private TelnetServer	m_telnet_server;
+	static private TelnetServer m_telnet_server;
 
-	private static PrintStream	m_orig_stdout;
+	private static PrintStream m_orig_stdout;
 
-	private static PrintStream	m_orig_stderr;
+	private static PrintStream m_orig_stderr;
 
-	static private boolean		m_capturing_stdout;
+	static private boolean m_capturing_stdout;
 
 	static private void setCapture(boolean on) {
 		if(m_capturing_stdout == on)
@@ -407,8 +408,8 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	}
 
 	/**
-	 *	Called to start the telnet server. If the server has already
-	 *  started this returns false.
+	 * Called to start the telnet server. If the server has already
+	 * started this returns false.
 	 */
 	static public void startTelnetServer(int port) {
 		synchronized(TelnetServer.class) {
@@ -449,6 +450,5 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 			m_telnet_server.addCommandHandler(tch);
 		}
 	}
-
 
 }

@@ -34,7 +34,7 @@ public class PostgresGenerator extends AbstractGenerator {
 		if(port <= 0)
 			port = 5432;
 
-		String url = "jdbc:postgresql://" + parameters.getHostname() + ":" + port + "/" + parameters.getSid();
+		String url = "jdbc:postgresql://" + parameters.getHostname() + ":" + port + "/" + parameters.getDatabase();
 		Properties prop = new Properties();
 		prop.setProperty("user", parameters.getUserid());
 		prop.setProperty("password", parameters.getPassword());

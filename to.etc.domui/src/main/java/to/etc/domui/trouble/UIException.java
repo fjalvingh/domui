@@ -24,7 +24,6 @@
  */
 package to.etc.domui.trouble;
 
-import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.CodeException;
 import to.etc.webapp.nls.IBundleCode;
 
@@ -43,13 +42,13 @@ public class UIException extends CodeException {
 		super(t, code, parameters);
 	}
 
-	@Deprecated
-	public UIException(final BundleRef bundle, final String code, final Object... parameters) {
-		super(bundle, code, parameters);
-	}
-
-	@Deprecated
-	public UIException(final Throwable t, final BundleRef bundle, final String code, final Object... parameters) {
-		super(t, bundle, code, parameters);
-	}
+	//@Deprecated
+	//public UIException(final BundleRef bundle, final String code, final Object... parameters) {
+	//	super(bundle, code, parameters);
+	//}
+	//
+	//@Deprecated
+	//public UIException(final Throwable t, final BundleRef bundle, final String code, final Object... parameters) {
+	//	super(t, bundle, code, parameters);
+	//}
 }

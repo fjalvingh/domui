@@ -16,10 +16,10 @@ import java.util.Date;
  */
 public class EtcLogger implements Logger {
 	@NonNull
-	private final String	m_key;
+	private final String m_key;
 
 	@Nullable
-	private Level			m_level;
+	private Level m_level;
 
 	private EtcLogger(@NonNull String key, @Nullable Level level) {
 		m_key = key;
@@ -134,7 +134,6 @@ public class EtcLogger implements Logger {
 	public void debug(Marker arg0, String arg1) {
 		execute(Level.DEBUG, arg0, arg1);
 	}
-
 
 	@Override
 	public void debug(Marker arg0, String arg1, Object arg2) {
@@ -415,7 +414,12 @@ public class EtcLogger implements Logger {
 		return m_level == null;
 	}
 
-	public synchronized void setLevel(@Nullable Level level) {
+	synchronized void setLevel(@Nullable Level level) {
 		m_level = level;
+	}
+
+	@Nullable
+	public synchronized Level getLevel() {
+		return m_level;
 	}
 }

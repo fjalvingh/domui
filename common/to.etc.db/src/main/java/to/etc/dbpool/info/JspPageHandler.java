@@ -38,20 +38,18 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspWriter;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Helper class to reduce the horrible code in pool.jsp, without having to copy multiple
  * parts.
- *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 11, 2010
@@ -61,7 +59,9 @@ final public class JspPageHandler {
 
 	private HttpServletRequest m_request;
 
-	/** If a pool= parameter was present this is the resolved pool. */
+	/**
+	 * If a pool= parameter was present this is the resolved pool.
+	 */
 	private ConnectionPool m_pool;
 
 	private String m_message;
@@ -101,7 +101,7 @@ final public class JspPageHandler {
 		if(s == null)
 			return null;
 		s = s.trim();
-		if(s.length() == 0)
+		if(s.isEmpty())
 			return null;
 		return s;
 	}
@@ -136,7 +136,6 @@ final public class JspPageHandler {
 
 	/**
 	 * Locate the specified method name inside this class, then call it.
-	 * @param name
 	 */
 	private void executeHandler(String name) throws Exception {
 		Method m;
@@ -156,7 +155,7 @@ final public class JspPageHandler {
 	}
 
 	static private String niceName(String in) {
-		if(in == null || in.length() == 0)
+		if(in == null || in.isEmpty())
 			return null;
 
 		StringBuilder sb = new StringBuilder();
@@ -207,10 +206,8 @@ final public class JspPageHandler {
 			executeHandler("show" + niceName(s));
 	}
 
-
 	/**
 	 * Called from page to generate the refresh tag if needed.
-	 * @throws IOException
 	 */
 	public void generateRefresh() throws IOException {
 		if(m_timeout > 0) {
@@ -225,10 +222,7 @@ final public class JspPageHandler {
 	private boolean m_intag;
 
 	/**
-	 * Generate an html tag and any optional attributes.
-	 * @param name
-	 * @param attr
-	 * @throws IOException
+	 * Generate a html tag and any optional attributes.
 	 */
 	public void tag(String name, String... attr) throws IOException {
 		finishOpenTag();
@@ -334,9 +328,9 @@ final public class JspPageHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Action handlers.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Switch on tracing if disabled.
-	 * @throws Exception
 	 */
 	public void actionTraceon() throws Exception {
 		ConnectionPool pool = getPool();
@@ -396,20 +390,17 @@ final public class JspPageHandler {
 			addMessage("?? Statistics not enabled??");
 	}
 
-
-
 	private String readResource(String name) throws IOException {
-		InputStream is = null;
-		try {
-			File inf = new File("/home/jal/bzr/trunk-newpool/shared/to.etc.db/src/to/etc/dbpool/info/" + name);
-			if(inf.exists()) {
-				is = new FileInputStream(inf);
-			} else {
-				is = getClass().getResourceAsStream(name);
-			}
+		try(InputStream is = getClass().getResourceAsStream(name)) {
+			//File inf = new File("/home/jal/bzr/trunk-newpool/shared/to.etc.db/src/to/etc/dbpool/info/" + name);
+			//if(inf.exists()) {
+			//	is = new FileInputStream(inf);
+			//} else {
+			//	is = getClass().getResourceAsStream(name);
+			//}
 			if(null == is)
 				throw new IllegalStateException("Unknown classpath-resource " + name);
-			InputStreamReader isr = new InputStreamReader(is, "utf-8");
+			InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
 			char[] data = new char[1024];
 			StringBuilder sb = new StringBuilder();
 
@@ -418,11 +409,6 @@ final public class JspPageHandler {
 				sb.append(data, 0, szrd);
 			}
 			return sb.toString();
-		} finally {
-			try {
-				if(null != is)
-					is.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -434,8 +420,6 @@ final public class JspPageHandler {
 		return true;
 	}
 
-
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Template expansion.									*/
 	/*--------------------------------------------------------------*/
@@ -445,7 +429,7 @@ final public class JspPageHandler {
 		if(m_scripter == null) {
 			ScriptEngineManager em = new ScriptEngineManager();
 			m_scripter = em.getEngineByName("nashorn");
-			Bindings	b = m_scripter.getBindings(ScriptContext.ENGINE_SCOPE);
+			Bindings b = m_scripter.getBindings(ScriptContext.ENGINE_SCOPE);
 			b.put("this", this);
 			b.put("out", getOut());
 			b.put("pool", m_pool);
@@ -459,9 +443,6 @@ final public class JspPageHandler {
 
 	/**
 	 * Expand a fragment template.
-	 * @param name
-	 * @param values
-	 * @throws IOException
 	 */
 	public void expandTemplate(String name, Object... values) throws Exception {
 		name = name + ".html";
@@ -472,9 +453,6 @@ final public class JspPageHandler {
 
 	/**
 	 * Expand a template. Javascript code is between <% and %> delimiters.
-	 * @param resource
-	 * @param values
-	 * @throws Exception
 	 */
 	private void expandTemplateString(String resource, Object[] values) throws Exception {
 		boolean hascode = false;
@@ -565,7 +543,6 @@ final public class JspPageHandler {
 
 	/**
 	 * Root page code- show all available pools.
-	 * @throws IOException
 	 */
 	public void showIndex() throws Exception {
 		ConnectionPool[] par = PoolManager.getInstance().getPoolList();
@@ -597,8 +574,6 @@ final public class JspPageHandler {
 
 	/**
 	 * Shows the pool overview fragment with pool counters.
-	 * @param poolar
-	 * @throws Exception
 	 */
 	private void displayPoolOverview(ConnectionPool[] poolar) throws Exception {
 		expandTemplate("jspPoolOverview");
@@ -631,7 +606,6 @@ final public class JspPageHandler {
 
 	/**
 	 * Displays all currently hanging connections as an expandable thingerydoo
-	 * @throws Exception
 	 */
 	public void showHanging() throws Exception {
 		ConnectionPool pool = getPool();
@@ -658,7 +632,6 @@ final public class JspPageHandler {
 
 	/**
 	 * Displays all currently used connections as an expandable thingerydoo
-	 * @throws Exception
 	 */
 	public void showUsed() throws Exception {
 		ConnectionPool pool = getPool();
@@ -685,7 +658,6 @@ final public class JspPageHandler {
 
 	/**
 	 * Show statistics page displaying the list of all available statistics.
-	 * @throws Exception
 	 */
 	public void showGlobalstats() throws Exception {
 		backlink();
@@ -713,9 +685,9 @@ final public class JspPageHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Session-based tracing...							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Show the list of request traces in the session structure.
-	 * @throws Exception
 	 */
 	public void showSession() throws Exception {
 		if(m_sessionStats == null) {

@@ -115,8 +115,8 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 				mm.setIgnoreCase(msi.ignoreCase());
 				mm.setOrder(msi.order() == -1 ? index : msi.order());
 				mm.setMinLength(msi.minLength());
-				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
-				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
+				mm.setLookupLabelKey(msi.lookupLabelKey().isEmpty() ? null : msi.lookupLabelKey());
+				mm.setLookupHintKey(msi.lookupHintKey().isEmpty() ? null : msi.lookupHintKey());
 				if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
 					propsearchlist.add(mm);
 				}
@@ -186,7 +186,7 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 			pmm.setNumericPresentation(mp.numericPresentation());
 		if(pmm.getReadOnly() != YesNoType.YES) // Do not override readonlyness from missing write method
 			pmm.setReadOnly(mp.readOnly());
-		if(mp.componentTypeHint().length() != 0)
+		if(!mp.componentTypeHint().isEmpty())
 			pmm.setComponentTypeHint(mp.componentTypeHint());
 
 		//-- Convert validators.
@@ -202,15 +202,15 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 		pmm.setValidators(list.toArray(new PropertyMetaValidator[list.size()]));
 
 		//-- Regexp validators.
-		if(mp.regexpValidation().length() > 0) {
+		if(!mp.regexpValidation().isEmpty()) {
 			try {
 				//-- Precompile to make sure it's valid;
 				Pattern.compile(mp.regexpValidation());
 			} catch(Exception x) {
-				throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_BAD_REGEXP, mp.regexpValidation(), this.toString());
+				throw new MetaModelException(Msgs.mmBadRegexp, mp.regexpValidation(), this.toString());
 			}
 			pmm.setRegexpValidator(mp.regexpValidation());
-			if(mp.regexpUserString().length() > 0)
+			if(!mp.regexpUserString().isEmpty())
 				pmm.setRegexpUserString(mp.regexpUserString());
 		}
 	}

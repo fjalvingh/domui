@@ -54,9 +54,9 @@ class LogMatcher {
 	 * Returns if current matcher is subset of other matcher.
 	 */
 	boolean isSubmatcherOf(@NonNull LogMatcher other) {
-		if(m_name.length() == 0) {
+		if(m_name.isEmpty()) {
 			return false;
-		} else if(other.getName().length() == 0) {
+		} else if(other.getName().isEmpty()) {
 			return true;
 		} else {
 			return m_name.startsWith(other.getName() + ".");
@@ -64,7 +64,7 @@ class LogMatcher {
 	}
 
 	boolean matchesName(@NonNull String key) {
-		return (m_name.length() == 0 || key.startsWith(m_name + ".") || key.equals(m_name));
+		return (m_name.isEmpty() || key.startsWith(m_name + ".") || key.equals(m_name));
 	}
 
 	@NonNull

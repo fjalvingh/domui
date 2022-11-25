@@ -5,6 +5,10 @@
 /// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
 
+namespace Plotly {
+	export declare function newPlot(id, data, layout, config);
+}
+
 namespace WebUI {
 	let _selectStart = undefined;
 
@@ -64,15 +68,21 @@ namespace WebUI {
 		WebUI.copyTextToClipboard(obj.innerHTML);
 	}
 
-	export function popupMenuShow(refid, menu): void {
+	export function popupMenuShow(refid, menu, mode): void {
 		registerPopinClose(menu);
 		let pos = $(refid).offset();
 		let eWidth = $(refid).outerWidth();
 		let mwidth = $(menu).outerWidth();
+
 		let left = (pos.left);
 		if(left + mwidth > screen.width)
 			left = screen.width - mwidth - 10;
 		let top = 3 + pos.top;
+
+		if(mode == 'below') {
+			top = pos.top + $(refid).outerHeight();
+		}
+
 		$(menu).css({
 			position: 'absolute',
 			zIndex: 100,
@@ -99,65 +109,45 @@ namespace WebUI {
 		// $(id).bind("mouseleave", popinMouseClose);
 		if(_popinCloseList.length != 1)
 			return;
-		$(document.body).bind("keydown", popinKeyClose);
-		$(document.body).bind("mousedown", popinMouseClose);
+		$(document.body).on("keydown", popinKeyClose);
+		$(document.body).on("mousedown", popinMouseClose);
 	}
 
 	export function popinClosed(id): void {
 		for(let i = 0; i < _popinCloseList.length; i++) {
 			if(id === _popinCloseList[i]) {
+				// console.log("popin: found popin to remove");
 				//-- This one is done -> remove mouse handler.
 				_popinCloseList.splice(i, 1);
 				if(_popinCloseList.length == 0) {
-					$(document.body).unbind("keydown", popinKeyClose);
-					$(document.body).unbind("mousedown", popinMouseClose);
+					// console.log("Removing popin listeners because list is empty");
+					$(document.body).off("keydown", popinKeyClose);
+					$(document.body).off("mousedown", popinMouseClose);
 				}
 				return;
 			}
 		}
 	}
 
-	// export function popinBeforeClick(ee1, obj, clickevt): void {
-	// 	for(let i = 0; i < _popinCloseList.length; i++) {
-	// 		let id = _popinCloseList[i];
-	// 		obj = $(obj);
-	// 		let cl = obj.closest(id);
-	// 		if(cl.size() > 0) {
-	// 			//-- This one is done -> remove mouse handler.
-	// 			$(id).unbind("mousedown", popinMouseClose);
-	// 			_popinCloseList.splice(i, 1);
-	// 			if(_popinCloseList.length == 0) {
-	// 				$(document.body).unbind("keydown", popinKeyClose);
-	// 				$(document.body).unbind("beforeclick", popinBeforeClick);
-	// 			}
-	// 			return;
-	// 		}
-	// 	}
-	// }
-
-	export function popinMouseClose(ev): void {
+	export function popinMouseClose(ev): boolean {
+		// console.log("Popin mouse event caught");
 		if(WebUI.isUIBlocked())							// We will get a LEAVE if the UI blocks during menu code... Ignore it
-			return;
+			return true;
 
-		try {
-			let target = $(ev.target);
-			for(let i = 0; i < _popinCloseList.length; i++) {
-				let id = _popinCloseList[i];
-				let el = $(id);
-				if(el) {
-					//-- If event outside this popup -> close it
-					if(target.closest(id).length == 0) {
-						popinClosed(id);
-						WebUI.scall(id.substring(1), "POPINCLOSE?", {});
-					}
+		let target = $(ev.target);
+		for(let i = 0; i < _popinCloseList.length; i++) {
+			let id = _popinCloseList[i];
+			let el = $(id);
+			if(el) {
+				//-- If event outside this popup -> close it
+				if(target.closest(id).length == 0) {
+					// console.log("sending popinClose for " + id);
+					popinClosed(id);
+					WebUI.scall(id.substring(1), "POPINCLOSE?", {});
 				}
 			}
-		} finally {
-			// _popinCloseList = [];
-//			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
-// 			$(document.body).unbind("keydown", popinKeyClose);
-// 			$(document.body).unbind("beforeclick", popinBeforeClick);
 		}
+		return true;
 	}
 
 	export function popinCloseAll() : void {
@@ -166,14 +156,14 @@ namespace WebUI {
 				let id = _popinCloseList[i];
 				let el = $(id);
 				if(el) {
-					el.unbind("mousedown", popinMouseClose);
+					el.off("mousedown", popinMouseClose);
 					WebUI.scall(id.substring(1), "POPINCLOSE?", {});
 				}
 			}
 		} finally {
 			_popinCloseList = [];
-			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
-			$(document.body).unbind("keydown", popinKeyClose);
+			$(document.body).off("mousedown", popinMouseClose);
+			$(document.body).off("keydown", popinKeyClose);
 			// $(document.body).unbind("beforeclick", popinBeforeClick);
 		}
 	}
@@ -234,9 +224,6 @@ namespace WebUI {
 
 	/**
 	 * Register ckeditor for extra handling that is set in CKeditor_OnComplete.
-	 *
-	 * @param id
-	 * @param ckeInstance
 	 */
 	export function registerCkEditorId(id, ckeInstance): void {
 		_ckEditorMap[id] = [ckeInstance, null];
@@ -244,8 +231,6 @@ namespace WebUI {
 
 	/**
 	 * Unregister ckeditor and removes handlings bound to it.
-	 *
-	 * @param id
 	 */
 	export function unregisterCkEditorId(id): void {
 		try {
@@ -564,7 +549,90 @@ namespace WebUI {
 			}
 			WebUI.scall(id, "LOADMORE", {});
 		});
+	}
 
+	export function plotlyComponent(id: string) {
+		let pnl = $('#' + id);
+		pnl.addClass('ui-plotly-empty');
+		DomUI.jsoncall(id, {}, function(response) {
+			let data = response['data'];
+			let layout = response['layout'];
+			if(data != null && layout != null) {
+				let config = {responsive: true};
+				Plotly.newPlot(id, data, layout, config);
+			}
+		});
+	}
+
+	export function aceMakeResizable(id_editor: string, id_bar: string) {
+		let editor = window[id_editor];
+		if(editor == null)
+			return;
+
+		let draggingAceEditor = window['draggingAceEditor'];
+		if(null == draggingAceEditor) {
+			draggingAceEditor = {};
+			window['draggingAceEditor'] = draggingAceEditor;
+		}
+		let id_dragbar = '#' + id_bar;
+		// let id_wrapper = '#' + id_editor + '_wrapper';
+		let wpoffset = 0;
+		draggingAceEditor[id_editor] = false;
+
+		$(id_dragbar).mousedown(function(e) {
+			e.preventDefault();
+
+			draggingAceEditor[id_editor] = true;
+
+			let _editor = $('#' + id_editor);
+			let top_offset = _editor.offset().top - wpoffset;
+
+			// Set editor opacity to 0 to make transparent so our wrapper div shows
+			_editor.css('opacity', 0);
+
+			// handle mouse movement
+			$(document).mousemove(function(e){
+				let actualY = e.pageY - wpoffset;
+				// editor height
+				let eheight = actualY - top_offset;
+
+				// Set wrapper height
+				_editor.parent().css('height', eheight);
+
+				// Set dragbar opacity while dragging (set to 0 to not show)
+				$(id_dragbar).css('opacity', 0.15);
+			});
+		});
+
+		$(document).mouseup(function(e){
+			let draggingAceEditor = window['draggingAceEditor'];
+			if(null == draggingAceEditor) {
+				draggingAceEditor = {};
+				window['draggingAceEditor'] = draggingAceEditor;
+			}
+
+			if(draggingAceEditor[id_editor]) {
+				let ctx_editor = $('#' + id_editor);
+
+				let actualY = e.pageY - wpoffset;
+				let top_offset = ctx_editor.offset().top - wpoffset;
+				let eheight = actualY - top_offset;
+
+				$( document ).unbind('mousemove');
+
+				// Set dragbar opacity back to 1
+				$(id_dragbar).css('opacity', 1);
+
+				// Set height on actual editor element, and opacity back to 1
+				ctx_editor.css('height', eheight).css('opacity', 1);
+				ctx_editor.parent().css("height", eheight);
+
+				// Trigger ace editor resize()
+				editor.resize();
+
+				draggingAceEditor[id_editor] = false;
+			}
+		});
 	}
 
 	class closeOnClick {

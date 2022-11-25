@@ -69,10 +69,10 @@ final public class PageScheduler extends Scheduler {
 			List<PageWork> todoList;
 			synchronized(this) {
 				d("PAGESCHEDULER: work size=" + m_workList.size());
-				if(m_workList.size() == 0)
+				if(m_workList.isEmpty())
 					return;
 				todoList = new ArrayList<>();
-				while(m_workList.size() > 0) {
+				while(!m_workList.isEmpty()) {
 					PageWork w = m_workList.get(0);
 					if(w.getExecuteWhen() > cts) {
 						break;
@@ -104,7 +104,7 @@ final public class PageScheduler extends Scheduler {
 					return Disposable.disposed();
 				}
 
-				if(m_workList.size() == 0) {
+				if(m_workList.isEmpty()) {
 					m_workList.add(w);
 				} else {
 					int index = Collections.binarySearch(m_workList, w, Comparator.comparingLong(PageWork::getExecuteWhen));

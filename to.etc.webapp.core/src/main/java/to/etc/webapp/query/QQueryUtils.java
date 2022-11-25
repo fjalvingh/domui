@@ -17,12 +17,12 @@ final public class QQueryUtils {
 	private QQueryUtils() {}
 
 	@NonNull
-	static public <R> List<R> mapSelectionQuery(@NonNull QDataContext dc, @NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
+	static public <R> List<R> mapSelectionQuery(@NonNull QDataContext dc, @NonNull Class<R> resultInterface, @NonNull QSelection<?> sel) throws Exception {
 		if(!resultInterface.isInterface())
 			throw new IllegalArgumentException(resultInterface + " must be an interface");
 
 		List<Object[]> resl = dc.query(sel);
-		if(resl.size() == 0)
+		if(resl.isEmpty())
 			return new ArrayList<R>();						// Return empty modifyable list
 
 		//-- Create mapping proxies for all thingies.
@@ -37,7 +37,7 @@ final public class QQueryUtils {
 	}
 
 	@Nullable
-	static public <R> R mapSelectionOneQuery(@NonNull QDataContext dc, @NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
+	static public <R> R mapSelectionOneQuery(@NonNull QDataContext dc, @NonNull Class<R> resultInterface, @NonNull QSelection<?> sel) throws Exception {
 		if(!resultInterface.isInterface())
 			throw new IllegalArgumentException(resultInterface + " must be an interface");
 
@@ -112,7 +112,7 @@ final public class QQueryUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static <K, T extends IIdentifyable<K>> int queryCount(@NonNull QDataContext dc, @NonNull QCriteria<T> q) throws Exception {
+	public static <T extends IIdentifyable<?>> int queryCount(@NonNull QDataContext dc, @NonNull QCriteria<T> q) throws Exception {
 		QSelection<T> rest = QSelection.create(q.getBaseClass());
 		rest.setRestrictions(q.getRestrictions());
 		rest.count("id");
@@ -123,7 +123,7 @@ final public class QQueryUtils {
 		return 0;
 	}
 
-	public static <K, T extends IIdentifyable<K>> int queryCount(@NonNull QDataContext dc, @NonNull QSelection<T> q) throws Exception {
+	public static <T extends IIdentifyable<?>> int queryCount(@NonNull QDataContext dc, @NonNull QSelection<T> q) throws Exception {
 		Object[] count = dc.queryOne(q);
 		if(count != null && count.length > 0) {
 			return ((Number) count[0]).intValue();

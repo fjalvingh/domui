@@ -42,7 +42,6 @@ import to.etc.domui.converter.IValueValidator;
 import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.PropertyComparator;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.state.DelayedActivitiesManager;
 import to.etc.domui.util.DisplayPropertyNodeContentRenderer;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.ILabelStringRenderer;
@@ -202,7 +201,7 @@ final public class MetaManager {
 	}
 
 	static private boolean hasDisplayProperties(List<DisplayPropertyMetaModel> list) {
-		return list != null && list.size() > 0;
+		return list != null && !list.isEmpty();
 	}
 
 	static private IRenderInto<?> TOSTRING_RENDERER = (IRenderInto<Object>) (node, object) -> {
@@ -395,7 +394,7 @@ final public class MetaManager {
 				throw new IllegalStateException("Metamodel got null while parsing " + compoundName);
 			PropertyMetaModel<?> pmm = cmm.findSimpleProperty(name);
 			if(pmm == null)
-				throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_COMPOUND_PROPERTY_NOT_FOUND, compoundName, name, cmm.toString());
+				throw new MetaModelException(Msgs.mmCompoundPropertyNotFound, compoundName, name, cmm.toString());
 
 			//-- If this is a child property it represents some collection; use the collection's type as next thing.
 			if(pmm.getRelationType() == PropertyRelationType.DOWN || Collection.class.isAssignableFrom(pmm.getActualType()) || pmm.getActualType().isArray()) {
@@ -409,7 +408,7 @@ final public class MetaManager {
 						nextmm = findClassMeta(vclass);
 				}
 				if(nextmm == null && ix >= len)
-					throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_UNKNOWN_COLLECTION_TYPE, compoundName, name, vtype);
+					throw new MetaModelException(Msgs.mmUnknownCollectionType, compoundName, name, vtype);
 				cmm = nextmm;
 			} else {
 				cmm = pmm.getValueModel();
@@ -523,7 +522,7 @@ final public class MetaManager {
 	public static List<SearchPropertyMetaModel> calculateSearchProperties(ClassMetaModel cm) {
 		if(!DeveloperOptions.getBool("domui.generatemeta", false))
 			return Collections.emptyList();
-		if(cm.getSearchProperties() != null && cm.getSearchProperties().size() > 0)
+		if(cm.getSearchProperties() != null && !cm.getSearchProperties().isEmpty())
 			return cm.getSearchProperties();
 
 		//-- Make a selection of reasonable properties to search on. Skip any compounds.
@@ -702,7 +701,7 @@ final public class MetaManager {
 	@NonNull
 	static public List<DisplayPropertyMetaModel> getComboProperties(@NonNull PropertyMetaModel<?> pmm) {
 		List<DisplayPropertyMetaModel> res = pmm.getComboDisplayProperties();
-		if(res.size() != 0)
+		if(!res.isEmpty())
 			return res;
 		ClassMetaModel vm = pmm.getValueModel();
 		if(null == vm)
@@ -734,7 +733,7 @@ final public class MetaManager {
 			if(p.getSortIndex() >= 0)
 				hasindex = true;
 		}
-		if(sl.size() == 0)
+		if(sl.isEmpty())
 			return;
 		if(hasindex)
 			Collections.sort(sl, C_BY_SORT_INDEX);
@@ -788,7 +787,7 @@ final public class MetaManager {
 				(!"tcn".equalsIgnoreCase(opmm.getName()) || copyTCN) && //
 				!pFIELDHANDLER.equals(opmm.getName()) && //
 				opmm.getReadOnly() != YesNoType.YES && //
-				(ignoreList.size() == 0 || !ignoreList.contains(opmm.getName()))) {
+				(ignoreList.isEmpty() || !ignoreList.contains(opmm.getName()))) {
 				try {
 					opmm.setValue(target, opmm.getValue(source));
 				} catch(Exception e) {
@@ -879,7 +878,7 @@ final public class MetaManager {
 
 		//-- Sort
 		List<QOrder> order = query.getOrder();
-		if(order.size() > 0 && cmm != null) {
+		if(!order.isEmpty() && cmm != null) {
 			sortBy(cmm, res, order);
 		}
 		return res;

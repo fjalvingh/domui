@@ -3,6 +3,7 @@ package to.etc.domui.util.exporters;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.tbl.ColumnDef;
+import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.util.DomUtil;
@@ -41,19 +42,24 @@ final public class RowRendererCellWrapper<V> implements IExportColumn<V> {
 		IValueTransformer<Object> getter;
 
 		if(null != pmm) {
+			if(converter == null) {
+				converter = ConverterRegistry.findConverter((Class<Object>) actualType, pmm);
+			}
 			if(null == label)
 				label = pmm.getDefaultLabel();
 			if(null == converter) {
 				getter = a -> (V) pmm.getValue(a);
 			} else {
+				IConverter<Object> idiots = converter;
 				getter = a -> {
 					Object value = pmm.getValue(a);
-					String s = converter.convertObjectToString(NlsContext.getLocale(), value);
+					String s = idiots.convertObjectToString(NlsContext.getLocale(), value);
 					return (V) s;
 				};
 				actualType = String.class;
 			}
 
+			//-- Should we convert?
 			if(null != cr) {
 				actualType = String.class;
 				getter = wrapRenderer(getter, cr);
@@ -67,8 +73,9 @@ final public class RowRendererCellWrapper<V> implements IExportColumn<V> {
 			getter = a -> (V) a;
 		} else {
 			actualType = String.class;
+			IConverter<Object> idiots = converter;
 			getter = a -> {
-				String s = converter.convertObjectToString(NlsContext.getLocale(), (X) a);
+				String s = idiots.convertObjectToString(NlsContext.getLocale(), (X) a);
 				return (V) s;
 			};
 		}

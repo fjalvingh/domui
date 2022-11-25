@@ -55,6 +55,7 @@ public class HSQLDBGenerator extends AbstractGenerator {
 
 	}
 
+	@Override
 	public void addSequence(List<String> out, DbSequence sq, GenSequenceType type) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("create sequence ");

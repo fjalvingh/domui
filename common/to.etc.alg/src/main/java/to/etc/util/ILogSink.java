@@ -46,6 +46,17 @@ public interface ILogSink {
 		}
 	};
 
+	@NonNull
+	ILogSink NULL = new ILogSink() {
+		@Override
+		public void log(@NonNull String msg) {
+		}
+
+		@Override
+		public void exception(@NonNull Throwable t, @NonNull String msg) {
+		}
+	};
+
 	void log(@NonNull String msg);
 
 	void exception(@NonNull Throwable t, @NonNull String msg);

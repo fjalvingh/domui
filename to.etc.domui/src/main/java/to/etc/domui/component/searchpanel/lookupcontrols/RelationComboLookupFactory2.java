@@ -31,12 +31,14 @@ import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.util.WrappedException;
 
-final class RelationComboLookupFactory2<T> implements ILookupFactory<T> {
-	@NonNull @Override public FactoryPair<T> createControl(@NonNull SearchPropertyMetaModel spm) {
-		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
+final class RelationComboLookupFactory2<Q, D> implements ILookupFactory<Q, D> {
+	@NonNull
+	@Override
+	public FactoryPair<Q, D> createControl(@NonNull SearchPropertyMetaModel spm) {
+		PropertyMetaModel<D> pmm = (PropertyMetaModel<D>) spm.getProperty();
 		try {
-			ComboLookup<T> co = ComboLookup.createLookup(pmm);
-			co.setMandatory(false);								// Mandatoryness of field has no meaning for search
+			ComboLookup<D> co = ComboLookup.createLookup(pmm);
+			co.setMandatory(false);                                // Mandatoryness of field has no meaning for search
 			UIControlUtil.configure(spm, pmm, co);
 
 			return new FactoryPair<>(new ObjectLookupQueryBuilder<>(pmm.getName()), co);

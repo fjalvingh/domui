@@ -79,6 +79,6 @@ public class MinutesConverter implements IConverter<Integer> {
 				}
 			} catch(NumberFormatException ex) {}
 		}
-		throw new ValidationException(Msgs.V_NO_RE_MATCH, "HH[.|,]MM");
+		throw new ValidationException(Msgs.vNoReMatch, "HH[.|,]MM");
 	}
 }

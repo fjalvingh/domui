@@ -39,6 +39,7 @@ import to.etc.domui.logic.errors.ProblemReporter;
 import to.etc.domui.util.DomUtil;
 import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -257,6 +258,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return m_children.get(i);
 	}
 
+	final public int undelegatedSize() {
+		return m_children.size();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree delta manipulation, internals.					*/
@@ -449,7 +453,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@NonNull
 	public NodeContainer add(@Nullable final String txt) {
-		if(txt != null && txt.length() > 0)
+		if(txt != null && !txt.isEmpty())
 			add(new TextNode(txt));
 		return this;
 	}
@@ -538,7 +542,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			return;
 		}
 
-		if(m_children.size() == 0)
+		if(m_children.isEmpty())
 			return;
 		treeChanging();
 		m_childHasUpdates = false; // They're gone.... No changes I guess.
@@ -592,10 +596,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		//-- Drop all children
 		while(getChildCount() > 0)
 			removeChild(getChild(getChildCount() - 1));
-		if(null != txt && txt.length() > 0) {
+		if(null != txt && !txt.isEmpty()) {
 			TextNode t = new TextNode(txt);
 			add(t);
 		}
+	}
+
+	public void setText(@NonNull IBundleCode code, Object... param) {
+		setText(code.format(param));
 	}
 
 	/**
@@ -718,6 +726,30 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 				res.add((T) b);
 			} else if(b instanceof NodeContainer) {
 				((NodeContainer) b).internalDeepChildren(res, ofClass);
+			}
+		}
+	}
+
+	/**
+	 * Get a list of all children and children of a children in the <i>entire subtree</i> that are an instance of the specified class.
+	 */
+	@NonNull
+	final public <T> List<T> getDeepDeepChildren(@NonNull Class<T> ofClass) {
+		if(m_delegate != null)
+			return m_delegate.getDeepDeepChildren(ofClass);
+
+		List<T> res = new ArrayList<T>();
+		internalDeepDeepChildren(res, ofClass);
+		return res;
+	}
+
+	final private <T> void internalDeepDeepChildren(List<T> res, Class<T> ofClass) {
+		for(NodeBase b : m_children) {
+			if(ofClass.isAssignableFrom(b.getClass())) {
+				res.add((T) b);
+			}
+			if(b instanceof NodeContainer) {
+				((NodeContainer) b).internalDeepDeepChildren(res, ofClass);
 			}
 		}
 	}

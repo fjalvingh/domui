@@ -1,6 +1,5 @@
 package to.etc.exceptionscanner;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.ConsumerEx;
 import to.etc.function.SupplierEx;
@@ -17,7 +16,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 07-01-21.
  */
-@NonNullByDefault
 public class StdoutExceptionScanner {
 	private ConsumerEx<String> m_stdoutListener;
 
@@ -64,35 +62,36 @@ public class StdoutExceptionScanner {
 	}
 
 	private void run() {
-		LinkedList<DiscoveredExceptionData> todo = new LinkedList<DiscoveredExceptionData>();
-		for(;;) {
-			synchronized(this) {
-				if(m_state != State.STARTED)
-					break;
-				LinkedList<DiscoveredExceptionData> curl = m_exceptionList;
-				if(curl.size() > 0) {
-					//-- Swap lists
-					m_exceptionList = todo;
-					todo = curl;
-				} else {
-					try {
+		try {
+			LinkedList<DiscoveredExceptionData> todo = new LinkedList<DiscoveredExceptionData>();
+			for(; ; ) {
+				synchronized(this) {
+					if(m_state != State.STARTED)
+						break;
+					LinkedList<DiscoveredExceptionData> curl = m_exceptionList;
+					if(!curl.isEmpty()) {
+						//-- Swap lists
+						m_exceptionList = todo;
+						todo = curl;
+					} else {
 						wait(10000);
-					} catch(InterruptedException x) {
-						//-- ignore
 					}
 				}
-			}
 
-			//-- Out of lock: if todo contains work handle it on this-thread until it's empty.
-			while(todo.size() > 0) {
-				DiscoveredExceptionData rx = todo.removeFirst();
-				handleException(rx);
+				//-- Out of lock: if todo contains work handle it on this-thread until it's empty.
+				while(!todo.isEmpty()) {
+					DiscoveredExceptionData rx = todo.removeFirst();
+					handleException(rx);
+				}
 			}
+			synchronized(this) {
+				m_state = State.STOPPED;
+			}
+		} catch(InterruptedException x) {
+			Thread.currentThread().interrupt();				// Facepalm.
+		} finally {
+			System.err.println(getClass().getSimpleName() + ": thread terminated");
 		}
-		synchronized(this) {
-			m_state = State.STOPPED;
-		}
-		System.err.println(getClass().getSimpleName() + ": thread terminated");
 	}
 
 	private void handleException(DiscoveredExceptionData rx) {
@@ -112,7 +111,7 @@ public class StdoutExceptionScanner {
 			if(m_exceptionList.size() > 200)						// Prevent from running into big problems
 				return;
 			m_exceptionList.add(rx);
-			notify();
+			notifyAll();
 		}
 	}
 

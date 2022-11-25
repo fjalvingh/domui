@@ -26,6 +26,7 @@ package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -48,7 +49,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 			end = size;
 		if(start >= size || end <= 0 || start >= end)
 			return Collections.EMPTY_LIST;
-		return getList().subList(start, end);
+		return new ArrayList<>(getList().subList(start, end));
 	}
 
 	@Override

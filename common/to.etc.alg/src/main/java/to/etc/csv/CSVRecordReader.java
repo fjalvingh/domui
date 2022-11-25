@@ -24,71 +24,98 @@
  */
 package to.etc.csv;
 
-import java.io.*;
-import java.util.*;
+import to.etc.util.StringTool;
 
-import to.etc.util.*;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Reads CSV files record by record, and implements the iLoadInputProvider interface
  * to access the fields.
  * Created on Oct 13, 2003
+ *
  * @author jal
  */
 public class CSVRecordReader implements iRecordReader {
-	/** The name for the input, for reporting pps. */
-	private String				m_name;
+	/**
+	 * The name for the input, for reporting pps.
+	 */
+	private String m_name;
 
-	/** The source thing to read the data from */
-	private Reader				m_r;
+	/**
+	 * The source thing to read the data from
+	 */
+	private Reader m_r;
 
-	private LineNumberReader	m_line_r;
+	private LineNumberReader m_line_r;
 
-	/** Current line # */
-	int							m_lnr;
+	/**
+	 * Current line #
+	 */
+	int m_lnr;
 
-	/** When T, whitespace between fields is skipped */
-	private boolean				m_skip_ws			= true;
+	/**
+	 * When T, whitespace between fields is skipped
+	 */
+	private boolean m_skip_ws = true;
 
-	/** The list of fields for the CURRENT record. */
-	private List<Field>			m_fld_al			= new ArrayList<Field>();
+	/**
+	 * The list of fields for the CURRENT record.
+	 */
+	private List<Field> m_fld_al = new ArrayList<Field>();
 
-	private List<String>		m_fldsep_al			= new ArrayList<String>();
+	private List<String> m_fldsep_al = new ArrayList<String>();
 
-	/** All characters that are allowed as quote characters */
-	private StringBuffer		m_quote_sb			= new StringBuffer();
+	/**
+	 * All characters that are allowed as quote characters
+	 */
+	private StringBuffer m_quote_sb = new StringBuffer();
 
-	/** Ignore all quotes. */
-	private boolean				m_ignoreQuotes		= false;
+	/**
+	 * Ignore all quotes.
+	 */
+	private boolean m_ignoreQuotes = false;
 
-	/** When set, any quote is escaped by the backslash character (C mode). */
-	private boolean				m_escapeBackslash	= true;
+	/**
+	 * When set, any quote is escaped by the backslash character (C mode).
+	 */
+	private boolean m_escapeBackslash = true;
 
-	/** When set quotes are escaped by repeating them (BASIC mode) */
-	private boolean				m_escapeDupQuote	= false;
+	/**
+	 * When set quotes are escaped by repeating them (BASIC mode)
+	 */
+	private boolean m_escapeDupQuote = false;
 
-	/** If T, the first line is read as a set of field names. */
-	private boolean				m_startWithFieldNames;
+	/**
+	 * If T, the first line is read as a set of field names.
+	 */
+	private boolean m_startWithFieldNames;
 
-	/** We can use a whitespace as separator. Signal this, otherwise it will be skipped as a whitespace. */
-	private boolean				m_whitespaceSeparator;
+	/**
+	 * We can use a whitespace as separator. Signal this, otherwise it will be skipped as a whitespace.
+	 */
+	private boolean m_whitespaceSeparator;
 
 	/**
 	 * When set this allows shitty escaping: when quotes are not followed by a field separator they
 	 * are assumed to be within the field data.
 	 */
-	private boolean				m_escapeBadly		= false;
+	private boolean m_escapeBadly = false;
 
 	private class Field implements iInputField {
 		//		int		m_lpos;
 
-		int		m_index;
+		int m_index;
 
-		String	m_fldname;
+		String m_fldname;
 
-		String	m_value;
+		String m_value;
 
-		int		m_field_lnr;
+		int m_field_lnr;
 
 		public Field() {
 		}
@@ -97,9 +124,9 @@ public class CSVRecordReader implements iRecordReader {
 			m_fldname = name;
 		}
 
-
 		/**
 		 * Return the real name of the field, or the numeric name.
+		 *
 		 * @see to.etc.csv.iInputField#getName()
 		 */
 		public String getName() {
@@ -109,7 +136,6 @@ public class CSVRecordReader implements iRecordReader {
 		}
 
 		/**
-		 *
 		 * @see to.etc.csv.iInputField#getValue()
 		 */
 		public String getValue() {
@@ -117,7 +143,6 @@ public class CSVRecordReader implements iRecordReader {
 		}
 
 		/**
-		 *
 		 * @see to.etc.csv.iInputField#isEmpty()
 		 */
 		public boolean isEmpty() {
@@ -162,7 +187,9 @@ public class CSVRecordReader implements iRecordReader {
 		m_fldsep_al.add(sep);
 	}
 
-	/** When T, whitespace between fields is skipped */
+	/**
+	 * When T, whitespace between fields is skipped
+	 */
 	public void setSkipWhitespace(boolean skip_ws) {
 		m_skip_ws = skip_ws;
 	}
@@ -199,7 +226,6 @@ public class CSVRecordReader implements iRecordReader {
 	/**
 	 * Read the next (or first) record from the input and prepare it for
 	 * processing.
-	 * @return
 	 */
 	public boolean nextRecord() throws IOException {
 		if(m_startWithFieldNames && m_lnr == 0) // Reading line 1?
@@ -207,35 +233,37 @@ public class CSVRecordReader implements iRecordReader {
 			if(!_nextRecord()) // Try to read,
 				return false;
 			//-- Move the values to the field names.
-			for(int i = size(); --i >= 0;)
-				elementAt(i).m_fldname = elementAt(i).m_value;
+			for(int i = size(); --i >= 0; ) {
+				Field field = m_fld_al.get(i);
+				field.m_fldname = field.m_value;
+			}
 		}
 		return _nextRecord();
 	}
 
 	/**
-	 * @author mbp, added method to see if it is an empty line. This is to make
+	 * Method to see if it is an empty line. This is to make
 	 * config files ending with an extra newline not cause unnecessary errors
 	 */
 	public boolean isEmptyLine() {
 		return m_len == 0;
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Parser.												*/
 	/*--------------------------------------------------------------*/
-	private int		m_len;
+	private int m_len;
 
-	private int		m_ix;
+	private int m_ix;
 
-	private int		m_fld_ix;
+	private int m_fld_ix;
 
-	private String	m_line;
+	private String m_line;
 
 	/**
 	 * Parses a single line into fields. This fills the field set with
 	 * data from the record.
+	 *
 	 * @param line
 	 */
 	private void decode(String line) throws IOException {
@@ -244,6 +272,9 @@ public class CSVRecordReader implements iRecordReader {
 		m_len = line.length();
 		m_ix = 0;
 		m_fld_ix = 0;
+		for(Field field : m_fld_al) {
+			field.setValue(null);
+		}
 
 		//-- Start the parse.
 		while(m_ix < m_len) {
@@ -266,6 +297,7 @@ public class CSVRecordReader implements iRecordReader {
 
 	/**
 	 * Defines fieldnames using a comma or semicolon separated field name string.
+	 *
 	 * @param fields
 	 */
 	public void defineFields(String fields) {
@@ -318,7 +350,7 @@ public class CSVRecordReader implements iRecordReader {
 		int spos = m_ix;
 		char qc = m_line.charAt(m_ix++);
 		StringBuffer sb = new StringBuffer();
-		for(;;) {
+		for(; ; ) {
 			if(m_ix >= m_len)
 				error("Missing end quote in field " + m_fld_ix);
 			int ql = checkEscapeQuote(m_line, m_ix, qc);
@@ -337,7 +369,6 @@ public class CSVRecordReader implements iRecordReader {
 		//-- Field completed,
 		addField(spos, sb.toString());
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Field access.										*/
@@ -389,12 +420,12 @@ public class CSVRecordReader implements iRecordReader {
 			int ix = StringTool.strToInt(name.substring(1), -1);
 			if(ix < 0 || ix >= m_fld_al.size())
 				return null;
-			return elementAt(ix);
+			return m_fld_al.get(ix);
 		}
 
-		for(int i = m_fld_al.size(); --i >= 0;) {
+		for(int i = m_fld_al.size(); --i >= 0; ) {
 			Field f = elementAt(i);
-			if(f.getName().equalsIgnoreCase(name))
+			if(f != null && f.getName().equalsIgnoreCase(name))
 				return f;
 		}
 		return null;
@@ -434,7 +465,8 @@ public class CSVRecordReader implements iRecordReader {
 	private int convertToInt(String val, String field) throws IOException {
 		try {
 			return Integer.parseInt(val.trim());
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 		error("Expecting integer value in '" + field + "', got '" + val + "'");
 		return -1;
 	}
@@ -458,7 +490,8 @@ public class CSVRecordReader implements iRecordReader {
 	private long convertToLong(String val, String field) throws IOException {
 		try {
 			return Long.parseLong(val.trim());
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 		error("Expecting long value in '" + field + "', got '" + val + "'");
 		return -1;
 	}
@@ -466,6 +499,7 @@ public class CSVRecordReader implements iRecordReader {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Field separators.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Checks if the current position contains a separator. If so, this
 	 * skips the separator and exits; else it throws an error.
@@ -485,9 +519,9 @@ public class CSVRecordReader implements iRecordReader {
 	}
 
 	private int checkForSeparator(String line, int ix) {
-		if(m_fldsep_al.size() == 0) // Make sure that at least 1 separator (comma) is registered
+		if(m_fldsep_al.isEmpty()) // Make sure that at least 1 separator (comma) is registered
 			m_fldsep_al.add(",");
-		for(int i = m_fldsep_al.size(); --i >= 0;) {
+		for(int i = m_fldsep_al.size(); --i >= 0; ) {
 			int sc = checkForSeparator(m_fldsep_al.get(i), line, ix);
 			if(sc > 0) // This IS a separator
 				return sc;
@@ -495,10 +529,10 @@ public class CSVRecordReader implements iRecordReader {
 		return 0;
 	}
 
-
 	/**
 	 * Checks if the separator specified is at the current location, and
 	 * if so returns the #chars to skip past it.
+	 *
 	 * @param sep
 	 * @param line
 	 * @param ix
@@ -518,6 +552,7 @@ public class CSVRecordReader implements iRecordReader {
 
 	/**
 	 * Returns the first non-whitespace character on the line (can be eoln)
+	 *
 	 * @param line
 	 * @param ix
 	 * @return
@@ -528,7 +563,7 @@ public class CSVRecordReader implements iRecordReader {
 			// It's possible we have a Whitespace character as separator.
 			// If so, return
 			if(hasWhitespaceSeparator()) {
-				for(int i = m_fldsep_al.size(); --i >= 0;) {
+				for(int i = m_fldsep_al.size(); --i >= 0; ) {
 					if((m_fldsep_al.get(i)).length() == 1 && (m_fldsep_al.get(i)).charAt(0) == line.charAt(ix))
 						return ix;
 				}
@@ -580,7 +615,7 @@ public class CSVRecordReader implements iRecordReader {
 			if(m_quote_sb.length() == 0)
 				m_quote_sb.append('\"');
 		}
-		for(int i = m_quote_sb.length(); --i >= 0;) {
+		for(int i = m_quote_sb.length(); --i >= 0; ) {
 			if(m_quote_sb.charAt(i) == c)
 				return true;
 		}

@@ -135,12 +135,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	private ILookupFormModifier<QT> m_lookupFormInitialization;
 
 	/**
-	 * When set this defines the {@link IRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
-	 */
-	@Nullable
-	private IClickableRowRenderer<OT> m_formRowRenderer;
-
-	/**
 	 * Internal: the actual form row renderer used by the code. This will be set to a {@link BasicRowRenderer} if the user
 	 * did not specify a row renderer.
 	 */
@@ -230,7 +224,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		if(getKeywordLookupPropertyList() != null)
 			return true;
 		List<SearchPropertyMetaModel> spml = getQueryMetaModel().getKeyWordSearchProperties();
-		return spml.size() > 0;
+		return !spml.isEmpty();
 	}
 
 	/**
@@ -331,7 +325,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 */
 	@Nullable
 	private ITableModel<OT> searchKeyWord(@Nullable String searchString) throws Exception {
-		if(searchString == null || searchString.trim().length() == 0) {
+		if(searchString == null || searchString.trim().isEmpty()) {
 			return null;
 		}
 		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
@@ -404,16 +398,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
 			if(searchString.startsWith("$$") && searchString.length() > 2) {
 				String idString = searchString.substring(2);
-				PropertyMetaModel<?> primaryKey = getQueryMetaModel().getPrimaryKey();
-				if(null != primaryKey) {
-					Class<?> pkType = primaryKey.getActualType();
-					Object pk = RuntimeConversions.convertTo(idString, pkType);
-					if(null != pk) {
-						searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
-						searchQuery.eq(primaryKey.getName(), pk);
-						return searchQuery;
-					}
-				}
+
 			}
 
 			//-- Has default meta?
@@ -423,7 +408,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 			QRestrictorImpl<QT> r = searchQuery.or();
 			int ncond = 0;
-			if(spml.size() > 0) {
+			if(!spml.isEmpty()) {
 				for(SearchPropertyMetaModel spm : spml) {
 					if(spm.getMinLength() <= searchString.length()) {
 
@@ -535,7 +520,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 				lf = new SearchPanel<>(rootCriteria);
 			else
 				lf = new SearchPanel<>(getQueryClass(), getQueryMetaModel());
-			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
+			if(m_searchPropertyList != null && !m_searchPropertyList.isEmpty())
 				lf.setSearchProperties(m_searchPropertyList);
 			setSearchPanel(lf);
 		}
@@ -550,7 +535,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		}
 		f.add(lf);
 		f.setOnClose(closeReason -> {
-			f.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+			f.clearGlobalMessage(Msgs.vMissingSearch);
 			m_floater = null;
 			m_result = null;
 		});
@@ -610,9 +595,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			return;
 		}
 
-		getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		getFloater().clearGlobalMessage(Msgs.vMissingSearch);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
-			getFloater().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
+			getFloater().addGlobalMessage(UIMessage.error(Msgs.vMissingSearch)); // Missing inputs
 			return;
 		} else
 			getFloater().clearGlobalMessage();
@@ -670,7 +655,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
 				@Override
 				public void cellClicked(@NonNull OT val) throws Exception {
-					getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+					getFloater().clearGlobalMessage(Msgs.vMissingSearch);
 					if(!getDataTable().isMultiSelectionVisible()) {
 						LookupInputBase.this.toggleFloater(null);
 					}
@@ -888,24 +873,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		m_searchImmediately = searchImmediately;
 		if(searchImmediately)
 			setAllowEmptyQuery(true);
-	}
-
-	/**
-	 * When set this defines the {@link IClickableRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
-	 *
-	 * @return
-	 */
-	@Nullable
-	public IClickableRowRenderer<OT> getFormRowRenderer() {
-		return m_formRowRenderer;
-	}
-
-	/**
-	 * When set this defines the {@link IClickableRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
-	 * @param lookupFormRenderer
-	 */
-	public void setFormRowRenderer(@Nullable IClickableRowRenderer<OT> lookupFormRenderer) {
-		m_formRowRenderer = lookupFormRenderer;
 	}
 
 	protected DataTable<OT> getDataTable() {

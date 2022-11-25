@@ -8,8 +8,9 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-public class LineIterator implements Iterable<String>, Iterator<String> {
+public class LineIterator implements Iterable<String> {
 	private LineNumberReader m_reader;
 
 	private boolean m_eof;
@@ -31,34 +32,39 @@ public class LineIterator implements Iterable<String>, Iterator<String> {
 	@NonNull
 	@Override
 	public Iterator<String> iterator() {
-		return this;
+		return new Iter();
 	}
 
-	@Override
-	public boolean hasNext() {
-		if(m_nextLine != null)
-			return true;
-		if(m_eof)
-			return false;
-		try {
-			m_nextLine = m_reader.readLine();
-			m_eof = m_nextLine == null;
-			return !m_eof;
-		} catch(IOException x) {
-			throw WrappedException.wrap(x);
+	private final class Iter implements Iterator<String> {
+		@Override
+		public boolean hasNext() {
+			if(m_nextLine != null)
+				return true;
+			if(m_eof)
+				return false;
+			try {
+				m_nextLine = m_reader.readLine();
+				m_eof = m_nextLine == null;
+				return !m_eof;
+			} catch(IOException x) {
+				throw WrappedException.wrap(x);
+			}
 		}
-	}
 
-	@Nullable
-	@Override
-	public String next() {
-		if(m_nextLine == null)
-			throw new IllegalStateException("Call hasNext 1st");
-		String s = m_nextLine;
-		m_nextLine = null;
-		return s;
-	}
+		@Nullable
+		@Override
+		public String next() {
+			if(m_nextLine == null)
+				throw new NoSuchElementException("Call hasNext 1st");
+			String s = m_nextLine;
+			m_nextLine = null;
+			return s;
+		}
 
-	@Override
-	public void remove() {}
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+
+	}
 }

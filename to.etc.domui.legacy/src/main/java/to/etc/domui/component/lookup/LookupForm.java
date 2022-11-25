@@ -620,7 +620,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0 || isKeepMetaData())			// If we don't have an item set yet....
+		if(m_itemList.isEmpty() || isKeepMetaData())			// If we don't have an item set yet....
 			setDefaultItems(); 									// ..define it from metadata, and abort if there is nothing there
 
 		NodeContainer searchContainer = sroot;
@@ -905,9 +905,9 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	public void setDefaultItems() {
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
-		if(list == null || list.size() == 0) {
+		if(list == null || list.isEmpty()) {
 			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
-			if(list == null || list.size() == 0)
+			if(list == null || list.isEmpty())
 				throw new IllegalStateException(getMetaModel() + " has no search properties defined in its meta data.");
 		}
 		setSearchProperties(list);
@@ -1294,7 +1294,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			labelcontrol = qt.getInputControls()[0];
 
 		//-- Finally: add the label
-		if(it.getLabelText() != null && it.getLabelText().length() > 0) {
+		if(it.getLabelText() != null && !it.getLabelText().isEmpty()) {
 			Label l = new Label(labelcontrol, it.getLabelText());
 			//			if(l.getForNode() == null)
 			//				l.setForNode(labelcontrol);

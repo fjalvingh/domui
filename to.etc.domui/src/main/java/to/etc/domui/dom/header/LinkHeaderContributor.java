@@ -38,7 +38,10 @@ public class LinkHeaderContributor extends HeaderContributor {
 		o.attr("href", r.ctx().getRelativePath(m_href));
 		if(null != m_type)
 			o.attr("type", m_type);
-		o.endtag();
+		if(r.isXml())
+			o.endAndCloseXmltag();
+		else
+			o.endtag();
 		o.dec();
 
 	}

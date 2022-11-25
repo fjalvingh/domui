@@ -63,7 +63,7 @@ public class MetaUtils {
 	 */
 	public static int parseIntParam(final String metadataLine, final String paramName, final int defaultValue) {
 		String paramValue = parseStringParam(metadataLine, paramName);
-		if(paramValue == null || paramValue.trim().length() == 0)
+		if(paramValue == null || paramValue.trim().isEmpty())
 			return defaultValue;
 		try {
 			return Integer.parseInt(paramValue);

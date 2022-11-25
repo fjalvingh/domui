@@ -6,6 +6,8 @@ import to.etc.domui.server.ConfigParameters;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class TestConfigParameters implements ConfigParameters {
@@ -36,5 +38,11 @@ public class TestConfigParameters implements ConfigParameters {
 	@Override
 	public URL getResourcePath(@NonNull String path) throws Exception {
 		return new URL(path);
+	}
+
+	@NonNull
+	@Override
+	public List<String> getParameterNames() {
+		return new ArrayList<>(m_parameters.keySet());
 	}
 }

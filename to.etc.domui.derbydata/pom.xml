@@ -16,6 +16,19 @@
     <description>DerbyDB test database for testing and demo purposes</description>
     <inceptionYear>2017</inceptionYear>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.skip>false</sonar.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
         <dependency>

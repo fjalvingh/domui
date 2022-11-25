@@ -56,7 +56,7 @@ public class BreadCrumb extends Div {
 
 		//-- Get the application's main page as the base;
 		List<IShelvedEntry> stack = cm.getShelvedPageStack();
-		if(stack.size() == 0) {
+		if(stack.isEmpty()) {
 			setDisplay(DisplayType.NONE);
 			return;
 		}

@@ -111,7 +111,8 @@ public class AnimGifDecoder {
 	//	}
 
 	private void skipBytes(int sz) throws IOException {
-		m_is.skip(sz);
+		if(sz != m_is.skip(sz))
+			throw new IOException("Cannot skip " + sz + " bytes");
 	}
 
 

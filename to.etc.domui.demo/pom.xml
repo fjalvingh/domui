@@ -1,374 +1,399 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>to.etc.domui</groupId>
-        <artifactId>to.etc.domui.parent</artifactId>
-        <version>1.2-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
-    </parent>
+	<parent>
+		<groupId>to.etc.domui</groupId>
+		<artifactId>to.etc.domui.parent</artifactId>
+		<version>1.2-SNAPSHOT</version>
+		<relativePath>../parent</relativePath>
+	</parent>
 
-    <artifactId>to.etc.domui.demo</artifactId>
-    <version>1.2-SNAPSHOT</version>
-    <packaging>war</packaging>
+	<artifactId>to.etc.domui.demo</artifactId>
+	<version>1.2-SNAPSHOT</version>
+	<packaging>war</packaging>
 
-    <name>domui :: etc.to.domui.demo</name>
-    <description>The DomUI user interface library :: demo webapp and test web code</description>
-    <inceptionYear>2017</inceptionYear>
+	<name>domui :: etc.to.domui.demo</name>
+	<description>The DomUI user interface library :: demo webapp and test web code</description>
+	<inceptionYear>2017</inceptionYear>
 
-    <properties>
-        <jetty.http.port>8088</jetty.http.port>
-    </properties>
+	<properties>
+		<jetty.http.port>8088</jetty.http.port>
+		<sonar.skip>true</sonar.skip>
+	</properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>el-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>jsp-api</artifactId>
-        </dependency>
+	<profiles>
+		<profile>
+			<id>sonar</id>
+			<properties>
+				<sonar.skip>false</sonar.skip>
+			</properties>
+		</profile>
+	</profiles>
 
-        <!-- Oddity which seems to be necessary for IntelliJ to pick up the annotation processor. -->
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>property-annotations-processor</artifactId>
-            <version>1.2-SNAPSHOT</version>
-        </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.el</groupId>
+			<artifactId>el-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+		</dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>to.etc.domui</groupId>-->
-            <!--<artifactId>fontawesome4</artifactId>-->
-            <!--<version>1.2-SNAPSHOT</version>-->
-        <!--</dependency>-->
+		<!-- Oddity which seems to be necessary for IntelliJ to pick up the annotation processor. -->
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>property-annotations-processor</artifactId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
 
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>fontawesome5free</artifactId>
-            <version>1.2-SNAPSHOT</version>
-        </dependency>
+		<!--<dependency>-->
+		<!--<groupId>to.etc.domui</groupId>-->
+		<!--<artifactId>fontawesome4</artifactId>-->
+		<!--<version>1.2-SNAPSHOT</version>-->
+		<!--</dependency>-->
 
+		<!--
+				<dependency>
+					<groupId>to.etc.domui</groupId>
+					<artifactId>fontawesome5free</artifactId>
+					<version>1.2-SNAPSHOT</version>
+				</dependency>
+		-->
 
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.logger</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jdt</groupId>
-            <artifactId>org.eclipse.jdt.annotation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.alg</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.db</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc</groupId>
-            <artifactId>annotations</artifactId>
-            <version>1.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.webapp.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.domui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.domui.hibutil</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.domui.derbydata</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.domui.selenium</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.domui.legacy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.syntaxer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.domui.formbuilder</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>fontawesome6free</artifactId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.mozilla/rhino -->
-        <dependency>
-            <groupId>org.mozilla</groupId>
-            <artifactId>rhino</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.logger</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jdt</groupId>
+			<artifactId>org.eclipse.jdt.annotation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.alg</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.db</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc</groupId>
+			<artifactId>annotations</artifactId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.webapp.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.domui</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.domui.hibutil</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.domui.derbydata</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.domui.selenium</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.domui.legacy</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.syntaxer</artifactId>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/jcharts/jcharts -->
-        <dependency>
-            <groupId>jcharts</groupId>
-            <artifactId>jcharts</artifactId>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/org.mozilla/rhino -->
+		<dependency>
+			<groupId>org.mozilla</groupId>
+			<artifactId>rhino</artifactId>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
-        <dependency>
-            <groupId>net.htmlparser.jericho</groupId>
-            <artifactId>jericho-html</artifactId>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/jcharts/jcharts -->
+		<dependency>
+			<groupId>jcharts</groupId>
+			<artifactId>jcharts</artifactId>
+		</dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-servlets</artifactId>-->
-        <!--</dependency>-->
+		<!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
+		<dependency>
+			<groupId>net.htmlparser.jericho</groupId>
+			<artifactId>jericho-html</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.code.findbugs</groupId>
-                    <artifactId>jsr305</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis-ext</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+		<!--<dependency>-->
+		<!--<groupId>org.eclipse.jetty</groupId>-->
+		<!--<artifactId>jetty-servlets</artifactId>-->
+		<!--</dependency>-->
 
-        <!-- Test dependencies  -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
-        </dependency>
+		<dependency>
+			<artifactId>okio</artifactId>
+			<groupId>com.squareup.okio</groupId>
+			<scope>test</scope>
+		</dependency>
 
-        <!-- Java 9 / JUnit -->
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>okio</artifactId>
+					<groupId>com.squareup.okio</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.code.findbugs</groupId>
+					<artifactId>jsr305</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis-ext</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xalan</groupId>
+					<artifactId>xalan</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.0</version>
-        </dependency>
+		<!-- Test dependencies  -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>compile</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1</version>
-        </dependency>
-    </dependencies>
+		<!-- Java 9 / JUnit -->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+		</dependency>
 
-    <build>
-        <finalName>demo</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <annotationProcessors>
-                        <annotationProcessor>db.annotationprocessing.PropertyAnnotationProcessor</annotationProcessor>
-                    </annotationProcessors>
-                    <annotationProcessorPaths>
-                        <dependency>
-                            <groupId>to.etc.domui</groupId>
-                            <artifactId>property-annotations-processor</artifactId>
-                            <version>1.2-SNAPSHOT</version>
-                        </dependency>
-                    </annotationProcessorPaths>
-                </configuration>
+		<dependency>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<version>2.3.0</version>
+		</dependency>
 
-                <dependencies>
-                    <dependency>
-                        <groupId>to.etc.domui</groupId>
-                        <artifactId>property-annotations-processor</artifactId>
-                        <version>1.2-SNAPSHOT</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.1</version>
+		</dependency>
+	</dependencies>
 
-            <!--
-                The demo app requires the java source files to be reachable as resources, to allow
-                for "show source".
-            -->
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <!-- here the phase you need -->
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/classes</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/java</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+	<build>
+		<finalName>demo</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<annotationProcessors>
+						<annotationProcessor>db.annotationprocessing.PropertyAnnotationProcessor</annotationProcessor>
+					</annotationProcessors>
+					<annotationProcessorPaths>
+						<dependency>
+							<groupId>to.etc.domui</groupId>
+							<artifactId>property-annotations-processor</artifactId>
+							<version>1.2-SNAPSHOT</version>
+						</dependency>
+					</annotationProcessorPaths>
+				</configuration>
 
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-<!--                    <overlays>
-                        <overlay>
-                            <groupId>to.etc.domui</groupId>
-                            <artifactId>to.etc.domui.demo.web</artifactId>
-                        </overlay>
-                    </overlays>
--->
-                    <webResources>
-                        <resource>
-                            <directory>src/main/webapp</directory>
-                            <filtering>true</filtering>
-                            <includes>
-                                <include>index.html</include>
-                            </includes>
-                        </resource>
-                    </webResources>
-                </configuration>
-            </plugin>
+				<dependencies>
+					<dependency>
+						<groupId>to.etc.domui</groupId>
+						<artifactId>property-annotations-processor</artifactId>
+						<version>1.2-SNAPSHOT</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.4</version>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                </executions>
+			<!--
+				The demo app requires the java source files to be reachable as resources, to allow
+				for "show source".
+			-->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<!-- here the phase you need -->
+						<phase>compile</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/classes</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/java</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-                <configuration>
-                    <dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/domui.git.properties</generateGitPropertiesFilename>
-                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
-                    <offline>true</offline>
-                    <useNativeGit>true</useNativeGit>
-                </configuration>
-            </plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<!--                    <overlays>
+											<overlay>
+												<groupId>to.etc.domui</groupId>
+												<artifactId>to.etc.domui.demo.web</artifactId>
+											</overlay>
+										</overlays>
+					-->
+					<webResources>
+						<resource>
+							<directory>src/main/webapp</directory>
+							<filtering>true</filtering>
+							<includes>
+								<include>index.html</include>
+							</includes>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
 
-            <plugin>
-                <groupId>io.qameta.allure</groupId>
-                <artifactId>allure-maven</artifactId>
-                <version>2.8</version>
-            </plugin>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>4.0.4</version>
+				<executions>
+					<execution>
+						<id>get-the-git-infos</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+					</execution>
+				</executions>
 
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <configuration>
-                    <!-- Enable TestUI mode on the server to make Selenium tests run. -->
-                    <systemProperties>
-                        <systemProperty>
-                            <name>domui.testui</name>
-                            <value>true</value>
-                        </systemProperty>
-                    </systemProperties>
-                    <scanIntervalSeconds>5</scanIntervalSeconds>
-                    <stopPort>8089</stopPort>
-                    <stopKey>furkelheim</stopKey>
-                    <httpConnector>
-                        <port>${jetty.http.port}</port>
-                    </httpConnector>
+				<configuration>
+					<dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/domui.git.properties</generateGitPropertiesFilename>
+					<failOnNoGitDirectory>false</failOnNoGitDirectory>
+					<offline>true</offline>
+					<useNativeGit>true</useNativeGit>
+				</configuration>
+			</plugin>
 
-                    <webApp>
-                        <contextPath>/demo</contextPath>
-                    </webApp>
+			<plugin>
+				<groupId>io.qameta.allure</groupId>
+				<artifactId>allure-maven</artifactId>
+				<version>2.8</version>
+			</plugin>
 
-                </configuration>
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<configuration>
+					<!-- Enable TestUI mode on the server to make Selenium tests run. -->
+					<systemProperties>
+						<systemProperty>
+							<name>domui.testui</name>
+							<value>true</value>
+						</systemProperty>
+					</systemProperties>
+					<scanIntervalSeconds>5</scanIntervalSeconds>
+					<stopPort>8089</stopPort>
+					<stopKey>furkelheim</stopKey>
+					<httpConnector>
+						<port>${jetty.http.port}</port>
+					</httpConnector>
 
-                <!--<configuration>-->
-                    <!--&lt;!&ndash; Enable TestUI mode on the server to make Selenium tests run. &ndash;&gt;-->
-                    <!--<systemProperties>-->
-                        <!--<systemProperty>-->
-                            <!--<name>domui.testui</name>-->
-                            <!--<value>true</value>-->
-                        <!--</systemProperty>-->
-                    <!--</systemProperties>-->
+					<webApp>
+						<contextPath>/demo</contextPath>
+					</webApp>
 
-                    <!--<scanIntervalSeconds>5</scanIntervalSeconds>-->
-                    <!--<stopPort>8089</stopPort>-->
-                    <!--<stopKey>furkelheim</stopKey>-->
-                    <!--<webApp>-->
-                        <!--<baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">-->
-                            <!--&lt;!&ndash;<resourcesAsCSV>${basedir}/../../shared/web/src/main/webapp,${basedir}/src/main/webapp</resourcesAsCSV>&ndash;&gt;-->
-                            <!--<resourcesAsCSV>${basedir}/src/main/webapp</resourcesAsCSV>-->
-                        <!--</baseResource>-->
-                        <!--<webInfIncludeJarPattern>^$</webInfIncludeJarPattern>-->
-                        <!--<containerIncludeJarPattern>^$</containerIncludeJarPattern>-->
-                        <!--<contextPath>/demo</contextPath>-->
-                    <!--</webApp>-->
-                    <!--<httpConnector>-->
-                        <!--<port>${jetty.http.port}</port>-->
-                    <!--</httpConnector>-->
-                <!--</configuration>-->
+				</configuration>
 
-                <!-- Want to use this for integration tests. -->
-                <!-- See http://maven.apache.org/surefire/maven-failsafe-plugin/usage.html -->
-                <executions>
-                    <execution>
-                        <id>start-jetty</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                        <configuration>
-                            <scanIntervalSeconds>0</scanIntervalSeconds>
-                            <daemon>true</daemon> <!-- IntelliJ marks this as error but it is valid, see http://stackoverflow.com/questions/34996128/maven-jetty-plugin-daemon-element-not-allowed-here -->
-                            <stopPort>8089</stopPort>
-                            <stopKey>furkelheim</stopKey>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-jetty</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+				<!--<configuration>-->
+				<!--&lt;!&ndash; Enable TestUI mode on the server to make Selenium tests run. &ndash;&gt;-->
+				<!--<systemProperties>-->
+				<!--<systemProperty>-->
+				<!--<name>domui.testui</name>-->
+				<!--<value>true</value>-->
+				<!--</systemProperty>-->
+				<!--</systemProperties>-->
+
+				<!--<scanIntervalSeconds>5</scanIntervalSeconds>-->
+				<!--<stopPort>8089</stopPort>-->
+				<!--<stopKey>furkelheim</stopKey>-->
+				<!--<webApp>-->
+				<!--<baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">-->
+				<!--&lt;!&ndash;<resourcesAsCSV>${basedir}/../../shared/web/src/main/webapp,${basedir}/src/main/webapp</resourcesAsCSV>&ndash;&gt;-->
+				<!--<resourcesAsCSV>${basedir}/src/main/webapp</resourcesAsCSV>-->
+				<!--</baseResource>-->
+				<!--<webInfIncludeJarPattern>^$</webInfIncludeJarPattern>-->
+				<!--<containerIncludeJarPattern>^$</containerIncludeJarPattern>-->
+				<!--<contextPath>/demo</contextPath>-->
+				<!--</webApp>-->
+				<!--<httpConnector>-->
+				<!--<port>${jetty.http.port}</port>-->
+				<!--</httpConnector>-->
+				<!--</configuration>-->
+
+				<!-- Want to use this for integration tests. -->
+				<!-- See http://maven.apache.org/surefire/maven-failsafe-plugin/usage.html -->
+				<executions>
+					<execution>
+						<id>start-jetty</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>start</goal>
+						</goals>
+						<configuration>
+							<scanIntervalSeconds>0</scanIntervalSeconds>
+							<daemon>true
+							</daemon> <!-- IntelliJ marks this as error but it is valid, see http://stackoverflow.com/questions/34996128/maven-jetty-plugin-daemon-element-not-allowed-here -->
+							<stopPort>8089</stopPort>
+							<stopKey>furkelheim</stopKey>
+						</configuration>
+					</execution>
+					<execution>
+						<id>stop-jetty</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

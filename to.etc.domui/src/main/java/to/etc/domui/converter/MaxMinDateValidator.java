@@ -31,6 +31,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
 import to.etc.util.DateUtil;
+import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.nls.NlsContext;
 
 import java.util.Date;
@@ -67,22 +68,23 @@ public final class MaxMinDateValidator implements IValueValidator<Date> {
 			return;
 		final Date min = m_minDate;
 		if(null != min && input.before(min)) {
-			throwError(Msgs.V_TOOSMALL, min, m_minDateMsg);
+			throwError(Msgs.vTooSmall, min, m_minDateMsg);
 		}
 		final Date max = m_maxDate;
 		if(null != max && input.after(max)) {
-			throwError(Msgs.V_TOOLARGE, max, m_maxDateMsg);
+			throwError(Msgs.vTooLarge, max, m_maxDateMsg);
 		}
 	}
 
-	private void throwError(@NonNull String code, @NonNull Date val, @Nullable UIMessage msg) {
+	private void throwError(@NonNull IBundleCode code, @NonNull Date val, @Nullable UIMessage msg) {
 		if(msg != null) {
-			throw new ValidationException(msg.getBundle(), msg.getCode(), msg.getParameters());
+			throw new ValidationException(msg);
 		} else {
 			DateConverter dc = new DateConverter();
 			throw new ValidationException(code, dc.convertObjectToString(NlsContext.getLocale(), val));
 		}
 	}
+
 
 	/**
 	 * Builder class for assigning minimum / maximum dates and there's error messages

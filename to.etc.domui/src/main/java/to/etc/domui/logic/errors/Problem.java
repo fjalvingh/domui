@@ -6,7 +6,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.errors.MsgType;
-import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.IBundleCode;
 
 /**
@@ -26,75 +25,58 @@ import to.etc.webapp.nls.IBundleCode;
  * Created on Nov 7, 2014
  */
 @NonNullByDefault
-//@Immutable
 public class Problem {
-	final private BundleRef m_bundle;
+	final private IBundleCode m_code;
 
-	final private String m_code;
-
-	/** Interned unique key for this error. */
+	/**
+	 * Interned unique key for this error.
+	 */
 	final private String m_key;
 
 	final private MsgType m_severity;
 
-	/** When set, this same problem can be reported multiple times on a single target. */
+	/**
+	 * When set, this same problem can be reported multiple times on a single target.
+	 */
 	final private boolean m_repeatable;
+
+	public Problem(IBundleCode code, MsgType severity, boolean repeatable) {
+		m_code = code;
+		m_severity = severity;
+		m_repeatable = repeatable;
+		m_key = code.getBundle().getBundleKey() + "#" + code;
+	}
 
 	public Problem(IBundleCode code) {
 		this(code, MsgType.ERROR, false);
 	}
 
-	@Deprecated
-	public Problem(Class< ? > anchor, String code) {
-		this(anchor, code, MsgType.ERROR, false);
-	}
+	//static public Problem warning(Class<?> anchor, String code) {
+	//	return new Problem(anchor, code, MsgType.WARNING, false);
+	//}
 
-	protected Problem(IBundleCode code, MsgType type, boolean repeatable) {
-		this(code.getBundle(), code.name(), type, repeatable);
-	}
+	//static public Problem warningList(Class<?> anchor, String code) {
+	//	return new Problem(anchor, code, MsgType.WARNING, true);
+	//}
 
-	@Deprecated
-	protected Problem(Class<?> anchor, String code, MsgType type, boolean repeatable) {
-		m_bundle = BundleRef.create(anchor, "messages");				// All problem messages must be in a bundle called messages.
-		m_key = m_bundle.getBundleKey() + "#" + code;
-		m_code = code;
-		m_severity = type;
-		m_repeatable = repeatable;
-	}
+	//static public Problem error(Class<?> anchor, String code) {
+	//	return new Problem(anchor, code, MsgType.ERROR, false);
+	//}
 
-	@Deprecated
-	protected Problem(BundleRef bundle, String code, MsgType type, boolean repeatable) {
-		m_bundle = bundle;
-		m_key = m_bundle.getBundleKey() + "#" + code;
-		m_code = code;
-		m_severity = type;
-		m_repeatable = repeatable;
-	}
-
-	static public Problem warning(Class<?> anchor, String code) {
-		return new Problem(anchor, code, MsgType.WARNING, false);
-	}
-	static public Problem warningList(Class<?> anchor, String code) {
-		return new Problem(anchor, code, MsgType.WARNING, true);
-	}
-	static public Problem error(Class<?> anchor, String code) {
-		return new Problem(anchor, code, MsgType.ERROR, false);
-	}
-	static public Problem errorList(Class<?> anchor, String code) {
-		return new Problem(anchor, code, MsgType.ERROR, true);
-	}
+	//static public Problem errorList(Class<?> anchor, String code) {
+	//	return new Problem(anchor, code, MsgType.ERROR, true);
+	//}
 
 	public boolean isRepeatable() {
 		return m_repeatable;
 	}
 
-	public String getCode() {
+	public IBundleCode getCode() {
 		return m_code;
 	}
 
 	/**
 	 * Return a unique key for the message as "bundle name" '#' "code". The bundle name is defined as the bundle's class package + '.' + message file name without extension
-	 * @return
 	 */
 	public String getMessageKey() {
 		return m_key;
@@ -104,13 +86,8 @@ public class Problem {
 		return m_severity;
 	}
 
-	public BundleRef getBundle() {
-		return m_bundle;
-	}
-
 	/**
 	 * Switch off this error: remove it from the error(s) list.
-	 * @param errors
 	 */
 	public <T> void off(@NonNull ProblemModel errors, @NonNull T instance) {
 		errors.clear(this, instance, null);
@@ -126,36 +103,29 @@ public class Problem {
 
 	/**
 	 * Report this error on a specific instance only.
-	 * @param errors
-	 * @param instance
-	 * @return
 	 */
 	public <T> ProblemInstance on(@NonNull ProblemModel errors, @NonNull T instance) {
 		//System.out.println("error " + toString());
 		ProblemInstance pi = new ProblemInstance(this, instance);
 		errors.addProblem(pi);
-		return pi;										// Allow specialization using builder pattern.
+		return pi;                                        // Allow specialization using builder pattern.
 	}
 
 	/**
 	 * Report this error on the specified instance's property.
-	 * @param errors
-	 * @param instance
-	 * @param property
-	 * @return
 	 */
 	@NonNull
 	public <T, P> ProblemInstance on(@NonNull ProblemModel errors, @NonNull T instance, @NonNull PropertyMetaModel<P> property) {
 		ProblemInstance pi = new ProblemInstance(this, instance, property);
 		errors.addProblem(pi);
-		return pi;										// Allow specialization using builder pattern.
+		return pi;                                        // Allow specialization using builder pattern.
 	}
 
 	@NonNull
 	public <T> ProblemInstance on(@NonNull ProblemModel errors, @NonNull T instance, @NonNull String property) {
 		ProblemInstance pi = new ProblemInstance(this, instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 		errors.addProblem(pi);
-		return pi;										// Allow specialization using builder pattern.
+		return pi;                                        // Allow specialization using builder pattern.
 	}
 
 	public <T> ProblemInstance when(@NonNull ProblemModel errors, @NonNull T instance, @NonNull String property, boolean condition) {

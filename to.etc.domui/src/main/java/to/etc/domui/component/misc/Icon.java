@@ -734,6 +734,13 @@ public enum Icon implements IIconRef {
 		return new ImageIconRef(path);
 	}
 
+	/**
+	 * Create an icon out of an Unicode character.
+	 */
+	static public IIconRef of(char unicode) {
+		return new CharIconRef(unicode);
+	}
+
 	@Override public NodeBase createNode(String cssClasses) {
 		IIconRef icon = getRef();
 		return icon.createNode(cssClasses);
@@ -777,7 +784,7 @@ public enum Icon implements IIconRef {
 		}
 		if(sb.length() > 0)
 			throw new IllegalStateException("Missing values for Icon constants. Have you added one of the font packs to "
-				+ "your projects, i.e. fontawesome5free or fontawesome4? Or did you forget to map?\n\nMissing are: " + sb);
+				+ "your projects, i.e. fontawesome6free or fontawesome5free or fontawesome4? Or did you forget to map?\n\nMissing are: " + sb);
 	}
 
 

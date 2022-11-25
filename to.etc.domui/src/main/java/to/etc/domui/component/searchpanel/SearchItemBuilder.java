@@ -22,7 +22,7 @@ final public class SearchItemBuilder<T> {
 	private IControl<?> m_control;
 
 	@Nullable
-	private ILookupQueryBuilder<?> m_queryBuilder;
+	private ILookupQueryBuilder<?, ?> m_queryBuilder;
 
 	@Nullable
 	private PropertyMetaModel<?> m_property;
@@ -77,15 +77,18 @@ final public class SearchItemBuilder<T> {
 		return this;
 	}
 
-	@Nullable public PropertyMetaModel<?> getProperty() {
+	@Nullable
+	public PropertyMetaModel<?> getProperty() {
 		return m_property;
 	}
 
-	@Nullable public <D> ILookupQueryBuilder<D> getQueryBuilder() {
-		return (ILookupQueryBuilder<D>) m_queryBuilder;
+	@Nullable
+	public <D> ILookupQueryBuilder<T, D> getQueryBuilder() {
+		return (ILookupQueryBuilder<T, D>) m_queryBuilder;
 	}
 
-	@Nullable public <D> D getDefaultValue() {
+	@Nullable
+	public <D> D getDefaultValue() {
 		return (D) m_defaultValue;
 	}
 
@@ -94,15 +97,18 @@ final public class SearchItemBuilder<T> {
 		return (D) m_initialValue;
 	}
 
-	@Nullable public NodeContainer getLabelNode() {
+	@Nullable
+	public NodeContainer getLabelNode() {
 		return m_labelNode;
 	}
 
-	@Nullable public String getLabelText() {
+	@Nullable
+	public String getLabelText() {
 		return m_labelText;
 	}
 
-	@Nullable public IControl<?> getControl() {
+	@Nullable
+	public IControl<?> getControl() {
 		return m_control;
 	}
 
@@ -205,12 +211,14 @@ final public class SearchItemBuilder<T> {
 		m_labelNode = label;
 		return this;
 	}
+
 	public SearchItemBuilder<T> testID(String id) {
 		m_testId = id;
 		return this;
 	}
 
-	@Nullable public String getTestId() {
+	@Nullable
+	public String getTestId() {
 		return m_testId;
 	}
 
@@ -218,7 +226,7 @@ final public class SearchItemBuilder<T> {
 	 * Finish the builder and return the result. This version allows adding a control, but assumes that
 	 * the query can be build by a simple equals on the property value.
 	 */
-	public <D> SearchControlLine<D> control(IControl<D> control) {
+	public <D> SearchControlLine<T, D> control(IControl<D> control) {
 		m_control = control;
 		return m_form.finishBuilder(this);
 	}
@@ -227,17 +235,18 @@ final public class SearchItemBuilder<T> {
 	 * Finish the builder and return the result. This version allows any query to be constructed from the
 	 * control's value.
 	 */
-	public <D> SearchControlLine<D> control(IControl<D> control, ILookupQueryBuilder<D> builder) {
+	public <D> SearchControlLine<T, D> control(IControl<D> control, ILookupQueryBuilder<T, D> builder) {
 		m_control = control;
 		m_queryBuilder = builder;
 		return m_form.finishBuilder(this);
 	}
 
-	public SearchControlLine<?> control() {
+	public SearchControlLine<T, ?> control() {
 		return m_form.finishBuilder(this);
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
 		IControl<?> control = m_control;
@@ -256,7 +265,8 @@ final public class SearchItemBuilder<T> {
 		m_form.addAction(this, action);
 	}
 
-	@Nullable public IExecute getAction() {
+	@Nullable
+	public IExecute getAction() {
 		return m_action;
 	}
 }

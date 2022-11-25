@@ -331,6 +331,8 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 	static private final IExportCellRenderer<ExcelExportWriter<?>, Cell, Object> DEFAULT_RENDERER = new IExportCellRenderer<ExcelExportWriter<?>, Cell, Object>() {
 		@Override public void renderCell(ExcelExportWriter<?> w, Cell cell, int cellIndex, @Nullable Object value) throws Exception {
 			String string = String.valueOf(value);
+			if(string.length() > 32666)
+				string = string.substring(0, 32766);
 			cell.setCellValue(string);
 			cell.setCellStyle(w.m_defaultCellStyle);
 			w.setCellWidth(cellIndex, string);

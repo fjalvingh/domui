@@ -115,7 +115,7 @@ final public class InternalResourcePart implements IBufferedPartFactory<ResKey> 
 	@Override
 	public @NonNull ResKey decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
 		String rurl = param.getInputPath();
-		if(FileTool.getFileExtension(rurl).length() == 0) {
+		if(FileTool.getFileExtension(rurl).isEmpty()) {
 			throw new HttpCallException("", HttpServletResponse.SC_FORBIDDEN, "Request forbidden for directory " + rurl);
 		}
 

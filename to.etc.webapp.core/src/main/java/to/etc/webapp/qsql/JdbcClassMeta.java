@@ -91,7 +91,7 @@ public class JdbcClassMeta {
 
 		//-- Get properties from the class
 		List<PropertyInfo> pilist = ClassUtil.getProperties(m_dataClass);
-		if(pilist.size() == 0)
+		if(pilist.isEmpty())
 			throw new IllegalStateException("No properties on data class!?");
 		Map<String, JdbcPropertyMeta> map = new HashMap<String, JdbcPropertyMeta>();
 		Map<String, JdbcPropertyMeta> colmap = new HashMap<String, JdbcPropertyMeta>();

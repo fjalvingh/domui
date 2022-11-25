@@ -30,7 +30,7 @@ public class OracleGenerator extends AbstractGenerator {
 		if(port <= 0)
 			port = 1521;
 
-		String url = "jdbc:oracle:thin:@" + parameters.getHostname() + ":" + port + ":" + parameters.getSid();
+		String url = "jdbc:oracle:thin:@" + parameters.getHostname() + ":" + port + ":" + parameters.getDatabase();
 		Properties prop = new Properties();
 		prop.setProperty("user", parameters.getUserid());
 		prop.setProperty("password", parameters.getPassword());

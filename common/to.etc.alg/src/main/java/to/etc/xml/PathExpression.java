@@ -68,7 +68,7 @@ public class PathExpression {
 		StringTokenizer st = new StringTokenizer(s, "/"); // Each expression separated by '/'
 		while(st.hasMoreTokens()) {
 			String sel = st.nextToken();
-			if(sel.length() != 0) // Replace // with /
+			if(!sel.isEmpty()) // Replace // with /
 				al.add(decodeSelector(sel)); // Decode the selector and add to the path
 		}
 		return new PathExpression(al.toArray(new PathSelector[al.size()]), s);

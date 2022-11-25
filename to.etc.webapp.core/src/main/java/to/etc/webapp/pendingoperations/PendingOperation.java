@@ -246,7 +246,7 @@ public class PendingOperation {
 		if(value == null) {
 			if(m_properties != null) {
 				m_properties.remove(name);
-				if(m_properties.size() == 0)
+				if(m_properties.isEmpty())
 					m_properties = null;
 			}
 		} else {
@@ -501,7 +501,7 @@ public class PendingOperation {
 			ps.setString(f++, m_arg1);
 
 			String pro = null;
-			if(m_properties != null && m_properties.size() != 0) {
+			if(m_properties != null && !m_properties.isEmpty()) {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
 				try {
 					m_properties.store(baos, "-");

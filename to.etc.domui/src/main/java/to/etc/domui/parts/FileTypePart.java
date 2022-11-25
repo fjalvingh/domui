@@ -53,7 +53,7 @@ public class FileTypePart implements IBufferedPartFactory<String> {
 		String ext = key.substring(PREFIX.length()).toLowerCase();
 
 		//-- Can we locate a filetype of that type in the web resources?
-		if(ext.length() == 0)
+		if(ext.isEmpty())
 			ext = "generic";
 
 		//-- Is a web-based resource available?

@@ -26,7 +26,8 @@ public class AcePage extends UrlPage {
 
 		AceEditor editor = new AceEditor();
 		editor.setMode("ace/mode/pgsql");
-		editor.setTheme("ace/theme/iplastic");
+		editor.setTheme("iplastic");
+		//editor.setTheme("iplastic");
 		editor.setHeight("200px");
 		editor.setWidth("600px");
 		add(editor);

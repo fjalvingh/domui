@@ -36,6 +36,7 @@ import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.NlsContext;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -76,16 +77,16 @@ public class NumericUtil {
 	static private int internalParseInt(String input) {
 		BigDecimal bd = parseBigDecimal(input, 0, NumericPresentation.NUMBER);
 		if(bd == null) {
-			throw new ValidationException(Msgs.V_INVALID, input); // No input is invalid input.
+			throw new ValidationException(Msgs.vInvalid, input); // No input is invalid input.
 		}
 		if(bd.compareTo(MAXINT) > 0)
-			throw new ValidationException(Msgs.V_TOOLARGE, MAXINT);
+			throw new ValidationException(Msgs.vTooLarge, MAXINT);
 		if(bd.compareTo(MININT) < 0)
-			throw new ValidationException(Msgs.V_TOOSMALL, MININT);
+			throw new ValidationException(Msgs.vTooSmall, MININT);
 		try {
 			return bd.intValueExact();
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input); // Happens when a fraction is present.
+			throw new ValidationException(Msgs.vInvalid, input); // Happens when a fraction is present.
 		}
 	}
 
@@ -96,7 +97,7 @@ public class NumericUtil {
 		try {
 			return Long.parseLong(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
+			throw new ValidationException(Msgs.vInvalid, input);
 		}
 	}
 
@@ -108,7 +109,7 @@ public class NumericUtil {
 		try {
 			return Long.valueOf(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
+			throw new ValidationException(Msgs.vInvalid, input);
 		}
 	}
 
@@ -121,7 +122,7 @@ public class NumericUtil {
 		try {
 			return Double.valueOf(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
+			throw new ValidationException(Msgs.vInvalid, input);
 		}
 	}
 
@@ -134,10 +135,21 @@ public class NumericUtil {
 		try {
 			return new BigDecimal(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
+			throw new ValidationException(Msgs.vInvalid, input);
 		}
 	}
 
+	@Nullable
+	static public BigInteger parseBigInteger(String input, NumericPresentation np) {
+		MiniScanner ms = MiniScanner.getInstance();
+		if(!ms.scanLaxNumber(input, 0, true))
+			return null;
+		try {
+			return new BigInteger(ms.getStringResult());
+		} catch(Exception x) {
+			throw new ValidationException(Msgs.vInvalid, input);
+		}
+	}
 
 	/**
 	 * DEPRECATED: This method wrongly assumes the scale of the number parsed - use {@link #parseNumber(Class, String, int)}.
@@ -187,6 +199,8 @@ public class NumericUtil {
 			return (T) parseDoubleWrapper(input, scale, np);
 		else if(BigDecimal.class == type)
 			return (T) parseBigDecimal(input, scale, np);
+		else if(BigInteger.class == type)
+			return (T) parseBigInteger(input, np);
 		else
 			throw new IllegalArgumentException("Unsupported numeric type in conversion=" + type);
 	}
@@ -291,9 +305,9 @@ public class NumericUtil {
 		return new NumberConverter<T>(type, np, scale);
 	}
 
-	public static <T extends Number> void assignNumericConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
+	public static <T extends Number> IConverter<T> createNumericConverter(PropertyMetaModel<T> pmm, Class<T> type) {
 		if(pmm.getConverter() != null)
-			node.setConverter(pmm.getConverter());
+			return pmm.getConverter();
 		else {
 			NumericPresentation np = null;
 			//			if(!editable)
@@ -311,7 +325,12 @@ public class NumericUtil {
 				scale = 5;
 			}
 			IConverter<T> c = createNumberConverter(type, np, scale);
-			node.setConverter(c);
+			return c;
 		}
+	}
+
+	public static <T extends Number> void assignNumericConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
+		IConverter<T> c = createNumericConverter(pmm, type);
+		node.setConverter(c);
 	}
 }

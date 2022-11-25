@@ -47,7 +47,7 @@ final public class Address {
 
 	public Address(String email, String name) {
 		this(email);
-		if(name.trim().length() == 0)
+		if(name.trim().isEmpty())
 			throw new IllegalStateException("Invalid name");
 		m_name = name;
 	}

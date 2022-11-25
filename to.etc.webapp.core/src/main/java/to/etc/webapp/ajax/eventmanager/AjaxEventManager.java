@@ -421,7 +421,7 @@ public class AjaxEventManager {
 					 * newlist may hold filtered events that MUST be queued for this
 					 * event. Do that first before continuing.
 					 */
-					if(newlist != null && newlist.size() > 0) {
+					if(newlist != null && !newlist.isEmpty()) {
 						/*
 						 * The earlier loop has prepared filtered events to send... Do so,
 						 */
@@ -545,7 +545,7 @@ public class AjaxEventManager {
 	 */
 	private AjaxEventFilter[] createEventFilters(final String channel) {
 		Set<AjaxEventFilterFactory> fset = getEventFilters(channel); // Get all factories
-		if(fset == null || fset.size() == 0)
+		if(fset == null || fset.isEmpty())
 			return null;
 
 		AjaxEventFilter[] far = new AjaxEventFilter[fset.size()];
@@ -645,7 +645,7 @@ public class AjaxEventManager {
 				if(cc.lock()) // Is this still usable?
 					doset.add(cc); // Then add it to the set
 			}
-			if(doset.size() == 0) // No listeners?
+			if(doset.isEmpty()) // No listeners?
 				return; // Then begone.
 		}
 

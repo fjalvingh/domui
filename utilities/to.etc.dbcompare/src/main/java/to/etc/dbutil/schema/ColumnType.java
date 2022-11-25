@@ -25,6 +25,7 @@ public class ColumnType implements Serializable {
 	static public final ColumnType NVARCHAR = new ColumnType("nvarchar", Types.NVARCHAR, true, false, "nvarchar2", "nvarchar");
 
 	static public final ColumnType CHAR = new ColumnType("char", Types.CHAR, true, false, "char", "character");
+	static public final ColumnType NCHAR = new ColumnType("nchar", Types.NCHAR, true, false, "nchar");
 
 	static public final ColumnType BOOLEAN = new ColumnType("boolean", Types.BOOLEAN, false, false, "bool", "boolean");
 
@@ -50,6 +51,9 @@ public class ColumnType implements Serializable {
 	static public final ColumnType XML = new ColumnType("SQLXML", Types.SQLXML, false, false, "xml");
 
 	static public final ColumnType JSON = new ColumnType("json", 1111, false, false, "json");
+
+
+	static public final ColumnType UNKNOWN = new ColumnType("unknownType", Integer.MAX_VALUE, false, false, "unknown");
 
 	private int m_sqlType;
 

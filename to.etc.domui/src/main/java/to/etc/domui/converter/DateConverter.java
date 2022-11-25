@@ -70,7 +70,7 @@ public class DateConverter implements IConverter<Date> {
 		if(input == null)
 			return null;
 		input = input.trim();
-		if(input.length() == 0)
+		if(input.isEmpty())
 			return null;
 
 		String datePattern = null;
@@ -96,7 +96,7 @@ public class DateConverter implements IConverter<Date> {
 				return dateFormat.parse(input);
 			}
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID_DATE, datePattern);
+			throw new ValidationException(Msgs.vInvalidDate, datePattern);
 		}
 	}
 }

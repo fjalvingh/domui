@@ -31,10 +31,12 @@ import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 
-final class StringLookupFactory2<T> implements ILookupFactory<T> {
-	@NonNull @Override public FactoryPair<T> createControl(@NonNull SearchPropertyMetaModel spm) {
-		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
-		Text2<T> txt = createControl(pmm);
+final class StringLookupFactory2<Q, D> implements ILookupFactory<Q, D> {
+	@NonNull
+	@Override
+	public FactoryPair<Q, D> createControl(@NonNull SearchPropertyMetaModel spm) {
+		PropertyMetaModel<D> pmm = (PropertyMetaModel<D>) spm.getProperty();
+		Text2<D> txt = createControl(pmm);
 
 		int size = MetaManager.calculateTextSize(pmm);
 		if(size > 0)
@@ -46,18 +48,18 @@ final class StringLookupFactory2<T> implements ILookupFactory<T> {
 		if(hint != null)
 			txt.setTitle(hint);
 
-		return new FactoryPair<T>(new ObjectLookupQueryBuilder<>(pmm.getName()), txt);
+		return new FactoryPair<Q, D>(new ObjectLookupQueryBuilder<>(pmm.getName()), txt);
 	}
 
-	private Text2<T> createControl(PropertyMetaModel<T> pmm) {
-		Class<T> iclz = pmm.getActualType();
+	private Text2<D> createControl(PropertyMetaModel<D> pmm) {
+		Class<D> iclz = pmm.getActualType();
 
 		//-- Boolean/boolean types? These need a tri-state checkbox
 		if(iclz == Boolean.class || iclz == Boolean.TYPE) {
 			throw new IllegalStateException("I need a tri-state checkbox component to handle boolean lookup thingies.");
 		}
 
-		Text2<T> ctl = new Text2<>(iclz);
+		Text2<D> ctl = new Text2<>(iclz);
 		if(pmm.getConverter() != null)
 			ctl.setConverter(pmm.getConverter());
 		return ctl;

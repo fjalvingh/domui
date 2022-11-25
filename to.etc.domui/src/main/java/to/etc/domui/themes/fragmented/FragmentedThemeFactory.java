@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -478,7 +479,7 @@ public class FragmentedThemeFactory {
 
 		try {
 			//-- 1. Load as a string.
-			String source = FileTool.readStreamAsString(is, "utf-8");
+			String source = FileTool.readStreamAsString(is, StandardCharsets.UTF_8);
 			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
 			RhinoTemplate tmpl = rtc.compile(new StringReader(source), fullPathName);
 			switch(loadType){

@@ -13,8 +13,16 @@ public class SizeCountingInputStream extends InputStream {
 
 	private long m_byteCount;
 
+	final private long m_maxSize;
+
 	public SizeCountingInputStream(InputStream is) {
 		m_is = is;
+		m_maxSize = Long.MAX_VALUE;
+	}
+
+	public SizeCountingInputStream(InputStream is, long maxSize) {
+		m_is = is;
+		m_maxSize = maxSize;
 	}
 
 	@Override
@@ -23,6 +31,8 @@ public class SizeCountingInputStream extends InputStream {
 		if(szrd == -1)
 			return szrd;
 		m_byteCount += szrd;
+		if(m_byteCount >= m_maxSize)
+			throw new IOException("Stream size exceeded maximum size");
 		return szrd;
 	}
 
@@ -32,6 +42,8 @@ public class SizeCountingInputStream extends InputStream {
 		if(szrd == -1)
 			return szrd;
 		m_byteCount += szrd;
+		if(m_byteCount >= m_maxSize)
+			throw new IOException("Stream size exceeded maximum size");
 		return szrd;
 	}
 
@@ -41,6 +53,8 @@ public class SizeCountingInputStream extends InputStream {
 		if(null == data)
 			return null;
 		m_byteCount += data.length;
+		if(m_byteCount >= m_maxSize)
+			throw new IOException("Stream size exceeded maximum size");
 		return data;
 	}
 
@@ -50,6 +64,8 @@ public class SizeCountingInputStream extends InputStream {
 		if(null == data)
 			return null;
 		m_byteCount += data.length;
+		if(m_byteCount >= m_maxSize)
+			throw new IOException("Stream size exceeded maximum size");
 		return data;
 	}
 
@@ -59,6 +75,8 @@ public class SizeCountingInputStream extends InputStream {
 		if(szrd == -1)
 			return szrd;
 		m_byteCount += szrd;
+		if(m_byteCount >= m_maxSize)
+			throw new IOException("Stream size exceeded maximum size");
 		return szrd;
 	}
 
@@ -103,6 +121,8 @@ public class SizeCountingInputStream extends InputStream {
 		if(val == -1)
 			return -1;
 		m_byteCount++;
+		if(m_byteCount >= m_maxSize)
+			throw new IOException("Stream size exceeded maximum size");
 		return val;
 	}
 

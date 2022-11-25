@@ -167,7 +167,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 			fi.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			fi.setDisabled(isDisabled() || isReadOnly());
-			if(m_allowedExtensions.size() > 0) {
+			if(!m_allowedExtensions.isEmpty()) {
 				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
 				fi.setSpecialAttribute("fuallowed", values);
 				fi.setSpecialAttribute("accept", values);
@@ -221,7 +221,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	public UploadItem getValue() {
 		if(m_maxFiles != 1)
 			throw new IllegalStateException("Can only be called for max files = 1");
-		if(m_files.size() == 0) {
+		if(m_files.isEmpty()) {
 			if(isMandatory()) {
 				setMessage(UIMessage.error(Msgs.mandatory));
 				throw new ValidationException(Msgs.mandatory);
@@ -250,7 +250,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	public UploadItem getValueSafe() {
 		if(m_maxFiles != 1)
 			throw new IllegalStateException("Can only be called for max files = 1");
-		if(m_files.size() == 0)
+		if(m_files.isEmpty())
 			return null;
 		return m_files.get(0);
 	}
@@ -274,7 +274,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	}
 
 	public void removeAllUploads() {
-		if(m_files.size() == 0)
+		if(m_files.isEmpty())
 			return;
 		m_files.clear();
 		forceRebuild();

@@ -157,7 +157,7 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	private void handleLookupTyping(boolean done) throws Exception {
 		//-- If input is empty just clear all presentation but do not call any handler.
 		String curdata = m_input.getRawValue();
-		if(curdata == null || curdata.length() == 0) {
+		if(curdata == null || curdata.isEmpty()) {
 			onEmptyInput(done);
 			showResults(null);
 			return;
@@ -230,7 +230,7 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	}
 
 	protected String cssBase(String s) {
-		if(s.length() == 0)
+		if(s.isEmpty())
 			return m_cssBase;
 		return m_cssBase + "-" + s;
 	}

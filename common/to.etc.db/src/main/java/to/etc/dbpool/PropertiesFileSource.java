@@ -67,7 +67,8 @@ public class PropertiesFileSource extends PoolConfigSource {
 			try {
 				if(is != null)
 					is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -84,5 +85,30 @@ public class PropertiesFileSource extends PoolConfigSource {
 		if(null != val)
 			return val;
 		return m_extra.getProperty(key);
+	}
+
+	@Override
+	protected Properties getExtraProperties(String section) throws Exception {
+		Properties backup = m_backup;
+		if(backup != null)
+			return getExtraProperties(backup, section);
+		return getExtraProperties(m_prop, section);
+	}
+
+	private Properties getExtraProperties(Properties in, String section) {
+		String prefix = section + ".p.";
+		String prefix2 = section + ".extra.";
+		Properties p = new Properties();
+		for(Object s : in.keySet()) {
+			String propertyName = s.toString();
+			if(propertyName.startsWith(prefix)) {
+				String realName = propertyName.substring(prefix.length());                // Strip p.
+				p.setProperty(realName, in.getProperty(propertyName));
+			} else if(propertyName.startsWith(prefix2)) {
+				String realName = propertyName.substring(prefix2.length());                // Strip extra.
+				p.setProperty(realName, in.getProperty(propertyName));
+			}
+		}
+		return p;
 	}
 }

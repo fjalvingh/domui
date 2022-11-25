@@ -315,7 +315,7 @@ class ClassWrapper {
 		for(VariableDeclarator vd : list) {
 			d.getVariables().remove(vd);
 		}
-		if(d.getVariables().size() == 0) {
+		if(d.getVariables().isEmpty()) {
 			d.remove();
 		}
 	}
@@ -360,7 +360,7 @@ class ClassWrapper {
 		String propertyName;
 		boolean isSetter = false;
 		if(name.startsWith("get") || name.startsWith("is")) {
-			if(md.getParameters().size() != 0)
+			if(!md.getParameters().isEmpty())
 				return;
 			type = md.getType();
 			if(type.equals(new VoidType()))
@@ -501,7 +501,7 @@ class ClassWrapper {
 					}
 				}
 
-				if(columnName != null && columnName.length() > 0) {
+				if(columnName != null && !columnName.isEmpty()) {
 					//m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
 					columnWrapper.setJavaColumnName(columnName);
 				}
@@ -514,7 +514,7 @@ class ClassWrapper {
 					}
 				}
 
-				if(columnName != null && columnName.length() > 0) {
+				if(columnName != null && !columnName.isEmpty()) {
 					//m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
 					columnWrapper.setJavaColumnName(columnName);
 				}
@@ -736,7 +736,7 @@ class ClassWrapper {
 			String line = m_rootType.getJavadoc().get().toText();
 			int count = 0;
 			for(String s : new LineIterator(line)) {
-				if((s.trim().length() > 0 && ! s.trim().startsWith("*") && count > 0) || msg == null) {
+				if((!s.trim().isEmpty() && ! s.trim().startsWith("*") && count > 0) || msg == null) {
 					sb.append(" * <b>WARNING</b> ").append(msg).append("\n");
 					msg = null;
 				}
@@ -1336,7 +1336,7 @@ class ClassWrapper {
 	}
 
 	private void loadPropertyFile(File basePath, String baseName, String ext) throws Exception {
-		String extra = ext.length() == 0 ? "" : "_" + ext;
+		String extra = ext.isEmpty() ? "" : "_" + ext;
 
 		int dot = baseName.lastIndexOf('.');
 		if(dot != -1)
@@ -1377,7 +1377,7 @@ class ClassWrapper {
 
 		File basePath = calculatePropertiesBasePath(file.getParentFile());
 		for(Entry<String, SortedProperties> e : m_propertyByKeyMap.entrySet()) {
-			String ext = e.getKey().length() == 0 ? "" : "_" + e.getKey();
+			String ext = e.getKey().isEmpty() ? "" : "_" + e.getKey();
 
 			StringWriter sw = new StringWriter();
 			e.getValue().store(sw, "NLS");
@@ -1904,7 +1904,7 @@ class ClassWrapper {
 		}
 
 		//-- Sort the result.
-		if(displist.size() == 0)
+		if(displist.isEmpty())
 			return;
 
 		Collections.sort(displist, C_DOMUI_ORDER);
@@ -1924,7 +1924,7 @@ class ClassWrapper {
 		}
 
 		//-- Then do search properties
-		if(searchlist.size() > 0) {
+		if(!searchlist.isEmpty()) {
 			sb.append("\t}, //\n");
 
 			sb.append("\tsearchProperties = { //\n");

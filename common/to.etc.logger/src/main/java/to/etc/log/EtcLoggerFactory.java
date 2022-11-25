@@ -31,6 +31,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import static to.etc.log.LogUtil.createDocumentBuilderFactory;
+import static to.etc.log.LogUtil.createTransformerFactory;
 
 /**
  * Implements logger factory. Encapsulates definitions and configuration of loggers used.
@@ -77,10 +81,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	/** Contains handler instances - logger instances behavior definition. */
 	@NonNull
-	private List<ILogHandler> m_handlers = new ArrayList<>();
-
-	@NonNull
-	private Object m_handlersLock = new Object();
+	private List<ILogHandler> m_handlers = new CopyOnWriteArrayList<>();
 
 	/** Default general log level */
 	@NonNull
@@ -162,6 +163,13 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		return current;
 	}
 
+	public void setLevelFor(String loggerPath, Level level) {
+		for(ILogHandler handler : getHandlers()) {
+			handler.setLogLevel(loggerPath, level);
+		}
+		recalculateLoggers();
+	}
+
 	/**
 	 * Initialize from a classpath resource. If editableConfigPath has been passed AND if it
 	 * exists its content will be used instead.
@@ -173,7 +181,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		//-- Either no file or no editable config -> just load the specified resource
 		String configXml = LogUtil.readResourceAsString(this.getClass(), resourceName, "utf-8");
 		loadConfigFromXml(configXml);
-		System.out.println(getClass().getName() + " initialized from classpath resource " + resourceName);
+		System.out.println(getClass().getName() + "@" + System.identityHashCode(this) + " initialized from classpath resource " + resourceName);
 		if(null != m_writableConfig)
 			System.out.println(getClass().getName() + " writable config file location set to " + m_writableConfig);
 	}
@@ -226,7 +234,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	public synchronized void loadConfigFromXml(@NonNull String configXml) throws Exception {
 		StringReader sr = null;
 		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory dbf = createDocumentBuilderFactory();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			sr = new StringReader(configXml);
 			Document doc = db.parse(new InputSource(sr));
@@ -264,7 +272,6 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	/**
 	 * Saves configuration of logger factory. Uses same root location as specified during .
-	 * @throws Exception
 	 */
 	public void saveConfig() throws Exception {
 		File writableConfig = m_writableConfig;
@@ -275,7 +282,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		Document doc = toXml(false);
 
 		// write the content into xml file
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		TransformerFactory transformerFactory = createTransformerFactory();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
 		try(Writer fw = new OutputStreamWriter(new FileOutputStream(writableConfig), "utf-8")) {
@@ -286,7 +293,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	@NonNull
 	public Document toXml(boolean includeNonPerstistable) throws ParserConfigurationException {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.newDocument();
 		Element rootElement = doc.createElement("config");
@@ -374,9 +381,8 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 			ILogHandler handler = LogHandlerRegistry.getSingleton().createDefaultHandler(getLogDir(), DEFAULT_LEVEL);
 			loadedHandlers.add(handler);
 		}
-		synchronized(m_handlersLock) {
-			m_handlers = loadedHandlers;
-		}
+		m_handlers.clear();
+		m_handlers.addAll(loadedHandlers);
 		recalculateLoggers();
 	}
 
@@ -411,9 +417,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	@NonNull
 	private List<ILogHandler> getHandlers() {
-		synchronized(m_handlersLock) {
-			return m_handlers;
-		}
+		return m_handlers;
 	}
 
 	static {

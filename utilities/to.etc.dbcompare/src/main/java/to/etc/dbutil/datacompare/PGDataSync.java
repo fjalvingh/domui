@@ -64,9 +64,6 @@ public class PGDataSync {
 
 	private long m_lobsz;
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		try {
 			new PGDataSync().run(args);
@@ -108,7 +105,7 @@ public class PGDataSync {
 		EqualSchemaComparator dp = new EqualSchemaComparator(src.getSchema(), dest.getSchema());
 		dp.run();
 		String del = dp.getChanges();
-		if(del.length() != 0) {
+		if(!del.isEmpty()) {
 			System.err.println("The database schema's are not equal:\n");
 			System.err.println(del);
 			//			System.exit(10);
@@ -192,9 +189,6 @@ public class PGDataSync {
 					ps.close();
 			} catch(Exception x) {}
 		}
-
-		// TODO Auto-generated method stub
-
 	}
 
 	private void registerMd5Function(Database d) throws Exception {
@@ -291,47 +285,31 @@ public class PGDataSync {
 
 	/**
 	 * Load all postgresql constraints.
-	 * @param dest
 	 */
 	private void loadConstraints(Database dest) throws Exception {
 		m_constraintList = new ArrayList<Constraint>();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			ps = dest.dbc().prepareStatement("SELECT n.nspname AS schemaname, c.relname, conname, pg_get_constraintdef(r.oid, false) as condef " //
-				+ " FROM  pg_constraint r, pg_class c" //
-				+ " LEFT JOIN pg_namespace n ON n.oid = c.relnamespace" //
-				+ " WHERE r.contype = 'f'" //
-				+ "and r.conrelid=c.oid" //
-			); //
-			rs = ps.executeQuery();
+		String sql = "SELECT n.nspname AS schemaname, c.relname, conname, pg_get_constraintdef(r.oid, false) as condef " //
+			+ " FROM  pg_constraint r, pg_class c" //
+			+ " LEFT JOIN pg_namespace n ON n.oid = c.relnamespace" //
+			+ " WHERE r.contype = 'f'" //
+			+ "and r.conrelid=c.oid";
+		try(PreparedStatement ps = dest.dbc().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery()) {
 			while(rs.next()) {
 				Constraint c = new Constraint(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
 				m_constraintList.add(c);
 				//				System.out.println(c.getSchema() + "." + c.getConname() + ", " + c.getDef());
 			}
 			System.out.println("Loaded " + m_constraintList.size() + " constraints");
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
 		}
-
-
 	}
 
 	/**
 	 * Try to calculate the best table order.
-	 * @return
 	 */
 	private List<DbTable> calculateBestOrder(Database src) {
-		HashSet<DbTable> doneset = new HashSet();
-		List<DbTable> res = new ArrayList<DbTable>();
+		HashSet<DbTable> doneset = new HashSet<>();
+		List<DbTable> res = new ArrayList<>();
 		for(DbTable t : src.getSchema().getTables()) {
 			calculateBestOrder(res, doneset, t);
 		}
@@ -353,9 +331,6 @@ public class PGDataSync {
 		res.add(t);
 	}
 
-	/**
-	 * @param args
-	 */
 	private void decodeArgs(String[] args) {
 		int i = 0;
 		int anr = 0;
@@ -463,12 +438,6 @@ public class PGDataSync {
 		}
 	}
 
-	/**
-	 *
-	 * @param src
-	 * @param dest
-	 * @param t
-	 */
 	private void syncTable(Database src, Database dest, DbTable t) throws Exception {
 		m_currentTable = t;
 		if(m_ignoreTableSet.contains(t.getName().toLowerCase())) {
@@ -476,7 +445,7 @@ public class PGDataSync {
 			m_tablesDone++;
 			return;
 		}
-		if(m_onlyTableSet.size() > 0) {
+		if(!m_onlyTableSet.isEmpty()) {
 			if(!m_onlyTableSet.contains(t.getName().toLowerCase())) {
 				where("Table ignored, skipping.");
 				m_tablesDone++;
@@ -491,32 +460,25 @@ public class PGDataSync {
 		String sql = createSelect(t);
 		System.out.println("Sel: " + sql);
 
-		PreparedStatement ps1 = null;
-		ResultSet rs1 = null;
-		PreparedStatement ps2 = null;
-		ResultSet rs2 = null;
-
-		List<Map<DbColumn, Object>> insertList = new ArrayList<Map<DbColumn, Object>>();
-		List<Upd> updateList = new ArrayList<Upd>();
+		List<Map<DbColumn, Object>> insertList = new ArrayList<>();
+		List<Upd> updateList = new ArrayList<>();
 		List<Object[]> deleteList = new ArrayList<Object[]>();
 		int unchanged = 0;
 
-		try {
-			ps1 = src.dbc().prepareStatement(sql);
-			ps2 = dest.dbc().prepareStatement(sql);
-
-			rs1 = ps1.executeQuery();
-			rs2 = ps2.executeQuery();
+		try(PreparedStatement ps1 = src.dbc().prepareStatement(sql);
+			PreparedStatement ps2 = dest.dbc().prepareStatement(sql);
+			ResultSet rs1 = ps1.executeQuery();
+			ResultSet rs2 = ps2.executeQuery()) {
 
 			int recct = 0;
-			Map<DbColumn, Object> srcr = new HashMap<DbColumn, Object>();
-			Map<DbColumn, Object> dstr = new HashMap<DbColumn, Object>();
+			Map<DbColumn, Object> srcr = new HashMap<>();
+			Map<DbColumn, Object> dstr = new HashMap<>();
 			boolean srceof = false;
 			boolean dsteof = false;
 			Object[] srcpk = null;
 			Object[] dstpk = null;
 			while(true) {
-				if(srcr.size() == 0) {
+				if(srcr.isEmpty()) {
 					//-- Need a src record.
 					if(!srceof) {
 						srceof = !rs1.next();
@@ -531,7 +493,7 @@ public class PGDataSync {
 					}
 				}
 
-				if(dstr.size() == 0) {
+				if(dstr.isEmpty()) {
 					if(!dsteof) {
 						dsteof = !rs2.next();
 						if(!dsteof) {
@@ -567,7 +529,7 @@ public class PGDataSync {
 					deleteList.add(dstpk);
 
 					dstr.clear();
-				} else if(res == 0) {
+				} else {
 					/*
 					 * Same record. Compare all key values, and when a change is found add it to a new map of fields
 					 * to change.
@@ -591,7 +553,7 @@ public class PGDataSync {
 					if(eq) {
 						unchanged++;
 					} else {
-						updateList.add(new Upd(new HashMap<DbColumn, Object>(srcr), lobkey + "/"));
+						updateList.add(new Upd(new HashMap<>(srcr), lobkey + "/"));
 					}
 					//					System.out.println("update " + Arrays.toString(dstpk));
 					dstr.clear();
@@ -605,33 +567,11 @@ public class PGDataSync {
 			handleUpdates(src, dest, updateList, t);
 
 			m_tablesDone++;
-		} finally {
-			try {
-				if(rs1 != null)
-					rs1.close();
-			} catch(Exception x) {}
-			try {
-				if(ps1 != null)
-					ps1.close();
-			} catch(Exception x) {}
-			try {
-				if(rs2 != null)
-					rs2.close();
-			} catch(Exception x) {}
-			try {
-				if(ps2 != null)
-					ps2.close();
-			} catch(Exception x) {}
 		}
 	}
 
 	/**
 	 * Handle all table updates.
-	 *
-	 * @param src
-	 * @param dest
-	 * @param updateList
-	 * @param t
 	 */
 	private void handleUpdates(Database src, Database dest, List<Upd> updateList, DbTable t) throws Exception {
 		try {
@@ -681,12 +621,6 @@ public class PGDataSync {
 
 	/**
 	 * Find or create an update statement that updates this set of fields
-	 * @param dest
-	 * @param t
-	 * @param lobkey
-	 * @return
-	 * @throws Exception
-	 * @throws SQLException
 	 */
 	private PreparedStatement getUpdateStatement(Database dest, DbTable t, String lobkey) throws Exception {
 		PreparedStatement ps = m_updateStmtMap.get(lobkey);
@@ -720,7 +654,10 @@ public class PGDataSync {
 	}
 
 	private boolean isPkField(DbTable t, DbColumn col) {
-		for(DbColumn c : t.getPrimaryKey().getColumnList()) {
+		DbPrimaryKey primaryKey = t.getPrimaryKey();
+		if(primaryKey == null)
+			return false;
+		for(DbColumn c : primaryKey.getColumnList()) {
 			if(c == col)
 				return true;
 		}
@@ -733,9 +670,6 @@ public class PGDataSync {
 
 	/**
 	 * Handle all inserts.
-	 * @param dest
-	 * @param insertList
-	 * @param t
 	 */
 	private void handleInserts(Database src, Database dest, List<Map<DbColumn, Object>> insertList, DbTable t) throws Exception {
 
@@ -915,10 +849,6 @@ public class PGDataSync {
 
 	/**
 	 * Delete all records by PK.
-	 * @param dest
-	 * @param deleteList
-	 * @param t
-	 * @throws Exception
 	 */
 	private void handleDeletes(Database dest, List<Object[]> deleteList, DbTable t) throws Exception {
 		PreparedStatement ps = null;
@@ -953,14 +883,20 @@ public class PGDataSync {
 
 	private void assignPK(PreparedStatement ps, Object[] key, int ix, DbTable t) throws Exception {
 		int lix = 0;
-		for(DbColumn c : t.getPrimaryKey().getColumnList()) {
+		DbPrimaryKey primaryKey = t.getPrimaryKey();
+		if(null == primaryKey)
+			throw new IllegalStateException("No PK for " + t);
+		for(DbColumn c : primaryKey.getColumnList()) {
 			c.setValue(ps, ix++, key[lix++]);
 		}
 	}
 
 	private void appendPkSelect(StringBuilder sb, DbTable t) {
 		int ix = 0;
-		for(DbColumn c : t.getPrimaryKey().getColumnList()) {
+		DbPrimaryKey primaryKey = t.getPrimaryKey();
+		if(null == primaryKey)
+			throw new IllegalStateException("No PK for " + t);
+		for(DbColumn c : primaryKey.getColumnList()) {
 			if(ix++ > 0)
 				sb.append(" and ");
 			sb.append(c.getName()).append("=?");
@@ -968,9 +904,12 @@ public class PGDataSync {
 	}
 
 	private Object[] readPK(Map<DbColumn, Object> srcr, DbTable t) {
-		Object[] res = new Object[t.getPrimaryKey().getColumnList().size()];
+		DbPrimaryKey primaryKey = t.getPrimaryKey();
+		if(null == primaryKey)
+			throw new IllegalStateException("No PK for " + t);
+		Object[] res = new Object[primaryKey.getColumnList().size()];
 		int ix = 0;
-		for(DbColumn c : t.getPrimaryKey().getColumnList()) {
+		for(DbColumn c : primaryKey.getColumnList()) {
 			res[ix++] = srcr.get(c);
 		}
 		return res;
@@ -982,18 +921,19 @@ public class PGDataSync {
 		for(int i = 0; i < aa.length; i++) {
 			Object a = aa[i];
 			Object b = ba[i];
-			if(a != null || b != null) {
-				if(a == null && b != null) {
+			if(a == null) {
+				if(b == null)
+					return 0;
+				else
 					return -1;
-				} else if(a != null && b == null) {
-					return 1;
-				} else {
-					Comparable ca = (Comparable) a;
-					Comparable cb = (Comparable) b;
-					int res = ca.compareTo(cb);
-					if(res != 0)
-						return res;
-				}
+			} else if(b == null) {
+				return 1;
+			} else {
+				Comparable<Object> ca = (Comparable<Object>) a;
+				Comparable<Object> cb = (Comparable<Object>) b;
+				int res = ca.compareTo(cb);
+				if(res != 0)
+					return res;
 			}
 		}
 		return 0;
@@ -1037,6 +977,8 @@ public class PGDataSync {
 		sb.append(" from ").append(t.getName()).append(" order by ");
 
 		DbPrimaryKey pk = t.getPrimaryKey();
+		if(null == pk)
+			throw new IllegalStateException("No primary key for table " + t);
 		ix = 0;
 		for(DbColumn c : pk.getColumnList()) {
 			if(ix++ > 0)

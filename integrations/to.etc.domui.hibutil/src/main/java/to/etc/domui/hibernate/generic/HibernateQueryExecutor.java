@@ -112,7 +112,7 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 	public List<Object[]> query(BuggyHibernateBaseContext root, QSelection< ? > sel) throws Exception {
 		Criteria crit = GenericHibernateHandler.createCriteria(root.getSession(), sel);
 		List resl = crit.list(); // Need to use raw class because ? is a monster fuckup
-		if(resl.size() == 0)
+		if(resl.isEmpty())
 			return Collections.EMPTY_LIST;
 		if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
 			//-- Re-wrap this result as a list of Object[].

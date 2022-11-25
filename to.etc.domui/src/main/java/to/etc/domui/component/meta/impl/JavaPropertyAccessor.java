@@ -76,4 +76,9 @@ public class JavaPropertyAccessor<V> implements IPropertyModelAccessor<V> {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public String toString() {
+		return m_info.toString();
+	}
+
 }

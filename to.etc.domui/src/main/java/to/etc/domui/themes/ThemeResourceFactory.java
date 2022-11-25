@@ -65,7 +65,7 @@ final public class ThemeResourceFactory implements IResourceFactory {
 			throw new ThingyNotFoundException("Bad theme URL (missing current theme): " + name);
 		String themename = real.substring(0, pos);
 		String filename = real.substring(pos + 1);
-		if(themename.length() == 0)
+		if(themename.isEmpty())
 			throw new ThingyNotFoundException("Bad theme resource-URL (empty current theme): " + name);
 		return new String[]{themename, filename};
 	}

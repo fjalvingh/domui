@@ -79,13 +79,13 @@ public class ImageConverterHelper {
 	 * @throws Exception
 	 */
 	public void executeConversionChain(ImageSpec src, List<IImageConversionSpecifier> speclist) throws Exception {
-		if(speclist == null || speclist.size() == 0) {
+		if(speclist == null || speclist.isEmpty()) {
 			m_target = m_source = src;
 			return;
 		}
 
 		m_source = src;
-		while(speclist.size() > 0) {
+		while(!speclist.isEmpty()) {
 			//-- Find the best converter for the first operation(s) in the list,
 			IImageConverter ic = ImageConverterRegistry.getBestConverter(src.getMime(), speclist);
 //			if(ic == null)

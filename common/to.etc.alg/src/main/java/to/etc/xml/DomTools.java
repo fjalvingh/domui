@@ -34,13 +34,18 @@ import org.xml.sax.InputSource;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -65,13 +70,11 @@ import java.util.TimeZone;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class DomTools {
-	static public final Date				OBLIVIAN;
+	static public final Date OBLIVIAN;
 
-	static public final Date				BIGBANG;
+	static public final Date BIGBANG;
 
-	static public final String				DBNULL			= "(dbnull)";
-
-	static private final SimpleDateFormat	m_dateFormat	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS z");
+	static public final String DBNULL = "(dbnull)";
 
 	static {
 		GregorianCalendar cal = new GregorianCalendar();
@@ -100,13 +103,15 @@ public class DomTools {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Reading XML.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Creates a DOM parser, parses the document, and returns the DOM
 	 * associated with the thing. If errors occur they are logged into an error
 	 * message string; these are thrown as an exception when complete.
 	 */
 	static public Document getDocument(final InputStream is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Plain terrible
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -142,7 +147,8 @@ public class DomTools {
 	 * message string; these are thrown as an exception when complete.
 	 */
 	static public Document getDocument(final Reader is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Plain terrible
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -167,7 +173,7 @@ public class DomTools {
 		if(!inf.exists() || !inf.isFile())
 			throw new IOException(inf + ": file not found.");
 		inf = inf.getAbsoluteFile();
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
 		dbf.setNamespaceAware(nsaware);
 		dbf.setValidating(false);
 		dbf.setFeature("http://xml.org/sax/features/namespaces", false);
@@ -236,16 +242,18 @@ public class DomTools {
 			try {
 				if(is != null)
 					is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DOM helper stuff									*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Finds a single element with the name spec'd in the node. If more than
-	 *  one node with the same name exists this throws an exception.
+	 * Finds a single element with the name spec'd in the node. If more than
+	 * one node with the same name exists this throws an exception.
 	 */
 	static public Node nodeFind(final Node rn, final String name) throws Exception {
 		NodeList nl = rn.getChildNodes();
@@ -265,10 +273,10 @@ public class DomTools {
 	 * Searches for child Nodes in the specified Node which have the specified
 	 * name and returns the result as a Set. If null is specified for the
 	 * parentNode an empty Set is returned.
-	 * @param rn, the Node which is queried.
-	 * @param name, the name of the childNodes we are searching.
-	 * @return
-	 * 		a Set<Node> containing the childnodes with the specified name.
+	 *
+	 * @param rn   the Node which is queried.
+	 * @param name the name of the childNodes we are searching.
+	 * @return a Set<Node> containing the childnodes with the specified name.
 	 */
 	static public List<Node> nodesFind(final Node rn, final String name) {
 		List<Node> nnl = new ArrayList<Node>();
@@ -285,8 +293,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Gets the text part contained in a node... All text parts are obtained and
-	 *  concatenated with a single space.
+	 * Gets the text part contained in a node... All text parts are obtained and
+	 * concatenated with a single space.
 	 */
 	static public String textFrom_untrimmed(final Node n) {
 		StringBuffer sb = new StringBuffer();
@@ -306,8 +314,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Gets the text part contained in a node... All text parts are obtained and
-	 *  concatenated with a single space.
+	 * Gets the text part contained in a node... All text parts are obtained and
+	 * concatenated with a single space.
 	 */
 	@Nullable
 	static public String textFrom(@NonNull final Node n) {
@@ -327,12 +335,9 @@ public class DomTools {
 		return s;
 	}
 
-
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns null.
-	 *  @deprecated
-	 *  @see #stringNode(Node, String)
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns null.
 	 */
 	@Deprecated
 	static public String findChildNodeValue(final Node rootnode, final String name) throws Exception {
@@ -342,10 +347,9 @@ public class DomTools {
 		return textFrom(n);
 	}
 
-
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns null.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns null.
 	 */
 	static public String stringNode(final Node rootnode, final String name) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -355,8 +359,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns null.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns null.
 	 */
 	static public String stringNode(final Node rootnode, final String name, final int trunclen) throws Exception {
 		String s = stringNode(rootnode, name);
@@ -368,8 +372,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns the default string.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns the default string.
 	 */
 	static public String stringNode(final Node rootnode, final String name, final String deflt) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -379,8 +383,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns null.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns null.
 	 */
 	static public String stringNode_untrimmed(final Node rootnode, final String name) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -390,8 +394,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns the default string.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns the default string.
 	 */
 	static public String stringNode_untrimmed(final Node rootnode, final String name, final String deflt) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -399,7 +403,6 @@ public class DomTools {
 			return deflt;
 		return textFrom_untrimmed(n);
 	}
-
 
 	static public Date dateNode(final Node rn, final String name) throws Exception {
 		String s = stringNode(rn, name);
@@ -424,15 +427,10 @@ public class DomTools {
 	/**
 	 * Scans a node as a hh:mm:ss time (or hh:mm). The time is returned
 	 * as a #seconds in the day.
-	 * @param rn
-	 * @param name
-	 * @param dflt
-	 * @return
-	 * @throws Exception
 	 */
 	static public int timeNode(final Node rn, final String name, final int dflt) throws Exception {
 		String v = stringNode(rn, name, null);
-		if(v == null || v.length() == 0)
+		if(v == null || v.isEmpty())
 			return dflt;
 
 		int ix = 0;
@@ -518,7 +516,7 @@ public class DomTools {
 		if(s == null)
 			return val;
 		s = s.trim();
-		if(s.length() == 0 || DBNULL.equals(s))
+		if(s.isEmpty() || DBNULL.equals(s))
 			return val;
 
 		try {
@@ -533,7 +531,7 @@ public class DomTools {
 		if(s == null)
 			return null;
 		s = s.trim();
-		if(s.length() == 0 || DBNULL.equals(s))
+		if(s.isEmpty() || DBNULL.equals(s))
 			return null;
 		try {
 			return Long.decode(s);
@@ -563,7 +561,7 @@ public class DomTools {
 		if(s == null)
 			return val;
 		s = s.trim();
-		if(s.length() == 0 || DBNULL.equals(s))
+		if(s.isEmpty() || DBNULL.equals(s))
 			return val;
 
 		try {
@@ -578,7 +576,7 @@ public class DomTools {
 		if(s == null)
 			return val;
 		s = s.trim();
-		if(s.length() == 0 || DBNULL.equals(s))
+		if(s.isEmpty() || DBNULL.equals(s))
 			return val;
 
 		try {
@@ -592,10 +590,6 @@ public class DomTools {
 	 * Checks if there's a file node with the spec'd name in the node. If so
 	 * this returns the node's filename... If the node doesn't exist this
 	 * returns null..
-	 * @param rootnode
-	 * @param name
-	 * @return
-	 * @throws Exception
 	 */
 	static public String fileNameNode(final Node rootnode, final String name) throws Exception {
 		Node fn = nodeFind(rootnode, name);
@@ -609,7 +603,7 @@ public class DomTools {
 
 		//-- has a <file> node. Get filename...
 		String rname = DomTools.textFrom(fnn);
-		if(rname == null || rname.length() == 0) {
+		if(rname == null || rname.isEmpty()) {
 			System.out.println("DomTools: no name in file node!?");
 			return null;
 		}
@@ -617,14 +611,13 @@ public class DomTools {
 		return rname;
 	}
 
-
 	/**
-	 *	Finds the child node with the name specified, and returns it as a
-	 *  boolean value. If the node has NO text associated then this returns TRUE,
-	 *  if the node is not present then this returns false; if the node is present
-	 *  and has text the text field is interpreted: if numeric we return T if
-	 *  the number is not null; if text the value must start with T for true and
-	 *  F for false. All other values throw an exception.
+	 * Finds the child node with the name specified, and returns it as a
+	 * boolean value. If the node has NO text associated then this returns TRUE,
+	 * if the node is not present then this returns false; if the node is present
+	 * and has text the text field is interpreted: if numeric we return T if
+	 * the number is not null; if text the value must start with T for true and
+	 * F for false. All other values throw an exception.
 	 */
 	static public boolean boolNode(final Node rootnode, final String name) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -634,12 +627,12 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it as a
-	 *  boolean value. If the node has NO text associated then this returns TRUE,
-	 *  if the node is not present then this returns false; if the node is present
-	 *  and has text the text field is interpreted: if numeric we return T if
-	 *  the number is not null; if text the value must start with T for true and
-	 *  F for false. All other values throw an exception.
+	 * Finds the child node with the name specified, and returns it as a
+	 * boolean value. If the node has NO text associated then this returns TRUE,
+	 * if the node is not present then this returns false; if the node is present
+	 * and has text the text field is interpreted: if numeric we return T if
+	 * the number is not null; if text the value must start with T for true and
+	 * F for false. All other values throw an exception.
 	 */
 	static public Boolean booleanNode(final Node rootnode, final String name) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -652,7 +645,7 @@ public class DomTools {
 		if(nt == null)
 			return false; // was (dbnull).
 		nt = nt.trim();
-		if(nt.length() == 0)
+		if(nt.isEmpty())
 			return true; // No text,
 		char c = nt.charAt(0);
 		if(c == '0')
@@ -669,10 +662,11 @@ public class DomTools {
 	/**
 	 * Get the named attribute from a node. If the attribute is not present
 	 * return the default value in defval
-	 * @param n			the node to containing the attribute.
-	 * @param aname		the name of the attribute.
-	 * @param defval	the value to return if the attribute is not present,
-	 * @return			a string containing the attribute's value or the default.
+	 *
+	 * @param n      the node to containing the attribute.
+	 * @param aname  the name of the attribute.
+	 * @param defval the value to return if the attribute is not present,
+	 * @return a string containing the attribute's value or the default.
 	 */
 	static public String getNodeAttribute(@NonNull final Node n, @NonNull final String aname, @Nullable final String defval) {
 		if(n.hasAttributes()) {
@@ -691,7 +685,7 @@ public class DomTools {
 	static public String strAttr(@NonNull final Node n, @NonNull final String aname) {
 		String s = getNodeAttribute(n, aname, null);
 		if(s == null)
-			throw new IllegalStateException("Missing attribute '" + aname + "' on node '" + n.getNodeName() +"'");
+			throw new IllegalStateException("Missing attribute '" + aname + "' on node '" + n.getNodeName() + "'");
 		return s;
 	}
 
@@ -704,7 +698,7 @@ public class DomTools {
 			Node idn = n.getAttributes().getNamedItem(aname);
 			if(idn != null) {
 				String v = idn.getNodeValue();
-				if(v != null && v.length() > 0) {
+				if(v != null && !v.isEmpty()) {
 					try {
 						return Integer.parseInt(v.trim());
 					} catch(Exception ex) {
@@ -721,7 +715,7 @@ public class DomTools {
 			Node idn = n.getAttributes().getNamedItem(aname);
 			if(idn != null) {
 				String v = idn.getNodeValue();
-				if(v != null && v.length() > 0) {
+				if(v != null && !v.isEmpty()) {
 					try {
 						return Long.parseLong(v.trim());
 					} catch(Exception ex) {
@@ -762,17 +756,18 @@ public class DomTools {
 	/**
 	 * Get the named attribute from a node. If the attribute is not present
 	 * return the default value in defval
-	 * @param n			the node to containing the attribute.
-	 * @param aname		the name of the attribute.
-	 * @param defval	the value to return if the attribute is not present,
-	 * @return			a string containing the attribute's value or the default.
+	 *
+	 * @param n      the node to containing the attribute.
+	 * @param aname  the name of the attribute.
+	 * @param defval the value to return if the attribute is not present,
+	 * @return a string containing the attribute's value or the default.
 	 */
 	static public int getNodeAttribute(final Node n, final String aname, final int defval) throws Exception {
 		if(n.hasAttributes()) {
 			Node idn = n.getAttributes().getNamedItem(aname);
 			if(idn != null) {
 				String v = idn.getNodeValue();
-				if(v != null && v.length() > 0) {
+				if(v != null && !v.isEmpty()) {
 					try {
 						return Integer.parseInt(v.trim());
 					} catch(Exception ex) {
@@ -787,8 +782,9 @@ public class DomTools {
 	/**
 	 * Encodes a date-only field to some readable form. Can be decoded by
 	 * decodeDate or getNodeDate(). The date contains local timezone info.
-	 * @param dt	the date to encode.
-	 * @return		a string
+	 *
+	 * @param dt the date to encode.
+	 * @return a string
 	 */
 	static public String dateEncode(final Date dt) {
 		if(dt == null)
@@ -828,7 +824,6 @@ public class DomTools {
 		return sb.toString();
 	}
 
-
 	/**
 	 * Decodes a date and converts it to the local time. The format MUST match
 	 * the format generated by encode or we fail. Dates can contain three special
@@ -836,14 +831,11 @@ public class DomTools {
 	 * <dl>
 	 * 	<dt>(dbnull)<dd>The date field is null
 	 * 	<dt>big-bang<dd>The date field represents a date before any other date,
-	 *	<dt>oblivian<dd>The dtae field represents a date after any other date.
+	 * 	<dt>oblivian<dd>The dtae field represents a date after any other date.
 	 * <pre>
 	 * Format:
 	 * 0123456789012345678901234567
 	 * 2001-12-24 18:10:52.0012 (timezone)
-	 *
-	 * @param s
-	 * @return
 	 */
 	static public Date dateDecode(String s) {
 		s = s.trim();
@@ -862,8 +854,10 @@ public class DomTools {
 		}
 
 		try {
-			return m_dateFormat.parse(s);
-		} catch(Exception x) {}
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS z");
+			return dateFormat.parse(s);
+		} catch(Exception x) {
+		}
 
 		try {
 			int year = Integer.parseInt(s.substring(0, 4));
@@ -976,21 +970,21 @@ public class DomTools {
 	static public void saveDocument(final File of, final Document doc) throws Exception {
 		Source s = new DOMSource(doc);
 		Result r = new StreamResult(of);
-		Transformer t = TransformerFactory.newInstance().newTransformer();
+		Transformer t = DomTools.createTransformer();
 		t.transform(s, r);
 	}
 
 	static public void saveDocument(final Writer of, final Document doc) throws Exception {
 		Source s = new DOMSource(doc);
 		Result r = new StreamResult(of);
-		Transformer t = TransformerFactory.newInstance().newTransformer();
+		Transformer t = DomTools.createTransformer();
 		t.transform(s, r);
 	}
 
 	static public void saveDocumentFormatted(Writer of, Document doc) throws Exception {
 		Source s = new DOMSource(doc);
 		Result r = new StreamResult(of);
-		Transformer t = TransformerFactory.newInstance().newTransformer();
+		Transformer t = DomTools.createTransformer();
 		t.setOutputProperty(OutputKeys.INDENT, "yes");
 		t.setOutputProperty(OutputKeys.METHOD, "xml");
 		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -999,7 +993,7 @@ public class DomTools {
 	}
 
 //	static public void saveDocumentFormatted(Writer of, Document doc) throws Exception {
-//		DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+//		DocumentBuilder db = DomTools.createDocumentBuilderFactory().newInstance().newDocumentBuilder();
 //		OutputFormat format = new OutputFormat(doc);
 //		format.setIndenting(true);
 //		format.setIndent(2);
@@ -1020,7 +1014,7 @@ public class DomTools {
 	 * The path can only use unique names. If a child node with the same name exists an exception will be
 	 * thrown.
 	 *
-	 * @param node the node to search
+	 * @param node       the node to search
 	 * @param xpathQuery path to the child node
 	 * @return the child node, or null if it cannot be found.
 	 * @throws Exception
@@ -1042,11 +1036,10 @@ public class DomTools {
 
 	/**
 	 * Get a stream reader that does not ^&*^(^$ connect to the Internet while fscking reading xml 8-(
-	 * @return
 	 */
 	@NonNull
 	static public XMLInputFactory getStreamFactory() {
-		XMLInputFactory xmlif = XMLInputFactory.newInstance();
+		XMLInputFactory xmlif = createXMLInputFactory().newInstance();
 		//		xmlif.setProperty("http://apache.org/xml/features/nonvalidating/load-external-dtd", Boolean.FALSE);
 		xmlif.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
 		xmlif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
@@ -1058,5 +1051,101 @@ public class DomTools {
 		return xmlif;
 	}
 
+	//follows list of safe to use XML factories
+	/*
+	 * XML standard allows the use of entities, declared in the DOCTYPE of the document, which can be internal or external.
+	 * When parsing the XML file, the content of the external entities is retrieved from an external storage such as the file system or network, which may lead, if no restrictions are put in place, to arbitrary file disclosures or server-side request forgery (SSRF) vulnerabilities.
+	 * It’s recommended to limit resolution of external entities by using one of these solutions:
+	 *
+	 * If DOCTYPE is not necessary, completely disable all DOCTYPE declarations.
+	 * If external entities are not necessary, completely disable their declarations.
+	 * If external entities are necessary then:
+	 * Use XML processor features, if available, to authorize only required protocols (eg: https).
+	 * And use an entity resolver (and optionally an XML Catalog) to resolve only trusted entities.
+	 */
+
+	/**
+	 * Creates DocumentBuilderFactory using high security recommendations by disabling vulnerable features.
+	 *
+	 * @return Instance of DocumentBuilderFactory.
+	 */
+	static public DocumentBuilderFactory createDocumentBuilderFactory() throws ParserConfigurationException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		// to be compliant, completely disable DOCTYPE declaration:
+		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		// or completely disable external entities declarations:
+		factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+		// or prohibit the use of all protocols by external entities:
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+		// or disable entity expansion but keep in mind that this doesn't prevent fetching external entities
+		// and this solution is not correct for OpenJDK < 13 due to a bug: https://bugs.openjdk.java.net/browse/JDK-8206132
+		factory.setExpandEntityReferences(false);
+		return factory;
+	}
+
+	/**
+	 * Creates DocumentBuilder instance using high security recommendations by disabling vulnerable features.
+	 *
+	 * @return Instance of DocumentBuilder.
+	 */
+	static public DocumentBuilder createDocumentBuilderInstance() throws ParserConfigurationException {
+		return createDocumentBuilderFactory().newDocumentBuilder();
+	}
+
+	/**
+	 * Creates XMLInputFactory using high security recommendations by disabling vulnerable factory properties.
+	 *
+	 * @return Instace of XMLInputFactory.
+	 */
+	public static XMLInputFactory createXMLInputFactory() {
+		XMLInputFactory factory = XMLInputFactory.newInstance();
+		// to be compliant, completely disable DOCTYPE declaration:
+		factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+		// or completely disable external entities declarations:
+		factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+		// or prohibit the use of all protocols by external entities:
+
+		//java.lang.IllegalArgumentException: Unrecognized property 'http://javax.xml.XMLConstants/property/accessExternalDTD'
+		//factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		//java.lang.IllegalArgumentException: Unrecognized property 'http://javax.xml.XMLConstants/property/accessExternalSchema'
+		//factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+		return factory;
+	}
+
+	/**
+	 * Creates XMLEventReader using high security recommendations by disabling vulnerable factory properties.
+	 * Create a new XMLEventReader from a java.io.InputStream using
+	 *
+	 * @param stream   the InputStream to read from.
+	 * @param encoding the character encoding of the stream.
+	 * @return Instance of XMLEventReader.
+	 */
+	public static XMLEventReader createXMLEventReader(InputStream stream, String encoding) throws XMLStreamException {
+		return createXMLInputFactory().createXMLEventReader(stream, encoding);
+	}
+
+	/**
+	 * Creates TransformerFactory using high security recommendations by disabling vulnerable factory attributes.
+	 *
+	 * @return Instance of TransformerFactory.
+	 */
+	public static TransformerFactory createTransformerFactory() {
+		TransformerFactory factory = TransformerFactory.newInstance();
+		// to be compliant, prohibit the use of all protocols by external entities:
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+		return factory;
+	}
+
+	/**
+	 * Creates Transformer using high security recommendations by disabling vulnerable factory attributes.
+	 *
+	 * @return Instance of Transformer.
+	 */
+	public static Transformer createTransformer() throws TransformerConfigurationException {
+		return createTransformerFactory().newTransformer();
+	}
 
 }

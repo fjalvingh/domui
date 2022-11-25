@@ -61,7 +61,7 @@ namespace WebUI {
 				//-- Node gone - remove input
 				list.splice(i, 1);
 			} else {
-				let data = item.control.getInputField();
+				let data = item.control.getInputField(fields);
 				fields[item.id] = data;
 			}
 		}
@@ -91,6 +91,16 @@ namespace WebUI {
 			let item = list[i];
 			if(item.control.onVisibilityChanged) {
 				item.control.onVisibilityChanged();
+			}
+		}
+	}
+
+	export function propagateResize() {
+		let list = _inputFieldList;
+		for(let i = list.length; --i >= 0;) {
+			let item = list[i];
+			if(item.control.onResize) {
+				item.control.onResize();
 			}
 		}
 	}
@@ -202,7 +212,7 @@ namespace WebUI {
 			success: function(data, state) {
 				response = data;
 				if(callback) {
-					callback(JSON.parse(data));
+					callback(data);
 				}
 			},
 			error: handleError
@@ -335,9 +345,13 @@ namespace WebUI {
 			return;
 		}
 
-		document.write(txt);
-		document.close();
-		window.setTimeout('document.body.style.cursor="default"', 1000);
+		try {
+			document.write(txt);
+			document.close();
+			window.setTimeout('document.body.style.cursor="default"', 1000);
+		} catch(x) {
+			alert("Error: " + txt);
+		}
 		return true;
 	}
 

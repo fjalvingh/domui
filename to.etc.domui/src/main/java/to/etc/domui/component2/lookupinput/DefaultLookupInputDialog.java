@@ -137,7 +137,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		SearchPanel<QT> lf = getSearchPanel();
 		if(lf == null) {
 			lf = new SearchPanel<QT>((Class<QT>) getQueryMetaModel().getActualClass(), getQueryMetaModel());
-			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
+			if(m_searchPropertyList != null && !m_searchPropertyList.isEmpty())
 				lf.setSearchProperties(m_searchPropertyList);
 		}
 
@@ -190,9 +190,9 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			}
 		}
 
-		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		clearGlobalMessage(Msgs.vMissingSearch);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
-			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
+			addGlobalMessage(UIMessage.error(Msgs.vMissingSearch)); // Missing inputs
 			return;
 		} else
 			clearGlobalMessage();
@@ -275,7 +275,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	 * @throws Exception
 	 */
 	protected void rowSelected(@NonNull OT value) throws Exception {
-		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		clearGlobalMessage(Msgs.vMissingSearch);
 		close();
 		setValue(value);
 		callOnSelection();

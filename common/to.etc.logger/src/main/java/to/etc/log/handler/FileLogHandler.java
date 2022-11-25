@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 class FileLogHandler implements ILogHandler {
 	/**
@@ -36,7 +37,7 @@ class FileLogHandler implements ILogHandler {
 	 * Defines matchers to calculate on which logger handler applies. To apply on logger, matcher closest to logger name must match with logEvent.
 	 */
 	@NonNull
-	private final List<LogMatcher> m_matchers = new ArrayList<LogMatcher>();
+	private final List<LogMatcher> m_matchers = new CopyOnWriteArrayList<>();
 
 	/**
 	 * Defines filters on which handler applies. To apply on logger, all filters must be matched.
@@ -67,6 +68,12 @@ class FileLogHandler implements ILogHandler {
 		LogMatcher matcher = new LogMatcher("", level);
 		handler.addMatcher(matcher);
 		return handler;
+	}
+
+	@Override
+	public synchronized void setLogLevel(String key, Level level) {
+		m_matchers.removeIf(a -> a.getName().equals(key));
+		m_matchers.add(new LogMatcher(key, level));
 	}
 
 	public void addMatcher(@NonNull LogMatcher matcher) {

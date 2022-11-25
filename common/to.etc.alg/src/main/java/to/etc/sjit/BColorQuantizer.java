@@ -30,16 +30,16 @@ import java.awt.image.*;
 public class BColorQuantizer {
 	//	final static boolean QUICK = true;
 
-	final static int	MAX_RGB			= 255;
+	final static int MAX_RGB = 255;
 
-	final static int	MAX_NODES		= 266817;
+	final static int MAX_NODES = 266817;
 
-	final static int	MAX_TREE_DEPTH	= 8;
+	final static int MAX_TREE_DEPTH = 8;
 
 	// these are precomputed in advance
-	static int			SQUARES[];
+	static int SQUARES[];
 
-	static int			SHIFT[];
+	static int SHIFT[];
 
 	static {
 		SQUARES = new int[MAX_RGB + MAX_RGB + 1];
@@ -54,6 +54,7 @@ public class BColorQuantizer {
 	/**
 	 * Reduce the image to the given number of colors. The pixels are
 	 * reduced in place. The image type returned is an Indexed buffer type.
+	 *
 	 * @return The new color palette.
 	 */
 	public static BufferedImage quantizeImage(BufferedImage srcbi, int max_colors, boolean quick) {
@@ -89,30 +90,29 @@ public class BColorQuantizer {
 		System.out.println("sm: bands=" + sm.getNumBands() + ", pxstride=" + sm.getPixelStride() + ", scanstride=" + sm.getScanlineStride() + ", data=" + sm.getDataType());
 	}
 
-
 	static class Cube {
-		private boolean			m_quick	= true;
+		private boolean m_quick = true;
 
-		private BufferedImage	m_bi;
+		private BufferedImage m_bi;
 
-		private int				m_w;
+		private int m_w;
 
-		private DataBuffer		m_db;
+		private DataBuffer m_db;
 
-		int						max_colors;
+		int max_colors;
 
-		int						colormap[];
+		int colormap[];
 
-		Node					root;
+		Node root;
 
-		int						depth;
+		int depth;
 
 		// counter for the number of colors in the cube. this gets
 		// recalculated often.
-		int						colors;
+		int colors;
 
 		// counter for the number of nodes in the tree
-		int						nodes;
+		int nodes;
 
 		Cube(DataBuffer db, BufferedImage bi, int max_colors) {
 			this.m_bi = bi;
@@ -151,32 +151,32 @@ public class BColorQuantizer {
 		 * below the root node to allow representing each possible
 		 * input color in a leaf. This becomes prohibitive because the
 		 * tree's total number of nodes is 1 + sum(i=1,k,8k).
-		 *
+		 * <p>
 		 * A complete tree would require 19,173,961 nodes for k = 8,
 		 * cmax = 255. Therefore, to avoid building a fully populated
 		 * tree, QUANTIZE: (1) Initializes data structures for nodes
 		 * only as they are needed; (2) Chooses a maximum depth for
 		 * the tree as a function of the desired number of colors in
 		 * the output image (currently log2(colormap size)).
-		 *
+		 * <p>
 		 * For each pixel in the input image, classification scans
 		 * downward from the root of the color description tree. At
 		 * each level of the tree it identifies the single node which
 		 * represents a cube in RGB space containing It updates the
 		 * following data for each such node:
-		 *
-		 *   number_pixels : Number of pixels whose color is contained
-		 *   in the RGB cube which this node represents;
-		 *
-		 *   unique : Number of pixels whose color is not represented
-		 *   in a node at lower depth in the tree; initially, n2 = 0
-		 *   for all nodes except leaves of the tree.
-		 *
-		 *   total_red/green/blue : Sums of the red, green, and blue
-		 *   component values for all pixels not classified at a lower
-		 *   depth. The combination of these sums and n2 will
-		 *   ultimately characterize the mean color of a set of pixels
-		 *   represented by this node.
+		 * <p>
+		 * number_pixels : Number of pixels whose color is contained
+		 * in the RGB cube which this node represents;
+		 * <p>
+		 * unique : Number of pixels whose color is not represented
+		 * in a node at lower depth in the tree; initially, n2 = 0
+		 * for all nodes except leaves of the tree.
+		 * <p>
+		 * total_red/green/blue : Sums of the red, green, and blue
+		 * component values for all pixels not classified at a lower
+		 * depth. The combination of these sums and n2 will
+		 * ultimately characterize the mean color of a set of pixels
+		 * represented by this node.
 		 */
 		void classification() {
 			//			int pixels[][] = this.pixels;
@@ -185,12 +185,12 @@ public class BColorQuantizer {
 			int height = m_bi.getHeight();
 
 			// convert to indexed color
-			for(int x = width; x-- > 0;) {
-				for(int y = height; y-- > 0;) {
+			for(int x = width; x-- > 0; ) {
+				for(int y = height; y-- > 0; ) {
 					int pixel = m_bi.getRGB(x, y);
 					int red = (pixel >> 16) & 0xFF;
 					int green = (pixel >> 8) & 0xFF;
-					int blue = (pixel >> 0) & 0xFF;
+					int blue = pixel & 0xFF;
 
 					// a hard limit on the number of nodes in the tree
 					if(nodes > MAX_NODES) {
@@ -203,7 +203,7 @@ public class BColorQuantizer {
 					// number_pixels count for each node
 					Node node = root;
 					for(int level = 1; level <= depth; ++level) {
-						int id = (((red > node.mid_red ? 1 : 0) << 0) | ((green > node.mid_green ? 1 : 0) << 1) | ((blue > node.mid_blue ? 1 : 0) << 2));
+						int id = ((red > node.mid_red ? 1 : 0) | ((green > node.mid_green ? 1 : 0) << 1) | ((blue > node.mid_blue ? 1 : 0) << 2));
 						if(node.m_child[id] == null)
 							new Node(node, id, level);
 
@@ -223,7 +223,7 @@ public class BColorQuantizer {
 		 * reduction repeatedly prunes the tree until the number of
 		 * nodes with unique > 0 is less than or equal to the maximum
 		 * number of colors allowed in the output image.
-		 *
+		 * <p>
 		 * When a node to be pruned has offspring, the pruning
 		 * procedure invokes itself recursively in order to prune the
 		 * tree from the leaves upward.  The statistics of the node
@@ -243,9 +243,9 @@ public class BColorQuantizer {
 		 * The result of a closest color search.
 		 */
 		static class Search {
-			int	distance;
+			int distance;
 
-			int	color_number;
+			int color_number;
 		}
 
 		/**
@@ -255,14 +255,14 @@ public class BColorQuantizer {
 		 * triples) for each color present in the output image; (2) A
 		 * pixel array, which represents each pixel as an index into
 		 * the color map array.
-		 *
+		 * <p>
 		 * First, the assignment phase makes one pass over the pruned
 		 * color description tree to establish the image's color map.
 		 * For each node with n2 > 0, it divides Sr, Sg, and Sb by n2.
 		 * This produces the mean color of all pixels that classify no
 		 * lower than this node. Each of these colors becomes an entry
 		 * in the color map.
-		 *
+		 * <p>
 		 * Finally, the assignment phase reclassifies each pixel in
 		 * the pruned tree to identify the deepest node containing the
 		 * pixel's color. The pixel's value in the pixel array becomes
@@ -282,17 +282,17 @@ public class BColorQuantizer {
 			Search search = new Search();
 
 			// convert to indexed color
-			for(int x = width; x-- > 0;) {
-				for(int y = height; y-- > 0;) {
+			for(int x = width; x-- > 0; ) {
+				for(int y = height; y-- > 0; ) {
 					int pixel = m_bi.getRGB(x, y);
 					int red = (pixel >> 16) & 0xFF;
 					int green = (pixel >> 8) & 0xFF;
-					int blue = (pixel >> 0) & 0xFF;
+					int blue = pixel & 0xFF;
 
 					// walk the tree to find the cube containing that color
 					Node node = root;
-					for(;;) {
-						int id = (((red > node.mid_red ? 1 : 0) << 0) | ((green > node.mid_green ? 1 : 0) << 1) | ((blue > node.mid_blue ? 1 : 0) << 2));
+					for(; ; ) {
+						int id = ((red > node.mid_red ? 1 : 0) | ((green > node.mid_green ? 1 : 0) << 1) | ((blue > node.mid_blue ? 1 : 0) << 2));
 						if(node.m_child[id] == null)
 							break;
 
@@ -319,49 +319,48 @@ public class BColorQuantizer {
 			}
 		}
 
-
 		/**
 		 * A single Node in the tree.
 		 */
 		static class Node {
-			Cube	m_cube;
+			Cube m_cube;
 
 			// parent node
-			Node	m_parent;
+			Node m_parent;
 
 			// child nodes
-			Node	m_child[];
+			Node m_child[];
 
-			int		m_nchild;
+			int m_nchild;
 
 			// our index within our parent
-			int		m_id;
+			int m_id;
 
 			// our level within the tree
-			int		level;
+			int level;
 
 			// our color midpoint
-			int		mid_red;
+			int mid_red;
 
-			int		mid_green;
+			int mid_green;
 
-			int		mid_blue;
+			int mid_blue;
 
 			// the pixel count for this node and all children
-			int		number_pixels;
+			int number_pixels;
 
 			// the pixel count for this node
-			int		unique;
+			int unique;
 
 			// the sum of all pixels contained in this node
-			int		total_red;
+			int total_red;
 
-			int		total_green;
+			int total_green;
 
-			int		total_blue;
+			int total_blue;
 
 			// used to build the colormap
-			int		color_number;
+			int color_number;
 
 			Node(Cube cube) {
 				this.m_cube = cube;
@@ -434,9 +433,9 @@ public class BColorQuantizer {
 			/**
 			 * Remove any nodes that have fewer than threshold
 			 * pixels. Also, as long as we're walking the tree:
-			 *
-			 *  - figure out the color with the fewest pixels
-			 *  - recalculate the total number of colors in the tree
+			 * <p>
+			 * - figure out the color with the fewest pixels
+			 * - recalculate the total number of colors in the tree
 			 */
 			int reduce(int threshold, int next_threshold) {
 				if(m_nchild != 0) {
@@ -474,7 +473,7 @@ public class BColorQuantizer {
 					int r = ((total_red + (unique >> 1)) / unique);
 					int g = ((total_green + (unique >> 1)) / unique);
 					int b = ((total_blue + (unique >> 1)) / unique);
-					m_cube.colormap[m_cube.colors] = (((0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | ((b & 0xFF) << 0));
+					m_cube.colormap[m_cube.colors] = (((0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF));
 					color_number = m_cube.colors++;
 				}
 			}
@@ -505,7 +504,7 @@ public class BColorQuantizer {
 			 * Figure out the distance between this node and som color.
 			 */
 			final static int distance(int color, int r, int g, int b) {
-				return (SQUARES[((color >> 16) & 0xFF) - r + MAX_RGB] + SQUARES[((color >> 8) & 0xFF) - g + MAX_RGB] + SQUARES[((color >> 0) & 0xFF) - b + MAX_RGB]);
+				return (SQUARES[((color >> 16) & 0xFF) - r + MAX_RGB] + SQUARES[((color >> 8) & 0xFF) - g + MAX_RGB] + SQUARES[(color & 0xFF) - b + MAX_RGB]);
 			}
 
 			@Override
@@ -529,23 +528,4 @@ public class BColorQuantizer {
 			}
 		}
 	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Simple #colors counter.								*/
-	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param bi
-	 * @return
-	 */
-	//	static public int	calculateColorCount(BufferedImage bi)
-	//	{
-	//
-	//
-	//
-	//
-	//	}
-
-
 }

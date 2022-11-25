@@ -5,7 +5,7 @@ import org.eclipse.jdt.annotation.NonNull;
 final public class DbConnectionInfo {
 	private String	m_hostname;
 
-	private String	m_sid;
+	private String m_databaseName;
 
 	private String	m_userid;
 
@@ -13,10 +13,10 @@ final public class DbConnectionInfo {
 
 	private int		m_port;
 
-	public DbConnectionInfo(String hostname, int port, String sid, String userid, String password) {
+	public DbConnectionInfo(String hostname, int port, String databaseName, String userid, String password) {
 		m_hostname = hostname;
 		m_port = port;
-		m_sid = sid;
+		m_databaseName = databaseName;
 		m_userid = userid;
 		m_password = password;
 	}
@@ -25,8 +25,8 @@ final public class DbConnectionInfo {
 		return m_hostname;
 	}
 
-	public String getSid() {
-		return m_sid;
+	public String getDatabase() {
+		return m_databaseName;
 	}
 
 	public String getUserid() {

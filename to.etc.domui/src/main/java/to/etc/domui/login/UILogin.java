@@ -96,6 +96,7 @@ final public class UILogin {
 	static private IUser internalGetLoggedInUser(final IRequestContext rx) throws Exception {
 		if(!(rx instanceof RequestContextImpl))
 			return null;
+
 		RequestContextImpl rci = (RequestContextImpl) rx;
 		HttpServerRequestResponse srr = null;
 		if(rci.getRequestResponse() instanceof HttpServerRequestResponse) {
@@ -103,10 +104,22 @@ final public class UILogin {
 		}
 
 		if(srr != null) {
+			ILoginAuthenticator la = rci.getApplication().getLoginAuthenticator();
+			if(null == la)
+				return null;
 			HttpSession hs = srr.getRequest().getSession(false);
 			if(hs == null)
 				return null;
+
 			synchronized(hs) {
+				//-- If a new request based identity is requested: handle that first (can be a test re-login)
+				IUser user = la.authenticateByRequest(rx);
+				if(null != user) {
+					//-- Store the user in the HttpSession.
+					hs.setAttribute(LOGIN_KEY, user);
+					return user;
+				}
+
 				Object sval = hs.getAttribute(LOGIN_KEY); // Try to find the key,
 				if(sval != null) {
 					if(sval instanceof IUser) {
@@ -116,7 +129,7 @@ final public class UILogin {
 				}
 
 				/*
-				 * If a LOGINCOOKIE is found check it's usability. If the cookie is part of the ignored hash set try to delete it again and again...
+				 * If a LOGINCOOKIE is found check its usability. If the cookie is part of the ignored hash set try to delete it again and again...
 				 */
 				Cookie[] car = srr.getRequest().getCookies();
 				if(car != null) {
@@ -129,7 +142,7 @@ final public class UILogin {
 						//);
 						if(c.getName().equals("domuiLogin")) {
 							String domval = c.getValue();
-							IUser user = UILogin.getLoginHandler().decodeCookie(rci, domval);
+							user = UILogin.getLoginHandler().decodeCookie(rci, domval);
 							//System.out.println("[ loginid = " + user);
 							if(user != null) {
 								//-- Store the user in the HttpSession.
@@ -151,11 +164,7 @@ final public class UILogin {
 				String ruser = srr.getRequest().getRemoteUser();
 				if(ruser != null) {
 					//-- Ask login provider for an IUser instance.
-					ILoginAuthenticator la = rci.getApplication().getLoginAuthenticator();
-					if(null == la)
-						return null;
-
-					IUser user = la.authenticateUser(ruser, null); // Tomcat authenticator has no password.
+					user = la.authenticateUser(ruser, null); // Tomcat authenticator has no password.
 					if(user == null)
 						throw new IllegalStateException("Internal: container has logged-in user '" + ruser + "', but authenticator class=" + la + " does not return an IUser for it!!");
 
@@ -165,9 +174,6 @@ final public class UILogin {
 				}
 			}
 
-			ILoginAuthenticator la = rci.getApplication().getLoginAuthenticator();
-			if(null == la)
-				return null;
 
 			IUser user = la.authenticateByRequest(rx);
 			if(null != user) {
@@ -309,6 +315,7 @@ final public class UILogin {
 			return null;
 		String value = user.getLoginID() + ":" + l + ":" + auth;
 		Cookie k = new Cookie("domuiLogin", value);
+		k.setSecure(true);
 		k.setMaxAge((int) ((l - System.currentTimeMillis()) / 1000)); // #seconds before expiry
 		k.setPath(ci.getRequestResponse().getWebappContext());
 		//ci.getRequestResponse().addCookie(k);
@@ -320,11 +327,13 @@ final public class UILogin {
 		sb.append(k.getName());
 		sb.append('=');
 		sb.append('"').append(k.getValue()).append('"');
-		sb.append("; Path=/").append(k.getPath().replace("/", ""));
+		sb.append("; Path=/").append(k.getPath().replace("/", "")).append(";");
 		//sb.append("; Domain=");
 		//sb.append(k.getDomain());
 		//sb.append("; HttpOnly; Secure; Expires=");
-		sb.append("; HttpOnly; Expires=");
+		if(k.getSecure())
+			sb.append("Secure;");
+		sb.append("HttpOnly; Expires=");
 
 		DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 		df.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -352,6 +361,7 @@ final public class UILogin {
 
 					//-- Create a new cookie value containing a delete.
 					Cookie k = new Cookie("domuiLogin", "logout");
+					k.setSecure(true);
 					k.setMaxAge(60);
 					k.setPath(rci.getRequestResponse().getWebappContext());
 					rci.getRequestResponse().addCookie(k);

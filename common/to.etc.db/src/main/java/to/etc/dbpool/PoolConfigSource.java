@@ -43,6 +43,10 @@ abstract public class PoolConfigSource {
 
 	PoolConfigSource() {}
 
+	abstract protected String getProperty(String section, String name) throws Exception;
+
+	abstract protected Properties getExtraProperties(String section) throws Exception;
+
 	public PoolConfigSource(File src, File back) {
 		m_src = src;
 		m_backupSrc = back;
@@ -56,14 +60,12 @@ abstract public class PoolConfigSource {
 		return m_src;
 	}
 
-	abstract public String getProperty(String section, String name) throws Exception;
-
 	public boolean getBool(String sec, String name, boolean def) throws Exception {
 		String v = getProperty(sec, name);
 		if(v == null)
 			return def;
 		v = v.trim().toLowerCase();
-		if(v.length() == 0)
+		if(v.isEmpty())
 			return def;
 		return v.startsWith("1") || v.startsWith("y") || v.startsWith("t");
 	}
@@ -73,7 +75,7 @@ abstract public class PoolConfigSource {
 		if(v == null)
 			return def;
 		v = v.trim();
-		if(v.length() == 0)
+		if(v.isEmpty())
 			return def;
 		try {
 			return Integer.parseInt(v);
@@ -91,7 +93,7 @@ abstract public class PoolConfigSource {
 		return m_src.toString();
 	}
 
-	static PoolConfigSource create(File f, @Nullable Properties extra) {
+	static public PoolConfigSource create(File f, @Nullable Properties extra) {
 		if(null == extra)
 			extra = new Properties();
 		String name = f.getName().toLowerCase();

@@ -319,7 +319,7 @@ public class BasicContainerBuilder implements Builder {
 		//-- Register all types
 		for(ComponentBuilder cb : m_builderList) {
 			List<Class< ? >> defl = cb.getDefinedTypes();
-			if(defl.size() > 0) {
+			if(!defl.isEmpty()) {
 				//-- Register these types in the defined type table;
 				for(Class< ? > cl : defl)
 					registerDefinedType(cl, cb);

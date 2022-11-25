@@ -1,6 +1,11 @@
 /*** DisplayValue ***/
 @import "variables";
 
+/*
+ * jal 20220905 This css is wrong; this control cannot align its content properly centered. Use
+ * DisplayControl instead, and this css should be removed so that the control becomes an unsized
+ * string.
+ */
 .ui-dspv {
 	@include ui-control-base;
 	display: inline-block;

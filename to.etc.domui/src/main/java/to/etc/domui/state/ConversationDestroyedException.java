@@ -9,6 +9,6 @@ import to.etc.webapp.nls.*;
  */
 final public class ConversationDestroyedException extends CodeException {
 	public ConversationDestroyedException(String id, String state) {
-		super(Msgs.BUNDLE, Msgs.CONVERSATION_DESTROYED, id, state);
+		super(Msgs.sConversationDestroyed, id, state);
 	}
 }

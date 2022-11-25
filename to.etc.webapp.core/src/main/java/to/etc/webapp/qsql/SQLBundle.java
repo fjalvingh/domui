@@ -12,6 +12,7 @@ import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -101,7 +102,7 @@ final public class SQLBundle {
 		if(null == is)
 			throw new IllegalArgumentException("No class resource for class=" + base + " and name=" + name);
 		try {
-			String data = FileTool.readStreamAsString(is, "utf-8");
+			String data = FileTool.readStreamAsString(is, StandardCharsets.UTF_8);
 			Map<String, String> map = split(data); // Split into separate statements
 			SQLBundle b = new SQLBundle(bn, map);
 			m_bundleMap.put(bn, new WeakReference<SQLBundle>(b));

@@ -11,9 +11,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created on 30-6-19.
  */
 public class ConsoleUtil {
-	static private final FastDateFormat m_logFmt = FastDateFormat.getInstance("HH:mm:ss.SSS");
+	static private final FastDateFormat m_logFmt = FastDateFormat.getInstance("d/HH:mm:ss.SSS");
 
 	static private int m_logOrder;
+
+	static private long m_lastLogTS;
 
 	static private boolean m_isConsole = System.console() != null;
 
@@ -83,20 +85,20 @@ public class ConsoleUtil {
 	public static final String BLACK_BOLD_BRIGHT = "\033[1;90m"; // BLACK
 	public static final String RED_BOLD_BRIGHT = "\033[1;91m";   // RED
 	public static final String GREEN_BOLD_BRIGHT = "\033[1;92m"; // GREEN
-	public static final String YELLOW_BOLD_BRIGHT = "\033[1;93m";// YELLOW
+	public static final String YELLOW_BOLD_BRIGHT = "\033[1;93m";	// YELLOW
 	public static final String BLUE_BOLD_BRIGHT = "\033[1;94m";  // BLUE
-	public static final String PURPLE_BOLD_BRIGHT = "\033[1;95m";// PURPLE
+	public static final String PURPLE_BOLD_BRIGHT = "\033[1;95m";	// PURPLE
 	public static final String CYAN_BOLD_BRIGHT = "\033[1;96m";  // CYAN
 	public static final String WHITE_BOLD_BRIGHT = "\033[1;97m"; // WHITE
 
 	// High Intensity backgrounds
-	public static final String BLACK_BACKGROUND_BRIGHT = "\033[0;100m";// BLACK
-	public static final String RED_BACKGROUND_BRIGHT = "\033[0;101m";// RED
-	public static final String GREEN_BACKGROUND_BRIGHT = "\033[0;102m";// GREEN
-	public static final String YELLOW_BACKGROUND_BRIGHT = "\033[0;103m";// YELLOW
-	public static final String BLUE_BACKGROUND_BRIGHT = "\033[0;104m";// BLUE
+	public static final String BLACK_BACKGROUND_BRIGHT = "\033[0;100m";	// BLACK
+	public static final String RED_BACKGROUND_BRIGHT = "\033[0;101m";	// RED
+	public static final String GREEN_BACKGROUND_BRIGHT = "\033[0;102m";	// GREEN
+	public static final String YELLOW_BACKGROUND_BRIGHT = "\033[0;103m";	// YELLOW
+	public static final String BLUE_BACKGROUND_BRIGHT = "\033[0;104m";	// BLUE
 	public static final String PURPLE_BACKGROUND_BRIGHT = "\033[0;105m"; // PURPLE
-	public static final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
+	public static final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  	// CYAN
 	public static final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
 
 	static private final String[] ROTCOLORS = {
@@ -121,6 +123,7 @@ public class ConsoleUtil {
 
 		return  sb.toString();
 	}
+
 	static public void consoleLog(String... segments) {
 		consoleLog(0, segments);
 	}
@@ -135,7 +138,12 @@ public class ConsoleUtil {
 
 	static private final int MAX_THREADNAME_LENGTH = 12;
 
-	static private synchronized int getLogOrder() {
+	static private synchronized int getLogOrder(Date when) {
+		long cts = when.getTime();
+		if(cts != m_lastLogTS) {
+			m_logOrder = 0;
+			m_lastLogTS = cts;
+		}
 		return ++m_logOrder;
 	}
 
@@ -168,7 +176,7 @@ public class ConsoleUtil {
 
 		StringBuilder sb = new StringBuilder();
 		appendColor(sb, BLUE);
-		append(sb, m_logFmt.format(now) + "/" + getLogOrder(), 18);
+		append(sb, m_logFmt.format(now) + "/" + getLogOrder(now), 18);
 
 		for(int i = 0; i < segments.length; i++) {
 			String segment = segments[i];

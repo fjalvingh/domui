@@ -14,4 +14,6 @@ import to.etc.util.PropertyInfo;
 @NonNullByDefault
 public interface IInjectedPropertyAccessChecker {
 	void checkAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception;
+
+	boolean checks(Class<?> parameterType);
 }

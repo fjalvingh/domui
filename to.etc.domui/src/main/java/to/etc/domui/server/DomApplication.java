@@ -176,6 +176,12 @@ public abstract class DomApplication {
 
 	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
 
+	public static final String HEADER_PREFIX = "header-";
+
+	public static final String HTTPHEADER_PREFIX = "httpheader-";
+
+	public static final String RESOURCEHEADER_PREFIX = "resourceheader-";
+
 	@NonNull
 	private final PartService m_partService = new PartService(this);
 
@@ -282,7 +288,6 @@ public abstract class DomApplication {
 	@NonNull
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
-
 	@NonNull
 	private IPageInjector m_injector = new DefaultPageInjector();
 
@@ -317,6 +322,8 @@ public abstract class DomApplication {
 
 	private volatile Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
 
+	private boolean m_dieOnUncheckedInjectors;
+
 	/**
 	 * Default handling of leaving the page with unsaved changes.
 	 */
@@ -327,9 +334,26 @@ public abstract class DomApplication {
 			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
 			.button(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Integer.valueOf(1))
 			.button(Msgs.leave.getString(), Integer.valueOf(2))
-			.onAnswer((IAnswer2) answer -> {
+			.onAnswer2((IAnswer2) answer -> {
 				if(Integer.valueOf(2).equals(answer)) {
 					UIContext.getCurrentConversation().getWindowSession().handleGotoOnNavigationCheck((RequestContextImpl) UIContext.getRequestContext(), gotoCtx, page.getPage());
+				}
+			});
+	}
+
+	/**
+	 * Default handling of leaving the page with unsaved changes when callback that change page navigation is provided.
+	 */
+	public void handleNavigationOnModified(Runnable callback, UrlPage page) throws Exception {
+		MsgBox2
+			.on(page)
+			.title(Msgs.leavePageQuestion.getString())
+			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
+			.button(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Integer.valueOf(1))
+			.button(Msgs.leave.getString(), Integer.valueOf(2))
+			.onAnswer2((IAnswer2) answer -> {
+				if(Integer.valueOf(2).equals(answer)) {
+					callback.run();
 				}
 			});
 	}
@@ -402,9 +426,9 @@ public abstract class DomApplication {
 		if(null == transformation) {
 			return map;
 		}
-		TreeMap<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);	// We need headers to be case independent. Hide that.
-		newMap.putAll(map);										// Copy all default headers
-		transformation.accept(newMap, currentPage);				// Let the transformation do all it wants.
+		TreeMap<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);    // We need headers to be case independent. Hide that.
+		newMap.putAll(map);                                        // Copy all default headers
+		transformation.accept(newMap, currentPage);                // Let the transformation do all it wants.
 		return newMap;
 	}
 
@@ -634,7 +658,6 @@ public abstract class DomApplication {
 			.collect(Collectors.toList());
 	}
 
-
 	/**
 	 * Send a message to all active pages in the system. Pages wanting to receive the message must
 	 * implement {@link IPagePostbox} so that the code can determine whether the page needs the message.
@@ -646,7 +669,6 @@ public abstract class DomApplication {
 			page.addPageMessage(message);
 		}
 	}
-
 
 	private synchronized Set<IAppSessionListener> getAppSessionListeners() {
 		return m_appSessionListeners;
@@ -815,7 +837,6 @@ public abstract class DomApplication {
 	protected void initialize(@NonNull final ConfigParameters pp) throws Exception {
 	}
 
-
 	final synchronized public void internalInitialize(@NonNull final ConfigParameters pp, boolean development) throws Exception {
 		setCurrentApplication(this);
 		m_configParameters = pp;
@@ -825,9 +846,16 @@ public abstract class DomApplication {
 		calculateWebPageExtension(pp);
 		calculateUiTestMode(development);
 		runListenersStartInitialization();
+		configureHeaders(pp);
 		m_pageUrlMapping.scan();
 		try {
 			initialize(pp);
+
+			InjectorRightsChecker injectorRightsChecker = new InjectorRightsChecker(this);
+			injectorRightsChecker.scan();
+			if(m_dieOnUncheckedInjectors && injectorRightsChecker.getErrorCount() > 0)
+				throw new IllegalStateException("There are injected class types not checked by an injector access checker");
+
 		} finally {
 			closeClasspathScanResult();
 		}
@@ -837,6 +865,47 @@ public abstract class DomApplication {
 
 		//-- One of the FontAwesome implementations must have been registered - FIXME Find a less ugly means
 		checkIconPackInitialization();
+	}
+
+	/**
+	 * When called this causes the application initialization to fail
+	 * if we discover unsafe/unchecked data injections done.
+	 */
+	public void setDieOnUncheckedInjectors() {
+		m_dieOnUncheckedInjectors = true;
+	}
+
+	/**
+	 * Read any default headers from the filter config.
+	 */
+	private void configureHeaders(ConfigParameters pp) {
+		for(String parameterName : pp.getParameterNames()) {
+			String value = pp.getString(parameterName);
+			if(parameterName.startsWith(HEADER_PREFIX)) {
+				String name = parameterName.substring(HEADER_PREFIX.length());
+				if(value == null || value.isEmpty()) {
+					addDefaultHTTPHeader(name, null);
+					addDefaultResourceHeader(name, null);
+				} else {
+					addDefaultHTTPHeader(name, value);
+					addDefaultResourceHeader(name, value);
+				}
+			} else if(parameterName.startsWith(HTTPHEADER_PREFIX)) {
+				String name = parameterName.substring(HTTPHEADER_PREFIX.length());
+				if(value == null || value.isEmpty()) {
+					addDefaultHTTPHeader(name, null);
+				} else {
+					addDefaultHTTPHeader(name, value);
+				}
+			} else if(parameterName.startsWith(RESOURCEHEADER_PREFIX)) {
+				String name = parameterName.substring(RESOURCEHEADER_PREFIX.length());
+				if(value == null || value.isEmpty()) {
+					addDefaultResourceHeader(name, null);
+				} else {
+					addDefaultResourceHeader(name, value);
+				}
+			}
+		}
 	}
 
 	private void checkIconPackInitialization() {
@@ -1043,19 +1112,25 @@ public abstract class DomApplication {
 	/**
 	 * Add a default HTTP header to all responses.
 	 */
-	public void addDefaultHTTPHeader(String headerName, String value) {
+	public void addDefaultHTTPHeader(@NonNull String headerName, @Nullable String value) {
 		Map<String, String> map = m_defaultSiteHeaderMap;
 		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		newMap.putAll(map);
-		newMap.put(headerName, value);
+		if(value == null)
+			newMap.remove(headerName);
+		else
+			newMap.put(headerName, value);
 		m_defaultSiteHeaderMap = Collections.unmodifiableMap(newMap);
 	}
 
-	public void addDefaultResourceHeader(String headerName, String value) {
+	public void addDefaultResourceHeader(@NonNull String headerName, @Nullable String value) {
 		Map<String, String> map = m_defaultSiteResourceHeaderMap;
 		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		newMap.putAll(map);
-		newMap.put(headerName, value);
+		if(value == null)
+			newMap.remove(headerName);
+		else
+			newMap.put(headerName, value);
 		m_defaultSiteResourceHeaderMap = Collections.unmodifiableMap(newMap);
 	}
 
@@ -1243,6 +1318,7 @@ public abstract class DomApplication {
 	@NonNull
 	public Locale getRequestLocale(HttpServletRequest request) {
 		return request.getLocale();
+
 	}
 
 	@Nullable
@@ -1451,9 +1527,10 @@ public abstract class DomApplication {
 	 */
 	@NonNull
 	public File getAppFile(final String path) {
+		if(! StringTool.isValidPath(path))
+			throw new SecurityException("Invalid relative path " + path);
 		return new File(m_webFilePath, path);
 	}
-
 
 	/**
 	 * Primitive to return either a File-based resource from the web content files
@@ -1482,7 +1559,6 @@ public abstract class DomApplication {
 			return resource;
 		return createClasspathReference("/resources/" + name);
 	}
-
 
 	public synchronized void registerResourceFactory(@NonNull IResourceFactory f) {
 		m_resourceFactoryList = new ArrayList<IResourceFactory>(m_resourceFactoryList);
@@ -1581,7 +1657,6 @@ public abstract class DomApplication {
 				return k.booleanValue();
 		}
 
-
 		//-- Determine existence out-of-lock (single init is unimportant)
 		//		IResourceRef ref = internalFindCachedResource(name);
 		IResourceRef ref = internalFindResource(name, ResourceDependencyList.NULL);
@@ -1603,7 +1678,6 @@ public abstract class DomApplication {
 		IResourceFactory rf = findResourceFactory(name);
 		if(rf != null)
 			return rf.getResource(this, name, rdl);
-
 
 		//-- No factory. Return class/file reference.
 		IResourceRef r = getAppFileOrResource(name);
@@ -1666,7 +1740,7 @@ public abstract class DomApplication {
 		optionallyAdd(sb, lang);
 		optionallyAdd(sb, country);
 		optionallyAdd(sb, variant);
-		if(suffix != null && suffix.length() > 0)
+		if(suffix != null && !suffix.isEmpty())
 			sb.append(suffix);
 		String res = sb.toString();
 		if(hasApplicationResource(res))
@@ -1675,7 +1749,7 @@ public abstract class DomApplication {
 	}
 
 	private static void optionallyAdd(StringBuilder sb, @Nullable String thing) {
-		if(null != thing && thing.length() > 0) {
+		if(null != thing && !thing.isEmpty()) {
 			sb.append('_').append(thing);
 		}
 	}

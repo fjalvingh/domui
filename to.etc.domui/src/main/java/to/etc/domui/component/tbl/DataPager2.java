@@ -236,6 +236,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		bd.add("\u00a0\u00a0");
 		for(@NonNull SmallImgButton sib : m_extraButtonList) {
 			bd.add(sib);
+			sib.addCssClass("ui-dp2-btn");
 		}
 
 		Span reco = new Span();

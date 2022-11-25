@@ -2,6 +2,7 @@ package to.etc.domui.util.resources;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
+import to.etc.util.StringTool;
 
 import java.io.File;
 
@@ -43,6 +44,8 @@ public class RedirectingResourceFactory implements IResourceFactory {
 			return new WebappResourceRef(m_newroot);
 
 		String sub = name.substring(m_match.length());
+		if(!StringTool.isValidRelativePath(sub))
+			throw new SecurityException("Invalid relative path: " + sub);
 		File f = new File(m_newroot, sub);
 		return new WebappResourceRef(f);
 	}

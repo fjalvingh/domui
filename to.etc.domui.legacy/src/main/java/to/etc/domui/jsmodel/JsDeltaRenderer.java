@@ -104,16 +104,16 @@ public class JsDeltaRenderer extends JsRenderBase {
 		Map<String, Object> propertyValueMap = (Map<String, Object>) valueMap.get(property.getName());
 		T value = property.getValue(instance);
 		if(null == value) {
-			return propertyValueMap == null || propertyValueMap.size() != 0;	// If there are values stored then the object BECAME null -> so changed
+			return propertyValueMap == null || !propertyValueMap.isEmpty();	// If there are values stored then the object BECAME null -> so changed
 		}
 
 		//-- Walk all properties of this object, and check if they changed value.
 		ClassInfo valueCi = m_model.getInfo(value.getClass());
 		if(valueCi == null)
 			throw new IllegalStateException("No class info for " + value.getClass());
-		if(valueCi.getParentProperties().size() > 0)
+		if(!valueCi.getParentProperties().isEmpty())
 			throw new IllegalStateException("Value object "+valueCi+" has identifyable parent properties which is not supported");
-		if(valueCi.getChildProperties().size() > 0)
+		if(!valueCi.getChildProperties().isEmpty())
 			throw new IllegalStateException("Value object "+valueCi+" has child list values which is not supported");
 
 		for(Simple<?> simple: valueCi.getSimpleProperties().values()) {

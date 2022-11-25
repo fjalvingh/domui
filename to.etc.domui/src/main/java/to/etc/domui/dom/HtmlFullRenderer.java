@@ -300,6 +300,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		m_tagRenderer.setRenderMode(m);
 	}
 
+	@Override
 	public boolean isXml() {
 		return m_xml;
 	}
@@ -501,7 +502,10 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 			o().rawAttr(options[i], options[i + 1]);
 		}
 
-		o().endtag();
+		if(isXml())
+			o().endAndCloseXmltag();
+		else
+			o().endtag();
 		o().dec();					// do not close
 		//o().closetag("link");
 	}
@@ -518,9 +522,9 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		o().attr("src", path);
 		o().attr("nonce", "DitIsEenTestNonce");
 		if(async)
-			o().writeRaw(" async");
+			o().writeRaw(" async='async'");
 		if(defer)
-			o().writeRaw(" defer");
+			o().writeRaw(" defer='defer'");
 		o().endtag();
 		o().closetag("script");
 	}

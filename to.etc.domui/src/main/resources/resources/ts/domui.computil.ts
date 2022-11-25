@@ -51,8 +51,8 @@ namespace WebUI {
 			myTopPos = $(alignNode).position().top + offsetY;
 		}
 		var nodeHeight = $(node).outerHeight(true);
-		if (myTopPos + nodeHeight > $(window).height()){
-			myTopPos = $(window).height() - nodeHeight;
+		if (myTopPos + nodeHeight > $(document).height()){
+			myTopPos = $(document).height() - nodeHeight;
 		}
 		$(node).css('top', myTopPos);
 		if (doCallback){

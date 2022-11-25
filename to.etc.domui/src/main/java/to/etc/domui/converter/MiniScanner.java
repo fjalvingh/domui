@@ -409,11 +409,11 @@ public class MiniScanner {
 	}
 
 	private void badnumber() throws ValidationException {
-		throw new ValidationException(Msgs.V_INVALID, m_in);
+		throw new ValidationException(Msgs.vInvalid, m_in);
 	}
 
 	private void badamount(boolean monetary) {
-		throw new ValidationException(monetary ? Msgs.V_BAD_AMOUNT : Msgs.V_INVALID, m_in);
+		throw new ValidationException(monetary ? Msgs.vBadAmount : Msgs.vInvalid, m_in);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -486,7 +486,7 @@ public class MiniScanner {
 				c = nextNumberDelimiter();
 				c = 'S';
 			} else {
-				throw new ValidationException(Msgs.V_INVALID_DATE, "(Voorbeeld: 5d 8h)");
+				throw new ValidationException(Msgs.vInvalidDate, "(Voorbeeld: 5d 8h)");
 			}
 		}
 	}

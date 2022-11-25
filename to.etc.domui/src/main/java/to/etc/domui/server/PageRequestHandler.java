@@ -44,6 +44,7 @@ import to.etc.domui.trouble.NotLoggedInException;
 import to.etc.domui.trouble.SessionInvalidException;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.uitest.pogenerator.PoGenerator;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
@@ -109,7 +110,7 @@ final public class PageRequestHandler {
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
-		m_action = ctx.getPageParameters().getString(Constants.PARAM_UIACTION, null);			// AJAX action request?
+		m_action = ctx.getPageParameters().getString(Constants.PARAM_UIACTION, null);            // AJAX action request?
 		String cid = m_cid = ctx.getPageParameters().getString(Constants.PARAM_CONVERSATION_ID, null);
 		m_cida = cid == null ? null : CidPair.decodeLax(cid);
 
@@ -120,19 +121,20 @@ final public class PageRequestHandler {
 	}
 
 	private String getRootPageName() {
-		Class< ? extends UrlPage> rootPage = m_application.getRootPage();
+		Class<? extends UrlPage> rootPage = m_application.getRootPage();
 		if(null == rootPage)
-			throw new ProgrammerErrorException("The DomApplication's 'getRootPage()' method returns null, and there is a request for the root of the web app... Override that method or make sure the root is handled differently.");
+			throw new ProgrammerErrorException(
+				"The DomApplication's 'getRootPage()' method returns null, and there is a request for the root of the web app... Override that method or make sure the root is handled differently.");
 		return rootPage.getCanonicalName();
 	}
 
 	public void executeRequest() throws Exception {
-		m_ctx.getRequestResponse().setNoCache();			// All replies may not be cached at all!!
+		m_ctx.getRequestResponse().setNoCache();            // All replies may not be cached at all!!
 		//m_ctx.getRequestResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
 		//m_ctx.getRequestResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 
 		handleMain();
-		m_ctx.getSession().dump();							// Log session info if enabled
+		m_ctx.getSession().dump();                            // Log session info if enabled
 	}
 
 	private void handleMain() throws Exception {
@@ -163,6 +165,7 @@ final public class PageRequestHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initial and initial (full) page rendering.			*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Intermediary impl; should later use interface impl on class to determine factory
 	 * to use.
@@ -210,7 +213,7 @@ final public class PageRequestHandler {
 				return;
 			}
 		}
-		if(cida == null)										// Cannot happen, but make sure.
+		if(cida == null)                                        // Cannot happen, but make sure.
 			throw new IllegalStateException("Cannot happen: cida is null??");
 		String conversationId = cida.getConversationId();
 
@@ -220,14 +223,14 @@ final public class PageRequestHandler {
 		 */
 		String action = m_action;
 		if(action != null) {
-			if(windowSession.isConversationDestroyed(conversationId)) {		// This conversation was recently destroyed?
+			if(windowSession.isConversationDestroyed(conversationId)) {        // This conversation was recently destroyed?
 				//-- Render a null response
 				String msg = "Session " + m_cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back";
 				if(LOG.isDebugEnabled())
 					LOG.debug(msg);
 				logUser(msg);
 				m_commandWriter.generateEmptyDelta(m_ctx);
-				return;											// jal 20121122 Must return after sending that delta or the document is invalid!!
+				return;                                            // jal 20121122 Must return after sending that delta or the document is invalid!!
 			}
 		}
 
@@ -240,13 +243,13 @@ final public class PageRequestHandler {
 		 * the page has been requested with different parameters this time.
 		 */
 		ConversationContext conversation = windowSession.findConversation(conversationId);
-		PageParameters papa = null;								// Null means: ajax request, not a full page.
+		PageParameters papa = null;                                // Null means: ajax request, not a full page.
 		if(action == null) {
 			papa = getPageParameters(conversation);
 		}
 
 		Page page = windowSession.tryToMakeOrGetPage(m_ctx, conversationId, m_runClass, papa, m_action);
-		if(page == null || ! isPageTagStillValid(page)) {
+		if(page == null || !isPageTagStillValid(page)) {
 			sendSessionExpired();
 			return;
 		}
@@ -368,7 +371,7 @@ final public class PageRequestHandler {
 		String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
 		if(null != hpq) {
 			if(null == conversation)
-				throw new IllegalStateException("The conversation " + m_cida +  " containing POST data does not exist (anymore) the WindowSession");
+				throw new IllegalStateException("The conversation " + m_cida + " containing POST data does not exist (anymore) the WindowSession");
 
 			papa = (PageParameters) conversation.getAttribute("__ORIPP");
 			if(null == papa)
@@ -386,7 +389,7 @@ final public class PageRequestHandler {
 			if(DomUtil.USERLOG.isDebugEnabled())
 				DomUtil.USERLOG.debug(m_cid + ": Full render of page " + page);
 
-			if(! injectPageProperties(windowSession, page, papa)) {
+			if(!injectPageProperties(windowSession, page, papa)) {
 				return;
 			}
 
@@ -400,7 +403,7 @@ final public class PageRequestHandler {
 			 * user to check it's rights against the page's required rights.
 			 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
 			 */
-			if(! checkAccess(windowSession, page))
+			if(!checkAccess(windowSession, page))
 				return;
 
 			m_application.callUIStateListeners(sl -> sl.onBeforeFullRender(m_ctx, page));
@@ -412,13 +415,13 @@ final public class PageRequestHandler {
 
 			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
 			callNewPageBuiltListeners(page);
-			page.internalFullBuild();							// Cause full build
+			page.internalFullBuild();                            // Cause full build
 
-			handleSessionUIMessages(windowSession, page);		//  Handle stored messages in session
+			handleSessionUIMessages(windowSession, page);        //  Handle stored messages in session
 			page.callRequestStarted();
 
 			List<IGotoAction> al = (List<IGotoAction>) windowSession.getAttribute(UIGoto.PAGE_ACTION);
-			if(al != null && al.size() > 0) {
+			if(al != null && !al.isEmpty()) {
 				page.getBody().build();
 				for(IGotoAction ga : al) {
 					if(DomUtil.USERLOG.isDebugEnabled())
@@ -430,7 +433,7 @@ final public class PageRequestHandler {
 
 			m_application.callUIStateListeners(sl -> sl.onAfterPage(m_ctx, page));
 			page.getBody().internalOnBeforeRender();
-			page.internalDeltaBuild(); 							// If listeners changed the page-> rebuild those parts
+			page.internalDeltaBuild();                            // If listeners changed the page-> rebuild those parts
 			// END ORDERED
 
 			//-- Start the main rendering process. Determine the browser type.
@@ -471,7 +474,7 @@ final public class PageRequestHandler {
 			if(tryToHandleWithRegisteredExceptionHandler(windowSession, page, x))
 				return;
 
-			checkFullExceptionCount(page, x); 					// Rethrow, but clear state if page throws up too much.
+			checkFullExceptionCount(page, x);                    // Rethrow, but clear state if page throws up too much.
 		} finally {
 			page.callAfterRenderListeners();
 			page.internalClearDeltaFully();
@@ -538,8 +541,8 @@ final public class PageRequestHandler {
 			sendUnexpectedLogoutMessageToUser("The session has been invalidated; perhaps you have logged out in another window?");
 		} catch(Exception xxx) {
 			LOG.error("Double exception in handling full page build exception"
-				+	"]nOriginal exception: " + x
-				+	"Second one on forceRebuild: " + xxx
+					+ "]nOriginal exception: " + x
+					+ "Second one on forceRebuild: " + xxx
 				, x);
 			LOG.error("Second exception", xxx);
 		}
@@ -561,8 +564,8 @@ final public class PageRequestHandler {
 		}
 		try {
 			m_ctx.getApplication().getInjector().injectPageValues(page.getBody(), nullChecked(papa));
-		}catch(AccessCheckException x) {
-			if(! handleAccessCheckResult(windowSession, x.getAccessResult())) {
+		} catch(AccessCheckException x) {
+			if(!handleAccessCheckResult(windowSession, x.getAccessResult())) {
 				return false;
 			}
 		}
@@ -573,7 +576,7 @@ final public class PageRequestHandler {
 	private void handleSessionUIMessages(WindowSession windowSession, Page page) throws Exception {
 		List<UIMessage> ml = (List<UIMessage>) windowSession.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
 		if(ml != null) {
-			if(ml.size() > 0) {
+			if(!ml.isEmpty()) {
 				page.getBody().build();
 				for(UIMessage m : ml) {
 					if(DomUtil.USERLOG.isDebugEnabled())
@@ -591,7 +594,7 @@ final public class PageRequestHandler {
 	private boolean isPageTagStillValid(@NonNull Page page) throws Exception {
 		String s = m_ctx.getPageParameters().getString(Constants.PARAM_PAGE_TAG, null);
 		if(s == null)
-			return true;							// No page tag -> assume OK!?
+			return true;                            // No page tag -> assume OK!?
 
 		int pt = Integer.parseInt(s);
 		return page.getPageTag() == pt;
@@ -611,7 +614,7 @@ final public class PageRequestHandler {
 
 			// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 			if(m_application.getAutoRefreshPollInterval() <= 0) {
-				m_commandWriter.generateExpired(m_ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+				m_commandWriter.generateExpired(m_ctx, Msgs.sSessionExpired.format());
 			} else {
 				msg = "Not sending expired message because autorefresh is ON for " + m_cid;
 				LOG.info(msg);
@@ -660,7 +663,7 @@ final public class PageRequestHandler {
 			} else if(Constants.ACMD_ASYPOLL.equals(m_action)) {
 				// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 				if(false && m_application.getAutoRefreshPollInterval() <= 0) {
-					String msg = Msgs.BUNDLE.getString(Msgs.S_EXPIRED);
+					String msg = Msgs.sSessionExpired.format();
 					m_commandWriter.generateExpired(m_ctx, msg);
 					logUser(msg);
 				} else {
@@ -679,7 +682,7 @@ final public class PageRequestHandler {
 			LOG.debug(newmsg);
 		logUser(newmsg);
 
-		String conversationId = "x";							// If not reloading a saved set- use x as the default conversation id
+		String conversationId = "x";                            // If not reloading a saved set- use x as the default conversation id
 		CidPair cida = m_cida;
 		if(m_application.inDevelopmentMode() && cida != null) {
 			/*
@@ -692,7 +695,7 @@ final public class PageRequestHandler {
 
 				HttpSession hs = srr.getRequest().getSession();
 				if(null != hs) {
-					m_ctx.internalSetWindowSession(windowSession);			// Should prevent issues when reloading
+					m_ctx.internalSetWindowSession(windowSession);            // Should prevent issues when reloading
 
 					String newid = windowSession.internalAttemptReload(hs, m_runClass, PageParameters.createFrom(m_ctx.getPageParameters()), cida.getWindowId());
 					if(newid != null)
@@ -813,7 +816,7 @@ final public class PageRequestHandler {
 			ts = System.nanoTime() - ts;
 			System.out.println("domui: Action handling took " + StringTool.strNanoTime(ts));
 		}
-		if(!page.isDestroyed()) 								// jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
+		if(!page.isDestroyed())                                // jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
 			page.getConversation().processDelayedResults(page);
 
 		//-- Determine the response class to render; exit if we have a redirect,
@@ -830,7 +833,6 @@ final public class PageRequestHandler {
 		callNewPageBuiltListeners(page);
 		renderDeltaResponse(page, m_inhibitlog);
 	}
-
 
 	private <E extends Exception> boolean handleActionException(Page page, @Nullable NodeBase targetComponent, Exception ex) throws Exception {
 		logUser(page, "Action handler exception: " + ex);
@@ -850,8 +852,8 @@ final public class PageRequestHandler {
 
 		E nx = (E) ex;
 		IExceptionListener<E> xl = m_ctx.getApplication().findExceptionListenerFor(nx);
-		if(xl == null)										// No handler?
-			throw x; 										// Move on, nothing to see here,
+		if(xl == null)                                        // No handler?
+			throw x;                                        // Move on, nothing to see here,
 		if(targetComponent != null && !targetComponent.isAttached()) {
 			targetComponent = page.getTheCurrentControl();
 			LOG.error("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
@@ -872,7 +874,7 @@ final public class PageRequestHandler {
 			m_inhibitlog = true;
 		} else if(targetComponent == null) {
 			String targetComponentID = m_ctx.getPageParameters().getString(Constants.PARAM_UICOMPONENT, null);
-			if(! PageUtil.isSafeToIgnoreUnknownNodeOnAction(action))
+			if(!PageUtil.isSafeToIgnoreUnknownNodeOnAction(action))
 				throw new IllegalStateException("Unknown node '" + targetComponentID + "' for action='" + action + "'");
 
 			logUser(page, "Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
@@ -886,6 +888,8 @@ final public class PageRequestHandler {
 			//-- Don't do anything at all - everything is done beforehand (bug #664).
 		} else if(Constants.ACMD_DEVTREE.equals(action)) {
 			handleDevelopmentShowCode(page, targetComponent);
+		} else if(Constants.ACMD_TESTGEN.equals(action)) {
+			handleTestUiCodeGeneratorShow(page, targetComponent);
 		} else {
 			targetComponent.componentHandleWebAction(m_ctx, action);
 		}
@@ -895,7 +899,7 @@ final public class PageRequestHandler {
 		//-- We stay on the same page. Render tree delta as response
 		try {
 			PageUtil.renderOptimalDelta(m_ctx, page, inhibitlog);
-		} catch(NotLoggedInException x) { 						// FIXME Fugly. Generalize this kind of exception handling somewhere.
+		} catch(NotLoggedInException x) {                        // FIXME Fugly. Generalize this kind of exception handling somewhere.
 			String url = m_application.handleNotLoggedInException(m_ctx, x);
 			if(url != null) {
 				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to log in", true);
@@ -929,7 +933,7 @@ final public class PageRequestHandler {
 	 * we do not it returns false, and it has already done whatever is needed:
 	 * <ul>
 	 *	<li>If we have no access because we need to be logged in the code will have redirected us to the login screen</li>
-	 	<li>If we really have no permission the handler will have re</li>
+	 <li>If we really have no permission the handler will have re</li>
 	 * </ul>
 	 */
 	private boolean checkAccess(WindowSession windowSession, Page page) throws Exception {
@@ -1022,7 +1026,7 @@ final public class PageRequestHandler {
 
 			IComponentJsonProvider dp = (IComponentJsonProvider) wcomp;
 			PageParameters pp = new PageParameters(m_ctx.getPageParameters());
-			Object value = dp.provideJsonData(pp);							// Let the component return something to render.
+			Object value = dp.provideJsonData(pp);                            // Let the component return something to render.
 			renderJsonLikeResponse(page, value);
 		} finally {
 			page.callRequestFinished();
@@ -1035,7 +1039,13 @@ final public class PageRequestHandler {
 
 	private void renderJsonLikeResponse(Page page, @NonNull Object value) throws Exception {
 		m_ctx.renderResponseHeaders(page.getBody());
-		Writer w = m_ctx.getOutputWriter("application/javascript", "utf-8");
+		if(value instanceof IDataFactory) {
+			IDataFactory factory = (IDataFactory) value;
+			factory.renderOutput(m_ctx);
+			return;
+		}
+
+		Writer w = m_ctx.getOutputWriter("application/json", "utf-8");
 		if(value instanceof String) {
 			//-- String return: we'll assume this is a javascript response by itself.
 			w.write((String) value);
@@ -1062,7 +1072,7 @@ final public class PageRequestHandler {
 	 */
 	private void checkFullExceptionCount(Page page, Exception x) throws Exception {
 		//-- Full renderer aborted. Handle exception counting.
-		if(!page.isFullRenderCompleted()) {						// Has the page at least once rendered OK?
+		if(!page.isFullRenderCompleted()) {                        // Has the page at least once rendered OK?
 			//-- This page is initially unrenderable; the error is not due to state changes. Just rethrow and give up.
 			throw x;
 		}
@@ -1082,6 +1092,7 @@ final public class PageRequestHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle existing page events.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Walk the request parameter list and bind all values that came from an input thingy
 	 * to the appropriate Node. Nodes whose value change will leave a trail in the pending
@@ -1093,23 +1104,23 @@ final public class PageRequestHandler {
 	private List<NodeBase> handleComponentInput(@NonNull Page page) throws Exception {
 		//-- BINDING: All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
 		if(Constants.ACMD_ASYPOLL.equals(m_action))
-			return new ArrayList<>();								// Must be modifyable!
+			return new ArrayList<>();                                // Must be modifyable!
 
-			//-- Just walk all parameters in the input request.
+		//-- Just walk all parameters in the input request.
 		long ts = System.nanoTime();
 
 		List<NodeBase> changed = new ArrayList<>();
 		IPageParameters pp = m_ctx.getPageParameters();
 		for(String name : pp.getParameterNames()) {
-			String[] values = pp.getStringArray(name);	 			// Get the value;
+			String[] values = pp.getStringArray(name);                // Get the value;
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
-				NodeBase nb = page.findNodeByID(name); 				// Can we find this literally?
+				NodeBase nb = page.findNodeByID(name);                // Can we find this literally?
 				if(nb != null) {
 					//-- Try to bind this value to the component.
-					if(nb.acceptRequestParameter(values, pp)) { 		// Make the thingy accept the parameter(s)
+					if(nb.acceptRequestParameter(values, pp)) {        // Make the thingy accept the parameter(s)
 						//-- This thing has changed.
-						if(nb instanceof IHasChangeListener) { 		// Can have a value changed thingy?
+						if(nb instanceof IHasChangeListener) {        // Can have a value changed thingy?
 							IHasChangeListener ch = (IHasChangeListener) nb;
 							if(ch.getOnValueChanged() != null) {
 								changed.add(nb);
@@ -1135,10 +1146,14 @@ final public class PageRequestHandler {
 	private void handleDevelopmentShowCode(Page page, NodeBase targetComponent) {
 		//-- If a tree is already present ignore the click.
 		List<InternalParentTree> res = page.getBody().getDeepChildren(InternalParentTree.class);
-		if(res.size() > 0)
+		if(!res.isEmpty())
 			return;
 		InternalParentTree ipt = new InternalParentTree(targetComponent);
 		page.getBody().add(0, ipt);
+	}
+
+	private void handleTestUiCodeGeneratorShow(Page page, NodeBase targetComponent) {
+		PoGenerator.onGeneratePO(page.getBody());
 	}
 
 	/**
@@ -1171,6 +1186,7 @@ final public class PageRequestHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	If a page failed, show a neater response.			*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * In case of a (non compile) exception, check to see if mail must be sent and if yes do so.
 	 */
@@ -1188,7 +1204,7 @@ final public class PageRequestHandler {
 	 */
 	private void tryRenderOopsFrame(@NonNull Throwable x) throws Exception {
 		try {
-			m_applicationRequestHandler.getOopsRenderer().renderOopsFrame(m_ctx, x);
+			m_applicationRequestHandler.getOopsRenderer().renderOopsFrame(m_ctx, x, AppFilter.isTestMode());
 		} catch(Exception oopx) {
 			LOG.error("Exception while rendering exception page!!?? " + oopx, oopx);
 			if(x instanceof Error) {

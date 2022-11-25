@@ -84,7 +84,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 
 		List<T> list = getPageItems(); // Data to show
 
-		if(m_accumulatedRows.size() > 0 || list.size() > 0) {
+		if(!m_accumulatedRows.isEmpty() || !list.isEmpty()) {
 			getTable().removeAllChildren();
 			Table t = getTable();
 			if(null == t)
@@ -117,7 +117,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 				renderAccumulatedItem(tr, cc, accumulatedItem, selected, index);
 			}
 
-			if(m_accumulatedRows.size() > 0) {
+			if(!m_accumulatedRows.isEmpty()) {
 				TR splitterRow = createSplitterRow();
 				getDataBody().add(splitterRow);
 			}
@@ -158,7 +158,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 			}
 		}
 
-		if(list.size() == 0) {
+		if(list.isEmpty()) {
 			Div error = new Div();
 			error.setCssClass("ui-dt-nores");
 			error.setText(Msgs.uiDatatableEmpty.getString());
@@ -249,7 +249,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 				getDataBody().add(m_accumulatedRows.size(), splitterRow);
 			}
 
-			if(row.getChildren(TD.class).size() == 0) {
+			if(row.getChildren(TD.class).isEmpty()) {
 				throw new IllegalStateException("Missing row childs!");
 			}
 			TD selectionMarkerCell = row.getChildren(TD.class).get(0);

@@ -18,6 +18,19 @@
 
     <packaging>jar</packaging>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.skip>false</sonar.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>to.etc.domui</groupId>
@@ -62,7 +75,7 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
         </dependency>
-    </dependencies>
+	</dependencies>
 
 
 </project>

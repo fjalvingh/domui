@@ -11,6 +11,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
 import to.etc.domui.component.misc.Icon;
+import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
@@ -134,6 +135,9 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	@Nullable
 	private String m_selectionCssClass;
 
+	@Nullable
+	private IClickableRowRenderer<OT> m_formRowRenderer;
+
 	abstract protected void clearKeySearch();
 
 	protected abstract void openPopupWithClick() throws Exception;
@@ -229,7 +233,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	private void renderEmptySelection() {
 		Div vdiv = new Div("ui-lui-empty ui-control");
 		add(vdiv);
-		vdiv.add(new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY)));
+		vdiv.add(new Span(Msgs.uiLookupEmpty.format()));
 	}
 
 	private void appendLookupButtons() {
@@ -759,4 +763,22 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		return m_keywordLookupPropertyList;
 	}
 
+	/**
+	 * Returns configured custom {@link IClickableRowRenderer}&lt;OT&gt; render for rows when the popup lookup form is used.
+	 *
+	 * @return configured renderer.
+	 */
+	@Nullable
+	public IClickableRowRenderer<OT> getFormRowRenderer() {
+		return m_formRowRenderer;
+	}
+
+	/**
+	 * Sets custom {@link IClickableRowRenderer}&lt;OT&gt; render.
+	 *
+	 * @param lookupFormRenderer render for table rows when the popup lookup form is used.
+	 */
+	public void setFormRowRenderer(@Nullable IClickableRowRenderer<OT> lookupFormRenderer) {
+		m_formRowRenderer = lookupFormRenderer;
+	}
 }

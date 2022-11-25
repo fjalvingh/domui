@@ -9,6 +9,6 @@ import to.etc.webapp.nls.*;
  */
 final public class BindingFailureException extends CodeException {
 	public BindingFailureException(Exception x, String direction, String bindingDetails) {
-		super(x, Msgs.BUNDLE, Msgs.E_BINDING_FAILED, direction, bindingDetails, x);
+		super(x, Msgs.eBindingFailed, direction, bindingDetails, x);
 	}
 }

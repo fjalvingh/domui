@@ -61,9 +61,9 @@ import java.util.Map;
  */
 public class DefaultClassMetaModel implements ClassMetaModel {
 	/** The class this is a class metamodel <i>for</i> */
-	private final Class< ? > m_metaClass;
+	private final Class<?> m_metaClass;
 
-	private ICriteriaTableDef< ? > m_metaTableDef;
+	private ICriteriaTableDef<?> m_metaTableDef;
 
 	private String m_classNameOnly;
 
@@ -72,14 +72,14 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	final private BundleRef m_classBundle;
 
 	/** An immutable list of all properties of this class. */
-	private List<PropertyMetaModel< ? >> m_rootProperties;
+	private List<PropertyMetaModel<?>> m_rootProperties;
 
 	/** All undotted properties, set at initialization time, */
 	@NonNull
-	private Map<String, PropertyMetaModel< ? >> m_simplePropertyMap = Collections.EMPTY_MAP;
+	private Map<String, PropertyMetaModel<?>> m_simplePropertyMap = Collections.EMPTY_MAP;
 
 	@NonNull
-	final private Map<String, PropertyMetaModel< ? >> m_dottedPropertyMap = new HashMap<>();
+	final private Map<String, PropertyMetaModel<?>> m_dottedPropertyMap = new HashMap<>();
 
 	/**
 	 * When this object type is defined in an UP relation somewhere, this is a hint on what
@@ -93,14 +93,14 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * for the values to show. This is a default for all relations in which
 	 * this class is the parent; it can be overridden in individual relations.
 	 */
-	private Class< ? extends IComboDataSet< ? >> m_comboDataSet;
+	private Class<? extends IComboDataSet<?>> m_comboDataSet;
 
 	private boolean m_persistentClass;
 
 	private String m_tableName;
 
 	@Nullable
-	private IQueryManipulator< ? > m_queryManipulator;
+	private IQueryManipulator<?> m_queryManipulator;
 
 	@Nullable
 	private String m_comboSortProperty;
@@ -108,11 +108,10 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
 	 * that field as a string.
-	 * @return
 	 */
-	private Class< ? extends ILabelStringRenderer< ? >> m_comboLabelRenderer;
+	private Class<? extends ILabelStringRenderer<?>> m_comboLabelRenderer;
 
-	private Class< ? extends IRenderInto< ? >> m_comboNodeRenderer;
+	private Class<? extends IRenderInto<?>> m_comboNodeRenderer;
 
 //	private ComboOptionalType m_comboOptional;
 
@@ -132,7 +131,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
 	 * data pertaining to the looked-up item as a single element on the "edit" screen.
 	 */
-	private Class< ? extends IRenderInto< ? >> m_lookupFieldRenderer;
+	private Class<? extends IRenderInto<?>> m_lookupFieldRenderer;
 
 	/**
 	 * The default properties to show in a {@link LookupInput} field's instance display.
@@ -145,29 +144,30 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	@Nullable
 	private SortableType m_defaultSortDirection;
 
-	private PropertyMetaModel< ? > m_primaryKey;
+	private PropertyMetaModel<?> m_primaryKey;
 
 	private Object[] m_domainValues;
 
-	public DefaultClassMetaModel(final Class< ? > metaClass) {
+	public DefaultClassMetaModel(final Class<?> metaClass) {
 		m_metaClass = metaClass;
 		m_classNameOnly = metaClass.getName().substring(metaClass.getName().lastIndexOf('.') + 1);
 		m_classBundle = BundleRef.create(metaClass, m_classNameOnly);
 	}
 
 	//@GuardedBy("MetaManager.class")
-	public void setClassProperties(List<PropertyMetaModel< ? >> reslist) {
+	public void setClassProperties(List<PropertyMetaModel<?>> reslist) {
 		m_rootProperties = Collections.unmodifiableList(reslist);
-		Map<String, PropertyMetaModel<?>> propMap = new HashMap<>();		// Set all undotted properties
-		for(PropertyMetaModel< ? > pmm : reslist) {
+		Map<String, PropertyMetaModel<?>> propMap = new HashMap<>();        // Set all undotted properties
+		for(PropertyMetaModel<?> pmm : reslist) {
 			propMap.put(pmm.getName(), pmm);
 		}
-		m_simplePropertyMap = Collections.unmodifiableMap(propMap);			// Save,
+		m_simplePropertyMap = Collections.unmodifiableMap(propMap);            // Save,
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Resource bundle data.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return the class' resource bundle.
 	 */
@@ -182,25 +182,18 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * open a resource file with the same name as the class, at the same location. If that
 	 * works it reads the properties from there. If it cannot be found it defaults to the
 	 * actual property name.
-	 *
-	 * @param p
-	 * @param loc
-	 * @return
 	 */
 	@NonNull
-	String getPropertyLabel(final DefaultPropertyMetaModel< ? > p, final Locale loc) {
+	String getPropertyLabel(final DefaultPropertyMetaModel<?> p, final Locale loc) {
 		String s = getClassBundle().findMessage(loc, p.getName() + ".label");
 		return s == null ? p.getName() : s;
 	}
 
 	/**
 	 * Return the "hint" for a property.
-	 * @param p
-	 * @param loc
-	 * @return
 	 */
 	@Nullable
-	String getPropertyHint(final DefaultPropertyMetaModel< ? > p, final Locale loc) {
+	String getPropertyHint(final DefaultPropertyMetaModel<?> p, final Locale loc) {
 		String v = getClassBundle().findMessage(loc, p.getName() + ".hint");
 		if(v == null)
 			v = getClassBundle().findMessage(loc, p.getName() + ".help");
@@ -209,7 +202,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	/**
 	 * Return a user-presentable entity name for this class. Returns null if not set.
-	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityName()
 	 */
 	@Override
 	@Nullable
@@ -219,7 +211,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	/**
 	 * Returns a user-presentable entity name as a plural name.
-	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityNamePlural()
 	 */
 	@Override
 	@Nullable
@@ -230,19 +221,18 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/**
 	 * This resolves a property path, starting at this class. If any part of the path does
 	 * not exist this returns null.
-	 * @see to.etc.domui.component.meta.ClassMetaModel#findProperty(java.lang.String)
 	 */
 	@Override
 	@Nullable
-	public PropertyMetaModel< ? > findProperty(@NonNull final String name) {
-		if(name.indexOf('.') == -1)						// No dot?
-			return findSimpleProperty(name);			// Find it without lock
+	public PropertyMetaModel<?> findProperty(@NonNull final String name) {
+		if(name.indexOf('.') == -1)                        // No dot?
+			return findSimpleProperty(name);            // Find it without lock
 
 		/*
 		 * We need to check the dotted map, and we need to prevent deadlocking the system when multiple classes are
-		  * initializing.
+		 * initializing.
 		 */
-		PropertyMetaModel< ? > pmm;
+		PropertyMetaModel<?> pmm;
 		synchronized(this) {
 			pmm = m_dottedPropertyMap.get(name);
 			if(pmm != null)
@@ -273,14 +263,16 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	@Override
 	@NonNull
-	public PropertyMetaModel< ? > getProperty(@NonNull String name) {
-		PropertyMetaModel< ? > pmm = findProperty(name);
+	public PropertyMetaModel<?> getProperty(@NonNull String name) {
+		PropertyMetaModel<?> pmm = findProperty(name);
 		if(null == pmm)
 			throw new IllegalStateException("The property '" + name + "' is not known in the meta model for " + this);
 		return pmm;
 	}
 
-	@NonNull @Override public <V> PropertyMetaModel<V> getProperty(@NonNull QField<?, V> field) {
+	@NonNull
+	@Override
+	public <V> PropertyMetaModel<V> getProperty(@NonNull QField<?, V> field) {
 		PropertyMetaModel<V> pmm = findProperty(field);
 		if(null == pmm)
 			throw new IllegalStateException("The property '" + field + "' is not known in the meta model for " + this);
@@ -289,37 +281,35 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	/**
 	 * Not synchronized because the simple map is initialized when the ClassMetaModel is created and after that it's immutable.
-	 * @param name
-	 * @return
 	 */
 	@Override
 	@Nullable
-	public PropertyMetaModel< ? > findSimpleProperty(@NonNull final String name) {
+	public PropertyMetaModel<?> findSimpleProperty(@NonNull final String name) {
 		return m_simplePropertyMap.get(name);
 	}
 
 	@Override
 	@NonNull
-	public List<PropertyMetaModel< ? >> getProperties() {
+	public List<PropertyMetaModel<?>> getProperties() {
 		return m_rootProperties;
 	}
 
 	@Override
 	@Nullable
-	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
+	public Class<? extends IComboDataSet<?>> getComboDataSet() {
 		return m_comboDataSet;
 	}
 
-	public void setComboDataSet(@Nullable final Class< ? extends IComboDataSet< ? >> comboDataSet) {
+	public void setComboDataSet(@Nullable final Class<? extends IComboDataSet<?>> comboDataSet) {
 		m_comboDataSet = comboDataSet;
 	}
 
 	@Override
-	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
+	public Class<? extends ILabelStringRenderer<?>> getComboLabelRenderer() {
 		return m_comboLabelRenderer;
 	}
 
-	public void setComboLabelRenderer(final Class< ? extends ILabelStringRenderer< ? >> comboLabelRenderer) {
+	public void setComboLabelRenderer(final Class<? extends ILabelStringRenderer<?>> comboLabelRenderer) {
 		m_comboLabelRenderer = comboLabelRenderer;
 	}
 
@@ -333,17 +323,16 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? extends IRenderInto< ? >> getComboNodeRenderer() {
+	public Class<? extends IRenderInto<?>> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
 
-	public void setComboNodeRenderer(final Class< ? extends IRenderInto< ? >> comboNodeRenderer) {
+	public void setComboNodeRenderer(final Class<? extends IRenderInto<?>> comboNodeRenderer) {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
 	/**
 	 * Returns the SORTED list of search properties defined on this class.
-	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
 	@Override
 	@NonNull
@@ -352,12 +341,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	public void setSearchProperties(@NonNull List<SearchPropertyMetaModel> searchProperties) {
-		m_searchProperties = searchProperties.size() == 0 ? Collections.EMPTY_LIST : searchProperties;
+		m_searchProperties = searchProperties.isEmpty() ? Collections.EMPTY_LIST : searchProperties;
 	}
 
 	/**
 	 * Returns the sorted list of key word search properties defined on this class.
-	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
 	 */
 	@Override
 	@NonNull
@@ -366,17 +354,17 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	public void setKeyWordSearchProperties(@NonNull List<SearchPropertyMetaModel> keyWordSearchProperties) {
-		m_keyWordSearchProperties = keyWordSearchProperties.size() == 0 ? Collections.EMPTY_LIST : keyWordSearchProperties;
+		m_keyWordSearchProperties = keyWordSearchProperties.isEmpty() ? Collections.EMPTY_LIST : keyWordSearchProperties;
 	}
 
 	@Override
-	public @NonNull Class< ? > getActualClass() {
+	public @NonNull Class<?> getActualClass() {
 		return m_metaClass;
 	}
 
 	@Override
 	public synchronized @NonNull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
-		if(m_tableDisplayProperties == null || m_tableDisplayProperties.size() == 0) {
+		if(m_tableDisplayProperties == null || m_tableDisplayProperties.isEmpty()) {
 			m_tableDisplayProperties = MetaManager.calculateObjectProperties(this);
 		}
 		return m_tableDisplayProperties;
@@ -417,11 +405,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer() {
+	public Class<? extends IRenderInto<?>> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupSelectedRenderer(final Class< ? extends IRenderInto< ? >> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class<? extends IRenderInto<?>> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 
@@ -450,11 +438,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public PropertyMetaModel< ? > getPrimaryKey() {
+	public PropertyMetaModel<?> getPrimaryKey() {
 		return m_primaryKey;
 	}
 
-	public void setPrimaryKey(final PropertyMetaModel< ? > primaryKey) {
+	public void setPrimaryKey(final PropertyMetaModel<?> primaryKey) {
 		m_primaryKey = primaryKey;
 	}
 
@@ -494,11 +482,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	@Nullable
 	@Override
 	public String getDomainLabel(final Locale loc, final Object value) {
-		if(value instanceof Enum< ? >) {
+		if(value instanceof Enum<?>) {
 			try {
 				String s = getClassBundle().findMessage(loc, ((Enum<?>) value).name() + ".label");
 				return s; // jal 20090806 Must return null; let caller decide what the default should be.
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 		if(value instanceof Boolean)
 			return (((Boolean) value).booleanValue() ? Msgs.uiBoolTrue : Msgs.uiBoolFalse).getString();
@@ -507,33 +496,29 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Nullable
-	public ICriteriaTableDef< ? > getMetaTableDef() {
+	public ICriteriaTableDef<?> getMetaTableDef() {
 		return m_metaTableDef;
 	}
 
-	public void setMetaTableDef(@Nullable ICriteriaTableDef< ? > metaTableDef) {
+	public void setMetaTableDef(@Nullable ICriteriaTableDef<?> metaTableDef) {
 		m_metaTableDef = metaTableDef;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.component.meta.ClassMetaModel#createCriteria()
-	 */
 	@Override
 	@NonNull
-	public QCriteria< ? > createCriteria() throws Exception {
-		ICriteriaTableDef< ? > tdef = getMetaTableDef();
+	public QCriteria<?> createCriteria() throws Exception {
+		ICriteriaTableDef<?> tdef = getMetaTableDef();
 		if(tdef != null)
 			return QCriteria.create(tdef);
 		return QCriteria.create(getActualClass());
 	}
 
 	@Override
-	public IQueryManipulator< ? > getQueryManipulator() {
+	public IQueryManipulator<?> getQueryManipulator() {
 		return m_queryManipulator;
 	}
 
-	public void setQueryManipulator(IQueryManipulator< ? > queryManipulator) {
+	public void setQueryManipulator(IQueryManipulator<?> queryManipulator) {
 		m_queryManipulator = queryManipulator;
 	}
 
@@ -545,6 +530,5 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public void setComboSortProperty(String comboSortProperty) {
 		m_comboSortProperty = comboSortProperty;
 	}
-
 
 }

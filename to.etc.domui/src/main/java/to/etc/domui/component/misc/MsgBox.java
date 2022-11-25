@@ -54,11 +54,13 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.bugs.Bug;
+import to.etc.webapp.nls.IBundleCode;
 
 public class MsgBox extends Window {
 	public interface IAnswer {
 		void onAnswer(@NonNull MsgBoxButton result) throws Exception;
 	}
+
 	public interface IAnswer2 {
 		void onAnswer(Object result) throws Exception;
 	}
@@ -68,7 +70,11 @@ public class MsgBox extends Window {
 	}
 
 	public enum Type {
-		INFO, WARNING, ERROR, DIALOG, INPUT;
+		INFO,
+		WARNING,
+		ERROR,
+		DIALOG,
+		INPUT;
 
 		@NonNull
 		static public Type from(@NonNull MsgType messageType) {
@@ -106,9 +112,9 @@ public class MsgBox extends Window {
 
 	private MsgBoxButton m_closeButtonObject;
 
-	private IInput< ? > m_oninput;
+	private IInput<?> m_oninput;
 
-	private IControl< ? > m_inputControl;
+	private IControl<?> m_inputControl;
 
 	/**
 	 * Custom dialog message text renderer.
@@ -161,7 +167,7 @@ public class MsgBox extends Window {
 	protected void setType(Type type) {
 		String ttl;
 		IIconRef icon;
-		switch(type){
+		switch(type) {
 			default:
 				throw new IllegalStateException(type + " ??");
 			case ERROR:
@@ -200,6 +206,10 @@ public class MsgBox extends Window {
 
 	MsgBoxButton getCloseObject() {
 		return m_closeButtonObject;
+	}
+
+	public static void message(NodeBase dad, Type mt, IBundleCode code, Object... param) {
+		message(dad, mt, code.format(param));
 	}
 
 	public static void message(NodeBase dad, Type mt, String string) {
@@ -275,12 +285,24 @@ public class MsgBox extends Window {
 		message(dad, Type.INFO, string);
 	}
 
+	public static void info(NodeBase dad, IBundleCode code, Object... param) {
+		message(dad, Type.INFO, code, param);
+	}
+
 	public static void warning(NodeBase dad, String string) {
 		message(dad, Type.WARNING, string);
 	}
 
+	public static void warning(NodeBase dad, IBundleCode code, Object... param) {
+		message(dad, Type.WARNING, code, param);
+	}
+
 	public static void error(NodeBase dad, String string) {
 		message(dad, Type.ERROR, string);
+	}
+
+	public static void error(NodeBase dad, IBundleCode code, Object... param) {
+		message(dad, Type.ERROR, code, param);
 	}
 
 	public static void info(NodeBase dad, NodeContainer string) {
@@ -289,9 +311,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Display some information; Call the onAnswer handler when 'Ok' is clicked.
-	 * @param dad
-	 * @param string
-	 * @param onAnswer
 	 */
 	public static void info(NodeBase dad, String string, final IAnswer onAnswer) {
 		message(dad, MsgBox.Type.INFO, string, onAnswer);
@@ -343,9 +362,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Ask a yes/no confirmation, and pass either YES or NO to the onAnswer delegate. Use this if you need the NO action too, else use the IClicked variant.
-	 * @param dad
-	 * @param string
-	 * @param onAnswer
 	 */
 	public static void yesNo(NodeBase dad, String string, IAnswer onAnswer) {
 		yesNo(dad, string, onAnswer, null);
@@ -353,10 +369,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Ask a yes/no confirmation, and pass either YES or NO to the onAnswer delegate. Use this if you need the NO action too, else use the IClicked variant.
-	 * @param dad
-	 * @param string
-	 * @param onAnswer
-	 * @param msgRenderer Provides custom rendering of specified string message.
 	 */
 	public static void yesNo(NodeBase dad, String string, IAnswer onAnswer, IRenderInto<String> msgRenderer) {
 		MsgBox box = create(dad);
@@ -372,9 +384,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Ask a yes/no confirmation; call the onAnswer handler if YES is selected and do nothing otherwise.
-	 * @param dad
-	 * @param string
-	 * @param onAnswer
 	 */
 	public static void yesNo(NodeBase dad, String string, final IClicked<MsgBox> onAnswer) {
 		yesNo(dad, MsgBox.Type.DIALOG, string, onAnswer);
@@ -382,9 +391,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Ask a yes/no confirmation; call the onAnswer handler if YES is selected and do nothing otherwise.
-	 * @param dad
-	 * @param string
-	 * @param onAnswer
 	 */
 	public static void yesNo(NodeBase dad, Type msgtype, String string, final IClicked<MsgBox> onAnswer) {
 		final MsgBox box = create(dad);
@@ -405,10 +411,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Show message of specified type, and provide details (More...) button. Usually used to show some error details if user wants to see it.
-	 * @param dad
-	 * @param type
-	 * @param string
-	 * @param onAnswer
 	 */
 	public static void okMore(NodeBase dad, Type type, String string, IAnswer onAnswer) {
 		final MsgBox box = create(dad);
@@ -423,9 +425,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Ask a continue/cancel confirmation. This passes either choice to the handler.
-	 * @param dad
-	 * @param string
-	 * @param onAnswer
 	 */
 	public static void continueCancel(NodeBase dad, String string, IAnswer onAnswer) {
 		MsgBox box = create(dad);
@@ -464,12 +463,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Show any single control to get input from.
-	 * @param dad
-	 * @param prompt
-	 * @param input
-	 * @param onanswer
-	 * @param <T>
-	 * @param <C>
 	 */
 	public static <T, C extends IControl<T>> void input(NodeBase dad, String prompt, C input, IInput<T> onanswer) {
 		MsgBox box = create(dad);
@@ -485,9 +478,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Ask a continue/cancel confirmation, and call the IClicked handler for CONTINUE only.
-	 * @param dad
-	 * @param string
-	 * @param onAnswer
 	 */
 	public static void continueCancel(NodeBase dad, String string, final IClicked<MsgBox> onAnswer) {
 		final MsgBox box = create(dad);
@@ -506,14 +496,6 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
-	/**
-	 *
-	 * @param dad
-	 * @param boxType
-	 * @param message
-	 * @param onAnswer
-	 * @param buttonresultpairs
-	 */
 	public static void flexDialog(@NonNull NodeBase dad, @NonNull Type boxType, @NonNull String message, @NonNull IAnswer2 onAnswer, Object... buttonresultpairs) {
 		MsgBox box = create(dad);
 		box.setType(boxType);
@@ -526,7 +508,7 @@ public class MsgBox extends Window {
 				MsgBoxButton b = (MsgBoxButton) o;
 				box.addButton(b);
 			} else if(o instanceof String) {
-				String s = (String) o;					// Button title
+				String s = (String) o;                    // Button title
 				if(ix >= buttonresultpairs.length)
 					throw new IllegalArgumentException("Illegal format: must be [button name string], [response object].");
 				box.addButton(s, buttonresultpairs[ix++]);
@@ -538,15 +520,13 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
-
 	/**
 	 * Create a button which will show an "are you sure" yes/no dialog with a specified text. Only if the user
 	 * presses the "yes" button will the clicked handler be executed.
-	 * @param icon
-	 * @param text		The button's text.
-	 * @param message	The message to show in the are you sure popup
-	 * @param ch		The delegate to call when the user is sure.
-	 * @return
+	 *
+	 * @param text        The button's text.
+	 * @param message    The message to show in the are you sure popup
+	 * @param ch        The delegate to call when the user is sure.
 	 */
 	@NonNull
 	public static DefaultButton areYouSureButton(String text, IIconRef icon, final String message, final IClicked<DefaultButton> ch) {
@@ -570,10 +550,9 @@ public class MsgBox extends Window {
 	 * Create a button which will show an "are you sure" yes/no dialog with a specified text. Only if the user
 	 * presses the "yes" button will the clicked handler be executed.
 	 *
-	 * @param text		The button's text.
-	 * @param message	The message to show in the are you sure popup
-	 * @param ch		The delegate to call when the user is sure.
-	 * @return
+	 * @param text        The button's text.
+	 * @param message    The message to show in the are you sure popup
+	 * @param ch        The delegate to call when the user is sure.
 	 */
 	@NonNull
 	public static DefaultButton areYouSureButton(String text, final String message, final IClicked<DefaultButton> ch) {
@@ -583,11 +562,10 @@ public class MsgBox extends Window {
 	/**
 	 * Create a LinkButton which will show an "are you sure" yes/no dialog with a specified text. Only if the user
 	 * presses the "yes" button will the clicked handler be executed.
-	 * @param icon
-	 * @param text		The button's text.
-	 * @param message	The message to show in the are you sure popup
-	 * @param ch		The delegate to call when the user is sure.
-	 * @return
+	 *
+	 * @param text        The button's text.
+	 * @param message    The message to show in the are you sure popup
+	 * @param ch        The delegate to call when the user is sure.
 	 */
 	@NonNull
 	public static LinkButton areYouSureLinkButton(String text, IIconRef icon, final String message, final IClicked<LinkButton> ch) {
@@ -611,10 +589,9 @@ public class MsgBox extends Window {
 	 * Create a button which will show an "are you sure" yes/no dialog with a specified text. Only if the user
 	 * presses the "yes" button will the clicked handler be executed.
 	 *
-	 * @param text		The button's text.
-	 * @param message	The message to show in the are you sure popup
-	 * @param ch		The delegate to call when the user is sure.
-	 * @return
+	 * @param text        The button's text.
+	 * @param message    The message to show in the are you sure popup
+	 * @param ch        The delegate to call when the user is sure.
 	 */
 	@NonNull
 	public static LinkButton areYouSureLinkButton(String text, final String message, final IClicked<LinkButton> ch) {
@@ -681,7 +658,6 @@ public class MsgBox extends Window {
 			setFocusOnButton();
 	}
 
-
 	private void setFocusOnButton() {
 		if(m_theButtons.getChildCount() > 0 && m_theButtons.getChild(0) instanceof Button) {
 			m_theButtons.getChild(0).setFocus();
@@ -737,7 +713,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Add a default kind of button.
-	 * @param mbb
 	 */
 	protected void addButton(final MsgBoxButton mbb) {
 		if(mbb == null)
@@ -779,19 +754,19 @@ public class MsgBox extends Window {
 		m_onAnswer2 = onAnswer2;
 	}
 
-	public IInput< ? > getOninput() {
+	public IInput<?> getOninput() {
 		return m_oninput;
 	}
 
-	public void setOninput(IInput< ? > oninput) {
+	public void setOninput(IInput<?> oninput) {
 		m_oninput = oninput;
 	}
 
-	public IControl< ? > getInputControl() {
+	public IControl<?> getInputControl() {
 		return m_inputControl;
 	}
 
-	public void setInputControl(IControl< ? > inputControl) {
+	public void setInputControl(IControl<?> inputControl) {
 		m_inputControl = inputControl;
 	}
 
@@ -805,9 +780,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Shows specified UIMessage as message box, with proper message box type.
-	 *
-	 * @param dad
-	 * @param msg
 	 */
 	public static void message(@NonNull NodeBase dad, @NonNull UIMessage msg) {
 		message(dad, msg.getType(), msg.getMessage());
@@ -815,9 +787,6 @@ public class MsgBox extends Window {
 
 	/**
 	 * Shows specified UIMsgException as message box, with proper message box type.
-	 *
-	 * @param dad
-	 * @param msgEx
 	 */
 	public static void message(@NonNull NodeBase dad, @NonNull UIMsgException msgEx) {
 		message(dad, msgEx.getType(), msgEx.getMessage());
@@ -825,7 +794,7 @@ public class MsgBox extends Window {
 
 	private static void message(@NonNull NodeBase dad, @NonNull MsgType type, @NonNull String msg) {
 		MsgBox box = create(dad);
-		switch(type){
+		switch(type) {
 			case INFO:
 				box.setType(Type.INFO);
 				break;

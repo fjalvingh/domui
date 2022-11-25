@@ -44,7 +44,7 @@ final public class StringToListBidiConverter implements IBidiBindingConverter<St
 	@Nullable
 	@Override
 	public List<String> controlToModel(@Nullable String value) throws Exception {
-		if(value == null || value.trim().length() == 0)
+		if(value == null || value.trim().isEmpty())
 			return Collections.emptyList();
 
 		//-- Parse the input, and keep quoted strings together

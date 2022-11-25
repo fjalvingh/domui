@@ -11,6 +11,7 @@ import to.etc.domui.util.resources.ResourceDependencyList;
 import to.etc.util.FileTool;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -42,8 +43,12 @@ final public class SvgIcon extends Span {
 
 			StringBuilder sb = new StringBuilder();
 			//sb.append("<svg aria-hidden='true'>");
-			sb.append(svg);
-			//sb.append("</svg>");
+			int index = svg.indexOf("<svg");
+			if(index == -1)
+				sb.append(svg);
+			else
+				sb.append(svg, index, svg.length());
+
 			XmlTextNode xn = new XmlTextNode(sb.toString());
 			add(xn);
 		}
@@ -58,7 +63,7 @@ final public class SvgIcon extends Span {
 		if(! iconres.exists())
 			throw new ThingyNotFoundException("The resource " + svg + " is not found in this svg icon " + this);
 		try(InputStream is = iconres.getInputStream()) {
-			String data = FileTool.readStreamAsString(is, "utf-8");
+			String data = FileTool.readStreamAsString(is, StandardCharsets.UTF_8);
 			return data;
 		}
 	}

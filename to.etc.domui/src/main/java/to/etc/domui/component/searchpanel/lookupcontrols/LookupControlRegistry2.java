@@ -25,9 +25,9 @@ public class LookupControlRegistry2 {
 	private static class RegEntry {
 		private final IAcceptScore<PropertyMetaModel<?>> m_acceptor;
 
-		private final ILookupFactory<?> m_factory;
+		private final ILookupFactory<?, ?> m_factory;
 
-		public RegEntry(IAcceptScore<PropertyMetaModel<?>> acceptor, ILookupFactory<?> factory) {
+		public RegEntry(IAcceptScore<PropertyMetaModel<?>> acceptor, ILookupFactory<?, ?> factory) {
 			m_acceptor = acceptor;
 			m_factory = factory;
 		}
@@ -36,7 +36,7 @@ public class LookupControlRegistry2 {
 			return m_acceptor;
 		}
 
-		public ILookupFactory<?> getFactory() {
+		public ILookupFactory<?, ?> getFactory() {
 			return m_factory;
 		}
 	}
@@ -45,12 +45,12 @@ public class LookupControlRegistry2 {
 
 	public LookupControlRegistry2() {
 		//-- Register all default controls
-		register(new DateLookupFactory2(), a -> Date.class.isAssignableFrom(a.getActualType()) ? 10 : 0);
+		register(new DateLookupFactory2<>(), a -> Date.class.isAssignableFrom(a.getActualType()) ? 10 : 0);
 		register(new EnumAndBoolLookupFactory2<>(), LookupControlRegistry2::scoreEnumerable);
-		register(new NumberLookupFactory2(), pmm -> DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class ? 10 : 0);
-		register(new RelationLookupFactory2<>(), pmm -> pmm.getRelationType() ==  PropertyRelationType.UP ? 10 : 0);
+		register(new NumberLookupFactory2<>(), pmm -> DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class ? 10 : 0);
+		register(new RelationLookupFactory2<>(), pmm -> pmm.getRelationType() == PropertyRelationType.UP ? 10 : 0);
 		register(new RelationComboLookupFactory2<>(), pmm -> pmm.getRelationType() == PropertyRelationType.UP && Constants.COMPONENT_COMBO.equals(pmm.getComponentTypeHint()) ? 10 : 0);
-		register(new StringLookupFactory2<>(), pmm -> 1);			// Accept all
+		register(new StringLookupFactory2<>(), pmm -> 1);            // Accept all
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class LookupControlRegistry2 {
 			;
 	}
 
-	public synchronized void register(ILookupFactory<?> factory, IAcceptScore<PropertyMetaModel<?>> acceptor) {
+	public synchronized void register(ILookupFactory<?, ?> factory, IAcceptScore<PropertyMetaModel<?>> acceptor) {
 		ArrayList<RegEntry> list = new ArrayList<>(m_list);
 		list.add(new RegEntry(acceptor, factory));
 		m_list = list;
@@ -74,9 +74,9 @@ public class LookupControlRegistry2 {
 	}
 
 	@Nullable
-	public ILookupFactory<?> findFactory(SearchPropertyMetaModel spm) {
-		PropertyMetaModel< ? > pmm = spm.getProperty();
-		ILookupFactory<?> best = null;
+	public ILookupFactory<?, ?> findFactory(SearchPropertyMetaModel spm) {
+		PropertyMetaModel<?> pmm = spm.getProperty();
+		ILookupFactory<?, ?> best = null;
 		int bestScore = -1;
 		for(RegEntry re : getList()) {
 			int score = re.getAcceptor().score(pmm);
@@ -91,11 +91,11 @@ public class LookupControlRegistry2 {
 	}
 
 	@Nullable
-	public FactoryPair<?> findControlPair(SearchPropertyMetaModel spm) {
-		ILookupFactory<?> factory = findFactory(spm);
+	public FactoryPair<?, ?> findControlPair(SearchPropertyMetaModel spm) {
+		ILookupFactory<?, ?> factory = findFactory(spm);
 		if(null == factory)
 			return null;
-		FactoryPair<?> controlPair = factory.createControl(spm);
+		FactoryPair<?, ?> controlPair = factory.createControl(spm);
 		return controlPair;
 	}
 }

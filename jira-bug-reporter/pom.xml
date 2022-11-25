@@ -32,10 +32,10 @@
 			<name>Atlassian repo</name>
 			<url>https://packages.atlassian.com/maven-public/</url>
 		</repository>
-		<repository>
-			<id>spring-crap</id>
-			<url>http://repo.spring.io/plugins-release/</url>
-		</repository>
+<!--		<repository>-->
+<!--			<id>spring-crap</id>-->
+<!--			<url>http://repo.spring.io/plugins-release/</url>-->
+<!--		</repository>-->
 	</repositories>
 
 	<dependencies>

@@ -35,6 +35,7 @@ import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.tbl.BasicRowRenderer;
+import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component.tbl.ITruncateableDataModel;
@@ -147,7 +148,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		if(getKeywordLookupPropertyList() != null)
 			return true;
 		List<SearchPropertyMetaModel> spml = getQueryMetaModel().getKeyWordSearchProperties();
-		return spml.size() > 0;
+		return !spml.isEmpty();
 	}
 
 	/**
@@ -207,7 +208,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 */
 	@Nullable
 	private ITableModel<OT> searchKeyWord(@Nullable String searchString) throws Exception {
-		if(searchString == null || searchString.trim().length() == 0) {
+		if(searchString == null || searchString.trim().isEmpty()) {
 			return null;
 		}
 		IStringQueryFactory<QT> ksh = getStringQueryFactory();
@@ -270,6 +271,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		if(null == po) {
 			po = createPopupOpener();
 		}
+
 		Dialog floater = m_floater = po.createDialog(this, initialModel, () -> m_floater = null);
 		floater.setCssClass("ui-lui2-dlg");
 		floater.modal();
@@ -304,7 +306,12 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	@NonNull
 	private IPopupOpener createPopupOpener() {
-		return new DefaultPopupOpener();
+		DefaultPopupOpener<QT, OT> po = new DefaultPopupOpener<>();
+		IClickableRowRenderer<OT> rr = getFormRowRenderer();
+		if(null != rr) {
+			po.setFormRowRenderer(rr);
+		}
+		return po;
 	}
 
 	/*--------------------------------------------------------------*/

@@ -402,7 +402,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	}
 
 	private void	unbindAll() {
-		if(m_attributeMap.size() == 0)
+		if(m_attributeMap.isEmpty())
 			return;
 		for(String name: m_attributeMap.keySet()) {
 			Object value = m_attributeMap.get(name);

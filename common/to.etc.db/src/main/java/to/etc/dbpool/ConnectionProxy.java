@@ -359,7 +359,7 @@ final public class ConnectionProxy implements Connection {
 		getPool().writeSpecial(this, StatementProxy.ST_COMMIT);
 
 		//-- Call all listeners, abort on 1st error
-		if(m_commitListenerList.size() == 0) // Fast exit if nothing is registered
+		if(m_commitListenerList.isEmpty()) // Fast exit if nothing is registered
 			return;
 
 		for(IDatabaseEventListener icl : m_commitListenerList) {
@@ -471,7 +471,7 @@ final public class ConnectionProxy implements Connection {
 	 * <h2>Determining hang state</h2>
 	 * <p>Unpooled connections have their hang state checked using a staggered time interval. They
 	 * are never cleared unless we are in "urgent" mode.
-	 * 
+	 *
 	 * <p>Longliving connections are not checked using staggered time interval. They
 	 * are never cleared unless we are in "urgent" mode.
 	 *
@@ -483,7 +483,7 @@ final public class ConnectionProxy implements Connection {
 		synchronized(this) {
 			if(m_state != ConnState.OPEN) // Already closed or invalidated?
 				return;
-			
+
 			if(m_longliving) {
 				return;
 			}
@@ -638,7 +638,7 @@ final public class ConnectionProxy implements Connection {
 	 * @param c
 	 */
 	public void removeCommitListener(@NonNull IDatabaseEventListener c) {
-		if(m_commitListenerList.size() == 0)
+		if(m_commitListenerList.isEmpty())
 			return;
 		m_commitListenerList.remove(c);
 	}

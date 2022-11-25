@@ -25,6 +25,9 @@ div.ui-dt {
 
 .ui-dt {
 	font-size: $data_tbl_font_size;
+	.ui-button {
+		font-size: $data_tbl_font_size !important;
+	}
 	/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
 }
 

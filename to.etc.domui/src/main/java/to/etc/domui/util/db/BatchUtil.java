@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 
 final public class BatchUtil {
 
-	private BatchUtil() {}
+	private BatchUtil() {
+	}
 
 	/**
 	 * Does bulk delete using JDBC.
 	 * Use it when performance matters ;)
-	 * @throws SQLException
 	 */
-	public static <K extends Number, T extends IIdentifyable<K>> boolean bulkDelete(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items) throws SQLException {
+	public static <K, T extends IIdentifyable<K>> int bulkDelete(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items) throws SQLException {
 		List<K> ids = items.stream().map(it -> it.getSafeId()).collect(Collectors.toList());
 		return bulkDelete(con, cmm, false, ids);
 	}
@@ -34,11 +34,10 @@ final public class BatchUtil {
 	 * In case that 'except' is T, it deletes 'all other' records -> that can throw exception in case that specified list of 'except' ids is too large -> depends on database.
 	 * Otherwise it deletes specified records using smaller chunks of records, so it is safe regarding database limits in statement length.
 	 * Use it when performance matters ;)
-	 * @throws SQLException
 	 */
-	public static <K> boolean bulkDelete(@NonNull Connection con, ClassMetaModel cmm, boolean except, @NonNull List<K> ids) throws SQLException {
+	public static <K> int bulkDelete(@NonNull Connection con, ClassMetaModel cmm, boolean except, @NonNull List<K> ids) throws SQLException {
 		if(ids.isEmpty() && !except) {
-			return false;
+			return 0;
 		}
 		final PropertyMetaModel<?> pkPmm = cmm.getPrimaryKey();
 		if(null == pkPmm) {
@@ -49,20 +48,22 @@ final public class BatchUtil {
 			throw new IllegalArgumentException("Table: " + cmm.getTableName() + " has composite PK: " + pkCols + ". Composite PK is not supported!");
 		}
 		String pkCol = pkCols[0];
-		int chunkSize = except ? ids.size() : 1000;
-		boolean result = true;
-		for(List<K> idsChunk: Iterables.partition(ids, chunkSize)) {
+		int maxChunk = pkPmm.getActualType().isAssignableFrom(String.class)
+			? 100
+			: 1000;
+		int chunkSize = except ? ids.size() : maxChunk;
+		int result = 0;
+		for(List<K> idsChunk : Iterables.partition(ids, chunkSize)) {
 			String idsPlaceholders = idsChunk.stream().map(it -> "?").collect(Collectors.joining(","));
 			Object[] idsValues = idsChunk.toArray(new Object[idsChunk.size()]);
 			String notPart = except ? "not " : "";
-			result = result && JdbcUtil.executeStatement(con, "delete from " + cmm.getTableName() + " where " + notPart + pkCol + " in (" + idsPlaceholders + ")", idsValues);
+			result = result + JdbcUtil.executeUpdate(con, "delete from " + cmm.getTableName() + " where " + notPart + pkCol + " in (" + idsPlaceholders + ")", idsValues);
 		}
 		return result;
 	}
 
 	/**
 	 * Does bulk insert using JDBC. Use it when performance matters ;)
-	 * @throws Exception
 	 */
 	public static <K, T extends IIdentifyable<K>> int bulkInsert(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items, QField<T, ?>... fields) throws Exception {
 		if(items.isEmpty()) {
@@ -75,13 +76,13 @@ final public class BatchUtil {
 		String params = Arrays.stream(props).map(it -> "?").collect(Collectors.joining(","));
 		String sql = "insert into " + cmm.getTableName() + " (" + insertColumns + ") values (" + params + ")";
 		int inserted = 0;
-		try(PreparedStatement ps = con.prepareStatement(sql)){
+		try(PreparedStatement ps = con.prepareStatement(sql)) {
 			for(List<T> chunk : Iterables.partition(items, 10000)) {
-				for(T item: chunk) {
+				for(T item : chunk) {
 					for(int index = 0; index < props.length; index++) {
 						Object value = props[index].getValue(item);
 						if(value instanceof IIdentifyable<?>) {
-							value = ((IIdentifyable<?>)value).getId();
+							value = ((IIdentifyable<?>) value).getId();
 						}
 						JdbcUtil.setParameter(ps, value, index + 1);
 					}

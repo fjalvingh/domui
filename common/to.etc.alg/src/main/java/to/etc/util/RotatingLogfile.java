@@ -41,14 +41,20 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class RotatingLogfile extends StandardLogfile {
-	/** The last time a rotate check was done. */
-	private long				m_check_ts;
+	/**
+	 * The last time a rotate check was done.
+	 */
+	private long m_check_ts;
 
-	/** The #of days a logfile must be kept. */
-	private int					m_log_days	= 7;
+	/**
+	 * The #of days a logfile must be kept.
+	 */
+	private int m_log_days = 7;
 
-	/** The current logfile's date/time stamp, */
-	private GregorianCalendar	m_currfile_cal;
+	/**
+	 * The current logfile's date/time stamp,
+	 */
+	private GregorianCalendar m_currfile_cal;
 
 	public RotatingLogfile() {
 	}
@@ -73,8 +79,7 @@ public class RotatingLogfile extends StandardLogfile {
 		GregorianCalendar cal = new GregorianCalendar();
 		File path = null;
 		File f = null;
-		if(getOutWriter() != null) // ARE we currently open?
-		{
+		if(getOutWriter() != null) {
 			if(cal.get(Calendar.DAY_OF_YEAR) == m_currfile_cal.get(Calendar.DAY_OF_YEAR))
 				return getOutWriter() != null ? d : null; // On same day still-> exit
 
@@ -83,7 +88,7 @@ public class RotatingLogfile extends StandardLogfile {
 			GregorianCalendar cold = (GregorianCalendar) cal.clone();
 			cold.add(Calendar.DATE, -m_log_days); // Get (7) days earlier.
 			f = makeCalendarFile(cold); // Make a filename from that,
-			f.delete(); // And drop it;
+			FileTool.delete(f); 				// And drop it;
 
 			//-- Now: start a new file..
 			getOutWriter().println("\n\n********************* Log rotation ******************************");
@@ -108,7 +113,6 @@ public class RotatingLogfile extends StandardLogfile {
 		}
 		return null;
 	}
-
 
 	/**
 	 * Creates a new filename from the filename pattern.

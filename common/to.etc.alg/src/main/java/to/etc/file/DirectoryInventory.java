@@ -113,7 +113,6 @@ final public class DirectoryInventory implements Serializable {
 
 	private long m_totalBytes;
 
-	@NonNull
 	private InvEntry m_root;
 
 	private long m_creationTime;
@@ -131,9 +130,6 @@ final public class DirectoryInventory implements Serializable {
 
 	/**
 	 * Create an inventory for the specified directory by scanning and reading all files.
-	 * @param src
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	static public DirectoryInventory create(@NonNull File src) throws Exception {

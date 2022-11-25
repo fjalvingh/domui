@@ -26,13 +26,13 @@ package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConvertable;
 import to.etc.domui.converter.IConverter;
+import to.etc.domui.converter.NumericUtil;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
@@ -50,9 +50,9 @@ import to.etc.webapp.nls.NlsContext;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvertable<T>, ITypedControl<T> {
-	@NonNull
-	private Class<T> m_valueClass;
+public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvertable<T> {
+	//@NonNull
+	//private Class<T> m_valueClass;
 
 	@Nullable
 	private T m_value;
@@ -68,34 +68,43 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	@Nullable
 	private String m_emptyString;
 
+	public DisplaySpan() {}
+
+	public DisplaySpan(PropertyMetaModel<T> pmm) {
+		defineFrom(pmm);
+	}
+
+	public DisplaySpan(PropertyMetaModel<T> pmm, @Nullable T value) {
+		defineFrom(pmm);
+		m_value = value;
+	}
+
+
 	public DisplaySpan(@NonNull Class<T> valueClass) {
 		this(valueClass, null);
 	}
 
-	/**
-	 * @param valueClass
-	 * @param value
-	 */
 	public DisplaySpan(@NonNull Class<T> valueClass, @Nullable T value) {
-		m_valueClass = valueClass;
+		//m_valueClass = valueClass;
 		m_value = value;
 	}
 
-	public DisplaySpan(@NonNull T literal) {
-		m_valueClass = (Class<T>) literal.getClass();
+	public DisplaySpan(@Nullable T literal) {
+		//m_valueClass = (Class<T>) literal.getClass();
 		m_value = literal;
 	}
 
-	@NonNull @Override public Class<T> getActualType() {
-		return m_valueClass;
-	}
+	//@NonNull
+	//@Override
+	//public Class<T> getActualType() {
+	//	return m_valueClass;
+	//}
 
 	/**
 	 * Render the content in some way. It uses the following logic:
 	 * <ul>
 	 *	<li>If the value is null leave the cell with the "empty" value.</li>
 	 * </ul>If a converter is present it MUST convert the value, and it's result is shown.</li>
-	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */
 	@Override
 	public void createContent() throws Exception {
@@ -125,7 +134,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		}
 
 		//-- Getting slightly desperate here... Is there a "default converter" that we can use?
-		IConverter<T> c = ConverterRegistry.findConverter(getActualType()); // This version does return null if nothing is found, not a toString converter.
+		IConverter<T> c = ConverterRegistry.findConverter((Class<T>) val.getClass()); // This version does return null if nothing is found, not a toString converter.
 		if(c != null) {
 			String converted = c.convertObjectToString(NlsContext.getLocale(), val);
 			setString(converted);
@@ -148,7 +157,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		 * will create a toString renderer if all else fails..
 		 */
 		IRenderInto<T> ncr = (IRenderInto<T>) MetaManager.createDefaultComboRenderer(null, cmm);
-		ncr.render( this, val);
+		ncr.render(this, val);
 		if(getChildCount() == 0 && m_emptyString != null)
 			setText(m_emptyString);
 	}
@@ -163,10 +172,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	}
 
 	/**
-	 * See {@link IConvertable#getConverter()}.
 	 * This returns null if no converter has been set. It also returns null if a default converter is used.
-	 *
-	 * @return
 	 */
 	@Override
 	@Nullable
@@ -174,10 +180,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		return m_converter;
 	}
 
-	/**
-	 * See {@link IConvertable#setConverter(IConverter)}.
-	 * @param converter
-	 */
 	@Override
 	public void setConverter(@Nullable IConverter<T> converter) {
 		if(m_renderer != null && converter != null)
@@ -187,7 +189,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 
 	/**
 	 * The content renderer to use. <b>This gets called only if no converter is set</b>.
-	 * @return
 	 */
 	@Nullable
 	public IRenderInto<T> getRenderer() {
@@ -212,22 +213,20 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		m_emptyString = emptyString;
 	}
 
+	private <V extends Number> void setNumericConfig(PropertyMetaModel<V> pmm) {
+		IConverter<V> numericConverter = NumericUtil.createNumericConverter(pmm, pmm.getActualType());
+		setConverter((IConverter<T>) numericConverter);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IDisplayControl interface.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Nullable
 	public T getValue() {
 		return m_value;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.dom.html.IDisplayControl#setValue(java.lang.Object)
-	 */
 	@Override
 	public void setValue(@Nullable T v) {
 		if(DomUtil.isEqual(m_value, v)) {
@@ -238,28 +237,29 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		forceRebuild();
 	}
 
-	public void defineFrom(@NonNull PropertyMetaModel< ? > pmm) {
+	public void defineFrom(@NonNull PropertyMetaModel<T> pmm) {
 		UIControlUtil.configureHint(this, pmm);
+		if(Number.class.isAssignableFrom(pmm.getActualType())) {
+			setNumericConfig((PropertyMetaModel<? extends Number>) pmm);
+		}
 	}
 
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return null;
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IControl implementation.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
-	 */
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IValueChanged<?> getOnValueChanged() {
 		return null;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		//FIXME 20120802 vmijic - currently we prevent exception throwing since it raises lot of issues in pages that are using this code, introduced by switching readonly instances of components by DisplayValue...
 		//throw new UnsupportedOperationException("Display control");
 	}
@@ -275,7 +275,8 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	}
 
 	@Override
-	public void setReadOnly(boolean ro) {}
+	public void setReadOnly(boolean ro) {
+	}
 
 	@Override
 	public boolean isDisabled() {
@@ -288,12 +289,15 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	}
 
 	@Override
-	public void setMandatory(boolean ro) {}
+	public void setMandatory(boolean ro) {
+	}
 
 	@Override
-	public void setDisabled(boolean d) {}
+	public void setDisabled(boolean d) {
+	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 }

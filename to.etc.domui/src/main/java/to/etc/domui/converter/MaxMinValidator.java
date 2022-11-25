@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.nls.NlsContext;
 
 import java.math.BigDecimal;
@@ -51,8 +52,6 @@ public class MaxMinValidator implements IParameterizedValidator<Number> {
 
 	/**
 	 * Create a validator comparing to these INCLUSIVE bounds.
-	 * @param max
-	 * @param min
 	 * @param msg If specified this error message will be shown, otherwise default error message is shown.
 	 */
 	public MaxMinValidator(@NonNull Number min, @NonNull Number max, @Nullable UIMessage msg) {
@@ -63,8 +62,6 @@ public class MaxMinValidator implements IParameterizedValidator<Number> {
 
 	/**
 	 * Create a validator comparing to these INCLUSIVE bounds.
-	 * @param max
-	 * @param min
 	 */
 	public MaxMinValidator(@NonNull Number min, @NonNull Number max) {
 		this(min, max, null);
@@ -73,32 +70,33 @@ public class MaxMinValidator implements IParameterizedValidator<Number> {
 	/**
 	 * Sigh. Of course Number does not implement Comparable, because that would
 	 * be useful.
+	 *
 	 * @see to.etc.domui.converter.IValueValidator#validate(java.lang.Object)
 	 */
 	@Override
 	public void validate(Number input) throws Exception {
-		Class< ? > ac = input.getClass();
-		if(m_max.getClass() == ac && m_min.getClass() == ac && input instanceof Comparable< ? >) {
+		Class<?> ac = input.getClass();
+		if(m_max.getClass() == ac && m_min.getClass() == ac && input instanceof Comparable<?>) {
 			int r = ((Comparable<Number>) input).compareTo(m_min);
 			if(r < 0) {
-				throwError(Msgs.V_TOOSMALL, m_min);
+				throwError(Msgs.vTooSmall, m_min);
 			}
 			r = ((Comparable<Number>) input).compareTo(m_max);
 			if(r > 0) {
-				throwError(Msgs.V_TOOLARGE, m_max);
+				throwError(Msgs.vTooLarge, m_max);
 			}
 		} else {
 			if(input.doubleValue() > m_max.doubleValue())
-				throwError(Msgs.V_TOOLARGE, m_max);
+				throwError(Msgs.vTooLarge, m_max);
 			if(input.doubleValue() < m_min.doubleValue())
-				throwError(Msgs.V_TOOSMALL, m_min);
+				throwError(Msgs.vTooSmall, m_min);
 		}
 	}
 
-	private void throwError(@NonNull String code, @NonNull Number val) {
+	private void throwError(@NonNull IBundleCode code, @NonNull Number val) {
 		UIMessage msg = m_msg;
 		if(msg != null) {
-			throw new ValidationException(msg.getBundle(), msg.getCode(), msg.getParameters());
+			throw new ValidationException(msg);
 		} else {
 			throw new ValidationException(code, NumberFormat.getInstance(NlsContext.getLocale()).format(val));
 		}

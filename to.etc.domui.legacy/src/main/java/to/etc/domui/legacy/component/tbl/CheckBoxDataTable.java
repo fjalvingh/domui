@@ -210,7 +210,7 @@ public class CheckBoxDataTable<T> extends DataTableOld<T> {
 	}
 
 	public void deselectAll() throws Exception {
-		boolean notifyChange = m_selectedRows.size() > 0;
+		boolean notifyChange = !m_selectedRows.isEmpty();
 		if(m_selectedRows != Collections.EMPTY_LIST) {
 			m_selectedRows.clear();
 		}

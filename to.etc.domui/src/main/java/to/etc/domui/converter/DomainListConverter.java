@@ -71,6 +71,6 @@ public final class DomainListConverter implements IConverter<Object> {
 			if(v.equalsIgnoreCase(in))
 				return o;
 		}
-		throw new ValidationException(Msgs.V_INVALID, in);
+		throw new ValidationException(Msgs.vInvalid, in);
 	}
 }

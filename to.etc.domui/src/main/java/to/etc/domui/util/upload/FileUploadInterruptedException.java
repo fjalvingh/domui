@@ -9,6 +9,6 @@ import to.etc.domui.util.*;
  */
 final public class FileUploadInterruptedException extends FileUploadException {
 	public FileUploadInterruptedException(Exception x) {
-		super(x, Msgs.BUNDLE, Msgs.UPLOAD_INTERRUPTED);
+		super(x, Msgs.uploadInterrupted);
 	}
 }

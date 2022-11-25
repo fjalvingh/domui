@@ -159,7 +159,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	@Override
 	public <T> T queryOne(final @NonNull QCriteria<T> q) throws Exception {
 		List<T> res = query(q);
-		if(res.size() == 0)
+		if(res.isEmpty())
 			return null;
 		if(res.size() > 1)
 			throw new QTooManyResultsException(q, res.size());
@@ -174,7 +174,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	@Override
 	public Object[] queryOne(final @NonNull QSelection< ? > sel) throws Exception {
 		List<Object[]> res = query(sel);
-		if(res.size() == 0)
+		if(res.isEmpty())
 			return null;
 		if(res.size() > 1)
 			throw new QTooManyResultsException(sel, res.size());

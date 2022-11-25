@@ -50,14 +50,27 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
 		if(searchString.startsWith("$$") && searchString.length() > 2) {
 			String idString = searchString.substring(2);
-			PropertyMetaModel<?> primaryKey = getQueryMetaModel().getPrimaryKey();
-			if(null != primaryKey) {
-				Class<?> pkType = primaryKey.getActualType();
-				Object pk = RuntimeConversions.convertTo(idString, pkType);
-				if(null != pk) {
-					QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
-					searchQuery.eq(primaryKey.getName(), pk);
-					return searchQuery;
+			var splitted = idString.split("=");
+			if(splitted.length == 1) {
+				PropertyMetaModel<?> primaryKey = getQueryMetaModel().getPrimaryKey();
+				if(null != primaryKey) {
+					Class<?> pkType = primaryKey.getActualType();
+					Object pk = RuntimeConversions.convertTo(idString, pkType);
+					if(null != pk) {
+						QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
+						searchQuery.eq(primaryKey.getName(), pk);
+						return searchQuery;
+					}
+				}
+			} else if(splitted.length == 2) {
+				PropertyMetaModel<?> property = getQueryMetaModel().findProperty(splitted[0]);
+				if(property != null) {
+					Object t = RuntimeConversions.convertTo(splitted[1], property.getActualType());
+					if(t != null) {
+						QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
+						searchQuery.eq(property.getName(), t);
+						return searchQuery;
+					}
 				}
 			}
 		}
@@ -69,7 +82,7 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 
 		QRestrictorImpl<QT> r = searchQuery.or();
 		int ncond = 0;
-		if(spml.size() > 0) {
+		if(!spml.isEmpty()) {
 			for(SearchPropertyMetaModel spm : spml) {
 				if(spm.getMinLength() <= searchString.length()) {
 

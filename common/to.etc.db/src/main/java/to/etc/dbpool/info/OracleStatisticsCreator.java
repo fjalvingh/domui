@@ -2,6 +2,7 @@ package to.etc.dbpool.info;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.dbpool.ConnectionProxy;
+import to.etc.dbpool.DbPoolUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,7 +22,9 @@ import java.util.Map;
 final public class OracleStatisticsCreator {
 	static final private String KEY = "OraStatCtx";
 
-	/** When set this switches on session trace for all connections. This is hideously expensive so use in extreme cases only. */
+	/**
+	 * When set this switches on session trace for all connections. This is hideously expensive so use in extreme cases only.
+	 */
 	static private volatile boolean m_enableSessionTrace;
 
 	static private boolean m_allStatistics = System.getProperty("db.extended") != null;
@@ -32,18 +35,19 @@ final public class OracleStatisticsCreator {
 
 	final private Map<ConnectionProxy, Map<MetricsDefinition, DbMetric>> m_storeMap = new HashMap<>();
 
-	static public OracleStatisticsCreator	get(ConnectionProxy px) {
+	static public OracleStatisticsCreator get(ConnectionProxy px) {
 		return px.getPool().getOrCreateAttribute(KEY, () -> new OracleStatisticsCreator());
 	}
 
 	public void enableConnectionStatistics(ConnectionProxy px, String sessionID) throws Exception {
+		DbPoolUtil.sqlCheckNameOnly(sessionID);
 		try(Statement statement = px.createStatement()) {
-			statement.execute("begin dbms_session.set_identifier('"+ sessionID +"'); end;");			// Set session ID
+			statement.execute("begin dbms_session.set_identifier('" + sessionID + "'); end;");            // Set session ID
 			try {
 				try {
 					statement.execute("begin dbms_monitor.client_id_stat_enable('" + sessionID + "'); end;");    // Enable statistics gathering
 				} catch(Exception x) {
-					if(! x.getMessage().contains("ORA-13861")) {			// Statistics collection already enabled -> stale, so remove and retry...
+					if(!x.getMessage().contains("ORA-13861")) {            // Statistics collection already enabled -> stale, so remove and retry...
 						throw x;
 					}
 
@@ -70,6 +74,7 @@ final public class OracleStatisticsCreator {
 	}
 
 	public List<DbMetric> disableConnectionStatistics(ConnectionProxy px, String sessionID) throws Exception {
+		DbPoolUtil.sqlCheckNameOnly(sessionID);
 		Map<MetricsDefinition, DbMetric> map = new HashMap<>();
 		try(PreparedStatement ps = px.prepareStatement("select stat_name, value from v$client_stats where client_identifier = ?")) {
 			ps.setString(1, sessionID);
@@ -93,7 +98,7 @@ final public class OracleStatisticsCreator {
 
 		if(m_allStatistics) {
 			Map<MetricsDefinition, DbMetric> newMap = loadExtendedStatistics(px);
-			if(newMap.size() > 0) {
+			if(!newMap.isEmpty()) {
 				Map<MetricsDefinition, DbMetric> oldMap;
 				synchronized(m_storeMap) {
 					oldMap = m_storeMap.remove(px);
@@ -110,10 +115,6 @@ final public class OracleStatisticsCreator {
 	/**
 	 * This collects all metrics present in newMap, and subtracts whatever the value was in
 	 * oldMap.
-	 *
-	 * @param map
-	 * @param oldMap
-	 * @param newMap
 	 */
 	private void mergeMaps(Map<MetricsDefinition, DbMetric> map, Map<MetricsDefinition, DbMetric> oldMap, Map<MetricsDefinition, DbMetric> newMap) {
 		newMap.forEach((name, metric) -> {
@@ -121,8 +122,8 @@ final public class OracleStatisticsCreator {
 			if(old != null) {
 				double value = metric.getValue() - old.getValue();
 				if(value > 0) {
-					metric.setValue(value);					// Set delta
-					if(! map.containsKey(metric.getDefinition()))
+					metric.setValue(value);                    // Set delta
+					if(!map.containsKey(metric.getDefinition()))
 						map.put(metric.getDefinition(), metric);
 				}
 			}
@@ -131,9 +132,6 @@ final public class OracleStatisticsCreator {
 
 	/**
 	 * Load the data from v$sesstat.
-	 *
-	 * @param cx
-	 * @return
 	 */
 	private Map<MetricsDefinition, DbMetric> loadExtendedStatistics(ConnectionProxy cx) {
 		Map<MetricsDefinition, DbMetric> map = new HashMap<>();
@@ -156,6 +154,7 @@ final public class OracleStatisticsCreator {
 
 	/**
 	 * QD Enable session trace (tkprof file generation) for all session connections.
+	 *
 	 * @param on
 	 */
 	static public void enableSessionTrace(boolean on) {

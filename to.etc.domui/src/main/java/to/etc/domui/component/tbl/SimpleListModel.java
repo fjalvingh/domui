@@ -36,7 +36,10 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 6, 2009
  */
-public class SimpleListModel<T> extends TableListModelBase<T> {
+public class SimpleListModel<T> extends TableListModelBase<T> implements ITruncateableDataModel {
+
+	private boolean m_isTruncated;
+
 	private List<T> m_list;
 
 	public SimpleListModel(List<T> list) {
@@ -46,5 +49,14 @@ public class SimpleListModel<T> extends TableListModelBase<T> {
 	@Override
 	public List<T> getList() {
 		return m_list;
+	}
+
+	@Override
+	public boolean isTruncated() {
+		return m_isTruncated;
+	}
+
+	public void setTruncated(boolean truncated) {
+		m_isTruncated = truncated;
 	}
 }

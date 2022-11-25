@@ -26,11 +26,9 @@ import to.etc.xml.DomTools;
 
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
@@ -263,7 +261,7 @@ abstract public class AbstractGenerator {
 	 * For every data class, check whether it could be served by having a base class.
 	 */
 	private void assignBaseClasses() {
-		if(getBaseClasses().size() == 0 || isSkipBaseClasses())
+		if(getBaseClasses().isEmpty() || isSkipBaseClasses())
 			return;
 
 		for(ClassWrapper cw : getTableClasses()) {
@@ -288,7 +286,7 @@ abstract public class AbstractGenerator {
 
 		Source source = new DOMSource(m_configDocument);
 		StreamResult result = new StreamResult(new OutputStreamWriter(new FileOutputStream(m_configFile), "utf-8"));
-		Transformer xformer = TransformerFactory.newInstance().newTransformer();
+		Transformer xformer = DomTools.createTransformer();
 		xformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		xformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		xformer.transform(source, result);
@@ -321,8 +319,7 @@ abstract public class AbstractGenerator {
 			m_configDocument = DomTools.getDocument(m_configFile, false);
 			m_configRoot = DomTools.getRootElement(m_configDocument);
 		} else {
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			DocumentBuilder docBuilder = DomTools.createDocumentBuilderInstance();
 			Document xmlDoc = m_configDocument = docBuilder.newDocument();
 
 			m_configRoot = xmlDoc.createElement("config");
@@ -429,7 +426,7 @@ abstract public class AbstractGenerator {
 	}
 
 	protected boolean isTableAllowed(ClassWrapper wrapper) {
-		if(m_onlyTables == null || m_onlyTables.size() == 0)
+		if(m_onlyTables == null || m_onlyTables.isEmpty())
 			return true;
 
 		for(String onlyTable : m_onlyTables) {
@@ -460,13 +457,12 @@ abstract public class AbstractGenerator {
 	private boolean isIgnoredTable(DbTable tbl) {
 		if(m_ignoreTableSet.contains(tbl.getName().toLowerCase()))
 			return true;
-		return m_ignoreTableSet.contains(tbl.getSchema().getName().toLowerCase() + "." + tbl.getName().toLowerCase());
+		return m_ignoreTableSet.contains(tbl.getSchema().qualifyName(tbl.getName()).toLowerCase());
 
 	}
 
 	/**
 	 * Walk all tables, and create java sources for all of them that are missing.
-	 * @throws Exception
 	 */
 	private void matchTablesAndSources() throws Exception {
 		Set<ClassWrapper> deleteSet = new HashSet<>(getTableClasses());
@@ -475,7 +471,7 @@ abstract public class AbstractGenerator {
 			if(isIgnoredTable(dbTable))
 				continue;
 
-			if(dbTable.getColumnList().size() == 0) {
+			if(dbTable.getColumnList().isEmpty()) {
 				error(dbTable + ": table without columns is idiocy, skipping it");
 				continue;
 			}
@@ -719,7 +715,7 @@ abstract public class AbstractGenerator {
 
 	private void recurseSources(File dir, String s) throws Exception {
 		for(File file : dir.listFiles()) {
-			String relPath = s.length() == 0 ? file.getName() : s + "/" + file.getName();
+			String relPath = s.isEmpty() ? file.getName() : s + "/" + file.getName();
 			if(file.isDirectory()) {
 				recurseSources(file, relPath);
 			} else {
@@ -1025,7 +1021,7 @@ abstract public class AbstractGenerator {
 			}
 		}
 
-		if(partialList.size() == 0) {
+		if(partialList.isEmpty()) {
 			return null;
 		} else if(partialList.size() == 1) {
 			return partialList.get(0);
@@ -1073,7 +1069,7 @@ abstract public class AbstractGenerator {
 	public void setTableConfigProperty(DbTable table, String property, String value) {
 		Node tc = getTableConfig(table);
 		String v = DomTools.strAttr(tc, property, null);
-		if(v == null || v.length() == 0 || v.startsWith("*")) {
+		if(v == null || v.isEmpty() || v.startsWith("*")) {
 			DomTools.setAttr(tc, property, "*" + value);
 		}
 	}
@@ -1086,7 +1082,7 @@ abstract public class AbstractGenerator {
 	static String getOrCreateNodeValue(Node tc, String property) {
 		String v = DomTools.strAttr(tc, property, null);
 		if(null != v) {
-			return v.length() == 0 || v.startsWith("*") ? null : v;
+			return v.isEmpty() || v.startsWith("*") ? null : v;
 		}
 
 		Node value = tc.getOwnerDocument().createAttribute(property);

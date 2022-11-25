@@ -51,5 +51,14 @@ public class ReverserRegistry {
 				return null;
 			}
 		});
+
+		register(new ReverserFactory() {
+			@Override
+			public Reverser createReverser(DataSource dbc, DatabaseMetaData dmd, Set<ReverserOption> optionSet) throws Exception {
+				if(dmd.getDatabaseProductName().toLowerCase().contains("mysql"))
+					return new MysqlReverser(dbc, optionSet);
+				return null;
+			}
+		});
 	}
 }

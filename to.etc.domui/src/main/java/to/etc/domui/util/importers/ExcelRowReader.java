@@ -33,7 +33,7 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-10-17.
  */
-public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImportRow> {
+public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImportRow>, IExcelRowReader {
 	private final ExcelFormat m_format;
 
 	private final Workbook m_workbook;
@@ -69,12 +69,16 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			throw new IOException("Excel format for file extension '" + suffix + "' is not found");
 
 		InputStream is = new FileInputStream(file);
-		m_inputStream = is;
-		m_format = format;
-		m_workbook = openWorkbook();
-
-		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(Locale.US);
-		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
+		try {
+			m_inputStream = is;
+			m_format = format;
+			m_workbook = openWorkbook();
+			DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(Locale.US);
+			m_doubleFormatter = new DecimalFormat("#.#####", dfs);
+			is = null;
+		} finally {
+			FileTool.closeAll(is);
+		}
 	}
 
 	public ExcelRowReader(InputStream is, ExcelFormat format) throws Exception {
@@ -100,11 +104,28 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		m_defaultDateFormat = new SimpleDateFormat(dateFormat);
 	}
 
+	@Override
+	public DateFormat getDateFormat(String dateFormat) {
+		return m_dateFormatMap.computeIfAbsent(dateFormat, a -> {
+			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+			sdf.setLenient(false);
+			return sdf;
+		});
+	}
+
 	@Nullable
-	DateFormat getDefaultDateFormat() {
+	@Override
+	public DateFormat getForceStringDateFormat() {
+		return m_forceStringDateFormat;
+	}
+
+	@Override
+	@Nullable
+	public DateFormat getDefaultDateFormat() {
 		return m_defaultDateFormat;
 	}
 
+	@Override
 	public String convertDouble(double value) {
 		return m_doubleFormatter.format(value);
 	}
@@ -191,7 +212,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			String name = row.get(i).getStringValue();
 			if(null != name) {
 				name = name.trim();
-				if(name.length() == 0)
+				if(name.isEmpty())
 					name = null;
 			}
 			res.add(name);
@@ -238,19 +259,6 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 
 	public int getHeaderRowCount() {
 		return m_headerRowCount;
-	}
-
-	public DateFormat getDateFormat(String dateFormat) {
-		return m_dateFormatMap.computeIfAbsent(dateFormat, a -> {
-			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-			sdf.setLenient(false);
-			return sdf;
-		});
-	}
-
-	@Nullable
-	DateFormat getForceStringDateFormat() {
-		return m_forceStringDateFormat;
 	}
 
 	private class RowIterator implements Iterator<IImportRow> {

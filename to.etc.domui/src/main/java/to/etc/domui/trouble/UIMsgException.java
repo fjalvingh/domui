@@ -2,7 +2,7 @@ package to.etc.domui.trouble;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.errors.MsgType;
-import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.IBundleCode;
 
 /**
  * Special localized exception, that would be shown as MsgBox, by default.
@@ -12,17 +12,16 @@ import to.etc.webapp.nls.BundleRef;
  * Created on Jun 11, 2013
  */
 public class UIMsgException extends UIException {
-	private final @NonNull
-	MsgType m_type;
+	@NonNull
+	private final MsgType m_type;
 
-	public @NonNull
-	MsgType getType() {
-		return m_type;
-	}
-
-	public UIMsgException(@NonNull MsgType type, @NonNull BundleRef bundle, @NonNull String code, Object... parameters) {
-		super(bundle, code, parameters);
+	public UIMsgException(@NonNull MsgType type, @NonNull IBundleCode code, Object... parameters) {
+		super(code, parameters);
 		m_type = type;
 	}
 
+	@NonNull
+	public MsgType getType() {
+		return m_type;
+	}
 }

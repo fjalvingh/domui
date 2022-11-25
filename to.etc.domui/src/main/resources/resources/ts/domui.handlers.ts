@@ -139,23 +139,33 @@ namespace WebUI {
 	let _debugMouseTarget: HTMLElement;
 
 	export function handleDevelopmentMode(): void {
-		$(document).bind("keydown", function (e) {
-			if (e.keyCode != 192)
-				return;
+		// $(document).bind("keypress", function(e) {
+		// 	console.log("keypress", e);
+		// });
 
-			let t = new Date().getTime();
+		$(document).bind("keydown", function (e) {
+			let action = '';
+			// console.log("key: shiftKey=" + e.shiftKey + " ctrl=" + e.ctrlKey + " alt=" + e.altKey + " key=" + e.key);
+
+			if((e.key == '~' || e.key == '`') && e.shiftKey && ! e.altKey && ! e.ctrlKey) {		// Tilde
+				action = 'DEVTREE';
+			} else if((e.key == '~' || e.key == '`') && e.ctrlKey && e.shiftKey && ! e.altKey) {
+				action = 'TESTGEN';
+			} else {
+				_debugLastKeypress = 0;
+				return;
+			}
+
+			var t = new Date().getTime();
 			if (!_debugLastKeypress || (t - _debugLastKeypress) > 250) {
 				_debugLastKeypress = t;
 				return;
 			}
-
-			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
-			let id = WebUI.nearestID(_debugMouseTarget);
+			var id = WebUI.nearestID(_debugMouseTarget);
 			if (!id) {
 				id = document.body.id;
 			}
-
-			WebUI.scall(id, "DEVTREE", {});
+			WebUI.scall(id, action, {});
 		});
 		$(document.body).bind("mousemove", function (e) {
 //			if(WebUI._NOMOVE)
@@ -210,7 +220,20 @@ namespace WebUI {
 		}
 	}
 
+	export function addDropDownPickerKeys(e): void {
+		let KEY = {
+			ESC: 27
+		};
+		let visibleDropDownPicker = $('select.ddp-cmb:visible').first();
+		if(visibleDropDownPicker.size() === 1) {
+			if(e.keyCode === KEY.ESC) {
+				visibleDropDownPicker.blur();
+			}
+		}
+	}
+
 	let _checkLeavePage = false;
+	let _skipLeavePageCheck = false;
 
 	var _lastUrlFragment : string;
 
@@ -282,7 +305,7 @@ namespace WebUI {
 	}
 
 	const beforeUnloadListener = (event) => {
-		if (_checkLeavePage) {
+		if (_checkLeavePage && !_skipLeavePageCheck) {
 			event.preventDefault();
 			return event.returnValue = "Are you sure you want to exit?";
 		} else {
@@ -293,6 +316,10 @@ namespace WebUI {
 
 	export function setCheckLeavePage(v): void {
 		_checkLeavePage = v;
+	}
+
+	export function setSkipLeavePageCheck(v): void {
+		_skipLeavePageCheck = v;
 	}
 }
 

@@ -103,7 +103,7 @@ public class HtmlTextScanner extends TextScanner {
 		}
 
 		//-- Just flush the open tag stack
-		while(m_tagStack.size() > 0) {
+		while(!m_tagStack.isEmpty()) {
 			sb.append("</");
 			sb.append(m_tagStack.remove(m_tagStack.size() - 1));
 			sb.append(">");
@@ -229,7 +229,7 @@ public class HtmlTextScanner extends TextScanner {
 	}
 
 	private boolean popStackIf(String s) {
-		if(m_tagStack.size() == 0)
+		if(m_tagStack.isEmpty())
 			return false;
 		if(m_tagStack.get(m_tagStack.size() - 1).equalsIgnoreCase(s)) {
 			m_tagStack.remove(m_tagStack.size() - 1);
@@ -282,13 +282,13 @@ public class HtmlTextScanner extends TextScanner {
 	 * @param html
 	 */
 	static public void htmlRemoveUnsafe(StringBuilder outsb, String text) {
-		if(text == null || text.length() == 0)
+		if(text == null || text.isEmpty())
 			return;
 		new HtmlTextScanner().scan(outsb, text);
 	}
 
 	static public String htmlRemoveUnsafe(String html) {
-		if(html == null || html.length() == 0)
+		if(html == null || html.isEmpty())
 			return "";
 		StringBuilder sb = new StringBuilder(html.length() + 20);
 		htmlRemoveUnsafe(sb, html);
@@ -296,13 +296,13 @@ public class HtmlTextScanner extends TextScanner {
 	}
 
 	static public void htmlRemoveAll(StringBuilder outsb, String text, boolean lf) {
-		if(text == null || text.length() == 0)
+		if(text == null || text.isEmpty())
 			return;
 		new HtmlTextScanner().scanAndRemove(outsb, text, lf);
 	}
 
 	static public String htmlRemoveAll(String html, boolean lf) {
-		if(html == null || html.length() == 0)
+		if(html == null || html.isEmpty())
 			return "";
 		StringBuilder sb = new StringBuilder(html.length() + 20);
 		htmlRemoveAll(sb, html, lf);

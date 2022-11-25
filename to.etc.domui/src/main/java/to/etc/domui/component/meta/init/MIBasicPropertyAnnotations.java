@@ -23,7 +23,8 @@ import java.util.Collection;
  */
 @NonNullByDefault
 public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<DefaultClassMetaModel, DefaultPropertyMetaModel<?>> {
-	@Override public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm, @NonNull DefaultPropertyMetaModel<?> pmm) throws Exception {
+	@Override
+	public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm, @NonNull DefaultPropertyMetaModel<?> pmm) throws Exception {
 		for(Object aobj : pmm.getAnnotations()) {
 			if(aobj instanceof Annotation) {
 				Annotation an = (Annotation) aobj;
@@ -35,7 +36,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 		//-- If we have a private field with the name it can have annotations too (Java sucks, and the idiots that allow this (hibernate, Spring) suck even more).
 		Field field = getPropertyField(pmm);
 		if(null != field) {
-			for (Annotation an : field.getAnnotations()) {
+			for(Annotation an : field.getAnnotations()) {
 				String ana = an.annotationType().getName();
 				decodePropertyAnnotationByName(cmm, pmm, an, ana);
 			}
@@ -52,11 +53,11 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 			throw new IllegalStateException("getActualClass was null on classModel of " + pmm);
 
 		//-- Walk this class and its parent, and find the 1st private field with this name
-		for(;;) {
+		for(; ; ) {
 			try {
 				Field field = clz.getDeclaredField(pmm.getName());
 				return field;
-			} catch (NoSuchFieldException x) {
+			} catch(NoSuchFieldException x) {
 			}
 
 			clz = clz.getSuperclass();
@@ -65,7 +66,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 		}
 	}
 
-	protected void decodePropertyAnnotationByName(DefaultClassMetaModel cmm, DefaultPropertyMetaModel< ? > pmm, Annotation an, String name) {
+	protected void decodePropertyAnnotationByName(DefaultClassMetaModel cmm, DefaultPropertyMetaModel<?> pmm, Annotation an, String name) {
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(pmm, an);
 		} else if("javax.persistence.JoinColumn".equals(name)) {
@@ -115,7 +116,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	 * Generically decode a JPA javax.persistence.Column annotation.
 	 * FIXME Currently only single-column properties are supported.
 	 */
-	protected void decodeJpaColumn(@NonNull DefaultPropertyMetaModel< ? > pmm, @NonNull final Annotation an) {
+	protected void decodeJpaColumn(@NonNull DefaultPropertyMetaModel<?> pmm, @NonNull final Annotation an) {
 		try {
 			/*
 			 * Handle the "length" annotation. As usual, someone with a brain the size of a pea f.cked up the standard. The
@@ -152,7 +153,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	/**
 	 * Generically decode a JPA  javax.persistence.JoinColumn annotation.
 	 */
-	protected void decodeJpaJoinColumn(@NonNull DefaultPropertyMetaModel< ? > pmm, @NonNull final Annotation an) {
+	protected void decodeJpaJoinColumn(@NonNull DefaultPropertyMetaModel<?> pmm, @NonNull final Annotation an) {
 		try {
 			String name = (String) DomUtil.getClassValue(an, "name");
 			if(null == name) {

@@ -289,7 +289,7 @@ class BodyParseException extends ResponseException {
 			param.postProcess = true;
 			const els = [];
 			for(let j = 0; j < cmdNode.childNodes.length; j++)
-				els[j] = createNode(cmdNode.childNodes[j], cdataWrap);
+				els[j] = createNode(cmdNode.childNodes[j], cdataWrap, null);
 			a.push(trimHash[cmd] ? cleanse(els) : els);
 		}
 
@@ -446,10 +446,10 @@ class BodyParseException extends ResponseException {
 		return a;
 	}
 
-	function createNode(node, cdataWrap: string) {
+	function createNode(node, cdataWrap: string, parentXmlNS: string) {
 		const type = node.nodeType;
 		if(type == 1)
-			return createElement(node, cdataWrap);
+			return createElement(node, cdataWrap, parentXmlNS);
 		if(type == 3)
 			return fixTextNode(node.nodeValue);
 		if(type == 4)
@@ -467,50 +467,25 @@ class BodyParseException extends ResponseException {
 		return document.createTextNode(s);
 	}
 
-	function createElement(node, cdataWrap: string) {
-		var e, tag = node.tagName.toLowerCase();
-		// some elements in IE need to be created with attrs inline
-		// if($.browser.msie && !WebUI.isNormalIE9plus()) {
-		// 	var type = node.getAttribute('type');
-		// 	if(tag == 'table'
-		// 		|| type == 'radio'
-		// 		|| type == 'checkbox'
-		// 		|| tag == 'button'
-		// 		|| (tag == 'select' && node
-		// 			.getAttribute('multiple'))) {
-		// 		let xxa;
-		// 		try {
-		// 			xxa = copyAttrs(null, node, true);
-		// 			e = document.createElement('<' + tag + ' '
-		// 				+ xxa + '>');
-		// 		} catch(xx) {
-		// 			alert('err= ' + xx + ', ' + tag + ", " + xxa);
-		// 		}
-		// 	}
-		// }
-		if(!e) {
+	function createElement(node, cdataWrap: string, parentXmlNS: string) {
+		let xmlns = $(node).attr('xmlns');		// Kludge: delta containing svg does not recognize the svg tag as being in the svg namespace, causing it not to be rendered
+		let e;
+		let tag;
+		if(null == xmlns)
+			xmlns = parentXmlNS;
+		if(null != xmlns) {
+			tag = node.tagName;
+			e = document.createElementNS(xmlns, tag);
+		} else {
+			let tag = node.tagName.toLowerCase();
 			e = document.createElement(tag);
-			copyAttrs(e, node, false);
 		}
-
-		// IE fix; colspan must be explicitly set
-		// if($.browser.msie && tag == 'td') {
-		// 	var colspan = node.getAttribute('colspan');
-		// 	if(colspan)
-		// 		e.colSpan = parseInt(colspan);
-		// }
-
-		// IE fix; script tag not allowed to have children
-		// if($.browser.msie && !e.canHaveChildren) {
-		// 	if(node.childNodes.length > 0)
-		// 		e.text = node.text;
-		// } else {
-			for(var i = 0, max = node.childNodes.length; i < max; i++) {
-				var child = createNode(node.childNodes[i], cdataWrap);
-				if(child)
-					e.appendChild(child);
-			}
-		// }
+		copyAttrs(e, node, false);
+		for(var i = 0, max = node.childNodes.length; i < max; i++) {
+			var child = createNode(node.childNodes[i], cdataWrap, xmlns);
+			if(child)
+				e.appendChild(child);
+		}
 		if(/*$.browser.msie || */ $.browser.opera) {
 			if(tag == 'select'
 				|| (tag == 'option' && node
@@ -548,11 +523,12 @@ class BodyParseException extends ResponseException {
 				//alert('domjs eval: '+s);
 				try {
 					eval(s);
-				} catch(ex) {
+				} catch (ex) {
 					alert('domjs_ eval failed: ' + ex + ", js=" + s);
 					throw ex;
 				}
-
+			// } else if(n == 'xmlns') {
+			// 	// Skip
 			} else if(v != "" && dest && (/*$.browser.msie || */ $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
 				try {
 					if(v.indexOf("javascript:") == 0)

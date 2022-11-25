@@ -107,7 +107,7 @@ public class ProblemReporter {
 			@Nullable
 			public Object before(NodeBase n) throws Exception {
 				List<IBinding> bindingList = n.getBindingList();
-				if(null != bindingList && bindingList.size() > 0)
+				if(null != bindingList && !bindingList.isEmpty())
 					bindableNodes.add(n);
 				return null;
 			}
@@ -165,8 +165,8 @@ public class ProblemReporter {
 		//-- Get the errors on all bindings to this component.
 		List<ProblemInstance> all = new ArrayList<>();
 		List<UIMessage> bindingMessageList = collectBindingErrorsFromComponent(newErrorSet, n, all);
-		if(all.size() == 0) {
-			if(bindingMessageList.size() == 0) {
+		if(all.isEmpty()) {
+			if(bindingMessageList.isEmpty()) {
 				if(DEBUG)
 					System.out.println("    er: " + desc(n) + " component error cleared");
 				n.setMessage(null);

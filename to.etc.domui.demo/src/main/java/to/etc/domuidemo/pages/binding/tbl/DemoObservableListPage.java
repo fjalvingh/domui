@@ -83,7 +83,7 @@ public class DemoObservableListPage extends UrlPage {
 	}
 
 	private void deleteAlbum(@NonNull Artist a, @NonNull IObservableList<Album> ol) {
-		if(ol.size() == 0)
+		if(ol.isEmpty())
 			return;
 		int ix = random(ol.size());
 		ol.remove(ix);

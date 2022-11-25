@@ -43,7 +43,7 @@ public class UserEditPage extends BasicPage {
 
 		ButtonBar bb = new ButtonBar();
 		add(bb);
-		bb.addButton("Save", FaIcon.faFloppyO, a -> save()).css("is-primary");
+		bb.addButton("Save", FaIcon.faFloppyDisk, a -> save()).css("is-primary");
 		bb.addBackButton();
 	}
 

@@ -18,6 +18,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
@@ -64,7 +66,7 @@ final public class HibernateChecker {
 
 	private int m_notLazyLoadedFormula;
 
-	private Class< ? > m_currentClass;
+	private Class<?> m_currentClass;
 
 	private PropertyInfo m_currentProperty;
 
@@ -99,11 +101,11 @@ final public class HibernateChecker {
 				}
 			}
 
-			System.out.println("MAPPING " + sb.toString());
+			System.out.println("MAPPING " + sb);
 		}
 	}
 
-	public void enhanceMappings() throws Exception {
+	public void enhanceMappings() {
 		//m_config.buildMappings();
 
 		/*
@@ -111,21 +113,19 @@ final public class HibernateChecker {
 		 * sufficient information to user types (like the property type, sigh). This code prevents us
 		 * from having to set the user type by hand which is one big error time sink.
 		 */
-		Map<String, Class< ? >> exmaps = new HashMap<String, Class< ? >>();
+		Map<String, Class<?>> exmaps = new HashMap<>();
 		m_dupTables = 0;
 		m_badOneToMany = 0;
 		m_badChildType = 0;
 
 		//-- For some reason the hibernate kids only fill config after the session factory has been created. Very unhygienic.
 
-
-		for(Iterator< ? > iter = m_metaData.getEntityBindings().iterator(); iter.hasNext();) {
-			PersistentClass pc = (PersistentClass) iter.next();
+		for(PersistentClass pc : m_metaData.getEntityBindings()) {
 			m_currentClass = pc.getMappedClass();
 			m_currentProperty = null;
 
 			String tn = pc.getTable().getName();
-			Class< ? > xcl = exmaps.get(tn.toLowerCase());
+			Class<?> xcl = exmaps.get(tn.toLowerCase());
 			if(xcl != null) {
 				m_dupTables++;
 				problem(Severity.ERROR, "DUPLICATE TABLE IN HIBERNATE MAPPING: " + tn + " in " + xcl + " and " + pc.getMappedClass());
@@ -144,26 +144,27 @@ final public class HibernateChecker {
 			for(PropertyInfo pi : pilist) {
 				m_currentProperty = pi;
 				Method g = pi.getGetter();
-				if(g != null) {
-					checkOneToMany(g);
-					checkEnumMapping(g);
-					checkDateMapping(g);
-					checkBooleanMapping(g);
-					checkOneToOne(g);
-					checkFormula(g);
-					checkSequenceGenerator(g);
+				if(null != g.getAnnotation(IgnoreHibernateCheck.class)) {
+					continue;
 				}
+				checkOneToMany(g);
+				checkEnumMapping(g);
+				checkDateMapping(g);
+				checkBooleanMapping(g);
+				checkOneToOne(g, pilist);
+				checkFormula(g);
+				checkSequenceGenerator(g);
 			}
 
 			checkDomuiMetadata();
 
-			for(Iterator< ? > iter2 = pc.getPropertyIterator(); iter2.hasNext();) {
+			for(Iterator<?> iter2 = pc.getPropertyIterator(); iter2.hasNext(); ) {
 				Property property = (Property) iter2.next();
 				//				System.out.println("... " + property.getName() + " type " + property.getType().getName());
 				Getter g = property.getGetter(pc.getMappedClass());
 
 				Method method = g.getMethod();
-				Class< ? > actual = null == method ? null : method.getReturnType();
+				Class<?> actual = null == method ? null : method.getReturnType();
 
 				if(property.getType().getName().equals(MappedEnumType.class.getName()) || "nl.itris.viewpoint.db.hibernate.ViewPointMappedEnumType".equals(property.getType().getName())) {
 					//-- Sigh.. Try to obtain the property's actual type from the getter because Hibernate does not have an easy route to it, appearently.
@@ -179,9 +180,9 @@ final public class HibernateChecker {
 				}
 			}
 		}
-		if(m_reportProblems || (! m_allowHibernateSuckySequences && m_hibernateSuckySequences > 0))
+		if(m_reportProblems || (! m_allowHibernateSuckySequences && getHibernateSuckySequences() > 0))
 			report();
-		if(! m_allowHibernateSuckySequences && m_hibernateSuckySequences > 0)
+		if(! m_allowHibernateSuckySequences && getHibernateSuckySequences() > 0)
 			throw new IllegalStateException("Using hibernate sucky sequences! Call HibernateConfigurator.setAllowHibernateSuckySequences() to allow this IF YOU KNOW WHAT YOU ARE DOING");
 	}
 
@@ -195,13 +196,35 @@ final public class HibernateChecker {
 		}
 	}
 
-	private void checkOneToOne(Method g) {
+	private void checkOneToOne(Method g, List<PropertyInfo> props) {
 		OneToOne annotation = g.getAnnotation(OneToOne.class);
 		if(null == annotation)
 			return;
+
 		if(annotation.optional() && annotation.fetch() == FetchType.LAZY) {
-			problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY does eager fetching, causing big performance trouble");
-			m_badOneToOne++;
+			PropertyInfo idProp = props.stream().filter(it -> null != it.getGetter().getAnnotation(Id.class)).findFirst().orElse(null);
+			if(null == idProp) {
+				problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY is used in class that has no @Id property!?");
+				m_badOneToOne++;
+				return;
+			}
+			JoinColumn joinColumnAnnotation = g.getAnnotation(JoinColumn.class);
+			if(null == joinColumnAnnotation) {
+				problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY is used without @JoinColumn!?");
+				m_badOneToOne++;
+				return;
+			}
+			Column idColumnAnnotation = idProp.getGetter().getAnnotation(Column.class);
+			if(null == idColumnAnnotation) {
+				problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY is used with @Id property without @Column!?");
+				m_badOneToOne++;
+				return;
+			}
+
+			if(joinColumnAnnotation.name().equals(idColumnAnnotation.name())) {
+				problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY, and uses shared id column '" + joinColumnAnnotation.name() + "' does eager fetching, causing big performance trouble!");
+				m_badOneToOne++;
+			}
 		}
 	}
 
@@ -218,7 +241,6 @@ final public class HibernateChecker {
 
 	/**
 	 * boolean columns cannot be mapped to Boolean but must be mapped to boolean with a proper @Type.
-	 * @param g
 	 */
 	private void checkBooleanMapping(Method g) {
 		if(Boolean.class.isAssignableFrom(g.getReturnType())) {
@@ -271,12 +293,11 @@ final public class HibernateChecker {
 
 	/**
 	 * OneToMany: must have mappedBy, cannot have JoinColumn, must have List<T> resultType.
-	 * @param g
 	 */
 	private void checkOneToMany(Method g) {
 		javax.persistence.OneToMany o2m = g.getAnnotation(javax.persistence.OneToMany.class);
 		if(o2m != null) {
-			if(o2m.mappedBy().length() == 0) {
+			if(o2m.mappedBy().isEmpty()) {
 				m_badOneToMany++;
 				problem(Severity.ERROR, "Missing 'mappedBy' in @OneToMany annotation- REPLACE WITH mappedBy and parent property in child class");
 			}
@@ -306,7 +327,6 @@ final public class HibernateChecker {
 
 	/**
 	 * Date columns must be that, must have a proper @DateType
-	 * @param g
 	 */
 	private void checkDateMapping(Method g) {
 		if(Date.class.isAssignableFrom(g.getReturnType())) {
@@ -328,7 +348,6 @@ final public class HibernateChecker {
 
 	/**
 	 * Enums must be mapped as String, not ORDINAL.
-	 * @param g
 	 */
 	private void checkEnumMapping(Method g) {
 		if(Enum.class.isAssignableFrom(g.getReturnType())) {		// Is type enum?
@@ -356,39 +375,38 @@ final public class HibernateChecker {
 			m_currentProperty = null;
 			ClassMetaModel cmm = MetaManager.findClassMeta(m_currentClass);
 		} catch(Exception x) {
-			problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x.toString());
+			problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x);
 			x.printStackTrace();
 			m_domuiMetaFatals++;
 		}
 	}
 
 	public void report() {
-		if(getBadOneToMany() > 0)
-			System.out.println("MAPPING: " + getBadOneToMany() + " bad @OneToMany mappings with missing mappedBy");
-		if(getBadManyToOne() > 0)
-			System.out.println("MAPPING: " + getBadManyToOne() + " bad @ManyToOne mappings (fetch eager)");
-		if(getBadChildType() > 0)
-			System.out.println("MAPPING: " + getBadChildType() + " bad @OneToMany mappings with non-List<T> type");
-		if(getBadJoinColumn() > 0)
-			System.out.println("MAPPING: " + getBadJoinColumn() + " bad @OneToMany mappings with @JoinColumn");
-		if(getDupTables() > 0)
-			System.out.println("MAPPING: " + getDupTables() + " duplicate tables");
-		if(getEnumErrors() > 0)
-			System.out.println("MAPPING: " + getEnumErrors() + " enum's mapped as ORDINAL or missing @Enumerated annotation");
-		if(getDateErrors() > 0)
-			System.out.println("MAPPING: " + getDateErrors() + " date field without proper @Temporal annotation or of the wrong date type");
-		if(getMissingEntity() > 0)
-			System.out.println("MAPPING: " + getMissingEntity() + " classes missing an @Entity annotation");
-		if(getBadBooleans() > 0)
-			System.out.println("MAPPING: " + getBadBooleans() + " bad Boolean/boolean mappings");
-		if(getMissingColumn() > 0)
-			System.out.println("MAPPING: " + getMissingColumn() + " properties with a missing @Column annotation");
-		if(getDomuiMetaFatals() > 0)
-			System.out.println("MAPPING: " + getDomuiMetaFatals() + " fatal DomUI metamodel errors - must be fixed now.");
-		if(getBadOneToOne() > 0)
-			System.out.println("MAPPING: " + getBadOneToOne() + " bad @OneToOne mapping errors - must be fixed now");
-		if(getNotLazyLoadedFormula() > 0)
-			System.out.println("MAPPING: " + getNotLazyLoadedFormula() + " bad @Formula lazy loading, missing @Basic(fetch=FetchType.LAZY) - must be fixed now");
+		boolean hasIssues;
+		hasIssues = reportIssues(getBadOneToMany(), "bad @OneToMany mappings with missing mappedBy");
+		hasIssues = reportIssues(getBadManyToOne(), "bad @ManyToOne mappings (fetch eager)") || hasIssues;
+		hasIssues = reportIssues(getBadChildType(), "bad @OneToMany mappings with non-List<T> type") || hasIssues;
+		hasIssues = reportIssues(getBadJoinColumn(), "bad @OneToMany mappings with @JoinColumn") || hasIssues;
+		hasIssues = reportIssues(getDupTables(), "duplicate tables") || hasIssues;
+		hasIssues = reportIssues(getEnumErrors(), "enum's mapped as ORDINAL or missing @Enumerated annotation") || hasIssues;
+		hasIssues = reportIssues(getDateErrors(), "date field without proper @Temporal annotation or of the wrong date type") || hasIssues;
+		hasIssues = reportIssues(getMissingEntity(), "classes missing an @Entity annotation") || hasIssues;
+		hasIssues = reportIssues(getBadBooleans(), "bad Boolean/boolean mappings") || hasIssues;
+		hasIssues = reportIssues(getMissingColumn(), "properties with a missing @Column annotation") || hasIssues;
+		hasIssues = reportIssues(getDomuiMetaFatals(), "fatal DomUI metamodel errors - must be fixed now.") || hasIssues;
+		hasIssues = reportIssues(getBadOneToOne(), "bad @OneToOne mapping errors - must be fixed now") || hasIssues;
+		hasIssues = reportIssues(getNotLazyLoadedFormula(), "bad @Formula lazy loading, missing @Basic(fetch=FetchType.LAZY) - must be fixed now") || hasIssues;
+		if(!hasIssues) {
+			System.out.println("HibernateChecker found no issues :)");
+		}
+	}
+
+	private boolean reportIssues(int issuesCount, String msg) {
+		if(issuesCount > 0) {
+			System.out.println("MAPPING: " + issuesCount + " " + msg);
+			return true;
+		}
+		return false;
 	}
 
 	public int getDomuiMetaFatals() {

@@ -62,11 +62,12 @@ import to.etc.domui.util.IDragHandler;
 import to.etc.domui.util.IDraggable;
 import to.etc.domui.util.IDropHandler;
 import to.etc.domui.util.IDropTargetable;
-import to.etc.function.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
+import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
@@ -75,6 +76,7 @@ import to.etc.webapp.query.QField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -134,7 +136,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	private NodeContainer m_parent;
 
 	@Nullable
-	private IClickBase< ? > m_clicked;
+	private IClickBase<?> m_clicked;
 
 	private boolean m_built;
 
@@ -253,6 +255,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Private interfaces and code.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * INTERNAL ONLY Set when this node has changed attributes. Does not include child changes.
 	 * @return
@@ -289,12 +292,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		IClickBase<NodeBase> c = (IClickBase<NodeBase>) getClicked();
-		if(c instanceof IClicked< ? >) {
+		if(c instanceof IClicked<?>) {
 			((IClicked<NodeBase>) c).clicked(this);
-		} else if(c instanceof IClicked2< ? >) {
+		} else if(c instanceof IClicked2<?>) {
 			((IClicked2<NodeBase>) c).clicked(this, cli);
 		} else if(c != null) {
-			throw new IllegalStateException("? Node " + this.getActualID() + " does not have a (valid) click handler??");
+			throw new IllegalStateException("? Node " + getActualID() + " does not have a (valid) click handler??");
 		}
 	}
 
@@ -312,7 +315,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		internalSetHasChangedAttributes();
 		NodeContainer p = m_parent;
 		if(p != null)
-			p.childChanged(); 									// Indicate child has changed
+			p.childChanged();                                    // Indicate child has changed
 		super.changed();
 	}
 
@@ -325,7 +328,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		exec.execute();
 		m_disableChanged--;
 	}
-
 
 	/**
 	 * INTERNAL USE ONLY Changes the OLD PARENT pointer. THIS FORCES A "set", and validates the pointer
@@ -367,7 +369,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(keepNode) {
 			m_flags |= F_NOREPLACE;
 		} else {
-			m_flags &= ~ F_NOREPLACE;
+			m_flags &= ~F_NOREPLACE;
 		}
 	}
 
@@ -381,7 +383,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	@NonNull
 	final String nextUniqID() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("__");								// Id MUST start with _, and use __ to ensure id does not overlap with Page#nextId
+		sb.append("__");                                // Id MUST start with _, and use __ to ensure id does not overlap with Page#nextId
 		int id = nextIdNumber();
 		while(id != 0) {
 			int d = id % 36;
@@ -513,6 +515,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Utility functions to work with the 'class' attr.	*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return the full "class" (css class) attribute for this node.
 	 */
@@ -545,7 +548,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 		StringBuilder sb = new StringBuilder(cssClass.length());
 		boolean fnd = false;
-		for(String s: split) {
+		for(String s : split) {
 			if(hasName(names, s)) {
 				fnd = true;
 			} else {
@@ -561,7 +564,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	static private boolean hasName(String[] items, String name) {
-		for(int i = items.length; --i >= 0;) {
+		for(int i = items.length; --i >= 0; ) {
 			if(name.equals(items[i]))
 				return true;
 		}
@@ -582,11 +585,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		String[] names = nameList.split("\\s+");
 
 		String[] split = cssClass.split("\\s+");
-		for(String s: split) {
+		for(String s : split) {
 			for(int i = 0; i < names.length; i++) {
 				String name = names[i];
 				if(s.equals(name)) {
-					names[i] = null;				// Already there
+					names[i] = null;                // Already there
 				}
 			}
 		}
@@ -614,13 +617,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		int pos = cssClass.indexOf(cls);
 		if(pos == -1)
 			return false;
-		return pos == 0 || cssClass.charAt(pos - 1) == ' ';
+		return pos == 0 && (cssClass.length() == cls.length() || cssClass.charAt(cls.length()) == ' ')
+			|| pos > 0 && cssClass.charAt(pos - 1) == ' ' && (cssClass.length() == pos + cls.length() || cssClass.charAt(pos + cls.length()) == ' ');
 	}
 
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Parent node handling.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * FIXME NEED TO BE CHANGED - LOGIC MUST MOVE TO CONTAINER.
 	 * @param parent
@@ -685,7 +690,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(!hasParent())
 			return null;
 		NodeBase c = this;
-		for(;;) {
+		for(; ; ) {
 			if(!c.hasParent())
 				return null;
 			c = c.getParent();
@@ -697,12 +702,19 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Walk the parents upwards to find the closest parent of the given class. The class can be a base class (it is
 	 * not a literal match but an instanceof match). This throws an exception when the parent cannot be found(!).
-	 * @param <T>
-	 * @param clz
-	 * @return
 	 */
 	@NonNull
 	final public <T> T getParent(final Class<T> clz) {
+		T res = findParent(clz);
+		if(null == res)
+			throw new IllegalStateException("This node " + this + " does not have a parent of type=" + clz);
+		return res;
+	}
+
+	@NonNull
+	final public <T> T getParentOrSelf(final Class<T> clz) {
+		if(clz.isAssignableFrom(getClass()))
+			return (T) this;
 		T res = findParent(clz);
 		if(null == res)
 			throw new IllegalStateException("This node " + this + " does not have a parent of type=" + clz);
@@ -716,14 +728,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @return
 	 */
 	@Nullable
-	final public NodeBase getParentOfTypes(final Class< ? extends NodeBase>... clzar) {
+	final public NodeBase getParentOfTypes(final Class<? extends NodeBase>... clzar) {
 		NodeBase c = this;
-		for(;;) {
+		for(; ; ) {
 			if(!c.hasParent())
 				return null;
 			c = c.getParent();
 
-			for(Class< ? > clz : clzar) {
+			for(Class<?> clz : clzar) {
 				if(clz.isAssignableFrom(c.getClass()))
 					return c;
 			}
@@ -734,6 +746,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree manipulation.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Disconnect this node from it's parent. The node can be reconnected to another parent
 	 * afterwards.
@@ -780,6 +793,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Building the node's content.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Not normally called from outside, this forces the node to call createContent if needed (if unbuilt).
 	 * FIXME Should probably become internal.
@@ -846,16 +860,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * This method is a placeholder for NodeContainer which allows it to handle
 	 * framed windows somehow.
 	 */
-	protected void internalCreateFrame() throws Exception {}
+	protected void internalCreateFrame() throws Exception {
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple other getter and setter like stuff.			*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Set the title attribute, using tilde replacement. If the string starts with a ~ it is
 	 * assumed to be a key into the page's resource bundle.
-	 *
-	 * @param title
 	 */
 	public void setTitle(@Nullable final String title) {
 		if(!DomUtil.isEqual(title, m_title))
@@ -864,8 +878,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
+	 * Set the title attribute, using tilde replacement. If the string starts with a ~ it is
+	 * assumed to be a key into the page's resource bundle.
+	 */
+	public void setTitle(@Nullable IBundleCode code, Object... param) {
+		setTitle(code == null ? null : code.format(param));
+	}
+
+	/**
 	 * Returns the title <i>as set</i> verbatim; if it was set using a tilde key this returns the <i>key</i> without resource bundle replacement.
-	 * @return
 	 */
 	@Nullable
 	public String getTitle() {
@@ -879,12 +900,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		changed();
 	}
 
-
 	/**
 	 * Return the click handler for this node, or null if none is associated with it.
 	 */
 	@Nullable
-	public IClickBase< ? > getClicked() {
+	public IClickBase<?> getClicked() {
 		return m_clicked;
 	}
 
@@ -893,7 +913,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * this node and will fire when the node is clicked. If more information around the click is needed
 	 * use {@link #setClicked2(IClicked2)}.
 	 */
-	public void setClicked(@Nullable final IClicked< ? > clicked) {
+	public void setClicked(@Nullable final IClicked<?> clicked) {
 		if(m_clicked == clicked)
 			return;
 		m_clicked = clicked;
@@ -939,6 +959,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/*----------- Test IDs -------------*/
+
 	/**
 	 * When set this causes a "testid" attribute to be rendered on the node. This ID can then be used for selenium tests et al.
 	 */
@@ -982,10 +1003,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		}
 	}
 
-
 	/**
 	 * This can be overridden for items that are supposed to be found for testing.
-	 * @return
 	 */
 	@Nullable
 	protected String getCalculatedTestID() {
@@ -1010,7 +1029,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * EXPERIMENTAL: If this is part of some "repeating" structure this must hold a repeat ID, which is a
 	 * page-unique id for the repeating thing.
-	 * @return
 	 */
 	@NonNull
 	public String getTestRepeatId() {
@@ -1032,7 +1050,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void setTestRepeatID(@NonNull String trid) {
 		m_testRepeatId = trid;
 	}
-
 
 	public String getOnClickJS() {
 		return m_onClickJS;
@@ -1056,6 +1073,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Javascript handling.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This adds a Javascript segment to be executed <b>one time</b>, as soon as the
 	 * current request returns. <b>The code is rendered only once</b>. This should
@@ -1092,7 +1110,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * This js general custom updates contributor callback (custom updares are triggered after any page load or ajax response handling), function gets wrapped around specified js.
 	 * @param jsCallback
 	 */
-	public void appendJsCustomUpdatesContributor(@NonNull String jsCallback){
+	public void appendJsCustomUpdatesContributor(@NonNull String jsCallback) {
 		appendJavascript("WebUI.registerCustomUpdatesContributor(function(){" + jsCallback + "});");
 	}
 
@@ -1101,7 +1119,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * NOTE: This node element needs to be added on page (has to have actualID assigned).
 	 * @param cssSelector
 	 */
-	public void appendShowOverflowTextAsTitleJs(@NonNull String cssSelector){
+	public void appendShowOverflowTextAsTitleJs(@NonNull String cssSelector) {
 		appendJsCustomUpdatesContributor("WebUI.showOverflowTextAsTitle('" + getActualID() + "', '" + cssSelector + "')");
 	}
 
@@ -1179,7 +1197,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		stmt.next();
 	}
 
-
 	/**
 	 * This marks this component as having "changed" javascript state. It will
 	 * cause the node's
@@ -1202,6 +1219,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Generic attribute and event handling.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This is a generic method to add tag add attributes to a tag. It can be used to add
 	 * attributes that are not defined on the HTML class for the node, like "onblur", "testid"
@@ -1268,6 +1286,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getting data from a component from Javascript.		*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return an URL to a data call on this node. The call must be found by the {@link #componentHandleWebDataRequest(RequestContextImpl, String)}
 	 * method, so there should be a handler.
@@ -1329,7 +1348,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * onValueChange handler to be called.
 	 */
 	protected boolean acceptRequestParameter(@NonNull final String[] values) throws Exception {
-		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
+		throw new IllegalStateException("?? The '" + getTag() + "' component (" + getClass() + ") with id=" + m_actualID + " does NOT accept input!");
 	}
 
 	/**
@@ -1343,6 +1362,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getting data from a component.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return an URL to a data stream generator for this component. The component must implement
 	 * {@link IComponentUrlDataProvider} to handle the data request.
@@ -1370,6 +1390,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*
 	 * Explanatory blurb.
 	 */
+
 	/**
 	 * When set this component has an error/warning/info message. A control can have only one
 	 * message associated with it; the most severe error of all message types gets used.
@@ -1403,10 +1424,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return m_errorLocation;
 	}
 
-	public String	getComponentInfo() {
+	public String getComponentInfo() {
 		StringBuilder sb = new StringBuilder();
 		String s = getClass().getName();
-		s = s.substring(s.lastIndexOf('.')+1);
+		s = s.substring(s.lastIndexOf('.') + 1);
 		sb.append(s);
 
 		String el = getErrorLocation();
@@ -1425,7 +1446,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 		if(this instanceof NodeContainer) {
 			String txt = DomUtil.calcNodeText((NodeContainer) this);
-			if(txt.length() > 0)
+			if(!txt.isEmpty())
 				sb.append("/").append(txt);
 		}
 
@@ -1466,11 +1487,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 				msg.setErrorLocation(m_errorLocation);
 			msg.setErrorNode(this);
 		}
-		m_message = msg;										// ORDERED: important!
+		m_message = msg;                                        // ORDERED: important!
 
 		//-- Broadcast the error through the tree
-		if(m_page != null) {									// Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
-			IErrorFence fence = DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
+		if(m_page != null) {                                    // Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+			IErrorFence fence = DomUtil.getMessageFence(this);    // Get the fence that'll handle the message by looking UPWARDS in the tree
 			if(null != old)
 				fence.removeMessage(old);
 			if(null != msg)
@@ -1541,15 +1562,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		fence.removeMessage(m);
 	}
 
+	//public void clearGlobalMessage(final String code) {
+	//	IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
+	//	fence.clearGlobalMessages(code);
+	//}
+
 	/**
 	 * Delete all messages with the specified code (deprecated) or group name (see {@link UIMessage#getGroup()}).
-	 * @param code
 	 */
-	public void clearGlobalMessage(final String code) {
+	public void clearGlobalMessage(IBundleCode code) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(code);
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Internationalization helper methods.				*/
@@ -1566,8 +1590,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * only be used <i>before</i> the message bundle is ever used (any call to $(), findComponentBundle()
 	 * and whatnot). Explicitly setting the bundle to null prevents any bundle lookup, and makes all bundle
 	 * related calls fail.
-	 *
-	 * @param bundle
 	 */
 	final public void setComponentBundle(@Nullable IBundle bundle) {
 		if(0 != (m_flags & F_BUNDLEUSED))
@@ -1604,7 +1626,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	final public IBundle getComponentBundle() {
 		IBundle b = findComponentBundle();
 		if(null == b)
-			throw new IllegalStateException("The component " + this.getClass() + " does not have any message bundle.");
+			throw new IllegalStateException("The component " + getClass() + " does not have any message bundle.");
 		return b;
 	}
 
@@ -1653,13 +1675,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Called when forceRebuild is done on this node.
 	 */
-	protected void onForceRebuild() {}
+	protected void onForceRebuild() {
+	}
 
-	protected void onShelve() throws Exception {}
+	protected void onShelve() throws Exception {
+	}
 
-	protected void onUnshelve() throws Exception {}
+	protected void onUnshelve() throws Exception {
+	}
 
-	protected void onRefresh() throws Exception {}
+	protected void onRefresh() throws Exception {
+	}
 
 	/**
 	 * Will be called just before "full render" starts. It gets called INSIDE the rendering
@@ -1677,29 +1703,37 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * TREE, this should be an internal interface 8-/
 	 * @throws Exception
 	 */
-	public void onBeforeFullRender() throws Exception {}
+	public void onBeforeFullRender() throws Exception {
+	}
 
 	/**
 	 * Called before rendering starts. All "actions" have executed. This executes before {@link #onBeforeFullRender()} and
 	 * is safe to use.
 	 * @throws Exception
 	 */
-	public void onBeforeRender() throws Exception {}
+	public void onBeforeRender() throws Exception {
+	}
 
 	//@OverridingMethodsMustInvokeSuper
-	protected void beforeCreateContent() {}
+	protected void beforeCreateContent() {
+	}
 
-	public void createContent() throws Exception {}
+	public void createContent() throws Exception {
+	}
 
-	protected void afterCreateContent() throws Exception {}
+	protected void afterCreateContent() throws Exception {
+	}
 
 	//@OverridingMethodsMustInvokeSuper
-	public void onAddedToPage(final Page p) {}
+	public void onAddedToPage(final Page p) {
+	}
 
 	//@OverridingMethodsMustInvokeSuper
-	public void onRemoveFromPage(@NonNull Page p) {}
+	public void onRemoveFromPage(@NonNull Page p) {
+	}
 
-	public void onHeaderContributors(final Page page) {}
+	public void onHeaderContributors(final Page page) {
+	}
 
 	public void internalOnBeforeRender() throws Exception {
 		onBeforeRender();
@@ -1708,6 +1742,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle dropping of dnd nodes.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when a drop is done on a DropTarget node. This calls the appropriate handlers on both the
 	 * drop node AND the draggable that was dropped.
@@ -1775,6 +1810,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This returns the default "shared context" for database access.
 	 */
@@ -1837,8 +1873,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public boolean isFocusable() {
 		NodeBase n = this;
 		if(n instanceof IHasChangeListener) { // FIXME Why this 'if'?
-			if(n instanceof IControl< ? >) {
-				IControl< ? > in = (IControl< ? >) n;
+			if(n instanceof IControl<?>) {
+				IControl<?> in = (IControl<?>) n;
 				return !in.isDisabled() && !in.isReadOnly();
 			} else
 				return true;
@@ -1895,7 +1931,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public String toString() {
 		String n = getClass().getName();
 		int pos = n.lastIndexOf('.');
-		return n.substring(pos + 1) + ":" + m_actualID + (m_title == null ? "" : "/" + m_title);
+		List<IBinding> bindingList = m_bindingList;
+		String binding = "";
+		if(bindingList != null && !bindingList.isEmpty()) {
+			binding = " Binding " + bindingList.stream().map(a -> a.toString()).collect(Collectors.joining(";"));
+		}
+		return n.substring(pos + 1)
+			+ ":" + m_actualID
+			+ binding
+			+ (m_title == null ? "" : "/" + m_title);
 	}
 
 	/**
@@ -2005,7 +2049,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Shorthand for binding the "bindValue" (or value) property of a control. This creates
 	 * a bidirectional binding.
 	 */
-	@NonNull final public BindingBuilderBidi<?> bind() {
+	@NonNull
+	final public BindingBuilderBidi<?> bind() {
 		checkBindingCompleted();
 		ClassMetaModel cmm = MetaManager.findClassMeta(getClass());
 		PropertyMetaModel<?> p = cmm.findProperty("bindValue");
@@ -2023,21 +2068,24 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return b;
 	}
 
-	@NonNull final public BindingBuilderUni<?> bind(@NonNull String componentProperty) {
+	@NonNull
+	final public BindingBuilderUni<?> bind(@NonNull String componentProperty) {
 		checkBindingCompleted();
 		BindingBuilderUni<Object> builder = new BindingBuilderUni<>(this, componentProperty);
 		m_currentBindBuilder = builder;
 		return builder;
 	}
 
-	@NonNull final public <V> BindingBuilderUni<V> bind(@NonNull QField<?, V> componentProperty) {
+	@NonNull
+	final public <V> BindingBuilderUni<V> bind(@NonNull QField<?, V> componentProperty) {
 		checkBindingCompleted();
 		BindingBuilderUni<V> builder = new BindingBuilderUni<>(this, componentProperty);
 		m_currentBindBuilder = builder;
 		return builder;
 	}
 
-	@NonNull final public <V> BindingBuilderUni<V> bind(Class<V> valueClass, @NonNull String componentProperty) {
+	@NonNull
+	final public <V> BindingBuilderUni<V> bind(Class<V> valueClass, @NonNull String componentProperty) {
 		checkBindingCompleted();
 		BindingBuilderUni<V> builder = new BindingBuilderUni<>(this, componentProperty);
 		m_currentBindBuilder = builder;
@@ -2053,6 +2101,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Misc														*/
 	/*----------------------------------------------------------------------*/
+
 	/**
 	 * FIXME Should not exist?
 	 * @param result
@@ -2077,7 +2126,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		appendJavascript("try { window.opener.WebUI.notifyPage('" + command + "'); } catch (err) {}");
 	}
 
-	private enum AlignmentType {Top, TopToBottom, Left, Right, Middle}
+	private enum AlignmentType {
+		Top,
+		TopToBottom,
+		Left,
+		Right,
+		Middle
+	}
 
 	/**
 	 * Adds javascript that aligns node top to top of specified node, with applying y offset.
@@ -2086,7 +2141,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 */
-	public void alignToTop(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs){
+	public void alignToTop(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs) {
 		alignToTop(node, yOffset, appendAsCreateJs, false);
 	}
 
@@ -2098,7 +2153,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate top position. This in needed as workaround for fact that, once node update is re-rendered it looses top value inside style attribute.
 	 */
-	public void alignToTop(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+	public void alignToTop(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback) {
 		alignTo(AlignmentType.Top, "WebUI.alignToTop", node, yOffset, appendAsCreateJs, addServerPositionCallback);
 	}
 
@@ -2109,7 +2164,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 */
-	public void alignTopToBottom(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs){
+	public void alignTopToBottom(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs) {
 		alignTopToBottom(node, yOffset, appendAsCreateJs, false);
 	}
 
@@ -2121,7 +2176,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate top position. This in needed as workaround for fact that, once node update is re-rendered it looses top value inside style attribute.
 	 */
-	public void alignTopToBottom(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+	public void alignTopToBottom(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback) {
 		alignTo(AlignmentType.TopToBottom, "WebUI.alignTopToBottom", node, yOffset, appendAsCreateJs, addServerPositionCallback);
 	}
 
@@ -2132,7 +2187,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 */
-	public void alignToLeft(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs){
+	public void alignToLeft(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs) {
 		alignToLeft(node, xOffset, appendAsCreateJs, false);
 	}
 
@@ -2144,7 +2199,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute.
 	 */
-	public void alignToLeft(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+	public void alignToLeft(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback) {
 		alignTo(AlignmentType.Left, "WebUI.alignToLeft", node, xOffset, appendAsCreateJs, addServerPositionCallback);
 	}
 
@@ -2155,7 +2210,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 */
-	public void alignToRight(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs){
+	public void alignToRight(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs) {
 		alignToRight(node, xOffset, appendAsCreateJs, false);
 	}
 
@@ -2167,7 +2222,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute.
 	 */
-	public void alignToRight(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+	public void alignToRight(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback) {
 		alignTo(AlignmentType.Right, "WebUI.alignToRight", node, xOffset, appendAsCreateJs, addServerPositionCallback);
 	}
 
@@ -2178,7 +2233,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 */
-	public void alignToMiddle(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs){
+	public void alignToMiddle(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs) {
 		alignToMiddle(node, xOffset, appendAsCreateJs, false);
 	}
 
@@ -2188,28 +2243,28 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute.
 	 */
-	public void alignToMiddle(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+	public void alignToMiddle(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback) {
 		alignTo(AlignmentType.Middle, "WebUI.alignToMiddle", node, xOffset, appendAsCreateJs, addServerPositionCallback);
 	}
 
-	private void alignTo(final @NonNull AlignmentType alignment, @NonNull String jsFunction, @NonNull NodeBase node, int offset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+	private void alignTo(final @NonNull AlignmentType alignment, @NonNull String jsFunction, @NonNull NodeBase node, int offset, boolean appendAsCreateJs, boolean addServerPositionCallback) {
 		setPosition(PositionType.ABSOLUTE);
 		String id = getActualID();
 		String callbackParam = addServerPositionCallback ? "true" : "false";
 		String js = jsFunction + "('" + id + "', '" + node.getActualID() + "', " + offset + ", " + callbackParam + ");";
-		if (appendAsCreateJs){
+		if(appendAsCreateJs) {
 			appendCreateJS(js);
-		}else{
+		} else {
 			appendJavascript(js);
 		}
-		if (addServerPositionCallback){
-			setOnSizeAndPositionChange(new INotify<NodeBase>(){
+		if(addServerPositionCallback) {
+			setOnSizeAndPositionChange(new INotify<NodeBase>() {
 
 				@Override
 				public void onNotify(NodeBase sender) throws Exception {
 					Rect clientBounds = getClientBounds();
-					if (null != clientBounds){
-						switch (alignment){
+					if(null != clientBounds) {
+						switch(alignment){
 							case Top:
 							case TopToBottom:
 								setTop(clientBounds.getTop());
@@ -2271,7 +2326,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 				int height = Math.round(Float.parseFloat(values[1]));
 				setBrowserWindowSize(new Dimension(width, height));
 			} catch(Exception ex) {
-				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " valueBrowserWindowSize (id='" + getActualID() + "'):" + valueBrowserWindowSize, ex);
+				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " valueBrowserWindowSize (id='" + getActualID() + "'):" + valueBrowserWindowSize,
+					ex);
 			}
 			INotify<NodeBase> listener = getOnSizeAndPositionChange();
 			if(listener != null) {
@@ -2284,7 +2340,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Add the specified css class(es).
 	 */
 	@NonNull
-	public NodeBase css(@NonNull String ...classNames) {
+	public NodeBase css(@NonNull String... classNames) {
 		for(String cn : classNames) {
 			addCssClass(cn);
 		}
@@ -2294,9 +2350,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void setStyleRendered() {
 		m_flags |= F_STYLERENDERED;
 	}
+
 	public boolean isStyleRendered() {
 		return (m_flags & F_STYLERENDERED) != 0;
 	}
+
 	public void clearStyleRendered() {
 		m_flags &= ~F_STYLERENDERED;
 	}

@@ -25,6 +25,7 @@
 package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.webapp.nls.IBundleCode;
 
 @NonNullByDefault
 public class HTag extends NodeContainer {
@@ -37,6 +38,11 @@ public class HTag extends NodeContainer {
 	public HTag(int level, String txt) {
 		this(level);
 		setText(txt);
+	}
+
+	public HTag(int level, IBundleCode code, Object... param) {
+		this(level);
+		setText(code, param);
 	}
 
 	@Override

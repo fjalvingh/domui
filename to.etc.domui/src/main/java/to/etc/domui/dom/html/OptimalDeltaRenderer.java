@@ -35,6 +35,7 @@ import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.header.HeaderContributorEntry;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
+import to.etc.util.DeveloperOptions;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 
@@ -150,7 +151,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 
 		void addChildChange(NodeInfo ch) {
 			if(ch == this)
-				throw new IllegalStateException("?? Adding myself to my own lower list?! " + this.node);
+				throw new IllegalStateException("?? Adding myself to my own lower list?! " + node);
 			if(lowerChanges == Collections.EMPTY_LIST)
 				lowerChanges = new ArrayList<>();
 			lowerChanges.add(ch);
@@ -170,6 +171,11 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		m_html.setRenderMode(HtmlRenderMode.ATTR);
 		m_ctx = ctx;
 		m_page = page;
+	}
+
+	@Override
+	public boolean isXml() {
+		return false;
 	}
 
 	@Override
@@ -209,7 +215,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		//-- 20091127 jal Add header contributors delta rendering
 		//-- This is incomplete: see bug 669
 		List<HeaderContributorEntry> list = m_page.getAddedContributors();
-		if(list.size() > 0) {
+		if(!list.isEmpty()) {
 			Collections.sort(list, HeaderContributor.C_ENTRY);
 
 			o().tag("eval");
@@ -259,11 +265,13 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 
 
 		//-- Handle delayed stuff...
-		int pollinterval = DomApplication.get().calculatePollInterval(m_page.getConversation().isPollCallbackRequired());
-		if(pollinterval > 0) {
-			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
-		} else {
-			o().writeRaw("WebUI.cancelPolling();");
+		if(DeveloperOptions.getBool("domui.polling", true)) {
+			int pollinterval = DomApplication.get().calculatePollInterval(m_page.getConversation().isPollCallbackRequired());
+			if(pollinterval > 0) {
+				o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
+			} else {
+				o().writeRaw("WebUI.cancelPolling();");
+			}
 		}
 
 		o().closetag("eval");
@@ -498,6 +506,12 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 
 			//-- We have a tree delta -> handle it,
 			doTreeDeltaOn(parentChanges, n);
+
+			//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
+			if(n.internalHasChangedAttributes()) {
+				//-- Add me to the "change attributes" list of my owner.
+				parentChanges.addAttrChange(n); // FIXME must be delta-aware
+			}
 			return;
 		}
 
@@ -748,7 +762,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		if(!ni.isFullRender) {
 			int ncmd = ni.deleteList.size() + ni.addList.size();
 
-			if((double) ncmd / (double) newl.size() > 0.9) {
+			if((double) ncmd / newl.size() > 0.9) {
 				//-- As far as commands go it is better to re-render.
 
 
@@ -812,7 +826,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		if(ni.isAdded)
 			iw.print(" ADDED");
 		iw.println();
-		if(ni.deleteList != null && ni.deleteList.size() > 0) {
+		if(ni.deleteList != null && !ni.deleteList.isEmpty()) {
 			iw.inc();
 			iw.print("DELETED-NODES: ");
 			for(NodeBase nb : ni.deleteList)
@@ -821,7 +835,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			iw.dec();
 		}
 
-		if(ni.addList != null && ni.addList.size() > 0) {
+		if(ni.addList != null && !ni.addList.isEmpty()) {
 			iw.inc();
 			iw.print("ADDED-NODES: ");
 			for(NodeBase nb : ni.addList)
@@ -830,7 +844,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			iw.dec();
 		}
 
-		if(ni.attrChangeList != null && ni.attrChangeList.size() > 0) {
+		if(ni.attrChangeList != null && !ni.attrChangeList.isEmpty()) {
 			iw.inc();
 			iw.print("ATTRCHANGED-NODES: ");
 			for(NodeBase nb : ni.attrChangeList)
@@ -839,7 +853,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			iw.dec();
 		}
 
-		if(ni.lowerChanges != null && ni.lowerChanges.size() > 0) {
+		if(ni.lowerChanges != null && !ni.lowerChanges.isEmpty()) {
 			iw.inc();
 			int i = 0;
 			for(NodeInfo lni : ni.lowerChanges) {

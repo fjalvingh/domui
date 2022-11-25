@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 
 /**
  * Hides the method to get app parameters. Currently proxies to
@@ -49,4 +50,7 @@ public interface ConfigParameters {
 
 	@NonNull
 	URL getResourcePath(@NonNull String path) throws Exception;
+
+	@NonNull
+	List<String> getParameterNames();
 }

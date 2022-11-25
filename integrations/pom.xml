@@ -16,11 +16,25 @@
     <name>domui :: integrations</name>
     <packaging>pom</packaging>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.skip>false</sonar.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <modules>
         <module>to.etc.domui.selenium</module>
         <module>to.etc.domui.hibutil</module>
         <module>fontawesome4</module>
         <module>fontawesome5free</module>
+        <module>fontawesome6free</module>
     </modules>
 
 </project>

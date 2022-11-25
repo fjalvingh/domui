@@ -35,7 +35,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
-
 /**
  * This visitor checks if a class instance obeys the criteria (matches the criteria).
  *
@@ -44,7 +43,7 @@ import java.util.List;
  */
 public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	@NonNull
-	private T		m_instance;
+	private T m_instance;
 
 	@NonNull
 	private ClassMetaModel m_cmm;
@@ -83,19 +82,19 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 		//-- If prop refers to some relation (dotted pair):
 		m_lastResult = false;
-		PropertyMetaModel< ? > pmm = parseSubCriteria(name);
-		Object lit = l.getValue();							// Get the literal we're comparing to
-		Object val = pmm.getValue(m_instance);				// And the actual value inside the instance
-		if(lit == null)										// Any compare with null will be false, always
+		PropertyMetaModel<?> pmm = parseSubCriteria(name);
+		Object lit = l.getValue();                            // Get the literal we're comparing to
+		Object val = pmm.getValue(m_instance);                // And the actual value inside the instance
+		if(lit == null)                                        // Any compare with null will be false, always
 			return;
 		if(val == null)
 			return;
 
 		//-- We need to do integral promotions on the type if they differ.
-		Class< ? > litc = DomUtil.getUnproxiedClass(lit.getClass());
-		Class< ? > valc = DomUtil.getUnproxiedClass(val.getClass());	// Types differ?
+		Class<?> litc = DomUtil.getUnproxiedClass(lit.getClass());
+		Class<?> valc = DomUtil.getUnproxiedClass(val.getClass());    // Types differ?
 		if(litc != valc) {
-			Class< ? > endtype = getPromoted(litc, valc);	// If classes differ get a promoted thing.
+			Class<?> endtype = getPromoted(litc, valc);    // If classes differ get a promoted thing.
 			if(null == endtype)
 				throw new QQuerySyntaxException("Cannot compare property " + n.getProperty() + " of type " + valc + " with a " + litc);
 
@@ -106,7 +105,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		}
 
 		//-- Equal and not equal are handled by object-native equals, like and ilike are handled specially.
-		switch(n.getOperation()){
+		switch(n.getOperation()) {
 			default:
 				break;
 
@@ -123,17 +122,17 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 				return;
 
 			case NE:
-				m_lastResult = ! val.equals(lit);
+				m_lastResult = !val.equals(lit);
 				return;
 		}
 
 		//-- For the rest the values must implement Comparable
-		if(! (val instanceof Comparable<?>))
+		if(!(val instanceof Comparable<?>))
 			throw new QQuerySyntaxException("Cannot compare (" + n.getOperation() + ") property " + n.getProperty() + " of type " + valc + ": the class " + val.getClass().getName()
 				+ " does not implement Comparable");
 
 		int res = ((Comparable<Object>) val).compareTo(lit);
-		switch(n.getOperation()){
+		switch(n.getOperation()) {
 			default:
 				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
 			case GT:
@@ -167,13 +166,13 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 		//-- If prop refers to some relation (dotted pair):
 		m_lastResult = false;
-		PropertyMetaModel< ? > pmm = parseSubCriteria(name);
-		Object instanceValue = pmm.getValue(m_instance);				// And the actual value inside the instance
+		PropertyMetaModel<?> pmm = parseSubCriteria(name);
+		Object instanceValue = pmm.getValue(m_instance);                // And the actual value inside the instance
 		if(instanceValue == null)
 			return;
 
 		//-- Loop through all values and see if any matches
-		for(Object value: valueList) {
+		for(Object value : valueList) {
 			if(valueMatches(instanceValue, value, n.getProperty())) {
 				m_lastResult = true;
 				return;
@@ -184,10 +183,10 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 	private boolean valueMatches(Object instanceValue, Object wantedValue, String property) {
 		//-- We need to do integral promotions on the type if they differ.
-		Class< ? > wantedType = wantedValue.getClass();
-		Class< ? > instType = instanceValue.getClass();					// Types differ?
+		Class<?> wantedType = wantedValue.getClass();
+		Class<?> instType = instanceValue.getClass();                    // Types differ?
 		if(wantedType != instType) {
-			Class< ? > endtype = getPromoted(wantedType, instType);	// If classes differ get a promoted thing.
+			Class<?> endtype = getPromoted(wantedType, instType);    // If classes differ get a promoted thing.
 			if(null == endtype)
 				throw new QQuerySyntaxException("Cannot compare property " + property + " of type " + instType + " with a " + wantedType);
 
@@ -201,12 +200,9 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 	/**
 	 * Try to create a common base class for two values to compare.
-	 * @param litc
-	 * @param valc
-	 * @return
 	 */
 	@Nullable
-	private Class< ? > getPromoted(@NonNull Class< ? > litc, @NonNull Class< ? > valc) {
+	private Class<?> getPromoted(@NonNull Class<?> litc, @NonNull Class<?> valc) {
 		if(litc == valc)
 			return litc;
 
@@ -217,20 +213,23 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		return lito > valo ? litc : valc;
 	}
 
-	static private final Class<?>[] ORDERS = {	//
-		Byte.class, byte.class,					//
-		Short.class, short.class,				//
-		Character.class, char.class,			//
-		Integer.class, int.class,				//
-		Long.class, long.class,					//
-		Float.class, float.class,				//
-		Double.class, double.class,				//
-		BigInteger.class, null,					//
-		BigDecimal.class, null,					//
-		String.class, null						//
+	static private final Class<?>[] ORDERS = {    //
+		Byte.class, byte.class,                    //
+		Short.class, short.class,                //
+		Character.class, char.class,            //
+		Integer.class, int.class,                //
+		Long.class, long.class,                    //
+		Float.class, float.class,                //
+		Double.class, double.class,                //
+		BigInteger.class, null,                    //
+		BigDecimal.class, null,                    //
+		java.sql.Timestamp.class, null,
+		java.sql.Date.class, null,
+		java.util.Date.class, null,
+		String.class, null                        //
 	};
 
-	private int getPromoOrder(Class< ? > litc) {
+	private int getPromoOrder(Class<?> litc) {
 		for(int i = 0; i < ORDERS.length; i++) {
 			if(ORDERS[i] == litc)
 				return i / 2;
@@ -240,7 +239,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 	@Override
 	public void visitUnaryNode(@NonNull QUnaryNode n) throws Exception {
-		switch(n.getOperation()){
+		switch(n.getOperation()) {
 			default:
 				break;
 			case NOT:
@@ -254,10 +253,10 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	@Override
 	public void visitUnaryProperty(@NonNull QUnaryProperty n) throws Exception {
 		String name = n.getProperty();
-		PropertyMetaModel< ? > pmm = parseSubCriteria(n.getProperty());
+		PropertyMetaModel<?> pmm = parseSubCriteria(n.getProperty());
 
 		Object val = pmm.getValue(m_instance);
-		switch(n.getOperation()){
+		switch(n.getOperation()) {
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 
@@ -271,11 +270,11 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	}
 
 	@NonNull
-	private PropertyMetaModel< ? > parseSubCriteria(@NonNull String property) {
-		PropertyMetaModel< ? > pmm = m_cmm.getProperty(property);
+	private PropertyMetaModel<?> parseSubCriteria(@NonNull String property) {
+		PropertyMetaModel<?> pmm = m_cmm.getProperty(property);
 		if(pmm instanceof PathPropertyMetaModel) {
-			PathPropertyMetaModel< ? > m = (PathPropertyMetaModel< ? >) pmm;
-			for(PropertyMetaModel< ? > pm : m.getAccessPath()) {
+			PathPropertyMetaModel<?> m = (PathPropertyMetaModel<?>) pmm;
+			for(PropertyMetaModel<?> pm : m.getAccessPath()) {
 				if(pm.getRelationType() == PropertyRelationType.DOWN)
 					throw new QQuerySyntaxException(property + ": contains reference to a child property - use an exists subquery instead.");
 			}
@@ -283,30 +282,29 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		return pmm;
 	}
 
-
 	@Override
 	public void visitMulti(@NonNull QMultiNode inn) throws Exception {
 		//-- Walk all members, create nodes from 'm.
-		boolean result = inn.getOperation() == QOperation.AND;		// For AND we start RESULT with TRUE, OR starts with FALSE.
+		boolean result = inn.getOperation() == QOperation.AND;        // For AND we start RESULT with TRUE, OR starts with FALSE.
 		for(QOperatorNode n : inn.getChildren()) {
 			n.visit(this);
 
-			switch(inn.getOperation()){
+			switch(inn.getOperation()) {
 				default:
 					throw new IllegalStateException("Unexpected operation: " + inn.getOperation());
 
 				case AND:
-					result = result && m_lastResult;				// And
+					result = result && m_lastResult;                // And
 					if(!result) {
-						m_lastResult = false;						// Short-circuit
+						m_lastResult = false;                        // Short-circuit
 						return;
 					}
 					break;
 
 				case OR:
-					result = result || m_lastResult;				// Or
+					result = result || m_lastResult;                // Or
 					if(result) {
-						m_lastResult = true;						// Short-circuit
+						m_lastResult = true;                        // Short-circuit
 						return;
 					}
 					break;
@@ -314,7 +312,6 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		}
 		m_lastResult = result;
 	}
-
 
 	@Override
 	public void visitBetween(@NonNull QBetweenNode n) throws Exception {
@@ -326,8 +323,8 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 		//-- If prop refers to some relation (dotted pair):
 		m_lastResult = false;
-		PropertyMetaModel< ? > pmm = parseSubCriteria(n.getProp());
-		Object val = pmm.getValue(m_instance);				// And the actual value inside the instance
+		PropertyMetaModel<?> pmm = parseSubCriteria(n.getProp());
+		Object val = pmm.getValue(m_instance);                // And the actual value inside the instance
 		if(val == null)
 			return;
 
@@ -339,11 +336,11 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 			throw new QQuerySyntaxException("Third 'between' parameter is null in " + n);
 
 		//-- Promote to a common base.
-		Class< ? > valc = val.getClass();
-		Class< ? > ac = av.getClass();
-		Class< ? > bc = bv.getClass();
+		Class<?> valc = val.getClass();
+		Class<?> ac = av.getClass();
+		Class<?> bc = bv.getClass();
 		if(ac != valc || bc != valc) {
-			Class< ? > endtype = getPromoted(valc, ac);
+			Class<?> endtype = getPromoted(valc, ac);
 			if(endtype == null)
 				throw new QQuerySyntaxException("Between of property " + n.getProp() + " of type " + valc + " with values " + ac + " and " + bc + " is not valid");
 			endtype = getPromoted(endtype, bc);
@@ -359,12 +356,12 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		}
 
 		//-- Stuff now must implement Comparable.
-		if(!(val instanceof Comparable< ? >))
+		if(!(val instanceof Comparable<?>))
 			throw new QQuerySyntaxException("Between of property " + n.getProp() + " of promoted type " + val.getClass() + " must implement Comparable.");
 
 		Comparable<Object> c = (Comparable<Object>) val;
 
-		int ra = c.compareTo(av);				// Compare val - av
+		int ra = c.compareTo(av);                // Compare val - av
 		if(ra < 0) {
 			m_lastResult = false;
 			return;
@@ -378,19 +375,19 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitSelection(@NonNull QSelection< ? > s) throws Exception {
+	public void visitSelection(@NonNull QSelection<?> s) throws Exception {
 		m_lastResult = true;
 		throw new IllegalStateException("Selection not implemented");
 	}
 
 	@Override
-	public void visitCriteria(@NonNull QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@NonNull QCriteria<?> qc) throws Exception {
 		m_lastResult = true;
 		super.visitCriteria(qc);
 	}
 
 	@Override
-	public void visitSelectionColumns(@NonNull QSelection< ? > s) throws Exception {
+	public void visitSelectionColumns(@NonNull QSelection<?> s) throws Exception {
 		throw new IllegalStateException("Selection not implemented");
 	}
 
@@ -424,7 +421,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitExistsSubquery(@NonNull QExistsSubquery< ? > q) throws Exception {
+	public void visitExistsSubquery(@NonNull QExistsSubquery<?> q) throws Exception {
 		PropertyMetaModel<List<?>> pmm = (PropertyMetaModel<List<?>>) m_cmm.getProperty(q.getParentProperty());
 		List<?> list = pmm.getValue(m_instance);
 		if(list == null) {
@@ -435,7 +432,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		m_lastResult = checkSubExists(q, list);
 	}
 
-	private <C> boolean checkSubExists(@NonNull QExistsSubquery< ? > q, List<?> items) throws Exception {
+	private <C> boolean checkSubExists(@NonNull QExistsSubquery<?> q, List<?> items) throws Exception {
 		QExistsSubquery<C> sq = (QExistsSubquery<C>) q;
 		List<C> list = (List<C>) items;
 
@@ -458,7 +455,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	@NonNull
 	public StringLikeSearchMatchUtil getLikeCompare() {
 		StringLikeSearchMatchUtil likeCompare = m_likeCompare;
-		if (null == likeCompare){
+		if(null == likeCompare) {
 			likeCompare = m_likeCompare = new StringLikeSearchMatchUtil();
 		}
 		return likeCompare;

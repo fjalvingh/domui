@@ -20,10 +20,10 @@ import java.lang.reflect.Method;
 public class SimpleWebActionFactory implements WebActionRegistry.IFactory {
 	@Override
 	@Nullable
-	public IWebActionHandler createHandler(@NonNull Class< ? extends NodeBase> nodeClass, @NonNull String actionCode) {
-		Method method = ClassUtil.findMethod(nodeClass, actionCode, RequestContextImpl.class);
+	public IWebActionHandler createHandler(@NonNull Class< ? extends NodeBase> nodeClass, @NonNull String actionMethodName) {
+		Method method = ClassUtil.findMethod(nodeClass, actionMethodName, RequestContextImpl.class);
 		if(null == method) {
-			method = ClassUtil.findMethod(nodeClass, actionCode, IRequestContext.class);
+			method = ClassUtil.findMethod(nodeClass, actionMethodName, IRequestContext.class);
 			if(null == method)
 				return null;
 		}

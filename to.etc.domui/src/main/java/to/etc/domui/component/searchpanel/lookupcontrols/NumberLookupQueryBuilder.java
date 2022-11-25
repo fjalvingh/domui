@@ -14,7 +14,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 3-12-17.
  */
-public class NumberLookupQueryBuilder implements ILookupQueryBuilder<NumberLookupValue> {
+public class NumberLookupQueryBuilder<T> implements ILookupQueryBuilder<T, NumberLookupValue> {
 	static private final Set<QOperation> UNARY_OPS;
 
 	static private final Set<QOperation> BINARY_OPS;
@@ -24,11 +24,13 @@ public class NumberLookupQueryBuilder implements ILookupQueryBuilder<NumberLooku
 	public NumberLookupQueryBuilder(String propertyName) {
 		m_propertyName = propertyName;
 	}
-	@Override public <T> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, @Nullable NumberLookupValue lookupValue) {
+
+	@Override
+	public LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, @Nullable NumberLookupValue lookupValue) {
 		if(null == lookupValue)
 			return LookupQueryBuilderResult.EMPTY;
 
-		if (null != lookupValue.getLikeString()) {
+		if(null != lookupValue.getLikeString()) {
 			appendCriteria(criteria, QOperation.LIKE, lookupValue.getLikeString());
 			return LookupQueryBuilderResult.VALID;
 		}

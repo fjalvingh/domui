@@ -138,7 +138,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	private void render() {
 		Div valueD = new Div("ui-control ui-input");
 		add(valueD);
-		if(m_value.size() > 0) {
+		if(!m_value.isEmpty()) {
 			valueD.addCssClass("ui-fup2-value");
 			for(UploadItem uploadItem : m_value) {
 				renderValue(valueD, uploadItem);
@@ -170,7 +170,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
 		input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 		input.setDisabled(isDisabled() || isReadOnly());
-		if(m_allowedExtensions.size() > 0) {
+		if(!m_allowedExtensions.isEmpty()) {
 			String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
 			input.setSpecialAttribute("fuallowed", values);
 			input.setSpecialAttribute("accept", values);

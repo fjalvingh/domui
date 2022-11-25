@@ -1,10 +1,14 @@
 /*** MessageLine ***/
 .ui-msgln {
+	display: flex;
+	flex-direction: row;
 	padding: 4px 0px;
+	align-items: center;
+	gap: 10px;
 }
 .ui-msgln img {
-	float: left;
+
 }
 .ui-msgln-txt {
-	padding-left: 4px;
+	flex-grow: 10;
 }

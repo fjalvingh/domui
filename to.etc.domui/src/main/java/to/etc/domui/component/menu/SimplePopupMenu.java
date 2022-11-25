@@ -130,7 +130,7 @@ public class SimplePopupMenu extends FloatingDiv {
 
 	protected void submenuClicked(Div selectDiv, Submenu s) throws Exception {
 		//-- If the item clicked is the top level one- just discard it,
-		if(m_stack.size() > 0 && m_stack.get(m_stack.size() - 1).getSubmenu() == s) {
+		if(!m_stack.isEmpty() && m_stack.get(m_stack.size() - 1).getSubmenu() == s) {
 			MenuLevel level = m_stack.remove(m_stack.size() - 1);
 			level.getDiv().remove();
 			setSubmenuSelected(level.getSelDiv(), false, m_stack.size() + 1);
@@ -138,7 +138,7 @@ public class SimplePopupMenu extends FloatingDiv {
 		}
 
 		//-- Wind back the stack till the parent of the wanted menu
-		while(m_stack.size() > 0) {
+		while(!m_stack.isEmpty()) {
 			MenuLevel level = m_stack.get(m_stack.size() - 1);
 			if(level.getSubmenu() == s.getParent())
 				break;

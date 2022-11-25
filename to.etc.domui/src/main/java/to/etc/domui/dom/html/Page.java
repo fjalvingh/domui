@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * This is the main owner of all nodes; this represents all that is needed for a
@@ -262,6 +263,8 @@ final public class Page implements IQContextContainer {
 	private List<Object> m_pageMessageList = new ArrayList<>();
 
 	private List<IExecute> m_pageOnCallbackList = new ArrayList<>();
+
+	private final Map<String, Object> m_attributeMap = new HashMap<>();
 
 	///**
 	// * Contains all http headers that need to be sent for this page. When the Page
@@ -610,6 +613,10 @@ final public class Page implements IQContextContainer {
 		return initial + "_" + v;
 	}
 
+	public void deallocateTestId(@NonNull String testId) {
+		m_testIdMap.remove(testId);
+	}
+
 	public boolean isTestIDAllocated(@NonNull String id) {
 		return m_testIdMap.get(id) != null;
 	}
@@ -833,9 +840,9 @@ final public class Page implements IQContextContainer {
 	private void rebuildLoop() throws Exception {
 		int tries = 0;
 		modelToControl();
-		while(m_pendingBuildSet.size() > 0) {
+		while(!m_pendingBuildSet.isEmpty()) {
 			if(tries++ > 10)
-				throw new IllegalStateException("Internal: building the tree failed after " + tries + " attempts: the tree keeps changing every build....");
+				throw new IllegalStateException("Internal: building the tree failed after " + tries + " attempts: the tree keeps changing every build...." + renderPendingChangeSet());
 			NodeBase[] todo = m_pendingBuildSet.toArray(new NodeBase[m_pendingBuildSet.size()]); // Dup todolist,
 			m_pendingBuildSet.clear();
 			for(NodeBase nd : todo) {
@@ -843,6 +850,12 @@ final public class Page implements IQContextContainer {
 				modelToControl();
 			}
 		}
+	}
+
+	private String renderPendingChangeSet() {
+		return m_pendingBuildSet.stream()
+			.map(a -> "\n- " + a.toString())
+			.collect(Collectors.joining());
 	}
 
 	/**
@@ -932,7 +945,7 @@ final public class Page implements IQContextContainer {
 	 * 					context appended to it.
 	 */
 	public void openWindow(@NonNull String windowURL, @Nullable WindowParameters wp) {
-		if(windowURL == null || windowURL.length() == 0)
+		if(windowURL == null || windowURL.isEmpty())
 			throw new IllegalArgumentException("Empty window URL");
 		String js = DomUtil.createOpenWindowJS(DomUtil.calculateURL(UIContext.getRequestContext(), windowURL), wp);
 		appendJS(js);
@@ -966,6 +979,19 @@ final public class Page implements IQContextContainer {
 			return false;
 		}
 	}
+
+	public void setAttribute(@NonNull String name, @Nullable Object value) {
+		if(null == value)
+			m_attributeMap.remove(name);
+		else
+			m_attributeMap.put(name, value);
+	}
+
+	@Nullable
+	public Object getAttribute(String name) {
+		return m_attributeMap.get(name);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Component focus handling.							*/
@@ -1048,7 +1074,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Registers the node specified as needing a callback at delta render time.
-	 * @param nodeBase
 	 */
 	void registerJavascriptStateChanged(@NonNull NodeBase nodeBase) {
 		m_javaScriptStateChangedSet.add(nodeBase);
@@ -1063,11 +1088,10 @@ final public class Page implements IQContextContainer {
 	 * For all nodes that registered a "javascript delta", this calls that node's {@link NodeBase#renderJavascriptDelta(JavascriptStmt)}
 	 * method, then it will reset the state for the node. Because calls might cause other nodes to become invalid this
 	 * code loops max 10 times checking the set of delta nodes.
-	 * @throws Exception
 	 */
 	@Nullable
 	public StringBuilder internalFlushJavascriptStateChanges() throws Exception {
-		if(m_javaScriptStateChangedSet.size() == 0)
+		if(m_javaScriptStateChangedSet.isEmpty())
 			return null;
 
 		ArrayList<NodeBase> todo = new ArrayList<NodeBase>(m_javaScriptStateChangedSet);
@@ -1080,7 +1104,7 @@ final public class Page implements IQContextContainer {
 				stmt.next();
 			}
 
-			if(m_javaScriptStateChangedSet.size() == 0) {
+			if(m_javaScriptStateChangedSet.isEmpty()) {
 				return sb;
 			}
 
@@ -1200,13 +1224,13 @@ final public class Page implements IQContextContainer {
 	/*	CODING:	Page action events.									*/
 	/*--------------------------------------------------------------*/
 	public void addAfterRequestListener(@NonNull IExecute x) {
-		if(m_afterRequestListenerList.size() == 0)
+		if(m_afterRequestListenerList.isEmpty())
 			m_afterRequestListenerList = new ArrayList<IExecute>();
 		m_afterRequestListenerList.add(x);
 	}
 
 	public void addBeforeRequestListener(@NonNull IExecute x) {
-		if(m_beforeRequestListenerList.size() == 0)
+		if(m_beforeRequestListenerList.isEmpty())
 			m_beforeRequestListenerList = new ArrayList<IExecute>();
 		m_beforeRequestListenerList.add(x);
 	}
@@ -1229,6 +1253,7 @@ final public class Page implements IQContextContainer {
 		for(IExecute x : new ArrayList<>(m_afterRequestListenerList)) {
 			x.execute();
 		}
+		getBody().onAfterRequest();
 	}
 
 	public void callRequestStarted() throws Exception {
@@ -1369,7 +1394,7 @@ final public class Page implements IQContextContainer {
 	public void internalPolledEntry() throws Exception {
 		List<IExecute> runList;
 		synchronized(this) {
-			if(m_pageOnCallbackList.size() == 0)
+			if(m_pageOnCallbackList.isEmpty())
 				return;
 			runList = m_pageOnCallbackList;
 			m_pageOnCallbackList = new ArrayList<>();
@@ -1383,7 +1408,7 @@ final public class Page implements IQContextContainer {
 				errorList.add(x);
 			}
 		}
-		if(errorList.size() == 0)
+		if(errorList.isEmpty())
 			return;
 		for(int i = 0; i < errorList.size(); i++) {
 			LOG.error("Errors during async poll: ", errorList.get(i));
@@ -1460,6 +1485,28 @@ final public class Page implements IQContextContainer {
 			return true;
 		}
 	}
+
+	/**
+	 * Checks if page can be left with specified callback.
+	 */
+	public boolean internalCanLeaveCurrentPageByDomui(Runnable callback) throws Exception {
+		if(m_rootContent instanceof IPageWithNavigationCheck) {
+			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
+			boolean hasModification = pageWithNavigationCheck.hasModification();
+			if(!hasModification) {
+				return true;
+			}
+			if(m_rootContent instanceof IPageWithNavigationHandler) {
+				((IPageWithNavigationHandler) m_rootContent).handleNavigationOnModified(callback);
+			} else {
+				DomApplication.get().handleNavigationOnModified(callback, this.getBody());
+			}
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 
 	/**
 	 * Do not use, you will OOM the server just like that!!

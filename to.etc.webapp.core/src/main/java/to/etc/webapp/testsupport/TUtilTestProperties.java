@@ -2,32 +2,23 @@ package to.etc.webapp.testsupport;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.junit.Assume;
-import org.junit.internal.AssumptionViolatedException;
-import to.etc.dbpool.ConnectionPool;
-import to.etc.dbpool.PoolConfig;
-import to.etc.dbpool.PoolManager;
-import to.etc.dbutil.DbLockKeeper;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
-import to.etc.util.StringTool;
-import to.etc.webapp.eventmanager.DbEventManager;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 
 public class TUtilTestProperties {
-	/** Will contain a description of the location for the test properties used, after {@link #getTestProperties()}. */
+	/**
+	 * Will contain a description of the location for the test properties used, after {@link #getTestProperties()}.
+	 */
 	static private String m_propertiesLocation;
 
 	@Nullable
@@ -47,13 +38,9 @@ public class TUtilTestProperties {
 
 	static private DbConnectionInfo m_dbconn;
 
-	static private DataSource m_rawDS;
-
 	static private String m_viewpointLoginName;
 
 	static private boolean m_gotLoginName;
-
-	private static ConnectionPool m_connectionPool;
 
 	static {
 		initLocale();
@@ -130,7 +117,8 @@ public class TUtilTestProperties {
 						}
 					}
 				}
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 
 			//-- Cannot find
 			return null;
@@ -142,7 +130,8 @@ public class TUtilTestProperties {
 			try {
 				if(is != null)
 					is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -165,11 +154,11 @@ public class TUtilTestProperties {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Test environment database config.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Check if a database config is present. It does not OPEN the database, but
 	 * when true database tests will run. If the database is configured but a connection
 	 * cannot be made this <b>will</b> fail the tests.
-	 * @return
 	 */
 	static public boolean hasDbConfig() {
 		String db = System.getenv("VPTESTDB");
@@ -187,7 +176,6 @@ public class TUtilTestProperties {
 	 * Get the database connection string. This fails hard when no connection string
 	 * is present. Use {@link #hasDbConfig()} to check if a test database is configured
 	 * if the test needs to be conditional.
-	 * @return
 	 */
 	static public String getDbString() {
 		String db = System.getenv("VPTESTDB");
@@ -205,22 +193,6 @@ public class TUtilTestProperties {
 		throw new IllegalStateException("No test database specified.");
 	}
 
-	/**
-	 * Callable from JUnit fixures, this will "ignore" a JUnit tests when the database
-	 * is unconfigured.
-	 */
-	static public final void assumeDatabase() {
-		if(!hasDbConfig()) {
-			Assume.assumeFalse("The database is not available", true);
-			throw new AssumptionViolatedException("The database is not available");
-		}
-//		Assume.assumeTrue(hasDbConfig());
-	}
-
-	/**
-	 *
-	 * @return
-	 */
 	static synchronized public DbConnectionInfo getDbConn() {
 		if(m_dbconn != null)
 			return m_dbconn;
@@ -256,7 +228,6 @@ public class TUtilTestProperties {
 
 	/**
 	 * Returns the SID for the test database.
-	 * @return
 	 */
 	static public String getDbSID() {
 		return getDbConn().sid;
@@ -267,14 +238,13 @@ public class TUtilTestProperties {
 	 * related tests are running. The name defaults to 'VIEWPOINT' but can be set to
 	 * another value by setting the 'userid' value in the test properties file. If the
 	 * userid is set to ANONYMOUS this will return NULL.
-	 * @return
 	 */
 	static synchronized public String getViewpointLoginName() {
 		if(!m_gotLoginName) {
 			m_gotLoginName = true;
 			m_viewpointLoginName = getTestProperties().getProperty("loginid");
 			if(m_viewpointLoginName == null)
-				m_viewpointLoginName = "VPC";								// jal 2014/02/11 Do not use "VIEWPOINT" since it has no rights at all and is not a real account
+				m_viewpointLoginName = "VPC";                                // jal 2014/02/11 Do not use "VIEWPOINT" since it has no rights at all and is not a real account
 			else if("ANONYMOUS".equalsIgnoreCase(m_viewpointLoginName))
 				m_viewpointLoginName = null;
 		}
@@ -285,77 +255,13 @@ public class TUtilTestProperties {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Database connection basics.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Returns a raw, unaltered datasource to the ViewPoint test database. This datasource
-	 * does not alter the "current user" in red_environment.
-	 *
-	 * @return
-	 */
-	static synchronized public DataSource getRawDataSource() {
-		assumeDatabase();
-		if(m_rawDS == null) {
-			String url = "jdbc:oracle:thin:@" + getDbConn().hostname + ":" + getDbConn().port + ":" + getDbConn().sid;
-			try {
-				PoolConfig.Template t = new PoolConfig.Template();
-				t.setDriverClassName("oracle.jdbc.driver.OracleDriver");
-				t.setUrl(url);
-				t.setUid(getDbConn().userid);
-				t.setPw(getDbConn().password);
-				String s = getTestProperties().getProperty("driverpath");
-				if(null != s)
-					t.setDriverPath(new File(s));
-				t.setMinConns(2);
-				t.setMaxConns(50);
-				m_connectionPool = PoolManager.getInstance().definePool("test", new PoolConfig(t));
-
-//				m_connectionPool = PoolManager.getInstance().definePool("test", "oracle.jdbc.driver.OracleDriver", url, getDbConn().userid, getDbConn().password,
-//					getTestProperties().getProperty("driverpath"));
-				m_connectionPool.initialize();
-				m_rawDS = m_connectionPool.getPooledDataSource();
-			} catch(SQLException x) {
-				throw new RuntimeException("cannot init pool: " + x, x);
-			}
-
-			//-- Init common infrastructure
-			DbEventManager.initializeForTest();
-			DbLockKeeper.init(m_rawDS);
-
-			String defaulttimeout = DeveloperOptions.isDeveloperWorkstation() ? null : "120";
-			String poolto = TUtilTestProperties.getString("pool.timeout", defaulttimeout);
-			if(poolto != null && !StringTool.isBlank(poolto)) {
-				int timeout = Integer.parseInt(poolto.trim());
-
-				ConnectionPool pool = PoolManager.getPoolFrom(m_rawDS);
-				if(null != pool)
-					pool.setForceTimeout(timeout);
-			}
-		}
-		return m_rawDS;
-	}
 
 	/**
-	 * Important for locale specifics in tests</br>
+	 * Important for locale specifics in tests
 	 * By default all tests are written for Dutch locale
 	 */
 	public static void initLocale() {
 		Locale.setDefault(new Locale("nl", "NL"));
-	}
-
-	static public Connection makeRawConnection() throws Exception {
-		return getRawDataSource().getConnection();
-	}
-
-	/**
-	 * When set to true, all connections allocated on <b>the same thread</b> will have the "disable commit"
-	 * flag set (see {@link ConnectionPool#setCommitDisabled(boolean)}. This allows changes to a test database
-	 * without commiting those changes. The result of the test should be tested using the same database
-	 * connection as the one altering the data.
-	 * @param on
-	 */
-	static public void setCommitDisabled(boolean on) {
-		if(m_connectionPool == null)
-			return;
-		m_connectionPool.setCommitDisabled(on);
 	}
 
 
@@ -376,10 +282,14 @@ public class TUtilTestProperties {
 	/*	CODING:	Test logging using a LogSink.						*/
 	/*--------------------------------------------------------------*/
 
-	/** If assigned the location where test log is written. */
+	/**
+	 * If assigned the location where test log is written.
+	 */
 	static private File m_testLogFile;
 
-	/** If assigned, a LogSink logwriter that can be used to output data from tests. */
+	/**
+	 * If assigned, a LogSink logwriter that can be used to output data from tests.
+	 */
 	static private PrintWriter m_logWriter;
 
 	static private boolean m_testLogInitialized;
@@ -441,7 +351,6 @@ public class TUtilTestProperties {
 
 	/**
 	 * Returns the location for the JUnit test log file, or null if none is assigned.
-	 * @return
 	 */
 	@Nullable
 	static public File getLogFile() {
@@ -457,7 +366,6 @@ public class TUtilTestProperties {
 
 	/**
 	 * Get a log sink if logging is actually on.
-	 * @return
 	 */
 	@Nullable
 	static public TestLogSink getLogSinkIfLogging() {
@@ -526,6 +434,14 @@ public class TUtilTestProperties {
 	public static String getString(@NonNull final String propertyName, @Nullable final String defaultValue) {
 		TestProperties tp = getTestProperties();
 		return tp.getProperty(propertyName, defaultValue);
+	}
+
+	public static void println(String text) {
+		if(System.getProperty("surefire.real.class.path") == null
+			&& System.getProperty("surefire.test.class.path") == null
+		)
+			System.out.println(text);
+		//System.getProperties().forEach((k, v) -> System.out.println("%%% " + k + "=" + v));
 	}
 
 }

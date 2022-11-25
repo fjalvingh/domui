@@ -34,7 +34,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Class fixure: init database access
-	 * @throws Exception
 	 */
 	@BeforeClass
 	static public void setUp() throws Exception {
@@ -58,9 +57,38 @@ public class TestDbQCriteria {
 		return m_dc;
 	}
 
+	@Test
+	public void testReload1() throws Exception {
+		List<Artist> artists = dc().query(QCriteria.create(Artist.class));
+
+		//-- Should not fail
+		Artist a = dc().reload(artists.get(0));
+
+		Assert.assertEquals("Should be same Artist instance", artists.get(0), a);
+	}
+
+	/**
+	 * Do a reload of a Hibernate proxy.
+	 */
+	@Test
+	public void testReload2() throws Exception {
+		List<Album> albums = dc().query(QCriteria.create(Album.class));
+		for(Album album : albums) {
+			Artist artist = album.getArtist();
+			System.out.println(">> " + artist.getClass().getName());
+
+			//-- Should not fail
+			Artist a = dc().reload(artist);
+
+			Assert.assertEquals("Should be same Artist instance", artist, a);
+			return;
+		}
+
+		Assert.fail("No suitable test records found");
+	}
+
 	/**
 	 * Simple test: load all Artists.
-	 * @throws Exception
 	 */
 	@Test
 	public void testCriteria1() throws Exception {
@@ -71,7 +99,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Test simple query name = martha
-	 * @throws Exception
 	 */
 	@Test
 	public void testCriteria2() throws Exception {
@@ -82,7 +109,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Test simple query city=Paris
-	 * @throws Exception
 	 */
 	@Test
 	public void testCriteria3() throws Exception {
@@ -100,7 +126,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * test case independence in ilike.
-	 * @throws Exception
 	 */
 	@Test
 	public void testCriteria5() throws Exception {
@@ -111,7 +136,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Combinatory AND simple.
-	 * @throws Exception
 	 */
 	@Test
 	public void testAnd1() throws Exception {
@@ -122,8 +146,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Combinatory OR simple.
-	 *
-	 * @throws Exception
 	 */
 	@Test
 	public void testOr1() throws Exception {
@@ -153,7 +175,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Create condition on PARENT record field.
-	 * @throws Exception
 	 */
 	@Test
 	public void testParent2() throws Exception {
@@ -164,7 +185,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Create AND condition on PARENT record fields (1-up, 2x).
-	 * @throws Exception
 	 */
 	@Test
 	public void testParentAnd1() throws Exception {
@@ -175,7 +195,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Create AND condition on PARENT record fields (1-up, 2x) that should not return results.
-	 * @throws Exception
 	 */
 	@Test
 	public void testParentAnd2() throws Exception {
@@ -186,7 +205,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Create AND condition on PARENT record fields (1-up, 2x).
-	 * @throws Exception
 	 */
 	@Test
 	public void testParentOr1() throws Exception {
@@ -200,7 +218,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Do an "and" between two fields of <i>different</i> parent relations.
-	 * @throws Exception
 	 */
 	@Test
 	public void testAliases1() throws Exception {
@@ -208,14 +225,11 @@ public class TestDbQCriteria {
 		q.eq("invoice.billingCity", "Amsterdam");
 		q.eq("track.name", "So Fine");
 		List<InvoiceLine> res = dc().query(q);
-//		for(InvoiceLine l : res)
-//			System.out.println(">>> " + l.getTrack().getName());
 		Assert.assertEquals(1, res.size());
 	}
 
 	/**
 	 * Do an "or" between two fields of <i>different</i> parent relations.
-	 * @throws Exception
 	 */
 	@Test
 	public void testAliases2() throws Exception {
@@ -231,7 +245,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Test join and property/property restriction on subqueries
-	 * @throws Exception
 	 */
 	@Test
 	public void testSubCriteriaJoin() throws Exception {
@@ -285,7 +298,6 @@ public class TestDbQCriteria {
 
 	/**
 	 * Test to prove that the subquery path does not work in some cases
-	 * @throws Exception
 	 */
 	@Test
 	public void subQueryPathSqlOutcome() throws Exception {

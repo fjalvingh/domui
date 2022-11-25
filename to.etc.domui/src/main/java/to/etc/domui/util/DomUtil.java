@@ -51,6 +51,7 @@ import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.parts.GrayscalerPart;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
@@ -71,6 +72,7 @@ import to.etc.util.ExceptionClassifier;
 import to.etc.util.FileTool;
 import to.etc.util.HtmlScanner;
 import to.etc.util.LineIterator;
+import to.etc.util.ObjectUtil;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleRef;
@@ -86,6 +88,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -272,7 +275,8 @@ final public class DomUtil {
 	}
 
 	static public final Class<?> getUnproxiedClass(@NonNull Class<?> clz) {
-		if(clz.getName().contains("$$"))
+		String name = clz.getName();
+		if(name.contains("$$") || name.contains("$HibernateProxy$"))	// Sigh
 			clz = clz.getSuperclass();									// Enhanced class (Hibernate). Get base class instead
 		return clz;
 	}
@@ -406,7 +410,7 @@ final public class DomUtil {
 				name = path.substring(pos, npos);
 				pos = npos;
 			}
-			if(name.length() == 0)
+			if(name.isEmpty())
 				throw new IllegalStateException("Invalid property path: " + path);
 
 			//-- Do a single-property resolve;
@@ -810,7 +814,7 @@ final public class DomUtil {
 	}
 
 	static public String nlsLabel(final String label) {
-		if(label == null || label.length() == 0)
+		if(label == null || label.isEmpty())
 			return label;
 		if(label.charAt(0) != '~')
 			return label;
@@ -1093,7 +1097,7 @@ final public class DomUtil {
 	static public BundleRef findBundle(final UIMenu ma, final Class<?> clz) {
 		if(ma != null && ma.bundleBase() != Object.class) { // Bundle base class specified?
 			String s = ma.bundleName();
-			if(s.length() == 0) // Do we have a name?
+			if(s.isEmpty()) // Do we have a name?
 				s = "messages"; // If not use messages in this package
 			return BundleRef.create(ma.bundleBase(), s);
 		}
@@ -1137,22 +1141,22 @@ final public class DomUtil {
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
-			if(ma.titleKey().length() != 0)
+			if(!ma.titleKey().isEmpty())
 				return br.getString(loc, ma.titleKey()); // When present it MUST exist.
 
 			//-- Is there a keyBase?
-			if(ma.baseKey().length() != 0) {
+			if(!ma.baseKey().isEmpty()) {
 				String s = br.findMessage(loc, ma.baseKey() + ".title"); // Is this base thing present?
 				if(s != null) // This can be not-present...
 					return s;
 			}
 
 			//-- No title. Can we use the menu label?
-			if(ma.labelKey().length() > 0)
+			if(!ma.labelKey().isEmpty())
 				return br.getString(loc, ma.labelKey()); // When present this must exist
 
 			//-- Try the label from keyBase..
-			if(ma.baseKey().length() != 0) {
+			if(!ma.baseKey().isEmpty()) {
 				String s = br.findMessage(loc, ma.baseKey() + ".label");
 				if(s != null) // This can be not-present...
 					return s;
@@ -1203,22 +1207,22 @@ final public class DomUtil {
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
-			if(ma.titleKey().length() != 0)
+			if(!ma.titleKey().isEmpty())
 				return br.getString(loc, ma.titleKey()); // When present it MUST exist.
 
 			//-- Is there a keyBase?
-			if(ma.baseKey().length() != 0) {
+			if(!ma.baseKey().isEmpty()) {
 				String s = br.findMessage(loc, ma.baseKey() + ".label"); // Is this base thing present?
 				if(s != null) // This can be not-present...
 					return s;
 			}
 
 			//-- No title. Can we use the menu label?
-			if(ma.labelKey().length() > 0)
+			if(!ma.labelKey().isEmpty())
 				return br.getString(loc, ma.labelKey()); // When present this must exist
 
 			//-- Try the label from keyBase..
-			if(ma.baseKey().length() != 0) {
+			if(!ma.baseKey().isEmpty()) {
 				String s = br.findMessage(loc, ma.baseKey() + ".title");
 				if(s != null) // This can be not-present...
 					return s;
@@ -1269,7 +1273,7 @@ final public class DomUtil {
 		//-- Try to locate UIMenu-based resource
 		UIMenu uim = urlPage.getClass().getAnnotation(UIMenu.class);
 		if(uim != null) {
-			if(uim.bundleBase() != Object.class || uim.bundleName().length() != 0) {
+			if(uim.bundleBase() != Object.class || !uim.bundleName().isEmpty()) {
 				//-- We have a specification for the bundle- it must exist
 				BundleRef br = findBundle(uim, urlPage.getClass());
 				if(!br.exists())
@@ -1304,7 +1308,7 @@ final public class DomUtil {
 	 * as tags.
 	 */
 	static public void renderHtmlString(NodeContainer d, String text) {
-		if(text == null || text.length() == 0)
+		if(text == null || text.isEmpty())
 			return;
 		StringBuilder sb = new StringBuilder(text.length()); // rll string segment buffer
 		List<NodeContainer> nodestack = Collections.EMPTY_LIST; // generated html stack (embedding)
@@ -1378,9 +1382,9 @@ final public class DomUtil {
 						//-- Recognised end tag: pop node stack.
 						ix = tix;
 						appendOptionalText(top, sb); // Append the text for this node because it ends.
-						if(nodestack.size() > 0) {
+						if(!nodestack.isEmpty()) {
 							nodestack.remove(nodestack.size() - 1);
-							if(nodestack.size() == 0)
+							if(nodestack.isEmpty())
 								top = d;
 							else
 								top = nodestack.get(nodestack.size() - 1);
@@ -1414,7 +1418,7 @@ final public class DomUtil {
 		if(text == null)
 			return;
 		text = text.trim();
-		if(text == null || text.length() == 0)					// Extra nullity test is because ecj is nuts
+		if(text == null || text.isEmpty())					// Extra nullity test is because ecj is nuts
 			return;
 		for(String line : new LineIterator(text)) {
 			Div d = new Div("ui-nl-line");
@@ -1431,13 +1435,13 @@ final public class DomUtil {
 	 * if the input is not well-formed it will add or remove tags until the result is valid.
 	 */
 	static public void htmlRemoveUnsafe(StringBuilder outsb, String text) {
-		if(text == null || text.length() == 0)
+		if(text == null || text.isEmpty())
 			return;
 		new HtmlTextScanner().scan(outsb, text);
 	}
 
 	static public String htmlRemoveUnsafe(String html) {
-		if(html == null || html.length() == 0)
+		if(html == null || html.isEmpty())
 			return "";
 		StringBuilder sb = new StringBuilder(html.length() + 20);
 		htmlRemoveUnsafe(sb, html);
@@ -1445,13 +1449,13 @@ final public class DomUtil {
 	}
 
 	static public void htmlRemoveAll(StringBuilder outsb, String text, boolean lf) {
-		if(text == null || text.length() == 0)
+		if(text == null || text.isEmpty())
 			return;
 		new HtmlTextScanner().scanAndRemove(outsb, text, lf);
 	}
 
 	static public String htmlRemoveAll(String html, boolean lf) {
-		if(html == null || html.length() == 0)
+		if(html == null || html.isEmpty())
 			return "";
 		StringBuilder sb = new StringBuilder(html.length() + 20);
 		htmlRemoveAll(sb, html, lf);
@@ -1496,12 +1500,12 @@ final public class DomUtil {
 	@Deprecated
 	static public Long getLongParameter(IPageParameters pp, String name, Long def) {
 		String s = pp.getString(name, null); // Parameter present?
-		if(s == null || s.trim().length() == 0)
+		if(s == null || s.trim().isEmpty())
 			return def;
 		try {
 			return Long.valueOf(s.trim());
 		} catch(Exception x) {
-			throw new UIException(Msgs.BUNDLE, Msgs.X_INVALID_PARAMETER, name);
+			throw new UIException(Msgs.xInvalidParameter, name);
 		}
 	}
 
@@ -1586,6 +1590,7 @@ final public class DomUtil {
 	static public void setCookie(@NonNull String name, String value, int maxageInSeconds) {
 		IRequestContext rci = UIContext.getRequestContext();
 		Cookie k = new Cookie(name, value);
+		k.setSecure(false);
 		k.setMaxAge(maxageInSeconds);
 		k.setPath("/" + rci.getRequestResponse().getWebappContext());
 		rci.getRequestResponse().addCookie(k);
@@ -1611,13 +1616,13 @@ final public class DomUtil {
 		 * will not be called for this node. Returning any other value will stop the node traversal process
 		 * and return that value to the caller of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
 		 */
-		Object before(@NonNull NodeBase n) throws Exception;
+		@Nullable Object before(@NonNull NodeBase n) throws Exception;
 
 		/**
 		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
 		 * value this will terminate the tree walk and return that value to the called of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
 		 */
-		Object after(@NonNull NodeBase n) throws Exception;
+		@Nullable Object after(@NonNull NodeBase n) throws Exception;
 	}
 
 	/**
@@ -1757,7 +1762,7 @@ final public class DomUtil {
 	 */
 	@Deprecated
 	static public boolean isBlank(String s) {
-		return s == null || s.trim().length() == 0;
+		return s == null || s.trim().isEmpty();
 	}
 
 	static public boolean isRelativeURL(String in) {
@@ -1777,16 +1782,11 @@ final public class DomUtil {
 
 	/**
 	 * EXPENSIVE - USE WITH CARE
-	 * Check if first primitive type paramater is equal to some from others.
+	 * Check if first primitive type parameter is equal to some from others.
 	 * Use only for primitive types and enums, for other complex types use {@link MetaManager#areObjectsEqual(Object, Object, ClassMetaModel)}.
 	 */
 	static public <T> boolean isIn(T value, T... values) {
-		for(T item : values) {
-			if(item.equals(value)) {
-				return true;
-			}
-		}
-		return false;
+		return ObjectUtil.isIn(value, values);
 	}
 
 	/**
@@ -1809,6 +1809,43 @@ final public class DomUtil {
 		if(targetParameters != null)
 			DomUtil.addUrlParameters(sb, targetParameters, false);
 		return createOpenWindowJS(sb.toString(), newWindowParameters);
+	}
+
+	/**
+	 * WARNING: Use createOpenTab instead!!
+	 * This opens a new DomUI page in a browser tab.
+	 */
+	@NonNull
+	static public String createOpenTabJS(@NonNull Class<?> targetClass, @Nullable IPageParameters targetParameters) {
+		//-- We need a NEW window session. Create it,
+		RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
+		WindowSession cm = ctx.getSession().createWindowSession();
+
+		//-- Send a special JAVASCRIPT open command, containing the shtuff.
+		StringBuilder sb = new StringBuilder();
+		sb.append(ctx.getRelativePath(targetClass.getName()));
+		sb.append(".ui?");
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(cm.getWindowID());
+		sb.append(".x");
+		if(targetParameters != null)
+			DomUtil.addUrlParameters(sb, targetParameters, false);
+		String url = sb.toString();
+
+		sb.setLength(0);
+		sb.append("window.open('").append(url).append("', '_blank');");
+		return sb.toString();
+	}
+
+	/**
+	 * Adds a Javascript onClick action which will open a new tab in the browser containing the
+	 * specified page. This can ONLY be done by javascript directly called by the click handler
+	 * (security, see <a href="https://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-and-not-a-new-window">https://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-and-not-a-new-window</a>).
+	 */
+	static public void createOpenTab(NodeBase base, @NonNull Class<?> targetClass, @Nullable IPageParameters targetParameters) {
+		String js = createOpenTabJS(targetClass, targetParameters);
+		base.setOnClickJS(js);
 	}
 
 	/**
@@ -1958,7 +1995,7 @@ final public class DomUtil {
 		if(null == m_lorem) {
 			InputStream is = DomUtil.class.getResourceAsStream("lorem.txt");
 			try {
-				m_lorem = FileTool.readStreamAsString(is, "utf-8");
+				m_lorem = FileTool.readStreamAsString(is, StandardCharsets.UTF_8);
 			} finally {
 				try {
 					is.close();
@@ -2225,11 +2262,33 @@ final public class DomUtil {
 	 * only works when directly invoked from a user action, which is
 	 * why this is added as a Javascript onclick action.
 	 */
-	public static final void clipboardCopy(NodeBase button, String text) {
+	public static void clipboardCopy(NodeBase button, String text) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("WebUI.copyTextToClipboard(");
 		StringTool.strToJavascriptString(sb, text, true);
 		sb.append("); return false;");
 		button.setOnClickJS(sb.toString());
 	}
+
+	/**
+	 * From a "normal" image URL, calculate a site absolute URL.
+	 */
+	static public String calculateImageURL(String relativeURL, boolean disabled) {
+		String src = relativeURL;
+
+		if(! DomUtil.isAbsoluteURL(src))
+			src = DomApplication.get().internalGetThemeManager().getThemedResourceRURL(UIContext.getRequestContext(), src);
+
+		if(disabled && !src.startsWith("http")) { 			// For now we're not supporting grey scaling of servlet images
+			src = GrayscalerPart.getURL(src);
+		}
+
+		//-- Make absolute
+		if(! src.startsWith("/")) {
+			src = UIContext.getRequestContext().getRelativePath(src);	// FIXME Must become easier
+		}
+		return src;
+	}
+
+
 }

@@ -17,6 +17,19 @@
 	<description>The DomUI user interface library :: main codebase</description>
 	<inceptionYear>2017</inceptionYear>
 
+	<properties>
+		<sonar.skip>true</sonar.skip>
+	</properties>
+
+	<profiles>
+		<profile>
+			<id>sonar</id>
+			<properties>
+				<sonar.skip>false</sonar.skip>
+			</properties>
+		</profile>
+	</profiles>
+
 	<dependencies>
 		<!-- Kotlin -->
 		<dependency>
@@ -112,7 +125,10 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.17</version>
+		</dependency>
+		<dependency>
+			<groupId>com.monitorjbl</groupId>
+			<artifactId>xlsx-streamer</artifactId>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.bit3/jsass -->

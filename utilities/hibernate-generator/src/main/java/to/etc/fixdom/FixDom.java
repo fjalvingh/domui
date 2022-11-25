@@ -111,7 +111,7 @@ public class FixDom {
 
 
 		NodeList<Statement> statements = method.getBody().get().getStatements();
-		if(statements.size() != 0) {
+		if(!statements.isEmpty()) {
 			Statement last = statements.get(statements.size() - 1);
 			if(last.toString().equals("return")) {
 				statements.remove(statements.size()-1);

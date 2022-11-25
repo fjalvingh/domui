@@ -86,7 +86,7 @@ public class DefaultPageAccessChecker implements IPageAccessChecker {
 
 			//-- Just exit with a null failureReason - this indicates that a list of rights will be rendered.
 		} else
-			throw new CodeException(Msgs.BUNDLE, Msgs.RIGHTS_NOT_ALLOWED);	// Insufficient rights - details unknown.
+			throw new CodeException(Msgs.rightsNotAllowed);	// Insufficient rights - details unknown.
 		return false;
 	}
 

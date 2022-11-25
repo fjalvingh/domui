@@ -27,7 +27,6 @@ package to.etc.net;
 import org.eclipse.jdt.annotation.NonNull;
 import org.w3c.dom.Document;
 import to.etc.util.FileTool;
-import to.etc.util.ProcessTools;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.xml.DomTools;
@@ -77,11 +76,11 @@ final public class NetTools {
 	static public String getHostName(HttpServletRequest req) {
 		//-- Proxied?
 		String hdr = req.getHeader("X-Forwarded-Host");
-		if(null != hdr)
+		if(null != hdr && isValidHostName(hdr))
 			return hdr;
 
 		String hostname = req.getHeader("Host");
-		if(hostname != null) {
+		if(hostname != null && isValidHostName(hostname)) {
 			int i = hostname.lastIndexOf(':');
 			if(i != -1)
 				hostname = hostname.substring(0, i); // Discard port,
@@ -106,16 +105,20 @@ final public class NetTools {
 		if(remote.isSiteLocalAddress() || remote.isLinkLocalAddress() || remote.isLoopbackAddress()) {
 			//-- Proxied?
 			String hdr = req.getHeader("X-Forwarded-For");
-			if(null != hdr)
+			if(null != hdr && isValidHostName(hdr))
 				return hdr;
 			hdr = req.getHeader("X-Client-IP");
-			if(null != hdr)
+			if(null != hdr && StringTool.isValidIpAddress(hdr))
 				return hdr;
 			hdr = req.getHeader("X-real-ip");
-			if(null != hdr)
+			if(null != hdr && StringTool.isValidIpAddress(hdr))
 				return hdr;
 		}
 		return remoteHost;
+	}
+
+	private static boolean isValidHostName(String hdr) {
+		return StringTool.isValidDomainName(hdr);
 	}
 
 	public static boolean isHttps(HttpServletRequest request) {
@@ -123,10 +126,10 @@ final public class NetTools {
 			String scheme = request.getScheme();
 			if("https".equalsIgnoreCase(scheme))
 				return true;
-			String remoteHost = request.getRemoteHost();						// We need to know if the origin is a proxy server
+			String remoteHost = request.getRemoteHost();                        // We need to know if the origin is a proxy server
 			InetAddress remote = InetAddress.getByName(remoteHost);
-			if(!remote.isSiteLocalAddress() && ! remote.isLinkLocalAddress() && ! remote.isLoopbackAddress() )
-				return false;												// Internet address: not from a proxy server
+			if(!remote.isSiteLocalAddress() && !remote.isLinkLocalAddress() && !remote.isLoopbackAddress())
+				return false;                                                // Internet address: not from a proxy server
 
 			//-- Try proxy headers
 			String hdr = request.getHeader("X-forwarded-proto");
@@ -146,7 +149,17 @@ final public class NetTools {
 				//-- Hostname contains port; use that
 				try {
 					return Integer.parseInt(hostname.substring(i + 1).trim());
-				} catch(Exception x) {}
+				} catch(Exception x) {
+				}
+			}
+		}
+
+		String s = req.getHeader("x-forwarded-port");
+		if(null != s && !s.isEmpty()) {
+			try {
+				return Integer.parseInt(s);
+			} catch(Exception x) {
+				// Ignore
 			}
 		}
 
@@ -163,8 +176,7 @@ final public class NetTools {
 	static public String getInputPath(HttpServletRequest req) {
 		String rurl = req.getRequestURI();
 		int pos = rurl.indexOf("://"); // Scheme in front?
-		if(pos != -1) // Skip http
-		{
+		if(pos != -1) {
 			//-- Has scheme: must contain a host name.. Skip past that hostname,
 			int dp = rurl.indexOf('/', pos + 3); // past http://
 			if(dp == -1)
@@ -187,7 +199,7 @@ final public class NetTools {
 	static public String getApplicationURL(@NonNull HttpServletRequest req) {
 		String hu = getHostURL(req);
 		String ctx = req.getContextPath();
-		if(ctx.length() == 0) // Is this the root application?
+		if(ctx.isEmpty()) // Is this the root application?
 			return hu; // Then the hostURL will suffice, thank you
 		if(ctx.startsWith("/")) // This should be true always...
 			return hu + ctx.substring(1) + "/"; // .. so remove one of the slashes
@@ -201,7 +213,7 @@ final public class NetTools {
 	 */
 	static public String getApplicationContext(HttpServletRequest req) {
 		String s = req.getContextPath();
-		if(s == null || s.length() == 0)
+		if(s == null || s.isEmpty())
 			return ""; // Root context!
 		if(s.startsWith("/") && s.endsWith("/"))
 			return s.substring(1, s.length() - 1);
@@ -217,12 +229,12 @@ final public class NetTools {
 	 * application-root based URL. So for a webapp deployed to "http://www.test.nl:8080/demoapp/"
 	 * and a relative URL "general/images/button.png" this will append the string
 	 * "/demoapp/general/images/button.png" to the appendable passed.
-	 * @param a
-	 * @throws IOException	Nonsense exception needed by stupid Java checked exception crap
+	 *
+	 * @throws IOException    Nonsense exception needed by stupid Java checked exception crap
 	 */
 	static public void appendRootRelativeURL(Appendable a, HttpServletRequest req, String rurl) throws IOException {
 		String s = req.getContextPath();
-		if(s == null || s.length() == 0 || s.equals("/")) { // Root application?
+		if(s == null || s.isEmpty() || s.equals("/")) { // Root application?
 			a.append('/');
 			s = "";
 		} else {
@@ -235,7 +247,7 @@ final public class NetTools {
 		}
 		if(!s.endsWith("/"))
 			a.append('/');
-		if(rurl == null || rurl.length() == 0)
+		if(rurl == null || rurl.isEmpty())
 			return;
 		if(rurl.startsWith("/"))
 			a.append(rurl, 1, rurl.length());
@@ -257,11 +269,11 @@ final public class NetTools {
 	/*	CODING:	URL Call Helpers.									*/
 	/*--------------------------------------------------------------*/
 	static public class HttpInputStream extends InputStream {
-		private InputStream			m_is;
+		private InputStream m_is;
 
-		private String				m_encoding;
+		private String m_encoding;
 
-		private HttpURLConnection	m_connection;
+		private HttpURLConnection m_connection;
 
 		public HttpInputStream(HttpURLConnection conn, InputStream is, String encoding) {
 			m_is = is;
@@ -287,12 +299,12 @@ final public class NetTools {
 			m_is.close();
 			try {
 				m_connection.disconnect();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 
 		/**
 		 * Despite the warning, do not make synchronized.
-		 * @see java.io.InputStream#mark(int)
 		 */
 		@Override
 		public void mark(int readlimit) {
@@ -321,7 +333,6 @@ final public class NetTools {
 
 		/**
 		 * Despite the warning, do not make synchronized.
-		 * @see java.io.InputStream#mark(int)
 		 */
 		@Override
 		public void reset() throws IOException {
@@ -359,7 +370,7 @@ final public class NetTools {
 
 			//-- Create a reader.
 			String encoding = huc.getContentEncoding();
-			if(encoding == null || encoding.length() == 0)
+			if(encoding == null || encoding.isEmpty())
 				encoding = "UTF-8";
 			is = huc.getInputStream();
 			r = new InputStreamReader(is, encoding);
@@ -369,23 +380,23 @@ final public class NetTools {
 			try {
 				if(r != null)
 					r.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(is != null)
 					is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(huc != null)
 					huc.disconnect();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/**
 	 * Calls an external server and returns the response as an inputstream.
-	 * @param url
-	 * @return
-	 * @throws Exception
 	 */
 	static public HttpInputStream httpGetStream(String url, int timeout) throws Exception {
 		URL u = new URL(url);
@@ -412,15 +423,13 @@ final public class NetTools {
 			try {
 				if(huc != null)
 					huc.disconnect();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/**
 	 * Calls an external server and returns the response as a string.
-	 * @param url
-	 * @return
-	 * @throws Exception
 	 */
 	static public String httpGetString(String url, int timeout) throws Exception {
 		URL u = new URL(url);
@@ -449,11 +458,13 @@ final public class NetTools {
 			try {
 				if(r != null)
 					r.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(huc != null)
 					huc.disconnect();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -475,7 +486,7 @@ final public class NetTools {
 	static public boolean isPortOpen(InetAddress addr, int port) {
 		try(Socket s = new Socket(addr, port)) {
 			return true;
-		} catch (Exception x) {
+		} catch(Exception x) {
 			return false;
 		}
 	}
@@ -484,17 +495,16 @@ final public class NetTools {
 	 * Standard java implementation InetAddress.isReachable uses ICMP to determine if a host is reachable
 	 * Problem is, on linux, /usr/bin/ping is owned by root and has +rws, so java runtime needs permission for ICMP on port 7.
 	 * Usually, we don't run java as root, so standard ways do not work.
-	 * @see java.net.InetAddress#isReachable(int)
-	 * @param host
-	 * @return if it can ping
 	 */
-	public static boolean pingWithProcess(String host) {
-		try{
-			String cmd = System.getProperty("os.name").startsWith("Windows") ?  "ping -n 1 " + host : "ping -c 1 " + host;
+	public static boolean pingWithProcess(String host) throws Exception {
+		try {
+			String cmd = System.getProperty("os.name").startsWith("Windows") ? "ping -n 1 " + host : "ping -c 1 " + host;
 			Process p = Runtime.getRuntime().exec(cmd);
 			p.waitFor();
 			return p.exitValue() == 0;
-		} catch( Exception e ) {
+		} catch(InterruptedException x) {
+			throw x;
+		} catch(Exception e) {
 			return false;
 		}
 	}

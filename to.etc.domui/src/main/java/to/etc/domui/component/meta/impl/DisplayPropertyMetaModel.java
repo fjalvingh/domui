@@ -61,7 +61,7 @@ public class DisplayPropertyMetaModel {
 
 	private IConverter< ? > m_converter;
 
-	private SortableType m_sortable = SortableType.UNKNOWN;
+	private SortableType m_sortable = SortableType.UNSORTABLE;
 
 	/** The index (order) in which all sortable fields should be applied in an initial sort; -1 if there is no default sort. */
 	private int m_sortIndex;
@@ -93,7 +93,22 @@ public class DisplayPropertyMetaModel {
 		if(p.converterClass() != DummyConverter.class)
 			c = createconv(p.converterClass());
 		setConverter(c);
-		setSortable(p.defaultSortable());
+
+		/*
+		 * Sortable: if the root property is unsortable or the display property is unsortable then do not allow sort.
+		 * Otherwise, if display property is unknown prefer the pmm's sorting, otherwise use the display property.
+		 */
+		SortableType sortable = pmm.getSortable();
+		if(sortable != SortableType.UNSORTABLE) {
+			SortableType ds = p.defaultSortable();
+			if(ds == SortableType.UNSORTABLE) {
+				sortable = SortableType.UNSORTABLE;
+			} else if(ds != SortableType.UNKNOWN) {
+				sortable = ds;
+			}
+		}
+
+		setSortable(sortable);
 		setDisplayLength(p.displayLength());
 		setNoWrap(p.noWrap());
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();

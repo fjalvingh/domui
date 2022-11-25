@@ -24,9 +24,13 @@
  */
 package to.etc.telnet;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Encapsulates a single session. A session consists of the socket used to talk
@@ -37,36 +41,37 @@ import java.util.*;
  */
 public class TelnetSession extends TelnetStateThing implements Runnable {
 	/// The telnet server
-	private TelnetServer		m_server;
+	private TelnetServer m_server;
 
 	/// The socket for this session, connected to peer,
-	private Socket				m_s;
+	private Socket m_s;
 
 	/// The thread used for reading this socket.
-	private Thread				m_reader_thread;
+	private Thread m_reader_thread;
 
 	/// The inputstream containing data sent by my peer,
-	private InputStream			m_is;
+	private InputStream m_is;
 
 	/// The outputstream to send data to
-	private OutputStream		m_os;
+	private OutputStream m_os;
 
 	/// The outputstream writer to use.
-	private PrintWriter			m_pw;
+	private PrintWriter m_pw;
 
 	/// The name of this connection (it's IP address and port)
-	private String				m_name;
+	private String m_name;
 
 	/// The command received from the peer as a string.
-	private StringBuffer		m_cmd_sb;
+	private StringBuffer m_cmd_sb;
 
 	/// This-sessions writer thing.
-	private TelnetPrintWriter	m_tpw;
+	private TelnetPrintWriter m_tpw;
 
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization of a session.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *	This constructor will only be called by TelnetServer.
 	 */
@@ -81,7 +86,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		m_cmd_sb = new StringBuffer(80);
 		m_tpw = new TelnetPrintWriter(new TelnetWriter(this));
 	}
-
 
 	/**
 	 *	Returns a session name from the IP address and the port.
@@ -122,14 +126,17 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		try {
 			if(m_is != null)
 				m_is.close();
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 		try {
 			if(m_os != null)
 				m_os.close();
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 		try {
 			m_s.close();
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		m_is = null;
 		m_os = null;
@@ -141,6 +148,7 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Writing to the session.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *	The screen attached to the session can be in INPUT mode or in NORMAL
 	 *  mode. In NORMAL mode no input is visible, and all output is written
@@ -158,14 +166,13 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 	 * 	All I/O code is synchronized on the m_pending_output_ll object(!)
 	 */
 	/// The current screen "mode": normal(0) or input(1)...
-	private int			m_screen_mode;
+	private int m_screen_mode;
 
 	/// When did we switch to input mode?
-	private long		m_ts_input;
+	private long m_ts_input;
 
 	/// The list of cached strings to be output (while in input mode)
-	private LinkedList<String>	m_pending_output_ll	= new LinkedList<String>();
-
+	private LinkedList<String> m_pending_output_ll = new LinkedList<String>();
 
 	/**
 	 *	Switches back to NORMAL mode. If already in normal mode nothing is done.
@@ -191,7 +198,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		}
 	}
 
-
 	/**
 	 *	Switches to INPUT mode. Stops the output of data, displays the mode
 	 *  prompt AND all current data in the input buffer, and continues.
@@ -209,7 +215,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 			m_screen_mode = 1;
 		}
 	}
-
 
 	/**
 	 *	Writes a string to this terminal. If the mode is not NORMAL then the
@@ -238,7 +243,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 	//	{
 	//		write(s+"\r\n");
 	//	}
-
 
 	/**
 	 *	Writes a stream of characters to the stream. If the write causes an
@@ -273,7 +277,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		}
 	}
 
-
 	/**
 	 *	Called for a fatal error, this prints the error, closes the connection,
 	 *  releases all resources and the like.
@@ -286,7 +289,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		//-- Remove from server's table...
 		m_server.sessionClosed(this); // ... And be done...
 	}
-
 
 	/**
 	 *	Terminate a connection normally.
@@ -304,13 +306,15 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 	public void close() {
 		try {
 			normalClose();
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 	}
 
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Reader stuff....									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *	The actual reader thread's main code. Basically reads data till EOF.
 	 */
@@ -320,12 +324,12 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 
 		try {
 			write("Welcome to the Java Loggger Telnet Server. Enter ? to get a list of commands.\r\n");
-		} catch(Exception x) {}
-
+		} catch(Exception x) {
+		}
 
 		try {
 			//-- Read input and handle it till error....
-			for(;;) {
+			for(; ; ) {
 				if(!readInputAndHandleIt()) {
 					//-- End of file - stream closed. Terminate normally.
 					normalClose();
@@ -340,16 +344,14 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		System.out.println("Telnet " + getName() + ": reader thread TERMINATED..");
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Input string editing and command history...			*/
 	/*--------------------------------------------------------------*/
 	/// The last input character, used to detect CRLF...
-	private int				m_last_inchar;
+	private int m_last_inchar;
 
 	/// When non-zero in length, contains part of an escape sequence. Includes the ESCAPE.
-	private StringBuffer	m_esc_sb	= new StringBuffer(8);
-
+	private StringBuffer m_esc_sb = new StringBuffer(8);
 
 	/**
 	 *	Reads the inputstream, and handles all commands received from there.
@@ -363,7 +365,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		appendCommand(c);
 		return true;
 	}
-
 
 	/**
 	 *	Appends a received character to the current command. If the ENTER
@@ -405,9 +406,10 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 				return;
 			}
 
-
 			m_cmd_sb.append((char) c);
 			_write(m_cmd_sb.toString().substring(m_cmd_sb.length() - 1));
+		} catch(TelnetCommandException tcx) {
+			m_tpw.println("Error: " + tcx.getMessage());
 		} catch(Exception x) {
 			x.printStackTrace();
 		} finally {
@@ -415,22 +417,17 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		}
 	}
 
-
-	/**
-	 *	Adds a literal character at the current cursor position, then rerenders
-	 *  the screen copy.
-	 */
-
-
 	/**
 	 *	Called when a RETURN is received, terminating the current command.
 	 */
 	private void keyReturn() {
 		try {
 			toNormalMode();
-		} catch(Exception x) {}
+		} catch(Exception x) {
+			// Ignored
+		}
 		String cmd = m_cmd_sb.toString().trim();
-		if(cmd.length() > 0) {
+		if(!cmd.isEmpty()) {
 			//			System.out.println("COMMAND: "+cmd);
 
 			m_server.executeTelnetCommand(m_tpw, cmd);
@@ -438,7 +435,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		}
 		m_cmd_sb.setLength(0);
 	}
-
 
 	/**
 	 *	Called when a keypress is part of an escape sequence.
@@ -452,7 +448,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		return true;
 	}
 
-
 	/**
 	 *	Called to backspace. Deletes the char before the cursor.
 	 */
@@ -464,7 +459,6 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		m_cmd_sb.setLength(cl - 1);
 		_write("\u0008 \u0008");
 	}
-
 
 	/**
 	 *	Called to delete. Deletes the char under the cursor.
@@ -482,9 +476,9 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Client structures.									*/
 	/*--------------------------------------------------------------*/
-	/** The attached Telnet Client data things. */
-	private Map<String, Object>	m_clientdata_ht	= new HashMap<String, Object>(11);
 
+	/** The attached Telnet Client data things. */
+	private Map<String, Object> m_clientdata_ht = new HashMap<String, Object>(11);
 
 	/**
 	 *	Adds a client data thing to this-session's session data.
@@ -495,14 +489,12 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		m_clientdata_ht.put(n, o);
 	}
 
-
 	/**
 	 *	Removes a client data thing from this-session's session data.
 	 */
 	public synchronized Object get(String name) {
 		return m_clientdata_ht.get(name);
 	}
-
 
 	/**
 	 *	Called when this session terminates, it calls the terminated()

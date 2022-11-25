@@ -40,7 +40,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
-import org.hibernate.jpa.event.spi.JpaIntegrator;
 import org.hibernate.service.ServiceRegistry;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
@@ -121,17 +120,17 @@ final public class HibernateConfigurator {
 		/**
 		 * Assume the database is correct and the same as the Hibernate expected schema.
 		 */
-		NONE
+		NONE,
 
 		/**
 		 * Check table definitions and alter the database to correspond to the Hibernate schema as much as possible.
 		 */
-		, UPDATE
+		UPDATE,
 
 		/**
 		 * DANGEROUS: drop the entire database AND ITS DATA, and recreate all tables.
 		 */
-		, CREATE
+		CREATE
 	}
 
 	/**
@@ -300,7 +299,7 @@ final public class HibernateConfigurator {
 		System.setProperty("org.jboss.logging.provider", "slf4j");		// Thanks to https://stackoverflow.com/questions/11639997/how-do-you-configure-logging-in-hibernate-4-to-use-slf4j
 		if(m_sessionFactory != null)
 			throw new IllegalStateException("HibernateConfigurator has already been initialized!");
-		if(m_annotatedClassList.size() == 0)
+		if(m_annotatedClassList.isEmpty())
 			throw new IllegalStateException("Please call addClasses(Class<?>...) and register your Hibernate data classes before calling me.");
 
 		long ts = System.nanoTime();
@@ -317,7 +316,7 @@ final public class HibernateConfigurator {
 		 */
 		BootstrapServiceRegistry bootstrapRegistry =
 			new BootstrapServiceRegistryBuilder()
-				.applyIntegrator(new JpaIntegrator())
+				//.applyIntegrator(new JpaIntegrator())
 				.build();
 
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";

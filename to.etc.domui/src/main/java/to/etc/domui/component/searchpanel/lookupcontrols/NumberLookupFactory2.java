@@ -45,14 +45,17 @@ import to.etc.domui.dom.css.TextAlign;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 28, 2009
  */
-final class NumberLookupFactory2 implements ILookupFactory<NumberLookupValue> {
-	@NonNull @Override public FactoryPair<NumberLookupValue> createControl(@NonNull SearchPropertyMetaModel spm) {
-		final PropertyMetaModel< ? > pmm = spm.getProperty();
+final class NumberLookupFactory2<Q> implements ILookupFactory<Q, NumberLookupValue> {
+	@NonNull
+	@Override
+	public FactoryPair<Q, NumberLookupValue> createControl(@NonNull SearchPropertyMetaModel spm) {
+		final PropertyMetaModel<?> pmm = spm.getProperty();
 		Double minmax = Double.valueOf(calcMaxValue(pmm));
 		boolean monetary = NumericPresentation.isMonetary(pmm.getNumericPresentation());
 
 		//-- FIXME jal 20110415 Vladimir- transient here is wrong because transient usually means querying is impossible at all.
-		NumberLookupControl<Number> numText = new NumberLookupControl<>((Class<Number>) pmm.getActualType(), Double.valueOf(-minmax.doubleValue()), minmax, monetary, !pmm.isTransient(), pmm.getScale());
+		NumberLookupControl<Number> numText = new NumberLookupControl<>((Class<Number>) pmm.getActualType(), Double.valueOf(-minmax.doubleValue()), minmax, monetary, !pmm.isTransient(),
+			pmm.getScale());
 
 		/*
 		 * Calculate a "size=" for entering this number. We cannot assign a "maxlength" because not only the number but
@@ -66,10 +69,10 @@ final class NumberLookupFactory2 implements ILookupFactory<NumberLookupValue> {
 		if(monetary) {
 			numText.setTextAlign(TextAlign.RIGHT);
 		}
-		return new FactoryPair<>(new NumberLookupQueryBuilder(spm.getProperty().getName()), numText);
+		return new FactoryPair<>(new NumberLookupQueryBuilder<>(spm.getProperty().getName()), numText);
 	}
 
-	static private double calcMaxValue(PropertyMetaModel< ? > pmm) {
+	static private double calcMaxValue(PropertyMetaModel<?> pmm) {
 		int prec = pmm.getPrecision();
 		if(prec > 0) {
 			int scale = pmm.getScale();

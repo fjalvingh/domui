@@ -129,7 +129,7 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 		setOnClose(new IWindowClosed() {
 			@Override
 			public void closed(@NonNull String closeReason) throws Exception {
-				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+				clearGlobalMessage(Msgs.vMissingSearch);
 				if(m_onReceiveResult != null) {
 					m_onReceiveResult.onReturnResult(Collections.EMPTY_LIST);
 				}
@@ -160,9 +160,9 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 			c = getQueryManipulator().adjustQuery(c); // Adjust the query where needed,
 		}
 
-		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		clearGlobalMessage(Msgs.vMissingSearch);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
-			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
+			addGlobalMessage(UIMessage.error(Msgs.vMissingSearch)); // Missing inputs
 			return;
 		} else
 			clearGlobalMessage();

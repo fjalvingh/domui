@@ -200,7 +200,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	private void checkSubqueriesUsed(QCriteriaQueryBase<?, ?> n) {
-		if(n.getUnusedSubquerySet().size() > 0) {
+		if(!n.getUnusedSubquerySet().isEmpty()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("There are ").append(n.getUnusedSubquerySet().size()).append(" subqueries that are not linked (used) in the main query!\n");
 			int i = 1;
@@ -666,7 +666,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		//-- This is new... Create the alias and refer it off the previous root alias,
 		String nextAlias = nextAlias();
 		String aliasedPath = relativepath;
-		if(rootAlias.length() > 0)
+		if(!rootAlias.isEmpty())
 			aliasedPath = rootAlias + "." + relativepath;
 
 		m_aliasMap.put(fullpath, nextAlias);

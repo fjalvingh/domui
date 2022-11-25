@@ -208,7 +208,7 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 			m_rawValue = values[0];
 
 		//-- For "changed" determination: treat null and empty string in rawValue the same.
-		if((prev == null || prev.length() == 0) && (m_rawValue == null || m_rawValue.length() == 0))
+		if((prev == null || prev.isEmpty()) && (m_rawValue == null || m_rawValue.isEmpty()))
 			return false; 													// Both are "empty" meaning null/""
 		return !DomUtil.isEqual(prev, m_rawValue);							// Changed if not equal
 	}

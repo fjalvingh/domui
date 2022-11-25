@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.dbpool.BetterSQLException;
 import to.etc.domui.component.misc.MsgBox2.Type;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Pre;
@@ -44,6 +45,7 @@ final public class ExceptionDialog {
 		register(ExceptionDialog::translateQConcurrent);
 		register(ExceptionDialog::translateOptimisticLock);
 		register(ExceptionDialog::translateUIException);
+		register(ExceptionDialog::translateBetterSQLException);
 	}
 
 	@Nullable
@@ -67,10 +69,39 @@ final public class ExceptionDialog {
 		return null;
 	}
 
+	@Nullable
+	static private ExceptionPresentation translateBetterSQLException(Exception x) {
+		BetterSQLException bex = tryUnwrapBetterSQLException(x, 0);
+		if(null != bex) {
+			return new ExceptionPresentation(bex.getMessage());
+		}
+		return null;
+	}
+
+	@Nullable
+	private static BetterSQLException tryUnwrapBetterSQLException(Throwable x, int level) {
+		if (x instanceof BetterSQLException) {
+			return (BetterSQLException) x;
+		}
+		Throwable cause = x.getCause();
+		if(level > 5 || null == cause) {
+			return null;
+		}
+		return tryUnwrapBetterSQLException(cause, level + 1);
+	}
+
+	static public void createIgnore(@NonNull NodeContainer container, @NonNull String message, @NonNull Throwable xin) {
+		try {
+			create(container, message, xin);
+		} catch(Exception x) {
+			LOG.error("Failed to create exception dialog: " + x, x);
+		}
+	}
+
 	/**
 	 * Show an exception as an error dialog.
 	 */
-	static public void create(@NonNull NodeContainer container, @NonNull String message, @NonNull Throwable xin) throws Exception {
+	static public void create(@NonNull NodeContainer container, @NonNull String message, @NonNull Throwable xin) {
 		if(xin instanceof ValidationException)
 			return;
 		Exception x = WrappedException.unwrap(xin);
@@ -96,7 +127,7 @@ final public class ExceptionDialog {
 
 		//-- Render the supplied presentation.
 		MsgBox2.on(container)
-			.title("An error has occurred")
+			.title(message)
 			.type(Type.ERROR)
 			.content(presentation.getFragment())
 			.text(presentation.getMessage())

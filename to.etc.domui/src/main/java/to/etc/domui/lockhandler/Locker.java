@@ -34,7 +34,7 @@ final public class Locker {
 	public String toString() {
 		synchronized(m_handler) {
 			StringBuilder sb = new StringBuilder();
-			if(m_lockedResources.size() == 0) {
+			if(m_lockedResources.isEmpty()) {
 				sb.append("[No locks held by ").append(m_who).append("]");
 			} else {
 				sb.append("[Lock by ").append(m_who).append(" on");

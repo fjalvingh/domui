@@ -24,6 +24,7 @@
  */
 package to.etc.domui.converter;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
@@ -47,14 +48,19 @@ public class PercentageBigDecimalConverter implements IConverter<BigDecimal> {
 		m_scale = scale;
 	}
 
+	@NonNull
+	public static String getFormatedPercentageString(BigDecimal in, int scale) {
+		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+		String pattern = "##0." + StringTool.fill(scale, '#');
+		DecimalFormat df = new DecimalFormat(pattern, dfs);
+		return df.format(in.multiply(BigDecimal.valueOf(100))) + "%";
+	}
+
 	@Override
 	public String convertObjectToString(Locale loc, BigDecimal in) throws UIException {
 		if(in == null)
 			return null;
-		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-		String pattern = "##0." + StringTool.fill(m_scale, '#');
-		DecimalFormat df = new DecimalFormat(pattern, dfs);
-		return df.format(in.multiply(BigDecimal.valueOf(100))) + "%";
+		return getFormatedPercentageString(in, m_scale);
 	}
 
 	/**
@@ -77,7 +83,7 @@ public class PercentageBigDecimalConverter implements IConverter<BigDecimal> {
 		try {
 			return new BigDecimal(in).divide(BigDecimal.valueOf(100)).setScale(m_scale + 2, RoundingMode.HALF_EVEN);
 		} catch(NumberFormatException ex) {
-			throw new ValidationException(Msgs.V_BAD_PERCENTAGE, in);
+			throw new ValidationException(Msgs.vBadPercentage, in);
 		}
 	}
 

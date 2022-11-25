@@ -3,6 +3,7 @@ package to.etc.webapp.mailer;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.smtp.Address;
+import to.etc.smtp.ContentDisposition;
 import to.etc.smtp.IMailAttachment;
 import to.etc.smtp.Message;
 import to.etc.smtp.MimeWriter;
@@ -97,6 +98,11 @@ public class MailHelper {
 		@Override
 		public String getMime() {
 			return m_mime;
+		}
+
+		@Override
+		public ContentDisposition getContentDisposition() {
+			return ContentDisposition.inline;
 		}
 	}
 

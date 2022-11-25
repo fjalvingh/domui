@@ -219,7 +219,7 @@ public class MethodCallBuilder {
 	 */
 	public MethodInvoker createInvoker(final ISelfDef self, final Stack<ComponentBuilder> stack) {
 		List<Method> mlist = getAcceptableMethods();
-		if(mlist.size() == 0)
+		if(mlist.isEmpty())
 			throw new IocConfigurationException(m_component, "Cannot find an acceptable method '" + m_methodName + " on " + m_baseClass);
 		//		if(mlist.size() > 1 && m_explicit)			// jal 20090525 Should be resolved in resolution pass below.
 		//			throw new IllegalStateException("internal: no unique method for explicit method found.");
@@ -326,7 +326,7 @@ public class MethodCallBuilder {
 	 * @return
 	 */
 	private boolean matchFormals(final Method m) {
-		if(m_actuals.size() == 0)
+		if(m_actuals.isEmpty())
 			return true; // No formals -> accept all
 		Class< ? >[] par = m.getParameterTypes();
 		if(m_paramMode == ParamMode.NUMBERED && par.length != m_actuals.size()) // Numbered parameters must all match

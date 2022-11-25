@@ -39,55 +39,24 @@ import java.util.Locale;
  */
 public class CodeException extends MessageException {
 	@NonNull
-	private final BundleRef m_bundle;
-
-	@NonNull
-	private final String m_code;
+	private final IBundleCode m_code;
 
 	@NonNull
 	private final Object[] m_parameters;
 
 	public CodeException(IBundleCode code, Object... parameters) {
-		m_bundle = code.getBundle();
-		m_code = code.name();
+		m_code = code;
 		m_parameters = parameters;
 	}
 
 	public CodeException(Throwable t, IBundleCode code, Object... parameters) {
 		super(t);
-		m_bundle = code.getBundle();
-		m_code = code.name();
-		m_parameters = parameters;
-	}
-
-	/**
-	 * Deprecated: Use IBundleCode / enum.
-	 */
-	@Deprecated
-	public CodeException(@NonNull final BundleRef bundle, @NonNull final String code, final Object... parameters) {
-		if(bundle == null || code == null)
-			throw new IllegalArgumentException("Bundle or code cannot be null");
-		m_bundle = bundle;
-		m_code = code;
-		m_parameters = parameters;
-	}
-
-	public CodeException(@NonNull final Throwable t, @NonNull final BundleRef bundle, @NonNull final String code, final Object... parameters) {
-		super(t);
-		if(bundle == null || code == null)
-			throw new IllegalArgumentException("Bundle or code cannot be null");
-		m_bundle = bundle;
 		m_code = code;
 		m_parameters = parameters;
 	}
 
 	@NonNull
-	public BundleRef getBundle() {
-		return m_bundle;
-	}
-
-	@NonNull
-	public String getCode() {
+	public IBundleCode getCode() {
 		return m_code;
 	}
 
@@ -99,7 +68,7 @@ public class CodeException extends MessageException {
 	@Override
 	public String getMessage() {
 		Locale loc = NlsContext.getLocale();
-		String msg = m_bundle.getString(m_code);
+		String msg = m_code.format(m_parameters);
 		MessageFormat temp = new MessageFormat(msg, loc); // SUN people are dumb. It's idiotic to have to create an object for this.
 		return temp.format(m_parameters);
 	}

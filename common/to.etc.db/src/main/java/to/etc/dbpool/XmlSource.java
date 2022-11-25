@@ -34,8 +34,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,6 +45,35 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class XmlSource extends PoolConfigSource {
+
+	static DocumentBuilderFactory createDocumentBuilderFactory() throws ParserConfigurationException {
+		String feature = null;
+		String errMsg = null;
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			// to be compliant, completely disable DOCTYPE declaration:
+			feature = "http://apache.org/xml/features/disallow-doctype-decl";
+			factory.setFeature(feature, true);
+			// or completely disable external entities declarations:
+			feature = "http://xml.org/sax/features/external-general-entities";
+			factory.setFeature(feature, false);
+			feature = "http://xml.org/sax/features/external-parameter-entities";
+			factory.setFeature(feature, false);
+			// or prohibit the use of all protocols by external entities:
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			// or disable entity expansion but keep in mind that this doesn't prevent fetching external entities
+			// and this solution is not correct for OpenJDK < 13 due to a bug: https://bugs.openjdk.java.net/browse/JDK-8206132
+			factory.setExpandEntityReferences(false);
+			return factory;
+		} catch (ParserConfigurationException e) {
+			// This should catch a failed setFeature feature
+			errMsg = "ParserConfigurationException was thrown. The feature '" + feature + "' is probably not supported by your XML processor.";
+			System.err.println(errMsg);
+			throw e;
+		}
+	}
+
 	@NonNull private final Properties m_extra;
 	static class DefaultErrorHandler implements ErrorHandler {
 		/** This string buffer receives error messages while the document gets parsed. */
@@ -55,9 +86,9 @@ public class XmlSource extends PoolConfigSource {
 			if(m_xmlerr_sb.length() > 0)
 				m_xmlerr_sb.append("\n");
 			String id = exception.getPublicId();
-			if(id == null || id.length() == 0)
+			if(id == null || id.isEmpty())
 				id = exception.getPublicId();
-			if(id == null || id.length() == 0)
+			if(id == null || id.isEmpty())
 				id = "unknown-source";
 			m_xmlerr_sb.append(id);
 			m_xmlerr_sb.append('(');
@@ -119,14 +150,12 @@ public class XmlSource extends PoolConfigSource {
 	 * message string; these are thrown as an exception when complete.
 	 */
 	private Node getDocument(File f, boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory();
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		InputStream is = null;
 		DefaultErrorHandler deh = new DefaultErrorHandler();
-		try {
+		try(InputStream is = new FileInputStream(f)) {
 			//-- Assign myself as the error handler for parsing,
-			is = new FileInputStream(f);
 			db.setErrorHandler(deh);
 			InputSource ins = new InputSource(is);
 			ins.setPublicId(f.toString());
@@ -136,11 +165,6 @@ public class XmlSource extends PoolConfigSource {
 			return getRootElement(doc);
 		} catch(IOException x) {
 			throw new IOException("XML Parser IO error on " + f + ": " + x.toString());
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -221,4 +245,57 @@ public class XmlSource extends PoolConfigSource {
 		return v;
 	}
 
+	/**
+	 * Get driver-specific properties.
+	 */
+	@Override
+	protected Properties getExtraProperties(String section) throws Exception {
+		init();
+
+		Node backup = m_backup;
+		if(null != backup) {
+			Node poolNode = findPoolNode(backup, section);
+			if(null != poolNode) {
+				return getExtraProperties(poolNode);
+			}
+		}
+		Node poolNode = findPoolNode(m_src, section);
+		if(null != poolNode) {
+			return getExtraProperties(poolNode);
+		}
+		return new Properties();
+	}
+
+	private Properties getExtraProperties(Node pool) {
+		Properties p = new Properties();
+
+		NamedNodeMap m = pool.getAttributes();
+		if(null != m) {
+			for(int i = 0; i < m.getLength(); i++) {
+				Node item = m.item(i);
+				if(item.getNodeName().startsWith("p-")) {
+					String nodeValue = item.getNodeValue();
+					String realName = item.getNodeName().substring(2);			// Strip p-
+					p.put(realName, nodeValue);
+				}
+			}
+		}
+
+		//-- Also scan all entities below
+		NodeList childNodes = pool.getChildNodes();
+		if(null != childNodes) {
+			for(int i = 0; i < childNodes.getLength(); i++) {
+				Node node = childNodes.item(i);
+				if(node.getNodeType() == Node.ELEMENT_NODE) {
+					String name = node.getNodeName();
+					String value = node.getTextContent();
+					if(name != null && value != null && !value.trim().isEmpty()) {
+						p.setProperty(name, value);
+					}
+				}
+			}
+		}
+
+		return p;
+	}
 }

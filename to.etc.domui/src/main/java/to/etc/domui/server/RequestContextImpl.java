@@ -140,7 +140,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 		//-- Strip webapp name from url if it is there.
 		String webapp = rr.getWebappContext();						// Get "viewpoint/" like webapp context
-		if(webapp.length() > 0) {
+		if(!webapp.isEmpty()) {
 			if(!urlin.startsWith(webapp)) {
 				throw new IllegalStateException("webapp url '" + urlin + "' incorrect: it does not start with '" + webapp + "'");
 			}
@@ -179,7 +179,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 				m_pageName = null;
 				m_extension = "";
 				m_extensionWithoutDot = "";
-				if(urlin.length() > 0 && !urlin.endsWith("/"))
+				if(!urlin.isEmpty() && !urlin.endsWith("/"))
 					urlin += "/";
 				m_urlContextString = urlin;
 			} else {

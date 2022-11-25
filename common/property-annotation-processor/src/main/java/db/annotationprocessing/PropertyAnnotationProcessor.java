@@ -1,6 +1,5 @@
 package db.annotationprocessing;
 
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -27,7 +26,10 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes({"javax.persistence.Entity", "to.etc.annotations.GenerateProperties"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -89,7 +91,8 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 		super();
 	}
 
-	@Override public synchronized void init(ProcessingEnvironment processingEnv) {
+	@Override
+	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		m_typeUtils = processingEnv.getTypeUtils();
 		m_elementUtils = processingEnv.getElementUtils();
@@ -110,7 +113,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	}
 
 	@Override
-	public boolean process(Set< ? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if(roundEnv.processingOver()) {
 			return false;
 		}
@@ -118,9 +121,9 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 		final Messager messager = processingEnv.getMessager();
 		Set<Element> done = new HashSet<>();
 		for(TypeElement ann : annotations) {
-			Set< ? extends Element> rootElements = roundEnv.getElementsAnnotatedWith(ann);
+			Set<? extends Element> rootElements = roundEnv.getElementsAnnotatedWith(ann);
 			for(Element classElement : rootElements) {
-				if(! done.add(classElement))
+				if(!done.add(classElement))
 					continue;
 
 				String pkgName = processingEnv.getElementUtils().getPackageOf(classElement).getQualifiedName().toString();
@@ -139,7 +142,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 					 * ecj apparently calls this several times, causing:
 					 * Error:(27, 20) java: javax.annotation.processing.FilerException: Source file already exists : nl.skarp.portal.pages.definitions.usability.PiResult_Link in class db.annotationprocessing.PropertyAnnotationProcessor
 					 */
-					if(! e1.getMessage().toLowerCase().contains("source file already exists")) {
+					if(!e1.getMessage().toLowerCase().contains("source file already exists")) {
 						e1.printStackTrace();
 						messager.printMessage(Kind.ERROR, e1.toString() + " in " + getClass(), classElement);
 					}
@@ -150,7 +153,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	}
 
 	String getStaticClass(String entityName) {
-		return entityName + "_";						// Artist becomes Artist_
+		return entityName + "_";                        // Artist becomes Artist_
 	}
 
 	String getLinkClass(String entityName) {
@@ -182,24 +185,49 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	private List<Property> getProperties(Element classElement) throws Exception {
 		Element ce = classElement;
 
-		List<Property> result = new ArrayList<>();
+		Map<String, Property> map = new TreeMap<>();
 		while(ce != null && !ce.toString().equals("java.lang.Object")) {
-			final Messager messager = processingEnv.getMessager();
+			scanProperties(map, ce);
 
-			PropertyVisitor v = new PropertyVisitor();
-			ce.accept(v, null);
-			result.addAll(v.getResult());
 			TypeElement asType = (TypeElement) ce;
+			for(TypeMirror ifa : asType.getInterfaces()) {
+				if(ifa instanceof DeclaredType) {
+					DeclaredType dty = (DeclaredType) ifa;
+
+					scanProperties(map, dty.asElement());
+				}
+			}
+
 			TypeMirror superclass = asType.getSuperclass();
 			if(superclass instanceof DeclaredType) {
 				DeclaredType sup = (DeclaredType) superclass;
-				ce = sup == null ? null : sup.asElement();
+				ce = sup.asElement();
 			} else {
 				break;
 			}
 		}
-		return result;
+
+		List<Property> result = new ArrayList<>(map.values());
+
+		Map<String, List<Property>> byNameMap = result.stream()
+			.collect(Collectors.groupingBy(a -> a.getName(), Collectors.toList()));
+		return byNameMap.values().stream()
+			.map(a -> a.get(0))
+			.collect(Collectors.toList());
 	}
+
+	private void scanProperties(Map<String, Property> map, Element ce) {
+		PropertyVisitor v = new PropertyVisitor();
+		ce.accept(v, null);
+		for(Property property : v.getResult()) {
+			Property rp = map.get(property.getName());
+			if(null == rp) {
+				map.put(property.getName(), property);
+			}
+		}
+	}
+
+
 
 	private final class PropertyVisitor extends ElementScanner6 {
 		private final List<Property> m_result = new ArrayList<>();
@@ -228,7 +256,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 			}
 
 			TypeMirror returnType = m.getReturnType();
-			if(returnType instanceof javax.lang.model.type.NoType) {	// void?
+			if(returnType instanceof javax.lang.model.type.NoType) {    // void?
 				return super.visitExecutable(m, p);
 			}
 
@@ -238,12 +266,12 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 				Name annName = a.getAnnotationType().asElement().getSimpleName();
 				annotationNames.add(annName.toString());
 			}
-			if(annotationNames.contains("to.etc.annotations.IgnoreGeneration")) {	// Ignore?
+			if(annotationNames.contains("to.etc.annotations.IgnoreGeneration")) {    // Ignore?
 				return super.visitExecutable(m, p);
 			}
 
 			//-- It cannot have arguments
-			if(m.getParameters().size() > 0) {
+			if(!m.getParameters().isEmpty()) {
 				return super.visitExecutable(m, p);
 			}
 

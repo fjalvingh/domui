@@ -41,7 +41,7 @@ public class BuildPlanForContainerParameter extends AbstractBuildPlan {
 	private String m_ident;
 
 	public BuildPlanForContainerParameter(final Class< ? > actualType, final List<String> nameList) {
-		if(nameList.size() == 0)
+		if(nameList.isEmpty())
 			m_ident = actualType.getName();
 		else
 			m_ident = nameList.toString();

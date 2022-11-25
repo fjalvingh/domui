@@ -161,7 +161,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 				defaultsort = true;
 			} else if(val instanceof String) {
 				final String s = (String) val;
-				final char c = s.length() == 0 ? 0 : s.charAt(0); // The empty string is used to denote a node renderer that takes the entire record as a parameter
+				final char c = s.isEmpty() ? 0 : s.charAt(0); // The empty string is used to denote a node renderer that takes the entire record as a parameter
 				switch(c){
 					default:
 						if(!Character.isLetter(c))
@@ -253,7 +253,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 		/*
 		 * If this is propertyless we need to add a column directly, and use it to assign to.
 		 */
-		if(property.length() == 0) {
+		if(property.isEmpty()) {
 			//-- We have the full class as the type of the model.
 			SimpleColumnDef<T> cd = new SimpleColumnDef<T>(this, m_rootClass);            // We are the root class.
 			add(cd);
@@ -413,7 +413,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 	 */
 	public void addDefaultColumns() {
 		final List<DisplayPropertyMetaModel> dpl = m_metaModel.getTableDisplayProperties();
-		if(dpl.size() == 0)
+		if(dpl.isEmpty())
 			throw new IllegalStateException(
 				"The list-of-columns to show is empty, and the class " + m_metaModel.getActualClass() + " has no @MetaObject definition defining a set of columns as default table columns, so there.");
 		List<ExpandedDisplayProperty<?>> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, m_metaModel, null);
@@ -450,7 +450,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 		int totdw = 0; // Total display width of all unassigned columns.
 		for(final SimpleColumnDef<?> scd : m_columnList) {
 			String cwidth = scd.getWidth();
-			if(cwidth == null || cwidth.length() == 0) {
+			if(cwidth == null || cwidth.isEmpty()) {
 				ntoass++;
 				totdw += scd.getDisplayLength();
 			} else {
@@ -482,9 +482,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 			//-- Reassign the percentage left over all unassigned columns. Do it streaming, to ensure we reach 100%
 			for(final SimpleColumnDef<?> scd : m_columnList) {
 				String width = scd.getWidth();
-				if(width == null || width.length() == 0) {
+				if(width == null || width.isEmpty()) {
 					//-- Calculate a size factor, then use it to assign
-					final double fact = (double) scd.getDisplayLength() / (double) totdw;
+					final double fact = (double) scd.getDisplayLength() / totdw;
 					final int pct = (int) (fact * pctleft + 0.5);
 					pctleft -= pct;
 					totdw -= scd.getDisplayLength();
@@ -608,7 +608,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 		final ExpandedDisplayProperty<?> xdpt = ExpandedDisplayProperty.expandProperty(pmm);
 		final List<ExpandedDisplayProperty<?>> flat = new ArrayList<ExpandedDisplayProperty<?>>();
 		ExpandedDisplayProperty.flatten(flat, xdpt);                                    // Expand any compounds;
-		if(flat.size() == 0)
+		if(flat.isEmpty())
 			throw new IllegalStateException("Expansion for property " + pmm + " resulted in 0 columns!?");
 
 		/*

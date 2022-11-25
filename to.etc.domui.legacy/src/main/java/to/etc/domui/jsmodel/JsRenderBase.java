@@ -45,9 +45,9 @@ class JsRenderBase {
 		ClassInfo valueCi = m_model.getInfo(value.getClass());
 		if(null == valueCi)
 			throw new IllegalStateException("No clss info for " + value.getClass());
-		if(valueCi.getParentProperties().size() > 0)
+		if(!valueCi.getParentProperties().isEmpty())
 			throw new IllegalStateException("Value object "+valueCi+" has identifyable parent properties which is not supported");
-		if(valueCi.getChildProperties().size() > 0)
+		if(!valueCi.getChildProperties().isEmpty())
 			throw new IllegalStateException("Value object "+valueCi+" has child list values which is not supported");
 
 		m_setSb.append("new ").append(value.getClass().getSimpleName()).append("({");

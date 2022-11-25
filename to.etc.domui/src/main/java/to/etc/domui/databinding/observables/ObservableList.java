@@ -157,7 +157,7 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 			}
 		}
 		finishChange();
-		return c.size() > 0;
+		return !c.isEmpty();
 	}
 
 	@Override

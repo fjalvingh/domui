@@ -9,7 +9,7 @@ import to.etc.webapp.query.QCriteria;
  * Created on 3-12-17.
  */
 @FunctionalInterface
-public interface ILookupQueryBuilder<D> {
+public interface ILookupQueryBuilder<Q, D> {
 	@NonNull
-	<T> LookupQueryBuilderResult appendCriteria(@NonNull QCriteria<T> criteria, @Nullable D lookupValue);
+	LookupQueryBuilderResult appendCriteria(@NonNull QCriteria<Q> criteria, @Nullable D lookupValue);
 }

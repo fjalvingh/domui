@@ -53,12 +53,16 @@ public class ColorPickerInput extends Input implements IControl<String> {
 
 	@Override
 	public void setValue(@Nullable String value) {
-		if(value == null)
+		if(value == null && isMandatory())
 			value = "000000"; // We do not allow null here.
-		if(value.startsWith("#"))
+		if(null != value && value.startsWith("#"))
 			value = value.substring(1); // Remove any #
 		setRawValue(value); // Set the color value;
-		m_coldiv.setBackgroundColor("#" + value);
+		if(null != value) {
+			m_coldiv.setBackgroundColor("#" + value);
+		}else {
+			m_coldiv.setBackgroundColor("inherit");
+		}
 		if(!isBuilt())
 			return;
 
@@ -69,8 +73,11 @@ public class ColorPickerInput extends Input implements IControl<String> {
 	@Override
 	public String	getValue() {
 		String v = getRawValue();
-		if(v == null || v.length() == 0)
+		if(isMandatory() && (v == null || v.isEmpty())) {
 			v = "000000";
+		}else if(!isMandatory() && v.isEmpty()) {
+			v = null;
+		}
 		return v;
 	}
 

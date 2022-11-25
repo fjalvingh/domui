@@ -39,6 +39,7 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TH;
@@ -49,12 +50,15 @@ import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.DomUtil.IPerNode;
 import to.etc.domui.util.JavascriptUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.util.DeveloperOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static to.etc.util.ExceptionUtil.silentThrows;
 
 /**
  * DataTable which allows rendering of multiple rows per data element. Originally created
@@ -198,7 +202,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		calcIndices(); 										// Calculate rows to show.
 
 		List<T> list = getPageItems(); 						// Data to show
-		if(list.size() == 0) {
+		if(list.isEmpty()) {
 			setNoResults();
 			return;
 		}
@@ -210,6 +214,20 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		ml("createContent rebuilt visibleList after render");
 		//if(isDisableClipboardSelection())
 		//	appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+	}
+
+	@Override
+	public void onAddedToPage(Page p) {
+		if(getTestID() != null)
+			return;
+		String key = "DataTableIX";
+		Integer val = (Integer) p.getAttribute(key);
+		if(null == val) {
+			val = 1;
+		}
+		setCalculcatedId("dt_" + val);
+		val = val + 1;
+		p.setAttribute(key, val);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -445,11 +463,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * Click handler for rows. This handles both row clicked handling and row selection handling.
-	 *
-	 * @param b
-	 * @param instance
-	 * @param clinfo
-	 * @throws Exception
 	 */
 	private void handleRowClick(final TR b, final T instance, final ClickInfo clinfo) throws Exception {
 		//-- If we have a selection model: check if this is some selecting clicky.
@@ -474,10 +487,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * When checkbox itself is clicked, this handles shift stuff.
-	 * @param instance
-	 * @param checked
-	 * @param info
-	 * @throws Exception
 	 */
 	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @NonNull Checkbox checkbox) throws Exception {
 		handleSelectClicky(instance, info, Boolean.valueOf(checked));
@@ -490,8 +499,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * If the specified item is on-screen, this returns the row index inside TBody for that item.
 	 * It returns -1 if the thing is not found.
-	 * @param item
-	 * @return
 	 */
 	protected int findRowIndex(T item) {
 		for(int i = m_visibleItemList.size(); --i >= 0; ) {
@@ -512,13 +519,17 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			throw new IllegalStateException("SelectionModel is null??");
 		boolean nvalue = setTo != null ? setTo.booleanValue() : !sm.isSelected(instance);
 
+		int itemindex = getVisibleItemindex(instance);
 		if(!clinfo.isShift()) {
 			sm.setInstanceSelected(instance, nvalue);
-			m_lastSelectionLocation = -1;
+			if(itemindex == -1) {
+				m_lastSelectionLocation = -1;
+			} else {
+				m_lastSelectionLocation = itemindex + m_six;	// Last selected index
+			}
 			return;
 		}
-		int itemindex = getVisibleItemindex(instance);
-		if(itemindex == -1)									// Ignore when thingy not found
+		if(itemindex == -1)										// Ignore when thingy not found
 			return;
 		itemindex += m_six;
 
@@ -580,9 +591,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/*--------------------------------------------------------------*/
 	/**
 	 * Updates the "selection" state of the specified local row#.
-	 * @param instance
-	 * @param tableRowSet
-	 * @param on
 	 */
 	private void updateSelectionChanged(T instance, TableRowSet<T> tableRowSet, boolean on) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
@@ -714,7 +722,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			return;
 		calcIndices();
 		List<T> list = getPageItems(); 						// Data to show
-		if(list.size() == 0) {
+		if(list.isEmpty()) {
 			setNoResults();
 			return;
 		}
@@ -754,8 +762,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * page size; if it is we delete the last node. After all this the renderer will render
 	 * the correct result.
 	 * When called the actual insert has already taken place in the model.
-	 *
-	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
 	public void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
@@ -845,8 +851,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * Delete the row specified. If it is not visible we do nothing. If it is visible we
 	 * delete the row. This causes one less row to be shown, so we check if we have a pagesize
 	 * set; if so we add a new row at the end IF it is available.
-	 *
-	 * @see ITableModelListener#rowDeleted(ITableModel, int, Object)
 	 */
 	@Override
 	public void rowDeleted(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
@@ -867,7 +871,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			for(DataTableRow<T> tableRow : rowSet) {
 				tableRow.remove();
 			}
-			if(m_visibleItemList.size() == 0) {
+			if(m_visibleItemList.isEmpty()) {
 				calcIndices();								// Calculate visible nodes
 				setNoResults();
 				firePageChanged();
@@ -980,7 +984,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * Called when a selection event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
-	 * it's selection presentation.
+	 * its selection presentation.
 	 *
 	 * @see ISelectionListener#selectionChanged(Object, boolean)
 	 */
@@ -1002,7 +1006,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
-	 * it's selection presentation.
+	 * its selection presentation.
 	 */
 	@Override
 	public void selectionAllChanged() throws Exception {
@@ -1017,7 +1021,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * When T, the header of the table is always shown, even if the list of results is empty.
-	 * @return
 	 */
 	public boolean isShowHeaderAlways() {
 		return m_showHeaderAlways;
@@ -1025,7 +1028,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * When T, the header of the table is always shown, even if the list of results is empty.
-	 * @param showHeaderAlways
 	 */
 	public void setShowHeaderAlways(boolean showHeaderAlways) {
 		m_showHeaderAlways = showHeaderAlways;
@@ -1037,8 +1039,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * When T, rows are not highlighted when table has no selection callbacks on rows.
-	 *
-	 * @param preventRowHighlight
 	 */
 	public void setPreventRowHighlight(boolean preventRowHighlight) {
 		m_preventRowHighlight = preventRowHighlight;
@@ -1046,7 +1046,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
-	 * @param dataBody
 	 */
 	private void setDataBody(@NonNull TBody dataBody) {
 		m_dataBody = dataBody;
@@ -1062,7 +1061,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
-	 * @return
 	 */
 	@NonNull
 	protected Table getTable() {
@@ -1086,8 +1084,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * Set the page size: the #of records to show. If &lt;= 0 all records are shown.
-	 *
-	 * @param pageSize
 	 */
 	public void setPageSize(int pageSize) {
 		if(m_pageSize == pageSize)
@@ -1133,5 +1129,26 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	}
 
 	@Override public void setHint(String hintText) {
+	}
+
+	@Override
+	public void onRemoveFromPage(Page p) {
+		super.onRemoveFromPage(p);
+		silentThrows(()->{
+			DomUtil.walkTree(this, new IPerNode() {
+				@Override
+				public Object before(@NonNull NodeBase n) throws Exception {
+					if(n != null && n.getTestID() != null) {
+						p.deallocateTestId(n.getTestID());
+					}
+					return null;
+				}
+
+				@Override
+				public Object after(@NonNull NodeBase n) throws Exception {
+					return null;
+				}
+			});
+		});
 	}
 }

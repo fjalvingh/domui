@@ -334,7 +334,7 @@ public class ImageTask extends CacheChange {
 	 */
 	public CachedImageData getImageData(List<IImageConversionSpecifier> conversions) throws Exception {
 		//-- Shortcut: if referring to the ORIGINAL...
-		if(conversions == null || conversions.size() == 0)
+		if(conversions == null || conversions.isEmpty())
 			return getOriginalData();
 
 		removeOutdatedVersions(); // Remove all old thingies from the cache.
@@ -436,7 +436,7 @@ public class ImageTask extends CacheChange {
 
 	public CachedImageInfo getImageInfo(List<IImageConversionSpecifier> conversions) throws Exception {
 		//-- Shortcut: if referring to the ORIGINAL...
-		if(conversions == null || conversions.size() == 0)
+		if(conversions == null || conversions.isEmpty())
 			return getOriginalInfo();
 
 		removeOutdatedVersions(); // Remove all old thingies from the cache.

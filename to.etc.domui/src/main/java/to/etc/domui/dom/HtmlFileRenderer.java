@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -239,6 +240,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		m_tagRenderer.setRenderMode(m);
 	}
 
+	@Override
 	public boolean isXml() {
 		return m_xml;
 	}
@@ -449,7 +451,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
 	 */
 	public void renderHeadContributors() throws Exception {
-		if(m_contributors.size() == 0) {
+		if(m_contributors.isEmpty()) {
 			List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(m_page.getApplication().getHeaderContributorList());
 
 			Collections.sort(full, HeaderContributor.C_ENTRY);
@@ -497,7 +499,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		File appFile = m_page.getApplication().getAppFile(rurl);
 		if(appFile.exists() && appFile.isFile()) {
 			o().writeRaw("<style type='text/css'>\n");
-			String css = FileTool.readFileAsString(appFile, "utf-8");
+			String css = FileTool.readFileAsString(appFile, StandardCharsets.UTF_8);
 			o().writeRaw(css);
 			o().writeRaw("\n</style>\n");
 		}

@@ -143,7 +143,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getApplicationHost());
 		String wc = getWebappContext();
-		if(wc.length() > 0) {
+		if(!wc.isEmpty()) {
 			sb.append(wc);
 			sb.append('/');
 		}
@@ -385,7 +385,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 		}
 
 		String webapp = getWebappContext();
-		if(webapp.length() > 0) {
+		if(!webapp.isEmpty()) {
 			webapp = "/" + webapp + "/";
 			if(!redirectURL.startsWith(webapp)) {
 				System.out.println("Redirected ouside our webapp context -> page test ends");
@@ -425,7 +425,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 		StringBuilder sb = new StringBuilder();
 		sb.append('/');
 		String webappContext = getWebappContext();
-		if(webappContext.length() > 0) {
+		if(!webappContext.isEmpty()) {
 			sb.append(webappContext);						// Start with the app context as "xxx/" or the empty string.
 			sb.append('/');
 		}

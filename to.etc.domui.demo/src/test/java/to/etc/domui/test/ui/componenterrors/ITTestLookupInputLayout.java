@@ -43,7 +43,7 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 	public void testOneCannotHaveInput() throws Exception {
 		//-- One must not contain an input
 		WebElement one = wd().getElement("one");
-		Assert.assertTrue("One cannot have 'input' because it has no QuickSearch", one.findElements(By.tagName("input")).size() == 0);
+		Assert.assertTrue("One cannot have 'input' because it has no QuickSearch", one.findElements(By.tagName("input")).isEmpty());
 	}
 
 	@Test

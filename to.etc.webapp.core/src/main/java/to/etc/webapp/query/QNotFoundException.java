@@ -37,7 +37,7 @@ public class QNotFoundException extends QDbException {
 	 */
 	@Deprecated
 	public QNotFoundException() {
-		super("record.not.found.simple");
+		super(QMessages.recordNotFoundSimple);
 	}
 
 	/**
@@ -45,14 +45,14 @@ public class QNotFoundException extends QDbException {
 	 */
 	@Deprecated
 	public QNotFoundException(Throwable x) {
-		super(x, "record.not.found.simple");
+		super(x, QMessages.recordNotFoundSimple);
 	}
 
 	public QNotFoundException(String type, Object key) {
-		super("recordNotFound", type, key);
+		super(QMessages.recordNotFound, type, key);
 	}
 
 	public QNotFoundException(Class< ? > type, Object key) {
-		super("recordNotFound", type.getName(), key);
+		super(QMessages.recordNotFound, type.getName(), key);
 	}
 }
