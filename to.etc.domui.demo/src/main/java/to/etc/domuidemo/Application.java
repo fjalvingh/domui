@@ -117,7 +117,7 @@ public class Application extends DomApplication {
 	}
 
 	void onNewPage(final UrlPage p) throws Exception {
-		if(p instanceof SourcePage || p instanceof FormDesigner || p instanceof SpiPage)
+		if(p instanceof SourcePage || p instanceof SpiPage)
 			return;
 
 		if(null != DomUtil.findComponentInTree(p, BreadCrumb.class))
