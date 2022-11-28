@@ -302,6 +302,7 @@ public enum Msgs implements IBundleCode {
 	/** lookupform.cancel title */
 	public static String LOOKUP_FORM_CANCEL_TITLE = "lookupform.btn.cancel.title";
 
+	public static String VERBATIM = "verbatim";
 
 	//# AsyncContainer
 	/** asynccontainer.cancel key */

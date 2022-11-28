@@ -87,11 +87,14 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 		return m_truncated;
 	}
 
+	@Override
 	public void setTruncated(boolean tr) {
 		m_truncated = tr;
 	}
 
-	@Override public Integer getActualRowCount() throws Exception {
+	@Nullable
+	@Override
+	public Integer getActualRowCount() throws Exception {
 		return m_actualRowCount;
 	}
 
