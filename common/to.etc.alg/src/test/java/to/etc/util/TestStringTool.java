@@ -476,4 +476,10 @@ public class TestStringTool {
 		assertEquals(StringTool.replaceQualifiedNameInExpression("a.aaaa + a.aaab-a.aAa", "A", "aaa", "Aa.ccc"), "a.aaaa + a.aaab-Aa.ccc");
 		assertEquals(StringTool.replaceQualifiedNameInExpression("aa.aaa-A.aaa*1-a.AAa ", "A", "aaa", "Aa.ccc"), "aa.aaa-Aa.ccc*1-Aa.ccc ");
 	}
+
+	@Test
+	public void testReplaceVariableNameInExpression() {
+		assertEquals(StringTool.replaceVariableNameInExpression("aaaa + aaab-aAa", "aaa", "ccc"), "aaaa + aaab-ccc");
+		assertEquals(StringTool.replaceVariableNameInExpression("baaa-aaa*1-AAa ", "aaa", "ccc"), "baaa-ccc*1-ccc ");
+	}
 }
