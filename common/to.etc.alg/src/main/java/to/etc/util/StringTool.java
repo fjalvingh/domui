@@ -3124,12 +3124,12 @@ public class StringTool {
 	}
 
 	/**
-	 * Util that locates given qualified name in expression (with ignored casing), and replaces it with new qualified name.
+	 * Util that locates given variable name in expression (with ignored casing), and replaces it with new name.
 	 * It ignores other cases when old name is part of naming of other variables in expression.
-	 * It requires that old qualified name prefix and name are named by java identifier convention.
+	 * It requires that old and new name are named by java identifier convention.
 	 *
-	 * @param expression expression where we replace variables with qualified names
-	 * @param oldName name in qualified name to replace.
+	 * @param expression expression where we replace variable name
+	 * @param oldName name to replace.
 	 * @return replaced expression.
 	 */
 	@Nullable
