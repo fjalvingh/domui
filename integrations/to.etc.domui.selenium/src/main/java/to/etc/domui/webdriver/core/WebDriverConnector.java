@@ -223,12 +223,14 @@ final public class WebDriverConnector {
 
 	@NonNull
 	private static WebDriverType getDriverType(@Nullable String hubUrl) {
-		if(null == hubUrl || hubUrl.trim().isEmpty())
-			return WebDriverType.HTMLUNIT;                    // Used as a target because it can emulate multiple browser types
-		if("local".equals(hubUrl.trim()))
-			return WebDriverType.LOCAL;
-		if(hubUrl.startsWith(BROWSERSTACK)) {
-			return WebDriverType.BROWSERSTACK;
+		if(null != hubUrl) {
+			//if(null == hubUrl || hubUrl.trim().isEmpty())
+			//	return WebDriverType.HTMLUNIT;                    // Used as a target because it can emulate multiple browser types
+			if("local".equals(hubUrl.trim()))
+				return WebDriverType.LOCAL;
+			if(hubUrl.startsWith(BROWSERSTACK)) {
+				return WebDriverType.BROWSERSTACK;
+			}
 		}
 		return WebDriverType.REMOTE;
 	}
