@@ -3117,10 +3117,28 @@ public class StringTool {
 		if(null == expression) {
 			return null;
 		}
-		String lowerCaseExpression = expression.toLowerCase();
 		String lEntityName = prefixQName.toLowerCase();
 		String lOldName = oldName.toLowerCase();
 		String literalToFind = lEntityName + "." + lOldName;
+		return replaceVariableNameInExpression(expression, literalToFind, newQName);
+	}
+
+	/**
+	 * Util that locates given variable name in expression (with ignored casing), and replaces it with new name.
+	 * It ignores other cases when old name is part of naming of other variables in expression.
+	 * It requires that old and new name are named by java identifier convention.
+	 *
+	 * @param expression expression where we replace variable name
+	 * @param oldName name to replace.
+	 * @return replaced expression.
+	 */
+	@Nullable
+	public static String replaceVariableNameInExpression(@Nullable String expression, String oldName, String newName) {
+		if(null == expression) {
+			return null;
+		}
+		String lowerCaseExpression = expression.toLowerCase();
+		String literalToFind = oldName.toLowerCase();
 		int lastReplacedIndex = 0;
 		int pos = -1;
 		StringBuilder replaceSb = new StringBuilder();
@@ -3138,7 +3156,7 @@ public class StringTool {
 				if((nextChar == null || !isJavaIdentifierPart(nextChar)) && (prevChar == null || !isJavaIdentifierPart(prevChar))) {
 					replaceSb
 						.append(expression.substring(lastReplacedIndex, pos))
-						.append(newQName);
+						.append(newName);
 					lastReplacedIndex = pos + literalToFind.length();
 				}
 			} else if(lastReplacedIndex < expression.length()) {
