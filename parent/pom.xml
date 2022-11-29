@@ -115,7 +115,7 @@
 		<jetty.version>9.4.14.v20181114</jetty.version>  <!-- DO NOT GO TO 10.x - tests fail with that -->
 <!--		<jetty.version>11.0.7</jetty.version>-->
 		<selenium.version>3.141.59</selenium.version>
-		<hsqldb.version>2.7.0</hsqldb.version>
+		<hsqldb.version>2.7.1</hsqldb.version>
 
 		<jaxb.version>2.3.1</jaxb.version>
 
@@ -294,7 +294,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
-				<version>1.10.0</version>
+				<version>1.10.1</version>
 			</dependency>
 
 			<dependency>
@@ -688,7 +688,7 @@
 			<dependency>
 				<groupId>io.bit3</groupId>
 				<artifactId>jsass</artifactId>
-				<version>5.10.4</version>
+				<version>5.10.5</version>
 			</dependency>
 
 			<!-- Java 9 muck -->
