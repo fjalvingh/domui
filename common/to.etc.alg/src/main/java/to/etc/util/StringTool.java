@@ -45,6 +45,8 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import static java.lang.Character.isJavaIdentifierPart;
+
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)
@@ -112,7 +114,7 @@ public class StringTool {
 		if(!Character.isJavaIdentifierStart(s.charAt(0)))
 			return false;
 		for(int i = 1; i < len; i++) {
-			if(!Character.isJavaIdentifierPart(s.charAt(i)))
+			if(!isJavaIdentifierPart(s.charAt(i)))
 				return false;
 		}
 		return true;
@@ -3097,6 +3099,53 @@ public class StringTool {
 		s = Normalizer.normalize(s, Normalizer.Form.NFD);
 		s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
 		return s;
+	}
+
+	/**
+	 * Util that locates given qualified name in expression (with ignored casing), and replaces it with new qualified name.
+	 * It ignores other cases when old name is part of naming of other variables in expression.
+	 * It requires that old qualified name prefix and name are named by java identifier convention.
+	 *
+	 * @param expression expression where we replace variables with qualified names
+	 * @param prefixQName prefix in qualified name to replace.
+	 * @param oldName name in qualified name to replace.
+	 * @param newQName new qualified name that replaced old one.
+	 * @return replaced expression.
+	 */
+	@Nullable
+	public static String replaceQualifiedNameInExpression(@Nullable String expression, String prefixQName, String oldName, String newQName) {
+		if(null == expression) {
+			return null;
+		}
+		String lowerCaseExpression = expression.toLowerCase();
+		String lEntityName = prefixQName.toLowerCase();
+		String lOldName = oldName.toLowerCase();
+		String literalToFind = lEntityName + "." + lOldName;
+		int lastReplacedIndex = 0;
+		int pos = -1;
+		StringBuilder replaceSb = new StringBuilder();
+		do {
+			pos = lowerCaseExpression.indexOf(literalToFind, pos + 1);
+			if(pos > -1) {
+				Character nextChar = null;
+				if(lowerCaseExpression.length() > pos + literalToFind.length()) {
+					nextChar = lowerCaseExpression.charAt(pos + literalToFind.length());
+				}
+				Character prevChar = null;
+				if(pos > 0) {
+					prevChar = expression.charAt(pos - 1);
+				}
+				if((nextChar == null || !isJavaIdentifierPart(nextChar)) && (prevChar == null || !isJavaIdentifierPart(prevChar))) {
+					replaceSb
+						.append(expression.substring(lastReplacedIndex, pos))
+						.append(newQName);
+					lastReplacedIndex = pos + literalToFind.length();
+				}
+			} else if(lastReplacedIndex < expression.length()) {
+				replaceSb.append(expression.substring(lastReplacedIndex));
+			}
+		} while(pos >= 0);
+		return replaceSb.toString();
 	}
 
 	/**
