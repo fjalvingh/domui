@@ -463,7 +463,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		String sheet = theme.getStyleSheetName();
 
 		//-- Render style fragments part.
-		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
+		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" nonce=\"" + m_page.getNonce() + "\" href=\"");
 		o().writeRaw(ctx().getRelativePath(sheet));
 		if(isXml())
 			o().writeRaw("\"/>");
@@ -475,7 +475,6 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
-	 * @throws Exception
 	 */
 	public void renderHeadContributors() throws Exception {
 		List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(page().getApplication().getHeaderContributorList());
@@ -496,6 +495,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
 		o().rawAttr("href", path);
+		o().attr("nonce", m_page.getNonce());
 
 		for(int i = 0; i < options.length; i += 2) {
 			o().rawAttr(options[i], options[i + 1]);

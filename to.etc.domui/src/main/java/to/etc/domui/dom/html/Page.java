@@ -47,7 +47,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.function.IExecute;
-import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
@@ -1500,7 +1499,7 @@ final public class Page implements IQContextContainer {
 	public String getNonce() {
 		String nonce = m_nonce;
 		if(null == nonce) {
-			m_nonce = nonce = StringTool.generateGUID();
+			m_nonce = nonce = DomUtil.createNonce();
 		}
 		return nonce;
 	}

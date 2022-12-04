@@ -1146,7 +1146,7 @@ public abstract class DomApplication {
 			StringBuilder sb = new StringBuilder();
 			while(ix < value.length()) {
 				if(pos == -1) {
-					sb.append(ix);
+					sb.append(value.substring(ix));
 					break;
 				}
 				if(ix < pos) {
@@ -1160,7 +1160,7 @@ public abstract class DomApplication {
 				String varValue = variableMap.get(varName);
 				if(null != varValue)
 					sb.append(varValue);
-				ix = pos + 1;
+				ix = epos + 1;
 
 				//-- Next variable...
 				pos = value.indexOf("${", ix);
@@ -1413,7 +1413,7 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
 		addHeaderContributor(HeaderContributor.loadJavascript("$ts/domui-combined.js?v=2"), -900);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.searchpopup.js"), -895);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/colResizable-1.6.js"), -895);
+		//addHeaderContributor(HeaderContributor.loadJavascript("$js/colResizable-1.6.js"), -895);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);

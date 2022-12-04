@@ -562,7 +562,7 @@ namespace WebUI {
 	/**
 	 * Load the specified stylesheet by creating a script tag and inserting it @ head.
 	 */
-	export function loadStylesheet(path) {
+	export function loadStylesheet(path: string, nonce: string) {
 		var head = document.getElementsByTagName("head")[0];
 		if(! head)
 			throw "Headless document!?";
@@ -571,16 +571,18 @@ namespace WebUI {
 		link.rel = 'stylesheet';
 		link.href = path;
 		link.media = 'screen';
+		link["nonce"] = nonce;
 		head.appendChild(link);
 	}
 
-	export function loadJavascript(path) {
+	export function loadJavascript(path: string, nonce: string) {
 		var head = document.getElementsByTagName("head")[0];
 		if(! head)
 			throw "Headless document!?";
 		var scp = document.createElement('script');
 		scp.type = 'text/javascript';
 		scp.src = path;
+		scp["nonce"] = nonce;
 		head.appendChild(scp);
 	}
 
