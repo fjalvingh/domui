@@ -187,6 +187,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		 * as soon as the body load has completed.
 		 */
 		o().tag("script");
+		o().attr("nonce", getPage().getNonce());
 		o().endtag();
 		o().text("$(document).ready(function() {");
 
@@ -251,7 +252,9 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	 * Called from template.
 	 */
 	public void renderHeadContent() throws Exception {
-		o().writeRaw("<script>");
+		o().tag("script");
+		o().attr("nonce", getPage().getNonce());
+		o().endtag();
 		if(!isXml())
 			o().writeRaw("<!--\n");
 
@@ -515,6 +518,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 		//-- render an app-relative url
 		o().tag("script");
+		o().attr("nonce", getPage().getNonce());
 		o().attr("src", path);
 		if(async)
 			o().writeRaw(" async='async'");
