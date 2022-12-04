@@ -47,6 +47,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.function.IExecute;
+import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
@@ -97,6 +98,9 @@ final public class Page implements IQContextContainer {
 
 	@Nullable
 	private ConversationContext m_cc;
+
+	@Nullable
+	private String m_nonce;
 
 	//	private boolean					m_built;
 
@@ -1481,11 +1485,21 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
-
 	/**
 	 * Do not use, you will OOM the server just like that!!
 	 */
 	public void internalSetAllowTooManyNodes(boolean allowTooManyNodes) {
 		m_allowTooManyNodes = allowTooManyNodes;
+	}
+
+	/**
+	 * Return an unique page nonce.
+	 */
+	public String getNonce() {
+		String nonce = m_nonce;
+		if(null == nonce) {
+			m_nonce = nonce = StringTool.generateGUID();
+		}
+		return nonce;
 	}
 }
