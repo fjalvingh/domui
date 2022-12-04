@@ -102,6 +102,8 @@ final public class Page implements IQContextContainer {
 	@Nullable
 	private String m_nonce;
 
+	private final Map<String, String> m_headerVariableMap = new HashMap<>(9);
+
 	//	private boolean					m_built;
 
 	@NonNull
@@ -1501,5 +1503,10 @@ final public class Page implements IQContextContainer {
 			m_nonce = nonce = StringTool.generateGUID();
 		}
 		return nonce;
+	}
+
+	public Map<String, String> getHeaderVariableMap() {
+		m_headerVariableMap.put("NONCE", getNonce());
+		return m_headerVariableMap;
 	}
 }
