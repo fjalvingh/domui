@@ -1,0 +1,19 @@
+{
+	"name": "domui-codemirror",
+	"version": "1.0.0",
+	"description": "CodeMirror JS interface",
+	"scripts": {
+		"compile": "./node_modules/.bin/tsc --allowjs --project src/main/resources/resources/ts/tsconfig.json",
+		"compile-typescript": "tsc"
+	},
+	"author": "",
+	"license": "MIT License",
+	"dependencies": {
+		"@codemirror/lang-javascript": "^6.1.1",
+		"@codemirror/lang-sql": "^6.3.3",
+		"@rollup/plugin-node-resolve": "^15.0.1",
+		"codemirror": "^6.0.1",
+		"rollup": "^3.5.1"
+	},
+	"typescript": "^4.2.3"
+}
