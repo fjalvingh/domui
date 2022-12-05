@@ -521,7 +521,6 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		o().tag("script");
 		o().attr("nonce", getPage().getNonce());
 		o().attr("src", path);
-		o().attr("nonce", "DitIsEenTestNonce");
 		if(async)
 			o().writeRaw(" async='async'");
 		if(defer)

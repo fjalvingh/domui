@@ -111,7 +111,6 @@ public class CookieHeaderContributor extends HeaderContributor {
 			.replace("${cookieAcceptance}", cookieAcceptanceJS.toString())
 		;
 		r.o().tag("script");
-		r.o().attr("nonce", "DitIsEenTestNonce");
 		r.o().attr("language", "javascript");
 		r.o().attr("nonce", r.getPage().getNonce());
 		r.o().endtag();
