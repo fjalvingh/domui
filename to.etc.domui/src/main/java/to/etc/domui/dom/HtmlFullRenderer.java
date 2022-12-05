@@ -170,9 +170,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	private void renderFullPage() throws Exception {
 		//		page.build();  jal 20100618 moved to users of full renderer; building and rendering are now separate concerns
 		renderHtmlDoctype();
-//		String nonce = RandomStringUtils.randomAlphabetic(10);
-		String nonce = "DitIsEenTestNonce";
-		renderHeadContent(nonce);
+		renderHeadContent();
 		renderPageTitle();
 		o().closetag("head");
 
@@ -189,7 +187,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		 * as soon as the body load has completed.
 		 */
 		o().tag("script");
-		o().attr("nonce", "DitIsEenTestNonce");
+		o().attr("nonce", getPage().getNonce());
 		o().endtag();
 		o().text("$(document).ready(function() {");
 
@@ -254,8 +252,10 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	/**
 	 * Called from template.
 	 */
-	public void renderHeadContent(String nonce) throws Exception {
-		o().writeRaw("<script nonce=\"" + nonce + "\">");
+	public void renderHeadContent() throws Exception {
+		o().tag("script");
+		o().attr("nonce", getPage().getNonce());
+		o().endtag();
 		if(!isXml())
 			o().writeRaw("<!--\n");
 
@@ -464,7 +464,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		String sheet = theme.getStyleSheetName();
 
 		//-- Render style fragments part.
-		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
+		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" nonce=\"" + m_page.getNonce() + "\" href=\"");
 		o().writeRaw(ctx().getRelativePath(sheet));
 		if(isXml())
 			o().writeRaw("\"/>");
@@ -476,7 +476,6 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
-	 * @throws Exception
 	 */
 	public void renderHeadContributors() throws Exception {
 		List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(page().getApplication().getHeaderContributorList());
@@ -497,6 +496,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
 		o().rawAttr("href", path);
+		o().attr("nonce", m_page.getNonce());
 
 		for(int i = 0; i < options.length; i += 2) {
 			o().rawAttr(options[i], options[i + 1]);
@@ -519,6 +519,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 		//-- render an app-relative url
 		o().tag("script");
+		o().attr("nonce", getPage().getNonce());
 		o().attr("src", path);
 		o().attr("nonce", "DitIsEenTestNonce");
 		if(async)

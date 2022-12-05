@@ -310,7 +310,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	final protected void changed() {
 		if(m_disableChanged > 0)
 			return;
-		setStyleRendered();
+		//setStyleRendered(); jal 20221204 Changed should not imply a state is needed.
 		setCachedStyle(null);
 		internalSetHasChangedAttributes();
 		NodeContainer p = m_parent;

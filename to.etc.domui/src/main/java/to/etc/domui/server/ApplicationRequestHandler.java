@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
+import to.etc.domui.util.DomUtil;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
 
@@ -98,7 +99,11 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 			throw new IllegalStateException("Invalid TO url generated");
 
 		//-- Output all headers
-		ctx.renderResponseHeaders(null);                            // We do not have a page instance here.
+		DomApplication a = ctx.getApplication();
+		Map<String, String> httpHeaders = a.getDefaultHTTPHeaderMap();
+		String nonce = DomUtil.createNonce();
+		Map<String, String> varMap = Map.of("NONCE", nonce);
+		a.renderHeaders(ctx.getRequestResponse(), httpHeaders, varMap);
 
 		String extra = "";
 		//if(hashToParameter) {
@@ -109,8 +114,13 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		String locationUpdate = "location.replace(" + StringTool.strToJavascriptString(to, true) + extra + " + location.hash);\n";
 		//System.out.println(">>> location: " + locationUpdate);
-		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
-			+ locationUpdate + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
+		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"nonce=\"" + nonce + "\"><!--\n"
+			+ locationUpdate
+			+ "--></script>\n"
+			+ "</head><body>"
+			+ rsn
+			+ "</body></html>\n"
+		);
 	}
 
 	///**

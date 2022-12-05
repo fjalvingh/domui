@@ -100,6 +100,11 @@ final public class Page implements IQContextContainer {
 	@Nullable
 	private ConversationContext m_cc;
 
+	@Nullable
+	private String m_nonce;
+
+	private final Map<String, String> m_headerVariableMap = new HashMap<>(9);
+
 	//	private boolean					m_built;
 
 	@NonNull
@@ -1507,11 +1512,26 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
-
 	/**
 	 * Do not use, you will OOM the server just like that!!
 	 */
 	public void internalSetAllowTooManyNodes(boolean allowTooManyNodes) {
 		m_allowTooManyNodes = allowTooManyNodes;
+	}
+
+	/**
+	 * Return an unique page nonce.
+	 */
+	public String getNonce() {
+		String nonce = m_nonce;
+		if(null == nonce) {
+			m_nonce = nonce = DomUtil.createNonce();
+		}
+		return nonce;
+	}
+
+	public Map<String, String> getHeaderVariableMap() {
+		m_headerVariableMap.put("NONCE", getNonce());
+		return m_headerVariableMap;
 	}
 }
