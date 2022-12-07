@@ -89,6 +89,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2288,6 +2289,13 @@ final public class DomUtil {
 			src = UIContext.getRequestContext().getRelativePath(src);	// FIXME Must become easier
 		}
 		return src;
+	}
+
+	@NonNull
+	static public String createNonce() {
+		byte[] shit = new byte[16];
+		new SecureRandom().nextBytes(shit);
+		return StringTool.encodeBase64ToString(shit);
 	}
 
 

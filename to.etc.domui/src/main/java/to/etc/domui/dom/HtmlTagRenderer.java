@@ -626,8 +626,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	/**
 	 * Returns the style for the node. It uses the cached style and recreates it when it has changed.
-	 * @param b
-	 * @return
 	 */
 	protected String getStyleFor(final NodeBase b) throws Exception {
 		String s = b.getCachedStyle();

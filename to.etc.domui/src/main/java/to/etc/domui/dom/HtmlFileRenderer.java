@@ -207,6 +207,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 		o().tag("script");
 		o().attr("language", "javascript");
+		o().attr("nonce", getPage().getNonce());
 		o().endtag();
 		o().writeRaw(getCreateJS());
 		o().closetag("script");
@@ -508,6 +509,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	public void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception {
 		if(path.startsWith("http")) {
 			o().tag("script");
+			o().attr("nonce", getPage().getNonce());
 			o().attr("src", path);
 			o().endtag();
 			o().closetag("script");
@@ -516,9 +518,11 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
-		o().writeRaw("<script>\n");
+		o().tag("script");
+		o().attr("nonce", getPage().getNonce());
+		o().endtag();
 		renderResourceAsText(rurl);
-		o().writeRaw("\n</script>\n");
+		o().closetag("script");
 	}
 
 	private void genVar(String name, String val) throws Exception {

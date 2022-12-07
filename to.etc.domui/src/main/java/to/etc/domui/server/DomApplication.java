@@ -1133,6 +1133,44 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * Render all headers in the map, replacing evt variables.
+	 */
+	public void renderHeaders(IRequestResponse rr, Map<String, String> headerMap, Map<String, String> variableMap) {
+		headerMap.forEach((name, value) -> renderHeader(rr, name, value, variableMap));
+	}
+
+	private void renderHeader(@NonNull IRequestResponse rr, @NonNull String name, @NonNull String value, @NonNull Map<String, String> variableMap) {
+		int pos = value.indexOf("${");
+		if(pos != -1) {
+			int ix = 0;
+			StringBuilder sb = new StringBuilder();
+			while(ix < value.length()) {
+				if(pos == -1) {
+					sb.append(value.substring(ix));
+					break;
+				}
+				if(ix < pos) {
+					sb.append(value, ix, pos);			// Append everything before var invocation
+					ix = pos;
+				}
+				int epos = value.indexOf('}', pos);
+				if(epos == -1)
+					throw new IllegalStateException("Missing } in variable invocation of header '" + name + "'");
+				String varName = value.substring(pos + 2, epos);
+				String varValue = variableMap.get(varName);
+				if(null != varValue)
+					sb.append(varValue);
+				ix = epos + 1;
+
+				//-- Next variable...
+				pos = value.indexOf("${", ix);
+			}
+			value = sb.toString();
+		}
+		rr.addHeader(name, value);
+	}
+
+	/**
 	 * All http headers that should be sent with each response, as an unmodifyable map.
 	 */
 	public Map<String, String> getDefaultHTTPHeaderMap() {
@@ -1375,7 +1413,7 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
 		addHeaderContributor(HeaderContributor.loadJavascript("$ts/domui-combined.js?v=2"), -900);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.searchpopup.js"), -895);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/colResizable-1.6.js"), -895);
+		//addHeaderContributor(HeaderContributor.loadJavascript("$js/colResizable-1.6.js"), -895);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);

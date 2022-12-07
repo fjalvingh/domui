@@ -242,7 +242,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * Get the session for this context.
-	 * @see to.etc.domui.server.IRequestContext#getSession()
 	 */
 	@Override
 	final public @NonNull AppSession getSession() {
@@ -497,7 +496,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	}
 
 	public void renderResponseHeaders(@Nullable UrlPage currentPage) throws Exception {
-		m_application.applyPageHeaderTransformations(getPageName(), currentPage).forEach((header, value) -> getRequestResponse().addHeader(header, value));
+		Map<String, String> httpHeaders = m_application.applyPageHeaderTransformations(getPageName(), currentPage);
+		m_application.renderHeaders(getRequestResponse(), httpHeaders, currentPage == null ? Collections.emptyMap() : currentPage.getPage().getHeaderVariableMap());
 	}
 
 	/**

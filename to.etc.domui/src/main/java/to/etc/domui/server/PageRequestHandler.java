@@ -61,6 +61,7 @@ import to.etc.webapp.query.QContextManager;
 import javax.servlet.http.HttpSession;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static to.etc.domui.util.DomUtil.nullChecked;
@@ -568,7 +569,8 @@ final public class PageRequestHandler {
 
 		//-- Send an empty response because IE will actually act on it sometimes.
 		IRequestResponse rr = m_ctx.getRequestResponse();
-		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+		DomApplication da = DomApplication.get();
+		da.renderHeaders(rr, da.getDefaultHTTPHeaderMap(), Collections.emptyMap());
 		m_ctx.getOutputWriter("text/html", "utf-8");
 	}
 

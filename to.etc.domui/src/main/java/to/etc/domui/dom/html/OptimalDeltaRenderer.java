@@ -297,14 +297,14 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 	public void renderLoadCSS(@NonNull String path, String... options) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
-		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");
+		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ", '" + m_page.getNonce() + "');\n");
 	}
 
 	@Override
 	public void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
-		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ");\n");
+		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ", '" + m_page.getNonce() + "');\n");
 	}
 
 	/**

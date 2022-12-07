@@ -116,8 +116,6 @@ abstract public class HeaderContributor {
 
 	/**
 	 * Add a header contributor to add the Google Analytics blurb to every page.
-	 * @param uacode
-	 * @return
 	 */
 	static synchronized public HeaderContributor loadGoogleAnalytics(final String uacode) {
 		HeaderContributor c = m_jsMap.get(uacode);
