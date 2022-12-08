@@ -112,7 +112,8 @@ public class JDBCReverser implements Reverser {
 			if(name == null)
 				throw new IllegalStateException("Schema name not known");
 
-			Set<DbSchema> schemasOnly = getSchemasOnly(dbc);
+			Set<DbSchema> schemasOnly = m_schemaSet = getSchemasOnly(dbc);
+
 			String javaSucks = name;
 			DbSchema schema = schemasOnly.stream().filter(a -> a.getName().equalsIgnoreCase(javaSucks)).findFirst().orElseThrow(() -> new IllegalStateException("Schema name '" + javaSucks + "' not known"));
 			Set<DbSchema> schemaSet = m_schemaSet;
@@ -181,7 +182,7 @@ public class JDBCReverser implements Reverser {
 
 	@Override
 	public Set<DbSchema> getSchemas(boolean lazily) throws Exception {
-		Set<DbSchema> schemaSet = getSchemasOnly(lazily);
+		Set<DbSchema> schemaSet = m_schemaSet = getSchemasOnly(lazily);
 
 		Connection dbc = m_ds.getConnection();
 		try {
@@ -229,7 +230,7 @@ public class JDBCReverser implements Reverser {
 	public Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaNames, boolean lazily) throws Exception {
 		Connection dbc = m_ds.getConnection();
 		try {
-			Set<DbSchema> schemaSet = getSchemasOnly(lazily);		// Load schema's
+			Set<DbSchema> schemaSet = m_schemaSet = getSchemasOnly(lazily);		// Load schema's
 			if(!schemaNames.isEmpty()) {
 				List<String> lcSchemaNames = schemaNames.stream().map(a -> a.toLowerCase()).collect(Collectors.toList());
 				schemaSet.removeIf(a -> ! lcSchemaNames.contains(a.getName().toLowerCase()));
@@ -288,9 +289,26 @@ public class JDBCReverser implements Reverser {
 				System.out.println("Reversing constraints");
 				reverseConstraints(dbc, schemaSet);
 			}
+
+			if(hasOption(ReverserOption.ReverseColumns, ReverserOption.ReverseSequences)) {
+				for(DbSchema schema : schemaSet) {
+					for(DbTable table : schema.getTables()) {
+						for(DbColumn column : table.getColumnList()) {
+							String dflt = column.getDefault();
+							if(null != dflt) {
+								scanColumnDefault(column, dflt);
+							}
+						}
+					}
+				}
+			}
+
 //
 //				afterLoad(dbc, schema);
 		}
+	}
+
+	protected void scanColumnDefault(DbColumn column, String dflt) throws Exception {
 	}
 
 	protected String translateSchemaName(@NonNull Connection dbc, @Nullable String name) throws Exception {
