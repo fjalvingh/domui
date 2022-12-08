@@ -558,7 +558,12 @@ public class JDBCReverser implements Reverser {
 					}
 					DbColumn c = t.findColumn(col);
 					if(null == c) {
-						System.out.println("Bad JDBC driver (let me guess: MS): index column " + col + " not found in table " + t.getName());
+						if(col.contains("(") || col.contains(")") || col.contains(" ")) {
+							//-- Probably an expression, i.e. a functional index
+							msg("index '" + name + "' is probably functional, column spec is '" + col + "'.");
+						} else {
+							System.out.println("Bad JDBC driver? Index column " + col + " not found in table " + t.getName());
+						}
 					} else {
 						//-- Is a new index being defined?
 						if(lastindex == null || !lastindex.equals(name)) {
@@ -582,7 +587,7 @@ public class JDBCReverser implements Reverser {
 				}
 			}
 			t.setIndexMap(indexMap);
-			msg("Loaded " + t.getName() + ": " + indexMap.size() + " index(es)");
+			//msg("Loaded " + t.getName() + ": " + indexMap.size() + " index(es)");
 		} finally {
 			try {
 				if(rs != null)
@@ -698,7 +703,7 @@ public class JDBCReverser implements Reverser {
 					rel.setName(name);
 				rel.addPair(pkc, fkc);
 			}
-			System.out.println("reverser: got " + count + " relations");
+			//System.out.println("reverser: got " + count + " relations");
 		} finally {
 			try {
 				if(rs != null)
