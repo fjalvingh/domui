@@ -48,14 +48,13 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.function.IExecute;
-import to.etc.util.SecurityUtils;
+import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.IQContextContainer;
 import to.etc.webapp.query.QContextContainer;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -136,6 +135,9 @@ final public class Page implements IQContextContainer, ICSPSupport {
 
 	@Nullable
 	private StringBuilder m_appendJS;
+
+	@Nullable
+	private StringBuilder m_appendDomuiJS;
 
 	/** Temp for checking shelve order. */
 	private boolean m_shelved;
@@ -914,9 +916,17 @@ final public class Page implements IQContextContainer, ICSPSupport {
 			m_rootContent.appendJavascript("WebUI.setCheckLeavePage(true);");
 		}
 
+		StringBuilder sbDomui = m_appendDomuiJS;
 		StringBuilder sb = m_appendJS;
 		m_appendJS = null;
-		return sb;
+		m_appendDomuiJS = null;
+		if(null == sbDomui) {
+			return sb;
+		}
+		if(null == sb) {
+			return sbDomui;
+		}
+		return sbDomui.append(sb);
 	}
 
 	@NonNull
@@ -924,6 +934,15 @@ final public class Page implements IQContextContainer, ICSPSupport {
 		StringBuilder sb = m_appendJS;
 		if(null == sb) {
 			sb = m_appendJS = new StringBuilder(2048);
+		}
+		return sb;
+	}
+
+	@NonNull
+	private StringBuilder internalGetAppendDomuiJS() {
+		StringBuilder sb = m_appendDomuiJS;
+		if(null == sb) {
+			sb = m_appendDomuiJS = new StringBuilder(512);
 		}
 		return sb;
 	}
@@ -1508,12 +1527,15 @@ final public class Page implements IQContextContainer, ICSPSupport {
 	}
 
 	/**
-	 * Currently supported list of attributes that we handle by CSP handler.
+	 * Currently supported list of attributes (other than event handlers) that we handle by CSP handler.
 	 */
-	private static final Set<String> CSP_JS_INLINE_ATTRIBUTES_TO_HANDLE = Set.of("onclick", "onunload", "onkeypress", "onchange", "style");
+	private static final Set<String> CSP_JS_INLINE_ATTRIBUTES_TO_HANDLE = Set.of("style");
 
 	@Override
 	public boolean isAttributeHandled(@NonNull String attributeName) {
+		if(attributeName.startsWith("on")) {
+			return true;
+		}
 		return CSP_JS_INLINE_ATTRIBUTES_TO_HANDLE.contains(attributeName);
 	}
 
@@ -1521,27 +1543,22 @@ final public class Page implements IQContextContainer, ICSPSupport {
 	public void renderAsJavaScript(String id, String attribute, String value) {
 		boolean isFunction = isAttributeMappedToJsFunction(attribute);
 		if(isFunction) {
-			String function = translateAttributeToFunction(attribute);
-			appendJS("$('#" + id + "')." + function + "(function() {" + value + ";});");
+			String event = translateAttributeToEvent(attribute);
+			internalGetAppendDomuiJS().append("$('#" + id + "').off('" + event + "');");
+			if(!StringTool.isBlank(value)) {
+				internalGetAppendDomuiJS().append("$('#" + id + "').on('" + event + "', function() {" + value + ";});");
+			}
 		}else {
 			String field = translateAttributeToField(attribute);
-			appendJS("$('#" + id + "').attr(\"" + field + "\", \"" + value + "\");");
+			internalGetAppendDomuiJS().append("$('#" + id + "').attr(\"" + field + "\", \"" + value + "\");");
 		}
 	}
 
 	private boolean isAttributeMappedToJsFunction(String attribute) {
-		switch(attribute) {
-			case "style":
-				return false;
-			default:
-				if(attribute.startsWith("on")) {
-					return true;
-				}
-				throw new IllegalArgumentException("What else? " + attribute);
-		}
+		return attribute.startsWith("on");
 	}
 
-	private String translateAttributeToFunction(String attribute) {
+	private String translateAttributeToEvent(String attribute) {
 		if(attribute.startsWith("on")) {
 			return attribute.substring(2);
 		}
