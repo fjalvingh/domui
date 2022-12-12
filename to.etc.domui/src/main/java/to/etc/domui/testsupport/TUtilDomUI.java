@@ -247,7 +247,7 @@ public class TUtilDomUI {
 
 	static public String getFullRenderText(BrowserVersion bv, Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
-		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
+		IBrowserOutput ro = new PrettyXmlOutputWriter(sw, pg);
 		HtmlFullRenderer hr = getFullRenderer(ro);
 
 		IRequestContext ctx = new TestRequestContext();

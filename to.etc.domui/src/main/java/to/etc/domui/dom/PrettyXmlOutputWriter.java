@@ -25,6 +25,7 @@
 package to.etc.domui.dom;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.IndentWriter;
 
 import java.io.IOException;
@@ -40,8 +41,8 @@ import java.io.Writer;
 public class PrettyXmlOutputWriter extends XmlOutputWriterBase implements IBrowserOutput {
 	private IndentWriter m_w;
 
-	public PrettyXmlOutputWriter(@NonNull Writer out) {
-		super(new IndentWriter(out));
+	public PrettyXmlOutputWriter(@NonNull Writer out, @Nullable ICSPSupport csp) {
+		super(new IndentWriter(out), csp);
 		m_w = (IndentWriter) getWriter();
 	}
 

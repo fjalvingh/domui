@@ -266,6 +266,17 @@ public class SecurityUtils {
 		}
 	}
 
+	@NonNull
+	static public String getSha256Base64(@NonNull String in, @NonNull Charset encoding) {
+		try {
+			MessageDigest sha = MessageDigest.getInstance("SHA-256");
+			byte[] hash = sha.digest(in.getBytes(encoding));
+			return StringTool.encodeBase64ToString(hash);
+		} catch(Exception ex) {
+			throw WrappedException.wrap(ex);
+		}
+	}
+
 	static public byte[] createSalt(int bytes) {
 		byte[] salt = new byte[bytes];
 		RANDOM.nextBytes(salt);

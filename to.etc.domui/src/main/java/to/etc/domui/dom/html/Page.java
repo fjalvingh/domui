@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.component.misc.WindowParameters;
+import to.etc.domui.dom.ICSPSupport;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.header.HeaderContributor;
@@ -47,12 +48,14 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.function.IExecute;
+import to.etc.util.SecurityUtils;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.IQContextContainer;
 import to.etc.webapp.query.QContextContainer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,7 +77,7 @@ import java.util.stream.Collectors;
  * Created on Aug 18, 2007
  */
 @NonNullByDefault
-final public class Page implements IQContextContainer {
+final public class Page implements IQContextContainer, ICSPSupport {
 	static private final Logger LOG = LoggerFactory.getLogger(Page.class);
 
 	static private final int MAX_DOMUI_NODES_PER_PAGE = 100_000;
@@ -1502,6 +1505,54 @@ final public class Page implements IQContextContainer {
 			m_nonce = nonce = DomUtil.createNonce();
 		}
 		return nonce;
+	}
+
+	/**
+	 * Currently supported list of attributes that we handle by CSP handler.
+	 */
+	private static final Set<String> CSP_JS_INLINE_ATTRIBUTES_TO_HANDLE = Set.of("onclick", "onunload", "onkeypress", "onchange", "style");
+
+	@Override
+	public boolean isAttributeHandled(@NonNull String attributeName) {
+		return CSP_JS_INLINE_ATTRIBUTES_TO_HANDLE.contains(attributeName);
+	}
+
+	@Override
+	public void renderAsJavaScript(String id, String attribute, String value) {
+		boolean isFunction = isAttributeMappedToJsFunction(attribute);
+		if(isFunction) {
+			String function = translateAttributeToFunction(attribute);
+			appendJS("$('#" + id + "')." + function + "(function() {" + value + ";});");
+		}else {
+			String field = translateAttributeToField(attribute);
+			appendJS("$('#" + id + "').attr(\"" + field + "\", \"" + value + "\");");
+		}
+	}
+
+	private boolean isAttributeMappedToJsFunction(String attribute) {
+		switch(attribute) {
+			case "style":
+				return false;
+			default:
+				if(attribute.startsWith("on")) {
+					return true;
+				}
+				throw new IllegalArgumentException("What else? " + attribute);
+		}
+	}
+
+	private String translateAttributeToFunction(String attribute) {
+		if(attribute.startsWith("on")) {
+			return attribute.substring(2);
+		}
+		throw new IllegalArgumentException("What else? " + attribute);
+	}
+
+	private String translateAttributeToField(String attribute) {
+		switch(attribute) {
+			case "style": return "style";
+			default: throw new IllegalArgumentException("What else? " + attribute);
+		}
 	}
 
 	public Map<String, String> getHeaderVariableMap() {

@@ -101,7 +101,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		Map<String, String> varMap = Map.of("NONCE", nonce);
 		a.renderHeaders(ctx.getRequestResponse(), httpHeaders, varMap);
 
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"), null);
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n"
 			+ "<html><head><script language=\"javascript\" nonce=\"" + nonce + "\"><!--\n"
 			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n"
@@ -129,7 +129,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Output all headers
 		ctx.renderResponseHeaders(null);
 
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"), null);
 		out.tag("redirect");
 		out.attr("url", url);
 		out.endAndCloseXmltag();

@@ -39,7 +39,7 @@ public class ResponseCommandWriter {
 		renderHeaders(ctx);
 
 		//-- We stay on the same page. Render tree delta as response
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"), null);
 		out.tag("expired");
 		out.endtag();
 
@@ -53,7 +53,7 @@ public class ResponseCommandWriter {
 	public void generateEmptyDelta(RequestContextImpl ctx) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
 		renderHeaders(ctx);
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"), null);
 		out.tag("delta");
 		out.endtag();
 		out.closetag("delta");
@@ -66,7 +66,7 @@ public class ResponseCommandWriter {
 	public void generateExpiredPollasy(RequestContextImpl ctx) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
 		renderHeaders(ctx);
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"), null);
 		out.tag("expiredOnPollasy");
 		out.endtag();
 		out.closetag("expiredOnPollasy");
