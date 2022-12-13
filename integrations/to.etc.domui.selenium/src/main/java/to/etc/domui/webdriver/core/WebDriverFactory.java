@@ -4,7 +4,6 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
@@ -14,7 +13,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -60,8 +58,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			default:
 				throw new IllegalStateException("? unhandled driver type");
 
-			case HTMLUNIT:
-				return allocateHtmlUnitInstance(browser, lang);
+			//case HTMLUNIT:
+			//	return allocateHtmlUnitInstance(browser, lang);
 
 			case LOCAL:
 				return allocateLocalInstance(browser, lang);
@@ -199,10 +197,10 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return dir;
 	}
 
-	private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
-		Capabilities capabilities = calculateCapabilities(browser, lang);
-		return new HtmlUnitDriver(capabilities);
-	}
+	//private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
+	//	Capabilities capabilities = calculateCapabilities(browser, lang);
+	//	return new HtmlUnitDriver(capabilities);
+	//}
 
 	private static WebDriver allocateRemoteInstance(BrowserModel browser, @NonNull String hubUrl, Locale lang) throws Exception {
 		return new RemoteWebDriver(new URL(hubUrl), calculateCapabilities(browser, lang));
@@ -494,24 +492,16 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return options;
 	}
 
-	//private static DesiredCapabilities getPhantomCapabilities(Locale lang) {
-	//	DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
-	//	String value = lang.getLanguage().toLowerCase();
-	//	capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_PAGE_CUSTOMHEADERS_PREFIX + "Accept-Language", value);
-	//	capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
-	//	return capabilities;
-	//}
-
 	@Nullable
 	public static IWebdriverScreenshotHelper getScreenshotHelper(WebDriverType webDriverType, BrowserModel browserModel) {
-		switch(webDriverType) {
-			default:
-				break;
-
-			case HTMLUNIT:
-				//-- HTMLUNIT does not render, so it cannot create screenshots.
-				return null;
-		}
+		//switch(webDriverType) {
+		//	default:
+		//		break;
+		//
+		//	case HTMLUNIT:
+		//		//-- HTMLUNIT does not render, so it cannot create screenshots.
+		//		return null;
+		//}
 
 		switch(browserModel) {
 			default:

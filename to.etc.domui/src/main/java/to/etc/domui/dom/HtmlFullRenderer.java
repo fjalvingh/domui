@@ -197,13 +197,20 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 			o().text("WebUI.focus('" + f.getActualID() + "');");
 			m_page.setFocusComponent(null);
 		}
+
+		//-- Render all component-requested Javascript code for this phase. First domuiJs (js as result of CSP header support js), then createJs and at the end normal js, in that strict order.
+		StringBuilder domuiSb = m_page.internalFlushAppendDomuiJS();
+		if(null != domuiSb) {
+			o().writeRaw(domuiSb);
+		}
 		if(getCreateJS().length() > 0) {
 			o().writeRaw(getCreateJS().toString());
 			//				o().text(m_createJS.toString());
 		}
 		StringBuilder sb = m_page.internalFlushAppendJS();
-		if(null != sb)
+		if(null != sb) {
 			o().writeRaw(sb);
+		}
 		sb = m_page.internalFlushJavascriptStateChanges();
 		if(null != sb)
 			o().writeRaw(sb);

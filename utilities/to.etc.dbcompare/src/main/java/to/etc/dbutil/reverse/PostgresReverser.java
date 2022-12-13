@@ -35,11 +35,13 @@ public class PostgresReverser extends JDBCReverser {
 		super(conn, optionSet);
 	}
 
-	@Override public String getDefaultSchemaName() throws Exception {
+	@Override
+	public String getDefaultSchemaName() throws Exception {
 		return "public";
 	}
 
-	@Override protected void initialize(Connection dbc, Set<DbSchema> schemaSet) throws Exception {
+	@Override
+	protected void initialize(Connection dbc, Set<DbSchema> schemaSet) throws Exception {
 		try(PreparedStatement ps = dbc.prepareStatement("select * from information_schema.domains");
 			ResultSet rs = ps.executeQuery()) {
 			while(rs.next()) {
@@ -93,7 +95,8 @@ public class PostgresReverser extends JDBCReverser {
 		}
 	}
 
-	@Override protected void reverseSequences(Connection dbc, DbSchema schema) throws Exception {
+	@Override
+	protected void reverseSequences(Connection dbc, DbSchema schema) throws Exception {
 		if(dbc.getMetaData().getDatabaseMajorVersion() >= 10)
 			reverseSequencesNew(dbc, schema);
 		else
@@ -168,7 +171,8 @@ public class PostgresReverser extends JDBCReverser {
 	/**
 	 * Reverse all cols for a table.
 	 */
-	@Override public void reverseColumns(@NonNull Connection dbc, DbTable t) throws Exception {
+	@Override
+	public void reverseColumns(@NonNull Connection dbc, DbTable t) throws Exception {
 		Map<String, Integer> datymap = new HashMap<>();
 		try(ResultSet rs = dbc.getMetaData().getColumns(null, t.getSchema().getName(), t.getName(), null)) {
 			// All columns in the schema.
@@ -225,8 +229,7 @@ public class PostgresReverser extends JDBCReverser {
 		String comment = rs.getString(i++);
 
 		boolean autoIncrement = typename.toLowerCase().contains("serial")
-			|| (deflt != null && deflt.toLowerCase().contains("nextval"))
-			;
+			|| (deflt != null && deflt.toLowerCase().contains("nextval"));
 
 		ColumnType ct = decodeColumnType(t.getSchema(), daty, typename);
 		DbColumn c;
@@ -240,10 +243,19 @@ public class PostgresReverser extends JDBCReverser {
 		}
 		c.setComment(comment);
 		c.setDefault(deflt);
-
-		DbSequence dbs = scanSequenceName(t.getSchema(), deflt);
-		c.setUsedSequence(dbs);
+		//
+		//DbSequence dbs = scanSequenceName(t.getSchema(), deflt);
+		//c.setUsedSequence(dbs);
 		return c;
+	}
+
+	/**
+	 * Detects a sequence name from a column default.
+	 */
+	@Override
+	protected void scanColumnDefault(DbColumn column, String dflt) throws Exception {
+		DbSequence seq = scanSequenceName(column.getTable().getSchema(), dflt);
+		column.setUsedSequence(seq);
 	}
 
 	/**
@@ -260,7 +272,7 @@ public class PostgresReverser extends JDBCReverser {
 			//-- Do we have a cast?
 			int pos = sub.indexOf("::");
 			if(pos > 0) {
-				sub = sub.substring(0, pos);					// Remove cast
+				sub = sub.substring(0, pos);                    // Remove cast
 			}
 
 			while(sub.endsWith(")") || sub.endsWith("'"))
@@ -277,10 +289,10 @@ public class PostgresReverser extends JDBCReverser {
 			}
 
 			//-- Find the schema
-			DbSchema subSchemaName = findSchema(sub.substring(0, pos));
-			DbSchema s = subSchemaName;
-			if(null == s) {
-				log("Schema '" + subSchemaName + "' not found in column default '" + deflt + "'");
+			String schemaName = sub.substring(0, pos);
+			DbSchema subSchema = findSchema(schemaName);
+			if(null == subSchema) {
+				log("Schema '" + schemaName + "' not found in column default '" + deflt + "'");
 				return null;
 			}
 			String seqName = sub.substring(pos + 1).trim();
@@ -294,8 +306,10 @@ public class PostgresReverser extends JDBCReverser {
 		return null;
 	}
 
-	@NonNull @Override protected DbColumn createDbColumn(DbTable t, String name, int daty, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
-		if("bpchar".equals(typename))								// 8-(
+	@NonNull
+	@Override
+	protected DbColumn createDbColumn(DbTable t, String name, int daty, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
+		if("bpchar".equals(typename))                                // 8-(
 			typename = "char";
 
 		//-- The precision field for Postgres binary types like int32 holds a fscking 32, sign.
@@ -328,7 +342,8 @@ public class PostgresReverser extends JDBCReverser {
 	/**
 	 * Can be a domain type- check.
 	 */
-	@Override protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement) {
+	@Override
+	protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement) {
 		if(sqlType == Types.OTHER || sqlType == Types.DISTINCT) {
 			String fullName = t.getSchema().getName() + "." + typename;
 			DbDomain domain = findDomain(fullName);
@@ -351,7 +366,6 @@ public class PostgresReverser extends JDBCReverser {
 				return new DbColumn(t, name, ct, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
 			}
 		}
-
 
 		return super.reverseColumnUnknownType(rs, t, name, sqlType, typename, prec, scale, nulla, autoIncrement);
 	}

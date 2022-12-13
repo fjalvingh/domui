@@ -122,7 +122,26 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 			m_bindError = null;
 		} catch(CodeException cx) {
 			controlModelValue = null;
-			m_lastValueFromControlAsModelValue = null;
+			/*
+			 * 20221110 jal Commented out because it seems wrong. With it, the following happens.
+			 * Have a TextArea with a Validator and some initial (invalid) value coming from a Model. Now
+			 * change the value to some other (invalid) value and save the screen. This SHOULD report an
+			 * error. Instead what happens is this:
+			 * - No error is shown
+			 * - The screen save does not complete however
+			 * - The control gets back its PREVIOUS (incorrect) value!
+			 *
+			 * The reason is this assignment. The last value field is used to check whether the data
+			 * in the MODEL actually changed inside AbstractComponentPropertyBinding.moveModelToControl. We
+			 * only want to change the value inside the CONTROL when the MODEL has a change if the control is
+			 * in error. If the control is in error and the model value does not change the control needs to
+			 * retain its incorrect value. By clearing that last-read value here we effectively say that the
+			 * model value WAS null previous time, and as it is not the control gets overwritten from the
+			 * actual value.
+			 *
+			 * ERRONEOUS STATEMENT:
+			 * m_lastValueFromControlAsModelValue = null;
+			 */
 			newError = UIMessage.error(cx);
 			newError.setErrorNode(control);
 			newError.setErrorLocation(control.getErrorLocation());
@@ -134,18 +153,29 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 			//System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
 		}
 
-		//-- When in error we cannot set anything anyway, so exit.
-		if(null != newError && !newError.getCode().equals(Msgs.mandatory)) {
-			/*
-			 * jal 20171018 When a mandatory LookupInput gets cleared its value becomes null, and this
-			 * value should be propagated to the model. It seems likely that in ALL cases of error
-			 * we need to move a null there!
-			 */
+		MV currentModelValue = getValueFromModel();
 
+		if(null != newError) {
+			//-- When in error the only option we have is to set something to null.. We only do that for the mandatory error if possible
+			if(newError.getCode().equals(Msgs.mandatory)) {
+				/*
+				 * jal 20171018 When a mandatory LookupInput gets cleared its value becomes null, and this
+				 * value should be propagated to the model. It seems likely that in ALL cases of error
+				 * we need to move a null there!
+				 *
+				 * jal 20221110 but only if the property can accept that, i.e. is not a primitive..
+				 */
+				if(! MetaManager.areObjectsEqual(currentModelValue, controlModelValue) && ! getInstanceProperty().getActualType().isPrimitive()) {
+					//-- We WILL set the value of the MODEL to null, but we need to KEEP the value in the control
+					m_lastValueFromControlAsModelValue = null;					// This should make sure the control does NOT get updated
+					return new BindingValuePair<>(this, null);
+				}
+			}
+
+			//-- For all other errors: leave the value be
 			return null;
 		}
 
-		MV currentModelValue = getValueFromModel();
 		if(MetaManager.areObjectsEqual(currentModelValue, controlModelValue))
 			return null;
 

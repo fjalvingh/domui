@@ -56,7 +56,7 @@
 		<!-- JDK properties -->
 		<jdk.version>11</jdk.version>
 		<ecj.version>3.20.0</ecj.version>
-		<kotlin.version>1.6.20</kotlin.version>
+		<kotlin.version>1.7.20</kotlin.version>
 
 		<!-- Plugin versions -->
 		<maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
@@ -100,7 +100,7 @@
 
 		<rhino.version>1.7.7</rhino.version>
 		<jcharts.version>0.7.5</jcharts.version>
-		<batik.version>1.8</batik.version>
+		<batik.version>1.16</batik.version>
 		<jericho.version>3.4</jericho.version>
 		<gnu.regexp.version>1.1.4</gnu.regexp.version>
 
@@ -115,7 +115,7 @@
 		<jetty.version>9.4.14.v20181114</jetty.version>  <!-- DO NOT GO TO 10.x - tests fail with that -->
 <!--		<jetty.version>11.0.7</jetty.version>-->
 		<selenium.version>3.141.59</selenium.version>
-		<hsqldb.version>2.7.0</hsqldb.version>
+		<hsqldb.version>2.7.1</hsqldb.version>
 
 		<jaxb.version>2.3.0</jaxb.version>
 
@@ -314,7 +314,7 @@
 			<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
-				<version>42.5.0</version>
+				<version>42.5.1</version>
 			</dependency>
 
 			<dependency>
@@ -522,11 +522,11 @@
 				<version>1.15.0</version>
 			</dependency>
 
-			<dependency>
-				<groupId>org.seleniumhq.selenium</groupId>
-				<artifactId>htmlunit-driver</artifactId>
-				<version>2.50.0</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>org.seleniumhq.selenium</groupId>-->
+<!--				<artifactId>htmlunit-driver</artifactId>-->
+<!--				<version>2.67.0</version>-->
+<!--			</dependency>-->
 
 			<!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
 			<dependency>

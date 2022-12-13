@@ -104,19 +104,10 @@
 
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>htmlunit-driver</artifactId>
-        </dependency>
-
-
-        <!--&lt;!&ndash; https://mvnrepository.com/artifact/com.github.detro.ghostdriver/phantomjsdriver &ndash;&gt;-->
-        <!--<dependency>-->
-            <!--<groupId>com.github.detro.ghostdriver</groupId>-->
-            <!--<artifactId>phantomjsdriver</artifactId>-->
-            <!--<version>1.1.0</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.seleniumhq.selenium</groupId>-->
+<!--            <artifactId>htmlunit-driver</artifactId>-->
+<!--        </dependency>-->
 
         <!-- Test dependencies  -->
         <dependency>

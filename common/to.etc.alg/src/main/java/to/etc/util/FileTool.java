@@ -1967,7 +1967,7 @@ public class FileTool {
 		try {
 			Files.delete(file.toPath());
 		} catch(Exception x) {
-			LOG.error("Failed to delete " + file + ": " + x, x);
+			LOG.debug("Failed to delete " + file + ": " + x, x);
 		}
 	}
 }

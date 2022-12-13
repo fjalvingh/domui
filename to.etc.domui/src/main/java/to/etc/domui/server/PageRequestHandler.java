@@ -370,7 +370,7 @@ final public class PageRequestHandler {
 				w = m_ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8");
 			}
 
-			IBrowserOutput out = new PrettyXmlOutputWriter(w);
+			IBrowserOutput out = new PrettyXmlOutputWriter(w, page);
 
 			HtmlFullRenderer hr = m_application.findRendererFor(m_ctx.getBrowserVersion(), out);
 			hr.render(m_ctx, page);

@@ -24,23 +24,35 @@
  */
 package to.etc.domui.dom.html;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyMetaValidator;
+import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
 import to.etc.domui.component.misc.UIControlUtil;
+import to.etc.domui.converter.IValueValidator;
+import to.etc.domui.converter.ValidatorRegistry;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
+import to.etc.util.RuntimeConversionException;
 import to.etc.util.StringTool;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class TextArea extends InputNodeContainer implements INativeChangeListener, IControl<String>, IHasModifiedIndication, IHtmlInput {
-	/** Hint to use in property meta data to select this component. */
+	/**
+	 * Hint to use in property meta data to select this component.
+	 */
 	static public final String HINT = "textarea";
 
 	private int m_cols = -1;
@@ -51,12 +63,19 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 	private boolean m_disabled;
 
-	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	/**
+	 * Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal.
+	 */
 	private boolean m_modifiedByUser;
 
-	private int	m_maxLength;
+	private int m_maxLength;
 
-	/** Oracle <= 11 has a hard limit of 4000 bytes in a varchar2. TextArea's bound to an Oracle column might need this second limit observed too. This assumes UTF-8 encoding in the database too. */
+	/** Defined value validators on this field. */
+	private List<IValueValidator<?>> m_validators = Collections.EMPTY_LIST;
+
+	/**
+	 * Oracle <= 11 has a hard limit of 4000 bytes in a varchar2. TextArea's bound to an Oracle column might need this second limit observed too. This assumes UTF-8 encoding in the database too.
+	 */
 	private int m_maxByteLength;
 
 	@Nullable
@@ -72,7 +91,9 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_rows = rows;
 	}
 
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return this;
 	}
 
@@ -120,7 +141,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	 */
 	@Nullable
 	public String getBindValue() {
-		validate();												// Validate, and throw exception without UI change on trouble.
+		validate();                                                // Validate, and throw exception without UI change on trouble.
 		return m_value;
 	}
 
@@ -137,6 +158,16 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 			if(isMandatory()) {
 				throw new ValidationException(Msgs.mandatory);
 			}
+		}
+		try {
+			for(IValueValidator<?> vv : m_validators)
+				((IValueValidator<Object>) vv).validate(m_value);
+		} catch(UIException x) {
+			throw new ValidationException(x);
+		} catch(RuntimeConversionException x) {
+			throw new ValidationException(Msgs.notValid, m_value);
+		} catch(Exception x) {
+			throw new ValidationException(Msgs.unexpectedException, x);
 		}
 	}
 
@@ -162,7 +193,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		return super.hasError();
 	}
 
-
 	public String getRawValue() {
 		return internalGetValue();
 	}
@@ -178,7 +208,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 			return;
 		changed();
 		m_disabled = disabled;
-		if(! disabled)
+		if(!disabled)
 			setOverrideTitle(null);
 	}
 
@@ -225,13 +255,17 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		//vmijic 20091126 - now IE returns \r\n, but FF returns \n... So, both nw and cur have to be compared with "\r\n" replaced by "\n"...
 		String flattenLineBreaksNw = (nw != null) ? nw.replaceAll("\r\n", "\n") : null;
 
-		//vmijic 20101117 - it is discovered (call 28340) that from some reason first \n is not rendered in TextArea on client side in initial page render. That cause that same \n is missing from unchanged text area input that comes through client request roundtrip and cause modified flag to be set... So as dirty fix we have to compare without that starting \n too...
+		// vmijic 20101117 - it is discovered (call 28340) that from some reason first \n is
+		// not rendered in TextArea on client side in initial page render. That cause that
+		// same \n is missing from unchanged text area input that comes through client request
+		// roundtrip and cause modified flag to be set... So as dirty fix we have to compare
+		// without that starting \n too...
 		if(flattenLineBreaksNw != null && cur != null && cur.startsWith("\n") && !flattenLineBreaksNw.startsWith("\n")) {
 			cur = cur.substring(1);
 		}
 
 		int maxLength = getMaxLength();
-		if(maxLength > 0 && nw != null && nw.length() > maxLength)				// Be very sure we are limited even if javascript does not execute.
+		if(maxLength > 0 && nw != null && nw.length() > maxLength)                // Be very sure we are limited even if javascript does not execute.
 			nw = nw.substring(0, maxLength);
 
 		int maxBytes = getMaxByteLength();
@@ -252,6 +286,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IHasModifiedIndication impl							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns the modified-by-user flag.
 	 */
@@ -269,7 +304,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	}
 
 	@NonNull
-	static public TextArea create(@NonNull PropertyMetaModel< ? > pmm) {
+	static public TextArea create(@NonNull PropertyMetaModel<?> pmm) {
 		TextArea ta = new TextArea();
 		String cth = pmm.getComponentTypeHint();
 		if(cth != null) {
@@ -324,7 +359,28 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_maxByteLength = maxByteLength;
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
+	}
+
+	public void addValidator(IValueValidator<?> v) {
+		if(m_validators == Collections.EMPTY_LIST)
+			m_validators = new ArrayList<>(5);
+		m_validators.add(v);
+	}
+
+	public void addValidator(PropertyMetaValidator v) {
+		IValueValidator<T> vi = ValidatorRegistry.getValueValidator((Class<? extends IValueValidator<T>>) v.getValidatorClass(), v.getParameters());
+		addValidator(vi);
+	}
+
+	public void addValidator(Class<? extends IValueValidator<T>> clz) {
+		IValueValidator<T> vi = ValidatorRegistry.getValueValidator(clz, null);
+		addValidator(vi);
+	}
+
+	public void addValidator(Class<? extends IValueValidator<T>> clz, String[] parameters) {
+		addValidator(new MetaPropertyValidatorImpl(clz, parameters));
 	}
 }
