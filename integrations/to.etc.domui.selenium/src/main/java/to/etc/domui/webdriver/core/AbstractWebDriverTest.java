@@ -7,6 +7,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.openqa.selenium.UnhandledAlertException;
 import to.etc.domui.webdriver.poproxies.AbstractCpComponent;
+import to.etc.domui.webdriver.poproxies.ICpWithElement;
 import to.etc.function.IExecute;
 import to.etc.pater.OnTestFailure;
 import to.etc.util.FileTool;
@@ -178,6 +179,14 @@ abstract public class AbstractWebDriverTest {
 	 * updated as result of those actions.
 	 */
 	public void waitForRefreshOf(AbstractCpComponent component, Duration duration, IExecute action) throws Exception {
+		wd().waitForRefreshOf(component, duration, action);
+	}
+
+	/**
+	 * Executes some actions, and then waits until the specified element is
+	 * updated as result of those actions.
+	 */
+	public void waitForRefreshOf(ICpWithElement component, Duration duration, IExecute action) throws Exception {
 		wd().waitForRefreshOf(component, duration, action);
 	}
 }
