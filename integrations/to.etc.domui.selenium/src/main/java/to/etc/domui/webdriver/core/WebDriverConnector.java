@@ -30,6 +30,7 @@ import to.etc.domui.annotations.UIPage;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.webdriver.poproxies.AbstractCpComponent;
 import to.etc.function.IExecute;
 import to.etc.function.SupplierEx;
 import to.etc.net.HttpCallException;
@@ -2169,6 +2170,20 @@ final public class WebDriverConnector {
 			}
 		});
 	}
+
+	/**
+	 * Executes some actions, and then waits until the specified element is
+	 * updated as result of those actions.
+	 */
+	public void waitForRefreshOf(AbstractCpComponent component, Duration duration, IExecute action) throws Exception {
+		WebElement element = component.getInputElement();
+		action.execute();
+
+		//-- Wait for the element to become stale, indicating that something has refreshed
+		new WebDriverWait(m_driver, duration.toSeconds())
+			.until(ExpectedConditions.stalenessOf(element));
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Assertion helpers.									*/
