@@ -47,6 +47,7 @@ import java.io.Reader;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -1257,6 +1258,21 @@ final public class WebDriverConnector {
 		notPresent(locator("body[" + PAGENAME_PARAMETER + "='" + clz.getName() + "']"));
 		return this;
 	}
+
+	/**
+	 * Wait until the URL gets some specified pattern.
+	 */
+	@NonNull
+	public WebDriverConnector waitUrl(@NonNull Predicate<String> acceptUrl, Duration timeout) throws Exception {
+		new WebDriverWait(m_driver, timeout.toSeconds() + 1)
+			.until(webDriver -> {
+				String currentURL = getCurrentURL();
+				System.out.println("?? " + currentURL);
+				return Boolean.valueOf(acceptUrl.test(currentURL));
+			});
+		return this;
+	}
+
 
 	@NonNull
 	public WebDriverCommandBuilder cmd() {
