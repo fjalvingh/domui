@@ -45,8 +45,7 @@ public abstract class AbstractCpPage<T extends UrlPage> implements ICpDriverSour
 	 * page URL.
 	 */
 	public boolean isBrowserOnThisPage() {
-		String expectedUrlPart = m_pageClass.getName() + ".ui";
-		return wd().isBrowserOnPage(expectedUrlPart, Duration.ofSeconds(2));
+		return wd().isBrowserOnPage(m_pageClass, Duration.ofSeconds(2));
 	}
 
 	public Map<String, String> getPageParameters() throws Exception {

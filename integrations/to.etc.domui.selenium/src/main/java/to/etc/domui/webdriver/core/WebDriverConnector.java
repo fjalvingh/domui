@@ -26,6 +26,7 @@ import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.annotations.UIPage;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
@@ -1322,6 +1323,71 @@ final public class WebDriverConnector {
 		}
 	}
 
+	/**
+	 * Wait for a max duration to see whether the browser is on the page. If
+	 * not this returns false.
+	 */
+	public boolean isBrowserOnPage(Class<? extends UrlPage> page, Duration duration) {
+		try {
+			new WebDriverWait(m_driver, duration.toSeconds())
+				.until(webDriver -> {
+					String currentURL = getCurrentURL();
+					return Boolean.valueOf(isUrlFor(currentURL, page));
+				});
+			return true;
+		} catch(TimeoutException x) {
+			return false;
+		}
+	}
+
+
+	/**
+	 * Checks whether the specified URL is an URL for the specified DomUI page. This
+	 * only checks the page url, not parameters.
+	 */
+	static public boolean isUrlFor(String fullUrl, Class<? extends UrlPage> pageClass) {
+		String expectedUrlPart = pageClass.getName() + ".ui";
+		if(fullUrl.contains(expectedUrlPart))
+			return true;
+
+		UIPage pageAnn = pageClass.getAnnotation(UIPage.class);
+		if(null == pageAnn)
+			return false;
+		String path = pageAnn.value();
+		if(path.length() == 0)
+			return false;
+
+		//-- Matcher: we match from the back to the front. We skip parameter names in the comparison.
+		int ix = fullUrl.indexOf('?');						// Do we have query params?
+		String url = ix == -1 ? fullUrl : fullUrl.substring(0, ix);	// String query string
+		if(url.endsWith("/"))
+			url = url.substring(0, url.length() - 1);		// Trim last /
+
+		//-- Split both
+		if(path.startsWith("/"))
+			path = path.substring(1);
+		if(path.endsWith("/"))
+			path = path.substring(0, path.length() - 1);
+		String[] urlSegments = url.split("/");
+		String[] pathSegments = path.split("/");
+
+		if(urlSegments.length < pathSegments.length)
+			return false;
+
+		//-- We must have a match for ALL path segments, so walk those.
+		int pathIx = pathSegments.length - 1;
+		for(int urlIx = urlSegments.length; --urlIx >= 0 && pathIx >= 0;) {
+			String uf = urlSegments[urlIx];
+			if(uf.contains("{")) {
+				//-- Parameter -> assume matched
+			} else if(! uf.equals(pathSegments[pathIx])) {
+				return false;
+			}
+			pathIx--;
+		}
+		return true;
+	}
+
 	@NonNull
 	public WebDriverCommandBuilder cmd() {
 		return new WebDriverCommandBuilder(this);
@@ -2032,7 +2098,7 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 * Used for switching control to a page with string part contained in url.</br>
+	 * Used for switching control to a page with string part contained in url.
 	 * Used when you are expecting some parameters in your popup
 	 */
 	public void switchToByUrlPart(@NonNull String urlPart) throws Exception {
@@ -2080,7 +2146,7 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 * Expects popup page with string part contained in url.</br>
+	 * Expects popup page with string part contained in url.
 	 * Good for searching by parameters
 	 * Return handle for expected page with defined string in url.
 	 */
