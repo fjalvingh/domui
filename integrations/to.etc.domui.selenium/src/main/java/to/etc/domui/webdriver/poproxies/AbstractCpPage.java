@@ -12,6 +12,7 @@ import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -35,18 +36,17 @@ public abstract class AbstractCpPage<T extends UrlPage> implements ICpDriverSour
 		wd().wait(By.tagName("body"));
 	}
 
+	/**
+	 * Check the URL in the browser. We cannot use the previous DOM based
+	 * approach because it can throw Stale exceptions when the dom changes
+	 * during execution of this method.
+	 *
+	 * We instead wait for a max. timeout period for the URL to contain the
+	 * page URL.
+	 */
 	public boolean isBrowserOnThisPage() {
-		var body = wd().findElement(By.tagName("body"));
-		if(body == null) {
-			return false;
-		}
-		String pagename = body.getAttribute("pagename");
-		if(null != pagename)
-			return pagename.equalsIgnoreCase(getPageClass().getName());
-		String currentURL = wd().getCurrentURL();
-		if(null == currentURL)
-			return false;
-		return currentURL.contains(m_pageClass.getName() + ".ui");
+		String expectedUrlPart = m_pageClass.getName() + ".ui";
+		return wd().isBrowserOnPage(expectedUrlPart, Duration.ofSeconds(2));
 	}
 
 	public Map<String, String> getPageParameters() throws Exception {

@@ -177,8 +177,10 @@ final public class WebDriverConnector {
 		//-- Do we have a driver for this thread?
 		WebDriverConnector wd = m_webDriverThreadLocal.get();
 		if(null != wd) {
-			if(!wd.m_closed)
+			if(!wd.m_closed) {
+				wd.reset();
 				return wd;
+			}
 		}
 		initLogging();
 		registerExitHandler();
@@ -220,6 +222,22 @@ final public class WebDriverConnector {
 		m_webDriverConnectorList.add(tu);
 		m_webDriverThreadLocal.set(tu);
 		return tu;
+	}
+
+	/**
+	 * Clears all persistent settings in the instance to enable it for reuse.
+	 */
+	private void reset() {
+		m_afterCommandCallback = null;
+		m_lastTestClass = null;
+		m_openScreenUrlCalculator = null;
+		m_lastTestPage = null;
+		m_inhibitAfter = false;
+		m_nextInterval = -1;
+		m_nextWaitTimeout = -1;
+		m_waitInterval = 250;
+		m_waitTimeout = 60;
+		m_viewportSize = new Dimension(1280, 1024);
 	}
 
 	@NonNull
@@ -1132,6 +1150,11 @@ final public class WebDriverConnector {
 			sb = calculator.updateUrlFor(sb, locale, clz, parameters);
 		}
 
+		/*
+		 * jal 20221213 Deleting all cookies to prevent the screen from being reused from
+		 * a previous test.
+		 */
+		m_driver.manage().deleteAllCookies();
 		System.out.println("webdriver: navigate to " + sb);
 		m_driver.navigate().to(sb);
 		checkSize();
@@ -1214,6 +1237,7 @@ final public class WebDriverConnector {
 		if(null != locale) {
 			pp.addParameter("___locale", locale.toString());
 		}
+		pp.addParameter("__ts__", String.valueOf(System.nanoTime()));	// Force a new URL every time, to prevent reloading the same page
 		DomUtil.addUrlParameters(sb, pp, true);
 		return sb.toString();
 	}
@@ -1272,6 +1296,22 @@ final public class WebDriverConnector {
 		return this;
 	}
 
+	/**
+	 * Wait for a max duration to see whether the browser is on the page
+	 * containing the specified URL part. If not this returns false.
+	 */
+	public boolean isBrowserOnPage(String expectedUrlPart, Duration duration) {
+		try {
+			new WebDriverWait(m_driver,  duration.toSeconds())
+				.until(webDriver -> {
+					String currentURL = getCurrentURL();
+					return Boolean.valueOf(currentURL.toLowerCase().contains(expectedUrlPart.toLowerCase()));
+				});
+			return true;
+		} catch(TimeoutException x) {
+			return false;
+		}
+	}
 
 	@NonNull
 	public WebDriverCommandBuilder cmd() {
