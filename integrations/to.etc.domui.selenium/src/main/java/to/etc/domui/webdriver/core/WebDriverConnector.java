@@ -78,20 +78,28 @@ final public class WebDriverConnector {
 
 	final private WebDriver m_driver;
 
-	/** When T, exit registration has been done, to ensure things are released when the JVM exits. */
+	/**
+	 * When T, exit registration has been done, to ensure things are released when the JVM exits.
+	 */
 	static private boolean m_jvmExitHandlerRegistered;
 
-	/** Wait timeout in SECONDS */
+	/**
+	 * Wait timeout in SECONDS
+	 */
 	private int m_waitTimeout = 60;
 
-	/** Wait interval in MILLISECONDS */
+	/**
+	 * Wait interval in MILLISECONDS
+	 */
 	private int m_waitInterval = 250;
 
 	private int m_nextWaitTimeout = -1;
 
 	private int m_nextInterval = -1;
 
-	/** The base of the application URL, to which page names will be appended. */
+	/**
+	 * The base of the application URL, to which page names will be appended.
+	 */
 	@NonNull
 	final private String m_applicationURL;
 
@@ -108,7 +116,9 @@ final public class WebDriverConnector {
 	@Nullable
 	private IExecute m_afterCommandCallback;
 
-	/** The default viewport size. */
+	/**
+	 * The default viewport size.
+	 */
 	@NonNull
 	private Dimension m_viewportSize = new Dimension(1280, 1024);
 
@@ -762,8 +772,8 @@ final public class WebDriverConnector {
 	 * contain an indicator of what is wanted:
 	 * <dl>
 	 * 	<dt>label=xxx</dt><dd>Select the option that is shown on-screen as "xxx"</dd>
-	 *	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
-	 *	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
+	 * 	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
+	 * 	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
 	 * </dl>
 	 */
 	public void select(@NonNull String testid, @NonNull String value) throws Exception {
@@ -776,8 +786,8 @@ final public class WebDriverConnector {
 	 * contain an indicator of what is wanted:
 	 * <dl>
 	 * 	<dt>label=xxx</dt><dd>Select the option that is shown on-screen as "xxx"</dd>
-	 *	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
-	 *	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
+	 * 	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
+	 * 	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
 	 * </dl>
 	 */
 	public void select(@NonNull By locator, @NonNull String value) throws Exception {
@@ -996,7 +1006,6 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 *
 	 * @return size of the browser window
 	 */
 	@NonNull
@@ -1237,7 +1246,7 @@ final public class WebDriverConnector {
 		if(null != locale) {
 			pp.addParameter("___locale", locale.toString());
 		}
-		pp.addParameter("__ts__", String.valueOf(System.nanoTime()));	// Force a new URL every time, to prevent reloading the same page
+		pp.addParameter("__ts__", String.valueOf(System.nanoTime()));    // Force a new URL every time, to prevent reloading the same page
 		DomUtil.addUrlParameters(sb, pp, true);
 		return sb.toString();
 	}
@@ -1302,7 +1311,7 @@ final public class WebDriverConnector {
 	 */
 	public boolean isBrowserOnPage(String expectedUrlPart, Duration duration) {
 		try {
-			new WebDriverWait(m_driver,  duration.toSeconds())
+			new WebDriverWait(m_driver, duration.toSeconds())
 				.until(webDriver -> {
 					String currentURL = getCurrentURL();
 					return Boolean.valueOf(currentURL.toLowerCase().contains(expectedUrlPart.toLowerCase()));
@@ -1533,6 +1542,7 @@ final public class WebDriverConnector {
 
 	/**
 	 * Wait until the element is not present.
+	 *
 	 * @deprecated does not work - use other one notPresent(By)
 	 */
 	@Deprecated
@@ -2129,7 +2139,8 @@ final public class WebDriverConnector {
 	/*	CODING:	Assertions.											*/
 	/*--------------------------------------------------------------*/
 
-	/** Compares two strings, but handles "regexp:" strings like HTML Selenese
+	/**
+	 * Compares two strings, but handles "regexp:" strings like HTML Selenese
 	 *
 	 * @return true if actual matches the expectedPattern, or false otherwise
 	 */
@@ -2249,6 +2260,7 @@ final public class WebDriverConnector {
 	public void verifyTextEquals(@NonNull By locator, @NonNull String text) {
 		assertEquals(getText(locator), text);
 	}
+
 	public void verifyHtmlTextEquals(@NonNull By locator, @NonNull String text) {
 		assertEquals(getHtmlText(locator), text);
 	}
@@ -2270,7 +2282,6 @@ final public class WebDriverConnector {
 		String html = getHtmlText(locator);
 		assertTrue("Locator " + locator + " does not contain " + text + "(value = " + html + ")", html.toLowerCase().contains(text.toLowerCase()));
 	}
-
 
 	public void verifyTextStartsWith(@NonNull String testid, @NonNull String text) {
 		verifyTextStartsWith(byId(testid), text);
