@@ -1267,7 +1267,6 @@ final public class WebDriverConnector {
 		new WebDriverWait(m_driver, timeout.toSeconds() + 1)
 			.until(webDriver -> {
 				String currentURL = getCurrentURL();
-				System.out.println("?? " + currentURL);
 				return Boolean.valueOf(acceptUrl.test(currentURL));
 			});
 		return this;
