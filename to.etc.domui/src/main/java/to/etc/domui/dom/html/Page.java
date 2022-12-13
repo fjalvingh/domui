@@ -907,6 +907,13 @@ final public class Page implements IQContextContainer, ICSPSupport {
 	}
 
 	@Nullable
+	public StringBuilder internalFlushAppendDomuiJS() {
+		StringBuilder sb = m_appendDomuiJS;
+		m_appendDomuiJS = null;
+		return sb;
+	}
+
+	@Nullable
 	public StringBuilder internalFlushAppendJS() {
 		if(internalCanLeaveCurrentPageByBrowser()) {
 			if(m_rootContent instanceof IPageWithNavigationCheck) {
@@ -916,17 +923,9 @@ final public class Page implements IQContextContainer, ICSPSupport {
 			m_rootContent.appendJavascript("WebUI.setCheckLeavePage(true);");
 		}
 
-		StringBuilder sbDomui = m_appendDomuiJS;
 		StringBuilder sb = m_appendJS;
 		m_appendJS = null;
-		m_appendDomuiJS = null;
-		if(null == sbDomui) {
-			return sb;
-		}
-		if(null == sb) {
-			return sbDomui;
-		}
-		return sbDomui.append(sb);
+		return sb;
 	}
 
 	@NonNull
