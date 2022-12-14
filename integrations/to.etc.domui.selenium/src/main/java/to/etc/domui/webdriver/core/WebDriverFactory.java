@@ -37,7 +37,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 /**
  * Factory to create raw WebDriver instances.
  */
-@NonNullByDefault final class WebDriverFactory {
+@NonNullByDefault
+final class WebDriverFactory {
 	private static Logger LOG = LoggerFactory.getLogger(WebDriverFactory.class);
 
 	private static boolean m_chromeDriverUpdated;
@@ -54,12 +55,12 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		//	return allocatePhantomjsInstance(lang);
 		//}
 
-		switch(type){
+		switch(type) {
 			default:
 				throw new IllegalStateException("? unhandled driver type");
 
-			//case HTMLUNIT:
-			//	return allocateHtmlUnitInstance(browser, lang);
+				//case HTMLUNIT:
+				//	return allocateHtmlUnitInstance(browser, lang);
 
 			case LOCAL:
 				return allocateLocalInstance(browser, lang);
@@ -172,29 +173,33 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	//	return wd;
 	//}
 
-	@NonNull private static File createFontConfigFile() throws IOException {
-		//-- 1. Make a temp directory which will contain our fonts.conf
-		String tmp = System.getProperty("java.io.tmpdir");
-		if(tmp == null) {
-			tmp = "/tmp";
-		}
-		File dir = new File(tmp + File.separator + "/_phantomjs-config/fontconfig");
-		dir.mkdirs();
-		if(!dir.exists()) {
-			throw new IOException("Can't create fontconfig directory to override phantomjs font settings at " + dir);
+	@Nullable
+	private static File m_fontConfigDir;
+
+	@NonNull
+	private static File createFontConfigDir() throws IOException {
+		File fontConfigDir = m_fontConfigDir;
+		if(null == fontConfigDir) {
+			fontConfigDir = File.createTempFile("browserconfig", ".tmp");
+
+			File dir = new File(fontConfigDir, "fontconfig");
+			dir.mkdirs();
+			if(!dir.exists()) {
+				throw new IOException("Can't create fontconfig directory to override font settings at " + dir);
+			}
+
+			File conf = new File(dir, "fonts.conf");
+			String text = "<match target=\"font\">\n"
+				+ "<edit mode=\"assign\" name=\"antialias\">\n"
+				+ "<bool>false</bool>\n"
+				+ "</edit>\n"
+				+ "</match>";
+			try(FileOutputStream fos = new FileOutputStream(conf)) {
+				fos.write(text.getBytes("UTF-8"));
+			}
 		}
 
-		File conf = new File(dir, "fonts.conf");
-		String text = "<match target=\"font\">\n"
-			+ "<edit mode=\"assign\" name=\"antialias\">\n"
-			+ "<bool>false</bool>\n"
-			+ "</edit>\n"
-			+ "</match>";
-		try(FileOutputStream fos = new FileOutputStream(conf)) {
-			fos.write(text.getBytes("UTF-8"));
-		}
-
-		return dir;
+		return fontConfigDir;
 	}
 
 	//private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
@@ -207,7 +212,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	}
 
 	private static DesiredCapabilities calculateCapabilities(BrowserModel browser, Locale lang) throws Exception {
-		switch(browser){
+		switch(browser) {
 			default:
 				throw new IllegalStateException("Unsupported browser type " + browser.getCode());
 
@@ -223,7 +228,6 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			case CHROME_HEADLESS:
 				return getChromeHeadlessCapabilities(lang);
 
-
 			case IE:
 			case IE9:
 			case IE10:
@@ -235,7 +239,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	}
 
 	private static WebDriver allocateLocalInstance(BrowserModel browser, Locale lang) throws IOException {
-		switch(browser){
+		switch(browser) {
 			default:
 				throw new IllegalStateException("Unsupported browser type " + browser.getCode() + " for HUB test execution");
 
@@ -265,7 +269,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		m_chromeDriverUpdated = true;
 	}
 
-	@NonNull private static WebDriver allocateIEDriver(BrowserModel browser, Locale lang) {
+	@NonNull
+	private static WebDriver allocateIEDriver(BrowserModel browser, Locale lang) {
 		InternetExplorerDriver wd = new InternetExplorerDriver(getIECapabilities(browser, lang));
 		String browserName = wd.getCapabilities().getBrowserName();
 		String version = wd.getCapabilities().getVersion();
@@ -273,7 +278,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return wd;
 	}
 
-	@NonNull private static WebDriver allocateFirefoxDriver(Locale lang) throws IOException {
+	@NonNull
+	private static WebDriver allocateFirefoxDriver(Locale lang) throws IOException {
 		FirefoxOptions fo = new FirefoxOptions();
 
 		////-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
@@ -302,9 +308,9 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		File home = new File(System.getProperty("user.home"));
 		final File dotfont = new File(home, ".fonts.conf");
 		final File dotbackup = new File(home, "fonts.conf.backup");
-		if(! dotbackup.exists()) {
+		if(!dotbackup.exists()) {
 			if(dotfont.exists()) {
-				if(! dotfont.renameTo(dotbackup)) {
+				if(!dotfont.renameTo(dotbackup)) {
 					throw new IOException("Cannot rename " + dotfont + " to " + dotbackup);
 				}
 			}
@@ -321,13 +327,14 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		}
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override public void run() {
+			@Override
+			public void run() {
 				try {
 					if(!dotfont.delete()) {
 						System.err.println("FAILED TO DELETE " + dotfont);
 					}
 					if(dotbackup.exists()) {
-						if(! dotbackup.renameTo(dotfont)) {
+						if(!dotbackup.renameTo(dotfont)) {
 							System.err.println("FAILED TO RENAME " + dotbackup + " back to " + dotfont);
 						}
 					}
@@ -347,6 +354,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		"${HOME}/bin/chromedriver",
 		"${HOME}/chromedriver"
 	};
+
 	static private final String[] CHROMELOCATIONS = {
 		"/usr/local/bin/google-chrome",
 		"/usr/bin/google-chrome",
@@ -389,9 +397,9 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		dc.setCapability("chrome.binary", chrome);
 
 		//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
-		File dir = createFontConfigFile();
+		File dir = createFontConfigDir();
 		Map<String, String> env = new HashMap<>();
-		env.put("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
+		env.put("XDG_CONFIG_HOME", dir.getAbsolutePath());
 
 		Builder builder = new Builder();
 		builder.usingAnyFreePort();
@@ -426,7 +434,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		LOG.warn("Language for IE is still not supported! Language found: [" + lang.getLanguage() + "]");
 		DesiredCapabilities dc = DesiredCapabilities.internetExplorer();
 		dc.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
-		switch(browser){
+		switch(browser) {
 			default:
 				throw new IllegalStateException("Unsupported IE browser version " + browser.getCode());
 			case IE:
@@ -482,7 +490,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return capabilities;
 	}
 
-	@NonNull private static ChromeOptions getCommonChromeOptions(Locale lang) {
+	@NonNull
+	private static ChromeOptions getCommonChromeOptions(Locale lang) {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments(
 			"test-type");                    // This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
