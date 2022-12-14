@@ -239,6 +239,8 @@ public abstract class DomApplication {
 
 	private boolean m_defaultHintsOnControl = true;
 
+	private boolean m_underSeleniumTest = System.getProperty("domui.selenium") != null;
+
 	/** When > 0, this defines that pages are automatically reloaded when changed */
 	private int m_autoRefreshPollInterval;
 
@@ -1253,11 +1255,13 @@ public abstract class DomApplication {
 
 	public synchronized int calculatePollInterval(boolean pollCallbackRequired) {
 		int pollinterval = Integer.MAX_VALUE;
-		if(m_keepAliveInterval > 0)
-			pollinterval = m_keepAliveInterval;
-		if(m_autoRefreshPollInterval > 0) {
-			if(m_autoRefreshPollInterval < pollinterval)
-				pollinterval = m_autoRefreshPollInterval;
+		if(! m_underSeleniumTest) {
+			if(m_keepAliveInterval > 0)
+				pollinterval = m_keepAliveInterval;
+			if(m_autoRefreshPollInterval > 0) {
+				if(m_autoRefreshPollInterval < pollinterval)
+					pollinterval = m_autoRefreshPollInterval;
+			}
 		}
 		if(pollCallbackRequired) {
 			if(m_defaultPollInterval < pollinterval)

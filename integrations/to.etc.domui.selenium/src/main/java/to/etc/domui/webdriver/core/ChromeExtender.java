@@ -95,7 +95,11 @@ public class ChromeExtender {
 
 		Object value = response.getValue();
 		if(response.getStatus() == null || response.getStatus().intValue() != 0) {
-			//System.out.println("resp: " + response);
+			if(value instanceof RuntimeException)
+				throw (RuntimeException) value;
+			if(value instanceof IOException)
+				throw (IOException) value;
+ 			//System.out.println("resp: " + response);
 			throw new MyChromeDriverException("Command '" + cmd + "' failed: " + value);
 		}
 		if(null == value)

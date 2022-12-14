@@ -17,7 +17,7 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 	}
 
 	@Override
-	protected void initializeScreen() throws Exception {
+	public void initializeScreen() throws Exception {
 		wd().openScreenIf(this, Form4LayoutTestPage.class);
 		wd().cmd().type("aaaaaaaaa").on("two", "input");
 		wd().wait(By.className("ui-lui-popup"));

@@ -328,6 +328,10 @@
 							<name>domui.testui</name>
 							<value>true</value>
 						</systemProperty>
+						<systemProperty>
+							<name>domui.selenium</name>
+							<value>true</value>
+						</systemProperty>
 					</systemProperties>
 					<scanIntervalSeconds>5</scanIntervalSeconds>
 					<stopPort>8089</stopPort>

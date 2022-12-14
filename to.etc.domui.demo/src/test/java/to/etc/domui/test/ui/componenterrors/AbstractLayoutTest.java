@@ -10,11 +10,14 @@ import org.junit.Before;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import to.etc.domui.test.ui.imagehelper.ImageHelper;
-import to.etc.domui.webdriver.core.AbstractWebDriverTest;
+import to.etc.domui.webdriver.core.AbstractSinglePageWebDriverTest;
 import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Map;
@@ -29,10 +32,11 @@ import java.util.TreeSet;
  * Created on 12-9-17.
  */
 @NonNullByDefault
-abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
+abstract public class AbstractLayoutTest extends AbstractSinglePageWebDriverTest {
 	static private ThreadLocal<ScreenInspector> m_inspector = new ThreadLocal<>();
 
-	protected abstract void initializeScreen() throws Exception;
+	@Override
+	abstract public void initializeScreen() throws Exception;
 
 	@AfterClass
 	static public void releaseInspector() {

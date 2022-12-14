@@ -10,6 +10,7 @@ import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.TimeoutException;
@@ -257,6 +258,27 @@ final public class WebDriverConnector {
 		 * a previous test.
 		 */
 		m_driver.manage().deleteAllCookies();
+		clearAlert();
+	}
+
+	public void clearAlert() {
+		try {
+			Alert alert = m_driver.switchTo().alert();
+			alert.dismiss();
+			System.out.println("Alert cleared");
+		} catch(NoAlertPresentException x) {
+			System.out.println("No alert");
+			// Ignore
+		}
+	}
+
+	public boolean isAlertPresent() {
+		try {
+			m_driver.switchTo().alert();
+			return true;
+		} catch(NoAlertPresentException x) {
+			return false;
+		}
 	}
 
 	@NonNull
@@ -2070,7 +2092,18 @@ final public class WebDriverConnector {
 		try {
 			Alert alert = driver().switchTo().alert();
 			String msg = alert.getText();
-			alert.accept();
+
+			try {
+				alert.accept();
+			} catch(Exception x) {
+
+				try {
+					alert.dismiss();
+				} catch(Exception xx) {
+					System.err.println("Failed to accept/dismiss alert");
+					xx.printStackTrace();
+				}
+			}
 			return msg;
 		} catch(Exception ex) {
 			return null;

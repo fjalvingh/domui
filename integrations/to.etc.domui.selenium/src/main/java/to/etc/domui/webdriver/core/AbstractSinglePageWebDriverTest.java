@@ -3,20 +3,24 @@ package to.etc.domui.webdriver.core;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.junit.After;
+import org.junit.Before;
 import to.etc.util.WrappedException;
 
 /**
- * Abstract base class for Selenium JUnit tests. This class is for tests
- * that need a clean state with every test.
+ * Abstract base class for Selenium JUnit tests. This class is for
+ * tests that open a single page and then do multiple tests on that
+ * single page.
  */
 @NonNullByDefault
-abstract public class AbstractWebDriverTest extends AbstractWebDriverTestBase {
+abstract public class AbstractSinglePageWebDriverTest extends AbstractWebDriverTestBase {
 	@Nullable
 	private WebDriverConnector m_wd;
 
+	@Before
+	abstract public void initializeScreen() throws Exception;
+
 	/**
-	 * Get the webdriver to use for tests.
+	 * Get the webdriver to use for tests. This gets the connector only once!
 	 */
 	@Override
 	@NonNull
@@ -30,18 +34,5 @@ abstract public class AbstractWebDriverTest extends AbstractWebDriverTestBase {
 			}
 		}
 		return wd;
-	}
-
-	/**
-	 * Called after every test, this completely resets the WebDriver connector.
-	 * This includes things like cookies, so that each test sees a new login
-	 * state.
-	 */
-	@After
-	public void cleanupWebDriver() {
-		WebDriverConnector wd = m_wd;
-		if(null != wd) {
-			wd.reset();
-		}
 	}
 }

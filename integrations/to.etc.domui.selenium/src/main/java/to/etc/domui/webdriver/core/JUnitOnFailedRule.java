@@ -11,9 +11,9 @@ import org.junit.runner.Description;
  * Created on 2-9-17.
  */
 public class JUnitOnFailedRule extends TestWatcher {
-	final private AbstractWebDriverTest m_testBase;
+	final private AbstractWebDriverTestBase m_testBase;
 
-	public JUnitOnFailedRule(AbstractWebDriverTest testBase) {
+	public JUnitOnFailedRule(AbstractWebDriverTestBase testBase) {
 		m_testBase = testBase;
 	}
 
