@@ -3,6 +3,7 @@ package to.etc.domui.webdriver.core;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.openqa.selenium.UnhandledAlertException;
@@ -52,6 +53,19 @@ abstract public class AbstractWebDriverTest {
 			}
 		}
 		return wd;
+	}
+
+	/**
+	 * Called after every test, this completely resets the WebDriver connector.
+	 * This includes things like cookies, so that each test sees a new login
+	 * state.
+	 */
+	@After
+	public void cleanupWebDriver() {
+		WebDriverConnector wd = m_wd;
+		if(null != wd) {
+			wd.reset();
+		}
 	}
 
 	protected WebDriverCommandBuilder c() {

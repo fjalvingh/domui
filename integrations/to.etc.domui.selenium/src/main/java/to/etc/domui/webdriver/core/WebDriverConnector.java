@@ -240,7 +240,7 @@ final public class WebDriverConnector {
 	/**
 	 * Clears all persistent settings in the instance to enable it for reuse.
 	 */
-	private void reset() {
+	public void reset() {
 		m_afterCommandCallback = null;
 		m_lastTestClass = null;
 		m_openScreenUrlCalculator = null;
@@ -251,6 +251,12 @@ final public class WebDriverConnector {
 		m_waitInterval = 250;
 		m_waitTimeout = 60;
 		m_viewportSize = new Dimension(1280, 1024);
+
+		/*
+		 * jal 20221213 Deleting all cookies to prevent the screen from being reused from
+		 * a previous test.
+		 */
+		m_driver.manage().deleteAllCookies();
 	}
 
 	@NonNull
@@ -1161,11 +1167,6 @@ final public class WebDriverConnector {
 			sb = calculator.updateUrlFor(sb, locale, clz, parameters);
 		}
 
-		/*
-		 * jal 20221213 Deleting all cookies to prevent the screen from being reused from
-		 * a previous test.
-		 */
-		m_driver.manage().deleteAllCookies();
 		System.out.println("webdriver: navigate to " + sb);
 		m_driver.navigate().to(sb);
 		checkSize();
