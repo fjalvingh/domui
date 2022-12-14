@@ -36,10 +36,10 @@ public class ChromeExtender {
 	public BufferedImage takeScreenshot() throws Exception {
 		byte[] bytes = getScreenshotBytes();
 
-		File out = new File("/tmp/out-full.png");
-		try(FileOutputStream fos = new FileOutputStream(out)) {
-			fos.write(bytes);
-		}
+		//File out = new File("/tmp/out-full.png");
+		//try(FileOutputStream fos = new FileOutputStream(out)) {
+		//	fos.write(bytes);
+		//}
 		return ImageIO.read(new ByteArrayInputStream(bytes));
 	}
 
