@@ -90,8 +90,7 @@ public class CpRadioGroup<T> extends AbstractCpComponent {
 		if(null == element)
 			return null;
 
-		System.out.println("rb: " + element.getTagName() + " id=" + element.getAttribute("id"));
-
+		//System.out.println("rb: " + element.getTagName() + " id=" + element.getAttribute("id"));
 		return element;
 	}
 }

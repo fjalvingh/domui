@@ -129,7 +129,7 @@ public class PogRadioGroup extends AbstractPoProxyGenerator implements IPoProxyG
 			return GeneratorAccepted.RefusedIgnoreChildren;
 		}
 
-		System.out.println("rg type is " + typeClass);
+		//System.out.println("rg type is " + typeClass);
 		m_typeClass = typeClass;
 		return GeneratorAccepted.Accepted;
 	}
