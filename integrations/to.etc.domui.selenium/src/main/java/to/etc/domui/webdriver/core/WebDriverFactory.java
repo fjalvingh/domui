@@ -181,6 +181,7 @@ final class WebDriverFactory {
 		File fontConfigDir = m_fontConfigDir;
 		if(null == fontConfigDir) {
 			fontConfigDir = File.createTempFile("browserconfig", ".tmp");
+			fontConfigDir.delete();
 
 			File dir = new File(fontConfigDir, "fontconfig");
 			dir.mkdirs();
@@ -197,6 +198,7 @@ final class WebDriverFactory {
 			try(FileOutputStream fos = new FileOutputStream(conf)) {
 				fos.write(text.getBytes("UTF-8"));
 			}
+			m_fontConfigDir = fontConfigDir;
 		}
 
 		return fontConfigDir;
