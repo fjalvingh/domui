@@ -19,6 +19,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.util.StringTool;
 import to.etc.webapp.testsupport.TUtilTestProperties;
 import to.etc.webapp.testsupport.TestProperties;
 
@@ -499,6 +500,9 @@ final class WebDriverFactory {
 			"test-type");                    // This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
 		options.addArguments("lang=" + lang.getLanguage().toLowerCase());
 		options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
+		if(StringTool.isLinux()) {
+			options.addArguments("--disable-dev-shm-usage");
+		}
 
 		return options;
 	}
