@@ -484,9 +484,14 @@ final class WebDriverFactory {
 
 	private static DesiredCapabilities getChromeHeadlessCapabilities(Locale lang) {
 		ChromeOptions options = getCommonChromeOptions(lang);
-		options.addArguments("--headless");
 		options.addArguments("--no-sandbox");
+		options.addArguments("--headless");
 		options.addArguments("--disable-dev-shm-usage");
+
+		options.addArguments("--disable-extensions");
+		//options.addArguments("");
+		//options.addArguments("");
+		//options.addArguments("");
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
@@ -501,9 +506,8 @@ final class WebDriverFactory {
 		options.addArguments("lang=" + lang.getLanguage().toLowerCase());
 		options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
 		if(StringTool.isLinux()) {
-			options.addArguments("--disable-dev-shm-usage");
+			options.addArguments("--user-data-dir=~/.config/google-chrome");
 		}
-
 		return options;
 	}
 
