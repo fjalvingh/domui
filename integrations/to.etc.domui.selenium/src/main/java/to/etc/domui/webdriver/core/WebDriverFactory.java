@@ -506,7 +506,8 @@ final class WebDriverFactory {
 		options.addArguments("lang=" + lang.getLanguage().toLowerCase());
 		options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
 		if(StringTool.isLinux()) {
-			options.addArguments("--user-data-dir=~/.config/google-chrome");
+			options.addArguments("--crash-dumps-dir=/tmp");
+			//options.addArguments("--user-data-dir=~/.config/google-chrome");
 		}
 		return options;
 	}
