@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.annotations.UIPage;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.PageUrlMapping;
+import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.webdriver.poproxies.AbstractCpComponent;
@@ -127,7 +129,20 @@ final public class WebDriverConnector {
 	private Dimension m_viewportSize = new Dimension(1280, 1024);
 
 	@Nullable
+	private Class<?> m_lastTestClass;
+
+	@Nullable
+	private Class<? extends UrlPage> m_lastTestPageClass;
+
+	@Nullable
+	private PageParameters m_lastTestPageParameters;
+
+	@Nullable
+	private String m_lastTestPage;
+
+	@Nullable
 	private final IWebdriverScreenshotHelper m_screenshotHelper;
+
 
 	private WebDriverConnector(@NonNull WebDriver driver, @NonNull BrowserModel kind, @NonNull String webapp, @NonNull WebDriverType driverType, @Nullable IWebdriverScreenshotHelper helper) {
 		m_driver = driver;
@@ -244,14 +259,17 @@ final public class WebDriverConnector {
 	public void reset() {
 		m_afterCommandCallback = null;
 		m_lastTestClass = null;
-		m_openScreenUrlCalculator = null;
+		m_lastTestPageClass = null;
 		m_lastTestPage = null;
+		m_lastTestPageParameters = null;
+		m_openScreenUrlCalculator = null;
 		m_inhibitAfter = false;
 		m_nextInterval = -1;
 		m_nextWaitTimeout = -1;
 		m_waitInterval = 250;
 		m_waitTimeout = 60;
 		m_viewportSize = new Dimension(1280, 1024);
+
 
 		/*
 		 * jal 20221213 Deleting all cookies to prevent the screen from being reused from
@@ -267,7 +285,7 @@ final public class WebDriverConnector {
 			alert.dismiss();
 			System.out.println("Alert cleared");
 		} catch(NoAlertPresentException x) {
-			System.out.println("No alert");
+			//System.out.println("No alert");
 			// Ignore
 		}
 	}
@@ -1177,36 +1195,43 @@ final public class WebDriverConnector {
 	 */
 	@NonNull
 	public WebDriverConnector openScreen(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object... parameters) throws Exception {
+		System.out.println(">> OPENSCREEN " + clz);
 		m_lastTestClass = null;
 		m_lastTestPage = null;
 
 		checkSize();
 
-		String sb = calculatePageURL(locale, clz, parameters);
+		String url = calculatePageURL(locale, clz, parameters);
 
 		IWdUrlCalculator calculator = m_openScreenUrlCalculator;
 		if(null != calculator) {
-			sb = calculator.updateUrlFor(sb, locale, clz, parameters);
+			url = calculator.updateUrlFor(url, locale, clz, parameters);
 		}
 
-		System.out.println("webdriver: navigate to " + sb);
-		m_driver.navigate().to(sb);
+		System.out.println("webdriver: navigate to " + url);
+		m_driver.navigate().to(url);
 		checkSize();
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
-
 		WebElement we = wait(xdomui);
 
+		System.out.println(">> OPENSCREEN ELEMENT=" + we + (we == null ? "" : " " + we.getTagName()));
+
 		String id = DomUtil.nullChecked(we).getAttribute("id");
-		if("_1".equals(id))                        // If this is a domUI body then be done
-			return this;
+		if(! "_1".equals(id))                        // If this is a domUI body then be done
+			throw new IllegalStateException("Expecting a DomUI screen, but did not get the correct body");
 
-		doLogin();
-
-		xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
-		we = wait(xdomui);
-		waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+		m_lastTestPageClass = clz;
+		m_lastTestPageParameters = new PageParameters(parameters);
+		m_lastTestPage = url;
 		return this;
+
+		//doLogin();
+		//
+		//xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
+		//we = wait(xdomui);
+		//waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+		//return this;
 	}
 
 	/**
@@ -1218,12 +1243,6 @@ final public class WebDriverConnector {
 			return;
 		driver().manage().window().setSize(m_viewportSize);
 	}
-
-	@Nullable
-	private Class<?> m_lastTestClass;
-
-	@Nullable
-	private String m_lastTestPage;
 
 	@NonNull
 	public WebDriverConnector openScreenIf(@NonNull Object testClass, @NonNull Class<? extends UrlPage> clz, Object... parameters) throws Exception {
@@ -1249,13 +1268,11 @@ final public class WebDriverConnector {
 
 		String id = DomUtil.nullChecked(we).getAttribute("id");
 		if(!"_1".equals(id)) {                            // If this is a domUI body then be done
-			doLogin();
-
-			xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
-			we = wait(xdomui);
-			waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+			throw new IllegalStateException("Expecting a DomUI page, but did not get the correct body");
 		}
 		m_lastTestClass = testClass.getClass();
+		m_lastTestPageClass = clz;
+		m_lastTestPageParameters = new PageParameters(parameters);
 		m_lastTestPage = sb;
 		size = getSize();
 		return this;
@@ -1263,16 +1280,41 @@ final public class WebDriverConnector {
 
 	@NonNull
 	public String calculatePageURL(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object[] parameters) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(m_applicationURL);
-		sb.append(clz.getName());
-		sb.append(".ui");
 		PageParameters pp = new PageParameters(parameters);
 		if(null != locale) {
 			pp.addParameter("___locale", locale.toString());
 		}
 		pp.addParameter("__ts__", String.valueOf(System.nanoTime()));    // Force a new URL every time, to prevent reloading the same page
-		DomUtil.addUrlParameters(sb, pp, true);
+
+		//-- If we have a @UIPage annotation: calculate the nice url
+		String url;
+		if(clz.isAnnotationPresent(UIPage.class)) {
+			PageUrlMapping pum = new PageUrlMapping();
+			pum.appendPage(clz);
+			UrlAndParameters uap = pum.getUrlString(clz, pp);
+			String pagePath;
+			if(uap != null) {
+				pagePath = uap.getUrl();
+				pp = uap.getPageParameters();
+			} else {
+				pagePath = clz.getName() + ".ui";
+			}
+			StringBuilder sb = new StringBuilder();
+			sb.append(pagePath);
+			DomUtil.addUrlParameters(sb, pp, true);
+			url = sb.toString();
+		} else {
+			StringBuilder sb = new StringBuilder();
+			sb.append(m_applicationURL);
+			sb.append(clz.getName());
+			sb.append(".ui");
+			DomUtil.addUrlParameters(sb, pp, true);
+			url = sb.toString();
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(m_applicationURL);
+		sb.append(url);
 		return sb.toString();
 	}
 
@@ -1285,18 +1327,6 @@ final public class WebDriverConnector {
 		WebElement we = wait(xdomui);
 		waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
 		return this;
-	}
-
-	private void doLogin() throws Exception {
-		String login = TUtilTestProperties.getViewpointLoginName();
-		TestProperties p = TUtilTestProperties.getTestProperties();
-		String password = p.getProperty("webdriver.loginpassword");
-
-		//-- We have the login screen. Enter credentials.
-		cmd().type(login).on(locator("#given_username"));
-		cmd().type(password).on(locator("#given_password"));
-		cmd().click().on(locator("#loginbutton"));
-//		System.out.println("Logging in as " + login);
 	}
 
 	/**
@@ -1364,6 +1394,27 @@ final public class WebDriverConnector {
 		}
 	}
 
+	/**
+	 * Wait for the browser to have moved to some other page. This
+	 * checks the URL in the browser window to see if it is the same
+	 * as the URL we navigated to last.
+	 */
+	public void waitNewPage() throws Exception {
+		waitNewPage(Duration.ofSeconds(20));
+	}
+
+	/**
+	 * Wait for the browser to have moved to some other page. This
+	 * checks the URL in the browser window to see if it is the same
+	 * as the URL we navigated to last.
+	 */
+	public void waitNewPage(Duration duration) throws Exception {
+		Class<? extends UrlPage> lastTestPage = m_lastTestPageClass;
+		PageParameters lastTestClassParameters = m_lastTestPageParameters;
+		if(null == lastTestPage || null == lastTestClassParameters)
+			throw new IllegalStateException("No page has yet been opened using openScreen() or related");
+		waitUrl(url -> ! isUrlFor(url, lastTestPage), duration);
+	}
 
 	/**
 	 * Checks whether the specified URL is an URL for the specified DomUI page. This
@@ -2153,7 +2204,7 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 * Expects new popup with specified body #PAGENAME_PARAMETER attribute</br>
+	 * Expects new popup with specified body #PAGENAME_PARAMETER attribute.
 	 * Returns handle for expected popup.
 	 */
 	@NonNull

@@ -197,7 +197,7 @@ public abstract class DomApplication {
 
 	private List<String> m_ignorePrefixList = new ArrayList<>();
 
-	private PageUrlMapping m_pageUrlMapping = new PageUrlMapping(this);
+	private PageUrlMapping m_pageUrlMapping = new PageUrlMapping();
 
 	/** The default XSS checker. */
 	private volatile XssChecker m_xssChecker = new XssChecker();
@@ -847,7 +847,7 @@ public abstract class DomApplication {
 		calculateUiTestMode(development);
 		runListenersStartInitialization();
 		configureHeaders(pp);
-		m_pageUrlMapping.scan();
+		m_pageUrlMapping.scan(this);
 		try {
 			initialize(pp);
 

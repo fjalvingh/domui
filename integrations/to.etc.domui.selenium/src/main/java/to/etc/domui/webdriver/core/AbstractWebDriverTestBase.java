@@ -11,6 +11,7 @@ import to.etc.pater.OnTestFailure;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -28,7 +29,7 @@ abstract public class AbstractWebDriverTestBase {
 	public TestName m_testName = new TestName();
 
 	@Rule
-	public JUnitOnFailedRule m_failRule = new JUnitOnFailedRule(this);
+	public JUnitTestCompletedRule m_failRule = new JUnitTestCompletedRule(this);
 
 	private int m_screenShotCount;
 
@@ -44,13 +45,22 @@ abstract public class AbstractWebDriverTestBase {
 	}
 
 	/**
-	 * EXPERIMENTAL: this method gets called by the "new" test runner if a test has failed. The implementation
+	 * EXPERIMENTAL, PUZZLER TEST RUNNER ONLY: this method gets called by the "new" test runner if a test has failed. The implementation
 	 * uses the "test report" mechanism to register screenshots with the test runner so that they can be
 	 * part of the result report.
 	 */
 	@OnTestFailure
 	public void onTestFailure(Method failedMethod) throws Exception {
 		WebDriverConnector.onTestFailure(wd(), failedMethod);
+	}
+
+	/**
+	 * This gets called, much like an @After method, when a test fails. But
+	 * this gets called AFTER @After, and is mainly used to allow calling
+	 * a screenshot method on a not-yet-closed webdriver instance.
+	 */
+	@OverridingMethodsMustInvokeSuper
+	public void internalClosePerTestResources() {
 	}
 
 	//@NonNull
@@ -86,6 +96,7 @@ abstract public class AbstractWebDriverTestBase {
 	 * Creates a snapshot of the current screen inside the failsafe directory.
 	 */
 	public void snapshot(String description) {
+		//System.out.println(">> STARTING SNAPSHOT");
 		File testReportDir = findTestReportDir();
 		String testName = m_testName.getMethodName();
 		String reportName = getClass().getSimpleName() + "_" + testName + ".png";
@@ -170,5 +181,4 @@ abstract public class AbstractWebDriverTestBase {
 	public void waitForRefreshOf(ICpWithElement component, Duration duration, IExecute action) throws Exception {
 		wd().waitForRefreshOf(component, duration, action);
 	}
-
 }
