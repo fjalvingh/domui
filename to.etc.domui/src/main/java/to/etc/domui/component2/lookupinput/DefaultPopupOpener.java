@@ -4,16 +4,32 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component2.lookupinput.LookupInputBase2.IPopupOpener;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.function.IExecute;
 
+import java.util.List;
+
 public class DefaultPopupOpener<A, B> implements IPopupOpener {
 
 	@Nullable
+	private List<SearchPropertyMetaModel> m_searchPropertyList;
+
+	@Nullable
 	private IClickableRowRenderer<B> m_formRowRenderer;
+
+	@Nullable
+	public List<SearchPropertyMetaModel> getSearchPropertyList() {
+		return m_searchPropertyList;
+	}
+
+	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
+	public void setSearchPropertyList(@Nullable List<SearchPropertyMetaModel> searchPropertyList) {
+		m_searchPropertyList = searchPropertyList;
+	}
 
 	/**
 	 * Returns configured custom {@link IClickableRowRenderer}&lt;OT&gt; render for rows when the popup lookup form is used.
@@ -44,6 +60,8 @@ public class DefaultPopupOpener<A, B> implements IPopupOpener {
 				control.setDialogSelection(value);
 			}
 		});
+
+		dlg.setSearchProperties(getSearchPropertyList());
 
 		//-- Move all extra stuff needed
 		String ttl = control.getDefaultTitle();

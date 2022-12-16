@@ -121,7 +121,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	}
 
 	static public HtmlFileRenderer create(@NonNull Writer output, @NonNull NodeContainer rootNode) throws Exception {
-		FastXmlOutputWriter out = new FastXmlOutputWriter(output);
+		FastXmlOutputWriter out = new FastXmlOutputWriter(output, rootNode.getPage());
 		HtmlTagRenderer rr = new StandardHtmlTagRenderer(BrowserVersion.INSTANCE, out, false);
 		rr.setRenderInline(true);
 		HtmlFileRenderer fr = new HtmlFileRenderer(rr, out, rootNode);
@@ -146,7 +146,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 			renderRoot = body;
 		}
 
-		FastXmlOutputWriter out = new FastXmlOutputWriter(output);
+		FastXmlOutputWriter out = new FastXmlOutputWriter(output, sourcePage);
 		HtmlTagRenderer rr = new StandardHtmlTagRenderer(BrowserVersion.INSTANCE, out, false);
 		rr.setRenderInline(true);
 		HtmlFileRenderer fr = new HtmlFileRenderer(rr, out, renderRoot);

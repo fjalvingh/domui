@@ -45,6 +45,8 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import static java.lang.Character.isJavaIdentifierPart;
+
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)
@@ -114,7 +116,7 @@ public class StringTool {
 		if(!Character.isJavaIdentifierStart(s.charAt(0)))
 			return false;
 		for(int i = 1; i < len; i++) {
-			if(!Character.isJavaIdentifierPart(s.charAt(i)))
+			if(!isJavaIdentifierPart(s.charAt(i)))
 				return false;
 		}
 		return true;
@@ -3115,6 +3117,71 @@ public class StringTool {
 	}
 
 	/**
+	 * Util that locates given qualified name in expression (with ignored casing), and replaces it with new qualified name.
+	 * It ignores other cases when old name is part of naming of other variables in expression.
+	 * It requires that old qualified name prefix and name are named by java identifier convention.
+	 *
+	 * @param expression expression where we replace variables with qualified names
+	 * @param prefixQName prefix in qualified name to replace.
+	 * @param oldName name in qualified name to replace.
+	 * @param newQName new qualified name that replaced old one.
+	 * @return replaced expression.
+	 */
+	@Nullable
+	public static String replaceQualifiedNameInExpression(@Nullable String expression, String prefixQName, String oldName, String newQName) {
+		if(null == expression) {
+			return null;
+		}
+		String lEntityName = prefixQName.toLowerCase();
+		String lOldName = oldName.toLowerCase();
+		String literalToFind = lEntityName + "." + lOldName;
+		return replaceVariableNameInExpression(expression, literalToFind, newQName);
+	}
+
+	/**
+	 * Util that locates given variable name in expression (with ignored casing), and replaces it with new name.
+	 * It ignores other cases when old name is part of naming of other variables in expression.
+	 * It requires that old and new name are named by java identifier convention.
+	 *
+	 * @param expression expression where we replace variable name
+	 * @param oldName name to replace.
+	 * @return replaced expression.
+	 */
+	@Nullable
+	public static String replaceVariableNameInExpression(@Nullable String expression, String oldName, String newName) {
+		if(null == expression) {
+			return null;
+		}
+		String lowerCaseExpression = expression.toLowerCase();
+		String literalToFind = oldName.toLowerCase();
+		int lastReplacedIndex = 0;
+		int pos = -1;
+		StringBuilder replaceSb = new StringBuilder();
+		do {
+			pos = lowerCaseExpression.indexOf(literalToFind, pos + 1);
+			if(pos > -1) {
+				Character nextChar = null;
+				if(lowerCaseExpression.length() > pos + literalToFind.length()) {
+					nextChar = lowerCaseExpression.charAt(pos + literalToFind.length());
+				}
+				Character prevChar = null;
+				if(pos > 0) {
+					prevChar = expression.charAt(pos - 1);
+				}
+				if((nextChar == null || !isJavaIdentifierPart(nextChar)) && (prevChar == null || !isJavaIdentifierPart(prevChar))) {
+					replaceSb
+						.append(expression.substring(lastReplacedIndex, pos))
+						.append(newName);
+					lastReplacedIndex = pos + literalToFind.length();
+				}
+			} else if(lastReplacedIndex < expression.length()) {
+				replaceSb.append(expression.substring(lastReplacedIndex));
+			}
+		} while(pos >= 0);
+		return replaceSb.toString();
+	}
+
+	/**
 	 * This method checks that the name passed only contains a name,
 	 * and nothing that looks like a SQL injection.
 	 */
@@ -3136,6 +3203,67 @@ public class StringTool {
 		if(null != password && password.contains("'"))
 			throw new IllegalArgumentException("Invalid characters in SQL");
 	}
+
+	static private final char[] PUNCT = "!#_^&*.;".toCharArray();
+
+	static private final char[] DIGITS = "023456789".toCharArray();
+
+	static private final char[] LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+
+	/**
+	 * Generate a reasonably secure password.
+	 */
+	static public String generatePassword(int nchar) {
+		return generatePassword(nchar, 2, 2);
+	}
+
+	/*
+	 * Postgres' passwords should not include dollar signs nor percentage signs.
+	 * jal 20200608 actually postgres is OK with it, it's Azure Tabular that dies with it.
+	 */
+	static public String generatePassword(int nchar, int punctuation, int digits) {
+		if(nchar < 6)
+			throw new IllegalStateException("Don't be silly.");
+
+		char[] buf = new char[nchar];                            // Password buffer
+
+		//-- Randomly assign the #of punctuation chars
+		while(punctuation > 0) {
+			char c = PUNCT[m_random.nextInt(PUNCT.length)];        // Random punctuation
+
+			for(; ; ) {
+				int pos = m_random.nextInt(nchar);                // Get a position
+				if(buf[pos] == 0) {
+					buf[pos] = c;
+					break;
+				}
+			}
+			punctuation--;
+		}
+
+		//-- Randomly assign digits
+		while(digits > 0) {
+			char c = DIGITS[m_random.nextInt(DIGITS.length)];        // Random punctuation
+
+			for(; ; ) {
+				int pos = m_random.nextInt(nchar);                    // Get a position
+				if(buf[pos] == 0) {
+					buf[pos] = c;
+					break;
+				}
+			}
+			digits--;
+		}
+
+		//-- And finally: fill the rest with random letters.
+		for(int i = 0; i < nchar; i++) {
+			if(buf[i] == 0) {
+				buf[i] = LETTERS[m_random.nextInt(LETTERS.length)];
+			}
+		}
+		return new String(buf);
+	}
+
 }
 
 

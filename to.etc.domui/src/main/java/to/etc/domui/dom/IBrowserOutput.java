@@ -82,6 +82,4 @@ public interface IBrowserOutput {
 	void attr(String name, int value) throws IOException;
 
 	void attr(String name, boolean value) throws IOException;
-
-
 }

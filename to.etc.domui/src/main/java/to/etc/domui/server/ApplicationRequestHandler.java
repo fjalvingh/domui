@@ -111,7 +111,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//	extra = "+ \"" + sepa + "$bookmarks=\" + encodeURIComponent(location.hash)";
 		//}
 
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"), null);
 		String locationUpdate = "location.replace(" + StringTool.strToJavascriptString(to, true) + extra + " + location.hash);\n";
 		//System.out.println(">>> location: " + locationUpdate);
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"nonce=\"" + nonce + "\"><!--\n"
@@ -165,7 +165,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Output all headers
 		ctx.renderResponseHeaders(null);
 
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"), null);
 		out.tag("redirect");
 		out.attr("url", url);
 		out.endAndCloseXmltag();

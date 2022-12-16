@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.component.misc.WindowParameters;
+import to.etc.domui.dom.ICSPSupport;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.header.HeaderContributor;
@@ -76,7 +77,7 @@ import java.util.stream.Collectors;
  * Created on Aug 18, 2007
  */
 @NonNullByDefault
-final public class Page implements IQContextContainer {
+final public class Page implements IQContextContainer, ICSPSupport {
 	static private final Logger LOG = LoggerFactory.getLogger(Page.class);
 
 	static private final int MAX_DOMUI_NODES_PER_PAGE = 100_000;
@@ -135,6 +136,9 @@ final public class Page implements IQContextContainer {
 
 	@Nullable
 	private StringBuilder m_appendJS;
+
+	@Nullable
+	private StringBuilder m_appendDomuiJS;
 
 	/** Temp for checking shelve order. */
 	private boolean m_shelved;
@@ -917,6 +921,13 @@ final public class Page implements IQContextContainer {
 	}
 
 	@Nullable
+	public StringBuilder internalFlushAppendDomuiJS() {
+		StringBuilder sb = m_appendDomuiJS;
+		m_appendDomuiJS = null;
+		return sb;
+	}
+
+	@Nullable
 	public StringBuilder internalFlushAppendJS() {
 		if(internalCanLeaveCurrentPageByBrowser()) {
 			if(m_rootContent instanceof IPageWithNavigationCheck) {
@@ -936,6 +947,15 @@ final public class Page implements IQContextContainer {
 		StringBuilder sb = m_appendJS;
 		if(null == sb) {
 			sb = m_appendJS = new StringBuilder(2048);
+		}
+		return sb;
+	}
+
+	@NonNull
+	private StringBuilder internalGetAppendDomuiJS() {
+		StringBuilder sb = m_appendDomuiJS;
+		if(null == sb) {
+			sb = m_appendDomuiJS = new StringBuilder(512);
 		}
 		return sb;
 	}
@@ -1528,6 +1548,52 @@ final public class Page implements IQContextContainer {
 			m_nonce = nonce = DomUtil.createNonce();
 		}
 		return nonce;
+	}
+
+	/**
+	 * Currently supported list of attributes (other than event handlers) that we handle by CSP handler.
+	 */
+	private static final Set<String> CSP_JS_INLINE_ATTRIBUTES_TO_HANDLE = Set.of("style");
+
+	@Override
+	public boolean isAttributeHandled(@NonNull String attributeName) {
+		if(attributeName.startsWith("on")) {
+			return true;
+		}
+		return CSP_JS_INLINE_ATTRIBUTES_TO_HANDLE.contains(attributeName);
+	}
+
+	@Override
+	public void renderAsJavaScript(String id, String attribute, String value) {
+		boolean isFunction = isAttributeMappedToJsFunction(attribute);
+		if(isFunction) {
+			String event = translateAttributeToEvent(attribute);
+			internalGetAppendDomuiJS().append("$('#" + id + "').off('" + event + "');");
+			if(!StringTool.isBlank(value)) {
+				internalGetAppendDomuiJS().append("$('#" + id + "').on('" + event + "', function() {" + value + ";});");
+			}
+		}else {
+			String field = translateAttributeToField(attribute);
+			internalGetAppendDomuiJS().append("$('#" + id + "').attr(\"" + field + "\", \"" + value + "\");");
+		}
+	}
+
+	private boolean isAttributeMappedToJsFunction(String attribute) {
+		return attribute.startsWith("on");
+	}
+
+	private String translateAttributeToEvent(String attribute) {
+		if(attribute.startsWith("on")) {
+			return attribute.substring(2);
+		}
+		throw new IllegalArgumentException("What else? " + attribute);
+	}
+
+	private String translateAttributeToField(String attribute) {
+		switch(attribute) {
+			case "style": return "style";
+			default: throw new IllegalArgumentException("What else? " + attribute);
+		}
 	}
 
 	public Map<String, String> getHeaderVariableMap() {

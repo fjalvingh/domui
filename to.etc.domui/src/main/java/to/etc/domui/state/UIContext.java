@@ -169,6 +169,7 @@ public class UIContext {
 	 * Returns session value of expected type. Must be used within existing UIContext.
 	 * @return  In case that value is not stored returns null. In case of expected type mismatch throws IllegalStateException.
 	 */
+	@Nullable
 	public static <T> T getSessionAttribute(Class<T> clz, String attrName) {
 		IRequestContext ctx = getRequestContext();
 		IServerSession hs = ctx.getServerSession(false);

@@ -1,7 +1,7 @@
 package to.etc.domui.webdriver.poproxies;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.net.URLEncodedUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;

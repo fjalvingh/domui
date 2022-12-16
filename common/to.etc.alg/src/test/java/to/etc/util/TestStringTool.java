@@ -8,7 +8,10 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -455,5 +458,28 @@ public class TestStringTool {
 		s = "abc1111111abc 123456789123456789";
 		res = StringTool.removeRepeatingCharacters(s);
 		Assert.assertEquals("abc1111111abc 123456789123456789", res);
+	}
+
+	@Test
+	public void testStripAccents() {
+		var examples = List.of(
+			new Pair<>("filë_name.xls", "file_name.xls"),
+			new Pair<>("ćčćč", "cccc")		);
+		for(var example : examples) {
+			var rename = StringTool.stripAccents(example.get1());
+			assertEquals(example.get2(), rename);
+		}
+	}
+
+	@Test
+	public void testReplaceQualifiedNameInExpression() {
+		assertEquals(StringTool.replaceQualifiedNameInExpression("a.aaaa + a.aaab-a.aAa", "A", "aaa", "Aa.ccc"), "a.aaaa + a.aaab-Aa.ccc");
+		assertEquals(StringTool.replaceQualifiedNameInExpression("aa.aaa-A.aaa*1-a.AAa ", "A", "aaa", "Aa.ccc"), "aa.aaa-Aa.ccc*1-Aa.ccc ");
+	}
+
+	@Test
+	public void testReplaceVariableNameInExpression() {
+		assertEquals(StringTool.replaceVariableNameInExpression("aaaa + aaab-aAa", "aaa", "ccc"), "aaaa + aaab-ccc");
+		assertEquals(StringTool.replaceVariableNameInExpression("baaa-aaa*1-AAa ", "aaa", "ccc"), "baaa-ccc*1-ccc ");
 	}
 }

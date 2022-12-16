@@ -185,6 +185,7 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 		sb.append("ed.__id='").append(editorId).append("';\n");
 		sb.append("var Range = require('ace/range').Range;\n");
 		sb.append("window['").append(editorId).append("'] = ed;\n");
+		sb.append("ed.setBehavioursEnabled(true);\n");
 		sb.append("WebUI.registerInputControl('").append(editorId).append("', {getInputField: function(fields) {");
 		sb.append(" let select = ed.getSelectedText();\n");
 		sb.append(" fields['").append(editorId).append("_s'] = select;\n");

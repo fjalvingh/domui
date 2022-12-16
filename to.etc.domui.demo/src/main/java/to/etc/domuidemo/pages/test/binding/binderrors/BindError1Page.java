@@ -10,10 +10,10 @@ import to.etc.domui.dom.html.UrlPage;
 
 /**
  * Test for the following:
- *
- * - a mandatoty control bound to a model has an initial value through the model (i.e. the start value is not null)
+ * <p>
+ * - a mandatory control bound to a model has an initial value through the model (i.e. the start value is not null)
  * - clear the value in the control, then press the click button which validates the bindings
- *
+ * <p>
  * expected result: as the control is now empty it is invalid, and a mandatory error must be shown.
  * actual result before: the validation fails, but no message is shown.
  *
@@ -23,7 +23,8 @@ import to.etc.domui.dom.html.UrlPage;
 public class BindError1Page extends UrlPage {
 	private String m_fullName = "Hello ladies";
 
-	@Override public void createContent() throws Exception {
+	@Override
+	public void createContent() throws Exception {
 		Text2<String> text = new Text2<>(String.class);
 		add(text);
 		text.setMandatory(true);
@@ -31,7 +32,7 @@ public class BindError1Page extends UrlPage {
 
 		text.bind().to(this, "fullName");
 
-		add(new DefaultButton("click", a-> save()));
+		add(new DefaultButton("click", a -> save()));
 	}
 
 	private void save() throws Exception {
