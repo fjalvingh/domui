@@ -125,9 +125,6 @@ var document = window.document;
 				// `jQuery.globalEval` so that it can fake a nonce-containing node
 				// via an object.
 				val = node[ i ] || node.getAttribute && node.getAttribute( i );
-				if (i == "nonce") {
-					val = 'DitIsEenTestNonce';
-				}
 				if ( val ) {
 					script.setAttribute( i, val );
 				}
