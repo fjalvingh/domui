@@ -152,6 +152,11 @@ public class LinkButton extends ATag implements IActionControl {
 		return m_icon;
 	}
 
+	@Nullable
+	public String getText() {
+		return m_text;
+	}
+
 	@Override
 	public void setText(final @Nullable String txt) {
 		m_text = txt;
