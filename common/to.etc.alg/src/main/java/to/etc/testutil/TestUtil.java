@@ -43,7 +43,11 @@ final public class TestUtil {
 		Boolean mavenTest = m_mavenTest;
 		if(null == mavenTest) {
 			mavenTest = m_mavenTest = System.getProperty("surefire.real.class.path") != null
-				|| System.getProperty("surefire.test.class.path") != null;
+				|| System.getProperty("surefire.test.class.path") != null
+				|| System.getProperty("failsafe.test.class.path") != null
+				|| System.getProperty("failsafe.real.class.path") != null
+				|| System.getProperty("domui.selenium") != null
+			;
 
 		}
 		return mavenTest;
