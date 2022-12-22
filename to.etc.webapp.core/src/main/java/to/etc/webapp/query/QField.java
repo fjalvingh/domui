@@ -32,7 +32,7 @@ public class QField<R, P> {
 		m_propertyName = propertyName;
 	}
 
-	public QField(@NonNull Class<R> rootClass, @Nullable QField<R, ? > parent, @NonNull String propertyName) {
+	public QField(@NonNull Class<R> rootClass, @Nullable QField<R, ?> parent, @NonNull String propertyName) {
 		m_rootClass = rootClass;
 		m_parent = parent;
 		m_propertyName = propertyName;
@@ -52,7 +52,7 @@ public class QField<R, P> {
 	}
 
 	@Nullable
-	QField<R, ? > getParent() {
+	QField<R, ?> getParent() {
 		return m_parent;
 	}
 
