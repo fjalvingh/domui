@@ -39,7 +39,7 @@ final public class TestDB {
 	private static ConnectionPool getPool(String path) throws Exception {
 		ConnectionPool pool = m_pool;
 		if(null == pool) {
-			String poolid = DeveloperOptions.getString("domuidemo.poolid"); // Is a poolid defined in .developer.proeprties? Then use that,
+			String poolid = DeveloperOptions.getString("domuidemo.poolid"); // Is a poolid defined in .developer.properties? Then use that,
 			if(poolid != null) {
 				//-- Local configuration. Init using local.
 				System.out.println("** WARNING: Using local database configuration, pool=" + poolid);
