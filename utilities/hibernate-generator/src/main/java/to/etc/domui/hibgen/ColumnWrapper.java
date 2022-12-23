@@ -944,7 +944,7 @@ public class ColumnWrapper {
 			if(g().isReplaceSerialWithSequence()) {
 				String idSequence = g().getIdColumnSequence(m_column);
 				if(null != idSequence) {
-					//-- Render a sequence: @SequenceGenerator(name = "sq", sequenceName = "definition.definitioncomment_id_seq")
+					//-- Render a sequence: @SequenceGenerator(name = "sq", sequenceName = "definition.definition_comment_id_seq")
 					NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.SequenceGenerator");
 					addPairIfMissing(ca, "name", "\"sq\"");
 					setPair(ca, "sequenceName", idSequence, true);
