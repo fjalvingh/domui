@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -3171,12 +3172,26 @@ public class StringTool {
 	 * and nothing that looks like a SQL injection.
 	 */
 	static public void sqlCheckNameOnly(@Nullable String name) {
+		sqlCheckNameOnly(name, Collections.EMPTY_LIST);
+	}
+
+	/**
+	 * This method checks that the name passed only contains a name,
+	 * and nothing that looks like a SQL injection.
+	 *
+	 * @param name Sql name to check
+	 * @param whitelist List of allowed exceptions.
+	 */
+	static public void sqlCheckNameOnly(@Nullable String name, List<String> whitelist) {
 		if(null == name)
 			return;
+		if(whitelist.contains(name)) {
+			return;
+		}
 		for(int i = 0, len = name.length(); i < len; i++) {
 			char c = name.charAt(i);
 			if(!isValidSqlNameChar(c))
-				throw new IllegalArgumentException("Invalid characters in SQL name");
+				throw new IllegalArgumentException("Invalid characters in SQL name: " + name);
 		}
 	}
 
