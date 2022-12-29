@@ -559,8 +559,9 @@ final public class DomUtil {
 
 	static public void addUrlParameters(final StringBuilder sb, final IRequestContext ctx, boolean first) {
 		for(String name : ctx.getPageParameters().getParameterNames()) {
-			//if(name.equals(Constants.PARAM_CONVERSATION_ID))
-			//	continue;
+			// jal 20221229 This was deleted earlier, and that caused double CIDs in the target= URL of a login
+			if(name.equals(Constants.PARAM_CONVERSATION_ID))
+				continue;
 			String[] parameters = ctx.getPageParameters().getStringArray(name, null);
 			if(null == parameters)
 				continue;
@@ -577,10 +578,16 @@ final public class DomUtil {
 		}
 	}
 
+	/**
+	 * WARNING: this also copies any $CID or other parameters if present in the pageparameters!!
+	 */
 	static public void addUrlParameters(@NonNull final StringBuilder sb, @NonNull final IPageParameters ctx, boolean first) {
 		addUrlParameters(sb, ctx, first, Collections.EMPTY_SET);
 	}
 
+	/**
+	 * WARNING: this also copies any $CID or other parameters if present in the pageparameters!!
+	 */
 	static public void addUrlParameters(@NonNull final StringBuilder sb, @NonNull final IPageParameters ctx, boolean first, @NonNull Set<String> skipset) {
 		if(ctx == null)
 			return;

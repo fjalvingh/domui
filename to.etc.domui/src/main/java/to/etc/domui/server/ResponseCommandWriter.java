@@ -8,7 +8,6 @@ import to.etc.domui.login.ILoginDialogFactory;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.WindowSession;
-import to.etc.domui.trouble.NotLoggedInException;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
@@ -75,7 +74,7 @@ public class ResponseCommandWriter {
 	public void redirectToLoginPage(RequestContextImpl ctx, WindowSession cm) throws Exception {
 		//-- Create the after-login target URL.
 		StringBuilder sb = new StringBuilder(256);
-		sb.append(ctx.getRelativePath(ctx.getInputPath()));
+		sb.append(ctx.getInputPath());							// [security] Must be relative!!
 		sb.append('?');
 		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 		sb.append('=');
@@ -86,7 +85,7 @@ public class ResponseCommandWriter {
 		//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
 		ILoginDialogFactory ldf = ctx.getApplication().getLoginDialogFactory();
 		if(ldf == null)
-			throw NotLoggedInException.create(sb.toString());				// Force login exception.
+			throw new IllegalStateException("No login factory configured");
 		String target = ldf.getLoginRURL(sb.toString());				// Create a RURL to move to.
 		if(target == null)
 			throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
