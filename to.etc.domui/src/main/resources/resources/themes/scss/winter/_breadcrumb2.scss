@@ -23,6 +23,7 @@ $brcr2-sel-color: $brcr2-bg !default;
 		li {
 			margin: 0;
 			padding: 0;
+			z-index: 1;
 
 			a {
 				display: inline-block;
