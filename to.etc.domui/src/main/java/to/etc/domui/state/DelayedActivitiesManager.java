@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This helper class does all of the handling for delayed activities for
+ * This helper class does all the handling for delayed activities for
  * a conversation. It contains all activity queues plus all handling of
  * the executor thread.
  *
@@ -128,6 +128,10 @@ final public class DelayedActivitiesManager {
 				return true;
 			}
 
+			//-- If we're already done or cancelled -> ignore
+			if(dai.getState() == State.CANCELLED || dai.getState() == State.DONE)
+				return true;
+
 			//-- Always mark it as cancelled
 			dai.cancelled();
 
@@ -144,7 +148,14 @@ final public class DelayedActivitiesManager {
 			//-- The activity is currently running. Try to abort the task && thread.
 			runningActivity.getMonitor().cancel();				// Force cancel indication.
 		}
-		tr.interrupt();
+
+		//-- We're cancelling... If the receiver can accept cancels call it to do that.
+		IAsyncRunnable activity = dai.getActivity();
+		try {
+			activity.cancel(tr);
+		} catch(Exception x) {
+			LOG.error("Cancelling activity " + activity + " failed: " + x, x);
+		}
 		return true;
 	}
 
