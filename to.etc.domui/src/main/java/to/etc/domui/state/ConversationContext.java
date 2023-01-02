@@ -27,6 +27,8 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.delayed.DelayedActivitiesManager;
+import to.etc.domui.component.delayed.DelayedActivityInfo;
 import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;

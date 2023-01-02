@@ -22,14 +22,12 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.state;
+package to.etc.domui.component.delayed;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.component.delayed.AsyncContainer;
-import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.server.DomApplication;
 import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.util.CancelledException;
@@ -40,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 
-final public class DelayedActivityInfo {
+final public class DelayedActivityInfo implements Runnable {
 	private static final Logger LOG = LoggerFactory.getLogger(DelayedActivitiesManager.class);
 
 	public enum State {
@@ -66,40 +64,96 @@ final public class DelayedActivityInfo {
 	@NonNull
 	final private Map<IAsyncListener<?>, Object> m_listenerDataMap = new HashMap<IAsyncListener<?>, Object>();
 
-	protected DelayedActivityInfo(@NonNull DelayedActivitiesManager manager, @NonNull IAsyncRunnable activity, @NonNull AsyncContainer ac) {
+	final private int m_priority;
+
+	/**
+	 * When running, this is the thread executing the activity.
+	 */
+	@Nullable
+	private Thread m_thread;
+
+	protected DelayedActivityInfo(@NonNull DelayedActivitiesManager manager, @NonNull IAsyncRunnable activity, @NonNull AsyncContainer ac, int priority) {
 		m_activity = activity;
 		m_manager = manager;
 		m_container = ac;
+		m_priority = priority;
 	}
 
-	void execute() {
-		Exception errorx = null;
+	/**
+	 * Registers the activity, runs it, and handles its termination.
+	 */
+	@Override
+	public void run() {
+		synchronized(m_manager) {
+			if(m_state != State.WAITING)						// If cancelled beforehand -> just exit immediately
+				return;
+
+			m_thread = Thread.currentThread();
+			m_state = State.RUNNING;
+			m_manager.registerRunning(this);
+		}
+		Throwable error = null;
 		try {
 			checkIsPageConnected();
 			callBeforeListeners();
 			getActivity().run(getMonitor());
-		} catch(InterruptedException ix) {
-			//-- Were we cancelled?
-			synchronized(m_manager) {
-				if(m_state == State.CANCELLED) {
-					errorx = new CancelledException();
-				} else {
-					errorx = ix;						// Really interrupted
-				}
-			}
-		} catch(Exception x) {
-			errorx = x;
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("Exception in async activity", x);
-			}
-		} catch(Error x) {
-			LOG.error("ERROR in async activity", x);
-			errorx = new WrappedException(x);
+
+		} catch(Exception | Error x) {
+			error = x;
 		} finally {
-			finished(errorx);
+			synchronized(m_manager) {
+				if(error instanceof InterruptedException)
+					error = new CancelledException();
+				else if(error != null && LOG.isDebugEnabled())
+					LOG.debug("Exception in async activity", error);
+
+				if(error instanceof Exception) {
+					m_exception = (Exception) error;
+				} else if(error instanceof Error) {
+					m_exception = WrappedException.wrap(error);
+				}
+				m_thread = null;
+				if(m_state == State.RUNNING) {
+					if(error instanceof CancellationException) {
+						m_state = State.CANCELLED;
+					} else {
+						m_state = State.DONE;
+					}
+				}
+				m_manager.registerCompleted(this);
+			}
 			callAfterListeners();
 		}
 	}
+
+	//void execute() {
+	//	Exception errorx = null;
+	//	try {
+	//		checkIsPageConnected();
+	//		callBeforeListeners();
+	//		getActivity().run(getMonitor());
+	//	} catch(InterruptedException ix) {
+	//		//-- Were we cancelled?
+	//		synchronized(m_manager) {
+	//			if(m_state == State.CANCELLED) {
+	//				errorx = new CancelledException();
+	//			} else {
+	//				errorx = ix;						// Really interrupted
+	//			}
+	//		}
+	//	} catch(Exception x) {
+	//		errorx = x;
+	//		if(LOG.isDebugEnabled()) {
+	//			LOG.debug("Exception in async activity", x);
+	//		}
+	//	} catch(Error x) {
+	//		LOG.error("ERROR in async activity", x);
+	//		errorx = new WrappedException(x);
+	//	} finally {
+	//		finished(errorx);
+	//		callAfterListeners();
+	//	}
+	//}
 
 	public IAsyncRunnable getActivity() {
 		return m_activity;
@@ -124,12 +178,12 @@ final public class DelayedActivityInfo {
 
 	void finished(@Nullable Exception errorx) {
 		synchronized(m_manager) {
-			m_state = State.DONE;
+			m_state = errorx instanceof CancelledException || errorx instanceof CancellationException ? State.CANCELLED : State.DONE;
 			m_exception = errorx;
 		}
 	}
 
-	void cancelled() {
+	void setCancelled() {
 		synchronized(m_manager) {
 			if(m_state == State.RUNNING || m_state == State.WAITING) {
 				m_state = State.CANCELLED;
@@ -200,6 +254,18 @@ final public class DelayedActivityInfo {
 			m_container.getPage();
 		} catch(IllegalStateException x) {
 			LOG.warn("Ignored exception when container is not connected to page, something is about to fail because of " + x, x);
+		}
+	}
+
+	public int getPriority() {
+		return m_priority;
+	}
+
+	public void interrupt() {
+		synchronized(m_manager) {
+			Thread thread = m_thread;
+			if(null != thread)
+				thread.interrupt();
 		}
 	}
 }

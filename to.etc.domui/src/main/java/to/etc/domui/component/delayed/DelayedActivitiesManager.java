@@ -22,17 +22,17 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.state;
+package to.etc.domui.component.delayed;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.delayed.DelayedActivityInfo.State;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
-import to.etc.domui.state.DelayedActivityInfo.State;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.state.IPolledForUpdate;
 import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.util.CancelledException;
 
@@ -52,14 +52,31 @@ import java.util.Set;
 final public class DelayedActivitiesManager {
 	private static final Logger LOG = LoggerFactory.getLogger(DelayedActivitiesManager.class);
 
-	private Thread m_executorThread;
+	/**
+	 * All activities that need to be scheduled but have not yet been send
+	 * to the executor.
+	 */
+	private List<DelayedActivityInfo> m_scheduledQueue = new ArrayList<>();
 
-	private List<DelayedActivityInfo> m_pendingQueue = new ArrayList<DelayedActivityInfo>();
+	/**
+	 * All activities sent to the executor but not yet in progress.
+	 */
+	private List<DelayedActivityInfo> m_pendingQueue = new ArrayList<>();
 
-	private List<DelayedActivityInfo> m_completionQueue = new ArrayList<DelayedActivityInfo>();
+	private List<DelayedActivityInfo> m_runningQueue = new ArrayList<>();
 
-	@Nullable
-	private DelayedActivityInfo m_runningActivity;
+	/**
+	 * All activities that have completed and are not yet handled by the UI.
+	 */
+	private List<DelayedActivityInfo> m_completedQueue = new ArrayList<>();
+
+	/**
+	 * Activities present in any of the queues.
+	 */
+	private Set<IAsyncRunnable> m_actionSet = new HashSet<>();
+
+	//@Nullable
+	//private DelayedActivityInfo m_runningActivity;
 
 	/** When set this forces termination of any handling thread for the asynchronous actions. */
 	private boolean m_terminated;
@@ -69,7 +86,7 @@ final public class DelayedActivitiesManager {
 	 */
 	private Set<NodeContainer> m_pollSet = new HashSet<NodeContainer>();
 
-	protected DelayedActivitiesManager() {
+	public DelayedActivitiesManager() {
 	}
 
 	/**
@@ -78,37 +95,40 @@ final public class DelayedActivitiesManager {
 	 */
 	public DelayedActivityInfo schedule(@NonNull IAsyncRunnable a, @NonNull AsyncContainer ac) throws Exception {
 		//-- Schedule.
+		int prio;
 		synchronized(this) {
-			for(DelayedActivityInfo tdai : m_pendingQueue) {
-				if(tdai.getActivity() == a)
-					throw new IllegalStateException("The same activity instance is ALREADY scheduled!!");
-			}
+			if(! m_actionSet.add(a))
+				throw new IllegalStateException("The same activity instance is ALREADY scheduled!!");
+			prio = m_runningQueue.size() + m_pendingQueue.size();		// The more is scheduled the lower the prio
 		}
-		DelayedActivityInfo dai = new DelayedActivityInfo(this, a, ac);
+		DelayedActivityInfo dai = new DelayedActivityInfo(this, a, ac, prio);
 
 		//-- Call listeners.
 		dai.callScheduled();
 
 		synchronized(this) {
-			m_pendingQueue.add(dai);
+			m_scheduledQueue.add(dai);
 			return dai;
 		}
 	}
 
-	//public void cancelActivity(IActivity a) {
-	//	DelayedActivityInfo d = null;
-	//	synchronized(this) {
-	//		for(DelayedActivityInfo dai : m_pendingQueue) {
-	//			if(dai.getActivity() == a) {
-	//				d = dai;
-	//				break;
-	//			}
-	//		}
-	//	}
-	//	if(d == null)
-	//		throw new IllegalStateException("Activity is not scheduled");
-	//	cancelActivity(d);
-	//}
+	/**
+	 * Called when processing of the recently scheduled items can
+	 * start. Add all "scheduled" items to the executor.
+	 */
+	public void start() {
+		synchronized(this) {
+			if(m_scheduledQueue.isEmpty()) {				// Nothing to do?
+				return;
+			}
+			DelayedActivitiesExecutor dx = DomApplication.get().getDelayedExecutor();
+			for(DelayedActivityInfo dai : m_scheduledQueue) {
+				dx.schedule(dai);
+				m_pendingQueue.add(dai);
+			}
+			m_scheduledQueue.clear();
+		}
+	}
 
 	/**
 	 * Cancels an activity, if possible. If the thing is pending it gets removed. If it is
@@ -117,46 +137,38 @@ final public class DelayedActivitiesManager {
 	 * it was cancelled. If the activity completed before it could be cancelled it
 	 * does NOT get this cancellation thing- but a completion event instead.
 	 */
-	public boolean cancelActivity(@NonNull DelayedActivityInfo dai) {
+	void cancelActivity(@NonNull DelayedActivityInfo dai) {
 		Thread tr;
 
 		synchronized(this) {
-			//-- If it has not yet ran: remove it from the queue...
-			if(m_pendingQueue.remove(dai)) {
-				m_completionQueue.add(dai);						// This should cause a cancelled callback to take place
+			DelayedActivitiesExecutor dx = DomApplication.get().getDelayedExecutor();
+
+			//-- If it is not yet running remove it and mark as cancelled
+			if(m_scheduledQueue.remove(dai) || m_pendingQueue.remove(dai)) {
+				m_completedQueue.add(dai);						// This should cause a cancelled callback to take place
 				dai.finished(new CancelledException());			// Cancelled and finished
-				return true;
+				dx.remove(dai);
+				return;
 			}
 
 			//-- If we're already done or cancelled -> ignore
 			if(dai.getState() == State.CANCELLED || dai.getState() == State.DONE)
-				return true;
+				return;
 
 			//-- Always mark it as cancelled
-			dai.cancelled();
-
-			//-- Is this thingy currently running?
-			DelayedActivityInfo runningActivity = m_runningActivity;
-			tr = m_executorThread;
-			if(runningActivity != dai || runningActivity == null || tr == null) {
-				//-- Not in queue but also not running -> this is a bug.
-				if(! m_completionQueue.contains(dai))
-					m_completionQueue.add(dai);					// Make sure it gets called back
-				return false;
-			}
+			dai.setCancelled();
 
 			//-- The activity is currently running. Try to abort the task && thread.
-			runningActivity.getMonitor().cancel();				// Force cancel indication.
+			dai.getMonitor().cancel();							// Also cancel the monitor, this might also kill the action
 		}
 
 		//-- We're cancelling... If the receiver can accept cancels call it to do that.
 		IAsyncRunnable activity = dai.getActivity();
 		try {
-			activity.cancel(tr);
+			activity.cancel(() -> dai.interrupt());
 		} catch(Exception x) {
 			LOG.error("Cancelling activity " + activity + " failed: " + x, x);
 		}
-		return true;
 	}
 
 	private void wakeupListeners(int lingertime) {}
@@ -169,46 +181,14 @@ final public class DelayedActivitiesManager {
 	private List<DelayedActivityInfo> getAllActivities() {
 		//		System.out.println("$$$$$ getState called.");
 		synchronized(this) {
-			List<DelayedActivityInfo> result = new ArrayList<>(5);
+			//-- Always show all running thingies
+			List<DelayedActivityInfo> result = new ArrayList<>(m_runningQueue);
 
-			//-- Do we need progress report(s)?
-			DelayedActivityInfo runningActivity = m_runningActivity;
-			if(runningActivity != null) {
-				result.add(runningActivity);
-			}
-
-			//-- Handle all completed thingies.
-			result.addAll(m_completionQueue);
-			m_completionQueue.clear();
+			//-- And add all completed thingies.
+			result.addAll(m_completedQueue);
+			m_completedQueue.clear();
 			return result;
 		}
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Executor thread control.							*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Initiate background processing, if needed. Returns T if background processing is active, or
-	 * when data is present in the completion queue.
-	 */
-	public boolean start() {
-		Thread t;
-		synchronized(this) {
-			if(m_executorThread != null)					// Active thread?
-				return true;
-
-			//-- Must a thread be started?
-			if(m_pendingQueue.isEmpty()) 					// Pending requests?
-				return false;
-
-			//-- Prepare to start the executor.
-			t = m_executorThread = new Thread(() -> run());
-			m_executorThread.setName("xc");
-			m_executorThread.setDaemon(true);
-			m_executorThread.setPriority(Thread.MIN_PRIORITY);
-		}
-		t.start();
-		return true;
 	}
 
 	/**
@@ -216,7 +196,11 @@ final public class DelayedActivitiesManager {
 	 */
 	public boolean callbackRequired() {
 		synchronized(this) {
-			return !m_pendingQueue.isEmpty() || !m_completionQueue.isEmpty() || m_runningActivity != null || !m_pollSet.isEmpty();
+			return !m_scheduledQueue.isEmpty()
+				|| !m_pendingQueue.isEmpty()
+				|| !m_completedQueue.isEmpty()
+				|| !m_runningQueue.isEmpty()
+				|| !m_pollSet.isEmpty();
 		}
 	}
 
@@ -239,108 +223,50 @@ final public class DelayedActivitiesManager {
 		Thread killme = null;
 		DelayedActivityInfo pendingcorpse = null;
 
+		List<DelayedActivityInfo> killList = new ArrayList<>();
 		synchronized(this) {
 			if(m_terminated)
 				return;
 			m_terminated = true;
-			if(m_executorThread != null) {
-				killme = m_executorThread;
-				m_executorThread = null;
-			}
-			pendingcorpse = m_runningActivity;
-			m_runningActivity = null;
 
-			m_completionQueue.clear();
-			m_pendingQueue.forEach(a -> a.setState(State.DONE));
+			//-- First, cancel all pending and unscheduled
+			for(DelayedActivityInfo dai : m_scheduledQueue) {
+				dai.setCancelled();
+			}
+			m_scheduledQueue.clear();
+
+			DelayedActivitiesExecutor dx = DomApplication.get().getDelayedExecutor();
+			for(DelayedActivityInfo dai : m_pendingQueue) {
+				dai.setCancelled();
+				dx.remove(dai);
+			}
 			m_pendingQueue.clear();
+
+			//-- All running ones: they need to be killed, do that outside the lock
+			for(DelayedActivityInfo dai : m_runningQueue) {
+				dai.setCancelled();
+				killList.add(dai);
+			}
+			m_runningQueue.clear();
+
+			m_completedQueue.clear();
 			wakeupListeners(100);				// Wake up anything that's listening quickly
 		}
 
 		//-- Do our utmost to kill the task, not gently.
-		try {
-			if(pendingcorpse != null)
-				pendingcorpse.getMonitor().cancel();	// Forcefully cancel;
-		} catch(Exception x) {
-			LOG.error("Failed to cancel activity: " + x, x);
-		}
-
-		//-- Signal the thread
-		try {
-			if(killme != null) {
-				killme.interrupt();
+		for(DelayedActivityInfo dai : killList) {
+			try {
+				dai.getMonitor().cancel();
+				dai.cancel();
+			} catch(Exception x) {
+				LOG.error("Failed to cancel activity: " + x, x);
 			}
-		} catch(Exception x) {
-			//-- Ignore, nothing can be done
-		}
-	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Executor thread.									*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Main action runner. This is the thread's executor function. While the manager is
-	 * active this will execute activities in the PENDING queue one by one until the queue
-	 * is empty. If that happens it will commit suicide. This suicidal act will not invalidate
-	 * the manager; at any time can new actions be posted and a new thread be started.
-	 */
-	private void run() {
-		try {
-			for(;;) {
-				//-- Are we attempting to die?
-				DelayedActivityInfo dai;
-				synchronized(this) {
-					if(m_terminated || m_pendingQueue.isEmpty()) {
-						/*
-						 * Terminate means the page died, so we have nothing to do
-						 * anymore. There is no way to report back the results of
-						 * cancellation.
-						 */
-						m_pendingQueue.clear();
-						m_executorThread = null;		// Prevent race - important
-						return;							// Quit and terminate thread
-					}
-
-					//-- Schedule for a new execute.
-					dai = m_pendingQueue.remove(0); 	// Get and remove from pending queue
-					m_runningActivity = dai; 			// Make this the running dude
-				}
-
-				try {
-					execute(dai);
-				} finally {
-					synchronized(this) {
-						m_runningActivity = null;
-					}
-				}
-			}
-		} catch(Exception x) {
-			//-- Do not report trouble if the manager is in the process of dying
-			if(!isTerminated()) {
-				LOG.error("FATAL Exception in DelayedActivitiesManager.run()!??!?!?!?\nAsy tasks WILL NOT COMPLETE anymore.", x);
-			}
-		} finally {
-			/*
-			 * Be very, very certain that we handle state @ thread
-			 * termination properly. Watch out though: we still need
-			 * to clear this when terminating inside the atomic block
-			 * there to prevent a race.
-			 */
-			synchronized(this) {
-				m_executorThread = null;
-			}
-		}
-	}
-
-	/**
-	 * Execute the action and handle its result.
-	 */
-	private void execute(DelayedActivityInfo dai) {
-		try {
-			dai.execute();
-		} finally {
-			synchronized(this) {
-				m_completionQueue.add(dai);		// Append to completion queue for access by whatever.
-				wakeupListeners(1000);
+			//-- Signal the thread
+			try {
+				dai.interrupt();
+			} catch(Exception x) {
+				//-- Ignore, nothing can be done
 			}
 		}
 	}
@@ -394,5 +320,20 @@ final public class DelayedActivitiesManager {
 	 */
 	public <T extends NodeBase & IPolledForUpdate> void unregisterPoller(T nc) {
 		m_pollSet.remove(nc);
+	}
+
+	/**
+	 * Called when the activity starts to run.
+	 */
+	synchronized void registerRunning(DelayedActivityInfo dai) {
+		m_pendingQueue.remove(dai);
+		m_runningQueue.add(dai);
+	}
+
+	synchronized void registerCompleted(DelayedActivityInfo dai) {
+		m_runningQueue.remove(dai);
+		m_completedQueue.add(dai);
+		m_actionSet.remove(dai.getActivity());				// No longer present
+		wakeupListeners(1000);
 	}
 }

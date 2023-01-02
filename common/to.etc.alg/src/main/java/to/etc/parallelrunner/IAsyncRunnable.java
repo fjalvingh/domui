@@ -32,7 +32,7 @@ public interface IAsyncRunnable {
 	 * interrupts the executor thread, and hopes either that or the marking of the
 	 * progress as cancelled will cancel the task.
 	 */
-	default void cancel(@NonNull Thread executingThread) throws Exception {
-		executingThread.interrupt();
+	default void cancel(@NonNull Runnable interruptor) throws Exception {
+		interruptor.run();
 	}
 }
