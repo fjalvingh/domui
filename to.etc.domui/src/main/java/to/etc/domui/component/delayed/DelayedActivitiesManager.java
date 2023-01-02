@@ -138,8 +138,6 @@ final public class DelayedActivitiesManager {
 	 * does NOT get this cancellation thing- but a completion event instead.
 	 */
 	void cancelActivity(@NonNull DelayedActivityInfo dai) {
-		Thread tr;
-
 		synchronized(this) {
 			DelayedActivitiesExecutor dx = DomApplication.get().getDelayedExecutor();
 
@@ -335,5 +333,6 @@ final public class DelayedActivitiesManager {
 		m_completedQueue.add(dai);
 		m_actionSet.remove(dai.getActivity());				// No longer present
 		wakeupListeners(1000);
+		dai.setState(State.DONE);							// Mark as "DONE" now
 	}
 }
