@@ -509,14 +509,17 @@ public class TabPanelBase extends Div {
 		if(! isBuilt())
 			return;
 
+		//-- If the new content is not visible-> hide it,
+
 		//-- If this is not the current tab we're done
-		if(m_currentTab != index)
-			return;
+		if(m_currentTab != index) {
+			tabInstance.getContent().setDisplay(DisplayType.NONE);
+		} else {
+			tabInstance.getContent().setDisplay(null);
+		}
 
 		//-- We need to replace the currently visible content.
 		old.replaceWith(tabInstance.getContent());
-		//tabInstance.getContent().setDisplay(DisplayType.BLOCK);
-		tabInstance.getContent().setDisplay(null);
 	}
 
 	protected boolean isMarkErrorTabs() {
