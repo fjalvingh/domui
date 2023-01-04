@@ -153,6 +153,80 @@ $.fn.extend({
 			});
 			$(this).markerTransformed = true;
 		});
+	},
+
+	fixDisplayClass: function(): void {
+		let style = this.attr("style");
+		if(null == style) {
+			return;
+		}
+		if(style.includes("display: none;")) {
+			style = style
+				.replace("display: none;", "")
+			this.attr("style", style);
+			this.removeClass("ui-display-block");
+			this.removeClass("ui-display-flex");
+			this.removeClass("ui-display-inline");
+			this.addClass("ui-display-none");
+		}
+		if(style.includes("display: block;")) {
+			style = style
+				.replace("display: block;", "")
+			this.attr("style", style);
+			this.removeClass("ui-display-none");
+			this.removeClass("ui-display-flex");
+			this.removeClass("ui-display-inline");
+			this.addClass("ui-display-block");
+		}
+		if(style.includes("display: inline;")) {
+			style = style
+				.replace("display: inline;", "")
+			this.attr("style", style);
+			this.removeClass("ui-display-none");
+			this.removeClass("ui-display-block");
+			this.removeClass("ui-display-flex");
+			this.addClass("ui-display-inline");
+		}
+		if(style.includes("display: flex;")) {
+			style = style
+				.replace("display: flex;", "")
+			this.attr("style", style);
+			this.removeClass("ui-display-none");
+			this.removeClass("ui-display-block");
+			this.removeClass("ui-display-inline");
+			this.addClass("ui-display-flex");
+		}
+	},
+
+	doSlideUp: function(callback) {
+		let fixDisplayCallback = function(e) {
+			$(e).fixDisplayClass();
+		}
+
+		let myOnSlideUp = fixDisplayCallback;
+		if(null != callback) {
+			myOnSlideUp = function() {
+				callback();
+				fixDisplayCallback(this);
+			}
+		}
+		this.slideUp(myOnSlideUp);
+	},
+
+	doSlideDown: function(callback) {
+		let fixDisplayCallback = function(e) {
+			$(e).fixDisplayClass();
+		}
+
+		let myOnSlideDown = fixDisplayCallback;
+		if(null != callback) {
+			myOnSlideDown = function() {
+				callback();
+				fixDisplayCallback(this);
+			}
+		}
+		this.slideDown(myOnSlideDown);
 	}
+
 });
 
