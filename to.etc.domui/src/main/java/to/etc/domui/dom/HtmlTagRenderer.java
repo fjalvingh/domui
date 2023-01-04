@@ -86,6 +86,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static to.etc.util.StringTool.isBlank;
+
 /**
  * Basic, mostly standard-compliant handler for rendering HTML tags.
  *
@@ -627,7 +629,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	static private void renderBorderIf(@NonNull Appendable a, @Nullable String border) throws IOException {
-		if(StringTool.isBlank(border))
+		if(isBlank(border))
 			return;
 		a.append("border:").append(border).append(";");
 	}
@@ -698,11 +700,13 @@ public class HtmlTagRenderer implements INodeVisitor {
 			String[] styles = s.split(";");
 			for(int i = 0; i < styles.length; i++) {
 				String stylePart = styles[i];
-				String aClass = STYLE_ATTRIBUTES_TO_CLASSES.get(stylePart);
-				if(null != aClass) {
-					classesFromStyleAttributes.add(aClass);
-				}else {
-					styleSb.append(stylePart).append(";");
+				if(!isBlank(stylePart)) {
+					String aClass = STYLE_ATTRIBUTES_TO_CLASSES.get(stylePart);
+					if(null != aClass) {
+						classesFromStyleAttributes.add(aClass);
+					} else {
+						styleSb.append(stylePart).append(";");
+					}
 				}
 			}
 			if(styleSb.length() > 0) {
@@ -1116,11 +1120,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("onblur", sb().append(transformScript).append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
 			//-- Attach normal onKeyPress handling.
-			if(!StringTool.isBlank(n.getOnKeyPressJS())) {
+			if(!isBlank(n.getOnKeyPressJS())) {
 				o().attr("onkeypress", "return " + n.getOnKeyPressJS());
 			}
 
-			if(!StringTool.isBlank(transformScript)) {
+			if(!isBlank(transformScript)) {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}
 		}
