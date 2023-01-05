@@ -155,77 +155,34 @@ $.fn.extend({
 		});
 	},
 
-	fixDisplayClass: function(): void {
-		let style = this.attr("style");
-		if(null == style) {
-			return;
-		}
-		if(style.includes("display: none;")) {
-			style = style
-				.replace("display: none;", "")
-			this.attr("style", style);
-			this.removeClass("ui-display-block");
-			this.removeClass("ui-display-flex");
-			this.removeClass("ui-display-inline");
-			this.addClass("ui-display-none");
-		}
-		if(style.includes("display: block;")) {
-			style = style
-				.replace("display: block;", "")
-			this.attr("style", style);
-			this.removeClass("ui-display-none");
-			this.removeClass("ui-display-flex");
-			this.removeClass("ui-display-inline");
-			this.addClass("ui-display-block");
-		}
-		if(style.includes("display: inline;")) {
-			style = style
-				.replace("display: inline;", "")
-			this.attr("style", style);
-			this.removeClass("ui-display-none");
-			this.removeClass("ui-display-block");
-			this.removeClass("ui-display-flex");
-			this.addClass("ui-display-inline");
-		}
-		if(style.includes("display: flex;")) {
-			style = style
-				.replace("display: flex;", "")
-			this.attr("style", style);
-			this.removeClass("ui-display-none");
-			this.removeClass("ui-display-block");
-			this.removeClass("ui-display-inline");
-			this.addClass("ui-display-flex");
-		}
-	},
-
 	doSlideUp: function(callback) {
-		let fixDisplayCallback = function(e) {
-			$(e).fixDisplayClass();
+		let fixDisplayCallback = function(elem) {
+			WebUI.fixDisplayClass(elem);
 		}
 
 		let myOnSlideUp = fixDisplayCallback;
 		if(null != callback) {
-			myOnSlideUp = function() {
+			myOnSlideUp = function(elem) {
 				callback();
-				fixDisplayCallback(this);
+				fixDisplayCallback(elem);
 			}
 		}
-		this.slideUp(myOnSlideUp);
+		this.slideUp(myOnSlideUp(this));
 	},
 
 	doSlideDown: function(callback) {
-		let fixDisplayCallback = function(e) {
-			$(e).fixDisplayClass();
+		let fixDisplayCallback = function(elem) {
+			WebUI.fixDisplayClass(elem);
 		}
 
 		let myOnSlideDown = fixDisplayCallback;
 		if(null != callback) {
-			myOnSlideDown = function() {
+			myOnSlideDown = function(elem) {
 				callback();
-				fixDisplayCallback(this);
+				fixDisplayCallback(elem);
 			}
 		}
-		this.slideDown(myOnSlideDown);
+		this.slideDown(myOnSlideDown(this));
 	}
 
 });

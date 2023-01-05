@@ -9,7 +9,6 @@ interface JQuery {
 
 	doStretch() : void;
 	fixOverflow() : void;
-	fixDisplayClass() : void;
 	setBackgroundImageMarker() : void;
 
 	size() : number;
