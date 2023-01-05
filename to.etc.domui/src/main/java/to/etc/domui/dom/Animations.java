@@ -48,14 +48,14 @@ final public class Animations {
 	 * Since after the slideDown the node in the browser will have its default display this is also the state
 	 * in DomUI's node.
 	 *
-	 * @param node
+	 * @param node target node
 	 */
 	static public void slideDown(NodeBase node) {
 		node.getPage().addAfterRenderListener(new NodeFixer(node, node.getDisplay()));
 		node.setDisplay(DisplayType.NONE);
 		node.appendStatement()
 			.select(node)
-			.method("slideDown").end()
+			.method("doSlideDown").end()
 			.endmethod()
 			.next();
 	}
@@ -75,7 +75,7 @@ final public class Animations {
 		node.getPage().addAfterRenderListener(new NodeFixer(node, DisplayType.NONE));
 		node.appendStatement()
 			.select(node)
-			.append(".slideUp(function() { " + jsCallback + " })")
+			.append(".doSlideUp(function() { " + jsCallback + " })")
 			.next();
 	}
 
@@ -104,6 +104,7 @@ final public class Animations {
 
 	/**
 	 * Does pulsate effect.
+	 *
 	 * @param node target node
 	 * @param times if 0 it uses default behavior for pulsate.
 	 */
