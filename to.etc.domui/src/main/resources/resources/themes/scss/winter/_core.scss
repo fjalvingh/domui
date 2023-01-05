@@ -211,17 +211,17 @@ i, em {
 }
 
 .ui-display-none {
-	display: none;
+	display: none !important;
 }
 
 .ui-display-inline {
-	display: inline;
+	display: inline !important;
 }
 
 .ui-display-block {
-	display: block;
+	display: block !important;
 }
 
 .ui-display-flex {
-	display: flex;
+	display: flex !important;
 }
