@@ -292,6 +292,11 @@ public class TabPanelBase extends Div {
 		}
 
 		m_tabBuilder = null;
+		if(m_tablist.size() == 1) {
+			//-- This was the first tab; we need to rebuild.
+			forceRebuild();
+		}
+
 		if(isBuilt()) {
 			renderLabel(pos, ti);
 			if(!ti.isLazy()) {
@@ -301,6 +306,7 @@ public class TabPanelBase extends Div {
 				requireNonNull(m_contentContainer).add(content);
 			}
 		}
+
 		if(pos <= m_currentTab && m_tablist.size() != 1) { // increment if inserted before current and this isn't the only node.
 			m_currentTab++;
 		}
@@ -397,7 +403,7 @@ public class TabPanelBase extends Div {
 			//-- We must switch the styles on the current "active" panel and the current "old" panel
 			int oldIndex = getCurrentTab();
 
-			TabInstance oldti = m_tablist.get(getCurrentTab());        // Get the currently active instance,
+			TabInstance oldti = m_tablist.get(oldIndex);        // Get the currently active instance,
 			TabInstance newti = m_tablist.get(index);
 
 			ITabSelectable onTabSelectable = m_onTabSelectable;
