@@ -215,7 +215,11 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		return createEnumRadioGroup(clz, true, valueRenderer, exceptions);
 	}
 
-	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(Class<T> clz, boolean sorted, @Nullable IRenderInto<ValueLabelPair<T>> valueRenderer, T... exceptions) {
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroupUnsorted(Class<T> clz, @Nullable IRenderInto<ValueLabelPair<T>> valueRenderer, T... exceptions) {
+		return createEnumRadioGroup(clz, false, valueRenderer, exceptions);
+	}
+
+	static private <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(Class<T> clz, boolean sorted, @Nullable IRenderInto<ValueLabelPair<T>> valueRenderer, T... exceptions) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		T[] ar = clz.getEnumConstants();
