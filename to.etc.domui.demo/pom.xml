@@ -19,6 +19,7 @@
 
 	<properties>
 		<jetty.http.port>8088</jetty.http.port>
+		<jetty.http.stopport>8089</jetty.http.stopport>
 		<sonar.skip>true</sonar.skip>
 	</properties>
 
@@ -334,7 +335,7 @@
 						</systemProperty>
 					</systemProperties>
 					<scanIntervalSeconds>5</scanIntervalSeconds>
-					<stopPort>8089</stopPort>
+					<stopPort>${jetty.http.stopport}</stopPort>
 					<stopKey>furkelheim</stopKey>
 					<httpConnector>
 						<port>${jetty.http.port}</port>
@@ -359,7 +360,7 @@
 							<scanIntervalSeconds>0</scanIntervalSeconds>
 							<daemon>true
 							</daemon> <!-- IntelliJ marks this as error but it is valid, see http://stackoverflow.com/questions/34996128/maven-jetty-plugin-daemon-element-not-allowed-here -->
-							<stopPort>8089</stopPort>
+							<stopPort>${jetty.http.stopport}</stopPort>
 							<stopKey>furkelheim</stopKey>
 						</configuration>
 					</execution>
