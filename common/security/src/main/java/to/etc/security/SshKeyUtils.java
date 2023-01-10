@@ -1,7 +1,10 @@
 package to.etc.security;
 
+import org.bouncycastle.openssl.PKCS8Generator;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
+import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8EncryptorBuilder;
+import org.bouncycastle.operator.OutputEncryptor;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.LineIterator;
@@ -208,11 +211,26 @@ public class SshKeyUtils {
 	static public String encodeSshPkcs8PrivateKey(PrivateKey key) throws Exception {
 		JcaPKCS8Generator g = new JcaPKCS8Generator(key, null);
 		PemObject pem = g.generate();
+		return encodePemObject(pem);
+	}
+
+	private static String encodePemObject(PemObject pem) throws IOException {
 		StringWriter sw = new StringWriter();
 		try(JcaPEMWriter pw = new JcaPEMWriter(sw)) {
 			pw.writeObject(pem);
 		}
 		return sw.toString();
+	}
+
+	static public String encodeSshPrivateKey(PrivateKey key, String passphrase) throws Exception {
+		JceOpenSSLPKCS8EncryptorBuilder encryptorBuilder = new JceOpenSSLPKCS8EncryptorBuilder(PKCS8Generator.PBE_SHA1_3DES);
+		encryptorBuilder.setRandom(new SecureRandom());
+		encryptorBuilder.setPassword(passphrase.toCharArray());
+		encryptorBuilder.setIterationCount(10000);
+		OutputEncryptor oe = encryptorBuilder.build();
+		JcaPKCS8Generator gen = new JcaPKCS8Generator(key, oe);
+		PemObject pem = gen.generate();
+		return encodePemObject(pem);
 	}
 
 	public final static class RSAPublicKeyImpl implements RSAPublicKey {
