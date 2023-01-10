@@ -119,9 +119,6 @@ final public class WebDriverConnector {
 
 	private volatile boolean m_closed;
 
-	@Nullable
-	private IExecute m_afterCommandCallback;
-
 	/**
 	 * The default viewport size.
 	 */
@@ -247,7 +244,6 @@ final public class WebDriverConnector {
 		IWebdriverScreenshotHelper sshelper = WebDriverFactory.getScreenshotHelper(webDriverType, browserModel);
 
 		WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, sshelper);
-		initializeAfterCommandListener(tu);
 		m_webDriverConnectorList.add(tu);
 		m_webDriverThreadLocal.set(tu);
 		return tu;
@@ -257,7 +253,6 @@ final public class WebDriverConnector {
 	 * Clears all persistent settings in the instance to enable it for reuse.
 	 */
 	public void reset() {
-		m_afterCommandCallback = null;
 		m_lastTestClass = null;
 		m_lastTestPageClass = null;
 		m_lastTestPage = null;
@@ -313,25 +308,6 @@ final public class WebDriverConnector {
 		return WebDriverType.REMOTE;
 	}
 
-	/**
-	 * Called after every screen action, this checks whether the DomUI "waiting" backdrop is present and waits for it
-	 * to be gone.
-	 */
-	private static void initializeAfterCommandListener(@NonNull WebDriverConnector tu) {
-		tu.setAfterCommandCallback(new IExecute() {
-			@Override
-			public void execute() {
-				try {
-					tu.waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
-				} catch(UnhandledAlertException e) {
-					//-- If an alert is present then we just ignore and continue.
-				} catch(Exception x) {
-					throw WrappedException.wrap(x);
-				}
-			}
-		});
-	}
-
 	public int getWaitTimeout() {
 		return m_nextWaitTimeout != -1 ? m_nextWaitTimeout : m_waitTimeout;
 	}
@@ -371,18 +347,17 @@ final public class WebDriverConnector {
 			m_inhibitAfter = false;
 			return;
 		}
-		IExecute callback = m_afterCommandCallback;
-		if(null != callback) {
-			try {
-				callback.execute();
-			} catch(Exception x) {
-				throw WrappedException.wrap(x);
-			}
-		}
+		waitForUiIoBlk(this);
 	}
 
-	protected void setAfterCommandCallback(@Nullable IExecute callback) {
-		m_afterCommandCallback = callback;
+	private void waitForUiIoBlk(@NonNull WebDriverConnector tu) {
+		try {
+			tu.waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+		} catch(UnhandledAlertException e) {
+			//-- If an alert is present then we just ignore and continue.
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 	public void inhibitAfter() {
@@ -1309,7 +1284,7 @@ final public class WebDriverConnector {
 			sb.append(clz.getName());
 			sb.append(".ui");
 			DomUtil.addUrlParameters(sb, pp, true);
-			url = sb.toString();
+			return sb.toString();
 		}
 
 		StringBuilder sb = new StringBuilder();
