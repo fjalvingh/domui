@@ -7,6 +7,7 @@ import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component2.popupmenus.PopupMenu2;
 import to.etc.domui.dom.html.HR;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,19 +17,16 @@ import java.util.List;
  * Additional actions are activated using side button, and show internal popup menu.
  */
 @NonNullByDefault
-public class ActionButton<T> extends DefaultButton {
+public class ActionButton extends DefaultButton {
 
-	private final List<IUIAction<T>> m_actions = new ArrayList<>();
+	private final List<Pair<?, IUIAction<?>>> m_actions = new ArrayList<>();
 
-	private final T m_instance;
-
-	public ActionButton(T instance, IUIAction<T> action) throws Exception {
+	public <T> ActionButton(T instance, IUIAction<T> action) throws Exception {
 		super(action);
-		m_instance = instance;
 	}
 
-	public ActionButton<T> addAction(IUIAction<T> action) {
-		m_actions.add(action);
+	public <T> ActionButton addAction(T instance, IUIAction<T> action) {
+		m_actions.add(new Pair<>(instance, action));
 		if(isBuilt()) {
 			forceRebuild();
 		}
@@ -44,25 +42,36 @@ public class ActionButton<T> extends DefaultButton {
 		HR hr = new HR();
 		hr.addCssClass("act-rule");
 		add(hr);
-		NodeBase actionButton = Icon.faEllipsisV.createNode();
+		NodeBase actionButton = Icon.faChevronDown.createNode();
 		add(actionButton);
 		actionButton.addCssClass("act-btn");
-		actionButton.setClicked(c -> {
-			PopupMenu2 p2 = new PopupMenu2(ActionButton.this);
-			FloatingDiv floatingParent = ActionButton.this.getParent(FloatingDiv.class);
-			if(null != floatingParent) {
-				p2.setZIndex(floatingParent.getZIndex() + 100);
-			}
+		if(!isDisabled()) {
+			actionButton.setTitle("");
+			actionButton.setClicked(c -> {
+				PopupMenu2 p2 = new PopupMenu2(ActionButton.this);
+				FloatingDiv floatingParent = ActionButton.this.getParent(FloatingDiv.class);
+				if(null != floatingParent) {
+					p2.setZIndex(floatingParent.getZIndex() + 100);
+				}
 
-			for(IUIAction<T> action: m_actions) {
-				p2.text(action.getName(m_instance))
-					.hint(action.getTitle(m_instance))
-					.icon(action.getIcon(m_instance))
-					.click(() -> action.execute(this, m_instance))
-					.disableReason(action.getDisableReason(m_instance))
-					.append();
-			}
-			p2.show(this);
-		});
+				for(Pair<?, IUIAction<?>> pair : m_actions) {
+					Object instance = pair.get1();
+					IUIAction<?> action = pair.get2();
+					addMenuAction(p2, instance, action);
+				}
+				p2.show(this);
+			});
+		}
+	}
+
+	private <T> void addMenuAction(PopupMenu2 pm, Object instance, IUIAction<?> action) throws Exception {
+		T inst = (T) instance;
+		IUIAction<T> ta = (IUIAction<T>) action;
+		pm.text(ta.getName(inst))
+			.hint(ta.getTitle(inst))
+			.icon(ta.getIcon(inst))
+			.click(() -> ta.execute(this, inst))
+			.disableReason(ta.getDisableReason(inst))
+			.append();
 	}
 }

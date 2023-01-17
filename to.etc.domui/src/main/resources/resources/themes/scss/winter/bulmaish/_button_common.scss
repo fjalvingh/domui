@@ -95,6 +95,9 @@ $button-static-border-color: $grey-lighter !default;
 			&.is-hovered {
 				background-color: $button-hover-border-color;
 				color: $button-hover-color;
+				&[disabled] {
+					color: $button-static-color;
+				}
 			}
 		}
 	}
@@ -107,8 +110,8 @@ $button-static-border-color: $grey-lighter !default;
 	}
 
 	.act-btn {
-		padding: 5px 8px;
-		margin-left: 1px;
+		padding: 5px;
+		margin-left: 2px;
 		margin-right: -8px;
 		border-radius: 3px;
 		color: $button-static-color;
@@ -116,6 +119,10 @@ $button-static-border-color: $grey-lighter !default;
 		&:hover,
 		&.is-hovered {
 			cursor: pointer;
+
+			&[disabled] {
+				cursor: none;
+			}
 		}
 	}
 
