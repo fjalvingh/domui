@@ -42,9 +42,12 @@ namespace WebUI {
 			top = pos.top + $(refid).outerHeight();
 		}
 
+		let currentZIndex = $(menu).css('zIndex')
+		let zIndex = null == currentZIndex ? 100 : currentZIndex + 100
+
 		$(menu).css({
 			position: 'absolute',
-			zIndex: 100,
+			zIndex: zIndex,
 			left: left + "px",
 			top: top + "px"
 		});
