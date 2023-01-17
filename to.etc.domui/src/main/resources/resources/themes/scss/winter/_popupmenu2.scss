@@ -23,5 +23,11 @@
 		&:hover {
 			background-color: #eee;
 		}
+
+		& .disabled {
+			background-color: lightgrey;
+			font-style: italic;
+			cursor: none;
+		}
 	}
 }

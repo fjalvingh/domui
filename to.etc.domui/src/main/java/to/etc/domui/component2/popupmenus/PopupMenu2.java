@@ -31,6 +31,9 @@ public class PopupMenu2 extends Div {
 	@Nullable
 	private IExecute m_clicked;
 
+	@Nullable
+	private String m_disableReason;
+
 	private final List<Item> m_itemList = new ArrayList<>();
 
 	public PopupMenu2(NodeContainer owner) {
@@ -57,14 +60,16 @@ public class PopupMenu2 extends Div {
 				hasIcons = true;
 		}
 		for(Item item : m_itemList) {
-			addItem(item, hasIcons, hasTexts);
+			addItem(item, hasIcons, hasTexts, item.getDisableReason());
 		}
 	}
 
-	private void addItem(Item item, boolean hasIcons, boolean hasTexts) {
+	private void addItem(Item item, boolean hasIcons, boolean hasTexts, @Nullable String disableReason) {
 		Div row = new Div("ui-pome2-r");
 		add(row);
-		row.setClicked(a -> selectionMade(item));
+		if(null == disableReason) {
+			row.setClicked(a -> selectionMade(item));
+		}
 		if(hasIcons) {
 			Div icd = new Div("ui-pome2-i");
 			row.add(icd);
@@ -83,7 +88,17 @@ public class PopupMenu2 extends Div {
 			}
 		}
 
-		row.setTitle(item.getHint());
+		String hint = item.getHint();
+		if(null != disableReason) {
+			row.addCssClass("disabled");
+			if(null == hint) {
+				hint = disableReason;
+			}else {
+				hint += " - " + disableReason;
+			}
+		}
+
+		row.setTitle(hint);
 	}
 
 	private void selectionMade(Item item) throws Exception {
@@ -101,9 +116,21 @@ public class PopupMenu2 extends Div {
 		return this;
 	}
 
+	public PopupMenu2 text(String text) {
+		checkEmpty(m_text);
+		m_text = text;
+		return this;
+	}
+
 	public PopupMenu2 hint(IBundleCode code, Object... para) {
 		checkEmpty(m_hint);
 		m_hint = code.format(para);
+		return this;
+	}
+
+	public PopupMenu2 hint(String hint) {
+		checkEmpty(m_hint);
+		m_hint = hint;
 		return this;
 	}
 
@@ -119,14 +146,21 @@ public class PopupMenu2 extends Div {
 		return this;
 	}
 
+	public PopupMenu2 disableReason(String disableReason) {
+		checkEmpty(m_disableReason);
+		m_disableReason = disableReason;
+		return this;
+	}
+
 	public PopupMenu2 append() {
 		if(m_iconRef == null && m_text == null)
 			throw new IllegalStateException("No text nor an icon set; one of the two is mandatory");
-		m_itemList.add(new Item(m_text, m_iconRef, m_hint, m_clicked));
+		m_itemList.add(new Item(m_text, m_iconRef, m_hint, m_clicked, m_disableReason));
 		m_text = null;
 		m_hint = null;
 		m_iconRef = null;
 		m_clicked = null;
+		m_disableReason = null;
 		forceRebuild();
 		return this;
 	}
@@ -156,11 +190,15 @@ public class PopupMenu2 extends Div {
 		@Nullable
 		private final IExecute m_clicked;
 
-		public Item(@Nullable String text, @Nullable IIconRef icon, @Nullable String hint, @Nullable IExecute clicked) {
+		@Nullable
+		private final String m_disableReason;
+
+		public Item(@Nullable String text, @Nullable IIconRef icon, @Nullable String hint, @Nullable IExecute clicked, @Nullable String disableReason) {
 			m_text = text;
 			m_icon = icon;
 			m_hint = hint;
 			m_clicked = clicked;
+			m_disableReason = disableReason;
 		}
 
 		@Nullable
@@ -181,6 +219,11 @@ public class PopupMenu2 extends Div {
 		@Nullable
 		public IExecute getClicked() {
 			return m_clicked;
+		}
+
+		@Nullable
+		public String getDisableReason() {
+			return m_disableReason;
 		}
 	}
 
