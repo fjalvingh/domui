@@ -81,7 +81,12 @@ import to.etc.domui.util.UIDragDropUtil;
 import to.etc.util.StringTool;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static to.etc.util.StringTool.isBlank;
 
 /**
  * Basic, mostly standard-compliant handler for rendering HTML tags.
@@ -90,6 +95,15 @@ import java.util.List;
  * Created on Aug 17, 2007
  */
 public class HtmlTagRenderer implements INodeVisitor {
+
+	/** Replacing specific style attributes with build-in classes -> optimization when we render styles attributes as jquery js code for CSP support */
+	private static final Map<String, String> STYLE_ATTRIBUTES_TO_CLASSES = Map.of(
+		"display:none", "ui-display-none", //
+		"display:inline", "ui-display-inline", //
+		"display:block", "ui-display-block", //
+		"display:flex", "ui-display-flex" //
+	);
+
 	/** Scratch stringbuffer. */
 	private StringBuilder m_sb;
 
@@ -615,7 +629,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	static private void renderBorderIf(@NonNull Appendable a, @Nullable String border) throws IOException {
-		if(StringTool.isBlank(border))
+		if(isBlank(border))
 			return;
 		a.append("border:").append(border).append(";");
 	}
@@ -678,8 +692,26 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		String s = getStyleFor(b); 								// Get/recalculate style
+
+		//collect replacing classes for specified style attributes
+		List<String> classesFromStyleAttributes = new ArrayList<>();
 		if(!s.isEmpty() || b.isStyleRendered()) {
-			o.attr("style", s);
+			StringBuilder styleSb = new StringBuilder();
+			String[] styles = s.split(";");
+			for(int i = 0; i < styles.length; i++) {
+				String stylePart = styles[i];
+				if(!isBlank(stylePart)) {
+					String aClass = STYLE_ATTRIBUTES_TO_CLASSES.get(stylePart);
+					if(null != aClass) {
+						classesFromStyleAttributes.add(aClass);
+					} else {
+						styleSb.append(stylePart).append(";");
+					}
+				}
+			}
+			if(styleSb.length() > 0) {
+				o.attr("style", styleSb.toString());
+			}
 			if(s.isEmpty()) {
 				b.clearStyleRendered(); // if we rendered the empty style we can remove it next time
 			} else {
@@ -721,8 +753,20 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 		if(b.isStretchHeight())
 			o.attr("stretch", "true");
-		if(b.getCssClass() != null)
-			o.attr("class", b.getCssClass());
+
+		//append collected replacing classes too to existing classes of an element
+		String cssClass = b.getCssClass();
+		if(cssClass != null || !classesFromStyleAttributes.isEmpty()) {
+			if(!classesFromStyleAttributes.isEmpty()) {
+				String appendedClasses = classesFromStyleAttributes.stream().collect(Collectors.joining(" "));
+				if(null == cssClass) {
+					cssClass = appendedClasses;
+				}else {
+					cssClass = cssClass + " " + appendedClasses;
+				}
+			}
+			o.attr("class", cssClass);
+		}
 
 		List<String> sal = b.getSpecialAttributeList();
 		if(sal != null) {
@@ -1076,11 +1120,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("onblur", sb().append(transformScript).append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
 			//-- Attach normal onKeyPress handling.
-			if(!StringTool.isBlank(n.getOnKeyPressJS())) {
+			if(!isBlank(n.getOnKeyPressJS())) {
 				o().attr("onkeypress", "return " + n.getOnKeyPressJS());
 			}
 
-			if(!StringTool.isBlank(transformScript)) {
+			if(!isBlank(transformScript)) {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}
 		}

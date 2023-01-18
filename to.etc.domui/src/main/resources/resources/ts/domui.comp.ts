@@ -434,8 +434,54 @@ namespace WebUI {
 		WebUI.valuechanged('eh', id);
 	}
 
+	export function fixDisplayClass(elem): void {
+		let style = $(elem).attr("style");
+		if(null == style) {
+			return;
+		}
+		if(style.includes("display: none;")) {
+			style = style
+				.replace("display: none;", "")
+			$(elem).attr("style", style);
+			$(elem).removeClass("ui-display-block");
+			$(elem).removeClass("ui-display-flex");
+			$(elem).removeClass("ui-display-inline");
+			$(elem).addClass("ui-display-none");
+		}
+		if(style.includes("display: block;")) {
+			style = style
+				.replace("display: block;", "")
+			$(elem).attr("style", style);
+			$(elem).removeClass("ui-display-none");
+			$(elem).removeClass("ui-display-flex");
+			$(elem).removeClass("ui-display-inline");
+			$(elem).addClass("ui-display-block");
+		}
+		if(style.includes("display: inline;")) {
+			style = style
+				.replace("display: inline;", "")
+			$(elem).attr("style", style);
+			$(elem).removeClass("ui-display-none");
+			$(elem).removeClass("ui-display-block");
+			$(elem).removeClass("ui-display-flex");
+			$(elem).addClass("ui-display-inline");
+		}
+		if(style.includes("display: flex;")) {
+			style = style
+				.replace("display: flex;", "")
+			$(elem).attr("style", style);
+			$(elem).removeClass("ui-display-none");
+			$(elem).removeClass("ui-display-block");
+			$(elem).removeClass("ui-display-inline");
+			$(elem).addClass("ui-display-flex");
+		}
+	}
+
 	export function flare(id): void {
+		$('#' + id).css('display', 'none');
+		$('#' + id).removeClass("ui-display-none");
 		$('#' + id).fadeIn('fast', function() {
+			WebUI.fixDisplayClass($('#' + id));
 			$('#' + id).delay(500).fadeOut(1000, function() {
 				$('#' + id).remove();
 			});
@@ -443,7 +489,10 @@ namespace WebUI {
 	}
 
 	export function flareStay(id): void {
+		$('#' + id).css('display', 'none');
+		$('#' + id).removeClass("ui-display-none");
 		$('#' + id).fadeIn('fast', function() {
+			WebUI.fixDisplayClass($('#' + id));
 			$('body,html').bind('mousemove.' + id, function(e) {
 				$('body,html').unbind('mousemove.' + id);
 				$('#' + id).delay(500).fadeOut(1000, function() {
@@ -454,7 +503,10 @@ namespace WebUI {
 	}
 
 	export function flareStayCustom(id, delay, fadeOut): void {
+		$('#' + id).css('display', 'none');
+		$('#' + id).removeClass("ui-display-none");
 		$('#' + id).fadeIn('fast', function() {
+			WebUI.fixDisplayClass($('#' + id));
 			$('body,html').bind('mousemove.' + id, function(e) {
 				$('body,html').unbind('mousemove.' + id);
 				$('#' + id).delay(delay).fadeOut(fadeOut, function() {
