@@ -1086,7 +1086,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}
 		}
-		o().attr("autocomplete", "off");
+		if(n.getSpecialAttribute("autocomplete") == null) {
+			o().attr("autocomplete", "off");
+		}
 		renderTagend(n, m_o);
 	}
 

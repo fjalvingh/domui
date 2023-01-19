@@ -37,6 +37,7 @@ import to.etc.domui.component.binding.IBindingHandlerFactory;
 import to.etc.domui.component.controlfactory.ControlBuilder;
 import to.etc.domui.component.controlfactory.ControlFactoryMoney;
 import to.etc.domui.component.controlfactory.PropertyControlFactory;
+import to.etc.domui.component.delayed.DelayedActivitiesExecutor;
 import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
@@ -83,7 +84,7 @@ import to.etc.domui.server.parts.PartService;
 import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.ConversationContext;
-import to.etc.domui.state.DelayedActivitiesManager;
+import to.etc.domui.component.delayed.DelayedActivitiesManager;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
@@ -323,6 +324,9 @@ public abstract class DomApplication {
 	private volatile Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
 
 	private boolean m_dieOnUncheckedInjectors;
+
+	@Nullable
+	private DelayedActivitiesExecutor m_delayedExecutor;
 
 	/**
 	 * Default handling of leaving the page with unsaved changes.
@@ -2562,6 +2566,21 @@ public abstract class DomApplication {
 
 	public PageUrlMapping getPageUrlMapping() {
 		return m_pageUrlMapping;
+	}
+
+	@NonNull
+	final public synchronized DelayedActivitiesExecutor getDelayedExecutor() {
+		DelayedActivitiesExecutor dx = m_delayedExecutor;
+		if(null == dx) {
+			dx = m_delayedExecutor = createDelayedExecutor();
+		}
+		return dx;
+	}
+
+	protected DelayedActivitiesExecutor createDelayedExecutor() {
+		DelayedActivitiesExecutor dx = new DelayedActivitiesExecutor();
+		dx.initialize(20);
+		return dx;
 	}
 
 	static {

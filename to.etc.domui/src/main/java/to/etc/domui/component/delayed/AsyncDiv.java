@@ -2,16 +2,16 @@ package to.etc.domui.component.delayed;
 
 import to.etc.domui.component.layout.ExpandCollapsePanel;
 import to.etc.domui.component.layout.MessageLine;
-import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.Pre;
 import to.etc.domui.util.Msgs;
 import to.etc.parallelrunner.IAsyncRunnable;
-import to.etc.util.CancelledException;
 import to.etc.util.MessageException;
 import to.etc.util.StringTool;
+
+import java.util.concurrent.CancellationException;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -40,10 +40,11 @@ abstract public class AsyncDiv<T extends IAsyncRunnable> extends Div {
 		}
 		add(new AsyncContainer(m_runnable, (cancelled, errorException) -> {
 			//-- If we've got an exception replace the contents with the exception message.
-			if(errorException != null && !(errorException instanceof CancelledException)) {
+			if(cancelled) {
+				add(new MessageLine(MsgType.WARNING, Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED)));
+				//MsgBox.info(this, Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
+			} else if(errorException != null && !(errorException instanceof CancellationException)) {
 				createError(m_runnable, errorException, false);
-			} else if(cancelled) {
-				MsgBox.info(this, Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
 			} else {
 				removeAllChildren();
 				createContent(m_runnable);

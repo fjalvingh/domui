@@ -85,7 +85,6 @@ public class TempDirPart implements IUnbufferedPartFactory {
 
 	/**
 	 * Generate the appropriate resource inside the tmpdir passed.
-	 * @see to.etc.domui.server.parts.IUnbufferedPartFactory#generate(to.etc.domui.server.DomApplication, java.lang.String, to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
 	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {

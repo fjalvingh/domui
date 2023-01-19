@@ -29,6 +29,7 @@ public class ITBindErrors1  extends AbstractWebDriverTest {
 
 		// Pressing validate should make the 2nd editor be with an error background
 		wd().cmd().click().on("button_click");
+		wd().waitForElementVisible(By.className("ui-emd-error"));
 
 		// And now we must have a "mandatory" error.
 		wd().assertTrue("we must have an error panel", wd().findElement(By.className("ui-emd-error")) != null);

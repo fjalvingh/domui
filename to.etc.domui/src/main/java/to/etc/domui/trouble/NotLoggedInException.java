@@ -40,6 +40,8 @@ final public class NotLoggedInException extends RuntimeException {
 
 	private NotLoggedInException(final String url) {
 		super("You need to be logged in");
+		if(url.toLowerCase().startsWith("http") || url.toLowerCase().startsWith("/"))
+			throw new IllegalStateException("Target URL must be relative");
 		m_url = url;
 	}
 
@@ -57,10 +59,8 @@ final public class NotLoggedInException extends RuntimeException {
 	static public NotLoggedInException create(IRequestContext ctx, Page page) {
 		//-- Create the after-login target URL.
 		StringBuilder sb = new StringBuilder(256);
-		sb.append(ctx.getRelativePath(ctx.getPageParameters().getInputPath()));
-
+		sb.append(ctx.getPageParameters().getInputPath());		// Do not add a full path!!
 		DomUtil.addUrlParameters(sb, page.getPageParameters(), true);
-
 		return new NotLoggedInException(sb.toString()); 			// Force login exception.
 	}
 

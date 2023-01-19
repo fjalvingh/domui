@@ -1226,8 +1226,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * and the like. There are no limitations to what can be generated with it but since it
 	 * is expensive it should be used little. If a given attribute is used many times it
 	 * must be created as a field proper.
-	 * @param name
-	 * @param value
 	 */
 	public void setSpecialAttribute(@NonNull final String name, @Nullable final String value) {
 		List<String> sa = m_specialAttributes;
@@ -1257,8 +1255,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * the name, the odd index it's value. See {@link #setSpecialAttribute(String, String)} for
 	 * details.
 	 * FIXME This should return a copy, not the actual attributes.
-	 *
-	 * @return
 	 */
 	@Nullable
 	public List<String> getSpecialAttributeList() {
@@ -1267,8 +1263,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Return the value for the "special" attribute with the specified name, if present.
-	 * @param name
-	 * @return
 	 */
 	@Nullable
 	public String getSpecialAttribute(@NonNull final String name) {
