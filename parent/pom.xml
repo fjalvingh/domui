@@ -62,7 +62,7 @@
 		<maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
 		<maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
-		<maven-surefire.version>2.22.2</maven-surefire.version>
+		<maven-surefire.version>3.0.0-M8</maven-surefire.version>
 		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
 		<maven-war-plugin.version>3.0.0</maven-war-plugin.version>
 		<maven-install-plugin.version>2.5.2</maven-install-plugin.version>
@@ -125,7 +125,7 @@
 		<vaadin.sass.compiler.version>1.0.0-SNAPSHOT</vaadin.sass.compiler.version>
 
 		<!-- Test dependencies -->
-		<junit.version>4.13.1</junit.version>
+		<junit.version>[4.13.1]</junit.version>
 		<allure.version>1.5.4</allure.version>
 		<allure.maven.version>2.6</allure.maven.version>
 		<aspectj.version>1.9.1</aspectj.version>
