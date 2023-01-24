@@ -11,7 +11,6 @@ import to.etc.pater.OnTestFailure;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -59,7 +58,7 @@ abstract public class AbstractWebDriverTestBase {
 	 * this gets called AFTER @After, and is mainly used to allow calling
 	 * a screenshot method on a not-yet-closed webdriver instance.
 	 */
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	public void internalClosePerTestResources() {
 	}
 

@@ -1,8 +1,8 @@
 package to.etc.net;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
@@ -40,8 +40,8 @@ final public class HTTP {
 		return client;
 	}
 
-	@Nonnull
-	static public HttpClient sslClient(@Nonnull byte[] certificate, @Nonnull SslCertificateType type, @Nullable String passkey) throws Exception {
+	@NonNull
+	static public HttpClient sslClient(@NonNull byte[] certificate, @NonNull SslCertificateType type, @Nullable String passkey) throws Exception {
 
 		KeyManagerFactory kmf = KeyManagerFactory.getInstance(type.getKeyManagerAlgorithm());
 		KeyStore keystore = KeyStore.getInstance(type.getKeyStoreType());

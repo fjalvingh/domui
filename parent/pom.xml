@@ -73,6 +73,9 @@
 		<maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
 		<maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
 
+		<hibernate.core.version>5.4.24.Final</hibernate.core.version>
+		<javassist.version>3.23.1-GA</javassist.version>
+
 		<bouncy.version>1.70</bouncy.version>
 		<org.slf4j.version>1.7.31</org.slf4j.version>
 		<cglib.version>2.2</cglib.version>
@@ -358,6 +361,29 @@
 				<groupId>com.ibm.icu</groupId>
 				<artifactId>icu4j</artifactId>
 				<version>${com.ibm.icu.version}</version>
+			</dependency>
+
+			<!-- Hibernate -->
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-core</artifactId>
+				<version>${hibernate.core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-hibernate5</artifactId>
+				<version>2.14.1</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.hibernate</groupId>
+						<artifactId>hibernate-core</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>${javassist.version}</version>
 			</dependency>
 
 			<!-- rxjava support (experimental) -->
@@ -726,6 +752,16 @@
 				<artifactId>parallelgzip</artifactId>
 				<version>1.0.3</version>
 				<optional>true</optional>
+				<exclusions>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>jsr305</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 
 			<dependency>
@@ -837,6 +873,7 @@
 								-->
 								<exclude>commons-collections:commons-collections:[3.0,3.2.1]</exclude>
 								<exclude>commons-collections:commons-collections:4.0</exclude>
+								<exclude>com.google.code.findbugs:jsr305</exclude>
 							</excludes>
 						</bannedDependencies>
 					</rules>
