@@ -42,14 +42,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-
-		<repository>
-			<id>maven.exasol.com</id>
-			<url>https://maven.exasol.com/artifactory/exasol-releases</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
 	</repositories>
 
 	<properties>
