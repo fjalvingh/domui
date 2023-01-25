@@ -43,7 +43,7 @@ namespace WebUI {
 		}
 
 		let currentZIndex = $(menu).css('zIndex')
-		let zIndex = null == currentZIndex ? 100 : currentZIndex + 100
+		let zIndex = (null == currentZIndex || 'auto' == currentZIndex) ? 100 : currentZIndex + 100
 
 		$(menu).css({
 			position: 'absolute',
