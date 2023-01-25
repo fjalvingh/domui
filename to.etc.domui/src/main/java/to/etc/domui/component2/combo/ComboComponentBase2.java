@@ -765,4 +765,10 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	public void setOnSelectUpdated(@Nullable IExecute onSelectUpdated) {
 		m_onSelectUpdated = onSelectUpdated;
 	}
+
+	@Override
+	public void setWidth(String width) {
+		m_select.setWidth(width);
+	}
+
 }
