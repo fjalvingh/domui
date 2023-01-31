@@ -8,15 +8,17 @@
 }
 
 .ui-pct-rlr2 {
-	display: inline-block;
+	display: inline-flex;
+	flex-direction: row;
+	justify-content: flex-end;
 	position: relative;
 	height: 20px;
 	border: 1px solid #333;
 	overflow: hidden;
-	/*border-collapse: separate; */
+	background-color: lightgreen;
 
 	.ui-pct-rlr2-sl {
-		background-color: lightgreen;
+		background-color: white;
 		height: 20px;
 	}
 

@@ -24,10 +24,14 @@
  */
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
 
+import java.util.Objects;
+
 public class PercentageCompleteRuler2 extends Div {
-	private double m_percentage;
+	@Nullable
+	private Double m_value;
 
 	private int m_pixelwidth;
 
@@ -63,14 +67,6 @@ public class PercentageCompleteRuler2 extends Div {
 		updateValues();
 	}
 
-	public void setRulerColor(String color) {
-		m_slider.setBackgroundColor(color);
-	}
-
-	public void setRulerClass(String cssClass) {
-		m_slider.setCssClass("ui-pct-rlr2-sl " + cssClass);
-	}
-
 	public void setPercentageColor(String color) {
 		m_textDiv.setColor(color);
 	}
@@ -79,26 +75,37 @@ public class PercentageCompleteRuler2 extends Div {
 		m_textDiv.setCssClass("ui-pct-rlr2-txt " + color);
 	}
 
-	public double getPercentage() {
-		return m_percentage;
+	@Nullable
+	public Double getValue() {
+		return m_value;
 	}
 
-	public void setPercentage(double percentage) {
-		if(percentage > 100.0D)
-			percentage = 100.0D;
-		else if(percentage < 0.0D)
-			percentage = 0.0D;
-		if(m_percentage != percentage) {
-			m_percentage = percentage;
-			updateValues();
+	public void setValue(@Nullable Double value) {
+		if(value == null) {
+			if(m_value == null)
+				return;
+			m_value = null;
+		} else {
+			if(value > 100.0D)
+				value = 100.0D;
+			else if(value < 0.0D)
+				value = 0.0D;
+			if(Objects.equals(m_value, value)) {
+				return;
+			}
+			m_value = value;
 		}
+		updateValues();
 	}
 
 	private void updateValues() {
-		m_textDiv.setText(String.format("%.1f %%", m_percentage));
+		Double v = m_value;
+		double value = v == null ? 0.0D : v;
+
+		m_textDiv.setText(String.format("%.1f %%", value));
 
 		//-- Set background position.
-		int pxl = (int) (m_percentage * m_pixelwidth / 100);
+		int pxl = 100 - (int) (value * m_pixelwidth / 100);
 		m_slider.setWidth(pxl + "px");
 	}
 }
