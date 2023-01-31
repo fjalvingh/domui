@@ -35,6 +35,7 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Objects;
 
@@ -141,11 +142,22 @@ public class LinkButton extends ATag implements IActionControl {
 		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this, getActionInstance()));
 	}
 
-	public void setImage(@Nullable IIconRef url) {
+	public LinkButton setImage(@Nullable IIconRef url) {
 		if(DomUtil.isEqual(url, m_icon))
-			return;
+			return this;
 		m_icon = url;
 		forceRebuild();
+		return this;
+	}
+
+	public LinkButton icon(IIconRef ref) {
+		setImage(ref);
+		return this;
+	}
+
+	public LinkButton click(IClicked<LinkButton> b) {
+		setClicked(b);
+		return this;
 	}
 
 	public IIconRef getImage() {
@@ -163,6 +175,16 @@ public class LinkButton extends ATag implements IActionControl {
 		forceRebuild();
 		if(null != txt)
 			setCalculcatedId("lbtn_" + DomUtil.convertToID(txt));
+	}
+
+	public LinkButton text(@Nullable String txt) {
+		setText(txt);
+		return this;
+	}
+
+	public LinkButton text(IBundleCode code, Object... param) {
+		setText(code.format(param));
+		return this;
 	}
 
 	@Override
