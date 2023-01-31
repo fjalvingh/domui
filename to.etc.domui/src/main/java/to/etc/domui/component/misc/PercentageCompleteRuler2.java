@@ -24,38 +24,70 @@
  */
 package to.etc.domui.component.misc;
 
-import to.etc.domui.dom.html.*;
+import to.etc.domui.dom.html.Div;
 
-public class PercentageCompleteRuler extends Div {
-	private int m_percentage;
+public class PercentageCompleteRuler2 extends Div {
+	private double m_percentage;
 
 	private int m_pixelwidth;
 
-	public PercentageCompleteRuler() {
-		setWidth("100px");
-		m_pixelwidth = 100;
+	private final Div m_slider = new Div("ui-pct-rlr2-sl");
+
+	private final Div m_textDiv = new Div("ui-pct-rlr2-txt");
+
+	public PercentageCompleteRuler2() {
+		setWidth(100);
 	}
 
 	public void setWidth(int pixels) {
 		m_pixelwidth = pixels;
-		setWidth(pixels + "px");
+		String w = pixels + "px";
+		setWidth(w);
+		//m_slider.setWidth(w);
+		m_textDiv.setWidth(w);
+		//updateValues();
+	}
+
+	public void setHeight(int pixels) {
+		String w = pixels + "px";
+		setHeight(w);
+		m_slider.setHeight(w);
+		m_textDiv.setHeight(w);
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		addCssClass("ui-pct-rlr");
+		add(m_slider);
+		add(m_textDiv);
+		addCssClass("ui-pct-rlr2");
 		updateValues();
 	}
 
-	public int getPercentage() {
+	public void setRulerColor(String color) {
+		m_slider.setBackgroundColor(color);
+	}
+
+	public void setRulerClass(String cssClass) {
+		m_slider.setCssClass("ui-pct-rlr2-sl " + cssClass);
+	}
+
+	public void setPercentageColor(String color) {
+		m_textDiv.setColor(color);
+	}
+
+	public void setPercentageClass(String color) {
+		m_textDiv.setCssClass("ui-pct-rlr2-txt " + color);
+	}
+
+	public double getPercentage() {
 		return m_percentage;
 	}
 
-	public void setPercentage(int percentage) {
-		if(percentage > 100)
-			percentage = 100;
-		else if(percentage < 0)
-			percentage = 0;
+	public void setPercentage(double percentage) {
+		if(percentage > 100.0D)
+			percentage = 100.0D;
+		else if(percentage < 0.0D)
+			percentage = 0.0D;
 		if(m_percentage != percentage) {
 			m_percentage = percentage;
 			updateValues();
@@ -63,10 +95,10 @@ public class PercentageCompleteRuler extends Div {
 	}
 
 	private void updateValues() {
-		setText(Integer.valueOf(m_percentage) + "%");
+		m_textDiv.setText(String.format("%.1f %%", m_percentage));
 
 		//-- Set background position.
-		int pxl = (m_percentage * m_pixelwidth / 100);
-		setBackgroundPosition((-400 + pxl) + "px 0px");
+		int pxl = (int) (m_percentage * m_pixelwidth / 100);
+		m_slider.setWidth(pxl + "px");
 	}
 }

@@ -6,3 +6,30 @@
 	/*border-collapse: separate; */
 	border: 1px solid black;
 }
+
+.ui-pct-rlr2 {
+	display: inline-block;
+	position: relative;
+	height: 20px;
+	border: 1px solid #333;
+	overflow: hidden;
+	/*border-collapse: separate; */
+
+	.ui-pct-rlr2-sl {
+		background-color: lightgreen;
+		height: 20px;
+	}
+
+	.ui-pct-rlr2-txt {
+		position: absolute;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		top: 0;
+		left: 0;
+		height: 20px;
+		z-index: 2;
+	}
+}
+
+
