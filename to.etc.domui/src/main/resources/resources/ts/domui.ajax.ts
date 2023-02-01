@@ -41,7 +41,7 @@ namespace WebUI {
 		for(let i = q1.length; --i >= 0;) {
 			let sel = q1[i] as HTMLTextAreaElement;
 			let val;
-			if(sel.className == 'ui-ckeditor') {
+			if(sel.className.startsWith('ui-ckeditor')) {
 				//-- Locate the variable for this editor.
 				let editor = (window as any).CKEDITOR.instances[sel.id];
 				if(null == editor)
