@@ -72,8 +72,19 @@ public class LinkButton extends ATag implements IActionControl {
 		setImage(image);
 	}
 
+	public LinkButton(@NonNull IBundleCode code, @Nullable IIconRef image, @NonNull IClicked<LinkButton> clk) {
+		setClicked(clk);
+		setText(code.format());
+		setImage(image);
+	}
+
 	public LinkButton(@NonNull String txt, @NonNull IIconRef image) {
 		setText(txt);
+		setImage(image);
+	}
+
+	public LinkButton(@NonNull IBundleCode code, @NonNull IIconRef image) {
+		setText(code.format());
 		setImage(image);
 	}
 
@@ -81,9 +92,18 @@ public class LinkButton extends ATag implements IActionControl {
 		m_text = txt;
 	}
 
+	public LinkButton(@NonNull IBundleCode code) {
+		setText(code.format());
+	}
+
 	public LinkButton(@NonNull String txt, @NonNull IClicked<LinkButton> clk) {
 		setClicked(clk);
 		setText(txt);
+	}
+
+	public LinkButton(@NonNull IBundleCode code, @NonNull IClicked<LinkButton> clk) {
+		setClicked(clk);
+		setText(code.format());
 	}
 
 	public LinkButton(@NonNull IUIAction<Void> action) throws Exception {
