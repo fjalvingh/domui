@@ -366,8 +366,8 @@ public class FileTool {
 			: slp;
 
 		//-- Now find last dot,
-		int dp = fn.lastIndexOf('.', start);
-		if(dp == -1)
+		int dp = fn.lastIndexOf('.');
+		if(dp == -1 || dp < start)
 			return fn;
 		return fn.substring(0, dp);
 	}
