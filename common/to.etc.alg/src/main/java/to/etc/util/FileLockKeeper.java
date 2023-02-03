@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Simple util that enables simple locking via file system locks.
+ * Util that enables simple locking via file system locks.
  * Used in environments when multiple processes are competing over shared resources, like database initialization when running db tests in parallel module executions.
  */
 public class FileLockKeeper {
@@ -21,12 +21,18 @@ public class FileLockKeeper {
 
 	private static final Logger LOG = LoggerFactory.getLogger(FileLockKeeper.class);
 
+	/**
+	 *  If lock file is present we do waiting route with provided delays and overall timeout.
+	 *  If lock is not present, lock file is created and guarded block is executed.
+	 */
 	public synchronized static <T> T withLock(String name, Duration delay, @Nullable Duration timeout, SupplierEx<T> retryBlock, SupplierEx<T> guardedBlock) throws Exception {
 		File tmpFile = new File(FileTool.getTmpDir(), "FileLockerKeeper_" + name);
 		if(tmpFile.exists()) {
-			Long lockLength = System.currentTimeMillis() - LOCK_TIMEOUT_MS_MAP.get(name);
-			if(lockLength > timeout.toMillis()) {
-				throw new TimeoutException("File lock " + name + " has expired!");
+			if(null != timeout) {
+				Long lockLength = System.currentTimeMillis() - LOCK_TIMEOUT_MS_MAP.get(name);
+				if (lockLength > timeout.toMillis()) {
+					throw new TimeoutException("File lock " + name + " has expired!");
+				}
 			}
 			LOG.warn("File lock " + name + " present at " + tmpFile.getAbsolutePath() + ", delaying " + StringTool.strNanoTime(delay.getNano()));
 			Thread.sleep(delay.toMillis());
