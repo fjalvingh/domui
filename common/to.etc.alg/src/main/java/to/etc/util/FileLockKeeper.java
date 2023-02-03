@@ -29,9 +29,9 @@ public class FileLockKeeper {
 		File tmpFile = new File(FileTool.getTmpDir(), "FileLockerKeeper_" + name);
 		if(tmpFile.exists()) {
 			if(null != timeout) {
-				Long lockLength = System.currentTimeMillis() - LOCK_TIMEOUT_MS_MAP.get(name);
-				if (lockLength > timeout.toMillis()) {
-					throw new TimeoutException("File lock " + name + " has expired!");
+				Long lockedPeriod = System.currentTimeMillis() - LOCK_TIMEOUT_MS_MAP.get(name);
+				if (lockedPeriod > timeout.toMillis()) {
+					throw new TimeoutException("File lock " + name + " timeout!");
 				}
 			}
 			LOG.warn("File lock " + name + " present at " + tmpFile.getAbsolutePath() + ", delaying " + StringTool.strNanoTime(delay.getNano()));
