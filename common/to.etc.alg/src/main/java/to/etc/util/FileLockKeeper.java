@@ -15,11 +15,11 @@ import java.util.concurrent.TimeoutException;
  * Simple util that enables simple locking via file system locks.
  * Used in environments when multiple processes are competing over shared resources, like database initialization when running db tests in parallel module executions.
  */
-public class FileLockerKeeper {
+public class FileLockKeeper {
 
 	private static final Map<String, Long> LOCK_TIMEOUT_MS_MAP = new ConcurrentHashMap<>();
 
-	private static final Logger LOG = LoggerFactory.getLogger(FileLockerKeeper.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FileLockKeeper.class);
 
 	public synchronized static <T> T withLock(String name, Duration delay, @Nullable Duration timeout, SupplierEx<T> retryBlock, SupplierEx<T> guardedBlock) throws Exception {
 		File tmpFile = new File(FileTool.getTmpDir(), "FileLockerKeeper_" + name);
