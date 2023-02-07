@@ -1,6 +1,5 @@
 package to.etc.domui.log;
 
-import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.TextStr;
 import to.etc.domui.component.layout.ErrorMessageDiv;
@@ -9,14 +8,13 @@ import to.etc.domui.component.ntbl.ExpandingEditTable;
 import to.etc.domui.component.ntbl.IEditor;
 import to.etc.domui.component.ntbl.IRowEditorEvent;
 import to.etc.domui.component.ntbl.IRowEditorFactory;
-import to.etc.domui.component.tbl.BasicRowRenderer;
+import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleListModel;
 import to.etc.domui.component.tbl.TableModelTableBase;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
@@ -117,80 +115,56 @@ public class HandlerRowEditor extends Div implements IEditor {
 	}
 
 	private void addMatcherPart(NodeContainer container) throws Exception {
-		container.add(new LinkButton($("add.matcher"), new IClicked<LinkButton>() {
-
-			@Override
-			public void clicked(@NonNull LinkButton clickednode) throws Exception {
-				m_tableMatchers.addNew(new Matcher("", EtcLoggerFactory.getSingleton().getDefaultLevel()));
-			}
-		}));
-		m_modelMatchers = new SimpleListModel<Matcher>(m_instance.getMatchers());
+		container.add(new LinkButton($("add.matcher"), clickednode -> m_tableMatchers.addNew(new Matcher("", EtcLoggerFactory.getSingleton().getDefaultLevel()))));
+		m_modelMatchers = new SimpleListModel<>(m_instance.getMatchers());
 		final String[] cols = new String[]{Matcher.pNAME, Matcher.pLEVEL};
 
-		BasicRowRenderer<Matcher> rr = new BasicRowRenderer<Matcher>(Matcher.class, cols);
-		m_tableMatchers = new ExpandingEditTable<Matcher>(Matcher.class, m_modelMatchers, rr);
+		RowRenderer<Matcher> rr = new RowRenderer<>(Matcher.class);
+		for(String col : cols) {
+			rr.column(col);
+		}
+
+		m_tableMatchers = new ExpandingEditTable<>(Matcher.class, m_modelMatchers, rr);
 		m_tableMatchers.setNewAtStart(true);
 		m_tableMatchers.setEnableDeleteButton(true);
 		m_tableMatchers.setEnableExpandItems(true);
-		m_tableMatchers.setOnRowChangeCompleted(new IRowEditorEvent<Matcher, RowEditorBase<Matcher>>() {
-
-			@Override
-			public boolean onRowChanged(@NonNull TableModelTableBase<Matcher> tablecomponent, @NonNull RowEditorBase<Matcher> editor, @NonNull Matcher instance, boolean isNew) throws Exception {
-				if(MetaManager.hasDuplicates(m_modelMatchers.getItems(0, m_modelMatchers.getRows()), instance, Matcher.pNAME)) {
-					editor.setMessage(UIMessage.error(Matcher.pNAME, Msgs.vInvalidNotUnique));
-					return false;
-				}
-				return true;
+		m_tableMatchers.setOnRowChangeCompleted((IRowEditorEvent<Matcher, RowEditorBase<Matcher>>) (tablecomponent, editor, instance, isNew) -> {
+			if(MetaManager.hasDuplicates(m_modelMatchers.getItems(0, m_modelMatchers.getRows()), instance, Matcher.pNAME)) {
+				editor.setMessage(UIMessage.error(Matcher.pNAME, Msgs.vInvalidNotUnique));
+				return false;
 			}
+			return true;
 		});
 
-		m_tableMatchers.setEditorFactory(new IRowEditorFactory<Matcher, RowEditorBase<Matcher>>() {
-			@Override
-			public @NonNull
-			RowEditorBase<Matcher> createRowEditor(@NonNull Matcher instance, boolean isnew, boolean isReadonly) throws Exception {
-				return new RowEditorBase<Matcher>(instance, m_tableMatchers, cols);
-			}
-		});
+		m_tableMatchers.setEditorFactory((IRowEditorFactory<Matcher, RowEditorBase<Matcher>>) (instance, isnew, isReadonly) -> new RowEditorBase<>(instance, m_tableMatchers, cols));
 
 		container.add(m_tableMatchers);
 	}
 
 	private void addFilterPart(TD container) throws Exception {
-		container.add(new LinkButton($("add.filter"), new IClicked<LinkButton>() {
-
-			@Override
-			public void clicked(@NonNull LinkButton clickednode) throws Exception {
-				m_tableFilters.addNew(new Filter(LogFilterType.MDC, EtcMDCAdapter.LOGINID, "USER1"));
-			}
-		}));
+		container.add(new LinkButton($("add.filter"), clickednode -> m_tableFilters.addNew(new Filter(LogFilterType.MDC, EtcMDCAdapter.LOGINID, "USER1"))));
 		m_modelFilters = new SimpleListModel<Filter>(m_instance.getFilters());
 		final String[] cols = new String[]{Filter.pTYPE, Filter.pKEY, Filter.pVALUE};
 
-		BasicRowRenderer<Filter> rr = new BasicRowRenderer<Filter>(Filter.class, cols);
-		m_tableFilters = new ExpandingEditTable<Filter>(Filter.class, m_modelFilters, rr);
+		RowRenderer<Filter> rr = new RowRenderer<Filter>(Filter.class);
+		for(String col: cols) {
+			rr.column(col);
+		}
+
+		m_tableFilters = new ExpandingEditTable<>(Filter.class, m_modelFilters, rr);
 		m_tableFilters.setNewAtStart(true);
 		m_tableFilters.setEnableDeleteButton(true);
 		m_tableFilters.setEnableExpandItems(true);
 
-		m_tableFilters.setOnRowChangeCompleted(new IRowEditorEvent<Filter, FilterRowEditor>() {
-
-			@Override
-			public boolean onRowChanged(@NonNull TableModelTableBase<Filter> tablecomponent, @NonNull FilterRowEditor editor, @NonNull Filter instance, boolean isNew) throws Exception {
-				if(MetaManager.hasDuplicates(m_modelFilters.getItems(0, m_modelFilters.getRows()), instance, Filter.pKEY)) {
-					editor.setMessage(UIMessage.error(Filter.pKEY, Msgs.vInvalidNotUnique));
-					return false;
-				}
-				return true;
+		m_tableFilters.setOnRowChangeCompleted((IRowEditorEvent<Filter, FilterRowEditor>) (tablecomponent, editor, instance, isNew) -> {
+			if(MetaManager.hasDuplicates(m_modelFilters.getItems(0, m_modelFilters.getRows()), instance, Filter.pKEY)) {
+				editor.setMessage(UIMessage.error(Filter.pKEY, Msgs.vInvalidNotUnique));
+				return false;
 			}
+			return true;
 		});
 
-		m_tableFilters.setEditorFactory(new IRowEditorFactory<Filter, FilterRowEditor>() {
-			@Override
-			public @NonNull
-			FilterRowEditor createRowEditor(@NonNull Filter instance, boolean isnew, boolean isReadonly) throws Exception {
-				return new FilterRowEditor(instance, m_tableFilters, cols);
-			}
-		});
+		m_tableFilters.setEditorFactory((IRowEditorFactory<Filter, FilterRowEditor>) (instance, isnew, isReadonly) -> new FilterRowEditor(instance, m_tableFilters, cols));
 
 		container.add(m_tableFilters);
 	}
