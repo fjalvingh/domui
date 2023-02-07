@@ -94,7 +94,6 @@
         <module>to.etc.webapp.core</module>
         <module>to.etc.domui</module>
         <module>to.etc.domui.derbydata</module>
-        <module>to.etc.domui.legacy</module>
         <module>to.etc.domui.demo</module>
         <module>archetypes</module>
         <module>utilities</module>
