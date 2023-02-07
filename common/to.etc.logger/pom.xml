@@ -2,12 +2,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>to.etc.domui</groupId>
-        <artifactId>to.etc.domui.parent</artifactId>
+        <groupId>to.etc</groupId>
+        <artifactId>common</artifactId>
         <version>1.2-SNAPSHOT</version>
-        <relativePath>../../parent</relativePath>
     </parent>
 
+    <groupId>to.etc.domui</groupId>
     <artifactId>to.etc.logger</artifactId>
     <version>1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
