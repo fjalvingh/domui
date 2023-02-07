@@ -1,6 +1,6 @@
 package to.etc.domuidemo.pages.overview.lookup;
 
-import to.etc.domui.component.lookup.LookupForm;
+import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
@@ -16,20 +16,15 @@ public class DemoLookupForm2 extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
-		LookupForm<Invoice> lf = new LookupForm<Invoice>(Invoice.class, "customer", "billingAddress", "billingCity", "invoiceDate");
+		SearchPanel<Invoice> lf = new SearchPanel<>(Invoice.class, "customer", "billingAddress", "billingCity", "invoiceDate");
 		add(lf);
 
 		//-- Click handler gets called when search button is pressed.
-		lf.setClicked(new IClicked<LookupForm<Invoice>>() {
-			@Override
-			public void clicked(LookupForm<Invoice> clickednode) throws Exception {
-				search(clickednode);
-			}
-		});
+		lf.setClicked((IClicked<SearchPanel<Invoice>>) clickednode -> search(clickednode));
 	}
 
-	protected void search(LookupForm<Invoice> lf) throws Exception {
-		QCriteria<Invoice> query = lf.getEnteredCriteria(); // Get query entered
+	protected void search(SearchPanel<Invoice> lf) throws Exception {
+		QCriteria<Invoice> query = lf.getCriteria(); // Get query entered
 		if(null == query)
 			return;
 		SimpleSearchModel<Invoice> ssm = new SimpleSearchModel<Invoice>(this, query);
