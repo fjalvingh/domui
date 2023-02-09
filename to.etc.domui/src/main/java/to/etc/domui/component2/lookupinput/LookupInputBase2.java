@@ -110,7 +110,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 * Custom keyword search results dropdown renderer.
 	 */
 	@Nullable
-	IRenderInto<OT> m_keywordSearchResultsDropDownRenderer;
+	private IRenderInto<OT> m_keywordSearchResultsDropDownRenderer;
 
 	/**
 	 * Factory for the lookup dialog, to be shown when the lookup button
