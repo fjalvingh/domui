@@ -1,6 +1,7 @@
 package to.etc.domui.util.importers;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -107,7 +108,11 @@ public class ExcelImportRow implements IImportRow {
 		@Override
 		public String getStringValue() {
 			try {
-				switch(m_cell.getCellTypeEnum()){
+				CellType cellType = m_cell.getCellType();
+				if(CellType.FORMULA == cellType) {
+					cellType = m_cell.getCachedFormulaResultType();
+				}
+				switch(cellType){
 					default:
 						return trimAllWS(m_cell.toString());
 
@@ -201,9 +206,13 @@ public class ExcelImportRow implements IImportRow {
 		@Override
 		public BigDecimal getDecimal() {
 			try {
-				switch(m_cell.getCellTypeEnum()){
+				CellType cellType = m_cell.getCellType();
+				if(CellType.FORMULA == cellType) {
+					cellType = m_cell.getCachedFormulaResultType();
+				}
+				switch(cellType){
 					default:
-						throw new IllegalStateException("Unknown cell type: " + m_cell.getCellTypeEnum());
+						throw new IllegalStateException("Unknown cell type: " + cellType);
 
 					case _NONE:
 					case BLANK:

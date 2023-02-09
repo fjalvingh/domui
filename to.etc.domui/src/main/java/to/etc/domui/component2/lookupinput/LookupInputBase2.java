@@ -107,6 +107,12 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	private Boolean m_disableSelectOne;
 
 	/**
+	 * Custom keyword search results dropdown renderer.
+	 */
+	@Nullable
+	IRenderInto<OT> m_keywordSearchResultsDropDownRenderer;
+
+	/**
 	 * Factory for the lookup dialog, to be shown when the lookup button
 	 * is pressed.
 	 *
@@ -363,9 +369,16 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		}
 	}
 
+	public void setKeywordSearchResultsDropDownRenderer(IRenderInto<OT> renderer) {
+		m_keywordSearchResultsDropDownRenderer = renderer;
+	}
+
 	private void openResultsPopup(@NonNull ITableModel<OT> model) throws Exception {
 		List<OT> list = model.getItems(0, model.getRows());
-		IRenderInto<OT> renderer = new DefaultPopupRowRenderer<OT>(getOutputMetaModel());
+		IRenderInto<OT> renderer = m_keywordSearchResultsDropDownRenderer;
+		if(null == renderer) {
+			renderer = new DefaultPopupRowRenderer<OT>(getOutputMetaModel());
+		}
 
 		SelectOnePanel<OT> pnl = m_selectPanel = new SelectOnePanel<OT>(list, renderer);
 		if(getKeyWordSearchPopupMaxHeight() != null) {
