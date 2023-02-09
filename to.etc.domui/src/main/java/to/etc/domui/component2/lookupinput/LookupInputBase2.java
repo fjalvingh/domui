@@ -36,7 +36,6 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
-import to.etc.domui.component.tbl.BasicRowRenderer;
 import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.component.tbl.ITableModel;
@@ -63,7 +62,9 @@ import java.util.stream.Collectors;
 abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<QT, OT> implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication, IQueryManipulator<QT>, IForTarget {
 	private static boolean m_globalDisableSelectOne = false;
 
-	/** If set, the complete title for the popup window shown when the 'find' button is pressed. */
+	/**
+	 * If set, the complete title for the popup window shown when the 'find' button is pressed.
+	 */
 	@Nullable
 	private String m_defaultTitle;
 
@@ -119,7 +120,6 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	/**
 	 * Lookup a POJO Java bean persistent class.
-	 * @param queryClass
 	 */
 	public LookupInputBase2(@NonNull ITableModelFactory<QT, OT> modelFactory, @NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass) {
 		this(modelFactory, queryClass, resultClass, null, null);
@@ -136,7 +136,8 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		setQueryHandler(new PageQueryHandler<QT>(this));
 	}
 
-	public LookupInputBase2(@Nullable QCriteria<QT> rootCriteria, @NonNull ITableModelFactory<QT, OT> modelFactory, @NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel,
+	public LookupInputBase2(@Nullable QCriteria<QT> rootCriteria, @NonNull ITableModelFactory<QT, OT> modelFactory, @NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass,
+		@Nullable ClassMetaModel queryMetaModel,
 		@Nullable ClassMetaModel outputMetaModel) {
 		super(rootCriteria, queryClass, resultClass, queryMetaModel, outputMetaModel);
 		m_modelFactory = modelFactory;
@@ -146,6 +147,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Quick Search code (KeySearch)						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * @return true either when query control is manually implemented by keyWordSearchHandler, or if keyword search meta data is defined.
 	 */
@@ -202,15 +204,15 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		return m_keySearch;
 	}
 
-	@Override protected void clearKeySearch() {
+	@Override
+	protected void clearKeySearch() {
 		m_keySearch = null;
 	}
 
 	/**
 	 * Returns data that matches keyword search string.
-	 * @param searchString
+	 *
 	 * @return Matching data or null in case that search is cancelled because of insufficient number of characters typed into keyword search field.
-	 * @throws Exception
 	 */
 	@Nullable
 	private ITableModel<OT> searchKeyWord(@Nullable String searchString) throws Exception {
@@ -219,12 +221,12 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		}
 		IStringQueryFactory<QT> ksh = getStringQueryFactory();
 		QCriteria<QT> searchQuery = ksh.createQuery(searchString);
-		if(searchQuery == null) {								// Search cancelled
+		if(searchQuery == null) {                                // Search cancelled
 			return null;
 		}
 
-		searchQuery = adjustQuery(searchQuery);					// Manipulate if needed
-		if(searchQuery == null) {								// Manipulate cancelled
+		searchQuery = adjustQuery(searchQuery);                    // Manipulate if needed
+		if(searchQuery == null) {                                // Manipulate cancelled
 			return null;
 		}
 
@@ -247,9 +249,9 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Full search popup window code..						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Toggle the full search popup window.
-	 * @throws Exception
 	 */
 	@Override
 	protected void openPopupWithClick() throws Exception {
@@ -292,11 +294,11 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	}
 
 	private void decoratePopup(@NonNull Dialog floater) {
-		if (isPopupInitiallyCollapsed() && floater instanceof DefaultLookupInputDialog) {
+		if(isPopupInitiallyCollapsed() && floater instanceof DefaultLookupInputDialog) {
 			((DefaultLookupInputDialog<?, ?>) floater).setInitiallyCollapsed(true);
 		}
 
-		if (isPopupSearchImmediately() && floater instanceof DefaultLookupInputDialog) {
+		if(isPopupSearchImmediately() && floater instanceof DefaultLookupInputDialog) {
 			((DefaultLookupInputDialog<?, ?>) floater).setSearchImmediately(true);
 		}
 	}
@@ -317,7 +319,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		if(null != searchProps) {
 			po.setSearchPropertyList(searchProps
 				.stream().map(sp -> new SearchPropertyMetaModelImpl(getQueryMetaModel(), MetaManager.getPropertyMeta(getQueryClass(), sp)))
-					.collect(Collectors.toList()));
+				.collect(Collectors.toList()));
 		}
 
 		IClickableRowRenderer<OT> rr = getFormRowRenderer();
@@ -347,7 +349,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		int size = model.getRows();
 		if(size == 0) {
 			openMessagePanel("ui-lui-result-none", Msgs.UI_KEYWORD_SEARCH_NO_MATCH);
-		} else if (size == 1 && ! isDisableSelectOne()){ 					//in case of single match select value
+		} else if(size == 1 && !isDisableSelectOne()) {                //in case of single match select value
 			handleSetValue(model.getItems(0, 1).get(0));
 		} else if(size > 100) {
 			String count = Integer.toString(size);
@@ -408,11 +410,8 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		}
 	}
 
-
 	/**
 	 * Construct a default title for this LookupInput
-	 *
-	 * @return
 	 */
 	@NonNull
 	public String getDefaultTitle() {
@@ -441,16 +440,13 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	/**
 	 * EXPERIMENTAL This callback must be called by the popup once a selection is made.
-	 * @param value
-	 * @throws Exception
 	 */
 	public final void setDialogSelection(@Nullable OT value) throws Exception {
-		if(null == value)							// Null means: no selection made, so retain the current one
+		if(null == value)                            // Null means: no selection made, so retain the current one
 			return;
-		m_floater = null;							// ORDERED: see getOnValueChanged kludge
-		handleSetValue(value);						// ORDERED
+		m_floater = null;                            // ORDERED: see getOnValueChanged kludge
+		handleSetValue(value);                        // ORDERED
 	}
-
 
 	@NonNull
 	public IStringQueryFactory<QT> getStringQueryFactory() {
@@ -467,7 +463,6 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	/**
 	 * Set hint to keyword search input. Usually says how search condition is resolved.
-	 * @param keySearchHint
 	 */
 	@Override
 	public void setKeySearchHint(@Nullable String keySearchHint) {
@@ -476,7 +471,6 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		if(keySearch != null)
 			keySearch.setHint(keySearchHint); // Remove the hint on null.
 	}
-
 
 	public int getKeyWordSearchPopupWidth() {
 		return m_keyWordSearchPopupWidth;
@@ -497,20 +491,10 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	/**
 	 * Define the columns to show in "display current value" mode. This actually creates a
 	 * content renderer (a {@link SimpleLookupInputRenderer}) to render the fields.
-	 *
-	 * @param columns
 	 */
 	public void setValueColumns(String... columns) {
 		setValueRenderer(new SimpleLookupInputRenderer<OT>(getOutputClass(), columns));
 	}
-
-	/**
-	 * Define the full column spec in the format described for {@link BasicRowRenderer} for the dropdown box
-	 * showing quick search results.
-	 */
-//	public void addDropdownColumns(@NonNull Object... columns) {
-//		getDropdownRowRenderer().addColumns(columns);
-//	}
 
 	@Override
 	protected boolean isPopupShown() {
@@ -535,7 +519,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	}
 
 	public void setPopupOpener(IPopupOpener popupOpener) {
-		if (isBuilt()){
+		if(isBuilt()) {
 			throw new ProgrammerErrorException("can't set popup opener on built component!");
 		}
 		m_popupOpener = popupOpener;

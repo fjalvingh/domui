@@ -22,12 +22,10 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.pages.generic;
+package to.etc.domuidemo.pages.special;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.searchpanel.SearchPanel;
-import to.etc.domui.component.tbl.AbstractRowRenderer;
-import to.etc.domui.component.tbl.BasicRowRenderer;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.ICellClicked;
@@ -35,6 +33,7 @@ import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.component.tbl.IRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IClicked;
@@ -68,16 +67,11 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	/**
 	 * Implement to handle a selection of a record that was found.
-	 *
-	 * @param rcord
-	 * @throws Exception
 	 */
 	abstract public void onSelect(@NonNull T rcord) throws Exception;
 
 	/**
 	 * Implement to handle pressing the "new record" button.
-	 *
-	 * @throws Exception
 	 */
 	abstract protected void onNew() throws Exception;
 
@@ -91,8 +85,6 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	/**
 	 * Override this to customize the lookup form. No need to call super. method.
-	 *
-	 * @param lf
 	 */
 	protected void customizeSearchPanel(@NonNull SearchPanel<T> lf) throws Exception {
 	}
@@ -208,9 +200,6 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * Override to do extra things when the lookupform's "clear" button is pressed. Can be used to
 	 * set items to defaults after their input has been cleared. When this is called all inputs in
 	 * the form have <i>already</i> been set to null (empty) - so do <b>not</b> call {@link SearchPanel#clearInput()}.
-	 *
-	 * @param lf
-	 * @throws Exception
 	 */
 	protected void onSearchPanelClear(SearchPanel<T> lf) throws Exception {
 		//lf.clearInput(); jal 20091002 DO NOT ADD BACK!!!! Pressing the clear button ALREADY CALLS this.
@@ -218,24 +207,17 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	/**
 	 * Get the row renderer to use for the request.
-	 *
-	 * @return
 	 */
 	public IRowRenderer<T> getRowRenderer() throws Exception {
 		if(m_rowRenderer == null) {
-			m_rowRenderer = new BasicRowRenderer<T>(getBaseClass()); // Create a default one
+			m_rowRenderer = new RowRenderer<T>(getBaseClass()); // Create a default one
 		}
 
 		//-- jal 20091111 It is required that any search result has clickable rows. If no row click handler is set set one to call onNew.
-		if(m_rowRenderer instanceof AbstractRowRenderer<?>) { // Silly ? is needed even though cast cant do anything with it. Idiots.
-			AbstractRowRenderer<T> arrh = (AbstractRowRenderer<T>) m_rowRenderer;
+		if(m_rowRenderer instanceof IClickableRowRenderer<?>) {
+			IClickableRowRenderer<T> arrh = (IClickableRowRenderer<T>) m_rowRenderer;
 			if(arrh.getRowClicked() == null) {
-				arrh.setRowClicked(new ICellClicked<T>() {
-					@Override
-					public void cellClicked(@NonNull T val) throws Exception {
-						onSelect(val);
-					}
-				});
+				arrh.setRowClicked(val -> onSelect(val));
 			}
 		}
 		return m_rowRenderer;
@@ -252,8 +234,6 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	/**
 	 * When set to TRUE this makes the form immediately execute a query with all
 	 * empty lookup fields, meaning it will immediately show a list of rows.
-	 *
-	 * @return
 	 */
 	public boolean isSearchImmediately() {
 		return m_searchImmediately;
@@ -262,8 +242,6 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	/**
 	 * When set to TRUE this makes the form immediately execute a query with all
 	 * empty lookup fields, meaning it will immediately show a list of rows.
-	 *
-	 * @param showDefaultSearch
 	 */
 	public void setSearchImmediately(boolean searchImmediately) {
 		m_searchImmediately = searchImmediately;
@@ -271,8 +249,6 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	/**
 	 * When set to T this allows searching a set without any specified criteria.
-	 *
-	 * @return
 	 */
 	public boolean isAllowEmptySearch() {
 		return m_allowEmptySearch;
@@ -280,8 +256,6 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	/**
 	 * When set to T this allows searching a set without any specified criteria.
-	 *
-	 * @param allowEmptySearch
 	 */
 	public void setAllowEmptySearch(boolean allowEmptySearch) {
 		m_allowEmptySearch = allowEmptySearch;

@@ -1,15 +1,12 @@
 package to.etc.domuidemo.pages.cddb;
 
-import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.event.INotify;
-import to.etc.domui.component.lookup.LookupForm;
+import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.NodeBase;
 import to.etc.webapp.query.QCriteria;
 
 /**
@@ -17,22 +14,18 @@ import to.etc.webapp.query.QCriteria;
  * Created on 2-7-17.
  */
 public class TrackResultFragment<T> extends Div {
-	private LookupForm<T> m_lookup;
+	private SearchPanel<T> m_lookup;
 
 	private DataTable<T> m_table;
 
 	private INotify<T> m_onClick;
 
-	public TrackResultFragment(LookupForm<T> lookup) {
+	public TrackResultFragment(SearchPanel<T> lookup) {
 		m_lookup = lookup;
 	}
 
 	@Override public void createContent() throws Exception {
-		m_lookup.setClicked(new IClicked<NodeBase>() {
-			@Override public void clicked(@NonNull NodeBase clickednode) throws Exception {
-				search(m_lookup.getEnteredCriteria());
-			}
-		});
+		m_lookup.setClicked(clickednode -> search(m_lookup.getCriteria()));
 
 	}
 

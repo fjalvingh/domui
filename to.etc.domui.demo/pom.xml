@@ -4,9 +4,8 @@
 
 	<parent>
 		<groupId>to.etc.domui</groupId>
-		<artifactId>to.etc.domui.parent</artifactId>
+		<artifactId>domui</artifactId>
 		<version>1.2-SNAPSHOT</version>
-		<relativePath>../parent</relativePath>
 	</parent>
 
 	<artifactId>to.etc.domui.demo</artifactId>
@@ -119,10 +118,6 @@
 		<dependency>
 			<groupId>to.etc.domui</groupId>
 			<artifactId>to.etc.domui.selenium</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>to.etc.domui</groupId>
-			<artifactId>to.etc.domui.legacy</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>to.etc.domui</groupId>

@@ -8,15 +8,13 @@ import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.ntbl.ExpandingEditTable;
 import to.etc.domui.component.ntbl.IRowEditorEvent;
 import to.etc.domui.component.ntbl.IRowEditorFactory;
-import to.etc.domui.component.tbl.BasicRowRenderer;
+import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleListModel;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.log.data.Handler;
 import to.etc.domui.log.data.HandlerType;
 import to.etc.domui.log.tailer.ServerLogPage;
-import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.log.EtcLoggerFactory;
 import to.etc.webapp.nls.BundleRef;
@@ -50,18 +48,14 @@ public class ConfigPart extends Div {
 
 		m_model = new SimpleListModel<Handler>(m_handlers);
 
-		BasicRowRenderer<Handler> rr = new BasicRowRenderer<Handler>(Handler.class, m_cols);
-		rr.addColumns("", "^follow", "%10", new IRenderInto<Handler>() {
-			@Override
-			public void render(@NonNull NodeContainer node, @NonNull final Handler handler) throws Exception {
-				if(handler != null && handler.getType() == HandlerType.FILE) {
-					node.add(new LinkButton("follow", new IClicked<LinkButton>() {
-						@Override
-						public void clicked(@NonNull LinkButton clickednode) throws Exception {
-							ServerLogPage.moveSub(constructLogPath(handler.getFile()));
-						}
-					}));
-				}
+		RowRenderer<Handler> rr = new RowRenderer<Handler>(Handler.class);
+		rr.column(Handler.pTYPE);
+		rr.column(Handler.pFILE);
+		rr.column(Handler.pFORMAT);
+
+		rr.column().label("^follow").width(20).renderer((node, handler) -> {
+			if(handler.getType() == HandlerType.FILE) {
+				node.add(new LinkButton("follow", clickednode -> ServerLogPage.moveSub(constructLogPath(handler.getFile()))));
 			}
 		});
 		m_table = new ExpandingEditTable<Handler>(Handler.class, m_model, rr);
@@ -70,13 +64,7 @@ public class ConfigPart extends Div {
 		m_table.setEnableExpandItems(true);
 		m_table.setOnRowChangeCompleted(getRowChangeListener());
 
-		m_table.setEditorFactory(new IRowEditorFactory<Handler, HandlerRowEditor>() {
-			@Override
-			public @NonNull
-			HandlerRowEditor createRowEditor(@NonNull Handler instance, boolean isnew, boolean isReadonly) throws Exception {
-				return new HandlerRowEditor(instance, m_table);
-			}
-		});
+		m_table.setEditorFactory((IRowEditorFactory<Handler, HandlerRowEditor>) (instance, isnew, isReadonly) -> new HandlerRowEditor(instance, m_table));
 
 		add(m_table);
 	}

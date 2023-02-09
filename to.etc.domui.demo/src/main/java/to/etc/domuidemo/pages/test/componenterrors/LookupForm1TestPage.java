@@ -1,14 +1,14 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
-import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.layout.Caption;
-import to.etc.domui.component.lookup.AbstractLookupControlImpl;
-import to.etc.domui.component.lookup.LookupForm;
 import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.component.searchpanel.SearchPanel;
+import to.etc.domui.component.searchpanel.lookupcontrols.LookupQueryBuilderResult;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Genre;
 import to.etc.domui.derbydata.db.Track;
+import to.etc.domui.derbydata.db.Track_;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Pre;
 import to.etc.domui.dom.html.UrlPage;
@@ -25,59 +25,42 @@ import java.util.List;
 public class LookupForm1TestPage extends UrlPage {
 	private Div m_res = new Div();
 
-
-	@Override public void createContent() throws Exception {
+	@Override
+	public void createContent() throws Exception {
 		//-- Segment modeled to reproduce github issue #6
-		LookupForm<Track> lf1		= new LookupForm<>(Track.class);
+		SearchPanel<Track> lf1 = new SearchPanel<>(Track.class);
 		add(lf1);
 
 		List<Album> list = getSharedContext().query(QCriteria.create(Album.class)); //.like("name", "a%"));
 		ComboLookup2<Album> trackL1 = new ComboLookup2<>(list);
 		trackL1.setValue(list.get(0));
-		trackL1.setMandatory(true);
+		//trackL1.setMandatory(true);
 
 		List<Genre> glist = getSharedContext().query(QCriteria.create(Genre.class));
 		ComboLookup2<Genre> genreL1 = new ComboLookup2<>(glist);
 		genreL1.setValue(glist.get(0));
-		genreL1.setMandatory(true);
+		//genreL1.setMandatory(true);
 
-		lf1.addManualPropertyLabel("album", new AbstractLookupControlImpl(trackL1) {
-			@NonNull
-			@Override
-			public AppendCriteriaResult appendCriteria(@NonNull QCriteria<?> crit) throws Exception {
-				Album track = trackL1.getValue();
-				if(null == track) {
-					return AppendCriteriaResult.EMPTY;
-				}
-				crit.eq("album", track);
-				return AppendCriteriaResult.VALID;
+		lf1.add().property(Track_.album()).control(trackL1, (criteria, lookupValue) -> {
+			Album track = trackL1.getValue();
+			if(null == track) {
+				return LookupQueryBuilderResult.EMPTY;
 			}
+			criteria.eq(Track_.album(), track);
+			return LookupQueryBuilderResult.VALID;
 
-			@Override public void clearInput() {
-				trackL1.setValue(list.get(0));
-			}
 		});
 
-		lf1.addManualPropertyLabel("genre", new AbstractLookupControlImpl(genreL1) {
-			@NonNull
-			@Override
-			public AppendCriteriaResult appendCriteria(@NonNull QCriteria<?> crit) throws Exception {
-				Genre genre = genreL1.getValue();
-				if(null == genre) {
-					return AppendCriteriaResult.EMPTY;
-				}
-				crit.eq("genre", genre);
-				return AppendCriteriaResult.VALID;
+		lf1.add().property(Track_.genre()).control(genreL1, (criteria, lookupValue) -> {
+			Genre genre = genreL1.getValue();
+			if(null == genre) {
+				return LookupQueryBuilderResult.EMPTY;
 			}
-
-			@Override public void clearInput() {
-				genreL1.setValue(glist.get(0));
-			}
+			criteria.eq(Track_.genre(), genre);
+			return LookupQueryBuilderResult.VALID;
 		});
 
-		lf1.setClicked(f -> {
-			renderCriteria(lf1.getEnteredCriteria());
-		});
+		lf1.setClicked(f -> renderCriteria(lf1.getCriteria()));
 
 		add(new VerticalSpacer(10));
 		add(new Caption("Criteria"));

@@ -1,10 +1,13 @@
 package to.etc.domuidemo.pages.dbtable;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.tbl.*;
+import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.RowRenderer;
+import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.derbydata.db.Artist;
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.webapp.query.QCriteria;
 
 /**
  * Simplest example of showing data from the database. Shows:
@@ -23,11 +26,11 @@ public class SimplestDbTable extends UrlPage {
 		// Just select all artists. This does not query but /specifies/ the query to do
 		QCriteria<Artist> q = QCriteria.create(Artist.class);
 
-		SimpleSearchModel<Artist> model = new SimpleSearchModel<Artist>(this, q);
+		SimpleSearchModel<Artist> model = new SimpleSearchModel<>(this, q);
 		model.sortOn("name", false);
 
-		BasicRowRenderer<Artist> rr = new BasicRowRenderer<Artist>(Artist.class);
-		DataTable<Artist> dt = new DataTable<Artist>(model, rr);
+		RowRenderer<Artist> rr = new RowRenderer<>(Artist.class);
+		DataTable<Artist> dt = new DataTable<>(model, rr);
 		add(dt);
 		dt.setPageSize(25);
 
