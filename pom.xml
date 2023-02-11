@@ -110,7 +110,7 @@
         <enunciate-maven-plugin.version>2.13.1</enunciate-maven-plugin.version>
         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
         <maven-pldoc-plugin.version>3.0.13</maven-pldoc-plugin.version>
-        <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
+        <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
         <maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
 
         <hibernate.core.version>5.4.24.Final</hibernate.core.version>
