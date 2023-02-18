@@ -101,7 +101,7 @@ public class ExcelStreamingRowReader implements IRowReader, AutoCloseable, Itera
 		m_workbook = StreamingReader.builder()
 			.rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
 			.bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
-			.open(is);
+			.open(is);            // be aware that this closes is!
 		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(Locale.US);
 		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
 	}
