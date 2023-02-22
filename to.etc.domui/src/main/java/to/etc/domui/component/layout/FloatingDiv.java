@@ -116,9 +116,6 @@ public class FloatingDiv extends Div {
 	/**
 	 * Change the width and height for the dialog - only valid before it has been
 	 * built!! The minimum size is 250x200 pixels.
-	 *
-	 * @param width
-	 * @param height
 	 */
 	public void setDimensions(int width, int height) {
 		if(width > 0) {
@@ -126,12 +123,16 @@ public class FloatingDiv extends Div {
 				throw new IllegalArgumentException("The width=" + width + " is invalid: it cannot be smaller than 250.");
 			setWidth(width + "px");
 			setMinWidth(width + "px");
+		} else {
+			setWidth(null);
 		}
 		if(height > 0) {
 			if(height < 100)
 				throw new IllegalArgumentException("The height=" + height + " is invalid: it cannot be smaller than 100.");
 			setHeight(height + "px");
 			setMinHeight(height + "px");
+		} else {
+			setHeight(null);
 		}
 	}
 
