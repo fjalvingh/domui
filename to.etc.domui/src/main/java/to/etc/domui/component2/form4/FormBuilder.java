@@ -1020,6 +1020,14 @@ final public class FormBuilder {
 		}
 
 		@NonNull
+		public UntypedControlBuilder<I> label(@NonNull IBundleCode label, Object... param) {
+			if(null != m_nextLabelControl)
+				throw new IllegalStateException("You already set a Label instance");
+			m_nextLabel = label.format(param);
+			return this;
+		}
+
+		@NonNull
 		public UntypedControlBuilder<I> label(@NonNull NodeContainer label) {
 			if(null != m_nextLabel)
 				throw new IllegalStateException("You already set a String label instance");
