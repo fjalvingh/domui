@@ -8,6 +8,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.exporters.ExcelFormat;
 import to.etc.util.FileTool;
+import to.etc.util.InputStreamWrapper;
 import to.etc.util.WrappedException;
 
 import java.io.File;
@@ -98,10 +99,16 @@ public class ExcelStreamingRowReader implements IRowReader, AutoCloseable, Itera
 	public ExcelStreamingRowReader(InputStream is, ExcelFormat format) throws Exception {
 		m_inputStream = is;
 		m_format = format;
+		InputStreamWrapper wrappedStream = new InputStreamWrapper(is) {
+			@Override
+			public void close() throws IOException {
+				//here we consciously skip closing -> since opening of the reader should not really close original is :(
+			}
+		};
 		m_workbook = StreamingReader.builder()
 			.rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
 			.bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
-			.open(is);
+			.open(wrappedStream); // be aware that this calls close on specified input stream, so we used wrapper here that ignores that!
 		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(Locale.US);
 		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
 	}
