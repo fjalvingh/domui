@@ -91,7 +91,7 @@
 
         <!-- Plugin versions -->
         <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
-        <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <maven-surefire.version>3.0.0-M8</maven-surefire.version>
@@ -928,7 +928,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.5.0</version>
 
                         <!-- deep, deep sigh: http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html -->
                         <configuration>
