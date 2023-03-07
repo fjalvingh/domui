@@ -466,6 +466,7 @@ public class MsgBox extends Window {
 	 */
 	public static <T, C extends IControl<T>> void input(NodeBase dad, String prompt, C input, IInput<T> onanswer) {
 		MsgBox box = create(dad);
+		box.size(-1, -1);
 		box.setType(Type.INPUT);
 		box.setMessage(prompt);
 		box.addButton(MsgBoxButton.CONTINUE);
@@ -612,7 +613,8 @@ public class MsgBox extends Window {
 		Div a = new Div();
 		add(a);
 		a.setCssClass("ui-mbx-top");
-		a.setStretchHeight(true);
+		if(getHeight() != null)
+			a.setStretchHeight(true);
 		a.setOverflow(Overflow.AUTO);
 		Table t = new Table();
 		a.add(t);

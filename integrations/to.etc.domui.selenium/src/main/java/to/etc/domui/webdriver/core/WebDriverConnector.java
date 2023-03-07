@@ -785,6 +785,22 @@ final public class WebDriverConnector {
 		return findAttribute(byId(testid), attribute);
 	}
 
+	/**
+	 * Checks whether the specified element has a scrollbar.
+	 */
+	public boolean isScrollbarPresent(@NonNull By locator) throws Exception {
+		WebElement elem = driver().findElement(locator);
+		String id = elem.getAttribute("id");
+		if(null == id)
+			throw new IllegalStateException("No ID on element; this is required to check fox scrollbar presence");
+		StringBuilder sb = new StringBuilder();
+		sb.append("return document.getElementById('").append(id).append("').scrollHeight>document.getElementById('").append(id).append("').clientHeight;");
+		Boolean result = (Boolean) ((JavascriptExecutor) driver()).executeScript(sb.toString());
+		if(null == result)
+			throw new IllegalStateException("Unexpected result null from scrollbar test");
+		return result.booleanValue();
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Setting values.										*/
 	/*--------------------------------------------------------------*/
