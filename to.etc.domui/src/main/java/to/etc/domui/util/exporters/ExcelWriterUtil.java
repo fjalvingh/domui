@@ -22,6 +22,9 @@ import java.util.Map;
 @NonNullByDefault
 public class ExcelWriterUtil {
 
+	@Nullable
+	private Font m_defaultFont;
+
 	public enum FontStyle {
 		BOLD("B"),
 		ITALIC("I"),
@@ -99,6 +102,24 @@ public class ExcelWriterUtil {
 			addStyle(key, cs);
 		}
 		return cs;
+	}
+
+	public CellStyle wrapTextCs() {
+		String key = "wrapText";
+		CellStyle cs = m_styles.get(key);
+		if(null == cs) {
+			cs = createCellStyle();
+			addStyle(key, cs);
+		}
+		return cs;
+	}
+
+	/**
+	 * Custom color background.
+	 * @return
+	 */
+	public CellStyle colorBk(Color color, @Nullable IndexedColors alternative) {
+		return customCs(color, alternative, false);
 	}
 
 	/**
@@ -192,12 +213,27 @@ public class ExcelWriterUtil {
 	}
 
 	public Font cloneFromDefault() {
+		Font defaultFont = m_defaultFont;
+		if(defaultFont == null) {
+			defaultFont = m_defaultFont = m_workbook.getFontAt(0);
+		}
 		Font font = m_workbook.createFont();
-		Font defaultFont = m_workbook.getFontAt((short) 0);
 		font.setFontHeightInPoints(defaultFont.getFontHeightInPoints());
 		font.setFontName(defaultFont.getFontName());
 		font.setColor(defaultFont.getColor());
 		return font;
+	}
+
+	public void setDefaultFont(String fontName, short fontHeightInPoints) {
+		setDefaultFont(fontName, fontHeightInPoints, Font.COLOR_NORMAL);
+	}
+
+	public void setDefaultFont(String fontName, short fontHeightInPoints, short fontColor) {
+		Font font = m_workbook.createFont();
+		font.setFontHeightInPoints(fontHeightInPoints);
+		font.setFontName(fontName);
+		font.setColor(fontColor);
+		m_defaultFont = font;
 	}
 
 	private String fontKey(FontStyle... fontStyles) {
