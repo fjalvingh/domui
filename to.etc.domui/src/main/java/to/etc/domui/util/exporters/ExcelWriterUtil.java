@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -14,6 +15,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -259,5 +261,22 @@ public class ExcelWriterUtil {
 
 	public void setAutoSizeCols(boolean autoSizeCols) {
 		this.m_autoSizeCols = autoSizeCols;
+	}
+
+	public void autoSizeCols(int from, int to, @Nullable Integer maxWidthPx) {
+		Iterator<Sheet> sheetIterator = m_workbook.sheetIterator();
+		while (sheetIterator.hasNext()) {
+			Sheet sheet = sheetIterator.next();
+			for(int index = from; index < to; index++) {
+				sheet.autoSizeColumn(index, true);
+				if(null != maxWidthPx) {
+					int colWidth = sheet.getColumnWidth(index);
+					if(colWidth > maxWidthPx) {
+						sheet.setColumnWidth(index, maxWidthPx);
+						sheet.getColumnStyle(index).setWrapText(true);
+					}
+				}
+			}
+		}
 	}
 }
