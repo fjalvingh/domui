@@ -19,6 +19,17 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * This reads CSV files in multiple different formats. It can
+ * be used in two ways:
+ * <ul>
+ *	<li>As one of the generic variants reading columnar data,
+ *		using a common interface of row and column objects while
+ *		reading rows one by one</li>
+ *	<li>As a primitive (but faster) reader which just gets the data
+ *		from each column as a String, without any intermediary
+ *		objects. This mode should be faster.</li>
+ * </ul>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-12-17.
  */
@@ -134,13 +145,14 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		return m_lastChar = c & 0xffff;
 	}
 
-	public boolean readRecord() throws IOException {
+	boolean readRecordWithoutErrorCheck() throws IOException {
 		if(m_hasHeaderRow && !m_headerRead) {
 			if(!readHeader())
 				return false;
 		}
 		return readRecordPrimitive();
 	}
+
 
 	private boolean readHeader() throws IOException {
 		if(!m_hasHeaderRow || m_headerRead)
@@ -339,6 +351,12 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		return 1;
 	}
 
+	private void checkForErrors() {
+		if(!getErrorList().isEmpty()) {
+			throw new ImportValueException("CSV File format error at " + getErrorList().get(0).toString());
+		}
+	}
+
 	@Override
 	public List<IDatasetInfo> getSets() throws Exception {
 		return Collections.singletonList(new IDatasetInfo() {
@@ -468,6 +486,36 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		return this;
 	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Direct row access (without Row and Column objects)			*/
+	/*----------------------------------------------------------------------*/
+	/**
+	 * Reads the next record into the internal buffers.
+	 */
+	public boolean readRecord() throws IOException {
+		boolean res = readRecordWithoutErrorCheck();
+		if(!m_errorList.isEmpty())
+			throw new ImportValueException("CSV File format error at " + m_errorList.get(0).toString());
+
+		checkForErrors();
+		return res;
+	}
+
+	/**
+	 * Return the #of columns present.
+	 */
+	public int getColumnCount() {
+		return m_columns.size();
+	}
+
+	/**
+	 * Get the result of the nth column (0 based).
+	 */
+	@Nullable
+	public String getColumnValue(int index) {
+		return index >= m_columns.size() ? null : m_columns.get(index);
+	}
+
 	private class RowIterator implements Iterator<IImportRow> {
 		private boolean m_nextRead;
 
@@ -484,7 +532,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			if(!m_nextRead) {
 				m_nextRead = true;
 				try {
-					m_nextAvailable = readRecord();
+					m_nextAvailable = readRecordWithoutErrorCheck();
 					if(m_nextAvailable) {
 						m_row = new CsvImportRow(CsvRowReader.this, m_columns);
 					}
@@ -503,9 +551,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		@Override
 		public IImportRow next() {
 			CsvImportRow row = m_row;
-			if(!getErrorList().isEmpty()) {
-				throw new ImportValueException("CSV File format error at " + getErrorList().get(0).toString());
-			}
+			checkForErrors();
 			if(!m_nextAvailable || row == null)
 				throw new IllegalStateException("Calling next() after hasNext() returned false / missing call to hasNext()");
 			m_nextRead = false;
