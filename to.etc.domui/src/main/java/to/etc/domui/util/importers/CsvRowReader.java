@@ -252,6 +252,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 						return;
 					}
 					m_sb.append((char) c);
+					accept();
 				} else if(c == m_quoteChar) {
 					if(m_doubleQuotes) {
 						if(la() == m_quoteChar) {
