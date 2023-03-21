@@ -123,6 +123,9 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 			scd.css("ui-numeric");
 			scd.cssHeader("ui-numeric");
 		}
+		if(xdp.isTransient() && xdp.getSortable() == SortableType.UNKNOWN) {
+			scd.setSortable(SortableType.UNSORTABLE);
+		}
 
 		m_columnList.add(scd);
 		return scd;
