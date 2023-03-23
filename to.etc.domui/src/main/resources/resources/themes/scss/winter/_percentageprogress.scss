@@ -11,16 +11,25 @@
 .ui-pct-rlr2 {
 	display: inline-flex;
 	flex-direction: row;
-	justify-content: flex-end;
+	justify-content: flex-start;
 	position: relative;
 	height: 20px;
-	border: 1px solid #333;
+	border: 1px solid #B0BEC5;
+	border-radius: 6px;
 	overflow: hidden;
-	background-color: lightgreen;
 
-	.ui-pct-rlr2-sl {
-		background-color: white;
-		height: 20px;
+	.ui-pct-rlr2-bar {
+		margin: 2px;
+		background-color: red;
+		border: 1px solid transparent;
+		border-radius: 6px;
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	.ui-pct-rlr2-bar.ui-rlr2-pct-100 {
+		border-top-right-radius: 6px;
+		border-bottom-right-radius: 6px;
 	}
 
 	.ui-pct-rlr2-txt {

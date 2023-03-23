@@ -35,9 +35,11 @@ public class PercentageCompleteRuler2 extends Div {
 
 	private int m_pixelwidth;
 
-	private final Div m_slider = new Div("ui-pct-rlr2-sl");
+	private final Div m_barDiv = new Div("ui-pct-rlr2-bar");
 
 	private final Div m_textDiv = new Div("ui-pct-rlr2-txt");
+
+	private boolean m_showPercentage = true;
 
 	public PercentageCompleteRuler2() {
 		setWidth(100);
@@ -49,19 +51,20 @@ public class PercentageCompleteRuler2 extends Div {
 		setWidth(w);
 		//m_slider.setWidth(w);
 		m_textDiv.setWidth(w);
+		m_barDiv.setWidth(w);
 		//updateValues();
 	}
 
 	public void setHeight(int pixels) {
 		String w = pixels + "px";
 		setHeight(w);
-		m_slider.setHeight(w);
 		m_textDiv.setHeight(w);
+		m_barDiv.setHeight(w);
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		add(m_slider);
+		add(m_barDiv);
 		add(m_textDiv);
 		addCssClass("ui-pct-rlr2");
 		updateValues();
@@ -102,10 +105,43 @@ public class PercentageCompleteRuler2 extends Div {
 		Double v = m_value;
 		double value = v == null ? 0.0D : v;
 
-		m_textDiv.setText(String.format("%.1f %%", value));
+		if(m_showPercentage) {
+			m_textDiv.setText(String.format("%.1f %%", value));
+		}
 
 		//-- Set background position.
-		int pxl = 100 - (int) (value * m_pixelwidth / 100);
-		m_slider.setWidth(pxl + "px");
+		int pxl = (int) (value * m_pixelwidth / 100);
+		m_barDiv.setWidth(pxl + "px");
+		String cssClass = m_barDiv.getCssClass();
+		if(null != cssClass) {
+			for(String s : cssClass.split("\\s+")) {
+				if(s.startsWith("ui-rlr2-pct-")) {
+					m_barDiv.removeCssClass(s);
+					break;
+				}
+			}
+		}
+		m_barDiv.addCssClass("ui-rlr2-pct-" + (int) value);
+	}
+
+	/**
+	 * Show the percentage inside the ruler (default true).
+	 */
+	public boolean isShowPercentage() {
+		return m_showPercentage;
+	}
+
+	public void setShowPercentage(boolean showPercentage) {
+		if(m_showPercentage == showPercentage)
+			return;
+		m_showPercentage = showPercentage;
+		forceRebuild();
+	}
+
+	/**
+	 * The bar, for style binding.
+	 */
+	public Div getBar() {
+		return m_barDiv;
 	}
 }
