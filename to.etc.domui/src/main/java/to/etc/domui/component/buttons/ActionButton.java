@@ -3,11 +3,14 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component2.popupmenus.PopupMenu2;
 import to.etc.domui.dom.html.HR;
+import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.util.Pair;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +28,20 @@ public class ActionButton extends DefaultButton {
 		super(action);
 	}
 
+	public ActionButton(IBundleCode code, IIconRef icon, final IClicked<DefaultButton> clicked) {
+		super(code, icon, clicked);
+	}
+
 	public <T> ActionButton addAction(T instance, IUIAction<T> action) {
 		m_actions.add(new Pair<>(instance, action));
+		if(isBuilt()) {
+			forceRebuild();
+		}
+		return this;
+	}
+
+	public ActionButton removeActions() {
+		m_actions.clear();
 		if(isBuilt()) {
 			forceRebuild();
 		}
@@ -49,7 +64,7 @@ public class ActionButton extends DefaultButton {
 			actionButton.setTitle("");
 			actionButton.setClicked(c -> {
 				PopupMenu2 p2 = new PopupMenu2(ActionButton.this);
-				FloatingDiv floatingParent = ActionButton.this.getParent(FloatingDiv.class);
+				FloatingDiv floatingParent = ActionButton.this.findParent(FloatingDiv.class);
 				if(null != floatingParent) {
 					p2.setZIndex(floatingParent.getZIndex() + 100);
 				}
