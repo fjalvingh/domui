@@ -46,6 +46,7 @@ import java.sql.RowId;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -95,10 +96,6 @@ final public class JdbcUtil {
 
 	/**
 	 * Sets a TIMESTAMP value containing both TIME and DATE values.
-	 * @param ps
-	 * @param index
-	 * @param value
-	 * @throws SQLException
 	 */
 	static public void setTimestamp(@NonNull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
 		if(value == null)
@@ -111,10 +108,6 @@ final public class JdbcUtil {
 
 	/**
 	 * Sets a <b>truncated</b> date containing <i>only</i> the date part and a zero time.
-	 * @param ps
-	 * @param index
-	 * @param value
-	 * @throws SQLException
 	 */
 	static public void setDateTruncated(@NonNull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
 		if(value == null)
@@ -133,6 +126,14 @@ final public class JdbcUtil {
 			ps.setNull(index, Types.DATE);
 		else {
 			ps.setDate(index, new java.sql.Date(value.getTime()));
+		}
+	}
+
+	static public void setDate(@NonNull PreparedStatement ps, int index, LocalDate value) throws SQLException {
+		if(value == null)
+			ps.setNull(index, Types.DATE);
+		else {
+			ps.setObject(index, value);
 		}
 	}
 
@@ -176,10 +177,6 @@ final public class JdbcUtil {
 
 	/**
 	 * Quick method to select a single value of a given type from the database. Returns null if not found AND if the value was null...
-	 * @param connection
-	 * @param clz
-	 * @param select
-	 * @return
 	 */
 	public static <T> T selectOne(@NonNull Connection connection, @NonNull Class<T> clz, @NonNull String select, @NonNull Object... params) throws SQLException {
 		PreparedStatement ps = null;
@@ -194,9 +191,6 @@ final public class JdbcUtil {
 
 	/**
 	 * Quick method to select a single value of a given type from the given prepared statement. Returns null if not found AND if the value was null...
-	 * @param ps prepared statement defined in client code.
-	 * @param clz
-	 * @return
 	 */
 	public static <T> T selectOne(@NonNull Class<T> clz, @NonNull PreparedStatement ps, @NonNull Object... params) throws SQLException {
 		ResultSet rs = null;
@@ -249,10 +243,6 @@ final public class JdbcUtil {
 
 	/**
 	 * Quick method to select a single value of a given type from the database. Returns null if not found AND if the value was null...
-	 * @param connection
-	 * @param clz
-	 * @param select
-	 * @return
 	 */
 	public static <T> List<T> selectSingleColumnList(@NonNull Connection connection, @NonNull Class<T> clz, @NonNull String select, @NonNull Object... params) throws SQLException {
 		PreparedStatement ps = null;
@@ -482,11 +472,8 @@ final public class JdbcUtil {
 	 * In case that intention is to just execute CallableStatement that does not explicitly do updates (i.e. to execute stored procedure), please use
 	 * {@link JdbcUtil#executeStatement} or {@link JdbcUtil#oracleSpCall} methods.
 	 *
-	 * @param dbc
 	 * @param sql i.e. "begin insert into table1(colA, colB, colC) values (?,?,?) returning colId into ? ; end;"
-	 * @param args
 	 * @return T in case update changed any data, otherwise F.
-	 * @throws SQLException
 	 */
 	public static boolean executeUpdatingCallableStatement(@NonNull Connection dbc, @NonNull String sql, @Nullable Object... args) throws SQLException {
 		sql = sql.trim();
@@ -524,13 +511,13 @@ final public class JdbcUtil {
 	 * <LI>IN OUT params: use {@link JdbcInOutParam}</LI>
 	 * <LI>IN params: use simple java type instancies</LI>
 	 * </UL>
-	 * @param <T> Oracle function return value type
+	 *
+	 * @param <T> Oracle function return value type.
 	 * @param con Db connection
 	 * @param rtype Oracle function return type
 	 * @param sp Stored procedure / function name
 	 * @param args Stored procedure / function parameters
 	 * @return Oracle function return value in case of rtype != Void.class
-	 * @throws SQLException
 	 */
 	static public <T> T oracleSpCall(@NonNull Connection con, @NonNull Class<T> rtype, @NonNull String sp, @NonNull Object... args) throws SQLException {
 		if(rtype == Boolean.class || rtype == boolean.class) {
@@ -576,11 +563,8 @@ final public class JdbcUtil {
 	/**
 	 * Similar as {@link JdbcUtil#oracleSpCall(Connection, Class, String, Object...)},
 	 * adjusted to handle returning of oracle boolean type properly.
-	 * @param con
-	 * @param sp
-	 * @param args For hanlding IN/OUT/IN OUT params see {@link JdbcUtil#oracleSpCall(Connection, Class, String, Object...)}
-	 * @return
-	 * @throws SQLException
+	 *
+	 * @param args For handling IN/OUT/IN OUT params see {@link JdbcUtil#oracleSpCall(Connection, Class, String, Object...)}
 	 */
 	public static boolean oracleSpCallReturningBool(@NonNull Connection con, @NonNull String sp, @NonNull Object... args) throws SQLException {
 		StringBuilder sb = new StringBuilder();
@@ -646,13 +630,6 @@ final public class JdbcUtil {
 	 * <p>This method is only suitable for relations without compound keys, and the key's value must be representable and convertible by
 	 * JDBC to and from String. The method takes care of cascading, allowing a delete if child records are present with delete-cascade
 	 * rule, and it checks if those delete-cascaded records are deleteable themselves recursively.</p>
-	 *
-	 * @param dbc
-	 * @param schemaName
-	 * @param tableName
-	 * @param primaryKey
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
 	static public String hasChildRecords(@NonNull Connection dbc, @Nullable String schemaName, @NonNull String tableName, @NonNull String primaryKey) throws Exception {
