@@ -296,8 +296,8 @@ final public class FormBuilder {
 	/*	CODING:	Propertyless items.											*/
 	/*----------------------------------------------------------------------*/
 
-	public ItemBuilder label(IBundleCode code) {
-		return label(code.getString());
+	public ItemBuilder label(IBundleCode code, Object... param) {
+		return label(code.format(param));
 	}
 
 	public ItemBuilder label(@Nullable String label) {
