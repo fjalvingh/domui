@@ -812,6 +812,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 	@Override
 	public void visitCanvas(Canvas n) throws Exception {
 		basicNodeRender(n, m_o);
+		if(n.getCanvasWidth() > 0) {
+			o().attr("width", Integer.toString(n.getCanvasWidth()));
+		}
+		if(n.getCanvasHeight() > 0) {
+			o().attr("height", Integer.toString(n.getCanvasHeight()));
+		}
 		renderTagend(n, m_o);
 	}
 
