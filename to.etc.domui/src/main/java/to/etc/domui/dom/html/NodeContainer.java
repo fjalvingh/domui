@@ -31,6 +31,8 @@ import to.etc.domui.component.misc.ExceptionDialog;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.css.CssBase;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.VisibilityType;
 import to.etc.domui.dom.errors.ErrorFenceHandler;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.errors.UIMessage;
@@ -630,9 +632,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	@Override
 	@NonNull
 	public String getTextOnly() {
+		if(getDisplay() == DisplayType.NONE || getVisibility() == VisibilityType.HIDDEN)
+			return "";
+
 		StringBuilder sb = new StringBuilder();
 		for(NodeBase nb: this) {
-			sb.append(nb.getTextOnly());
+			if(nb.getDisplay() != DisplayType.NONE && nb.getVisibility() != VisibilityType.HIDDEN) {
+				sb.append(nb.getTextOnly());
+			}
 		}
 		return sb.toString();
 	}
