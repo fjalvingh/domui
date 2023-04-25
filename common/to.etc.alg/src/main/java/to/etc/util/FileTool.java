@@ -88,6 +88,8 @@ public class FileTool {
 
 	static public final long GB = 1024L * MB;
 
+	static public final int DEFAULT_MAX_TEXTFILE_LENGTH = (int) (5 * MB);
+
 	private FileTool() {
 	}
 
@@ -706,29 +708,47 @@ public class FileTool {
 	}
 
 	static public String readStreamAsString(final InputStream is, final Charset enc) throws Exception {
+		return readStreamAsString(is, enc, DEFAULT_MAX_TEXTFILE_LENGTH);
+	}
+
+	static public String readStreamAsString(final InputStream is, final Charset enc, int maxLength) throws Exception {
 		StringBuilder sb = new StringBuilder(128);
-		readStreamAsString(sb, is, enc);
+		readStreamAsString(sb, is, enc, maxLength);
 		return sb.toString();
 	}
 
 	static public void readStreamAsString(final Appendable o, final InputStream f, Charset enc) throws Exception {
+		readStreamAsString(o, f, enc, DEFAULT_MAX_TEXTFILE_LENGTH);
+	}
+
+	static public void readStreamAsString(final Appendable o, final InputStream f, Charset enc, int maxLength) throws Exception {
 		Reader r = new InputStreamReader(f, enc);
-		readStreamAsString(o, r);
+		readStreamAsString(o, r, maxLength);
 	}
 
 	static public void readStreamAsString(final Appendable o, final Reader r) throws Exception {
+		readStreamAsString(o, r, DEFAULT_MAX_TEXTFILE_LENGTH);
+	}
+
+	static public void readStreamAsString(final Appendable o, final Reader r, int maxLength) throws Exception {
 		char[] buf = new char[4096];
+		int len = 0;
 		for(; ; ) {
 			int ct = r.read(buf);
-			if(ct < 0)
+			len += ct;
+			if(ct < 0 || len > maxLength)
 				break;
 			o.append(new String(buf, 0, ct));
 		}
 	}
 
 	static public String readStreamAsString(final Reader r) throws Exception {
+		return readStreamAsString(r, DEFAULT_MAX_TEXTFILE_LENGTH);
+	}
+
+	static public String readStreamAsString(final Reader r, int maxLength) throws Exception {
 		StringBuilder sb = new StringBuilder(128);
-		readStreamAsString(sb, r);
+		readStreamAsString(sb, r, maxLength);
 		return sb.toString();
 	}
 
