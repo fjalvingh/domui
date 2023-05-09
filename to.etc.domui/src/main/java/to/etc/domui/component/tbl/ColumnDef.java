@@ -96,6 +96,13 @@ final public class ColumnDef<I, T> {
 
 	private boolean m_rerenderOnBind;
 
+	/**
+	 * A property that contains a value hint, which will be shown
+	 * as the hover (title=) of the cell when present.
+	 */
+	@Nullable
+	private PropertyMetaModel<String> m_valueHintProperty;
+
 	ColumnDef(@NonNull ColumnList<I> cdl, @NonNull Class<T> valueClass) {
 		m_actualClass = valueClass;
 		m_columnType = valueClass;
@@ -552,5 +559,19 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	public ColumnStyleBindingBuilder<I, T> getColumnStyleBinding() {
 		return m_columnStyleBinding;
+	}
+
+	@Nullable
+	public PropertyMetaModel<String> getValueHintProperty() {
+		return m_valueHintProperty;
+	}
+
+	/**
+	 * A property that contains a value hint, which will be shown
+	 * as the hover (title=) of the cell when present.
+	 */
+	public ColumnDef<I, T> valueHint(QField<I, String> property) {
+		m_valueHintProperty = m_defList.model().findProperty(property);
+		return this;
 	}
 }

@@ -59,7 +59,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	}
 
 	@NonNull
-	private ClassMetaModel model() {
+	ClassMetaModel model() {
 		return m_metaModel;
 	}
 
