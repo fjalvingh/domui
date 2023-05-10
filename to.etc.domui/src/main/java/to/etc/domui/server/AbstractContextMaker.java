@@ -119,14 +119,17 @@ abstract public class AbstractContextMaker implements IContextMaker {
 
 				Locale loc = new Locale(lang, country);
 				rr.getRequest().getSession().setAttribute(LOCALE_PARAM, loc);
+				System.out.println("Forced by " + LOCALE_PARAM + "=" + forceloc);
 				return loc;
 			}
 		}
 		HttpSession ses = rr.getRequest().getSession(false);
 		if(null != ses) {
 			Locale loc = (Locale) ses.getAttribute(LOCALE_PARAM);
-			if(null != loc)
+			if(null != loc) {
+				System.out.println("Forced by ses.getAttribute(" + LOCALE_PARAM + ")=" + forceloc);
 				return loc;
+			}
 		}
 
 		return ctx.getApplication().getRequestLocale(rr.getRequest());
