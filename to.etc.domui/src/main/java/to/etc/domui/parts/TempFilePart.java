@@ -38,9 +38,11 @@ import to.etc.util.StringTool;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Blob;
+import java.util.List;
 
 /**
  * Safe reference to a server-side tempfile.
@@ -115,6 +117,9 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		StringBuilder sb = new StringBuilder();
 		sb.append(TempFilePart.class.getName());
 		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
+
+		ctx.getApplication().getTempFileManager().register(target.getName(), List.of(target));	// Register for deletion
+
 		return sb.toString();
 	}
 
@@ -153,6 +158,9 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		StringBuilder sb = new StringBuilder();
 		sb.append(TempFilePart.class.getName());
 		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
+
+		rc.getApplication().getTempFileManager().register(target.getName(), List.of(target));	// Register for deletion
+
 		return rc.getRelativePath(sb.toString());
 	}
 
@@ -191,8 +199,18 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> param.getRequestResponse().addHeader(header, value));
 		OutputStream os = param.getRequestResponse().getOutputStream(fi.getMime(), null, (int) fi.getSource().length());
 		InputStream is = new FileInputStream(fi.getSource());
+		final int maxSize = 1024 * 1024 * 1024;
 		try {
-			FileTool.copyFile(os, is);
+			byte[] buf = new byte[32768];
+			int sz;
+			long size = 0L;
+			while(0 < (sz = is.read(buf))) {
+				size += sz;
+				if(size > maxSize)
+					throw new IOException("Copied data exceeds the configured maximum (" + maxSize + " bytes)");
+				os.write(buf, 0, sz);
+				app.getTempFileManager().ping(fi.getSource().getName());			// Mark file as in use
+			}
 		} finally {
 			try {
 				is.close();

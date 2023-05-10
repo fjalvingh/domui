@@ -173,16 +173,6 @@ final public class Page implements IQContextContainer {
 	 */
 	private Set<NodeBase> m_pendingBuildSet = new HashSet<NodeBase>();
 
-	///**
-	// * All subpages that were added to the tree this request.
-	// */
-	//private Set<SubPage> m_addedSubPages = new HashSet<>();
-	//
-	///**
-	// * All SubPages currently present on the page.
-	// */
-	//private Set<SubPage> m_subPageSet = new HashSet<>();
-
 	/**
 	 * All subpages that have been deleted during this request.
 	 */
@@ -263,13 +253,6 @@ final public class Page implements IQContextContainer {
 	private List<IExecute> m_pageOnCallbackList = new ArrayList<>();
 
 	private final Map<String, Object> m_attributeMap = new HashMap<>();
-
-	///**
-	// * Contains all http headers that need to be sent for this page. When the Page
-	// * is created this is filled with the headers set in {@link DomApplication#getDefaultHTTPHeaderMap()},
-	// * and it can after be manipulated by a page before being used.
-	// */
-	//private Map<String, String> m_HTTPHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.

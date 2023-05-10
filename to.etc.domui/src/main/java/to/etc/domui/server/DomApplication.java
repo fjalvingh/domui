@@ -75,6 +75,7 @@ import to.etc.domui.login.ILoginDialogFactory;
 import to.etc.domui.login.ILoginListener;
 import to.etc.domui.login.IPageAccessChecker;
 import to.etc.domui.parts.SvgPartFactory;
+import to.etc.domui.parts.TempFileManager;
 import to.etc.domui.sass.SassPartFactory;
 import to.etc.domui.server.parts.IPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
@@ -303,6 +304,9 @@ public abstract class DomApplication {
 
 	@NonNull
 	private ResourceInfoCache m_resourceInfoCache = new ResourceInfoCache(this);
+
+	@NonNull
+	private TempFileManager m_tempFileManager = new TempFileManager();
 
 	/** The theme manager where theme calls are delegated to. */
 	final private ThemeManager m_themeManager = new ThemeManager(this);
@@ -832,6 +836,7 @@ public abstract class DomApplication {
 	 * Override to destroy resources when the application terminates.
 	 */
 	protected void destroy() {
+		getTempFileManager().terminate();
 	}
 
 	/**
@@ -863,7 +868,7 @@ public abstract class DomApplication {
 		} finally {
 			closeClasspathScanResult();
 		}
-
+		getTempFileManager().initialize();
 		runListenersEndInitialization();
 		calculateRefreshInterval(development);
 
@@ -1953,6 +1958,15 @@ public abstract class DomApplication {
 		}
 	}
 
+	/**
+	 * Return the temp file handler, which keeps track of tmpfiles
+	 * that will need to be deleted regularly.
+	 */
+	@NonNull
+	public TempFileManager getTempFileManager() {
+		return m_tempFileManager;
+	}
+
 	@NonNull
 	public Function<IRequestContext, Boolean> getIsCrawlerFunctor() {
 		return m_isCrawlerFunctor;
@@ -2009,7 +2023,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Add a new listener for asynchronous job events.
-	 * @param l
 	 */
 	public synchronized <T> void addAsyncListener(@NonNull IAsyncListener<T> l) {
 		m_asyncListenerList = new ArrayList<>(m_asyncListenerList);
