@@ -399,13 +399,6 @@ public class ConversationContext extends AbstractConversationContext implements 
 		getDelayedActivitiesManager().unregisterPoller(nc);
 	}
 
-	//	/**
-	//	 * Forces the activity manager to enable continuous polling by the client system, at least every interval millis.
-	//	 */
-	//	public void internalSetContinuousPolling(int interval) {
-	//		getDelayedActivitiesManager().setContinuousPolling(interval);
-	//	}
-
 	@Override
 	public void dump() {
 		System.out.println("    Conversation: " + getId() + " in state " + getState());

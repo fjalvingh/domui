@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.util.FileTool;
 
 import java.io.File;
 import java.io.Writer;
@@ -69,10 +70,12 @@ public class JSassCompiler implements ISassCompiler {
 			Output res = co.compile(fc);
 			String css = res.getCss();
 			output.write(css == null ? "" : css);
-			out.delete();
+			//out.delete();
 			jsr.close();
 		} catch(CompilationException cx) {
 			throw new SassException(cx.getErrorMessage() + "\n" + cx.getErrorJson(), cx);
+		} finally {
+			FileTool.delete(out);
 		}
 	}
 

@@ -307,12 +307,6 @@ public class UploadParser {
 	/**
 	 * Handle reading a single item. If the 'filename' field is not null then this is an actual file, else
 	 * it is a form field.
-	 *
-	 * @param l
-	 * @param headermap
-	 * @param multi
-	 * @param fn
-	 * @throws IOException
 	 */
 	//	@SuppressWarnings("null")
 	private boolean readItem(final MiniParser p, final List<UploadItem> l, final Map<String, Object> headermap, final MultipartStream multi, final String fieldname, String fn) throws IOException {

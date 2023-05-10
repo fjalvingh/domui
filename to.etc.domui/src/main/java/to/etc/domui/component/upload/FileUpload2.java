@@ -57,15 +57,15 @@ import java.util.stream.Collectors;
 
 /**
  * Represents a file upload thingy which handles ajaxy uploads. This version only allows single file uploads.
- *
+ * <p>
  * The basic model is as follows:
  * <ul>
- *	<li>FileUpload components use a hidden iframe to handle the actual uploading in the background.</li>
- *	<li>The background upload gets started as soon as a selection is made.</li>
- *	<li>While the upload is running the user interface is blocking</li>
- *	<li>The uploaded file will be attached as a tempfile to the form's component. It will be deleted
- *		as soon as the context or the page is destroyed.</li>
- *	<li>No upload progress reporting is done.</li>
+ * 	<li>FileUpload components use a hidden iframe to handle the actual uploading in the background.</li>
+ * 	<li>The background upload gets started as soon as a selection is made.</li>
+ * 	<li>While the upload is running the user interface is blocking</li>
+ * 	<li>The uploaded file will be attached as a tempfile to the form's component. It will be deleted
+ * 		as soon as the context or the page is destroyed.</li>
+ * 	<li>No upload progress reporting is done.</li>
  * </ul>
  * <h2>Client side upload thingy</h2>
  * <p>In the browser the primary upload thingy is an input type='file' component. This gets used to allow
@@ -92,7 +92,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	private FileInput m_input;
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IValueChanged<?> m_onValueChanged;
 
 	private boolean m_disabled;
 
@@ -124,7 +124,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		m_allowedExtensions = allowedExtensions;
 	}
 
-	public FileUpload2(String...allowedExt) {
+	public FileUpload2(String... allowedExt) {
 		m_allowedExtensions = Arrays.asList(allowedExt);
 	}
 
@@ -232,17 +232,18 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		}
 	}
 
-
-
-	@Nullable @Override protected String getFocusID() {
+	@Nullable
+	@Override
+	protected String getFocusID() {
 		FileInput input = m_input;
 		return null == input ? null : input.getActualID();
 	}
 
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return m_input;
 	}
-
 
 	/**
 	 * Internal: get the input type="file" thingy.
@@ -280,7 +281,8 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		}
 	}
 
-	@Override public void setValue(@Nullable UploadItem value) {
+	@Override
+	public void setValue(@Nullable UploadItem value) {
 		if(MetaManager.areObjectsEqual(m_value, value)) {
 			return;
 		}
@@ -345,6 +347,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	/**
 	 * Set to T if at least one file needs to have been uploaded.
+	 *
 	 * @param required
 	 */
 	@Override
@@ -353,12 +356,12 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IValueChanged<?> getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
@@ -408,18 +411,21 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		return true;
 	}
 
-	@Override public boolean isReadOnly() {
+	@Override
+	public boolean isReadOnly() {
 		return m_readOnly;
 	}
 
-	@Override public void setReadOnly(boolean readOnly) {
+	@Override
+	public void setReadOnly(boolean readOnly) {
 		if(m_readOnly == readOnly)
 			return;
 		m_readOnly = readOnly;
 		forceRebuild();
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 

@@ -38,9 +38,11 @@ import to.etc.util.StringTool;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Blob;
+import java.util.List;
 
 /**
  * Safe reference to a server-side tempfile.
@@ -68,6 +70,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		public String getDisposition() {
 			return m_disposition;
 		}
+
 		public String getPw() {
 			return m_pw;
 		}
@@ -82,24 +85,24 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	}
 
 	public enum Disposition {
-		/** Download the attachment, do not show it. */
+		/**
+		 * Download the attachment, do not show it.
+		 */
 		Attachment,
 
-		/** Show the file by trying to view it in the browser */
+		/**
+		 * Show the file by trying to view it in the browser
+		 */
 		Inline,
 
-		/** Do content-disposition: let the browser decide what to do with the thing */
+		/**
+		 * Do content-disposition: let the browser decide what to do with the thing
+		 */
 		None
 	}
 
 	/**
 	 * Use the version {@link #registerTempFile(java.io.File, String, to.etc.domui.parts.TempFilePart.Disposition, String)}
-	 * @param ctx
-	 * @param target
-	 * @param mime
-	 * @param type
-	 * @param name
-	 * @return
 	 */
 	@Deprecated
 	static public String registerTempFile(@NonNull IRequestContext ctx, @NonNull File target, @NonNull String mime, @Nullable String type, @Nullable String name) {
@@ -114,6 +117,9 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		StringBuilder sb = new StringBuilder();
 		sb.append(TempFilePart.class.getName());
 		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
+
+		ctx.getApplication().getTempFileManager().register(target.getName(), List.of(target));	// Register for deletion
+
 		return sb.toString();
 	}
 
@@ -122,11 +128,8 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	 * in temp files. Only people knowing the full name for the file, including a set of random-generated "passwords", can
 	 * access it. This returns the absolute URL to the file, including host name etc.
 	 *
-	 * @param target
-	 * @param mime
-	 * @param disp		The disposition: attachment or inline (download or view)
-	 * @param name
-	 * @return			The absolute full URL to the file.
+	 * @param disp The disposition: attachment or inline (download or view)
+	 * @return The absolute full URL to the file.
 	 */
 	static public String registerTempFile(@NonNull File target, @NonNull String mime, @NonNull Disposition disp, @Nullable String name) {
 		String key = StringTool.generateGUID();
@@ -146,7 +149,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		}
 		if(s != null && name != null) {
 			name = name.replace(" ", "_"); // spaces are not allowed in names for filename!
-			s += "; filename="+name;
+			s += "; filename=" + name;
 		}
 		FileInfo fi = new FileInfo(pw, target, mime, s);
 		IRequestContext rc = UIContext.getRequestContext();
@@ -155,6 +158,9 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		StringBuilder sb = new StringBuilder();
 		sb.append(TempFilePart.class.getName());
 		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
+
+		rc.getApplication().getTempFileManager().register(target.getName(), List.of(target));	// Register for deletion
+
 		return rc.getRelativePath(sb.toString());
 	}
 
@@ -170,7 +176,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	/**
 	 * Force the browser to download the specified file, by sending "location.href = (url-to-file)" to the browser.
 	 */
-	public static void	createDownloadAction(@NonNull NodeBase sourcePage, @NonNull File target, @NonNull String mime, @NonNull Disposition disposition, @Nullable String name) {
+	public static void createDownloadAction(@NonNull NodeBase sourcePage, @NonNull File target, @NonNull String mime, @NonNull Disposition disposition, @Nullable String name) {
 		String url = registerTempFile(target, mime, disposition, name);
 		sourcePage.appendJavascript("WebUI.setSkipLeavePageCheck(true);");
 		sourcePage.appendJavascript("location.href=" + StringTool.strToJavascriptString(url, true) + ";");
@@ -192,13 +198,24 @@ public class TempFilePart implements IUnbufferedPartFactory {
 			param.getRequestResponse().addHeader("Content-Disposition", fi.getDisposition());
 		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> param.getRequestResponse().addHeader(header, value));
 		OutputStream os = param.getRequestResponse().getOutputStream(fi.getMime(), null, (int) fi.getSource().length());
-		InputStream	is	= new FileInputStream(fi.getSource());
+		InputStream is = new FileInputStream(fi.getSource());
+		final int maxSize = 1024 * 1024 * 1024;
 		try {
-			FileTool.copyFile(os, is);
+			byte[] buf = new byte[32768];
+			int sz;
+			long size = 0L;
+			while(0 < (sz = is.read(buf))) {
+				size += sz;
+				if(size > maxSize)
+					throw new IOException("Copied data exceeds the configured maximum (" + maxSize + " bytes)");
+				os.write(buf, 0, sz);
+				app.getTempFileManager().ping(fi.getSource().getName());			// Mark file as in use
+			}
 		} finally {
 			try {
 				is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 }
