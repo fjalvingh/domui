@@ -239,7 +239,9 @@ final public class WebDriverConnector {
 		WebDriverType webDriverType = getDriverType(remote);
 		boolean canTakeScreenshot = /* browserModel == BrowserModel.PHANTOMJS || */ webDriverType == WebDriverType.LOCAL || webDriverType == WebDriverType.REMOTE;
 
-		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, remote, null);
+		String forceLocale = p.getProperty("forcelocale");
+		Locale forcedLocale = null == forceLocale ? null : Locale.forLanguageTag(forceLocale);
+		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, remote, forcedLocale);
 
 		IWebdriverScreenshotHelper sshelper = WebDriverFactory.getScreenshotHelper(webDriverType, browserModel);
 
