@@ -120,8 +120,18 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 	/**
 	 * Create a combo for all members of an enum, except for specified exceptions. It uses the enums labels as description. Since this has no known property it cannot
 	 * use per-property translations!!
+	 * Applies alphabetic sorting to selectable options labels.
 	 */
 	static public <T extends Enum<T>> ComboFixed2<T> createEnumCombo(Class<T> clz, T... exceptions) {
+		return createEnumCombo(clz, true, exceptions);
+	}
+
+	/**
+	 * Create a combo for all members of an enum, except for specified exceptions. It uses the enums labels as description. Since this has no known property it cannot
+	 * use per-property translations!!
+	 * If specified, applies alphabetic sorting to selectable options labels.
+	 */
+	static public <T extends Enum<T>> ComboFixed2<T> createEnumCombo(Class<T> clz, boolean sorted, T... exceptions) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		T[] ar = clz.getEnumConstants();
@@ -133,7 +143,9 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 				l.add(new ValueLabelPair<T>(v, label));
 			}
 		}
-		Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+		if(sorted) {
+			Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+		}
 		return new ComboFixed2<T>(l);
 	}
 
