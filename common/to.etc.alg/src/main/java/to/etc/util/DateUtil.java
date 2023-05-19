@@ -664,7 +664,7 @@ final public class DateUtil {
 	public static int getMonthDumbJava(@NonNull Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		return cal.get(Calendar.MONTH) + 1;
+		return cal.get(Calendar.MONTH);
 	}
 
 	public static int getDay(@NonNull Date date) {
