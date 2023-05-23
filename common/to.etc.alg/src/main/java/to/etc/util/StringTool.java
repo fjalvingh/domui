@@ -3249,6 +3249,47 @@ public class StringTool {
 		return new String(buf);
 	}
 
+	/**
+	 * This does its best to create a Dutch plural form for the word
+	 * specified. It obeys the rules <a href="https://www.braint.nl/taalgids/spelling/meervoud.html">described here</a>.
+	 * This will use 's where needed, so if you expect an identifier
+	 * out of this replace all ' with something else!!
+	 * This is not perfect; it does not handle exceptions like "kind" and "blad".
+	 */
+	@NonNull
+	static public String dutchPluralOf(@NonNull String word) {
+		word = word.trim();
+		if(word.length() == 0)
+			return word;
+		String lc = word.toLowerCase();
+		boolean isUC = Character.isUpperCase(word.charAt(word.length() - 1));
+		if(lc.endsWith("e") || lc.endsWith("el") || lc.endsWith("en") || lc.endsWith("er") || lc.endsWith("em") || lc.endsWith("ie") || lc.endsWith("eau"))
+			return word + (isUC ? "S" : "s");
+
+		if(lc.endsWith("i") || lc.endsWith("a") || lc.endsWith("o") || lc.endsWith("u"))
+			return word + (isUC ? "'S" : "'s");
+
+		//-- If we end in "y" it depends on whether the letter before the end is a vowel
+		if(lc.endsWith("y")) {
+			char before = lc.charAt(lc.length() - 2);
+			if(isVowel(before)) {
+				return word + (isUC ? "S" : "s");
+			} else {
+				return word + (isUC ? "'S" : "'s");
+			}
+		}
+		return word + (isUC ? "EN" : "en");
+	}
+
+	private static boolean isVowel(char c) {
+		return c == 'a' || c == 'A'
+			|| c == 'i' || c == 'I'
+			|| c == 'u' || c == 'U'
+			|| c == 'o' || c == 'O'
+			|| c == 'e' || c == 'E'
+			;
+	}
+
 }
 
 
