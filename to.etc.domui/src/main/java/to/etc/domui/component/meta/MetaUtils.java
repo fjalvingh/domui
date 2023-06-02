@@ -58,6 +58,11 @@ public class MetaUtils {
 	public static final String COL = "col";
 
 	/**
+	 * Use in component hint to mark property as secret.
+	 */
+	public static final String SECRET = "secret";
+
+	/**
 	 * Parses value of param defined in metadataLine string as Integer value.
 	 * @return Integer value represented as string, in case that param is not defined or NumberFormatException exception returns default value.
 	 */
