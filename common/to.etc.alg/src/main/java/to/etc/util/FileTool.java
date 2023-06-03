@@ -752,6 +752,12 @@ public class FileTool {
 		return sb.toString();
 	}
 
+	static public void appendFileFromString(File f, String v, Charset enc) throws Exception {
+		try(OutputStream os = new FileOutputStream(f, true)) {
+			writeFileFromString(os, v, enc);
+		}
+	}
+
 	static public void writeFileFromString(final File f, final String v, final String enc) throws Exception {
 		try(OutputStream os = new FileOutputStream(f)) {
 			writeFileFromString(os, v, enc);
