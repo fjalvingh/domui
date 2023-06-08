@@ -225,7 +225,7 @@ public class StringTool {
 			else
 				digits++;
 		}
-		return dots < 2 && digits > 1;
+		return dots < 2 && digits >= 1;
 	}
 
 	static public boolean isDomainChar(final char c) {
