@@ -77,6 +77,10 @@
     </developers>
 
     <properties>
+        <!-- MAVEN -->
+        <domui.test.skip>false</domui.test.skip>
+        <maven.test.skip>${domui.test.skip}</maven.test.skip>
+
         <!-- SONAR -->
         <sonar.organization>fjalvingh-github</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
