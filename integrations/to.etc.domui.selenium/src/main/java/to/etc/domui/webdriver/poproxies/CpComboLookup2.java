@@ -12,9 +12,9 @@ public class CpComboLookup2 extends AbstractCpComboComponent implements ICpContr
 		super(connector, selectorProvider);
 	}
 
-	public Select getOptions() {
+	public Select getSelect() {
 		var element = wd().getElement(getSelector());
-		Select option = new Select(element);
-		return option;
+		Select select = new Select(element);
+		return select;
 	}
 }
