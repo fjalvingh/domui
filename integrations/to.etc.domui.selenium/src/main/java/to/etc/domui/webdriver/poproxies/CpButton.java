@@ -21,4 +21,8 @@ public class CpButton extends AbstractCpComponent implements ICpActionControl {
 	public boolean isDisabled() {
 		return !wd().isEnabled(getSelector());
 	}
+
+	public boolean isEnabled() {
+		return wd().isEnabled(getSelector());
+	}
 }
