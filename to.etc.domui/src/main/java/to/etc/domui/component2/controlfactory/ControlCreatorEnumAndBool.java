@@ -55,7 +55,7 @@ public class ControlCreatorEnumAndBool implements IControlCreator {
 	@Override
 	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		Object[] domainValues = pmm.getDomainValues();
-		if(domainValues == null ||  domainValues.length > 5 || controlClass == ComboFixed2.class) {
+		if(domainValues == null || domainValues.length > 5 || controlClass == ComboFixed2.class) {
 			ComboFixed2<?> c = ComboFixed2.createComboFor(pmm, true);
 			if(pmm.getActualType() == boolean.class)
 				c.setMandatory(true);
