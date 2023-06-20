@@ -192,6 +192,7 @@
     </properties>
 
     <modules>
+        <module>binary-dependencies</module>
         <module>common</module>
         <module>to.etc.webapp.core</module>
         <module>to.etc.domui</module>
@@ -763,7 +764,7 @@
             <dependency>
                 <groupId>io.bit3</groupId>
                 <artifactId>jsass</artifactId>
-                <version>5.10.4</version>
+                <version>5.10.5-PATCH</version>
             </dependency>
 
             <!-- Java 9 muck -->
