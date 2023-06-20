@@ -37,6 +37,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.text.Normalizer;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -3288,6 +3289,22 @@ public class StringTool {
 			|| c == 'o' || c == 'O'
 			|| c == 'e' || c == 'E'
 			;
+	}
+
+	/**
+	 * Calculates a records per second count from a #records and a
+	 * time it took to load them in millis.
+	 */
+	static public String rps(long records, long millis) {
+		double r = records / ((double) millis / 1000);
+		return NumberFormat.getNumberInstance().format((long) r);
+	}
+
+	/**
+	 * Formats a number in user readable form, with thousands separators.
+	 */
+	static public String nr(long records) {
+		return NumberFormat.getNumberInstance().format(records);
 	}
 
 }
