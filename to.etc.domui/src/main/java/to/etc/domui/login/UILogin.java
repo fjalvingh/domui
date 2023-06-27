@@ -253,6 +253,7 @@ final public class UILogin {
 	 * @throws Exception
 	 */
 	static public void logout() throws Exception {
+		System.out.println("Logout method called in the test!!!");
 		IRequestContext rcx = UIContext.getRequestContext();
 		if(!(rcx instanceof RequestContextImpl))
 			return;
