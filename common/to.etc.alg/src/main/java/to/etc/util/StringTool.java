@@ -1751,14 +1751,6 @@ public class StringTool {
 		return v ? "T" : "F";
 	}
 
-	static public void main(final String[] args) throws Exception {
-		byte[] data = new byte[127];
-		StringBuilder sb = new StringBuilder();
-		dumpData(sb, data, 0, data.length);
-		System.out.println(sb.toString());
-
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Base 64 encoding/decoding (rfc2045)					*/
 	/*--------------------------------------------------------------*/
@@ -3264,8 +3256,27 @@ public class StringTool {
 			return word;
 		String lc = word.toLowerCase();
 		boolean isUC = Character.isUpperCase(word.charAt(word.length() - 1));
-		if(lc.endsWith("e") || lc.endsWith("el") || lc.endsWith("en") || lc.endsWith("er") || lc.endsWith("em") || lc.endsWith("ie") || lc.endsWith("eau"))
-			return word + (isUC ? "S" : "s");
+		String enSuffix = isUC ? "EN" : "en";
+		String sSuffix = isUC ? "S" : "s";
+		String sApoSuffix = isUC ? "'S" : "'s";
+
+		if(lc.endsWith("e") || lc.endsWith("eau") || lc.endsWith("ail"))
+			return word + sSuffix;
+		if(lc.endsWith("eid")) // eenheid -> eenheden
+			return word.substring(0, word.length() - 3) + "eden";
+		if(lc.endsWith("eel")) // bouwdeel -> bouwdelen
+			return word.substring(0, word.length() - 3) + "elen";
+		if(lc.endsWith("slag"))
+			return word + enSuffix;
+		if(lc.endsWith("iel"))
+			return word + enSuffix;
+
+		if(word.length() > 3) {
+			//if(lc.charAt(word.length() - 2) == lc.charAt(word.length() - 3) && isVowel(word.charAt(word.length() - 2))) {
+				if(lc.endsWith("el") || lc.endsWith("en") || lc.endsWith("er") || lc.endsWith("em") || lc.endsWith("ie"))
+					return word + sSuffix;
+			//}
+		}
 
 		if(lc.endsWith("i") || lc.endsWith("a") || lc.endsWith("o") || lc.endsWith("u"))
 			return word + (isUC ? "'S" : "'s");
@@ -3274,12 +3285,35 @@ public class StringTool {
 		if(lc.endsWith("y")) {
 			char before = lc.charAt(lc.length() - 2);
 			if(isVowel(before)) {
-				return word + (isUC ? "S" : "s");
+				return word + sSuffix;
 			} else {
-				return word + (isUC ? "'S" : "'s");
+				return word + sApoSuffix;
 			}
 		}
-		return word + (isUC ? "EN" : "en");
+
+		//-- We will want to use "en"...
+		//-- Ends in 2 same vowels and consonant -> remove one of the vowels (afspraak -> afspraken)
+		if(word.length() >= 3) {
+			if(lc.charAt(word.length() - 2) == lc.charAt(word.length() - 3) && isVowel(word.charAt(word.length() - 2))) {
+				if(!isVowel(word.charAt(word.length() - 1))) {
+					word = word.substring(0, word.length() - 3) + word.substring(word.length() - 2) + enSuffix;
+					return word;
+				}
+			}
+		}
+
+		//-- Does the word end in a single vowel + consonant? Then repeat the final consonant (adres -> adressen).
+		if(word.length() >= 2) {
+			if(isVowel(word.charAt(word.length() - 2)) && !isVowel(word.charAt(word.length() - 1)) && !isVowel(word, -3)) {
+				return word + word.charAt(word.length() - 1) + enSuffix;
+			}
+		}
+
+		//-- If the word ends in "f" we need to change it to a "v"
+		if(lc.endsWith("f"))
+			return word.substring(0, word.length() - 1) + (isUC ? "VEN" : "ven");
+
+		return word + enSuffix;
 	}
 
 	private static boolean isVowel(char c) {
@@ -3289,6 +3323,15 @@ public class StringTool {
 			|| c == 'o' || c == 'O'
 			|| c == 'e' || c == 'E'
 			;
+	}
+
+	private static boolean isVowel(String word, int index) {
+		if(index >= 0)
+			return false;
+		int pos = word.length() + index;
+		if(pos < 0)
+			return false;
+		return isVowel(word.charAt(pos));
 	}
 
 	/**
@@ -3305,6 +3348,10 @@ public class StringTool {
 	 */
 	static public String nr(long records) {
 		return NumberFormat.getNumberInstance().format(records);
+	}
+
+	static public void main(final String[] args) throws Exception {
+		System.out.println(dutchPluralOf("huurtoeslag"));
 	}
 
 }
