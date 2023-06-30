@@ -89,8 +89,9 @@
         <!-- JDK properties -->
         <jdk.version>11</jdk.version>
         <ecj.version>3.20.0</ecj.version>
-        <kotlin.version>1.7.22</kotlin.version>
+        <kotlin.version>1.8.20</kotlin.version>
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -1180,6 +1181,11 @@
                             </configuration>
                         </execution>
                     </executions>
+                    <configuration>
+                        <args>
+                            <arg>-language-version=2.0</arg>
+                        </args>
+                    </configuration>
                 </plugin>
 
                 <plugin>
