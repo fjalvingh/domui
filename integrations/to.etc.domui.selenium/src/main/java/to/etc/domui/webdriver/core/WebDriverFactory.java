@@ -418,10 +418,10 @@ final class WebDriverFactory {
 		System.out.println("wd: allocated " + browserName + " " + version + " lang=" + lang);
 
 		//-- Dump env and java env
-		System.out.println("---- Java properties ---");
-		System.getProperties().forEach((key, val) -> System.out.println(key + "=" + val));
-		System.out.println("---- Env properties ---");
-		System.getenv().forEach((key, val) -> System.out.println(key + "=" + val));
+		//System.out.println("---- Java properties ---");
+		//System.getProperties().forEach((key, val) -> System.out.println(key + "=" + val));
+		//System.out.println("---- Env properties ---");
+		//System.getenv().forEach((key, val) -> System.out.println(key + "=" + val));
 		return chromeDriver;
 	}
 
