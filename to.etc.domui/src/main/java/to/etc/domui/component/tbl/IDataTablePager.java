@@ -13,4 +13,6 @@ public interface IDataTablePager extends IDataTableChangeListener {
 	void setShowSelection(boolean selection);
 
 	void addButton(@NonNull SmallImgButton sib);
+
+	void setShowAlways(boolean yes);
 }

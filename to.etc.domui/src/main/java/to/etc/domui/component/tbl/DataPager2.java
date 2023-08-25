@@ -66,6 +66,8 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	@NonNull
 	private List<SmallImgButton> m_extraButtonList = new ArrayList<>();
 
+	private boolean m_showAlways;
+
 	public DataPager2(final PageableTabularComponentBase< ? > tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
@@ -153,7 +155,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 			return;
 		Div bd = m_buttonDiv;
 		int np = m_table.getPageCount();
-		if(np <= 1) {
+		if(np <= 1 && !m_showAlways) {
 			m_buttonContainer.setDisplay(DisplayType.NONE);
 			return;
 		}
@@ -344,5 +346,14 @@ final public class DataPager2 extends Div implements IDataTablePager {
 
 	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
 		addButton(new SmallImgButton(img, clicked));
+	}
+
+	public boolean isShowAlways() {
+		return m_showAlways;
+	}
+
+	@Override
+	public void setShowAlways(boolean showAlways) {
+		m_showAlways = showAlways;
 	}
 }
