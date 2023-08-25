@@ -81,6 +81,8 @@ public class DataPager1 extends Div implements IDataTablePager {
 
 	private Div m_buttonDiv;
 
+	private boolean m_showAlways;
+
 	@NonNull
 	private List<SmallImgButton> m_extraButtonList = new ArrayList<SmallImgButton>();
 
@@ -343,5 +345,14 @@ public class DataPager1 extends Div implements IDataTablePager {
 
 	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
 		addButton(new SmallImgButton(img, clicked));
+	}
+
+	public boolean isShowAlways() {
+		return m_showAlways;
+	}
+
+	@Override
+	public void setShowAlways(boolean showAlways) {
+		m_showAlways = showAlways;
 	}
 }
