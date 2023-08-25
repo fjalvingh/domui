@@ -24,12 +24,17 @@
  */
 package to.etc.webapp.qsql;
 
-import java.lang.reflect.*;
-import java.sql.*;
-import java.util.*;
+import to.etc.util.DeveloperOptions;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDbException;
+import to.etc.webapp.query.QSelection;
 
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import java.lang.reflect.Method;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Encapsulates an actual query.
@@ -87,15 +92,7 @@ public class JdbcQuery<T> {
 						throw new IllegalStateException("Your query result has > 10.000 rows. I aborted to prevent OOM.\nThe query was:\n" + m_sql);
 					}
 
-					if(m_rowMaker.size() == 1) {
-						res.add(m_rowMaker.get(0).make(dc, rs));
-					} else {
-						Object[] row = new Object[m_rowMaker.size()];
-						for(int i = 0; i < m_rowMaker.size(); i++) {
-							row[i] = m_rowMaker.get(i).make(dc, rs);
-						}
-						res.add(row);
-					}
+					res.add(readRecord(dc, rs));
 				}
 				rownum++;
 			}
@@ -117,6 +114,20 @@ public class JdbcQuery<T> {
 		}
 	}
 
+
+	public T readRecord(QDataContext dc, ResultSet rs) throws Exception {
+		if(m_rowMaker.size() == 1) {
+			return (T) m_rowMaker.get(0).make(dc, rs);
+		} else {
+			Object[] row = new Object[m_rowMaker.size()];
+			for(int i = 0; i < m_rowMaker.size(); i++) {
+				row[i] = m_rowMaker.get(i).make(dc, rs);
+			}
+			return (T) row;
+		}
+	}
+
+
 	static public <T> JdbcQuery<T> create(QCriteria<T> q) throws Exception {
 		JdbcSQLGenerator qg = new JdbcSQLGenerator();
 		qg.visitCriteria(q);
@@ -133,6 +144,48 @@ public class JdbcQuery<T> {
 	public void dump() {
 		System.out.println("SQL: " + m_sql);
 	}
+
+
+	public JdbcObjectStream<T> stream(QDataContext dc) throws Exception {
+		if(m_showSQL) {
+			System.out.println("jdbc: " + m_sql);
+		}
+
+		//-- 1. Create the prepared statement,
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = dc.getConnection().prepareStatement(m_sql);
+			for(IQValueSetter vs : m_valList)
+				vs.assign(ps);
+			if(m_timeout > 0)
+				ps.setQueryTimeout(m_timeout);
+			List<Object> res = new ArrayList<Object>();
+			rs = ps.executeQuery();
+			int rownum = 0;
+
+			JdbcObjectStream<T> stream = new JdbcObjectStream<>(this, dc, ps, rs);
+			rs = null;
+			ps = null;
+			return stream;
+		} catch(Exception x) {
+			QDbException dx = QDbException.findTranslation(x);
+			if(dx != null)
+				throw dx;
+			throw x;
+		} finally {
+			try {
+				if(rs != null)
+					rs.close();
+			} catch(Exception x) {}
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Helper implementations for QDataContext's			*/
@@ -152,7 +205,7 @@ public class JdbcQuery<T> {
 		if(pkpm == null)
 			throw new IllegalStateException("No primary key defined on " + clz);
 
-		QCriteria<T> qc = QCriteria.create(clz);
+		QCriteria<T> qc = to.etc.webapp.query.QCriteria.create(clz);
 		qc.eq(pkpm.getName(), pk);
 		return queryOne(dc, qc);
 	}
@@ -194,6 +247,11 @@ public class JdbcQuery<T> {
 		return (List<Object[]>) query.query(dc);
 	}
 
+	static public <T> JdbcObjectStream<T> stream(QDataContext dc, QCriteria<T> q) throws Exception {
+		JdbcQuery<T> query = JdbcQuery.create(q); // Convert to JDBC query.
+		return query.stream(dc);
+	}
+
 	static public <T> T queryOne(QDataContext dc, QCriteria<T> q) throws Exception {
 		List<T> res = query(dc, q);
 		if(res.isEmpty())
@@ -212,5 +270,11 @@ public class JdbcQuery<T> {
 		throw new IllegalStateException("The criteria-query " + q + " returns " + res.size() + " results instead of one");
 	}
 
+	public int getStart() {
+		return m_start;
+	}
 
+	public int getLimit() {
+		return m_limit;
+	}
 }
