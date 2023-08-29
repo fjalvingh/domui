@@ -1948,7 +1948,7 @@ final public class WebDriverConnector {
 
 	static public void onTestFailure(@NonNull WebDriverConnector wd, @Nullable Method failedMethod) throws Exception {
 		//-- Make a screenshot
-		System.out.println("@onTestFailure: attempting to create a screenshot");
+		System.err.println("@onTestFailure: attempting to create a screenshot");
 		File tmpf = File.createTempFile("screenshot", ".png");
 
 		/*
@@ -1974,7 +1974,7 @@ final public class WebDriverConnector {
 			//-- Try screenshot a 2nd time, die this time if it fails again
 			wd.screenshot(tmpf);
 		}
-		System.out.println("Made screenshot in " + tmpf);
+		System.err.println("Made screenshot in " + tmpf);
 		if(tmpf.exists()) {
 			IPaterContext context = Pater.context();
 //			System.out.println("@onTestFailure: context = " + context);
