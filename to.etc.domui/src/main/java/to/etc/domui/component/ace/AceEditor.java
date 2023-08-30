@@ -101,6 +101,8 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 			if(selected != null && selected.isEmpty())
 				selected = null;
 			m_selectedText = selected;
+			if(value != null && value.isBlank())
+				value = null;
 
 			if(Objects.equals(m_value, value))
 				return false;
