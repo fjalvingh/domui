@@ -436,8 +436,10 @@ final public class WebDriverConnector {
 	 * Wait for the given element to appear.
 	 */
 	public void wait(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		});
 	}
 
 	/**
@@ -477,18 +479,24 @@ final public class WebDriverConnector {
 	}
 
 	void waitForElementClickable(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.elementToBeClickable(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.elementToBeClickable(locator));
+		});
 	}
 
 	void waitForElementPresent(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		});
 	}
 
 	public void waitForElementVisible(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		});
 	}
 
 	public void waitForElementVisible(@NonNull String testid) {
@@ -496,8 +504,10 @@ final public class WebDriverConnector {
 	}
 
 	void waitForElementInvisible(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+		});
 	}
 
 	void waitForLink(@NonNull String linkText) {
@@ -510,8 +520,10 @@ final public class WebDriverConnector {
 	}
 
 	public void waitAlert() {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.alertIsPresent());
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.alertIsPresent());
+		});
 	}
 
 	private int readWaitTimeout(int defaultTimeout) {
@@ -522,6 +534,28 @@ final public class WebDriverConnector {
 		} catch(NumberFormatException e) {
 			throw new IllegalArgumentException("webdriver.waittimeout parameter in .test.properties file can't be converted to int");
 		}
+	}
+
+	protected void repeatedWait(IExecute waiter) {
+		long end = System.currentTimeMillis() + 20_000;
+		int errorCount = 0;
+		Exception lastException = null;
+		while(System.currentTimeMillis() < end) {
+			try {
+				waiter.execute();
+				return;
+			} catch(Exception x) {
+				errorCount++;
+				if(errorCount > 5) {
+					throw WrappedException.wrap(x);
+				}
+				lastException = x;
+				System.out.println("wd(): retrying wait, retry " + errorCount);
+			}
+		}
+		if(lastException == null)
+			throw new IllegalStateException("??");
+		throw WrappedException.wrap(lastException);
 	}
 
 	/*--------------------------------------------------------------*/
