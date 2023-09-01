@@ -93,4 +93,15 @@ final public class ExceptionUtil {
 		return null;
 	}
 
+	/**
+	 * Returns T if the exception is an exception that signals
+	 * a common bug, i.e. NPE, IAE, ISE etc.
+	 */
+	public static boolean isBugException(Throwable t) {
+		String packageName = t.getClass().getPackageName();
+		if(packageName.startsWith("java.lang"))
+			return true;
+		return false;
+	}
+
 }
