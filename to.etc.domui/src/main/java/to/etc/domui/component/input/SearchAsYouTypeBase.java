@@ -131,7 +131,7 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		add(m_input);
 
 		//m_input.setOnLookupTyping((component, done) -> handleLookupTyping(done));
-		appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_input.getActualID() + "');");
+		m_input.appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_input.getActualID() + "');");
 	}
 
 	/**
