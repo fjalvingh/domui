@@ -184,6 +184,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		} else {
 			input.appendBeforeMe(label);
 		}
+		valueHasChanged();
 	}
 
 
