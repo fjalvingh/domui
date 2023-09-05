@@ -270,8 +270,9 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 			for(AnnotationMirror a : m.getAnnotationMirrors()) {
 				Name annName = a.getAnnotationType().asElement().getSimpleName();
 				annotationNames.add(annName.toString());
+				//System.out.println(">>>> ann name " + annName);
 			}
-			if(annotationNames.contains("to.etc.annotations.IgnoreGeneration")) {    // Ignore?
+			if(annotationNames.contains("IgnoreGeneration")) {    // Ignore?
 				return super.visitExecutable(m, p);
 			}
 
