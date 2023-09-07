@@ -184,6 +184,13 @@ public class SshKeyUtils {
 				return kf.generatePrivate(pks);
 			} else if(key.startsWith("-----BEGIN ENCRYPTED PRIVATE KEY-----")) {
 
+			} else if(key.startsWith("-----BEGIN PRIVATE KEY-----")) {
+				//-- PEM like format. Strip pem lines
+				byte[] encoded = readPemFormat(key);
+				KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+				EncodedKeySpec pks = new PKCS8EncodedKeySpec(encoded);
+				return keyFactory.generatePrivate(pks);
+
 			}
 		} catch(Exception x) {
 			throw new KeyFormatException(x, "Bad or unknown format");
