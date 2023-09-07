@@ -12,13 +12,20 @@ public class StreamCopyThread extends Thread {
 	 */
 	private InputStream m_is;
 
+	private final boolean m_closeAtEnd;
+
 	private OutputStream m_os;
 
 	private final byte[] m_buf;
 
 	public StreamCopyThread(final OutputStream os, String name, InputStream is) {
+		this(os, name, is, false);
+	}
+
+	public StreamCopyThread(final OutputStream os, String name, InputStream is, boolean closeAtEnd) {
 		m_os = os;
 		m_is = is;
+		m_closeAtEnd = closeAtEnd;
 		m_buf = new byte[1024];
 		setName("StreamReader" + name);
 	}
@@ -35,6 +42,9 @@ public class StreamCopyThread extends Thread {
 				m_os.write(m_buf, 0, szrd);
 			}
 			m_os.flush();
+			if(m_closeAtEnd) {
+				m_os.close();
+			}
 		} catch(Throwable x) {
 			x.printStackTrace();
 		} finally {

@@ -170,7 +170,7 @@ final public class ProcessTools2 {
 
 		Process pr = m_builder.start();
 
-		Thread outr = null;
+		Thread outr;
 		Thread errr = null;
 		Thread inr = null;
 		if(null != stdoutWriter) {
@@ -192,7 +192,7 @@ final public class ProcessTools2 {
 
 		InputStream stdinStream = m_stdinStream;
 		if(null != stdinStream) {
-			inr = new StreamCopyThread(pr.getOutputStream(), "stdin", stdinStream);
+			inr = new StreamCopyThread(pr.getOutputStream(), "stdin", stdinStream, true);
 		}
 
 		outr.start();
