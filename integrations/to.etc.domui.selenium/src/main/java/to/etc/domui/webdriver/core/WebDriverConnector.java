@@ -272,8 +272,8 @@ final public class WebDriverConnector {
 		 * jal 20221213 Deleting all cookies to prevent the screen from being reused from
 		 * a previous test.
 		 */
+		clearAlert();								// Ordered! Must be 1st otherwise clearcookies throws exception
 		m_driver.manage().deleteAllCookies();
-		clearAlert();
 	}
 
 	public void clearAlert() {
