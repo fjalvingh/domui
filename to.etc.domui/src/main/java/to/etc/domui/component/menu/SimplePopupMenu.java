@@ -233,7 +233,7 @@ public class SimplePopupMenu extends FloatingDiv {
 			return;
 		clearPopinIf();
 		forceRebuild();
-		appendJavascript("WebUI.popinClosed('#" + getActualID() + "');");
+		m_relativeTo.getParent().appendJavascript("WebUI.popinClosed('#" + getActualID() + "');");
 		remove();
 	}
 
