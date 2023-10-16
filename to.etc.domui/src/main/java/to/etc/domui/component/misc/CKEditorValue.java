@@ -11,8 +11,19 @@ import to.etc.domui.server.RequestContextImpl;
  * @license Commercial
  */
 public class CKEditorValue extends Div {
+
+	private String m_data;
+
+	public CKEditorValue(String data) {
+		m_data = data;
+	}
+
+	public String getData() {
+		return m_data;
+	}
+
 	public void webActionDATALOG(@NonNull RequestContextImpl context) throws Exception {
-		String m_data = (String) context.getAttribute("DATALOG");
+		m_data = context.getPageParameters().getString("input");
 	}
 
 }
