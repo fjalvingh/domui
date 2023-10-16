@@ -153,7 +153,7 @@ public class CsvWriter implements AutoCloseable {
 				break;
 
 			case MINIMAL:
-				if(value.indexOf(m_options.getQuote()) != -1) {
+				if(needsQuoting(value)) {
 					printStringEscapedOrQuoted(value);
 				} else {
 					append(value);
@@ -164,6 +164,14 @@ public class CsvWriter implements AutoCloseable {
 				append(value);
 				break;
 		}
+	}
+
+	private boolean needsQuoting(String value) {
+		if(value.indexOf(m_options.getQuote()) != -1)
+			return true;
+		if(value.indexOf(m_options.getDelimiter()) != -1)
+			return true;
+		return false;
 	}
 
 	private StringBuilder m_sb = new StringBuilder();
@@ -188,6 +196,8 @@ public class CsvWriter implements AutoCloseable {
 				} else {
 					sb.append(quote);
 				}
+			} else if(escape != 0 && quote == 0 && c == m_options.getDelimiter()) {
+				sb.append(escape);
 			} else if(escape != 0 && c == escape) {
 				sb.append(escape);
 			}
