@@ -168,7 +168,7 @@ public class CKEditor extends Div implements IControl<String> {
 	}
 
 	static public void initialize(UrlPage page) {
-		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
+		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"), -760);
 	}
 
 
