@@ -14,12 +14,15 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.RadioButton;
 import to.etc.domui.dom.html.RadioGroup;
 import to.etc.domui.util.IRenderInto;
+import to.etc.function.PredicateEx;
 import to.etc.util.Pair;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
 
 import static java.util.Objects.requireNonNull;
 
@@ -33,7 +36,13 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 
 	@Nullable
 	private final E m_defaultValue;
-	
+
+	@Nullable
+	private PredicateEx<V> m_isReadOnlyControl;
+
+	@Nullable
+	private BiPredicate<V, E> m_isEnumMemberApplicable;
+
 	/**
 	 * The specified renderer for variable representation content.
 	 */
@@ -124,6 +133,12 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 		pair.add(span);
 		cr.render(span, lv);
 		pair.add((NodeBase) control);
+		PredicateEx<V> isReadOnlyControl = getIsReadOnlyControl();
+		if(null!= isReadOnlyControl){
+			if(isReadOnlyControl.test(lv)){
+				control.setReadOnly(true);
+			}
+		}
 	}
 
 	@NonNull
@@ -131,7 +146,16 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 		IControl<E> control;
 		IRenderInto<ValueLabelPair<E>> enumRenderer = getEnumRenderer();
 		if(m_asButtons) {
-			RadioGroup<E> rb = RadioGroup.createFromEnum(m_type, enumRenderer).asButtons();
+			E[] enums = m_type.getEnumConstants();
+			ArrayList<E> skippedEnums =  new ArrayList<>();
+			for(E oneEnum : enums){
+				BiPredicate<V, E> isEnumMemberApplicable = getIsEnumMemberApplicable();
+				if(null != isEnumMemberApplicable && !isEnumMemberApplicable.test(key, oneEnum)){
+					skippedEnums.add(oneEnum);
+				}
+			}
+			E[] skippedEnumsArray = skippedEnums.toArray((E[]) Array.newInstance(m_type, skippedEnums.size()));
+			RadioGroup<E> rb = RadioGroup.createFromEnum(m_type, enumRenderer, skippedEnumsArray).asButtons();
 			control = rb;
 		}else {
 			ComboFixed2<E> cb = ComboFixed2.createEnumCombo(m_type);
@@ -256,6 +280,24 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 		}
 	}
 
+	@Nullable
+	public BiPredicate<V, E> getIsEnumMemberApplicable() {
+		return m_isEnumMemberApplicable;
+	}
+
+	public void setIsEnumMemberApplicable(@Nullable BiPredicate<V, E> isEnumMemberApplicable) {
+		m_isEnumMemberApplicable = isEnumMemberApplicable;
+	}
+
+	@Nullable
+	public PredicateEx<V> getIsReadOnlyControl() {
+		return m_isReadOnlyControl;
+	}
+
+	public void setIsReadOnlyControl(@Nullable PredicateEx<V> isReadOnlyControl) {
+		m_isReadOnlyControl = isReadOnlyControl;
+	}
+	
 	private List<V> data() {
 		return requireNonNull(m_data, "data is not initialized!");
 	}
