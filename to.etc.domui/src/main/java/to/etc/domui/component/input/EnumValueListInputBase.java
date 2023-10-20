@@ -134,8 +134,8 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 		cr.render(span, lv);
 		pair.add((NodeBase) control);
 		PredicateEx<V> isReadOnlyControl = getIsReadOnlyControl();
-		if(null!= isReadOnlyControl){
-			if(isReadOnlyControl.test(lv)){
+		if(null != isReadOnlyControl) {
+			if(isReadOnlyControl.test(lv)) {
 				control.setReadOnly(true);
 			}
 		}
@@ -147,17 +147,17 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 		IRenderInto<ValueLabelPair<E>> enumRenderer = getEnumRenderer();
 		if(m_asButtons) {
 			E[] enums = m_type.getEnumConstants();
-			ArrayList<E> skippedEnums =  new ArrayList<>();
-			for(E oneEnum : enums){
+			ArrayList<E> skippedEnums = new ArrayList<>();
+			for(E oneEnum : enums) {
 				BiPredicate<V, E> isEnumMemberApplicable = getIsEnumMemberApplicable();
-				if(null != isEnumMemberApplicable && !isEnumMemberApplicable.test(key, oneEnum)){
+				if(null != isEnumMemberApplicable && !isEnumMemberApplicable.test(key, oneEnum)) {
 					skippedEnums.add(oneEnum);
 				}
 			}
 			E[] skippedEnumsArray = skippedEnums.toArray((E[]) Array.newInstance(m_type, skippedEnums.size()));
 			RadioGroup<E> rb = RadioGroup.createFromEnum(m_type, enumRenderer, skippedEnumsArray).asButtons();
 			control = rb;
-		}else {
+		} else {
 			ComboFixed2<E> cb = ComboFixed2.createEnumCombo(m_type);
 			control = cb;
 			if(null != enumRenderer) {
@@ -208,7 +208,7 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 			Pair<V, E> aPair = values.stream().filter(it -> key.equals(it.get1())).findFirst().orElse(null);
 			if(null == aPair) {
 				values.add(new Pair<>(key, value));
-			}else if(aPair.get2() != value) {
+			} else if(aPair.get2() != value) {
 				values.remove(aPair);
 				values.add(new Pair<>(key, value));
 			}
@@ -297,7 +297,7 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 	public void setIsReadOnlyControl(@Nullable PredicateEx<V> isReadOnlyControl) {
 		m_isReadOnlyControl = isReadOnlyControl;
 	}
-	
+
 	private List<V> data() {
 		return requireNonNull(m_data, "data is not initialized!");
 	}
