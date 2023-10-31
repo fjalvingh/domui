@@ -243,6 +243,10 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(T... enums) {
+		return createEnumRadioGroup(Arrays.asList(enums));
+	}
+
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(List<T> enums) {
 		ClassMetaModel metaModel = null;
 		List<ValueLabelPair<T>> l = new ArrayList<>();
 		for(T anEnum : enums) {
