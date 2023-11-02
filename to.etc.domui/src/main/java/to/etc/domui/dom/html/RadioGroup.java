@@ -247,6 +247,10 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(List<T> enums) {
+		return createEnumRadioGroup(enums, null);
+	}
+
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(List<T> enums, @Nullable IRenderInto<ValueLabelPair<T>> valueRenderer) {
 		ClassMetaModel metaModel = null;
 		List<ValueLabelPair<T>> l = new ArrayList<>();
 		for(T anEnum : enums) {
@@ -259,6 +263,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 			l.add(new ValueLabelPair<T>(anEnum, label));
 		}
 		var rg = new RadioGroup<T>();
+		rg.setValueRenderer(valueRenderer);
 		for(ValueLabelPair<T> tValueLabelPair : l) {
 			rg.addButton(tValueLabelPair.getLabel(), tValueLabelPair.getValue());
 		}
