@@ -130,7 +130,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	public List<RadioButton<T>> getButtonList() {
-		return Collections.unmodifiableList(m_buttonList);
+		return new ArrayList<>(m_buttonList);
 	}
 
 	@Override
@@ -191,8 +191,6 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 			rb.setChecked(MetaManager.areObjectsEqual(m_value, rb.getButtonValue()));
 		}
 
-		if(isBuilt())
-			forceRebuild();
 		return rb;
 	}
 
