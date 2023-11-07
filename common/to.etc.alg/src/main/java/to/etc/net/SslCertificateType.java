@@ -5,7 +5,8 @@ import java.util.List;
 import static java.util.List.of;
 
 public enum SslCertificateType {
-	PFX("SunX509", "PKCS12", "TLSv1.2", of(".pfx"));
+	PFX("SunX509", "PKCS12", "TLSv1.2", of(".pfx")),
+	;
 
 	private final String m_keyManagerAlgorithm;
 
