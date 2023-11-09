@@ -43,6 +43,7 @@ import org.hibernate.event.spi.EventType;
 import org.hibernate.service.ServiceRegistry;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
+import to.etc.domui.component.misc.ExceptionDialog;
 import to.etc.domui.hibernate.beforeimages.BeforeImageInterceptor;
 import to.etc.domui.hibernate.beforeimages.CopyCollectionEventListener;
 import to.etc.domui.hibernate.beforeimages.CreateBeforeImagePostLoadListener;
@@ -446,6 +447,8 @@ final public class HibernateConfigurator {
 		}
 
 		m_contextSource = new HibernateLongSessionContextFactory(m_listeners, hsm, m_handlers, HibernateConfigurator::onContextCreated);
+		ExceptionDialog.register(HibernateMessageDecoder::translateHibernateException);
+
 		System.out.println("domui: Hibernate initialization took a whopping " + StringTool.strNanoTime(System.nanoTime() - ts));
 	}
 

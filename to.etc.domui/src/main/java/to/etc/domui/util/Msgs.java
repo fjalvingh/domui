@@ -169,6 +169,8 @@ public enum Msgs implements IBundleCode {
 	//-- Controls
 	ctlImageInvalid,
 
+	//-- SQL Errors
+	sqlErrNotUnique,
 	;
 
 	/** Error component panel header text: Info */

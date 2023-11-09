@@ -16,6 +16,8 @@ import to.etc.util.WrappedException;
 import to.etc.webapp.nls.CodeException;
 import to.etc.webapp.query.QConcurrentUpdateException;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +48,7 @@ final public class ExceptionDialog {
 		register(ExceptionDialog::translateOptimisticLock);
 		register(ExceptionDialog::translateUIException);
 		register(ExceptionDialog::translateBetterSQLException);
+		register(ExceptionDialog::translateSqlException);
 	}
 
 	@Nullable
@@ -90,6 +93,36 @@ final public class ExceptionDialog {
 		return tryUnwrapBetterSQLException(cause, level + 1);
 	}
 
+	@Nullable
+	static private ExceptionPresentation translateSqlException(Exception x) {
+		SQLException sqlx = extractSQLException(x);
+		if(null == sqlx)
+			return null;
+		String sqlState = sqlx.getSQLState();
+		if(sqlState == null)
+			return null;
+
+		if(sqlState.equals("23505"))
+			return new ExceptionPresentation(Msgs.sqlErrNotUnique.format());
+		return null;
+	}
+
+	/**
+	 * Try to see if the exception contains, somehow, a SQLException.
+	 */
+	@Nullable
+	private static SQLException extractSQLException(Throwable x) {
+		if(x instanceof SQLException)
+			return (SQLException) x;
+		if(x instanceof WrappedException)
+			return extractSQLException(((WrappedException) x).getCause());
+		if(x instanceof BetterSQLException)
+			return extractSQLException(((BetterSQLException) x).getCause());
+		if(x instanceof InvocationTargetException)
+			return extractSQLException(((InvocationTargetException) x).getCause());
+		return null;
+	}
+
 	static public void createIgnore(@NonNull NodeContainer container, @NonNull String message, @NonNull Throwable xin) {
 		try {
 			create(container, message, xin);
@@ -120,7 +153,7 @@ final public class ExceptionDialog {
 				.content(pre)
 				//.text(message + "\n" + x.toString() + "\n\n" + sb)
 				.modal()
-				.size(700, 500)
+				//.size(700, 500)
 			;
 			return;
 		}
@@ -132,7 +165,7 @@ final public class ExceptionDialog {
 			.content(presentation.getFragment())
 			.text(presentation.getMessage())
 			.modal()
-			.size(700, 500)
+			//.size(700, 500)
 		;
 	}
 
