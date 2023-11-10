@@ -1,6 +1,6 @@
 package to.etc.net;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Arrays;
@@ -9,25 +9,36 @@ import java.util.Arrays;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 25-03-22.
  */
+@NonNullByDefault
 final public class SslParameters {
-	final private byte[] m_sslCertificate;
+	@Nullable
+	private final byte[] m_sslCertificate;
 
-	final private SslCertificateType m_sslType;
+	/**
+	 * Pins the specified HTTPS URL Connection to work against a specific server-side certificate with the specified thumbprint only.
+	 */
+	@Nullable
+	private final byte[] m_serverThumbprint;
 
-	final private String m_sslPasskey;
+	@Nullable
+	private final SslCertificateType m_sslType;
 
-	public SslParameters(@NonNull SslCertificateType sslType, @NonNull byte[] sslCertificate, @Nullable String sslPasskey) {
+	@Nullable
+	private final String m_sslPasskey;
+
+	SslParameters(@Nullable SslCertificateType sslType, @Nullable byte[] sslCertificate, @Nullable String sslPasskey, @Nullable byte[] serverThumbprint) {
 		m_sslCertificate = sslCertificate;
 		m_sslType = sslType;
 		m_sslPasskey = sslPasskey;
+		m_serverThumbprint = serverThumbprint;
 	}
 
-	@NonNull
+	@Nullable
 	public byte[] getSslCertificate() {
 		return m_sslCertificate;
 	}
 
-	@NonNull
+	@Nullable
 	public SslCertificateType getSslType() {
 		return m_sslType;
 	}
@@ -35,6 +46,11 @@ final public class SslParameters {
 	@Nullable
 	public String getSslPasskey() {
 		return m_sslPasskey;
+	}
+
+	@Nullable
+	public byte[] getServerThumbprint() {
+		return m_serverThumbprint;
 	}
 
 	@Override
@@ -48,6 +64,8 @@ final public class SslParameters {
 
 		if(!Arrays.equals(m_sslCertificate, that.m_sslCertificate))
 			return false;
+		if(!Arrays.equals(m_serverThumbprint, that.m_serverThumbprint))
+			return false;
 		if(m_sslType != that.m_sslType)
 			return false;
 		return m_sslPasskey != null ? m_sslPasskey.equals(that.m_sslPasskey) : that.m_sslPasskey == null;
@@ -56,7 +74,8 @@ final public class SslParameters {
 	@Override
 	public int hashCode() {
 		int result = Arrays.hashCode(m_sslCertificate);
-		result = 31 * result + m_sslType.hashCode();
+		result = 31 * result + Arrays.hashCode(m_serverThumbprint);
+		result = 31 * result + (m_sslType != null ? m_sslType.hashCode() : 0);
 		result = 31 * result + (m_sslPasskey != null ? m_sslPasskey.hashCode() : 0);
 		return result;
 	}
