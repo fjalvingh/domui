@@ -1,5 +1,6 @@
 package to.etc.net.http.jdkimpl;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.net.http.BodyProducers.EmptyBodyProducer;
 import to.etc.net.http.BodyProducers.StringBodyProducer;
 import to.etc.net.http.GenericHttpHeaders;
@@ -8,9 +9,10 @@ import to.etc.net.http.GenericHttpResponse;
 import to.etc.net.http.IBodyReader;
 import to.etc.net.http.IHttpBodyProducer;
 import to.etc.net.http.IHttpClient;
-import org.eclipse.jdt.annotation.Nullable;
 import to.etc.net.http.SslCertificateType;
 import to.etc.net.http.SslParameters;
+import to.etc.net.http.SslParametersBuilder;
+import to.etc.util.WrappedException;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -29,6 +31,7 @@ import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -44,6 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.util.Objects.requireNonNull;
+import static to.etc.util.SecurityUtils.getSha1Thumbprint;
 
 /**
  * Implements the generic HTTP client layer using the JDK's
@@ -145,10 +149,10 @@ public class JdkHttpClient implements IHttpClient {
 	}
 
 	private HttpClient createSslClient(SslParameters ssl) throws Exception {
-		byte[] serverThumbprint = ssl.getServerThumbprint();
+		byte[] certSha1Thumbprint = ssl.getCertSha1Thumbprint();
 		SSLContext sslContext;
-		if(null != serverThumbprint) {
-			sslContext = createSslContextForTrustedServerThumbprint(serverThumbprint);
+		if(null != certSha1Thumbprint) {
+			sslContext = createSslContextForTrustedServerThumbprint(certSha1Thumbprint);
 		}else {
 			sslContext = createSscContext(ssl);
 		}
@@ -184,8 +188,9 @@ public class JdkHttpClient implements IHttpClient {
 
 	/**
 	 * Creates the ssl context to work against a specific server-side certificate with the specified thumbprint only.
+	 * In case that we use {@link SslParametersBuilder#setInsecureSslThumbprint()} it would skip checkServerTrusted check.
 	 */
-	private static SSLContext createSslContextForTrustedServerThumbprint(byte[] serverThumbprint) throws Exception {
+	private static SSLContext createSslContextForTrustedServerThumbprint(byte[] certSha1Thumbprint) throws Exception {
 		X509TrustManager tm = new X509TrustManager() {
 
 			@Override
@@ -194,7 +199,16 @@ public class JdkHttpClient implements IHttpClient {
 
 			@Override
 			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				if (Arrays.stream(chain).noneMatch(crt -> Arrays.equals(crt.getSignature(), serverThumbprint))) {
+				if(Arrays.equals(SslParameters.INSECURE_SSL_THUMBPRINT.getBytes(StandardCharsets.UTF_8), certSha1Thumbprint)) {
+					return;
+				}
+				if (Arrays.stream(chain).noneMatch(crt -> {
+					try {
+						return Arrays.equals(certSha1Thumbprint, getSha1Thumbprint(crt));
+					} catch (Exception ex) {
+						throw new WrappedException(ex);
+					}
+				})) {
 					throw new CertificateException("Trust chain can not be verified with provided server thumbprint!");
 				}
 			}

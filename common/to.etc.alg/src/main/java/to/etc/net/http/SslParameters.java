@@ -11,6 +11,9 @@ import java.util.Arrays;
  */
 @NonNullByDefault
 final public class SslParameters {
+
+	public static final String INSECURE_SSL_THUMBPRINT = "insecure ssl context thumbprint";
+
 	@Nullable
 	private final byte[] m_sslCertificate;
 
@@ -18,7 +21,7 @@ final public class SslParameters {
 	 * Pins the specified HTTPS URL Connection to work against a specific server-side certificate with the specified thumbprint only.
 	 */
 	@Nullable
-	private final byte[] m_serverThumbprint;
+	private final byte[] m_certSha1Thumbprint;
 
 	@Nullable
 	private final SslCertificateType m_sslType;
@@ -26,11 +29,11 @@ final public class SslParameters {
 	@Nullable
 	private final String m_sslPasskey;
 
-	SslParameters(@Nullable SslCertificateType sslType, @Nullable byte[] sslCertificate, @Nullable String sslPasskey, @Nullable byte[] serverThumbprint) {
+	SslParameters(@Nullable SslCertificateType sslType, @Nullable byte[] sslCertificate, @Nullable String sslPasskey, @Nullable byte[] certSha1Thumbprint) {
 		m_sslCertificate = sslCertificate;
 		m_sslType = sslType;
 		m_sslPasskey = sslPasskey;
-		m_serverThumbprint = serverThumbprint;
+		m_certSha1Thumbprint = certSha1Thumbprint;
 	}
 
 	@Nullable
@@ -49,8 +52,8 @@ final public class SslParameters {
 	}
 
 	@Nullable
-	public byte[] getServerThumbprint() {
-		return m_serverThumbprint;
+	public byte[] getCertSha1Thumbprint() {
+		return m_certSha1Thumbprint;
 	}
 
 	@Override
@@ -64,7 +67,7 @@ final public class SslParameters {
 
 		if(!Arrays.equals(m_sslCertificate, that.m_sslCertificate))
 			return false;
-		if(!Arrays.equals(m_serverThumbprint, that.m_serverThumbprint))
+		if(!Arrays.equals(m_certSha1Thumbprint, that.m_certSha1Thumbprint))
 			return false;
 		if(m_sslType != that.m_sslType)
 			return false;
@@ -74,7 +77,7 @@ final public class SslParameters {
 	@Override
 	public int hashCode() {
 		int result = Arrays.hashCode(m_sslCertificate);
-		result = 31 * result + Arrays.hashCode(m_serverThumbprint);
+		result = 31 * result + Arrays.hashCode(m_certSha1Thumbprint);
 		result = 31 * result + (m_sslType != null ? m_sslType.hashCode() : 0);
 		result = 31 * result + (m_sslPasskey != null ? m_sslPasskey.hashCode() : 0);
 		return result;
