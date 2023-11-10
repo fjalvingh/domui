@@ -49,6 +49,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.upload.FileUploadException;
 import to.etc.domui.util.upload.UploadItem;
+import to.etc.util.FileTool;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,6 +192,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		d.add(uploadItem.getRemoteFileName());
 		btn.setClicked(a -> {
 			m_value.remove(uploadItem);
+			FileTool.closeAll(uploadItem);
 			forceRebuild();
 		});
 	}
@@ -245,10 +247,10 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		}
 	}
 
-	@Override public void setValue(@Nullable List<UploadItem> value) {
+	@Override
+	public void setValue(@Nullable List<UploadItem> value) {
 		if(value == null)
 			value = Collections.emptyList();
-
 		if(MetaManager.areObjectsEqual(m_value, value)) {
 			return;
 		}
