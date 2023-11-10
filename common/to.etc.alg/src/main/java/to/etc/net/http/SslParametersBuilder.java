@@ -1,4 +1,4 @@
-package to.etc.net;
+package to.etc.net.http;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;

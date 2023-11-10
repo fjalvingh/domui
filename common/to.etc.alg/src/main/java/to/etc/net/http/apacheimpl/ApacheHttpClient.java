@@ -30,8 +30,8 @@ import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.net.SslCertificateType;
-import to.etc.net.SslParameters;
+import to.etc.net.http.SslCertificateType;
+import to.etc.net.http.SslParameters;
 import to.etc.util.FileTool;
 
 import javax.net.ssl.KeyManagerFactory;

@@ -1,9 +1,6 @@
 package to.etc.net.http;
 
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.net.SslCertificateType;
-import to.etc.net.SslParameters;
-import to.etc.net.SslParametersBuilder;
 import to.etc.util.WrappedException;
 
 import java.net.URI;

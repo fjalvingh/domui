@@ -9,8 +9,8 @@ import to.etc.net.http.IBodyReader;
 import to.etc.net.http.IHttpBodyProducer;
 import to.etc.net.http.IHttpClient;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.net.SslCertificateType;
-import to.etc.net.SslParameters;
+import to.etc.net.http.SslCertificateType;
+import to.etc.net.http.SslParameters;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
