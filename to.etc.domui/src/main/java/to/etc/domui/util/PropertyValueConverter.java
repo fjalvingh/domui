@@ -24,12 +24,15 @@
  */
 package to.etc.domui.util;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.trouble.UIException;
+import to.etc.util.WrappedException;
+import to.etc.webapp.query.QField;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.trouble.*;
-import to.etc.util.*;
+import java.util.Locale;
 
 /**
  * This converts an object to a string by creating a string from a list of
@@ -44,6 +47,15 @@ final public class PropertyValueConverter<T> implements IConverter<T> {
 	public PropertyValueConverter(String... properties) {
 		m_properties = properties;
 	}
+
+	public PropertyValueConverter(QField<T, ?>... properties) {
+		m_properties = new String[properties.length];
+		for(int i = 0; i < properties.length; i++) {
+			QField<T, ?> property = properties[i];
+			m_properties[i] = property.getName();
+		}
+	}
+
 
 	@Override
 	public T convertStringToObject(Locale loc, String in) throws UIException {
