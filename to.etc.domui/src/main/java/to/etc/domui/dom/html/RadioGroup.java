@@ -209,6 +209,10 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		return createEnumRadioGroup(clz, null, exceptions);
 	}
 
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroupUnsorted(Class<T> clz, T... exceptions) {
+		return createEnumRadioGroup(clz, false, null, exceptions);
+	}
+
 	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(Class<T> clz, @Nullable IRenderInto<ValueLabelPair<T>> valueRenderer, T... exceptions) {
 		return createEnumRadioGroup(clz, true, valueRenderer, exceptions);
 	}
