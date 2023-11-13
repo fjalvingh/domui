@@ -92,6 +92,8 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	@Nullable
 	private IIconRef m_clearButtonIcon = Icon.faWindowClose;
 
+	private boolean m_isRegisterAutoCleanup;
+
 	public FileUploadMultiple() {
 		m_allowedExtensions = new ArrayList<>();
 	}
@@ -345,6 +347,9 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 			if(uiar != null) {
 				for(UploadItem ui : uiar) {
 					m_value.add(ui);
+					if(m_isRegisterAutoCleanup){
+						conversation.registerTempFile(ui.getFile());
+					}
 				}
 			}
 		} catch(FileUploadException fxu) {
@@ -374,5 +379,14 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	@Override public void setHint(String hintText) {
 		setTitle(hintText);
 	}
+
+	public boolean isRegisterAutoCleanup() {
+		return m_isRegisterAutoCleanup;
+	}
+
+	public void setRegisterAutoCleanup(boolean registerAutoCleanup) {
+		m_isRegisterAutoCleanup = registerAutoCleanup;
+	}
+
 }
 
