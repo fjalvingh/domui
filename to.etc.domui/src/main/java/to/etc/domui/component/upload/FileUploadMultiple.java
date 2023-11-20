@@ -50,6 +50,7 @@ import to.etc.domui.util.Msgs;
 import to.etc.domui.util.upload.FileUploadException;
 import to.etc.domui.util.upload.UploadItem;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -345,6 +346,9 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 			if(uiar != null) {
 				for(UploadItem ui : uiar) {
 					m_value.add(ui);
+					File file = ui.getFile();
+					if(null != file)
+						conversation.registerTempFile(file);		// Make sure file gets deleted @ conversation end
 				}
 			}
 		} catch(FileUploadException fxu) {

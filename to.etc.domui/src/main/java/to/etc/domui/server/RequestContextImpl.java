@@ -82,19 +82,27 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	@NonNull
 	final private String m_inputPath;
 
-	/** The extension used in the page name, INCLUDING the dot. If no extension is present this is "". */
+	/**
+	 * The extension used in the page name, INCLUDING the dot. If no extension is present this is "".
+	 */
 	@NonNull
 	final private String m_extension;
 
-	/** The extension used in the page name, EXCLUDING the dot. If no extension is present this is "". */
+	/**
+	 * The extension used in the page name, EXCLUDING the dot. If no extension is present this is "".
+	 */
 	@NonNull
 	final private String m_extensionWithoutDot;
 
-	/** The name part of the URL, which is the last segment which contained the extension. Only filled if the last part HAS an extension. */
+	/**
+	 * The name part of the URL, which is the last segment which contained the extension. Only filled if the last part HAS an extension.
+	 */
 	@Nullable
 	final private String m_pageName;
 
-	/** The URL part befoer the pageName, if present. This never contains a leading / but, if present, always ends with a /. */
+	/**
+	 * The URL part befoer the pageName, if present. This never contains a leading / but, if present, always ends with a /.
+	 */
 	@NonNull
 	final private String m_urlContextString;
 
@@ -109,11 +117,15 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	@NonNull
 	private Map<String, String> m_persistedParameterMap = new HashMap<>();
 
-	/** Cached copy of theme for this user, lazy */
+	/**
+	 * Cached copy of theme for this user, lazy
+	 */
 	@Nullable
 	private ITheme m_currentTheme;
 
-	/** The theme name for this user, lazily initialized. */
+	/**
+	 * The theme name for this user, lazily initialized.
+	 */
 	@Nullable
 	private String m_themeName;
 
@@ -138,7 +150,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			urlin = urlin.substring(1);
 
 		//-- Strip webapp name from url if it is there.
-		String webapp = rr.getWebappContext();						// Get "viewpoint/" like webapp context
+		String webapp = rr.getWebappContext();                        // Get "viewpoint/" like webapp context
 		if(!webapp.isEmpty()) {
 			if(!urlin.startsWith(webapp)) {
 				throw new IllegalStateException("webapp url '" + urlin + "' incorrect: it does not start with '" + webapp + "'");
@@ -210,10 +222,10 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_parameterWrapper;
 	}
 
-	@NonNull public Map<String, String> getPersistedParameterMap() {
+	@NonNull
+	public Map<String, String> getPersistedParameterMap() {
 		return m_persistedParameterMap;
 	}
-
 
 	public void updatePersistentParameters(Map<String, String> persistedParameterMap) {
 		m_persistedParameterMap.putAll(persistedParameterMap);
@@ -222,7 +234,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	@Override
 	public void setPersistedParameter(String name, String value) {
 		Set<String> nameSet = m_application.getPersistentParameterSet();
-		if(! nameSet.contains(name))
+		if(!nameSet.contains(name))
 			throw new IllegalStateException("The parameter name '" + name + "' is not registered as a persistent parameter. Add it in DomApplication.initialize() using addPersistentParameter");
 		m_persistedParameterMap.put(name, value);
 		Page page = UIContext.internalGetPage();
@@ -242,11 +254,12 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * Get the session for this context.
+	 *
 	 * @see to.etc.domui.server.IRequestContext#getSession()
 	 */
 	@Override
 	final public @NonNull AppSession getSession() {
-		m_session.internalLockSession(); 						// Someone uses session -> lock it for use by CURRENT-THREAD.
+		m_session.internalLockSession();                        // Someone uses session -> lock it for use by CURRENT-THREAD.
 		if(!m_amLockingSession)
 			m_session.internalCheckExpiredWindowSessions();
 		m_amLockingSession = true;
@@ -336,8 +349,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	/**
 	 * The complete input URL without the JSDK context part and the query part. Specifically:
 	 * <ul>
-	 *	<li>The JSDK webapp context is always removed from the start, i.e. this is always the webapp-relative path</li>
-	 *	<li>The context NEVER starts with a slash</li>
+	 * 	<li>The JSDK webapp context is always removed from the start, i.e. this is always the webapp-relative path</li>
+	 * 	<li>The context NEVER starts with a slash</li>
 	 * </ul>
 	 */
 	@Override
@@ -350,13 +363,13 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * Returns the URL context string, defined as the part inside the input URL that is before the name in the URL.
 	 * Specifically:
 	 * <ul>
-	 *	<li>This uses the {@link #getInputPath()} URL as the basis, so the path never starts with the webapp context</li>
-	 *	<li>If the URL's last part has a suffix then the last part is assumed to be the pageName, and everything
-	 *		before this pageName is the urlContextString</li>
-	 *	<li>If an urlContextString is present then it always ends in a /</li>
-	 *	<li>If the URL is just a pageName then this returns the empty string</li>
+	 * 	<li>This uses the {@link #getInputPath()} URL as the basis, so the path never starts with the webapp context</li>
+	 * 	<li>If the URL's last part has a suffix then the last part is assumed to be the pageName, and everything
+	 * 		before this pageName is the urlContextString</li>
+	 * 	<li>If an urlContextString is present then it always ends in a /</li>
+	 * 	<li>If the URL is just a pageName then this returns the empty string</li>
 	 * </ul>
-	 *
+	 * <p>
 	 * The following always holds: {@link #getUrlContextString()} + {@link #getPageName()} + m_extension = {@link #getInputPath()}.
 	 */
 	@NonNull
@@ -391,7 +404,9 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	/**
 	 * This should be replaced by getThemeName below as that uniquely identifies the theme.
 	 */
-	@NonNull @Override final public ITheme getCurrentTheme() {
+	@NonNull
+	@Override
+	final public ITheme getCurrentTheme() {
 		ITheme currentTheme = m_currentTheme;
 		if(null == currentTheme) {
 			try {
@@ -405,14 +420,15 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	static private final String THEMENAME = "ctx$themename";
 
-	@NonNull public String getThemeName() {
+	@NonNull
+	public String getThemeName() {
 		String themeName = m_themeName;
 		if(null == themeName) {
-			 themeName = (String) getSession().getAttribute(THEMENAME);
-			 if(null == themeName) {
-				 themeName = m_application.calculateUserTheme(this);
-			 }
-			 m_themeName = themeName;
+			themeName = (String) getSession().getAttribute(THEMENAME);
+			if(null == themeName) {
+				themeName = m_application.calculateUserTheme(this);
+			}
+			m_themeName = themeName;
 		}
 		return themeName;
 	}
@@ -423,11 +439,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		getSession().setAttribute(THEMENAME, userThemeName);
 	}
 
-	@Override @NonNull public IThemeVariant getThemeVariant() {
+	@Override
+	@NonNull
+	public IThemeVariant getThemeVariant() {
 		return m_themeVariant;
 	}
 
-	@Override public void setThemeVariant(@NonNull IThemeVariant themeVariant) {
+	@Override
+	public void setThemeVariant(@NonNull IThemeVariant themeVariant) {
 		m_themeVariant = themeVariant;
 	}
 
@@ -438,7 +457,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 				File tgt = new File("/tmp/last-domui-output.xml");
 				try {
 					FileTool.writeFileFromString(tgt, res, "utf-8");
-				} catch(Exception x) {}
+				} catch(Exception x) {
+				}
 
 				System.out.println("---- rendered output:");
 				System.out.println(res);
@@ -453,15 +473,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		}
 	}
 
-
 	public void discard() throws IOException {
-	//		if(m_sw != null) {
-	//			String res = m_sw.getBuffer().toString();
-	//			System.out.println("---- rendered output:");
-	//			System.out.println(res);
-	//			System.out.println("---- end");
-	//			getResponse().getWriter().append(res);
-	//		}
+		//		if(m_sw != null) {
+		//			String res = m_sw.getBuffer().toString();
+		//			System.out.println("---- rendered output:");
+		//			System.out.println(res);
+		//			System.out.println("---- end");
+		//			getResponse().getWriter().append(res);
+		//		}
 	}
 
 	@Override
@@ -527,10 +546,16 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	/**
 	 * Returns the names of all file parameters.
 	 */
-	public String[] getFileParameters() throws Exception {
+	public String[] getFileParameterNames() throws Exception {
 		return m_requestResponse.getFileParameters();
 	}
 
+	/**
+	 * This retrieves the file(s) stored for the specified name.
+	 * <b>Warning: when files are returned the caller assumes
+	 * responsibility for them to be deleted after use (i.e. ownership
+	 * is passed to the caller)</b>
+	 */
 	public UploadItem[] getFileParameter(@NonNull String name) throws Exception {
 		return m_requestResponse.getFileParameter(name);
 	}

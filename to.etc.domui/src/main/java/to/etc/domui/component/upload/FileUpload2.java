@@ -50,6 +50,7 @@ import to.etc.domui.util.Msgs;
 import to.etc.domui.util.upload.FileUploadException;
 import to.etc.domui.util.upload.UploadItem;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -392,10 +393,13 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 			if(isDisabled())
 				return true;
 
-			UploadItem[] uiar = param.getFileParameter(getInput().getActualID());
+			UploadItem[] uiar = param.getFileParameter(getInput().getActualID());	// This passes ownership of the files!
 			if(uiar != null) {
 				for(UploadItem ui : uiar) {
 					m_value = ui;
+					File file = ui.getFile();
+					if(null != file)
+						conversation.registerTempFile(file);		// Make sure file gets deleted @ conversation end
 				}
 			}
 		} catch(FileUploadException fxu) {
