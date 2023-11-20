@@ -49,6 +49,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.upload.FileUploadException;
 import to.etc.domui.util.upload.UploadItem;
+import to.etc.util.FileTool;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -314,6 +315,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	public void clear() throws Exception {
 		if(m_value == null)
 			return;
+		FileTool.closeAll(m_value.getFile());
 		setValue(null);
 		IValueChanged<FileUpload2> onValueChanged = (IValueChanged<FileUpload2>) getOnValueChanged();
 		if(null != onValueChanged)
