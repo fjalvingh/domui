@@ -48,7 +48,7 @@ public class TestNumberConverter {
 	 * @param in
 	 * @param out
 	 */
-	public <T extends Number> void check(IConverter<T> nc, String in, String out, NumericPresentation np, int scale, int minScale, boolean monetary) {
+	public <T extends Number> void check(IConverter<T> nc, String in, String out, NumericPresentation np, int scale, int minScale, boolean monetary) throws Exception {
 		if(monetary && !NumericPresentation.isMonetary(np)) {
 			bad(nc, in, false);
 		} else if(minScale > scale) {
@@ -63,7 +63,7 @@ public class TestNumberConverter {
 	 * @param in
 	 * @param out
 	 */
-	public <T extends Number> void checkT(IConverter<T> nc, String in, String out, NumericPresentation np, int scale, int minScale, boolean monetary) {
+	public <T extends Number> void checkT(IConverter<T> nc, String in, String out, NumericPresentation np, int scale, int minScale, boolean monetary) throws Exception {
 		if(monetary && !NumericPresentation.isMonetary(np)) {
 			bad(nc, in, false);
 		} else if(minScale != scale) {
@@ -78,7 +78,7 @@ public class TestNumberConverter {
 	 * @param in
 	 * @param out
 	 */
-	public <T extends Number> void good(IConverter<T> nc, String in, String out) {
+	public <T extends Number> void good(IConverter<T> nc, String in, String out) throws Exception {
 		//System.out.print("good\t");
 		//System.out.print(in + "\t");
 		//System.out.println(out);
@@ -91,7 +91,7 @@ public class TestNumberConverter {
 	 * Checks a conversion which must result in ValidationException and the proper code.
 	 * @param in
 	 */
-	public <T extends Number> void bad(IConverter<T> nc, String in, boolean monetary) {
+	public <T extends Number> void bad(IConverter<T> nc, String in, boolean monetary) throws Exception {
 		String badAsConverted = null;
 		try {
 			//System.out.print("bad \t");
@@ -112,7 +112,7 @@ public class TestNumberConverter {
 	/**
 	 * Test INVALID conversions.
 	 */
-	public void testBadConversions(NumericPresentation np, int scale, String[] badFormats) {
+	public void testBadConversions(NumericPresentation np, int scale, String[] badFormats) throws Exception {
 		IConverter<BigDecimal> nc = NumericUtil.createNumberConverter(BigDecimal.class, np, scale);
 		//System.out.println("Testen van ONgeldige bedrag invoer-formaten(" + np.name() + ", scale = " + scale + "):");
 		boolean monetary = NumericPresentation.isMonetary(np);
@@ -139,7 +139,7 @@ public class TestNumberConverter {
 	 * Test INVALID conversions.
 	 */
 	@Test
-	public void testBadConversions() {
+	public void testBadConversions() throws Exception {
 		NumericPresentation[] npl1 = {NumericPresentation.NUMBER, NumericPresentation.NUMBER_SCALED, NumericPresentation.NUMBER_FULL, NumericPresentation.NUMBER_SCIENTIFIC};
 		for(NumericPresentation np : npl1) {
 			for(int i = 0; i <= 6; i++) {
@@ -175,8 +175,6 @@ public class TestNumberConverter {
 	/**
 	 * Converts hardcoded comma as thousand grouping separator into locale specific.
 	 * Converts hardcoded dot as decimal separator into locale specific.
-	 * @param in
-	 * @return
 	 */
 	private String f(String in) {
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale());
@@ -197,7 +195,7 @@ public class TestNumberConverter {
 	 * {@link TestNumberConverter#testConversionsFromResourceFiles}.
 	 * Tests all kinds of conversions.
 	 */
-	public <T extends Number> void testConversions(NumericPresentation np, int scale, Class<T> classType) {
+	public <T extends Number> void testConversions(NumericPresentation np, int scale, Class<T> classType) throws Exception {
 		IConverter<T> nc = null;
 		try {
 			nc = NumericUtil.createNumberConverter(classType, np, scale);
@@ -304,7 +302,7 @@ public class TestNumberConverter {
 	 * {@link TestNumberConverter#testConversionsFromResourceFiles}.
 	 * Tests all kinds of conversions that are using thousand separators.
 	 */
-	public <T extends Number> void testConversionsThousandSepUsed(NumericPresentation np, int scale, Class<T> classType) {
+	public <T extends Number> void testConversionsThousandSepUsed(NumericPresentation np, int scale, Class<T> classType) throws Exception {
 		IConverter<T> nc = null;
 		try {
 			nc = NumericUtil.createNumberConverter(classType, np, scale);
@@ -405,7 +403,7 @@ public class TestNumberConverter {
 	 * Only non money NumericPresentation members are tested, since monetary members are tested by {@link TestMoneyConverter} class.
 	 */
 	//@Test
-	public void testGenerateConversionsSetResource() {
+	public void testGenerateConversionsSetResource() throws Exception {
 		NumericPresentation[] npl1 = {NumericPresentation.NUMBER, NumericPresentation.NUMBER_SCALED};
 		for(NumericPresentation np : npl1) {
 			for(int i = 0; i <= 6; i++) {
@@ -430,9 +428,9 @@ public class TestNumberConverter {
 		}
 	}
 
-	@Ignore("Default NUMBER forat has changed, and the resource file format is a horror to fix.")
+	@Ignore("Default NUMBER format has changed, and the resource file format is a horror to fix.")
 	@Test
-	public void testConversionsFromResourceFiles() throws IOException {
+	public void testConversionsFromResourceFiles() throws Exception {
 		InputStream is = getClass().getResourceAsStream("test_number_cont_data1.resource");
 		if(null == is)
 			throw new IllegalStateException("Missing resource");
@@ -443,7 +441,7 @@ public class TestNumberConverter {
 		}
 	}
 
-	private void testResourceFile(InputStream fi) throws IOException {
+	private void testResourceFile(InputStream fi) throws Exception {
 		String linebuf = null;
 		BufferedReader br = null;
 		try {

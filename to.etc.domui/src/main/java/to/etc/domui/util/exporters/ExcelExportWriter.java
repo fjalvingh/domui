@@ -146,15 +146,17 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 			return;
 		}
 
+
 		IExportCellRenderer<ExcelExportWriter<?>, Cell, Object> renderer = (IExportCellRenderer<ExcelExportWriter<?>, Cell, Object>) columnInfo.getRenderer();
 		if(null == renderer) {
-			renderer = findRenderer(columnInfo.getActualType());
+
+			renderer = findRenderer(convertedValue == null ? columnInfo.getActualType() : convertedValue.getClass());
 			if(null == renderer) {
 				renderer = DEFAULT_RENDERER;
 			}
 		}
 
-		renderer.renderCell(this, cell, columnIndex, value);
+		renderer.renderCell(this, cell, columnIndex, convertedValue);
 	}
 
 	@Override

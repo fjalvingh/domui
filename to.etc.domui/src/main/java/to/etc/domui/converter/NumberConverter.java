@@ -67,7 +67,7 @@ public class NumberConverter<T extends Number> implements IConverter<T> {
 	}
 
 	@Override
-	public String convertObjectToString(Locale loc, T in) throws UIException {
+	public String convertObjectToString(Locale loc, T in) throws Exception {
 		IConverter<T> converter = (IConverter<T>) m_converter;
 		if(null != converter)
 			return converter.convertObjectToString(loc, in);

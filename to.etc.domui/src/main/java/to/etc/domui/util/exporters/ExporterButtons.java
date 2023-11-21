@@ -50,7 +50,7 @@ public class ExporterButtons {
 		return new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO, a -> showFormatPopup(onExport, a));
 	}
 
-	static public DefaultButton	createExportButton(String name, IIconRef icon, ConsumerEx<IExportFormat> onExport) {
+	static public DefaultButton createExportButton(String name, IIconRef icon, ConsumerEx<IExportFormat> onExport) {
 		return new DefaultButton(name, icon, a -> showFormatPopup(onExport, a));
 	}
 
@@ -126,7 +126,6 @@ public class ExporterButtons {
 		//});
 	}
 
-
 	static public <T> ExportButtonBuilder<T> from(Class<T> baseClass, SupplierEx<QCriteria<T>> supplier) {
 		return new ExportButtonBuilder<>(baseClass, supplier);
 	}
@@ -150,7 +149,8 @@ public class ExporterButtons {
 			m_columns = columns;
 		}
 
-		@Override protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
+		@Override
+		protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
 			QCriteriaExporter<T> qxp = new QCriteriaExporter<>(writer, dc(), m_criteria, m_columns);
 			qxp.export(progress);
 		}
@@ -170,15 +170,18 @@ public class ExporterButtons {
 			m_columns = columns;
 		}
 
-		@Override protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
+		@Override
+		protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
 			ListExporter<T> qxp = new ListExporter<>(m_baseClass, m_list, writer, m_columns);
 			qxp.export(progress);
 		}
 	}
 
 	public static class ExportColumnBuilder<T, P> implements IExportColumn<P> {
+		@NonNull
 		private final ExportButtonBuilder<T> m_parent;
 
+		@Nullable
 		private final PropertyMetaModel<P> m_property;
 
 		@Nullable
@@ -187,9 +190,12 @@ public class ExporterButtons {
 		@Nullable
 		private IObjectToStringConverter<P> m_converter;
 
-		public ExportColumnBuilder(ExportButtonBuilder<T> parent, PropertyMetaModel<P> property) {
+		private final Class<P> m_actualType;
+
+		public ExportColumnBuilder(@NonNull ExportButtonBuilder<T> parent, @Nullable PropertyMetaModel<P> property) {
 			m_parent = parent;
 			m_property = property;
+			m_actualType = property == null ? (Class<P>) parent.getClassModel().getActualClass() : property.getActualType();
 		}
 
 		public ExportColumnBuilder<T, P> label(String label) {
@@ -207,26 +213,38 @@ public class ExporterButtons {
 			return m_parent;
 		}
 
-		@Override public String getLabel() {
+		@Nullable
+		@Override
+		public String getLabel() {
 			String label = m_label;
-			return null == label ? m_property.getDefaultLabel() : label;
-		}
-
-		@Override public Class<?> getActualType() {
-			return m_property.getActualType();
-		}
-
-		@Override public IExportCellRenderer<?, ?, ?> getRenderer() {
+			if(null != label)
+				return label;
+			PropertyMetaModel<P> property = m_property;
+			if(null != property)
+				return property.getDefaultLabel();
 			return null;
 		}
 
-		@Override public Object convertValue(Object value) {
+		@Override
+		public Class<?> getActualType() {
+			return m_actualType;
+		}
+
+		@Override
+		public IExportCellRenderer<?, ?, ?> getRenderer() {
+			return null;
+		}
+
+		@Override
+		public Object convertValue(Object value) throws Exception {
 			IObjectToStringConverter<P> converter = m_converter;
 			return converter == null ? value : converter.convertObjectToString(NlsContext.getLocale(), (P) value);
 		}
 
-		@Override public P getValue(Object in) throws Exception {
-			return m_property.getValue(in);
+		@Override
+		public P getValue(Object in) throws Exception {
+			PropertyMetaModel<P> property = m_property;
+			return property == null ? (P) in : property.getValue(in);
 		}
 	}
 
@@ -269,6 +287,10 @@ public class ExporterButtons {
 			m_classModel = classModel;
 		}
 
+		ClassMetaModel getClassModel() {
+			return m_classModel;
+		}
+
 		void addColumn(ExportColumnBuilder<T, ?> c) {
 			m_columnList.add(c);
 		}
@@ -294,6 +316,14 @@ public class ExporterButtons {
 
 		public <P> ExportColumnBuilder<T, P> column(QField<T, P> field) {
 			return new ExportColumnBuilder<>(this, m_classModel.getProperty(field));
+		}
+
+		/**
+		 * Add a column that is rendered using a renderer and which receives
+		 * the entire record.
+		 */
+		public ExportColumnBuilder<T, T> column() {
+			return new ExportColumnBuilder<>(this, null);
 		}
 
 		public ExportColumnBuilder<T, Object> column(String name) {
@@ -492,6 +522,5 @@ public class ExporterButtons {
 			}
 		}
 	}
-
 
 }

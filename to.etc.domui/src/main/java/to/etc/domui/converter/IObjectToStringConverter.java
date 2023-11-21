@@ -24,8 +24,6 @@
  */
 package to.etc.domui.converter;
 
-import to.etc.domui.trouble.UIException;
-
 import java.util.Locale;
 
 /**
@@ -35,5 +33,5 @@ import java.util.Locale;
  * Created on Nov 17, 2009
  */
 public interface IObjectToStringConverter<T> {
-	String convertObjectToString(Locale loc, T in) throws UIException;
+	String convertObjectToString(Locale loc, T in) throws Exception;
 }

@@ -153,7 +153,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 	/**
 	 * Create a combo for all members of an enum, except for specified exceptions. It uses converter to calculate labels.
 	 */
-	static public <T extends Enum<T>> ComboFixed2<T> createEnumCombo(IObjectToStringConverter<T> converter, Class<T> clz, T... exceptions) {
+	static public <T extends Enum<T>> ComboFixed2<T> createEnumCombo(IObjectToStringConverter<T> converter, Class<T> clz, T... exceptions) throws Exception {
 		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		T[] ar = clz.getEnumConstants();
 		for(T v : ar) {
@@ -272,7 +272,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 	 * Create a combo for a manually specified list of objects. It calls toString on them to
 	 * get a String value.
 	 */
-	static public <T> ComboFixed2<T> createCombo(T... items) {
+	static public <T> ComboFixed2<T> createCombo(T... items) throws Exception {
 		return createCombo((IObjectToStringConverter<T>) TOSTRING_CV, items);
 	}
 
@@ -280,7 +280,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 	 * Create a combo for a manually specified list of objects. Use the specified converter
 	 * to convert to a string.
 	 */
-	static public <T> ComboFixed2<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) {
+	static public <T> ComboFixed2<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) throws Exception {
 		List<ValueLabelPair<T>> values = new ArrayList<>();
 		for(T item : items) {
 			String v = converter.convertObjectToString(NlsContext.getLocale(), item);

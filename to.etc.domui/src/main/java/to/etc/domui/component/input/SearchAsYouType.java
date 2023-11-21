@@ -25,8 +25,6 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 
 /**
- *
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-2-18.
  */
@@ -42,7 +40,9 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	@Nullable
 	private ICompare<T> m_comparator;
 
-	/** For complex classes, this can contain the property whose value we look for */
+	/**
+	 * For complex classes, this can contain the property whose value we look for
+	 */
 	@Nullable
 	private String m_searchProperty;
 
@@ -63,12 +63,16 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	private boolean m_setValueCalled;
 
 	enum MatchMode {
-		/** The string entered must be part of the value */
+		/**
+		 * The string entered must be part of the value
+		 */
 		CONTAINS,
 
 		CONTAINS_CI,
 
-		/** The value must start with the string entered */
+		/**
+		 * The value must start with the string entered
+		 */
 		STARTS,
 
 		STARTS_CI
@@ -81,7 +85,9 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	}
 
 	private enum MatchResult {
-		UNMATCHED, EXACT, PARTIAL
+		UNMATCHED,
+		EXACT,
+		PARTIAL
 	}
 
 	/**
@@ -94,7 +100,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		boolean matches(T instance, String input) throws Exception;
 	}
 
-	@NonNull private MatchMode m_mode = MatchMode.CONTAINS_CI;
+	@NonNull
+	private MatchMode m_mode = MatchMode.CONTAINS_CI;
 
 	public SearchAsYouType(@NonNull Class<T> clz) {
 		super("ui-sayt", clz);
@@ -105,8 +112,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		m_searchProperty = property;
 	}
 
-
-	@Override public void createContent() throws Exception {
+	@Override
+	public void createContent() throws Exception {
 		getActualConverter();
 		super.createContent();
 		updateValue();
@@ -121,7 +128,11 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		} else {
 			setState(State.SELECTED);
 			IObjectToStringConverter<T> converter = requireNonNull(getActualConverter());
-			input.setRawValue(converter.convertObjectToString(NlsContext.getLocale(), value));
+			try {
+				input.setRawValue(converter.convertObjectToString(NlsContext.getLocale(), value));
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
 		}
 	}
 
@@ -143,12 +154,13 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 				if(sp != null) {
 					PropertyMetaModel<?> spm = getDataModel().getProperty(sp);
 					if(spm.getActualType() != String.class)
-						throw new ProgrammerErrorException("The property " + spm + " should be of string type. If you do not have that use setConverter to convert the type " + getDataModel() + " to a string to search in");
+						throw new ProgrammerErrorException(
+							"The property " + spm + " should be of string type. If you do not have that use setConverter to convert the type " + getDataModel() + " to a string to search in");
 					cv = (loc, in) -> {
 						try {
 							return (String) spm.getValue(in);
 						} catch(Exception x) {
-							throw WrappedException.wrap(x);			// Java's architects are idiots.
+							throw WrappedException.wrap(x);            // Java's architects are idiots.
 						}
 					};
 				}
@@ -169,7 +181,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		return converter;
 	}
 
-	@Override protected IRenderInto<T> getActualRenderer() {
+	@Override
+	protected IRenderInto<T> getActualRenderer() {
 		IRenderInto<T> renderer = m_renderer;
 		if(null != renderer) {
 			return renderer;
@@ -189,7 +202,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		//forceRebuild();
 	}
 
-	@Override protected void onRowSelected(T value) throws Exception {
+	@Override
+	protected void onRowSelected(T value) throws Exception {
 		selected(value);
 	}
 
@@ -205,7 +219,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		m_value = instance;
 		IValueChanged<?> listener = getOnValueChanged();
 		if(null != listener) {
-			((IValueChanged<SearchAsYouType<T>>)listener).onValueChanged(this);
+			((IValueChanged<SearchAsYouType<T>>) listener).onValueChanged(this);
 		}
 	}
 
@@ -230,7 +244,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		}
 	}
 
-	@Override protected void onEmptyInput(boolean done) throws Exception {
+	@Override
+	protected void onEmptyInput(boolean done) throws Exception {
 		changeSelectionValue(null);
 	}
 
@@ -264,10 +279,12 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	/**
 	 * Check if the typed value is a (unique) match. If so use it, else return a
 	 */
-	@Nullable @Override protected List<T> onLookupTyping(String input, boolean done) throws Exception {
+	@Nullable
+	@Override
+	protected List<T> onLookupTyping(String input, boolean done) throws Exception {
 		List<T> data = getData();
 		if(null == data)
-			return Collections.emptyList();					// No results
+			return Collections.emptyList();                    // No results
 
 		IObjectToStringConverter<T> cv = requireNonNull(getActualConverter());
 		List<T> result = new ArrayList<>();
@@ -318,11 +335,14 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		return result;
 	}
 
-	@Override @Nullable public IValueChanged<?> getOnValueChanged() {
+	@Override
+	@Nullable
+	public IValueChanged<?> getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
-	@Override public void setOnValueChanged(@Nullable IValueChanged<?> onValueChanged) {
+	@Override
+	public void setOnValueChanged(@Nullable IValueChanged<?> onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
@@ -338,7 +358,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		}
 	}
 
-	@Override public void setValue(@Nullable T v) {
+	@Override
+	public void setValue(@Nullable T v) {
 		m_setValueCalled = true;
 		if(MetaManager.areObjectsEqual(v, m_value))
 			return;
@@ -366,7 +387,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		}
 	}
 
-	@Override public T getValueSafe() {
+	@Override
+	public T getValueSafe() {
 		return m_value;
 	}
 
@@ -385,12 +407,13 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	}
 
 	public SearchAsYouType<T> setData(List<T> data) {
-		m_data = data;						// Calling this assumes that the list changed as we do not want to compare all elements
+		m_data = data;                        // Calling this assumes that the list changed as we do not want to compare all elements
 		forceRebuild();
 		return this;
 	}
 
-	@Nullable public IObjectToStringConverter<T> getConverter() {
+	@Nullable
+	public IObjectToStringConverter<T> getConverter() {
 		return m_converter;
 	}
 
@@ -399,15 +422,15 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		return this;
 	}
 
-	@NonNull public MatchMode getMode() {
+	@NonNull
+	public MatchMode getMode() {
 		return m_mode;
 	}
-
 
 	/**
 	 * Sets the string matching mode. This only has effect if no {@link #setComparator(ICompare)} has been set.
 	 */
-	public SearchAsYouType<T>  setMode(@NonNull MatchMode mode) {
+	public SearchAsYouType<T> setMode(@NonNull MatchMode mode) {
 		if(m_mode == mode)
 			return this;
 		m_mode = mode;
@@ -415,21 +438,23 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		return this;
 	}
 
-	@Nullable public ICompare<T> getComparator() {
+	@Nullable
+	public ICompare<T> getComparator() {
 		return m_comparator;
 	}
 
-	public SearchAsYouType<T>  setComparator(@Nullable ICompare<T> comparator) {
+	public SearchAsYouType<T> setComparator(@Nullable ICompare<T> comparator) {
 		m_comparator = comparator;
 		forceRebuild();
 		return this;
 	}
 
-	@Nullable public String getSearchProperty() {
+	@Nullable
+	public String getSearchProperty() {
 		return m_searchProperty;
 	}
 
-	public SearchAsYouType<T>  setSearchProperty(@Nullable String searchProperty) {
+	public SearchAsYouType<T> setSearchProperty(@Nullable String searchProperty) {
 		m_searchProperty = searchProperty;
 		forceRebuild();
 		return this;
@@ -444,7 +469,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		m_onEnter = onEnter;
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 

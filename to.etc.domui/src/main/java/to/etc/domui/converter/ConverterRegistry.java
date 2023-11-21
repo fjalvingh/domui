@@ -339,7 +339,7 @@ public class ConverterRegistry {
 	/**
 	 * Convert the value which is for a given property to a presentation string.
 	 */
-	static public <X> String convertToString(PropertyMetaModel<X> pmm, X value) {
+	static public <X> String convertToString(PropertyMetaModel<X> pmm, X value) throws Exception {
 		IConverter<X> conv = getConverter(pmm.getActualType(), pmm);
 		return conv.convertObjectToString(NlsContext.getLocale(), value);
 	}

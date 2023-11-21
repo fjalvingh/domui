@@ -47,7 +47,6 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 
 	/**
 	 * Use the specified list of pairs directly.
-	 * @param in
 	 */
 	public SelectFixed(List<ValueLabelPair<T>> in) {
 		super(in);
@@ -60,7 +59,7 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 	}
 
 	private void initRenderer() {
-		IRenderInto< ? > r = STATICRENDERER;
+		IRenderInto<?> r = STATICRENDERER;
 		setContentRenderer((IRenderInto<ValueLabelPair<T>>) r);
 	}
 
@@ -73,13 +72,10 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Utilities to quickly create combo's.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Create a combo for all members of an enum, except for specified exceptions. It uses the enums labels as description. Since this has no known property it cannot
 	 * use per-property translations!!
-	 * @param <T>
-	 * @param clz
-	 * @param exceptions
-	 * @return
 	 */
 	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(Class<T> clz, T... exceptions) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
@@ -99,22 +95,17 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 	/**
 	 * Returns a combo for all of the list-of-value items for the specified property.
 	 *
-	 * @param <T>
-	 * @param base		The class
-	 * @param property	The property on the class.
-	 * @return
+	 * @param base     The class
+	 * @param property The property on the class.
 	 */
-	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(Class< ? > base, String property) {
+	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(Class<?> base, String property) {
 		return createEnumCombo(MetaManager.getPropertyMeta(base, property));
 	}
 
 	/**
 	 * Returns a combo for all of the list-of-value items for the specified property.
-	 * @param <T>
-	 * @param pmm
-	 * @return
 	 */
-	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm) {
+	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(PropertyMetaModel<?> pmm) {
 		T[] var = (T[]) pmm.getDomainValues();
 		if(var == null)
 			throw new IllegalArgumentException(pmm + " is not a list-of-values domain property");
@@ -128,9 +119,6 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 
 	/**
 	 * Create a combobox having only the specified enum labels.
-	 * @param <T>
-	 * @param items
-	 * @return
 	 */
 	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(T... items) {
 		List<ValueLabelPair<T>> l = createEnumValueList(items);
@@ -155,24 +143,15 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 
 	/**
 	 * Create a combobox having only the specified enum labels.
-	 * @param <T>
-	 * @param base
-	 * @param property
-	 * @param domainvalues
-	 * @return
 	 */
-	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(Class< ? > base, String property, T... domainvalues) {
+	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(Class<?> base, String property, T... domainvalues) {
 		return createEnumCombo(MetaManager.getPropertyMeta(base, property), domainvalues);
 	}
 
 	/**
 	 * Create a combobox having only the specified enum labels.
-	 * @param <T>
-	 * @param pmm
-	 * @param domainvalues
-	 * @return
 	 */
-	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm, T... domainvalues) {
+	static public <T extends Enum<T>> SelectFixed<T> createEnumCombo(PropertyMetaModel<?> pmm, T... domainvalues) {
 		if(domainvalues.length == 0)
 			throw new IllegalArgumentException("Missing parameters");
 		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
@@ -199,24 +178,16 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 	/**
 	 * Create a combo for a manually specified list of objects. It calls toString on them to
 	 * get a String value.
-	 * @param <T>
-	 * @param items
-	 * @return
 	 */
-	static public <T> SelectFixed<T> createCombo(T... items) {
+	static public <T> SelectFixed<T> createCombo(T... items) throws Exception {
 		return createCombo((IObjectToStringConverter<T>) TOSTRING_CV, items);
 	}
 
 	/**
 	 * Create a combo for a manually specified list of objects. Use the specified converter
 	 * to convert to a string.
-	 *
-	 * @param <T>
-	 * @param converter
-	 * @param items
-	 * @return
 	 */
-	static public <T> SelectFixed<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) {
+	static public <T> SelectFixed<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) throws Exception {
 		List<ValueLabelPair<T>> values = new ArrayList<ValueLabelPair<T>>();
 		for(T item : items) {
 			String v = converter.convertObjectToString(NlsContext.getLocale(), item);
