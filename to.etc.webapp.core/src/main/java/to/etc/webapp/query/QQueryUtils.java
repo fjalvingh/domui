@@ -48,6 +48,14 @@ final public class QQueryUtils {
 		return pf.createInstance(resl);
 	}
 
+	public static <T extends IIdentifyable<?>> boolean isUnique(@NonNull QDataContext dc, @NonNull QCriteria<T> qc, T object)
+		throws Exception {
+        if(null != object.getId()){
+			qc.ne("id", object.getId());
+		}
+		return 0 == queryCount(dc, qc);
+	}
+
 	private static class ProxyFactory<T> {
 		final private ClassLoader m_cl;
 
