@@ -68,3 +68,6 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 	}
 
 }
+.ui-rbb-buttons.ui-input-err input {
+	background-color: $errors_input_background;
+}
