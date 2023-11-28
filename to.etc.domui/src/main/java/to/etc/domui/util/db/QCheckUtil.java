@@ -9,6 +9,8 @@ import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QField;
 import to.etc.webapp.query.QQueryUtils;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * A utility class containing various methods for checking and validating properties
  * and data within a specified context. This class is intended to be extended with
@@ -35,8 +37,8 @@ final public class QCheckUtil {
 		throws Exception {
 
 		PropertyMetaModel<V> pmm = MetaManager.getPropertyMeta(clz, uniqueCheckProperty);
-		V propertyValue = (V) pmm.getValue(value);
-		QCriteria<T> q = QCriteria.create(clz).eq(uniqueCheckProperty, propertyValue);
+		V propertyValue = pmm.getValue(value);
+		QCriteria<T> q = QCriteria.create(clz).eq(uniqueCheckProperty, requireNonNull(propertyValue));
 		P id = value.getId();
 		if(null != id) {
 			q.ne(idProperty, id);
