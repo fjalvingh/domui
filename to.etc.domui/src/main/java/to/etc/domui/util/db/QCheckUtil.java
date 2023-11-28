@@ -34,7 +34,7 @@ final public class QCheckUtil {
 	public static <T extends IIdentifyable<P>, P, V> boolean isUnique(@NonNull QDataContext dc, Class<T> clz, @NonNull QField<T, V> uniqueCheckProperty, T value, @NonNull QField<T, P> idProperty)
 		throws Exception {
 
-		PropertyMetaModel pmm = MetaManager.getPropertyMeta(clz, uniqueCheckProperty);
+		PropertyMetaModel<V> pmm = MetaManager.getPropertyMeta(clz, uniqueCheckProperty);
 		V propertyValue = (V) pmm.getValue(value);
 		QCriteria<T> q = QCriteria.create(clz).eq(uniqueCheckProperty, propertyValue);
 		P id = value.getId();
