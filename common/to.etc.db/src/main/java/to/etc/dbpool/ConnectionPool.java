@@ -342,6 +342,10 @@ final public class ConnectionPool {
 		m_manager = pm;
 		m_id = id;
 		m_config = config;
+		Properties xp = config.getExtraProperties();
+		if(null != xp) {
+			m_properties.putAll(xp);
+		}
 	}
 
 	/**

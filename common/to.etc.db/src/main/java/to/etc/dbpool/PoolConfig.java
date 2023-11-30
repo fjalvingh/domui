@@ -267,4 +267,8 @@ final public class PoolConfig {
 	public int getLongRunningGracePeriod() {
 		return 5 * 60;
 	}
+
+	public Properties getExtraProperties() {
+		return m_extraProperties;
+	}
 }
