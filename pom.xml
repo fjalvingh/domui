@@ -88,8 +88,8 @@
 
         <!-- JDK properties -->
         <jdk.version>11</jdk.version>
-        <ecj.version>3.20.0</ecj.version>
-        <kotlin.version>1.8.0</kotlin.version>
+        <ecj.version>3.30.0</ecj.version>
+        <kotlin.version>1.9.21</kotlin.version>
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
