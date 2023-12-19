@@ -3,8 +3,14 @@
 /// <reference path="domui.jquery.d.ts" />
 // <reference path="domui.webui.d.ts" />
 /// <reference path="domui.webui.ts" />
+let _ajaxRequestId = Date.now();
+let _ajaxReplyId = Date.now();
 namespace WebUI {
 	let _inputFieldList: any[] = [];
+
+	export function getReplyId() {
+		return _ajaxReplyId;
+	}
 
 	export function getInputFields(fields: any): object {
 		// Collect all input, then create input.
@@ -151,6 +157,7 @@ namespace WebUI {
 		fields._shiftKey = e.shiftKey == true;
 		fields._altKey = e.altKey == true;
 
+		_ajaxRequestId++;
 		$.ajax({
 			url: WebUI.getPostURL(),
 			dataType: "*",
@@ -158,12 +165,13 @@ namespace WebUI {
 			cache: false,
 			type: "POST",
 			error: handleError,
-			success: handleResponse
+			success: handleResponse,
 		});
 		return false;						// jal 20131107 Was false, but inhibits clicking on radiobutton inside a table in Chrome.
 	}
 
 	export function prepareAjaxCall(id, action, fields?) {
+		_ajaxRequestId++;
 		if(!fields)
 			fields = {};
 		// Collect all input, then create input.
@@ -202,6 +210,7 @@ namespace WebUI {
 		fields["$cid"] = (window as any).DomUICID;
 
 		let response = "";
+		_ajaxRequestId++;
 		$.ajax({
 			url: WebUI.getPostURL(),
 			dataType: "*",
@@ -214,6 +223,7 @@ namespace WebUI {
 				if(callback) {
 					callback(data);
 				}
+				_ajaxReplyId++;
 			},
 			error: handleError
 		});
@@ -258,6 +268,7 @@ namespace WebUI {
 		fields["$cid"] = (window as any).DomUICID;
 
 		let response = "";
+		_ajaxRequestId++;
 		$.ajax({
 			url: WebUI.getPostURL(),
 			dataType: "text/xml",
@@ -267,6 +278,7 @@ namespace WebUI {
 			type: "POST",
 			success: function(data, state) {
 				response = data;
+				_ajaxReplyId++;
 			},
 			error: handleError
 		});
@@ -307,6 +319,7 @@ namespace WebUI {
 		fields["$cid"] = (window as any).DomUICID;
 		cancelPolling();
 
+		_ajaxRequestId++;
 		$.ajax({
 			url: WebUI.getPostURL(),
 			dataType: "*",
@@ -319,6 +332,14 @@ namespace WebUI {
 	}
 
 	export function handleResponse(data, state): void {
+		_ajaxReplyId++;
+		clearErrorAsy();
+		// if (false && window.console && window.console.debug)
+		// console.log("data is ", data);
+		$.webui(data);
+	}
+
+	export function handlePollResponse(data, state): void {
 		clearErrorAsy();
 		// if (false && window.console && window.console.debug)
 		// console.log("data is ", data);
@@ -361,6 +382,11 @@ namespace WebUI {
 	let _asyHider = undefined;
 
 	export function handleErrorAsy(request, status, exc): void {
+		_ajaxReplyId++;
+		handleErrorAsyMain(request, status, exc);
+	}
+
+	export function handleErrorAsyMain(request, status, exc): void {
 		if(_asyalerted) {
 			//-- We're still in error.. Silently redo the poll.
 			startPolling(_pollInterval);
@@ -487,8 +513,8 @@ namespace WebUI {
 					return f;
 				}
 			},
-			success: handleResponse,
-			error: handleErrorAsy
+			success: handlePollResponse,			// These two do not increment the ajaxReplyId
+			error: handleErrorAsyMain
 		});
 	}
 
@@ -502,6 +528,7 @@ namespace WebUI {
 		let fields= {};
 		fields["$pt"] = (window as any).DomUIpageTag;
 		fields["$cid"] = (window as any).DomUICID;
+		_ajaxRequestId++;
 		$.ajax( {
 			url: url,
 			dataType: "*",
@@ -509,9 +536,11 @@ namespace WebUI {
 			cache: false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
 			success: function(data, state) {
+				_ajaxReplyId++;
 				executePollCommands(data);
 			},
 			error : function() {
+				_ajaxReplyId++;
 				//-- Ignore all errors.
 			}
 		});

@@ -366,6 +366,43 @@ final public class WebDriverConnector {
 		m_inhibitAfter = true;
 	}
 
+	/**
+	 * This executes the code in action, and waits for the response
+	 * counter to increment. This should mean that the Ajax response
+	 * has been received.
+	 */
+	public void waitAnswer(IExecute action) throws Exception {
+		long replyId = getReplyId();
+		System.out.println(">> replyId=" + replyId);
+		action.execute();
+
+		//-- Now: wait until the response index differs
+		long ets = System.currentTimeMillis() + 10_000;					// Wait 10 seconds max
+		for(;;) {
+			try {
+				long nextId = getReplyId();
+				System.out.println(">> nextReplyId=" + nextId);
+				if(nextId != replyId)						// If it differs -> we've got a response
+					return;
+			} catch(Exception x) {
+				//-- Just ignore; can be a page change
+			}
+
+			//-- No go.. Sleep 100ms, then retry
+			Thread.sleep(100);
+			if(System.currentTimeMillis() >= ets)
+				throw new TimeoutException("Timeout in waiting for AJAX response to arrive (domui)");
+		}
+	}
+
+	private final long getReplyId() throws Exception {
+		JavascriptExecutor executor = (JavascriptExecutor) driver();
+		Object response = executor.executeScript("return WebUI.getReplyId()");
+		if(! (response instanceof Long))
+			throw new IllegalStateException("?? Unexpected response: " + response);
+		return ((Long) response).longValue();
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Locators.											*/
 	/*--------------------------------------------------------------*/
@@ -448,7 +485,8 @@ final public class WebDriverConnector {
 	public void wait(@NonNull By locator, long time, TimeUnit unit) {
 		long seconds = unit.toSeconds(time);
 		WebDriverWait wait = new WebDriverWait(driver(), seconds, getWaitInterval());
-		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		WebElement until = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		System.out.println("until: " + until.getAttribute("id"));
 	}
 
 	@Nullable
