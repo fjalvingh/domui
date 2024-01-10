@@ -2,31 +2,24 @@ package to.etc.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
+/**
+ * A wrapped outputstream which calls listeners every 1MB of data output, to track
+ * size.
+ */
 public class ProgressOutputStream extends OutputStream {
+	static private final long REPORTINTERVALBYTES = 1024L * 1024L;
 
-	private OutputStream m_out;
-	private long m_expectedSize = -1;
-	private long m_notifyChunk = 1024 * 1024;
-	private long m_lastReported = 0;
-	private double m_lastReportedPercentage = 0.0;
-	private long m_totalRead = 0;
-	private java.util.List<Consumer<Long>> m_onSizeListeners = new CopyOnWriteArrayList<>();
-	private java.util.List<Consumer<Integer>> m_onPercentListeners = new CopyOnWriteArrayList<>();
-	private int m_percent = 0;
+	final private OutputStream m_out;
 
-	public ProgressOutputStream(OutputStream outputStream, int expectedSize) {
-		m_out = outputStream;
-		m_expectedSize = expectedSize;
-	}
+	private long m_notifyChunk = REPORTINTERVALBYTES;
 
-	public ProgressOutputStream(OutputStream outputStream, int expectedSize, int notifyChunk) {
-		m_out = outputStream;
-		m_expectedSize = expectedSize;
-		m_notifyChunk = notifyChunk;
-	}
+	private long m_totalWritten;
+
+	private List<Consumer<Long>> m_onSizeListeners = new CopyOnWriteArrayList<>();
 
 	public ProgressOutputStream(OutputStream outputStream) {
 		m_out = outputStream;
@@ -35,19 +28,13 @@ public class ProgressOutputStream extends OutputStream {
 	@Override
 	public void write(int b) throws IOException {
 		m_out.write(b);
-		notifyProgress(1, false);
+		notifyProgress(1);
 	}
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
 		m_out.write(b, off, len);
-		notifyProgress(len, false);
-	}
-
-	@Override
-	public void write(byte[] b) throws IOException {
-		m_out.write(b);
-		notifyProgress(b.length, false);
+		notifyProgress(len);
 	}
 
 	@Override
@@ -58,45 +45,25 @@ public class ProgressOutputStream extends OutputStream {
 	@Override
 	public void close() throws IOException {
 		m_out.close();
-		notifyProgress(0, true);
+		m_onSizeListeners.forEach(a -> a.accept(m_totalWritten));
 	}
 
-	public ProgressOutputStream addOnSizeListener(Consumer<Long> listener){
+	public ProgressOutputStream addOnSizeListener(Consumer<Long> listener) {
 		m_onSizeListeners.add(listener);
 		return this;
 	}
 
-	public ProgressOutputStream addOnPercentListener(Consumer<Integer> listener){
-		m_onPercentListeners.add(listener);
-		return this;
+	private void notifyProgress(int bytes) {
+		m_totalWritten += bytes;
+		m_notifyChunk -= bytes;
+		if(m_notifyChunk <= 0) {
+			//-- Time to report
+			m_notifyChunk = REPORTINTERVALBYTES;
+			m_onSizeListeners.forEach(a -> a.accept(m_totalWritten));
+		}
 	}
 
-	private void notifyProgress(long readCount, boolean completed){
-		if(readCount != -1) {
-			m_totalRead += readCount;
-			if(m_notifyChunk > -1) {
-				if(completed || m_notifyChunk <= m_totalRead - m_lastReported) {
-					m_onSizeListeners.forEach(it -> it.accept(m_totalRead));
-					m_lastReported = m_totalRead;
-				}
-			}
-			if(! m_onPercentListeners.isEmpty()) {
-				if(m_expectedSize < m_totalRead) {
-					if(completed) {
-						m_expectedSize = m_totalRead;
-					}else {
-						m_expectedSize = m_totalRead * 2;
-					}
-				}
-				if(m_expectedSize <= 0) {
-					m_expectedSize = 1;
-				}
-				m_percent = (int) Math.round(((1.0 * m_totalRead) / m_expectedSize) * 100);
-				if(completed || m_percent != m_lastReportedPercentage) {
-					m_onPercentListeners.forEach(it -> it.accept(m_percent));
-					m_lastReportedPercentage = m_percent;
-				}
-			}
-		}
+	public long getTotalWritten() {
+		return m_totalWritten;
 	}
 }
