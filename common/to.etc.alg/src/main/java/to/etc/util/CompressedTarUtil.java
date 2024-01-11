@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.function.Consumer;
 
 public class CompressedTarUtil {
 	/**
@@ -22,17 +21,38 @@ public class CompressedTarUtil {
 		// Deliberately left empty
 	}
 
+	public interface ICompressionProgress {
+		void progress(long uncompressedBytes, long compressedBytes);
+	}
+
+	private final static class ProgressInfo {
+		private long m_compressed;
+
+		private long m_uncompressed;
+	}
+
 	/**
-	 * Create a tar archive, with an optional listener of progress.
+	 * Create a tar archive, with an optional listener of progress. The progress listener,
+	 * when present, will be called with 2 arguments: the first one the uncompressed size
+	 * written, the second one the compressed size written.
 	 */
-	public static void tar(OutputStream os, @Nullable Consumer<Long> sizeProgress, File rootLocation, String... entryPaths) throws IOException {
+	public static void tar(OutputStream os, @Nullable ICompressionProgress sizeProgress, File rootLocation, String... entryPaths) throws IOException {
+		ProgressInfo pi = new ProgressInfo();
 		try(
-			ParallelGZIPOutputStream pigzos = new ParallelGZIPOutputStream(os, BUFFER_SIZE);
-			ProgressOutputStream pos = new ProgressOutputStream(pigzos);
-			TarArchiveOutputStream tarOs = new TarArchiveOutputStream(pos)
+			SizeCountingOutputStream compressedSizerOs = new SizeCountingOutputStream(os);
+			ParallelGZIPOutputStream pigzos = new ParallelGZIPOutputStream(compressedSizerOs, BUFFER_SIZE);
+			SizeCountingOutputStream uncompressedSizerOs = new SizeCountingOutputStream(pigzos);
+			TarArchiveOutputStream tarOs = new TarArchiveOutputStream(uncompressedSizerOs)
 		) {
 			if(null != sizeProgress) {
-				pos.addOnSizeListener(sizeProgress);
+				uncompressedSizerOs.setListener(amount -> {
+					pi.m_uncompressed = amount;
+					sizeProgress.progress(pi.m_uncompressed, pi.m_compressed);
+				});
+				compressedSizerOs.setListener(amount -> {
+					pi.m_compressed = amount;
+					sizeProgress.progress(pi.m_uncompressed, pi.m_compressed);
+				});
 			}
 			TarUtil.createTarArchive(tarOs, rootLocation, entryPaths);
 		}
@@ -41,15 +61,24 @@ public class CompressedTarUtil {
 	/**
 	 * Extract all files from a compressed tar archive to a target location.
 	 */
-	public static void untar(File extractLocation, InputStream is, @Nullable Consumer<Long> sizeProgress) throws IOException {
+	public static void untar(File extractLocation, InputStream is, @Nullable ICompressionProgress sizeProgress) throws IOException {
 		//we create intermediate progress monitor stream
+		ProgressInfo pi = new ProgressInfo();
 		try(
-			ParallelGZIPInputStream pigzis = new ParallelGZIPInputStream(is, BUFFER_SIZE);
-			ProgressInputStream pis = new ProgressInputStream(pigzis);
-			TarArchiveInputStream tarIs = new TarArchiveInputStream(pis)
+			SizeCountingInputStream compressedIs = new SizeCountingInputStream(is);
+			ParallelGZIPInputStream pigzis = new ParallelGZIPInputStream(compressedIs, BUFFER_SIZE);
+			SizeCountingInputStream uncompressedIs = new SizeCountingInputStream(pigzis);
+			TarArchiveInputStream tarIs = new TarArchiveInputStream(uncompressedIs)
 		) {
 			if(null != sizeProgress) {
-				pis.addOnSizeListener(sizeProgress);
+				uncompressedIs.setListener(amount -> {
+					pi.m_uncompressed = amount;
+					sizeProgress.progress(pi.m_uncompressed, pi.m_compressed);
+				});
+				compressedIs.setListener(amount -> {
+					pi.m_compressed = amount;
+					sizeProgress.progress(pi.m_uncompressed, pi.m_compressed);
+				});
 			}
 			TarUtil.extractTarArchive(tarIs, extractLocation);
 		}
