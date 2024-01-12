@@ -2164,6 +2164,21 @@ public class StringTool {
 		return true;
 	}
 
+	/**
+	 * Strip characters with a code < 32 (except newline) from
+	 * the string.
+	 */
+	static public String stripInvalidCharacters(String in) {
+		StringBuilder sb = new StringBuilder(in.length());
+		for(int i = 0; i < in.length(); i++) {
+			char c = in.charAt(i);
+			if(c >= 32 || c == '\n') {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
+
 	private final static class ExceptionDup {
 		private final String m_message;
 
