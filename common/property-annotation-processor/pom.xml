@@ -59,8 +59,8 @@
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <compilerId>eclipse</compilerId>
-                    <source>${source.jdk.version}</source>
-                    <target>${target.jdk.version}</target>
+                    <source>21</source>
+                    <target>21</target>
                     <!-- Passing arguments is a trainwreck, see https://issues.apache.org/jira/browse/MCOMPILER-123 -->
                     <compilerArguments>
                         <properties>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</properties>
