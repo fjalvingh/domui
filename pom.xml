@@ -86,6 +86,9 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
 
+        <!-- Skip Sonar processing because those idiots decided to no longer support java 11 -->
+        <sonar.skip>true</sonar.skip>
+
         <!-- JDK properties -->
         <jdk.version>11</jdk.version>
         <ecj.version>3.30.0</ecj.version>
