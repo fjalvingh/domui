@@ -932,7 +932,8 @@
         <profile>
             <id>sonar</id>
             <properties>
-                <sonar.skip>false</sonar.skip>
+                <!-- Skip Sonar processing because those idiots decided to no longer support java 11 -->
+                <sonar.skip>true</sonar.skip>
             </properties>
             <build>
                 <plugins>
