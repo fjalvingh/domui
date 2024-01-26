@@ -109,7 +109,9 @@ public class MapParameterContainer implements IBasicParameterContainer {
 			m_dataLength += (((String) value).length() + 2);
 		} else if(value instanceof String[]) {
 			for(String s : ((String[]) value)) {
-				m_dataLength += (s.length() + 2);
+				if(s != null) {
+					m_dataLength += (s.length() + 2);
+				}
 			}
 		}
 	}
