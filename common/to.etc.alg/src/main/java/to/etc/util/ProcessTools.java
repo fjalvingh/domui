@@ -29,8 +29,10 @@ import to.etc.alg.process.IFollow;
 import to.etc.alg.process.StreamCopyThread;
 import to.etc.alg.process.StreamReaderThread;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
@@ -192,6 +194,29 @@ final public class ProcessTools {
 		StreamCopyThread outr = new StreamCopyThread(stdout, "stdout", pr.getInputStream());
 		outr.start();
 		errr.start();
+		int rc = pr.waitFor();
+		outr.join();
+		errr.join();
+		return rc;
+	}
+
+	/**
+	 * Runs the process whose data is in the ProcessBuilder (with adding 'input' after process is started) and captures the result.
+	 */
+	static public int runProcessWithInput(ProcessBuilder pb, OutputStream stdout, Appendable stderrsb, String input) throws Exception {
+		Process pr = pb.start();
+		StreamReaderThread errr = new StreamReaderThread(stderrsb, "stderr", pr.getErrorStream());
+		StreamCopyThread outr = new StreamCopyThread(stdout, "stdout", pr.getInputStream());
+		outr.start();
+		errr.start();
+
+		BufferedWriter writer = new BufferedWriter(
+			new OutputStreamWriter(pr.getOutputStream())
+		);
+		writer.write(input, 0, input.length());
+		writer.newLine();
+		writer.close();
+
 		int rc = pr.waitFor();
 		outr.join();
 		errr.join();
