@@ -179,4 +179,12 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		for(T s : old)
 			setInstanceSelected(s, false);
 	}
+
+	public boolean isAcceptable(T instance) {
+		IAcceptable<T> acceptable = m_acceptable;
+		if(null == acceptable) {
+			return true;
+		}
+		return acceptable.acceptable(instance);
+	}
 }

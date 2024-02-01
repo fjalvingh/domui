@@ -129,8 +129,14 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			//in case of multiselection, if not all visible items in model are selected, add to selection, otherwise do clean of selection
 			ITableModel<T> model = getModel();
 			boolean performSelect = sm.getSelectionCount() == 0;
-			if(! performSelect) {
-				performSelect = model.getItems(0, model.getRows()).stream().anyMatch(it -> !sm.isSelected(it));
+			if(!performSelect) {
+				performSelect = model.getItems(0, model.getRows()).stream().anyMatch(it -> {
+					boolean isAcceptable = true;
+					if(sm instanceof InstanceSelectionModel) {
+						isAcceptable = ((InstanceSelectionModel<T>) sm).isAcceptable(it);
+					}
+					return isAcceptable && !sm.isSelected(it);
+				});
 			}
 			if(performSelect) {
 				sm.selectAll(model);
