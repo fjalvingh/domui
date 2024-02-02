@@ -27,14 +27,20 @@ package to.etc.util;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.BiConsumerEx;
+import to.etc.function.ConsumerEx;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * An outputstream which duplicates all contents written to it to N other output streams.
+ * An output stream which duplicates all contents written to it to N other output streams.
+ * Uses parallel writes for each write command, so best is if it is wrapped inside some BufferedOutputStream.
  */
 @NonNullByDefault
 public class NTeeStream extends OutputStream {
@@ -46,89 +52,41 @@ public class NTeeStream extends OutputStream {
 	@Nullable
 	private BiConsumerEx<Integer, Exception> m_exHandler;
 
+	private ExecutorService m_executors;
+
+	private boolean m_closed;
+
 	public NTeeStream(OutputStream... streams) {
 		m_streams = streams;
 		m_exceptionsOnStreams = new Exception[streams.length];
+		m_executors = Executors.newFixedThreadPool(streams.length);
 	}
 
 	@Override
 	public void write(byte[] parm1) throws IOException {
-		for(int index = 0; index < m_streams.length; index++) {
-			try {
-				if(null == m_exceptionsOnStreams[index]) {
-					m_streams[index].write(parm1);
-				}
-			} catch(IOException x) {
-				m_exceptionsOnStreams[index] = x;
-				m_streams[index].close();
-				handle(index, x);
-			}
-		}
-
-		if(Arrays.stream(m_exceptionsOnStreams).noneMatch(it ->  null == it)) {
-			throw new RuntimeException("All streams are closed with exceptions!");
-		}
+		parallelAction(stream -> stream.write(parm1));
 	}
 
 	@Override
 	public void flush() throws IOException {
-		for(int index = 0; index < m_streams.length; index++) {
-			try {
-				if(null == m_exceptionsOnStreams[index]) {
-					m_streams[index].flush();
-				}
-			} catch(IOException x) {
-				m_exceptionsOnStreams[index] = x;
-				m_streams[index].close();
-				handle(index, x);
-			}
-		}
-
-		if(Arrays.stream(m_exceptionsOnStreams).noneMatch(it ->  null == it)) {
-			throw new RuntimeException("All streams are closed with exceptions!");
-		}
+		parallelAction(stream -> stream.flush());
 	}
 
 	@Override
 	public void write(int b) throws IOException {
-		for(int index = 0; index < m_streams.length; index++) {
-			try {
-				if(null == m_exceptionsOnStreams[index]) {
-					m_streams[index].write(b);
-				}
-			} catch(IOException x) {
-				m_exceptionsOnStreams[index] = x;
-				m_streams[index].close();
-				handle(index, x);
-			}
-		}
-
-		if(Arrays.stream(m_exceptionsOnStreams).noneMatch(it ->  null == it)) {
-			throw new RuntimeException("All streams are closed with exceptions!");
-		}
+		parallelAction(stream -> stream.write(b));
 	}
 
 	@Override
 	public void write(byte[] parm1, int parm2, int parm3) throws IOException {
-		for(int index = 0; index < m_streams.length; index++) {
-			try {
-				if(null == m_exceptionsOnStreams[index]) {
-					m_streams[index].write(parm1, parm2, parm3);
-				}
-			} catch(IOException x) {
-				m_exceptionsOnStreams[index] = x;
-				m_streams[index].close();
-				handle(index, x);
-			}
-		}
-
-		if(Arrays.stream(m_exceptionsOnStreams).noneMatch(it ->  null == it)) {
-			throw new RuntimeException("All streams are closed with exceptions!");
-		}
+		parallelAction(stream -> stream.write(parm1, parm2, parm3));
 	}
 
 	@Override
 	public void close() throws IOException {
+		if(m_closed) {
+			return;
+		}
 		for(int index = 0; index < m_streams.length; index++) {
 			try {
 				if(null == m_exceptionsOnStreams[index]) {
@@ -137,6 +95,41 @@ public class NTeeStream extends OutputStream {
 			} catch(IOException x) {
 				m_exceptionsOnStreams[index] = x;
 				handle(index, x);
+			}
+		}
+
+		m_executors.shutdown();
+
+		if(Arrays.stream(m_exceptionsOnStreams).noneMatch(it ->  null == it)) {
+			throw new RuntimeException("All streams are closed with exceptions!");
+		}
+		m_closed = true;
+	}
+
+	private void parallelAction(ConsumerEx<OutputStream> action) {
+		List<Callable<Boolean>> parallelWriteTasks = new ArrayList<>();
+		for(int index = 0; index < m_streams.length; index++) {
+
+			if(null == m_exceptionsOnStreams[index]) {
+				int aIndex = index;
+				parallelWriteTasks.add(() -> {
+					try {
+						action.accept(m_streams[aIndex]);
+						return Boolean.TRUE;
+					} catch(IOException x) {
+						m_exceptionsOnStreams[aIndex] = x;
+						FileTool.closeAll(m_streams[aIndex]);
+						handle(aIndex, x);
+						return Boolean.FALSE;
+					}
+				});
+			}
+		}
+		if(!parallelWriteTasks.isEmpty()) {
+			try {
+				m_executors.invokeAll(parallelWriteTasks);
+			} catch(Exception e) {
+				throw new RuntimeException(e);
 			}
 		}
 
