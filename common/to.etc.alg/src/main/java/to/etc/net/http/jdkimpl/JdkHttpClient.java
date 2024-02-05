@@ -1,6 +1,7 @@
 package to.etc.net.http.jdkimpl;
 
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.alg.process.NamedThreadFactory;
 import to.etc.net.http.BodyProducers.EmptyBodyProducer;
 import to.etc.net.http.BodyProducers.StringBodyProducer;
 import to.etc.net.http.GenericHttpHeaders;
@@ -157,7 +158,7 @@ public class JdkHttpClient implements IHttpClient {
 			sslContext = createSscContext(ssl);
 		}
 
-		ExecutorService ex = Executors.newCachedThreadPool();
+		ExecutorService ex = Executors.newCachedThreadPool(new NamedThreadFactory("jdkSslClnt"));
 
 		return HttpClient.newBuilder()
 			.executor(ex)
