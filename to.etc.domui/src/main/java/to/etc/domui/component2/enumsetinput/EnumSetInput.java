@@ -85,25 +85,24 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 				add(label);
 			}
 		}
-		if(isDisabled() || isReadOnly()) {
-			m_input = null;
-		} else {
-			SearchAsYouType<T> input = m_input = new SearchAsYouType<>(m_actualClass, m_property);
-			//input.setCssBase("ui-esic-input");
-			add(input);
-			input.setAddSingleMatch(isAddSingleMatch());
-			//input.setCssClass("ui-esic-input");
-			input.setData(getData());
+		SearchAsYouType<T> input = m_input = new SearchAsYouType<>(m_actualClass, m_property);
+		//input.setCssBase("ui-esic-input");
+		add(input);
+		input.setAddSingleMatch(isAddSingleMatch());
+		//input.setCssClass("ui-esic-input");
+		input.setData(getData());
 
-			input.setOnValueChanged(a -> {
-				T value = input.getValue();
-				if(null != value) {
-					addItem(value);
-					input.setValue(null);
-					updateValueList();
-				}
-			});
-		}
+		input.setOnValueChanged(a -> {
+			T value = input.getValue();
+			if(null != value) {
+				addItem(value);
+				input.setValue(null);
+				updateValueList();
+			}
+		});
+
+		input.setDisabled(isDisabled());
+		input.setReadOnly(isReadOnly());
 	}
 
 	private void updateValueList() {
@@ -134,18 +133,20 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		}
 
 		//-- Add the "remove" button to the label
-		Button delBtn = new Button().css("ui-esic-del");
-		label.add(delBtn);
-		delBtn.add(Icon.faTimes.createNode());
-		delBtn.setClicked(a -> {
-			removeItem(value);
-			SearchAsYouType<T> input = m_input;
-			if(input != null) {
-				input.setFocus();
-				updateValueList();
-			}
+		if(!isDisabled() && !isReadOnly()) {
+			Button delBtn = new Button().css("ui-esic-del");
+			label.add(delBtn);
+			delBtn.add(Icon.faTimes.createNode());
+			delBtn.setClicked(a -> {
+				removeItem(value);
+				SearchAsYouType<T> input = m_input;
+				if(input != null) {
+					input.setFocus();
+					updateValueList();
+				}
 
-		});
+			});
+		}
 		m_displayMap.put(value, label);					// Register
 		return label;
 	}
