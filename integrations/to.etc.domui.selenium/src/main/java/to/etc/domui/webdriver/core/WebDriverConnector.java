@@ -1264,6 +1264,9 @@ final public class WebDriverConnector {
 		m_lastTestClass = null;
 		m_lastTestPage = null;
 
+		//-- Remove any pending alert
+		discardAlertIfPresent();
+
 		checkSize();
 
 		String url = calculatePageURL(locale, clz, parameters);
@@ -1299,6 +1302,20 @@ final public class WebDriverConnector {
 		//return this;
 	}
 
+	public void discardAlertIfPresent() {
+		if(!isAlertPresent())
+			return;
+		//-- Try to handle alert
+		try {
+			String message = alertGetMessage();
+			System.err.println("An alert was present, message is:\n" + message);
+		} catch(Exception xx) {
+			System.err.println("An alert was present, but an exception occurred getting the alert message");
+			xx.printStackTrace();
+		}
+		clearAlert();
+	}
+
 	/**
 	 * Called for Chrome, which resizes the viewpoint without question 8-(
 	 */
@@ -1325,7 +1342,7 @@ final public class WebDriverConnector {
 		m_driver.navigate().to(sb);
 		checkSize();
 
-		size = getSize();
+		//size = getSize();
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
 
