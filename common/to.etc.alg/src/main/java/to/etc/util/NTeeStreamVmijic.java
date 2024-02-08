@@ -165,7 +165,7 @@ public class NTeeStreamVmijic extends OutputStream {
 						//-- It is not yet there. We need to wait for it to arrive.
 						log("m_bufferEmptyCondition.await()");
 						m_bufferEmptyCondition.await();
-					}else if(m_writeIndex != m_readIndex) {
+					}else {
 						int availableToRead = (int) Math.min(getAvailableReadSize(), m_blockSize);
 						BufferAndPos readBuffer = null;
 						if(availableToRead == m_blockSize || m_closed) {
