@@ -24,6 +24,7 @@
  */
 package to.etc.util;
 
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.BiConsumerEx;
@@ -33,170 +34,189 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * An output stream which duplicates all contents written to it to N other output streams.
- * Uses parallel writes for each write command, so best is if it is wrapped inside some BufferedOutputStream.
+ * Uses separate reader thread to read data in parallel, for each output stream.
  */
 @NonNullByDefault
 public class NTeeStream extends OutputStream {
 
-	class BufferPool {
+	static FastDateFormat DF = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss.SSS");
 
+	static void log(String msg) {
+		String thread = "[" + Thread.currentThread().getName() + "] ";
+		//System.out.println(thread + DF.format(System.currentTimeMillis()) + " " + msg);
+		System.out.println(DF.format(System.currentTimeMillis()) + " " + msg);
+	}
 
-		private final int m_bufferSize;
-		private final long m_totalCapacity;
+	class Data {
+		private final byte[] m_data;
 
-		private final List<byte[]> m_buffers;
+		private final int m_length;
 
-		private long m_writeIndex = 0;
+		public Data(byte[] data, int length) {
+			m_data = data;
+			m_length = length;
+		}
+	}
 
-		private long m_readIndex = 0;
+	class BufferWithReferenceCounts {
+		private byte[] m_data;
+
+		private List<Object> m_consumers;
+
+		private int m_lengthStored;
+
+		BufferWithReferenceCounts(int size) {
+			m_data = new byte[size];
+			m_consumers = new ArrayList<>();
+		}
+
+		void addConsumer(Object consumer) {
+			m_consumers.add(consumer);
+		}
+
+		void removeConsumer(Object consumer) {
+			m_consumers.remove(consumer);
+		}
+
+		boolean isCompletedByAllConsumers() {
+			return m_consumers.isEmpty();
+		}
+
+		int getLengthAvailable() {
+			return m_data.length - m_lengthStored;
+		}
+
+		void reset() {
+			if(!m_consumers.isEmpty()) {
+				throw new IllegalStateException("Can't reset block that is still consumed!?");
+			}
+			m_lengthStored = 0;
+		}
+
+		int write(byte[] source, int offset, int length) {
+			int toWrite = Math.min(length, getLengthAvailable());
+			System.arraycopy(source, offset, m_data, m_lengthStored, toWrite);
+			m_lengthStored += toWrite;
+			return toWrite;
+		}
+
+		Data getData() {
+			return new Data(m_data, m_lengthStored);
+		}
+	}
+
+	class Buffer {
+
+		private final int m_blockSize;
+		private final int m_capacity;
+
+		private final List<BufferWithReferenceCounts> m_blocks;
+
+		private final List<BufferWithReferenceCounts> m_freeBlocks;
+
+		private final List<BufferWithReferenceCounts> m_fullBlocks;
 
 		private boolean m_closed = false;
+
+		private boolean m_started = false;
 
 		private final ReentrantLock m_lock;
 
 		private final Condition m_bufferFullCondition;
 
-		private final Condition m_bufferEmptyCondition;
+		private final List<Object> m_consumers = new ArrayList<>();
 
 		/** If one of the providers failed the stream should fail too or we hang. */
 		@Nullable
 		private Exception m_failure;
 
-		BufferPool(int capacity, int bufferSize) {
+		private Map<Object, Condition> m_consumerLocks = new ConcurrentHashMap<>();
+
+		Buffer(int capacity, int blockSize) {
 			m_lock = new ReentrantLock();
-			m_bufferSize = bufferSize;
-			m_totalCapacity = bufferSize * capacity;
-			m_buffers = new ArrayList<>();
-			for(int i = 0; i < capacity; i++) {
-				m_buffers.add(new byte[bufferSize]);
-			}
+			m_capacity = capacity;
+			m_blockSize = blockSize;
+			m_blocks = new ArrayList<>();
+			m_freeBlocks = new ArrayList<>();
+			m_fullBlocks = new ArrayList<>();
 			m_bufferFullCondition = m_lock.newCondition();
-			m_bufferEmptyCondition = m_lock.newCondition();
 		}
 
-		private long calcNewPos(long currentIndex, int length) {
-			if(currentIndex + length <= m_totalCapacity) {
-				return currentIndex + length;
+		void initialize(Object... consumers) {
+			if(m_started) {
+				throw new IllegalStateException("Can't register consumers on started buffer!");
 			}
-			return currentIndex + length - m_totalCapacity;
+			Arrays.stream(consumers).forEach(it -> m_consumers.add(it));
+			m_started = true;
 		}
 
 		void write(byte[] data, int offset, int length) throws IOException, InterruptedException {
-			m_lock.lock();
-			if(length > m_totalCapacity) {
-				throw new IllegalArgumentException("Insufficient capacity, total capacity is " + m_totalCapacity + ", but it received " + length + " bytes to write!");
+			if(!m_started) {
+				throw new IllegalStateException("Can't write, buffer not properly initialized yet!");
 			}
+			if(m_consumers.isEmpty()) {
+				throw new IllegalStateException("Can't write, no active consumers found!");
+			}
+			m_lock.lock();
 			try {
-				if(m_failure != null) {
-					throw new IOException("Write stream has failed: " + m_failure);
-				}
-
+				int currentOffset = offset;
+				int bytesToWrite = length;
 				//-- Wait for space to be available
-				for(; ; ) {
-					if(getAvailableWriteSize() >= length) {
-						break;
+				while(bytesToWrite > 0) {
+					if(m_failure != null) {
+						throw new IOException("Write stream has failed: " + m_failure);
 					}
-					System.out.println(System.currentTimeMillis() + " m_bufferFullCondition.await()");
-					m_bufferFullCondition.await();
+					BufferWithReferenceCounts activeForWrite = getBlockForWrite();
+					int writtenLength = activeForWrite.write(data, currentOffset, bytesToWrite);
+					currentOffset += writtenLength;
+					bytesToWrite -= writtenLength;
+					if(activeForWrite.getLengthAvailable() == 0) {
+						m_freeBlocks.remove(activeForWrite);
+						m_consumers.forEach(it -> activeForWrite.addConsumer(it));
+						m_fullBlocks.add(activeForWrite);
+						m_consumers.forEach(consumer -> {
+							Condition consumerLock = m_consumerLocks.computeIfAbsent(consumer, k -> m_lock.newCondition());
+							log("write fullBlocks -> consumerLock.signalAll() " + consumer);
+							consumerLock.signalAll();
+						});
+					}
 				}
-
-				//-- There is room. Write the data.
-				writeToBuffer(data, offset, length);
-				System.out.println(System.currentTimeMillis() + " m_bufferEmptyCondition.signalAll()");
-				m_bufferEmptyCondition.signalAll();
 			} finally {
 				m_lock.unlock();
 			}
 		}
 
-		private void writeToBuffer(byte[] data, int offset, int length) {
-			int remainingToWrite = length;
-			int readOffset = offset;
-			while(remainingToWrite > 0) {
-				BufferAndPos writeBuffer = getWriteBufferAndPos();
-				int chunkToWrite = Math.min(remainingToWrite, m_bufferSize - writeBuffer.m_pos);
-				System.arraycopy(data, readOffset, writeBuffer.m_buffer, writeBuffer.m_pos, chunkToWrite);
-				m_writeIndex = calcNewPos(m_writeIndex, chunkToWrite);
-				remainingToWrite -= chunkToWrite;
-				readOffset += chunkToWrite;
-			}
-		}
-
-		/**
-		 * Returns null is there is no more data to read and buffer is already closed.
-		 * Blocks until there is no data ready yet but buffer is not already closed.
-		 * Otherwise returns read data with exact size, up to specified maxReadCapacity.
-		 */
-		@Nullable
-		byte[] read(int maxReadCapacity) throws IOException, InterruptedException {
+		private BufferWithReferenceCounts getBlockForWrite() throws InterruptedException {
 			m_lock.lock();
 			try {
-				//-- Wait for the data to arrive.
-				for(; ; ) {
-					//-- Did we fail in the meanwhile?
-					if(m_failure != null) {
-						throw new IOException("Data provider failed: " + m_failure, m_failure);
-					}
-
-					if(m_writeIndex == m_readIndex) {
-						if(m_closed) {
-							//nothing to read and buffer is closed, then we return null
-							return null;
-						}
-						//-- It is not yet there. We need to wait for it to arrive.
-						System.out.println(System.currentTimeMillis() + " m_bufferEmptyCondition.await()");
-						m_bufferEmptyCondition.await();
-					}
-
-					if(m_writeIndex != m_readIndex) {
-						long availableToRead = Math.min(getAvailableReadSize(), maxReadCapacity);
-
-						BufferAndPos readBuffer = getReadBufferAndPos();
-
-						byte[] readData = null;
-						if(maxReadCapacity == m_bufferSize) {
-							if(availableToRead == maxReadCapacity && readBuffer.m_pos == 0) {
-								readData = readBuffer.m_buffer;
-								m_readIndex += availableToRead;
-							}else if (!m_closed && readBuffer.m_pos > 0) {
-								//here we try to match the size for some next reads
-								availableToRead = m_bufferSize - readBuffer.m_pos;
-								readData = new byte[(int) availableToRead];
-								readFromBuffer(readData, 0, (int) availableToRead);
-							}else if (!m_closed && readBuffer.m_pos == 0) {
-								//here we return empty buffer and wait for buffer to grow to a full size chunk
-								availableToRead = 0;
-							}else {
-								//buffer is closed, no need to wait for complete buffer length chunks.
-								readData = new byte[(int) availableToRead];
-								readFromBuffer(readData, 0, (int) availableToRead);
-							}
+				for(;; ) {
+					if(m_freeBlocks.isEmpty()) {
+						if(m_blocks.size() == m_capacity) {
+							log("m_bufferFullCondition.await()");
+							m_bufferFullCondition.await();
 						}else {
-							//maxReadCapacity is not in sync with buffer size, we just read what is available always
-							readData = new byte[(int) availableToRead];
-							readFromBuffer(readData, 0, (int) availableToRead);
+							BufferWithReferenceCounts block = new BufferWithReferenceCounts(m_blockSize);
+							m_blocks.add(block);
+							m_freeBlocks.add(block);
 						}
-
-						if(availableToRead == 0) {
-							System.out.println(System.currentTimeMillis() + " m_bufferEmptyCondition.await()");
-							m_bufferEmptyCondition.await();
-						}else {
-							if(availableToRead > 0) {
-								//if we managed to read anything we potentially unlock writing
-								System.out.println(System.currentTimeMillis() + " m_bufferFullCondition.signalAll()");
-								m_bufferFullCondition.signalAll();
-							}
-							return readData;
-						}
+					}else {
+						return m_freeBlocks.get(0);
 					}
 				}
 			} finally {
@@ -204,34 +224,79 @@ public class NTeeStream extends OutputStream {
 			}
 		}
 
-		private long getAvailableWriteSize() {
-			if(m_writeIndex == m_readIndex) {
-				return m_totalCapacity;
-			}else if(m_writeIndex > m_readIndex) {
-				return m_totalCapacity - m_writeIndex + m_readIndex;
-			}else {
-				return m_readIndex - m_writeIndex;
+		@Nullable
+		Data consume(Object consumer) throws InterruptedException {
+			m_lock.lock();
+			try {
+				for(; ; ) {
+					for(BufferWithReferenceCounts buffer : m_fullBlocks) {
+						if(buffer.m_consumers.contains(consumer)) {
+							return buffer.getData();
+						}
+					}
+					if(m_closed) {
+						return null;
+					}
+					//block on condition specific for a consumer object?
+					Condition consumerLock = m_consumerLocks.computeIfAbsent(consumer, k -> m_lock.newCondition());
+					log("consumerLock.await() " + consumer);
+					consumerLock.await();
+				}
+			}finally {
+				m_lock.unlock();
 			}
 		}
 
-		private long getAvailableReadSize() {
-			if(m_readIndex < m_writeIndex) {
-				return m_writeIndex - m_readIndex;
-			}else {
-				return m_totalCapacity - m_readIndex + m_writeIndex;
+		@Nullable
+		void consumed(Object consumer) throws InterruptedException {
+			BufferWithReferenceCounts consumedBlock = null;
+			for(BufferWithReferenceCounts buffer : m_fullBlocks) {
+				if(buffer.m_consumers.contains(consumer)) {
+					consumedBlock = buffer;
+					break;
+				}
+			}
+			if(null == consumedBlock) {
+				throw new IllegalStateException("Unable to locate consumedBlock???");
+			}
+			m_lock.lock();
+			try {
+				consumedBlock.removeConsumer(consumer);
+				if(consumedBlock.isCompletedByAllConsumers()) {
+					m_fullBlocks.remove(consumedBlock);
+					consumedBlock.reset();
+					m_freeBlocks.add(consumedBlock);
+					if(!m_closed) {
+						log("consumed m_bufferFullCondition.signalAll()");
+						m_bufferFullCondition.signalAll();
+					}
+				}
+			} finally {
+				m_lock.unlock();
 			}
 		}
 
-		private void readFromBuffer(byte[] data, int offset, int length) {
-			int remainingToRead = length;
-			int writeOffset = offset;
-			while(remainingToRead > 0) {
-				BufferAndPos readBuffer = getReadBufferAndPos();
-				int chunkToRead = Math.min(remainingToRead, m_bufferSize - readBuffer.m_pos);
-				System.arraycopy(readBuffer.m_buffer, readBuffer.m_pos, data, writeOffset, chunkToRead);
-				m_readIndex = calcNewPos(m_readIndex, chunkToRead);
-				remainingToRead -= chunkToRead;
-				writeOffset += chunkToRead;
+		public void registerFailedConsumer(Object consumer) {
+			m_lock.lock();
+			try {
+				m_consumers.remove(consumer);
+				List<BufferWithReferenceCounts> withConsumer = m_fullBlocks.stream().filter(block -> block.m_consumers.contains(consumer)).collect(Collectors.toList());
+				boolean anyIsFreed = false;
+				for(BufferWithReferenceCounts block: withConsumer) {
+					block.m_consumers.remove(consumer);
+					if(block.isCompletedByAllConsumers()) {
+						m_fullBlocks.remove(block);
+						block.reset();
+						m_freeBlocks.add(block);
+						anyIsFreed = true;
+					}
+				}
+				if(!m_closed && anyIsFreed) {
+					log("registerFailedConsumer -> m_bufferFullCondition.signalAll()");
+					m_bufferFullCondition.signalAll();
+				}
+			} finally {
+				m_lock.unlock();
 			}
 		}
 
@@ -241,37 +306,18 @@ public class NTeeStream extends OutputStream {
 				if(!m_closed) {
 					m_closed = true;
 				}
-				System.out.println(System.currentTimeMillis() + " close -> m_bufferEmptyCondition.signalAll()");
-				m_bufferEmptyCondition.signalAll();
+				m_consumers.forEach(consumer -> {
+					Condition consumerLock = m_consumerLocks.computeIfAbsent(consumer, k -> m_lock.newCondition());
+					log("close -> consumerLock.signalAll() " + consumer);
+					consumerLock.signalAll();
+				});
 			}finally {
 				m_lock.unlock();
 			}
 		}
-
-		private class BufferAndPos {
-			final byte[] m_buffer;
-
-			final int m_pos;
-
-			BufferAndPos(byte[] buffer, int pos) {
-				m_buffer = buffer;
-				m_pos = pos;
-			}
-		}
-
-		private BufferAndPos getReadBufferAndPos() {
-			int index = (int) ((m_readIndex + 1) / m_bufferSize);
-			int pos = (int) (m_readIndex - (index * m_bufferSize));
-			return new BufferAndPos(m_buffers.get(index), pos);
-		}
-
-		private BufferAndPos getWriteBufferAndPos() {
-			int index = (int) ((m_writeIndex + 1) / m_bufferSize);
-			int pos = (int) (m_writeIndex - (index * m_bufferSize));
-			return new BufferAndPos(m_buffers.get(index), pos);
-		}
-
 	}
+
+	private final int m_blockSize = 1024 * 1024 * 1;
 
 	private final OutputStream[]	m_streams;
 
@@ -280,54 +326,48 @@ public class NTeeStream extends OutputStream {
 	@Nullable
 	private BiConsumerEx<Integer, Exception> m_exHandler;
 
-	private ExecutorService m_executors;
-
-	private final BufferPool m_writeReadBuffer;
-
-	private final Thread m_readerThread;
+	private final Buffer m_buffer;
 
 	private boolean m_closed;
 
 	private final ReentrantLock m_lock;
 
-	private final Condition m_closedStreamCondition;
-
+	private final List<Thread> m_threads = new ArrayList<>();
 
 	public NTeeStream(OutputStream... streams) {
 		m_streams = streams;
 		m_exceptionsOnStreams = new Exception[streams.length];
-		m_executors = Executors.newFixedThreadPool(streams.length);
-		m_writeReadBuffer = new BufferPool(10, 1024 * 1024 * 4);
-		m_lock = new ReentrantLock();
-		m_closedStreamCondition = m_lock.newCondition();
+		m_buffer = new Buffer(10, m_blockSize);
 
-		m_readerThread = new Thread(() -> {
-			try {
-				byte[] aData;
-				System.out.println(System.currentTimeMillis() + " starting reader thread");
-				while ((aData = m_writeReadBuffer.read(1024 * 1024 * 4)) != null) {
-					byte[] data = aData;
-					if(data.length > 0) {
-						System.out.println(System.currentTimeMillis() + "reading " + data.length + " bytes");
-					}else {
-						System.out.print(System.currentTimeMillis() + ".");
-					}
-					parallelAction(stream -> stream.write(data, 0, data.length));
-				}
+		m_lock = new ReentrantLock();
+
+		AtomicInteger index = new AtomicInteger(0);
+		Arrays.stream(streams).forEach(outStream -> {
+			Thread senderThread = new Thread(() -> {
+				Thread thread = Thread.currentThread();
 				try {
-					m_lock.lock();
-					System.out.println(System.currentTimeMillis() + " m_closedStreamCondition.signalAll()");
-					m_closedStreamCondition.signalAll();
-				}finally {
-					m_lock.unlock();
+					Data aData;
+					log("started reader thread " + thread);
+					while((aData = m_buffer.consume(thread)) != null) {
+						byte[] data = aData.m_data;
+						int length = aData.m_length;
+						log("reading and sending " + data.length + " bytes " + thread);
+						outStream.write(data, 0, length);
+						m_buffer.consumed(thread);
+					}
+					log(thread.getName() + " completed!");
+				} catch(Exception e) {
+					m_exceptionsOnStreams[index.get()] = e;
+					m_buffer.registerFailedConsumer(thread);
+					log(Thread.currentThread().getName() + " fas failed.");
+					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
-			} catch(IOException e) {
-				throw new RuntimeException(e);
-			} catch(InterruptedException e) {
-				throw new RuntimeException(e);
-			}
+			}, "Sender-" + index.getAndIncrement());
+			m_threads.add(senderThread);
 		});
-		m_readerThread.start();
+		m_buffer.initialize(m_threads.toArray());
+		m_threads.forEach(it -> it.start());
 	}
 
 	@Override
@@ -349,8 +389,8 @@ public class NTeeStream extends OutputStream {
 	@Override
 	public void write(byte[] data, int offset, int length) throws IOException {
 		try {
-			m_writeReadBuffer.write(data, offset, length);
-			System.out.println(System.currentTimeMillis() + " writing " + length + " bytes");
+			log("writing " + length + " bytes");
+			m_buffer.write(data, offset, length);
 		} catch(InterruptedException e) {
 			throw new RuntimeException(e);
 		}
@@ -361,22 +401,20 @@ public class NTeeStream extends OutputStream {
 		if(m_closed) {
 			return;
 		}
-		m_writeReadBuffer.close();
+		m_buffer.close();
 
-		try {
-			m_lock.lock();
-			System.out.println(System.currentTimeMillis() + " m_closedStreamCondition.await()");
-			m_closedStreamCondition.await();
-		} catch(InterruptedException e) {
-			throw new RuntimeException(e);
-		} finally {
-			m_lock.unlock();
-		}
+		m_threads.forEach(it -> {
+			try {
+				it.join();
+			} catch(InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		});
 
 		for(int index = 0; index < m_streams.length; index++) {
 			try {
 				if(null == m_exceptionsOnStreams[index]) {
-					System.out.println(System.currentTimeMillis() + " m_streams[" + index + "].flush + close()");
+					log("m_streams[" + index + "].flush + close()");
 					m_streams[index].flush();
 					m_streams[index].close();
 				}
@@ -386,44 +424,10 @@ public class NTeeStream extends OutputStream {
 			}
 		}
 
-		m_executors.shutdown();
-
 		if(Arrays.stream(m_exceptionsOnStreams).noneMatch(it ->  null == it)) {
 			throw new RuntimeException("All streams are closed with exceptions!");
 		}
 		m_closed = true;
-	}
-
-	private void parallelAction(ConsumerEx<OutputStream> action) {
-		List<Callable<Boolean>> parallelWriteTasks = new ArrayList<>();
-		for(int index = 0; index < m_streams.length; index++) {
-
-			if(null == m_exceptionsOnStreams[index]) {
-				int aIndex = index;
-				parallelWriteTasks.add(() -> {
-					try {
-						action.accept(m_streams[aIndex]);
-						return Boolean.TRUE;
-					} catch(IOException x) {
-						m_exceptionsOnStreams[aIndex] = x;
-						FileTool.closeAll(m_streams[aIndex]);
-						handle(aIndex, x);
-						return Boolean.FALSE;
-					}
-				});
-			}
-		}
-		if(!parallelWriteTasks.isEmpty()) {
-			try {
-				m_executors.invokeAll(parallelWriteTasks);
-			} catch(Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		if(Arrays.stream(m_exceptionsOnStreams).noneMatch(it ->  null == it)) {
-			throw new RuntimeException("All streams are closed with exceptions!");
-		}
 	}
 
 	public Exception[] getExceptionsOnStreams() {
