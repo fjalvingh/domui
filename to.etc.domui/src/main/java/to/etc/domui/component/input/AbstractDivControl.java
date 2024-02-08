@@ -158,6 +158,9 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 		if(m_disabled == d)
 			return;
 		m_disabled = d;
+		if(!d && null != getDisabledBecause()) {
+			setDisabledBecause(null);
+		}
 		disabledChanged();
 	}
 
