@@ -98,6 +98,7 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 		if(control instanceof IControl) {
 			IControl<CV> ict = (IControl<CV>) control;
 			if(ict.isDisabled() || ict.isReadOnly()) {
+				m_bindError = null;
 				return null;
 			}
 		}
