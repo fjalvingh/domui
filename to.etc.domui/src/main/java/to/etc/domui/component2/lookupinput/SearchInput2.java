@@ -51,6 +51,8 @@ public class SearchInput2 extends Div implements IForTarget {
 
 	private int m_popupWidth;
 
+	private int m_maxLength = 40;
+
 	public SearchInput2() {
 	}
 
@@ -62,7 +64,7 @@ public class SearchInput2 extends Div implements IForTarget {
 	@Override
 	public void createContent() throws Exception {
 		css("ui-lui-srip", "ui-control");
-		m_keySearch.setMaxLength(40);
+		m_keySearch.setMaxLength(m_maxLength);
 		m_keySearch.setSize(14);
 		m_keySearch.setMarker();
 
@@ -146,6 +148,13 @@ public class SearchInput2 extends Div implements IForTarget {
 	 */
 	public void setPlaceHolder(String placeHolder) {
 		m_keySearch.setPlaceHolder(placeHolder);
+	}
+
+	/**
+	 * Sets the maximum length of the text input field.
+	 */
+	public void setMaxLength(int maxLength) {
+		m_maxLength = maxLength;
 	}
 
 	protected Input createKeySearch() {
