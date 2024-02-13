@@ -3365,6 +3365,16 @@ public class StringTool {
 		return NumberFormat.getNumberInstance().format(records);
 	}
 
+	static public String bps(double bytesPerSecond) {
+		if(bytesPerSecond < 1024 * 10) {
+			return String.format("%.0f bytes/s", bytesPerSecond);
+		}
+		if(bytesPerSecond < 1024 * 1024) {
+			return String.format("%.1f KB/s", bytesPerSecond / 1024.0D);
+		}
+		return String.format("%.1f MB/s", bytesPerSecond / (1024.0D * 1024.0D));
+	}
+
 	static public void main(final String[] args) throws Exception {
 		System.out.println(dutchPluralOf("huurtoeslag"));
 	}
