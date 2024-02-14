@@ -186,7 +186,8 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 			removable = a -> true;
 		for(T item : model.getItems(0, model.getRows())) {
 			if(removable.acceptable(item))
-				m_selectedSet.remove(item);
+				if(m_selectedSet.remove(item))
+					callChanged(item, false);
 		}
 	}
 
