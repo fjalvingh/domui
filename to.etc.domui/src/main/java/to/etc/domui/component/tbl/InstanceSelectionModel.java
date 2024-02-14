@@ -193,9 +193,14 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 
 	@Override
 	public boolean isCompleteModelSelected(ITableModel<T> model) throws Exception {
+		IAcceptable<T> acceptable = m_acceptable;
+		if(null == acceptable)
+			acceptable = a -> true;
 		for(T item : model.getItems(0, model.getRows())) {
-			if(!m_selectedSet.contains(item))
-				return false;
+			if(acceptable.acceptable(item)) {
+				if(!m_selectedSet.contains(item))
+					return false;
+			}
 		}
 		return true;
 	}
