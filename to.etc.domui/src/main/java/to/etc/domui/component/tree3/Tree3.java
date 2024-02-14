@@ -599,7 +599,9 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 		if(null == parentVn)
 			return;
 		Ul ul = parentVn.getChildRoot();
-		renderList(ul, parentVn);
+		if(null != ul) {
+			renderList(ul, parentVn);
+		}
 	}
 
 	@Nullable
