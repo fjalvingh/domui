@@ -487,9 +487,6 @@ public class JDBCReverser implements Reverser {
 	}
 
 	protected DbColumn reverseColumn(DbTable t, ResultSet rs, String name) throws Exception {
-		if(name.equals("BET_MJB"))
-			dumpRow(rs);
-
 		int daty = rs.getInt("DATA_TYPE");                            // Types.xxx
 		String typename = rs.getString("TYPE_NAME");
 		int prec = rs.getInt("COLUMN_SIZE");
@@ -508,16 +505,16 @@ public class JDBCReverser implements Reverser {
 				return null;
 			}
 		} else {
-			c = createDbColumn(t, name, daty, typename, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement, ct);
+			c = createDbColumn(t, name, daty, typename, prec, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement, ct);
 		}
 		c.setComment(rs.getString("REMARKS"));
 		return c;
 	}
 
 	@NonNull
-	protected DbColumn createDbColumn(DbTable t, String name, int daty, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
+	protected DbColumn createDbColumn(DbTable table, String name, int daty, String typename, int dataSize, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
 		DbColumn c;
-		c = new DbColumn(t, name, ct, prec, scale, nulla, autoIncrement);
+		c = new DbColumn(table, name, ct, dataSize, prec, scale, nulla, autoIncrement);
 		c.setPlatformTypeName(typename);
 		c.setSqlType(daty);
 		return c;
@@ -525,7 +522,7 @@ public class JDBCReverser implements Reverser {
 
 	protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement) {
 		log("Unknown type: SQLType " + sqlType + " (" + typename + ") in " + t.getName() + "." + name);
-		return createDbColumn(t, name, Integer.MAX_VALUE, typename, prec, scale, nulla, autoIncrement, ColumnType.UNKNOWN);
+		return createDbColumn(t, name, Integer.MAX_VALUE, typename, prec, prec, scale, nulla, autoIncrement, ColumnType.UNKNOWN);
 	}
 
 	static private void dumpRow(ResultSet rs) throws Exception {
