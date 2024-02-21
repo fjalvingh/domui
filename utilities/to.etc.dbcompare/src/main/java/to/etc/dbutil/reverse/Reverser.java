@@ -32,14 +32,14 @@ public interface Reverser {
 	 * Fully reverse all schema's
 	 */
 	@NonNull
-	Set<DbSchema> getSchemas(boolean lazily, @Nullable Set<String> except) throws Exception;
+	Set<DbSchema> getSchemasExcept(boolean lazily, @Nullable Set<String> except) throws Exception;
 
 	default Set<DbSchema> getSchemas(boolean lazily) throws Exception {
-		return getSchemas(lazily, null);
+		return getSchemasExcept(lazily, null);
 	}
 
 	@NonNull
-	Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaName, boolean lazily) throws Exception;
+	Set<DbSchema> getSchemasByName(boolean lazily, @NonNull Collection<String> schemaNames) throws Exception;
 
 	boolean hasOption(ReverserOption... options);
 

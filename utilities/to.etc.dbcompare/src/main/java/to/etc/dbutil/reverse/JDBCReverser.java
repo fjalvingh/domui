@@ -182,7 +182,7 @@ public class JDBCReverser implements Reverser {
 	}
 
 	@Override
-	public Set<DbSchema> getSchemas(boolean lazily, Set<String> except) throws Exception {
+	public Set<DbSchema> getSchemasExcept(boolean lazily, Set<String> except) throws Exception {
 		Set<DbSchema> schemaSet = m_schemaSet = getSchemasOnly(lazily);
 		if(except != null) {
 			Set<String> icSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -232,7 +232,7 @@ public class JDBCReverser implements Reverser {
 	}
 
 	@Override
-	public Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaNames, boolean lazily) throws Exception {
+	public Set<DbSchema> getSchemasByName(boolean lazily, @NonNull Collection<String> schemaNames) throws Exception {
 		Connection dbc = m_ds.getConnection();
 		try {
 			Set<DbSchema> schemaSet = m_schemaSet = getSchemasOnly(lazily);		// Load schema's
