@@ -105,7 +105,7 @@ public class ExpandCollapsePanel extends Span {
 		m_isInitiallyExpanded = initiallyExpanded;
 	}
 
-	public boolean isExpanded() {
+	public boolean isCollapsed() {
 		return !m_contentDiv.isAttached();
 	}
 }
