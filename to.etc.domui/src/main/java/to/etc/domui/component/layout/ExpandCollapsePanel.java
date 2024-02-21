@@ -21,12 +21,15 @@ public class ExpandCollapsePanel extends Span {
 
 	private final Div m_contentDiv = new Div();
 
+	private boolean m_isInitiallyExpanded;
+
 	public ExpandCollapsePanel() {
 	}
 
 	public ExpandCollapsePanel(String label) {
 		setLabel(label);
 	}
+
 	public ExpandCollapsePanel(String label, String content) {
 		setLabel(label);
 		setContent(content);
@@ -34,7 +37,12 @@ public class ExpandCollapsePanel extends Span {
 
 	@Override
 	final public void createContent() throws Exception {
-		LinkButton lb = new LinkButton("", Icon.faPlus, a -> toggle(a));
+		LinkButton lb = new LinkButton("", a -> toggle(a));
+		if(m_isInitiallyExpanded) {
+			expandPanel(lb);
+		} else {
+			lb.setImage(Icon.faPlus);
+		}
 		add(lb);
 		add("\u00a0");
 		add(m_label);
@@ -45,11 +53,15 @@ public class ExpandCollapsePanel extends Span {
 			m_contentDiv.remove();
 			lb.setImage(Icon.faPlus);
 		} else {
-			lb.setImage(Icon.faMinus);
-			m_contentDiv.removeAllChildren();
-			appendAfterMe(m_contentDiv);
-			expandContent(m_contentDiv);
+			expandPanel(lb);
 		}
+	}
+
+	private void expandPanel(LinkButton lb) {
+		lb.setImage(Icon.faMinus);
+		m_contentDiv.removeAllChildren();
+		appendAfterMe(m_contentDiv);
+		expandContent(m_contentDiv);
 	}
 
 	protected void expandContent(Div contentDiv) {
@@ -83,5 +95,17 @@ public class ExpandCollapsePanel extends Span {
 
 	public void setContent(String name) {
 		setContent(new TextNode(name));
+	}
+
+	public boolean isInitiallyExpanded() {
+		return m_isInitiallyExpanded;
+	}
+
+	public void setInitiallyExpanded(boolean initiallyExpanded) {
+		m_isInitiallyExpanded = initiallyExpanded;
+	}
+
+	public boolean isExpanded() {
+		return !m_contentDiv.isAttached();
 	}
 }
