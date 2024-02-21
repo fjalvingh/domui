@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -181,9 +182,13 @@ public class JDBCReverser implements Reverser {
 	}
 
 	@Override
-	public Set<DbSchema> getSchemas(boolean lazily) throws Exception {
+	public Set<DbSchema> getSchemas(boolean lazily, Set<String> except) throws Exception {
 		Set<DbSchema> schemaSet = m_schemaSet = getSchemasOnly(lazily);
-
+		if(except != null) {
+			Set<String> icSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			icSet.addAll(except);
+			schemaSet.removeIf(schema -> icSet.contains(schema.getName().toLowerCase()));
+		}
 		Connection dbc = m_ds.getConnection();
 		try {
 			reverseSchemaSet(dbc, schemaSet, lazily);
