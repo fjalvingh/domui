@@ -90,10 +90,16 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 		}
 	}
 
+	/**
+	 * Needed to allow RadioButton to set internalSetValue on parent RadioGroup.
+	 */
 	void setValueInternal(T value) {
 		internalSetValue(value);
 	}
 
+	/**
+	 * Needed to allow RadioButton to get internalGetValue on parent RadioGroup.
+	 */
 	T getValueInternal() {
 		return internalGetValue();
 	}
@@ -101,6 +107,7 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-rbgroup");
+		//buttons are added inside one wrapper div, so we add these divs as children
 		m_buttonList.forEach(button -> add(button.getParent()));
 	}
 
