@@ -130,7 +130,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 		RadioGroup<T> g = getGroup();
 		if(m_checked) {
 			//-- This becomes the current group value
-			g.internalSetValue(getButtonValue());
+			g.setValueInternal(getButtonValue());
 
 			//-- Make sure all other buttons are deselected
 			for(RadioButton<T> rb : g.getButtonList()) {
@@ -139,8 +139,8 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 			}
 		} else {
 			//-- This one was unchecked. If it is the currently selected value too set it to null
-			if(g.internalGetValue() == getButtonValue())
-				g.internalSetValue(null);
+			if(g.getValueInternal() == getButtonValue())
+				g.setValueInternal(null);
 		}
 	}
 
@@ -189,7 +189,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 			rb.selectionChangedTo(this);
 
 		//-- Notify the group of the changed value
-		g.internalSetValue(getButtonValue());
+		g.setValueInternal(getButtonValue());
 
 		return true;
 	}
@@ -248,6 +248,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 
 	/**
 	 * Set or clear the modified by user flag.
+	 *
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
 	@Override

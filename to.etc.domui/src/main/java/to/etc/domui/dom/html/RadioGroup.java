@@ -2,6 +2,7 @@ package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -26,24 +27,14 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 4, 2011
  */
-public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T> {
+public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeListener, IControl<T> {
 	static private int m_gidCounter;
 
 	private String m_groupName;
 
 	private List<RadioButton<T>> m_buttonList = new ArrayList<RadioButton<T>>();
 
-	private T m_value;
-
-	private IValueChanged<?> m_onValueChanged;
-
-	private boolean m_readOnly;
-
-	private boolean m_disabled;
-
 	private boolean m_immediate;
-
-	private boolean m_mandatory;
 
 	private boolean m_valueIsSet;
 
@@ -52,7 +43,6 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	public RadioGroup() {
 		m_groupName = "g" + nextID();
-		addCssClass("ui-rbgroup");
 	}
 
 	static private synchronized int nextID() {
@@ -61,7 +51,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	void addButton(RadioButton<T> b) {
 		m_buttonList.add(b);
-		b.setChecked(MetaManager.areObjectsEqual(m_value, b.getButtonValue()));
+		b.setChecked(MetaManager.areObjectsEqual(internalGetValue(), b.getButtonValue()));
 	}
 
 	void removeButton(RadioButton<T> b) {
@@ -82,7 +72,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		try {
 			validateBindValue();
 			setMessage(null);
-			return m_value;
+			return internalGetValue();
 		} catch(ValidationException vx) {
 			setMessage(UIMessage.error(vx));
 			throw vx;
@@ -91,40 +81,39 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	@Override
 	public void setValue(T value) {
-		if(MetaManager.areObjectsEqual(value, m_value) && m_valueIsSet)
+		if(MetaManager.areObjectsEqual(value, internalGetValue()) && m_valueIsSet)
 			return;
 		m_valueIsSet = true;
-		m_value = value;
+		internalSetValue(value);
 		for(RadioButton<T> rb : getButtonList()) {
 			rb.setChecked(MetaManager.areObjectsEqual(value, rb.getButtonValue()));
 		}
 	}
 
-	void internalSetValue(T newval) {
-//		if(m_value != newval)
-//			System.out.println("Changed from " + m_value + " to " + newval);
-		m_value = newval;
+	void setValueInternal(T value) {
+		internalSetValue(value);
 	}
 
-	@Nullable
-	protected T internalGetValue() {
-		return m_value;
+	T getValueInternal() {
+		return internalGetValue();
 	}
 
-	final public T getBindValue() {
-		validateBindValue();
-		return m_value;
+	@Override
+	public void createContent() throws Exception {
+		addCssClass("ui-rbgroup");
 	}
 
+	@Override
 	final public void setBindValue(T value) {
-		if(MetaManager.areObjectsEqual(m_value, value) && m_valueIsSet) {
+		if(MetaManager.areObjectsEqual(internalGetValue(), value) && m_valueIsSet) {
 			return;
 		}
 		setValue(value);
 	}
 
-	private void validateBindValue() {
-		if(isMandatory() && m_value == null) {
+	@Override
+	protected void validateBindValue() {
+		if(isMandatory() && internalGetValue() == null) {
 			throw new ValidationException(Msgs.mandatory);
 		}
 	}
@@ -135,7 +124,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	@Override
 	public IValueChanged<?> getOnValueChanged() {
-		IValueChanged<?> vc = m_onValueChanged;
+		IValueChanged<?> vc = super.getOnValueChanged();
 		if(null == vc && isImmediate()) {
 			return IValueChanged.DUMMY;
 		}
@@ -144,7 +133,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	@Override
 	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
-		m_onValueChanged = onValueChanged;
+		super.setOnValueChanged(onValueChanged);
 		if(null != onValueChanged) {
 			List<RadioButton<?>> deepChildren = (List<RadioButton<?>>) (Object) getDeepChildren(RadioButton.class);        // What a trainwreck.
 			for(RadioButton<?> deepChild : deepChildren) {
@@ -180,15 +169,15 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 			}
 		}
 		m_buttonList.add(rb);
-		rb.setDisabled(m_disabled);
-		rb.setReadOnly(m_readOnly);
-		IValueChanged<?> ovc = m_onValueChanged;
+		rb.setDisabled(isDisabled());
+		rb.setReadOnly(isReadOnly());
+		IValueChanged<?> ovc = super.getOnValueChanged();
 		if(null != ovc)
 			rb.setClicked(clickednode -> {
 			});                // Force an event
 
-		if(null != m_value) {
-			rb.setChecked(MetaManager.areObjectsEqual(m_value, rb.getButtonValue()));
+		if(m_valueIsSet) {
+			rb.setChecked(MetaManager.areObjectsEqual(internalGetValue(), rb.getButtonValue()));
 		}
 
 		return rb;
@@ -281,9 +270,11 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		for(RadioButton<T> rb : m_buttonList) {
 			if(rb.getButtonValue() == value) {
 				m_buttonList.remove(rb);
+				if(internalGetValue() == value) {
+					internalSetValue(null);
+					m_valueIsSet = false;
+				}
 				forceRebuild();
-				if(m_value == value)
-					m_value = null;
 				return;
 			}
 		}
@@ -291,16 +282,6 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	public boolean isImmediate() {
 		return m_immediate;
-	}
-
-	@Override
-	public boolean isMandatory() {
-		return m_mandatory;
-	}
-
-	@Override
-	public void setMandatory(boolean mandatory) {
-		m_mandatory = mandatory;
 	}
 
 	public void immediate(boolean immediate) {
@@ -327,43 +308,33 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	@Override
-	public boolean isReadOnly() {
-		return m_readOnly;
-	}
-
-	@Override
 	public void setReadOnly(boolean ro) {
-		if(m_readOnly == ro)
+		if(isReadOnly() == ro)
 			return;
 		for(RadioButton<T> rb : m_buttonList) {
 			rb.setReadOnly(ro);
 		}
-		m_readOnly = ro;
 		if(ro) {
 			addCssClass("ui-ro");
 		} else {
 			removeCssClass("ui-ro");
 		}
-	}
-
-	@Override
-	public boolean isDisabled() {
-		return m_disabled;
+		super.setReadOnly(ro);
 	}
 
 	@Override
 	public void setDisabled(boolean d) {
-		if(m_disabled == d)
+		if(isDisabled() == d)
 			return;
 		for(RadioButton<T> rb : m_buttonList) {
 			rb.setDisabled(d);
 		}
-		m_disabled = d;
 		if(d) {
 			addCssClass("ui-disabled");
 		} else {
 			removeCssClass("ui-disabled");
 		}
+		super.setDisabled(d);
 	}
 
 	public static <T extends Enum<T>> RadioGroup<T> createFromEnum(Class<T> enumClass, T... ignored) {
@@ -387,11 +358,6 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		}
 
 		return rg;
-	}
-
-	@Override
-	public void setHint(String hintText) {
-		setTitle(hintText);
 	}
 
 	@NonNull
