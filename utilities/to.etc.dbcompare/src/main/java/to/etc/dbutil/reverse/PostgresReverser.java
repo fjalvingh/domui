@@ -239,7 +239,7 @@ public class PostgresReverser extends JDBCReverser {
 				return null;
 			}
 		} else {
-			c = createDbColumn(t, name, daty, typename, prec, scale, nullable, autoIncrement, ct);
+			c = createDbColumn(t, name, daty, typename, prec, prec, scale, nullable, autoIncrement, ct);
 		}
 		c.setComment(comment);
 		c.setDefault(deflt);
@@ -308,7 +308,7 @@ public class PostgresReverser extends JDBCReverser {
 
 	@NonNull
 	@Override
-	protected DbColumn createDbColumn(DbTable t, String name, int daty, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
+	protected DbColumn createDbColumn(DbTable table, String name, int daty, String typename, int dataSize, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
 		if("bpchar".equals(typename))                                // 8-(
 			typename = "char";
 
@@ -336,7 +336,7 @@ public class PostgresReverser extends JDBCReverser {
 				break;
 		}
 
-		return super.createDbColumn(t, name, daty, typename, prec, scale, nulla, autoIncrement, ct);
+		return super.createDbColumn(table, name, daty, typename, dataSize, prec, scale, nulla, autoIncrement, ct);
 	}
 
 	/**
@@ -350,7 +350,7 @@ public class PostgresReverser extends JDBCReverser {
 			if(null == domain) {
 				domain = findDomain(typename);
 				if(null != domain) {
-					DbColumn c = new DbColumn(t, name, domain.getType(), domain.getPrecision(), domain.getScale(), nulla, autoIncrement, domain.getSqlType(), domain.getPlatformTypeName());
+					DbColumn c = new DbColumn(t, name, domain.getType(), domain.getPrecision(), domain.getPrecision(), domain.getScale(), nulla, autoIncrement, domain.getSqlType(), domain.getPlatformTypeName());
 					return c;
 				}
 			}
@@ -359,11 +359,11 @@ public class PostgresReverser extends JDBCReverser {
 		if(sqlType == Types.OTHER) {
 			if("uuid".equals(typename)) {
 				ColumnType ct = ColumnType.VARCHAR;
-				return new DbColumn(t, name, ct, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
+				return new DbColumn(t, name, ct, prec, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
 			}
 			if("json".equals(typename)) {
 				ColumnType ct = ColumnType.JSON;
-				return new DbColumn(t, name, ct, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
+				return new DbColumn(t, name, ct, prec, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
 			}
 		}
 

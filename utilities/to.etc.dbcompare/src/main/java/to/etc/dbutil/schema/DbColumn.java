@@ -20,6 +20,8 @@ import java.util.Date;
 public class DbColumn implements Serializable {
 	private final Boolean m_autoIncrement;
 
+	private final int m_dataSize;
+
 	private DbTable m_table;
 
 	private String m_name;
@@ -45,20 +47,22 @@ public class DbColumn implements Serializable {
 
 	private boolean m_quoteName;
 
-	public DbColumn(DbTable table, String name, ColumnType type, int precision, int scale, boolean nullable, Boolean autoIncrement) {
+	public DbColumn(DbTable table, String name, ColumnType type, int dataSize, int precision, int scale, boolean nullable, Boolean autoIncrement) {
 		m_table = table;
 		m_name = name;
 		m_type = type;
+		m_dataSize = dataSize;
 		m_precision = precision;
 		m_scale = scale;
 		m_nullable = nullable;
 		m_autoIncrement = autoIncrement;
 	}
 
-	public DbColumn(DbTable table, String name, ColumnType type, int precision, int scale, boolean nullable, Boolean autoIncrement, int sqlType, String platformTypeName) {
+	public DbColumn(DbTable table, String name, ColumnType type, int dataSize, int precision, int scale, boolean nullable, Boolean autoIncrement, int sqlType, String platformTypeName) {
 		m_table = table;
 		m_name = name;
 		m_type = type;
+		m_dataSize = dataSize;
 		m_precision = precision;
 		m_scale = scale;
 		m_nullable = nullable;
@@ -75,6 +79,10 @@ public class DbColumn implements Serializable {
 
 	public int getPrecision() {
 		return m_precision;
+	}
+
+	public int getDataSize() {
+		return m_dataSize;
 	}
 
 	public void setPrecision(int precision) {
