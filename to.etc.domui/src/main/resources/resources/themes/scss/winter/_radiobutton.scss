@@ -54,10 +54,12 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 			cursor: default;
 			background-color: $rbb-disabled-color;
 			border-color: $rbb-disabled-border-color;
-			display: none;
+			color: $button-disabled-color;
+			display: inline-block;
 		}
 		input[type="radio"][disabled="disabled"]:checked + label {
 			background-color: $rbb-common-color;
+			color: darken($rbb-common-bg, 20%);
 			display: inline-block;
 		}
 
@@ -65,13 +67,6 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 	&.is-small .ui-rbb-item label {
 		padding: 1px 0.25em;
 		font-size: 0.75em;
-	}
-	&.ui-disabled,
-	&.ui-ro {
-		.ui-rbb-item label {
-			border-color: lightgrey;
-			color: gray;
-		}
 	}
 }
 .ui-rbb-buttons.ui-input-err label {

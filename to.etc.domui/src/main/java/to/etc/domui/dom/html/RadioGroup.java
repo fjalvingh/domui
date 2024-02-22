@@ -101,6 +101,7 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-rbgroup");
+		m_buttonList.forEach(button -> add(button.getParent()));
 	}
 
 	@Override
@@ -263,20 +264,25 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 
 	public void clearButtons() {
 		m_buttonList.clear();
+		internalSetValue(null);
+		m_valueIsSet = false;
 		forceRebuild();
 	}
 
 	public void removeButton(T value) {
-		for(RadioButton<T> rb : m_buttonList) {
-			if(rb.getButtonValue() == value) {
-				m_buttonList.remove(rb);
-				if(internalGetValue() == value) {
-					internalSetValue(null);
-					m_valueIsSet = false;
-				}
-				forceRebuild();
-				return;
-			}
+		boolean changed = false;
+		RadioButton<T> radioButton = m_buttonList.stream().filter(rb -> rb.getButtonValue() == value).findFirst().orElse(null);
+		if(null != radioButton) {
+			m_buttonList.remove(radioButton);
+			changed = true;
+		}
+		if(internalGetValue() == value) {
+			internalSetValue(null);
+			m_valueIsSet = false;
+			changed = true;
+		}
+		if(changed) {
+			forceRebuild();
 		}
 	}
 
