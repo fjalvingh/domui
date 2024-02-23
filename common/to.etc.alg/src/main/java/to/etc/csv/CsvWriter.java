@@ -1,5 +1,6 @@
 package to.etc.csv;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
@@ -107,26 +108,29 @@ public class CsvWriter implements AutoCloseable {
 		printString(text);
 	}
 
-	public void printNumber(Number value) throws Exception {
+	/**
+	 * Print a date + time value.
+	 */
+	public void printTimestamp(Timestamp value) throws Exception {
 		if(null == value) {
 			printNull();
 			return;
 		}
-		String text = m_options.getNumberFormat().format(value);
-		switch(m_options.getQuoteMode()){
-			default:
-				throw new IllegalStateException(m_options.getQuoteMode() + ": unhandled");
+		String text = m_options.getDateFormat().format(value);
+		printString(text);
+	}
 
-			case ALL:
-				printString(text);
-				break;
-
-			case MINIMAL:
-			case NON_NUMERIC:
-			case NONE:
-				append(text);
-				break;
+	public void printNumber(@Nullable Number value) throws Exception {
+		if(null == value) {
+			printNull();
+			return;
 		}
+
+		String text = value.toString(); // m_options.getNumberFormat().format(value);
+		if(m_options.isDecimalPointIsComma())
+			printNumberString(text.replace('.', ','));
+		else
+			printNumberString(text);
 	}
 
 	public void printNull() throws Exception {
@@ -252,4 +256,44 @@ public class CsvWriter implements AutoCloseable {
 			((AutoCloseable) m_output).close();
 		}
 	}
+
+	public void printLong(long value) throws Exception {
+		String text = Long.toString(value);
+		printNumberString(text);
+	}
+
+	protected void printNumberString(String text) throws Exception {
+		switch(m_options.getQuoteMode()){
+			default:
+				throw new IllegalStateException(m_options.getQuoteMode() + ": unhandled");
+
+			case ALL:
+				printString(text);
+				break;
+
+			case MINIMAL:
+			case NON_NUMERIC:
+			case NONE:
+				append(text);
+				break;
+		}
+	}
+
+
+	public void printInteger(int value) throws Exception {
+		printNumberString(Integer.toString(value));
+	}
+
+	public void printBoolean(boolean value) throws Exception {
+		printNumberString(value ? "true" : "false");							// Should be configurable
+	}
+
+	public void printDouble(double value) throws Exception {
+		String text = Double.toString(value);
+		if(m_options.isDecimalPointIsComma())
+			printNumberString(text.replace('.', ','));
+		else
+			printNumberString(text);
+	}
+
 }
