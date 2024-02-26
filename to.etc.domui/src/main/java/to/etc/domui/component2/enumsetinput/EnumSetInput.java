@@ -230,7 +230,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		} catch(Exception x) {
 			//-- If not a domain thingy - try others
 		}
-		return value.toString();
+		return String.valueOf(value);
 	}
 
 	@Nullable @Override public NodeBase getForTarget() {
