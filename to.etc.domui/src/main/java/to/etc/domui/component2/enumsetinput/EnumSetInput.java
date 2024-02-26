@@ -8,6 +8,7 @@ import to.etc.domui.component.input.SearchAsYouType;
 import to.etc.domui.component.input.SearchAsYouTypeBase;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
@@ -15,6 +16,7 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IRenderInto;
+import to.etc.util.WrappedException;
 import to.etc.webapp.nls.NlsContext;
 
 import java.util.ArrayList;
@@ -197,28 +199,39 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	}
 
 	private int compareText(T a, T b) {
-		String sa = getLabelText(a);
-		String sb = getLabelText(b);
-		return sa.compareToIgnoreCase(sb);
+		try {
+			String sa = getLabelText(a);
+			String sb = getLabelText(b);
+			return sa.compareToIgnoreCase(sb);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);				// The idiot that defined this shit stream API should be shot.
+		}
 	}
 
-	private String getLabelText(T instance) {
+	private String getLabelText(T instance) throws Exception {
 		Function<T, String> converter = m_converter;
 		if(null != converter) {
 			return converter.apply(instance);
 		}
+
+		Object value = instance;
+		String property = m_property;
+		if(property != null) {
+			PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(m_actualClass, property);
+			value = pmm.getValue(instance);
+		}
+
 		//-- Ask the metamodel
 		ClassMetaModel cmm = MetaManager.findClassMeta(m_actualClass);
 		try {
-			String label = cmm.getDomainLabel(NlsContext.getLocale(), instance);
+			String label = cmm.getDomainLabel(NlsContext.getLocale(), value);
 			if(null != label)
 				return label;
 		} catch(Exception x) {
 			//-- If not a domain thingy - try others
 		}
-		return instance.toString();
+		return value.toString();
 	}
-
 
 	@Nullable @Override public NodeBase getForTarget() {
 		return null;
