@@ -3169,12 +3169,20 @@ public class StringTool {
 		for(int i = 0, len = name.length(); i < len; i++) {
 			char c = name.charAt(i);
 			if(!isValidSqlNameChar(c))
-				throw new IllegalArgumentException("Invalid characters in SQL name");
+				throw new IllegalArgumentException("Invalid characters in SQL name <<" + name + ">>: " + c);
 		}
 	}
 
 	private static boolean isValidSqlNameChar(char c) {
-		return Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '[' || c == ']' || c == '"';
+		return Character.isLetterOrDigit(c)
+			|| c == '_'
+			|| c == '.'
+			|| c == '['
+			|| c == ']'
+			|| c == '"'
+			|| c == ' '
+			|| c == '-'
+			;
 	}
 
 	static public void sqlCheckNoQuotes(@Nullable String password) {
