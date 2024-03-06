@@ -129,6 +129,10 @@
 			<groupId>com.monitorjbl</groupId>
 			<artifactId>xlsx-streamer</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.bit3/jsass -->
 		<dependency>
