@@ -298,9 +298,12 @@ final public class UIControlUtil {
 		configureHint(c, pmm);
 		if(pmm.isRequired())
 			c.setMandatory(true);
-		if(!editable || pmm.getReadOnly() == YesNoType.YES)
+		if(!editable)
 			c.setDisabled(true);
+		if(pmm.getReadOnly() == YesNoType.YES)
+			c.setReadOnly(true);
 	}
+
 	public static void configure(@NonNull SearchPropertyMetaModel spm, PropertyMetaModel<?> pmm, IControl<?> co) {
 		if(DomApplication.get().isDefaultHintsOnControl()) {
 			String s = pmm.getDefaultHint();

@@ -62,7 +62,16 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 			color: darken($rbb-common-bg, 20%);
 			display: inline-block;
 		}
-
+		input[type="radio"][readonly="readonly"] + label {
+			display: none;
+		}
+		input[type="radio"][readonly="readonly"]:checked + label {
+			cursor: default;
+			background-color: $rbb-common-color;
+			color: $rbb-common-bg;
+			border-color: $rbb-disabled-border-color;
+			display: inline-block;
+		}
 	}
 	&.is-small .ui-rbb-item label {
 		padding: 1px 0.25em;

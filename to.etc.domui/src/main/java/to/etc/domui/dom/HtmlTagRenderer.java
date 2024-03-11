@@ -1168,7 +1168,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getName() != null)
 			o().attr("name", n.getName());
 
-		renderDiRo(n, n.isDisabled() || n.isReadOnly(), false);				// 20151007 Radio buttons cannot be read only, sigh.
+		renderDisabled(n, n.isDisabled());
+		renderReadOnly(n, n.isReadOnly());
 		renderChecked(n, n.isChecked());
 
 		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
