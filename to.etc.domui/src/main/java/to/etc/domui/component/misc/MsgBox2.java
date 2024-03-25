@@ -473,6 +473,34 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
+	/**
+	 * Add a non-answering button that executes some action.
+	 */
+	public MsgBox2 button(String title, IClicked<DefaultButton> clicked) {
+		DefaultButton btn = new DefaultButton(title, new IClicked<DefaultButton>() {
+			@Override
+			public void clicked(@NonNull DefaultButton b) throws Exception {
+				clicked.clicked(b);
+			}
+		});
+		m_theButtons.add(btn);
+		return this;
+	}
+
+	/**
+	 * Add a non-answering button that executes some action.
+	 */
+	public MsgBox2 button(String title, IIconRef icon, IClicked<DefaultButton> clicked) {
+		DefaultButton btn = new DefaultButton(title, icon, new IClicked<DefaultButton>() {
+			@Override
+			public void clicked(@NonNull DefaultButton b) throws Exception {
+				clicked.clicked(b);
+			}
+		});
+		m_theButtons.add(btn);
+		return this;
+	}
+
 	@NonNull
 	public MsgBox2 continueCancel() {
 		button(MsgBoxButton.CONTINUE);
