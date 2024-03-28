@@ -47,7 +47,7 @@ public class CsvExportWriter<T> implements IExportWriter<T> {
 				.collect(Collectors.toList());
 
 			output = new OutputStreamWriter(new FileOutputStream(m_target));
-			CsvOptions option = new CsvOptions()
+			CsvOptions option = CsvOptions.create()
 				.delimiter(',')
 				.quote('"')
 				.quoteMode(QuoteMode.ALL)

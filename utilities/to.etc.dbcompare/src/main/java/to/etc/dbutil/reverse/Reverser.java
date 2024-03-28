@@ -19,15 +19,27 @@ import java.util.Set;
  * Created on Dec 22, 2006
  */
 public interface Reverser {
-	@NonNull String getIdent();
+	@NonNull
+	String getIdent();
 
-	@NonNull String getDefaultSchemaName() throws Exception;
+	@NonNull
+	String getDefaultSchemaName() throws Exception;
 
-	@NonNull DbSchema loadSchema(@Nullable String schemaName, boolean lazily) throws Exception;
+	@NonNull
+	DbSchema loadSchema(@Nullable String schemaName, boolean lazily) throws Exception;
 
-	@NonNull Set<DbSchema> getSchemas(boolean lazily) throws Exception;
+	/**
+	 * Fully reverse all schema's
+	 */
+	@NonNull
+	Set<DbSchema> getSchemasExcept(boolean lazily, @Nullable Set<String> except) throws Exception;
 
-	@NonNull Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaName, boolean lazily) throws Exception;
+	default Set<DbSchema> getSchemas(boolean lazily) throws Exception {
+		return getSchemasExcept(lazily, null);
+	}
+
+	@NonNull
+	Set<DbSchema> getSchemasByName(boolean lazily, @NonNull Collection<String> schemaNames) throws Exception;
 
 	boolean hasOption(ReverserOption... options);
 
@@ -42,7 +54,6 @@ public interface Reverser {
 	void addSelectColumnAs(@NonNull StringBuilder statement, @NonNull String colname, @NonNull String alias);
 
 	String wrapQueryWithRange(@NonNull List<DbColumn> coll, @NonNull String sql, int first, int max);
-
 
 	void reverseColumns(@NonNull Connection dbc, @NonNull DbTable t) throws Exception;
 

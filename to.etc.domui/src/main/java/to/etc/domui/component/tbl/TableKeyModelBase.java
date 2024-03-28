@@ -35,10 +35,6 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	 * This method must return, for every K in the keys parameter, the proper T that belongs to that K, in the same
 	 * order as the K's specified. If calculating a T for a K is very expensive the implementation may decide to
 	 * cache the mapping for a certain number of K's. The model itself does not cache any T's returned by it.
-	 *
-	 * @param keys
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	abstract protected List<T> getItems(List<K> keys) throws Exception;
@@ -46,7 +42,6 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	/**
 	 * Create an unsortable model using the specified collection as source. This collection will be modified if
 	 * one of the {@link IModifyableTableModel} methods is called.
-	 * @param keycoll
 	 */
 	public TableKeyModelBase(@NonNull Collection<K> keycoll) {
 		m_sourceCollection = keycoll;
@@ -58,9 +53,6 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	 * the <b>keys</b> must contain enough information so that they can be sorted. It is explicitly
 	 * <b>forbidden</b> to implement this sort as loading the T then sorting on it's fields because this
 	 * would instantiate all records in the collection..
-	 *
-	 * @param keycoll
-	 * @param comp
 	 */
 	public TableKeyModelBase(@NonNull Collection<K> keycoll, @NonNull Comparator<K> comp) {
 		m_sourceCollection = keycoll;
@@ -69,9 +61,6 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 		Collections.sort(m_keyList, comp);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@NonNull
 	public List<T> getItems(int start, int end) throws Exception {
@@ -110,6 +99,10 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	@Override
 	public int getRows() throws Exception {
 		return m_keyList.size();
+	}
+
+	public List<K> getKeys() {
+		return m_keyList;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -202,8 +195,6 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 
 	/**
 	 * Send a "modified" message for the specified index.
-	 * @param index
-	 * @throws Exception
 	 */
 	public void modified(int index) throws Exception {
 		fireModified(index);
@@ -211,8 +202,6 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 
 	/**
 	 * Send a modified event for the specified key, if found.
-	 * @param key
-	 * @throws Exception
 	 */
 	public void modified(K key) throws Exception {
 		int ix = m_keyList.indexOf(key);
@@ -222,10 +211,6 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 
 	/**
 	 * Convenience method to move a key from index <i>from</i> to index <i>to</i>.
-	 *
-	 * @param to
-	 * @param from
-	 * @throws Exception
 	 */
 	public void move(int to, int from) throws Exception {
 		if(m_comparator != null)

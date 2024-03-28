@@ -115,7 +115,7 @@ final public class UILogin {
 				if(null != user) {
 					//-- Store the user in the HttpSession.
 					hs.setAttribute(LOGIN_KEY, user);
-					System.out.println(">> authenticateByRequest " + user);
+					//System.out.println(">> authenticateByRequest " + user);
 					return user;
 				}
 

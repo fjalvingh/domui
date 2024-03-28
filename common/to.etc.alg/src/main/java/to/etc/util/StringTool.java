@@ -3169,12 +3169,20 @@ public class StringTool {
 		for(int i = 0, len = name.length(); i < len; i++) {
 			char c = name.charAt(i);
 			if(!isValidSqlNameChar(c))
-				throw new IllegalArgumentException("Invalid characters in SQL name");
+				throw new IllegalArgumentException("Invalid characters in SQL name <<" + name + ">>: " + c);
 		}
 	}
 
 	private static boolean isValidSqlNameChar(char c) {
-		return Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '[' || c == ']' || c == '"';
+		return Character.isLetterOrDigit(c)
+			|| c == '_'
+			|| c == '.'
+			|| c == '['
+			|| c == ']'
+			|| c == '"'
+			|| c == ' '
+			|| c == '-'
+			;
 	}
 
 	static public void sqlCheckNoQuotes(@Nullable String password) {
@@ -3348,6 +3356,16 @@ public class StringTool {
 	 */
 	static public String nr(long records) {
 		return NumberFormat.getNumberInstance().format(records);
+	}
+
+	static public String bps(double bytesPerSecond) {
+		if(bytesPerSecond < 1024 * 10) {
+			return String.format("%.0f bytes/s", bytesPerSecond);
+		}
+		if(bytesPerSecond < 1024 * 1024) {
+			return String.format("%.1f KB/s", bytesPerSecond / 1024.0D);
+		}
+		return String.format("%.1f MB/s", bytesPerSecond / (1024.0D * 1024.0D));
 	}
 
 	static public void main(final String[] args) throws Exception {
