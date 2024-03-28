@@ -200,11 +200,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_dataBody = new TBody();
 		m_table.add(m_dataBody);
 
-		if(setEmptyDiv())
-			return;
-
-		List<T> list = getPageItems(); // Data to show
-
 		//-- Render the header, if applicable
 		if(!isHideHeader()) {
 			THead hd = new THead();
@@ -227,6 +222,11 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			//-- Add the header for the action buttons
 			hc.add((NodeBase) null);
 		}
+
+		if(setEmptyDiv())
+			return;
+
+		List<T> list = getPageItems(); // Data to show
 
 		//-- Render loop: add rows && ask the renderer to add columns.
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
