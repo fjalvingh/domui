@@ -61,7 +61,7 @@
 		<cxf.version>3.5.7</cxf.version>
 		<jackson.version>2.15.2</jackson.version>
 		<jackson.databind.version>2.15.2</jackson.databind.version>
-		<jackson.hibernate>2.12.1</jackson.hibernate>
+		<jackson.hibernate>2.14.1</jackson.hibernate>
 		<bouncy.version>1.70</bouncy.version>
         <bouncycastle.version>1.70</bouncycastle.version>
 	</properties>

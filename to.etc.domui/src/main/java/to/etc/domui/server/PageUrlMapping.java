@@ -19,7 +19,6 @@ import to.etc.util.StringTool;
 
 import java.beans.Introspector;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -116,7 +115,7 @@ final public class PageUrlMapping {
 				pageParams.put(pname, method.getReturnType().getName());
 			}
 		}
-		appendPage(pageClass.getName(), pattern, pageParams);
+		appendPage(PageSubtype.UrlPage, pageClass.getName(), pattern, pageParams);
 	}
 
 	private void appendPage(PageSubtype type, String name, String pattern, Map<String, String> pageParams) {

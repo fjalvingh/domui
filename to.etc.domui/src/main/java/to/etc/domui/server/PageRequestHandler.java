@@ -210,7 +210,7 @@ final public class PageRequestHandler {
 			} else {
 				if(null != cida && cida.getConversationId().equals("r")) {
 					LOG.error("Seems that session redirect can't work, detected retry on session redirect, aborting...");
-					IBrowserOutput out = new PrettyXmlOutputWriter(m_ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
+					IBrowserOutput out = new PrettyXmlOutputWriter(m_ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"), null);
 					out.writeRaw("Can't create session, session cookie is blocked by the browser!\n");
 					return;
 				}
