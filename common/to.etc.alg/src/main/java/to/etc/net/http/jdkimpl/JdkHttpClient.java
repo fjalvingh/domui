@@ -252,7 +252,7 @@ public class JdkHttpClient implements IHttpClient {
 			list = m_clientList;
 			m_clientList = new ArrayList<>();
 			HttpClient client = m_client;
-			if(null != client) {
+			if(null != client && !list.contains(client)) {
 				list.add(client);
 				m_client = null;
 			}

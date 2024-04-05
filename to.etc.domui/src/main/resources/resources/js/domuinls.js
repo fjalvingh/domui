@@ -24,7 +24,7 @@ WebUI._T.buplError='Upload has failed';
 WebUI._T.buplComplete='Completed';
 WebUI._T.buplCancelled='Cancelled';
 
-WebUI._T.buplTooBig = 'The file is too big';
+WebUI._T.buplTooBig = 'The file is too big ({0})';
 WebUI._T.buplEmptyFile = 'The file is empty';
 WebUI._T.buplInvalidType = 'Invalid file type';
 WebUI._T.buplUnknownError = 'Unknown error';
