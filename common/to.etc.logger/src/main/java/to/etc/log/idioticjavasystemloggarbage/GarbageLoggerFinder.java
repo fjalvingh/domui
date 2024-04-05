@@ -15,7 +15,7 @@ import java.lang.System.Logger;
 public class GarbageLoggerFinder extends System.LoggerFinder { // and there we go again: an abstract class, no interface. What a bunch of morons.
 
 	public GarbageLoggerFinder() {
-		System.out.println("EtcLogger: replace the moronic System.Logger garbage");
+		System.out.println("EtcLogger: replace the System.Logger 8-(");
 	}
 
 	@Override

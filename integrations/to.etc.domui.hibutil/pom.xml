@@ -3,9 +3,8 @@
 
     <parent>
         <groupId>to.etc.domui</groupId>
-        <artifactId>to.etc.domui.parent</artifactId>
+        <artifactId>integrations</artifactId>
         <version>1.2-SNAPSHOT</version>
-        <relativePath>../../parent</relativePath>
     </parent>
 
     <artifactId>to.etc.domui.hibutil</artifactId>
@@ -68,14 +67,12 @@
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>${javassist.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.core.version}</version>
 
             <exclusions>
                 <exclusion>
@@ -98,6 +95,11 @@
                     <artifactId>jaxb-runtime</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate5</artifactId>
         </dependency>
 
         <dependency>

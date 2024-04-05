@@ -9,6 +9,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IValueAccessor;
+import to.etc.webapp.query.QField;
 
 /**
  * This is a binding that "translates" a model property into a css style on the component, using
@@ -54,6 +55,11 @@ final public class StyleBinding implements IBinding {
 	@NonNull
 	public <T> StyleBinder to(@NonNull T instance, @NonNull String property) throws Exception {
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
+	}
+
+	@NonNull
+	public <T> StyleBinder to(@NonNull T instance, @NonNull QField<T, ?> field) throws Exception {
+		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), field));
 	}
 
 	/**

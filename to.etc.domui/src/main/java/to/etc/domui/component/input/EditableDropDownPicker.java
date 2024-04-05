@@ -104,7 +104,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		initializeJS();
 	}
 
-	protected String convertObjectToString(Locale currencyLocale, T val) {
+	protected String convertObjectToString(Locale currencyLocale, T val) throws Exception {
 		if(m_toStringConverter != null) {
 			return m_toStringConverter.convertObjectToString(NlsContext.getCurrencyLocale(), val);
 		} else {

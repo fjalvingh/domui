@@ -39,13 +39,14 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 		m_taskSource.addListener(new ITaskListener<T, SingleTaskExecutor<T>>() {
 			@Override
 			public void onTaskStarted(Task<T, SingleTaskExecutor<T>> task) throws Exception {
+				m_progress.increment(1);
 				DependentTaskRunner.this.onTaskStarted(task);
 			}
 
 			@Override
 			public void onTaskFinished(Task<T, SingleTaskExecutor<T>> task, @Nullable Throwable failure) throws Exception {
 				onFinish(task);
-				m_progress.increment(1.0);
+				m_progress.increment(99);
 			}
 		});
 	}
@@ -56,7 +57,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 
 	public void runAll(Progress pin) throws Exception {
 		m_progress = pin;
-		pin.setTotalWork(m_taskSource.size());
+		pin.setTotalWork(m_taskSource.size() * 100);
 		for(;;) {
 			Task<T, SingleTaskExecutor<T>> task = m_taskSource.getNextRunnableBlocking(m_calculateBest);
 			if(null == task)

@@ -2,12 +2,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>to.etc.domui</groupId>
-        <artifactId>to.etc.domui.parent</artifactId>
+        <groupId>to.etc</groupId>
+        <artifactId>common</artifactId>
         <version>1.2-SNAPSHOT</version>
-        <relativePath>../../parent</relativePath>
     </parent>
 
+    <groupId>to.etc.domui</groupId>
     <artifactId>to.etc.alg</artifactId>
     <version>1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -58,6 +58,12 @@
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <!-- Generic http client -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
         </dependency>
 
         <dependency>

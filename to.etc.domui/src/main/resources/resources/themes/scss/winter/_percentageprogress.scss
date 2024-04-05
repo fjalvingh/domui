@@ -5,4 +5,43 @@
 	background: url(bg-progress.png) no-repeat -375px 0px;
 	/*border-collapse: separate; */
 	border: 1px solid black;
+	border-radius: 4px;
 }
+
+.ui-pct-rlr2 {
+	display: inline-flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	position: relative;
+	height: 20px;
+	border: 1px solid #B0BEC5;
+	border-radius: 6px;
+	overflow: hidden;
+
+	.ui-pct-rlr2-bar {
+		margin: 2px;
+		background-color: red;
+		border: 1px solid transparent;
+		border-radius: 6px;
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	.ui-pct-rlr2-bar.ui-rlr2-pct-100 {
+		border-top-right-radius: 6px;
+		border-bottom-right-radius: 6px;
+	}
+
+	.ui-pct-rlr2-txt {
+		position: absolute;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		top: 0;
+		left: 0;
+		height: 20px;
+		z-index: 2;
+	}
+}
+
+

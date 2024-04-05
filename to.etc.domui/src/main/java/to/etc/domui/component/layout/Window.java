@@ -189,7 +189,10 @@ public class Window extends FloatingDiv {
 
 	private void init() {
 		m_content = new Div();
-		m_content.addCssClass("ui-flw-c ui-fixovfl");
+		if(getHeight() != null)
+			m_content.addCssClass("ui-flw-c ui-fixovfl");
+		else
+			m_content.addCssClass("ui-flw-c");
 		//		m_content.setStretchHeight(true);
 		m_topContent = new Div();
 		m_topContent.addCssClass("ui-flw-tc");

@@ -2,7 +2,7 @@ package to.etc.domuidemo.pages.cddb;
 
 import to.etc.domui.component.layout.Caption;
 import to.etc.domui.component.layout.ContentPanel;
-import to.etc.domui.component.lookup.LookupForm;
+import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.derbydata.db.Track;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.UIGoto;
@@ -18,7 +18,7 @@ public class CdCollection extends UrlPage {
 		ContentPanel cp = new ContentPanel();
 		add(cp);
 
-		LookupForm<Track> lookup = new LookupForm<>(Track.class);
+		SearchPanel<Track> lookup = new SearchPanel<>(Track.class);
 		cp.add(lookup);
 
 		TrackResultFragment<Track> resultFragment = new TrackResultFragment<>(lookup);

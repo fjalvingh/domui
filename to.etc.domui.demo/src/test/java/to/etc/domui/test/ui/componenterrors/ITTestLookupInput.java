@@ -20,7 +20,6 @@ import java.io.File;
  */
 public class ITTestLookupInput extends AbstractWebDriverTest {
 	public ITTestLookupInput() {
-		System.out.println("CONSTRUCTED");
 	}
 
 	/**

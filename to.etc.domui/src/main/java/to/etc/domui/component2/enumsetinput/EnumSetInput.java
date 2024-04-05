@@ -8,6 +8,7 @@ import to.etc.domui.component.input.SearchAsYouType;
 import to.etc.domui.component.input.SearchAsYouTypeBase;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
@@ -15,6 +16,7 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IRenderInto;
+import to.etc.util.WrappedException;
 import to.etc.webapp.nls.NlsContext;
 
 import java.util.ArrayList;
@@ -85,25 +87,24 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 				add(label);
 			}
 		}
-		if(isDisabled() || isReadOnly()) {
-			m_input = null;
-		} else {
-			SearchAsYouType<T> input = m_input = new SearchAsYouType<>(m_actualClass, m_property);
-			//input.setCssBase("ui-esic-input");
-			add(input);
-			input.setAddSingleMatch(isAddSingleMatch());
-			//input.setCssClass("ui-esic-input");
-			input.setData(getData());
+		SearchAsYouType<T> input = m_input = new SearchAsYouType<>(m_actualClass, m_property);
+		//input.setCssBase("ui-esic-input");
+		add(input);
+		input.setAddSingleMatch(isAddSingleMatch());
+		//input.setCssClass("ui-esic-input");
+		input.setData(getData());
 
-			input.setOnValueChanged(a -> {
-				T value = input.getValue();
-				if(null != value) {
-					addItem(value);
-					input.setValue(null);
-					updateValueList();
-				}
-			});
-		}
+		input.setOnValueChanged(a -> {
+			T value = input.getValue();
+			if(null != value) {
+				addItem(value);
+				input.setValue(null);
+				updateValueList();
+			}
+		});
+
+		input.setDisabled(isDisabled());
+		input.setReadOnly(isReadOnly());
 	}
 
 	private void updateValueList() {
@@ -134,18 +135,20 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		}
 
 		//-- Add the "remove" button to the label
-		Button delBtn = new Button().css("ui-esic-del");
-		label.add(delBtn);
-		delBtn.add(Icon.faTimes.createNode());
-		delBtn.setClicked(a -> {
-			removeItem(value);
-			SearchAsYouType<T> input = m_input;
-			if(input != null) {
-				input.setFocus();
-				updateValueList();
-			}
+		if(!isDisabled() && !isReadOnly()) {
+			Button delBtn = new Button().css("ui-esic-del");
+			label.add(delBtn);
+			delBtn.add(Icon.faTimes.createNode());
+			delBtn.setClicked(a -> {
+				removeItem(value);
+				SearchAsYouType<T> input = m_input;
+				if(input != null) {
+					input.setFocus();
+					updateValueList();
+				}
 
-		});
+			});
+		}
 		m_displayMap.put(value, label);					// Register
 		return label;
 	}
@@ -184,6 +187,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		} else {
 			input.appendBeforeMe(label);
 		}
+		valueHasChanged();
 	}
 
 
@@ -195,28 +199,39 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	}
 
 	private int compareText(T a, T b) {
-		String sa = getLabelText(a);
-		String sb = getLabelText(b);
-		return sa.compareToIgnoreCase(sb);
+		try {
+			String sa = getLabelText(a);
+			String sb = getLabelText(b);
+			return sa.compareToIgnoreCase(sb);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);				// The idiot that defined this shit stream API should be shot.
+		}
 	}
 
-	private String getLabelText(T instance) {
+	private String getLabelText(T instance) throws Exception {
 		Function<T, String> converter = m_converter;
 		if(null != converter) {
 			return converter.apply(instance);
 		}
+
+		Object value = instance;
+		String property = m_property;
+		if(property != null) {
+			PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(m_actualClass, property);
+			value = pmm.getValue(instance);
+		}
+
 		//-- Ask the metamodel
 		ClassMetaModel cmm = MetaManager.findClassMeta(m_actualClass);
 		try {
-			String label = cmm.getDomainLabel(NlsContext.getLocale(), instance);
+			String label = cmm.getDomainLabel(NlsContext.getLocale(), value);
 			if(null != label)
 				return label;
 		} catch(Exception x) {
 			//-- If not a domain thingy - try others
 		}
-		return instance.toString();
+		return String.valueOf(value);
 	}
-
 
 	@Nullable @Override public NodeBase getForTarget() {
 		return null;

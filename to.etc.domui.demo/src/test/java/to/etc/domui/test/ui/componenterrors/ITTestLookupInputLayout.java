@@ -76,6 +76,8 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 		Assume.assumeTrue("Test only valid when running chrome", wd().driver() instanceof MyChromeDriver);
 
 		ChromeExtender xx = new ChromeExtender( (MyChromeDriver) wd().driver());
-		xx.takeScreenshot(new File("/tmp/screen.png"));
+		File f = File.createTempFile("screen-", ".png");
+		xx.takeScreenshot(f);
+		f.delete();
 	}
 }

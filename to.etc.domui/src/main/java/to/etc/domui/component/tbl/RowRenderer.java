@@ -209,7 +209,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				col = cell.getCol();
 			} else {
 				Div cellSpan = new Div();
-//				cellSpan.setCssClass("ui-sortable");
 				HeaderContainer.HeaderContainerCell cell = cc.add(cellSpan);
 				th = cell.getTh();
 				col = cell.getCol();
@@ -234,17 +233,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				Div sp = new Div("ui-dt-sorticon " + sortCss);
 				cellSpan.add(sp);
 				sortSpans[ix] = sp;
-
-//				//-- Add the sort order indicator: a single image containing either ^, v or both.
-//				final Img img = new Img();
-//				cellSpan.add(img);
-//
-//				if(cd == getSortColumn()) {
-//					img.setSrc(m_columnList.isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
-//				} else {
-//					img.setSrc("THEME/sort-none.png");
-//				}
-//				sortImages[ix] = img;
 			}
 
 			String cssClass = cd.getHeaderCssClass();
@@ -552,21 +540,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
 				ds.setRenderer(createContentRendererForSpan(contentRenderer));
-				//
-				//ds.setRenderer(new IRenderInto<X>() {
-				//	@Override
-				//	public void render(@NonNull NodeContainer node, @NonNull X object) throws Exception {
-				//		contentRenderer.render(node, object);
-				//	}
-				//
-				//	/**
-				//	 * Wrap the renderer, so we can pass the "instance" to it.
-				//	 */
-				//	@Override
-				//	public void renderOpt(@NonNull NodeContainer node, @Nullable X object) throws Exception {
-				//		contentRenderer.renderOpt(node, object); //, instance);
-				//	}
-				//});
 			} else {
 				if(converter != null) {
 					ds.setConverter(converter);
@@ -588,10 +561,15 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				ds.setValue(value);
 			}
 			cell.add(ds);
-			//contentRenderer.renderOpt(cell, value);
 		} else {
 			throw new IllegalStateException("? Don't know how to render " + cd);
 		}
+
+		PropertyMetaModel<String> hintProperty = cd.getValueHintProperty();
+		if(null != hintProperty) {
+			cell.bind("title").to(instance, hintProperty.getName());
+		}
+
 		return cell;
 	}
 

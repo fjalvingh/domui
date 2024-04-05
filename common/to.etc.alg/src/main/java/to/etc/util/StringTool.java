@@ -37,6 +37,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.text.Normalizer;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -227,7 +228,7 @@ public class StringTool {
 			else
 				digits++;
 		}
-		return dots < 2 && digits > 1;
+		return dots < 2 && digits >= 1;
 	}
 
 	static public boolean isDomainChar(final char c) {
@@ -1752,14 +1753,6 @@ public class StringTool {
 		return v ? "T" : "F";
 	}
 
-	static public void main(final String[] args) throws Exception {
-		byte[] data = new byte[127];
-		StringBuilder sb = new StringBuilder();
-		dumpData(sb, data, 0, data.length);
-		System.out.println(sb.toString());
-
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Base 64 encoding/decoding (rfc2045)					*/
 	/*--------------------------------------------------------------*/
@@ -3262,6 +3255,128 @@ public class StringTool {
 			}
 		}
 		return new String(buf);
+	}
+
+	/**
+	 * This does its best to create a Dutch plural form for the word
+	 * specified. It obeys the rules <a href="https://www.braint.nl/taalgids/spelling/meervoud.html">described here</a>.
+	 * This will use 's where needed, so if you expect an identifier
+	 * out of this replace all ' with something else!!
+	 * This is not perfect; it does not handle exceptions like "kind" and "blad".
+	 */
+	@NonNull
+	static public String dutchPluralOf(@NonNull String word) {
+		word = word.trim();
+		if(word.length() == 0)
+			return word;
+		String lc = word.toLowerCase();
+		boolean isUC = Character.isUpperCase(word.charAt(word.length() - 1));
+		String enSuffix = isUC ? "EN" : "en";
+		String sSuffix = isUC ? "S" : "s";
+		String sApoSuffix = isUC ? "'S" : "'s";
+
+		if(lc.endsWith("e") || lc.endsWith("eau") || lc.endsWith("ail"))
+			return word + sSuffix;
+		if(lc.endsWith("eid")) // eenheid -> eenheden
+			return word.substring(0, word.length() - 3) + "eden";
+		if(lc.endsWith("eel")) // bouwdeel -> bouwdelen
+			return word.substring(0, word.length() - 3) + "elen";
+		if(lc.endsWith("slag"))
+			return word + enSuffix;
+		if(lc.endsWith("iel"))
+			return word + enSuffix;
+
+		if(word.length() > 3) {
+			//if(lc.charAt(word.length() - 2) == lc.charAt(word.length() - 3) && isVowel(word.charAt(word.length() - 2))) {
+				if(lc.endsWith("el") || lc.endsWith("en") || lc.endsWith("er") || lc.endsWith("em") || lc.endsWith("ie"))
+					return word + sSuffix;
+			//}
+		}
+
+		if(lc.endsWith("i") || lc.endsWith("a") || lc.endsWith("o") || lc.endsWith("u"))
+			return word + (isUC ? "'S" : "'s");
+
+		//-- If we end in "y" it depends on whether the letter before the end is a vowel
+		if(lc.endsWith("y")) {
+			char before = lc.charAt(lc.length() - 2);
+			if(isVowel(before)) {
+				return word + sSuffix;
+			} else {
+				return word + sApoSuffix;
+			}
+		}
+
+		//-- We will want to use "en"...
+		//-- Ends in 2 same vowels and consonant -> remove one of the vowels (afspraak -> afspraken)
+		if(word.length() >= 3) {
+			if(lc.charAt(word.length() - 2) == lc.charAt(word.length() - 3) && isVowel(word.charAt(word.length() - 2))) {
+				if(!isVowel(word.charAt(word.length() - 1))) {
+					word = word.substring(0, word.length() - 3) + word.substring(word.length() - 2) + enSuffix;
+					return word;
+				}
+			}
+		}
+
+		//-- Does the word end in a single vowel + consonant? Then repeat the final consonant (adres -> adressen).
+		if(word.length() >= 2) {
+			if(isVowel(word.charAt(word.length() - 2)) && !isVowel(word.charAt(word.length() - 1)) && !isVowel(word, -3)) {
+				return word + word.charAt(word.length() - 1) + enSuffix;
+			}
+		}
+
+		//-- If the word ends in "f" we need to change it to a "v"
+		if(lc.endsWith("f"))
+			return word.substring(0, word.length() - 1) + (isUC ? "VEN" : "ven");
+
+		return word + enSuffix;
+	}
+
+	private static boolean isVowel(char c) {
+		return c == 'a' || c == 'A'
+			|| c == 'i' || c == 'I'
+			|| c == 'u' || c == 'U'
+			|| c == 'o' || c == 'O'
+			|| c == 'e' || c == 'E'
+			;
+	}
+
+	private static boolean isVowel(String word, int index) {
+		if(index >= 0)
+			return false;
+		int pos = word.length() + index;
+		if(pos < 0)
+			return false;
+		return isVowel(word.charAt(pos));
+	}
+
+	/**
+	 * Calculates a records per second count from a #records and a
+	 * time it took to load them in millis.
+	 */
+	static public String rps(long records, long millis) {
+		double r = records / ((double) millis / 1000);
+		return NumberFormat.getNumberInstance().format((long) r);
+	}
+
+	/**
+	 * Formats a number in user readable form, with thousands separators.
+	 */
+	static public String nr(long records) {
+		return NumberFormat.getNumberInstance().format(records);
+	}
+
+	static public String bps(double bytesPerSecond) {
+		if(bytesPerSecond < 1024 * 10) {
+			return String.format("%.0f bytes/s", bytesPerSecond);
+		}
+		if(bytesPerSecond < 1024 * 1024) {
+			return String.format("%.1f KB/s", bytesPerSecond / 1024.0D);
+		}
+		return String.format("%.1f MB/s", bytesPerSecond / (1024.0D * 1024.0D));
+	}
+
+	static public void main(final String[] args) throws Exception {
+		System.out.println(dutchPluralOf("huurtoeslag"));
 	}
 
 }

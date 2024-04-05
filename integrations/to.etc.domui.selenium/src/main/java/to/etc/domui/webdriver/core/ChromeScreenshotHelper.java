@@ -11,12 +11,15 @@ import java.io.File;
  * Created on 3-9-17.
  */
 public class ChromeScreenshotHelper implements IWebdriverScreenshotHelper {
-	@Override public boolean createScreenshot(WebDriverConnector webDriverConnector, File screenshotFile) throws Exception {
+	@Override
+	public boolean createScreenshot(WebDriverConnector webDriverConnector, File screenshotFile) throws Exception {
 		new ChromeExtender((MyChromeDriver) webDriverConnector.driver()).takeScreenshot(screenshotFile);
 		return true;
 	}
 
-	@Nullable @Override public BufferedImage createScreenshot(@NonNull WebDriverConnector webDriverConnector) throws Exception {
+	@Nullable
+	@Override
+	public BufferedImage createScreenshot(@NonNull WebDriverConnector webDriverConnector) throws Exception {
 		return new ChromeExtender((MyChromeDriver) webDriverConnector.driver()).takeScreenshot();
 	}
 }

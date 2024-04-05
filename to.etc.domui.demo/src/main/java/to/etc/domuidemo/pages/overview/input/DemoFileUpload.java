@@ -1,7 +1,7 @@
 package to.etc.domuidemo.pages.overview.input;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.upload.FileUpload;
+import to.etc.domui.component.upload.FileUploadMultiple;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
@@ -12,7 +12,6 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 public class DemoFileUpload extends UrlPage {
@@ -27,14 +26,8 @@ public class DemoFileUpload extends UrlPage {
 		d.add(lab);
 		d.add(new BR());
 
-		final FileUpload upload = new FileUpload();
+		final FileUploadMultiple upload = new FileUploadMultiple("jpg", "gif", "png", "log");
 		d.add(upload);
-
-		// Set the extensions allowed uploading
-		upload.setAllowedExtensions(Arrays.asList("jpg", "gif","png","log"));
-
-		// Set the max number of files allowed to upload
-		upload.setMaxFiles(3);
 
 		DefaultButton db = new DefaultButton("display hashes");
 		d.add(db);
@@ -47,9 +40,9 @@ public class DemoFileUpload extends UrlPage {
 		});
 	}
 
-	void showHashes(FileUpload upload) throws IOException {
-		List<UploadItem> uil = upload.getFiles();
-		if(uil.isEmpty()) {
+	void showHashes(FileUploadMultiple upload) throws IOException {
+		List<UploadItem> uil = upload.getValue();
+		if(null == uil || uil.isEmpty()) {
 			add(new BR());
 			add(new Label("No files uploaded !"));
 			return;

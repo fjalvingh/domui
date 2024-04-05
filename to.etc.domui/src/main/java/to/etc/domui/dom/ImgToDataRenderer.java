@@ -1,5 +1,6 @@
 package to.etc.domui.dom;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.server.DomApplication;
@@ -18,12 +19,17 @@ import static java.util.Objects.requireNonNull;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 9-3-18.
  */
+@NonNullByDefault
 final public class ImgToDataRenderer {
 	static private final Logger LOG = LoggerFactory.getLogger(ImgToDataRenderer.class);
 
 	public String imageToData(String imageURL) throws Exception {
-		//-- Try to locate the image
+		if(imageURL.startsWith("data:")) {
+			//it is already in data format
+			return imageURL;
+		}
 
+		//-- Try to locate the image
 		IResourceRef resource = DomApplication.get().getResource(imageURL, new ResourceDependencyList());
 		if(! resource.exists()) {
 			LOG.error(imageURL + ": image resource not found");

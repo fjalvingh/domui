@@ -10,7 +10,7 @@ import to.etc.domuidemo.pages.test.componenterrors.Text2LayoutTestPage;
  */
 public class ITTestText2Layout extends AbstractLayoutTest {
 	@Override
-	protected void initializeScreen() throws Exception {
+	public void initializeScreen() throws Exception {
 		wd().openScreenIf(this, Text2LayoutTestPage.class);
 		//wd().cmd().type("aaaaaaaaa").on("two", "input");
 		//wd().wait(By.className("ui-lui-popup"));

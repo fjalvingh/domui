@@ -59,7 +59,7 @@ public class PlotlyGraph extends Div implements IComponentJsonProvider {
 			renderDataset(b, dataset);
 
 			b.close();
-			System.out.println(sb.asString());
+			//System.out.println(sb.asString());
 			return sb;
 		}
 	}

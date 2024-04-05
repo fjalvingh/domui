@@ -68,7 +68,6 @@ final public class UploadItem {
 
 	/**
 	 * T if this actually contains a file (it is not just a parameter).
-	 * @return
 	 */
 	public boolean isFile() {
 		return m_file;
@@ -78,24 +77,10 @@ final public class UploadItem {
 	 * Called when the item is resident in a file. When called the code
 	 * takes ownership of the file, and deletes the file as soon as this
 	 * item gets finalized or otherwise cleaned up.
-	 *
-	 * @param f
 	 */
 	public void setFile(File f) {
 		m_backingFile = f;
 	}
-
-	//	@Override
-	//	protected void finalize() throws Throwable {
-	//		try {
-	//			if(m_backingFile != null) {
-	//				m_backingFile.delete();
-	//				m_backingFile = null;
-	//			}
-	//		}
-	//		catch(Exception x) {}
-	//		super.finalize();
-	//	}
 
 	/**
 	 * If known, the character set for how the data is to be decoded. Can be null.
@@ -104,11 +89,6 @@ final public class UploadItem {
 	public String getCharSet() {
 		return m_charset;
 	}
-
-	//	private String getInternalCharset() {
-	//		return getCharSet() == null ? "ISO-8859-1" : getCharSet();
-	//	}
-	//
 
 	/**
 	 * If this is a parameter and not a File, this contains the parameter's value, decoded
@@ -128,7 +108,6 @@ final public class UploadItem {
 
 	/**
 	 * The name of the input field.
-	 * @return
 	 */
 	@NonNull
 	public String getName() {
@@ -139,7 +118,6 @@ final public class UploadItem {
 	 * If specified, the name that the browser provided as the "local file name", i.e. the name
 	 * of the file on the browser's file system that was selected for upload. Will not usually
 	 * contain a path.
-	 * @return
 	 */
 	@Nullable
 	public String getRemoteFileName() {
@@ -148,7 +126,6 @@ final public class UploadItem {
 
 	/**
 	 * If specified, the MIME content type the browser provided during the upload.
-	 * @return
 	 */
 	@Nullable
 	public String getContentType() {
@@ -157,7 +134,6 @@ final public class UploadItem {
 
 	/**
 	 * If this is a FILE item, this contains the size, in bytes, of the uploaded file.
-	 * @return
 	 */
 	public int getSize() {
 		if(isFile() && m_backingFile == null)
@@ -169,7 +145,6 @@ final public class UploadItem {
 
 	/**
 	 * SILLY_INTERFACE? If this holds no value it returns true.
-	 * @return
 	 */
 	public boolean isEmpty() {
 		return m_fileName == null;
@@ -178,8 +153,6 @@ final public class UploadItem {
 	/**
 	 * Return a file for this item. If the item is not yet file-based then a new
 	 * file is generated for this item.
-	 *
-	 * @see to.etc.server.upload.UploadItem#getFile()
 	 */
 	public File getFile() {
 		if(isFile() && m_backingFile == null)

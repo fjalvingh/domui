@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
  */
 public class ITTestText2Behavior extends AbstractLayoutTest {
 	@Override
-	protected void initializeScreen() throws Exception {
+	public void initializeScreen() throws Exception {
 		wd().openScreenIf(this, Text2LayoutTestPage.class);
 		//wd().cmd().type("aaaaaaaaa").on("two", "input");
 		//wd().wait(By.className("ui-lui-popup"));

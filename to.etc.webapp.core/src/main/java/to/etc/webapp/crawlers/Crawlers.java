@@ -70,6 +70,7 @@ final public class Crawlers {
 		if(null == header)
 			return false;
 		header = header.toLowerCase();
+		//System.out.println(">> useragent " + header);
 		for(Bot bot : m_botList) {
 			String hostName = "(unknown)";
 			if(bot.isUserAgent(header)) {
@@ -120,6 +121,11 @@ final public class Crawlers {
 		INSTANCE.registerCrawler("FaceBot", Set.of("facebookexternalhit"), Set.of(".facebook.com"));
 		INSTANCE.registerCrawler("Alexa", Set.of("ia_archiver"), Set.of(".amazonaws.com"));
 		INSTANCE.registerCrawler("MSNBot", Set.of("msnbot/"), Collections.emptySet());			// ms cannot validate. Good work.
+
+		//-- Experimental: chatbase bot?
+		INSTANCE.registerCrawler("Chatbase", Set.of("undici"), Collections.emptySet());			// cannot validate.
+
+
 
 		//-- We do not include SOUGOU
 

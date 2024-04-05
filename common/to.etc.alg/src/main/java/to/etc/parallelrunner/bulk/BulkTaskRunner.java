@@ -62,7 +62,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 		}
 	}
 
-	private void waitForStart() throws InterruptedException {
+	private void waitForStart() throws Exception {
 		Exception error;
 		long ets = System.currentTimeMillis() + 120 * 1000;
 		try {
@@ -81,6 +81,10 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 
 						wait(60_000);
 					}
+				}
+				if(null != error) {
+					//if initialization of thread aborts with error, runner aborts too
+					throw error;
 				}
 			}
 		} catch(Exception x) {
@@ -103,6 +107,9 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 			for(; ; ) {
 				if(m_finished)
 					throw new IllegalStateException("Attempt to add task while we're finished");
+				if(null != m_failed) {
+					throw new IllegalStateException("Attempt to add task while we're failed already! ", m_failed);
+				}
 				if(!m_freeThreadList.isEmpty()) {
 					exec = m_freeThreadList.remove(m_freeThreadList.size() - 1);
 					break;

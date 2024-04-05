@@ -9,7 +9,7 @@ import to.etc.domui.themes.Theme
  * Shows message line with specified or appropriate default icon.
  * Compared to older MessageLine brings a bit larger icons and nice rounded border around message.
  */
-class MessageLine2(val type: MsgType, val msg: String, val icon: IIconRef? = null): Div() {
+class MessageLine2 @JvmOverloads constructor(val type: MsgType, val msg: String, val icon: IIconRef? = null): Div() {
 
 	override fun createContent() {
 		super.createContent()

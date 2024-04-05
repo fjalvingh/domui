@@ -42,7 +42,8 @@ public class ITTestLookupInput2 extends AbstractWebDriverTest {
 		if(null == inspector)
 			throw new IllegalStateException();
 		bi = inspector.elementScreenshot("one");
-		ImageIO.write(bi, "png", new File("/tmp/test.png"));
+		File file = new File("/tmp/testShowBindingError-" + System.currentTimeMillis() + ".png");
+		ImageIO.write(bi, "png", file);
 		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", TestHelper.isReddish(bi));
 	}
 }

@@ -1,30 +1,30 @@
 package to.etc.domuidemo.pages.overview.lookup;
 
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.tbl.*;
+import to.etc.domui.component.searchpanel.SearchPanel;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.RowRenderer;
+import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.derbydata.db.Invoice;
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.derbydata.db.Invoice_;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.webapp.query.QCriteria;
 
 public class DemoLookupForm2 extends UrlPage {
 	private DataTable<Invoice> m_tbl;
 
 	@Override
 	public void createContent() throws Exception {
-		LookupForm<Invoice> lf = new LookupForm<Invoice>(Invoice.class, "customer", "billingAddress", "billingCity", "invoiceDate");
+		SearchPanel<Invoice> lf = new SearchPanel<>(Invoice.class, "customer", "billingAddress", "billingCity", "invoiceDate");
 		add(lf);
 
 		//-- Click handler gets called when search button is pressed.
-		lf.setClicked(new IClicked<LookupForm<Invoice>>() {
-			@Override
-			public void clicked(LookupForm<Invoice> clickednode) throws Exception {
-				search(clickednode);
-			}
-		});
+		lf.setClicked((IClicked<SearchPanel<Invoice>>) clickednode -> search(clickednode));
 	}
 
-	protected void search(LookupForm<Invoice> lf) throws Exception {
-		QCriteria<Invoice> query = lf.getEnteredCriteria(); // Get query entered
+	protected void search(SearchPanel<Invoice> lf) throws Exception {
+		QCriteria<Invoice> query = lf.getCriteria(); // Get query entered
 		if(null == query)
 			return;
 		SimpleSearchModel<Invoice> ssm = new SimpleSearchModel<Invoice>(this, query);
@@ -39,8 +39,15 @@ public class DemoLookupForm2 extends UrlPage {
 		}
 
 		//-- We need to create a table to show the result in.
-		BasicRowRenderer<Invoice> brr = new BasicRowRenderer<Invoice>(Invoice.class, "billingAddress", "billingCity", "customer.lastName", "customer.firstName", "invoiceDate", "total");
-		m_tbl = new DataTable<Invoice>(ssm, brr);
+		RowRenderer<Invoice> rr = new RowRenderer<>(Invoice.class);
+		rr.column(Invoice_.customer().firstName()).ascending();
+		rr.column(Invoice_.customer().lastName()).ascending();
+		rr.column(Invoice_.invoiceDate()).ascending();
+		rr.column(Invoice_.billingAddress()).ascending();
+		rr.column(Invoice_.billingCity()).ascending();
+		rr.column(Invoice_.total()).ascending();
+
+		m_tbl = new DataTable<>(ssm, rr);
 		add(m_tbl);
 		m_tbl.setPageSize(25);
 

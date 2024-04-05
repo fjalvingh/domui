@@ -24,8 +24,9 @@
  */
 package to.etc.domui.login;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * This must be used when the application uses demand-based logins. It provides a function
@@ -35,6 +36,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 17, 2009
  */
+@NonNullByDefault
 public interface ILoginDialogFactory {
 	/**
 	 * Return the URL of a page/JSP to use as a login page. The page must cause

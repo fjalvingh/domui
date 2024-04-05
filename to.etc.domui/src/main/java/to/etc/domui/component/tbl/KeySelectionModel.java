@@ -149,6 +149,32 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 		return new ArrayList<T>(m_selectedSet.values());
 	}
 
+	@Override
+	public void clearSelection(ITableModel<T> model) {
+		if(model instanceof TableKeyModelBase) {
+			TableKeyModelBase<K, T> tm = (TableKeyModelBase<K, T>) model;
+			for(K key : tm.getKeys()) {
+				m_selectedSet.remove(key);
+			}
+		} else {
+			throw new IllegalStateException("Expecting a keyed table model");
+		}
+	}
+
+	@Override
+	public boolean isCompleteModelSelected(ITableModel<T> model) {
+		if(model instanceof TableKeyModelBase) {
+			TableKeyModelBase<K, T> tm = (TableKeyModelBase<K, T>) model;
+			for(K key : tm.getKeys()) {
+				if(!m_selectedSet.containsKey(key))
+					return false;
+			}
+			return true;
+		} else {
+			throw new IllegalStateException("Expecting a keyed table model");
+		}
+	}
+
 	public Set<K> getSelectedKeys() {
 		return new HashSet<K>(m_selectedSet.keySet());
 	}

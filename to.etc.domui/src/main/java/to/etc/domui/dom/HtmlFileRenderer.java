@@ -33,6 +33,7 @@ import to.etc.util.FileTool;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -482,15 +483,14 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 			;
 		try {
 			PartData data = DomApplication.get().getPartService().getData(pp);
-			o().writeRaw("<style type='text/css'>\n");
 			try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
 				try(InputStreamReader isr = new InputStreamReader(bbis, "utf-8")) {
 					String cssStr = FileTool.readStreamAsString(isr);
 					cssStr = xmlStringize(cssStr);
-					o().writeRaw(cssStr);
+
+					renderInlineStyle(cssStr);
 				}
 			}
-			o().writeRaw("\n</style>\n");
 			return;
 		} catch(ThingyNotFoundException tnx) {
 			//-- Not found means we can have a normal resource
@@ -498,11 +498,22 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 		File appFile = m_page.getApplication().getAppFile(rurl);
 		if(appFile.exists() && appFile.isFile()) {
-			o().writeRaw("<style type='text/css'>\n");
 			String css = FileTool.readFileAsString(appFile, StandardCharsets.UTF_8);
-			o().writeRaw(css);
-			o().writeRaw("\n</style>\n");
+			renderInlineStyle(css);
+		}else {
+			try(InputStream resourceAsStream = getClass().getResourceAsStream("/" + path)) {
+				String css = FileTool.readStreamAsString(resourceAsStream, StandardCharsets.UTF_8);
+				renderInlineStyle(css);
+			}catch (Exception ex) {
+				//-- Not found means not found as code resource neither
+			}
 		}
+	}
+
+	private void renderInlineStyle(String css) throws IOException {
+		o().writeRaw("<style type='text/css'>\n");
+		o().writeRaw(css);
+		o().writeRaw("\n</style>\n");
 	}
 
 	@Override

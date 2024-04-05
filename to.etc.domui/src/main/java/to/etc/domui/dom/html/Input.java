@@ -167,8 +167,14 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 		m_size = size;
 	}
 
-	public String getRawValue() {
-		return m_rawValue;
+	final public String getRawValue() {
+		String rawValue = m_rawValue;
+		if(null != rawValue) {
+			int ml = getMaxLength();
+			if(ml > 0 && rawValue.length() > ml)
+				rawValue = rawValue.substring(0, ml);
+		}
+		return rawValue;
 	}
 
 	public void setRawValue(String value) {

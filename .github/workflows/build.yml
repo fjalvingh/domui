@@ -14,6 +14,10 @@ jobs:
         with:
           java-version: '11'
           distribution: 'zulu'
+      - name: Initialize CodeQL	
+        uses: github/codeql-action/init@v2
       - name: Build with Maven
-        run: mvn -q --batch-mode -Psonar --update-snapshots clean package sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dmaven.javadoc.skip=true -DCI=true -Dskarp.targetdb.name=testdb${{ github.run_number }} -Dskarp.junitdb.name=fw_junit${{ github.run_number }}
+        run: mvn -q --batch-mode --update-snapshots clean package -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dmaven.javadoc.skip=true -DCI=true -Dskarp.targetdb.name=testdb${{ github.run_number }} -Dskarp.junitdb.name=fw_junit${{ github.run_number }}
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
 

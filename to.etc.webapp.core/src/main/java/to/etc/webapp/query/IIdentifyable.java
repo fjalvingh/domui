@@ -24,9 +24,9 @@
  */
 package to.etc.webapp.query;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -40,7 +40,7 @@ public interface IIdentifyable<T> {
 	@Nullable
 	T getId();
 
-	@Nonnull
+	@NonNull
 	default T getSafeId() {
 		return Objects.requireNonNull(getId());
 	}

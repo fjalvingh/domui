@@ -128,16 +128,18 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		if(sm.isMultiSelect()) {
 			//in case of multiselection, if not all visible items in model are selected, add to selection, otherwise do clean of selection
 			ITableModel<T> model = getModel();
-			boolean performSelect = sm.getSelectionCount() == 0;
-			if(! performSelect) {
-				performSelect = model.getItems(0, model.getRows()).stream().anyMatch(it -> !sm.isSelected(it));
+			boolean doSelectAll = sm.getSelectionCount() == 0;
+			if(! doSelectAll) {
+				//-- If we do not have the entire "current" model selected then start by selecting everyting in there.
+				if(!sm.isCompleteModelSelected(model))
+					doSelectAll = true;
 			}
-			if(performSelect) {
+			if(doSelectAll) {
 				sm.selectAll(model);
 				return;
 			}
 		}
-		sm.clearSelection();
+		sm.clearSelection(getModel());
 	};
 
 

@@ -36,6 +36,7 @@ import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.PropertyNodeContentRenderer;
 import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
 import java.util.List;
 
@@ -94,6 +95,15 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> implements ICombo
 		super(in);
 		setContentRenderer(new PropertyNodeContentRenderer<>(properties));
 	}
+
+	/**
+	 * Create a combo which fills it's list with the specified in list. Each value is filled from the values of the properties specified.
+	 */
+	public ComboLookup2(QField<T, ?>... properties) {
+		super();
+		setContentRenderer(new PropertyNodeContentRenderer<>(properties));
+	}
+
 
 	/**
 	 * This implements the identical conversion, i.e. in=out, because this component returns

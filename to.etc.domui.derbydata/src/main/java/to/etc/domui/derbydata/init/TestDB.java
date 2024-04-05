@@ -25,10 +25,10 @@ final public class TestDB {
 	static public synchronized ConnectionPool getPool() throws Exception {
 		String path = "/tmp/demoDb";
 		//if(System.getProperty("maven.home") != null || System.getProperty("failsafe.test.class.path") != null) {
-			File tmp = File.createTempFile("testdb", ".domui");
-			tmp.delete();
-			tmp.mkdirs();
-			path = tmp.getAbsolutePath();
+		File tmp = File.createTempFile("testdb", ".domui");
+		tmp.delete();
+		tmp.mkdirs();
+		path = tmp.getAbsolutePath();
 		//}
 		System.out.println("Database path is " + path);
 
@@ -39,7 +39,7 @@ final public class TestDB {
 	private static ConnectionPool getPool(String path) throws Exception {
 		ConnectionPool pool = m_pool;
 		if(null == pool) {
-			String poolid = DeveloperOptions.getString("domuidemo.poolid"); // Is a poolid defined in .developer.proeprties? Then use that,
+			String poolid = DeveloperOptions.getString("domuidemo.poolid"); // Is a poolid defined in .developer.properties? Then use that,
 			if(poolid != null) {
 				//-- Local configuration. Init using local.
 				System.out.println("** WARNING: Using local database configuration, pool=" + poolid);
@@ -63,10 +63,11 @@ final public class TestDB {
 		return pool;
 	}
 
-	static public DataSource	getDataSource() throws Exception {
+	static public DataSource getDataSource() throws Exception {
 		return getPool().getPooledDataSource();
 	}
-	static public DataSource	getDataSource(String path) throws Exception {
+
+	static public DataSource getDataSource(String path) throws Exception {
 		return getPool(path).getPooledDataSource();
 	}
 

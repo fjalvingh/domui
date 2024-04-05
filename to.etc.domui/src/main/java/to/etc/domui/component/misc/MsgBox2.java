@@ -206,7 +206,8 @@ final public class MsgBox2 extends Window {
 		Div a = new Div();
 		add(a);
 		a.setCssClass("ui-mbx-top");
-		a.setStretchHeight(true);
+		if(getHeight() != null)
+			a.setStretchHeight(true);
 		a.setOverflow(Overflow.AUTO);
 		Table t = new Table();
 		a.add(t);
@@ -440,6 +441,9 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
+	/**
+	 * Set the size. Set to -1, -1 to auto-resize.
+	 */
 	@Override
 	@NonNull
 	public MsgBox2 size(int w, int h) {

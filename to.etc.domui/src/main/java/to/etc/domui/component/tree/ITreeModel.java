@@ -40,10 +40,8 @@ import java.util.List;
 public interface ITreeModel<T> {
 	/**
 	 * Returns the #of children for this object. This must return the actual number.
-	 * @param item
-	 * @return
 	 */
-	int getChildCount(@Nullable T item) throws Exception;
+	int getChildCount(@NonNull T item) throws Exception;
 
 	/**
 	 * If possible this should quickly decide if a tree node has children or not. This is
@@ -53,51 +51,37 @@ public interface ITreeModel<T> {
 	 * to expand that node. At that time we'll call getChildCount() which <i>must</i> determine
 	 * the #of children. If that returns zero it will at that time properly re-render the state
 	 * of the node, showing that the node is actually a leaf and cannot be expanded further.
-	 * @param item
-	 * @return
 	 */
-	default boolean hasChildren(@Nullable T item) throws Exception {
+	default boolean hasChildren(@NonNull T item) throws Exception {
 		return getChildCount(item) != 0;
 	}
 
 	/**
 	 * Get the root object of the tree.
-	 * @return
 	 */
-	@Nullable
+	@NonNull
 	T getRoot() throws Exception;
 
 	/**
 	 * Returns the nth child in the parent's list. This call can do actual expansion the first time it's called
 	 * when a tree is lazily-loaded.
-	 *
-	 * @param parent
-	 * @param index
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
-	T getChild(@Nullable T parent, int index) throws Exception;
+	T getChild(@NonNull T parent, int index) throws Exception;
 
 	/**
 	 * Get the parent node of a child in the tree. This may only return null for the root node.
-	 *
-	 * @param child
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
-	T getParent(@Nullable T child) throws Exception;
+	T getParent(@NonNull T child) throws Exception;
 
 	/**
 	 * Add a listener to be called when nodes on the tree change.
-	 * @param l
 	 */
 	default void addChangeListener(@NonNull ITreeModelChangedListener<T> l) {}
 
 	/**
 	 * Remove a registered change listener. Fails silently when the listener was not registered at all.
-	 * @param l
 	 */
 	default void removeChangeListener(@NonNull ITreeModelChangedListener<T> l) {}
 
@@ -105,36 +89,29 @@ public interface ITreeModel<T> {
 	 * Called when this node is attempted to be expanded. This call can be used to refresh/lazily load the
 	 * children of the passed node. This call is issued <i>every time</i> this node's tree is expanded so
 	 * take care to only reload when needed.
-	 *
-	 * @param item
-	 * @throws Exception
 	 */
-	default void expandChildren(@Nullable T item) throws Exception {
+	default void expandChildren(@NonNull T item) throws Exception {
 	}
 
 	/**
 	 * Called when this node's children are to be collapsed. This call is executed for every node that
 	 * was expanded but is collapsed. It can be used to release resources for collapsed nodes.
-	 *
-	 * @param item
-	 * @throws Exception
 	 */
-	default void collapseChildren(@Nullable T item) throws Exception {
+	default void collapseChildren(@NonNull T item) throws Exception {
 	}
-
-
 
 	/**
 	 * Calculates a tree path for a given node, as a set of nodes that walk to the item. The
 	 * root element is always the 1st element in the treepath
 	 */
-	default List<T> getTreePath(T item) throws Exception {
+	@NonNull
+	default List<T> getTreePath(@NonNull T item) throws Exception {
 		List<T> path = new ArrayList<>();
 		addParentPath(path, item);
 		return path;
 	}
 
-	default void addParentPath(List<T> path, T item) throws Exception {
+	default void addParentPath(@NonNull List<T> path, @NonNull T item) throws Exception {
 		T parent = getParent(item);
 
 		/*

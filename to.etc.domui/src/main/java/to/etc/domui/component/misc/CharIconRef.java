@@ -41,6 +41,7 @@ final public class CharIconRef implements IIconRef {
 	public NodeBase createNode(String cssClasses) {
 		char ch = m_char;
 		Span sp = new Span("ui-icon-char", null);
+		sp.css(cssClasses);
 		sp.add(String.valueOf(ch));
 		return sp;
 	}

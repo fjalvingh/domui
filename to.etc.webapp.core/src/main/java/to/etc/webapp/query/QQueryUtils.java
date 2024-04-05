@@ -124,8 +124,12 @@ final public class QQueryUtils {
 	}
 
 	public static <T extends IIdentifyable<?>> int queryCount(@NonNull QDataContext dc, @NonNull QSelection<T> q) throws Exception {
+		return queryNumber(dc, q);
+	}
+
+	public static <T extends IIdentifyable<?>> int queryNumber(@NonNull QDataContext dc, @NonNull QSelection<T> q) throws Exception {
 		Object[] count = dc.queryOne(q);
-		if(count != null && count.length > 0) {
+		if(count != null && count.length > 0 && count[0] != null) {
 			return ((Number) count[0]).intValue();
 		}
 		return 0;

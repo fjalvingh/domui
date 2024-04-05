@@ -296,8 +296,8 @@ final public class FormBuilder {
 	/*	CODING:	Propertyless items.											*/
 	/*----------------------------------------------------------------------*/
 
-	public ItemBuilder label(IBundleCode code) {
-		return label(code.getString());
+	public ItemBuilder label(IBundleCode code, Object... param) {
+		return label(code.format(param));
 	}
 
 	public ItemBuilder label(@Nullable String label) {
@@ -1016,6 +1016,14 @@ final public class FormBuilder {
 			if(null != m_nextLabelControl)
 				throw new IllegalStateException("You already set a Label instance");
 			m_nextLabel = label;
+			return this;
+		}
+
+		@NonNull
+		public UntypedControlBuilder<I> label(@NonNull IBundleCode label, Object... param) {
+			if(null != m_nextLabelControl)
+				throw new IllegalStateException("You already set a Label instance");
+			m_nextLabel = label.format(param);
 			return this;
 		}
 

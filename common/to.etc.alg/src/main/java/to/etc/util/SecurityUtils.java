@@ -39,6 +39,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -355,6 +357,13 @@ public class SecurityUtils {
 	static public String decryptStringHex(String input, String password, Algorithm alg) throws Exception {
 		byte[] bytes = StringTool.fromHex(input);
 		return decryptStringFromBytes(bytes, password, alg);
+	}
+
+	public static byte[] getSha1Thumbprint(X509Certificate cert)
+			throws CertificateEncodingException, NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance("SHA-1");
+		md.update(cert.getEncoded());
+		return md.digest();
 	}
 
 }

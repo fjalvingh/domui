@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -124,6 +125,8 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 	public void selectAll(ITableModel<T> in) throws Exception {
 		int index = 0;
 		int rows = in.getRows();
+		int added = 0;
+		List<T> addedList = new ArrayList<>();
 		while(index < rows) {
 			int eix = index + 50;
 			if(eix > rows)
@@ -132,11 +135,19 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 			for(T item : itemlist) {
 				if(m_acceptable != null && !m_acceptable.acceptable(item))
 					continue;
-				m_selectedSet.add(item);
+				if(m_selectedSet.add(item))
+					addedList.add(item);
+				added++;
 			}
 			index = eix;
 		}
-		callSelectionAllChanged();
+		if(added == m_selectedSet.size())
+			callSelectionAllChanged();
+		else {
+			for(T t : addedList) {
+				callChanged(t, true);
+			}
+		}
 	}
 
 	@Override
@@ -151,7 +162,6 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 
 	/**
 	 * Only usable for a non-multiselect, this returns the selected item or null.
-	 * @return
 	 */
 	@Nullable
 	public T getSelected() {
@@ -178,5 +188,31 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		}
 		for(T s : old)
 			setInstanceSelected(s, false);
+	}
+
+	@Override
+	public void clearSelection(ITableModel<T> model) throws Exception {
+		IAcceptable<T> removable = m_removable;
+		if(removable == null)
+			removable = a -> true;
+		for(T item : model.getItems(0, model.getRows())) {
+			if(removable.acceptable(item))
+				if(m_selectedSet.remove(item))
+					callChanged(item, false);
+		}
+	}
+
+	@Override
+	public boolean isCompleteModelSelected(ITableModel<T> model) throws Exception {
+		IAcceptable<T> acceptable = m_acceptable;
+		if(null == acceptable)
+			acceptable = a -> true;
+		for(T item : model.getItems(0, model.getRows())) {
+			if(acceptable.acceptable(item)) {
+				if(!m_selectedSet.contains(item))
+					return false;
+			}
+		}
+		return true;
 	}
 }

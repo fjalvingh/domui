@@ -1,15 +1,19 @@
 package to.etc.domui.test.db;
 
-import java.util.*;
-
-import org.junit.*;
-
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
-import to.etc.domui.hibernate.types.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.hibernate.types.PersistentObservableList;
+import to.etc.util.FileTool;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
 
+import java.util.List;
+
+@Ignore("The BeforeImages code is not used and has rotted")
 public class TestDbObservableCollections {
 	@BeforeClass
 	static public void beforeClass() throws Exception {

@@ -59,7 +59,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	}
 
 	@NonNull
-	private ClassMetaModel model() {
+	ClassMetaModel model() {
 		return m_metaModel;
 	}
 
@@ -122,6 +122,9 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 			scd.css("ui-numeric");
 			scd.cssHeader("ui-numeric");
+		}
+		if(xdp.isTransient() && xdp.getSortable() == SortableType.UNKNOWN) {
+			scd.setSortable(SortableType.UNSORTABLE);
 		}
 
 		m_columnList.add(scd);

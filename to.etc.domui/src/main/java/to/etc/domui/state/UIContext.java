@@ -46,11 +46,6 @@ import java.io.File;
  * Created on Jun 22, 2008
  */
 public class UIContext {
-	static public long FAILLOGIN_TIMEOUT = 5*60*1000;
-
-	/** After this amount of failed logins just pretend we're logging in */
-	static public int MAXFAILLOGINS = 10;
-
 	static private ThreadLocal<IRequestContext> m_current = new ThreadLocal<IRequestContext>();
 
 	static private ThreadLocal<Page> m_page = new ThreadLocal<Page>();

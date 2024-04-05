@@ -25,7 +25,6 @@
 package to.etc.webapp.nls;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.MessageException;
 
 import java.text.MessageFormat;
@@ -60,7 +59,7 @@ public class CodeException extends MessageException {
 		return m_code;
 	}
 
-	@Nullable
+	@NonNull
 	public Object[] getParameters() {
 		return m_parameters;
 	}

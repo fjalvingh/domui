@@ -382,6 +382,30 @@ public class RuntimeConversions {
 	/*--------------------------------------------------------------*/
 
 	/**
+	 * Return the class type that both values should be courced to for
+	 * numeric operations
+	 */
+	static public Class<? extends Number> getCoercedType(Number a, Number b) {
+		if(a instanceof Double || b instanceof Double)
+			return Double.class;
+		if(a instanceof Float || b instanceof Float)
+			return Float.class;
+		if(a instanceof BigDecimal || b instanceof BigDecimal)
+			return BigDecimal.class;
+		if(a instanceof BigInteger || b instanceof BigInteger)
+			return BigInteger.class;
+		if(a instanceof Long || b instanceof Long)
+			return Long.class;
+		if(a instanceof Integer || b instanceof Integer)
+			return Integer.class;
+		if(a instanceof Short || b instanceof Short)
+			return Short.class;
+		if(a instanceof Byte || b instanceof Byte)
+			return Byte.class;
+		throw new RuntimeConversionException("Cannot coerce types " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName());
+	}
+
+	/**
 	 * Converts an input type to whatever type is needed.
 	 */
 	static public final <T> T convertTo(Object o, Class<T> to) {

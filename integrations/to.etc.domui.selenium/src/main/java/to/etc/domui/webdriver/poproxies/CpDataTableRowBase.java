@@ -9,7 +9,7 @@ import to.etc.domui.webdriver.core.WebDriverConnector;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 09-12-21.
  */
-public class CpDataTableRowBase extends AbstractCpBase {
+public class CpDataTableRowBase extends AbstractCpBase implements ICpWithElement {
 	@NonNull
 	private final CpDataTable<?> m_dataTable;
 
@@ -25,6 +25,7 @@ public class CpDataTableRowBase extends AbstractCpBase {
 		return wd().isPresent(getSelector());
 	}
 
+	@Override
 	@NonNull
 	public WebElement getElement() {
 		return wd().getElement(getSelector());

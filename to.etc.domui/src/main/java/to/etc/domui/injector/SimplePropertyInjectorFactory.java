@@ -3,6 +3,7 @@ package to.etc.domui.injector;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.component.meta.MetaManager;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
 import to.etc.util.RuntimeConversions;
@@ -11,9 +12,13 @@ import to.etc.webapp.ProgrammerErrorException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Accepts properties that are annotated with URLParameter, and that are simple
@@ -49,7 +54,9 @@ final public class SimplePropertyInjectorFactory implements IPagePropertyFactory
 		m_ucs.add(Boolean.TYPE.getName());
 	}
 
-	@Nullable @Override public PropertyInjector calculateInjector(PropertyInfo propertyInfo) {
+	@Nullable
+	@Override
+	public PropertyInjector calculateInjector(PropertyInfo propertyInfo) {
 		Method getter = propertyInfo.getGetter();
 		UIUrlParameter upp = null;
 		if(null != getter) {
@@ -66,26 +73,37 @@ final public class SimplePropertyInjectorFactory implements IPagePropertyFactory
 			throw new ProgrammerErrorException(UIUrlParameter.class.getSimpleName() + " annotation cannot be used on a setterless property (is the setter private?)");
 
 		String name = upp.name().isEmpty() ? propertyInfo.getName() : upp.name();
-		Class< ? > ent = upp.entity();
-		if(ent == Object.class) {
-			//-- Use getter's type.
-			ent = propertyInfo.getActualType();
-		}
-
-		/*
-		 * if entity is specified we're always certain we have a non primitive.
-		 */
-		if(upp.entity() != Object.class)
+		if(upp.entity() != Object.class)				// Is an entity: not a primitive
 			return null;
+		Class<?> ent = propertyInfo.getActualType();
 
-		//-- Can be entity or literal.
-		if(upp.name().isEmpty() ||					// If no name is set this is NEVER an entity,
-			m_ucs.contains(ent.getName()) ||
-			RuntimeConversions.isSimpleType(propertyInfo.getActualType()) ||
-			RuntimeConversions.isEnumType(propertyInfo.getActualType())) {
+		//-- Is this a simple type? Then inject that..
+		if(isAcceptableSimpleType(ent)) {
 			return createParameterInjector(propertyInfo, name, upp.mandatory());
 		}
-		return null;
+
+		//-- Is it a List<T> or Set<T> of a T we can handle?
+		Supplier<Collection<Object>> collectionSupplier;
+		if(ent.isAssignableFrom(List.class) || ent.isAssignableFrom(Collection.class)) {
+			collectionSupplier = () -> new ArrayList<>();
+		} else if(ent.isAssignableFrom(Set.class)) {
+			collectionSupplier = () -> new HashSet<>();
+		} else {
+			// -- Not a collection type -> unrecognized.
+			return null;
+		}
+		Class<?> valueType = MetaManager.findCollectionType(getter.getGenericReturnType());
+		if(null == valueType || !isAcceptableSimpleType(valueType)) {
+			return null;
+		}
+
+		return new SimpleListPropertyInjector(propertyInfo, name, upp.mandatory(), collectionSupplier, valueType);
+	}
+
+	private boolean isAcceptableSimpleType(Class<?> ent) {
+		return m_ucs.contains(ent.getName()) ||
+			RuntimeConversions.isSimpleType(ent) ||
+			RuntimeConversions.isEnumType(ent);
 	}
 
 	protected PropertyInjector createParameterInjector(PropertyInfo pi, String name, boolean mandatory) {
