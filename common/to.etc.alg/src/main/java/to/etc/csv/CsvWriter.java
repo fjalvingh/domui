@@ -116,7 +116,7 @@ public class CsvWriter implements AutoCloseable {
 			printNull();
 			return;
 		}
-		String text = m_options.getDateFormat().format(value);
+		String text = m_options.getDateTimeFormat().format(value);
 		printString(text);
 	}
 
