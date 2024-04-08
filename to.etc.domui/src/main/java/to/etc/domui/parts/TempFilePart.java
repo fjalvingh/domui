@@ -175,6 +175,8 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		sourcePage.appendJavascript("WebUI.setSkipLeavePageCheck(true);");
 		sourcePage.appendJavascript("location.href=" + StringTool.strToJavascriptString(url, true) + ";");
 		sourcePage.appendJavascript("WebUI.setSkipLeavePageCheck(false);");
+
+		sourcePage.appendJavascript("setTimeout(function() { window.close(); }, 1000);");
 	}
 
 	@Override
