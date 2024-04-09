@@ -20,6 +20,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.CookieManager;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -238,6 +239,7 @@ public class JdkHttpClient implements IHttpClient {
 				.executor(ex)
 				.followRedirects(Redirect.NORMAL)
 				.version(Version.HTTP_1_1)
+				.cookieHandler(new CookieManager())
 				.build();
 			m_clientList.add(client);
 		}
