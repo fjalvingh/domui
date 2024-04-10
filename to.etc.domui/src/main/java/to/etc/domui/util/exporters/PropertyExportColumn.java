@@ -38,15 +38,21 @@ public class PropertyExportColumn<T> implements IExportColumn<T> {
 		m_label = null;
 	}
 
-	@NonNull @Override public Class<?> getActualType() {
+	@NonNull
+	@Override
+	public Class<?> getActualType() {
 		return m_pmm.getActualType();
 	}
 
-	@Nullable @Override public String getLabel() {
+	@Nullable
+	@Override
+	public String getLabel() {
 		return m_label == null ? m_pmm.getDefaultLabel() : m_label;
 	}
 
-	@Nullable @Override public T getValue(@NonNull Object in) throws Exception {
+	@Nullable
+	@Override
+	public T getValue(@NonNull Object in) throws Exception {
 		return m_pmm.getValue(in);
 	}
 
@@ -54,8 +60,6 @@ public class PropertyExportColumn<T> implements IExportColumn<T> {
 	@Override
 	public Object convertValue(@Nullable Object value) throws Exception {
 		if(value instanceof Enum) {
-			if(value == null)
-				return "";
 			ClassMetaModel ecmm = MetaManager.findClassMeta(value.getClass());
 			String v = ecmm.getDomainLabel(NlsContext.getLocale(), value);
 			return v == null ? ((T) value).toString() : v;
