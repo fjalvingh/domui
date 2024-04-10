@@ -107,6 +107,7 @@
 				</executions>
 
 				<configuration>
+					<failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
 					<dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<generateGitPropertiesFilename>${project.build.outputDirectory}/appversion.git.properties</generateGitPropertiesFilename>
