@@ -37,7 +37,7 @@ final public class EntityPropertyInjectorFactory implements IPagePropertyFactory
 			return null;
 
 		if(null == setter)
-			throw new ProgrammerErrorException(UIUrlParameter.class.getSimpleName() + " annotation cannot be used on a setterless property (is the setter private?)");
+			throw new ProgrammerErrorException(UIUrlParameter.class.getSimpleName() + " annotation cannot be used on a setterless property " + propertyInfo.getName() + " (is the setter private?)");
 
 		String name = upp.name().isEmpty() ? propertyInfo.getName() : upp.name();
 		Class< ? > ent = upp.entity();
