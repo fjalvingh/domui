@@ -44,11 +44,13 @@ import java.text.NumberFormat;
 public class NumericUtil {
 	static private final Logger LOG = LoggerFactory.getLogger(NumericUtil.class);
 
-	private NumericUtil() {}
+	private NumericUtil() {
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Parsing.											*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Parse an integer using all allowed embellishments.
 	 */
@@ -153,9 +155,10 @@ public class NumericUtil {
 
 	/**
 	 * DEPRECATED: This method wrongly assumes the scale of the number parsed - use {@link #parseNumber(Class, String, int)}.
-	 *
+	 * <p>
 	 * Parse any supported numeric wrapper type. In case that any specific scale must be used, use other method {@link NumericUtil#parseNumber(Class, String, int, NumericPresentation)}
-	 * @param type	In case of decimal types, it uses scale defined by DEFAULT_FRACTION_DIGITS.
+	 *
+	 * @param type In case of decimal types, it uses scale defined by DEFAULT_FRACTION_DIGITS.
 	 */
 	@Deprecated
 	@Nullable
@@ -169,7 +172,8 @@ public class NumericUtil {
 
 	/**
 	 * Parse any supported numeric wrapper type. In case that any specific scale must be used, use other method {@link NumericUtil#parseNumber(Class, String, int, NumericPresentation)}
-	 * @param type	In case of decimal types, it uses scale defined by DEFAULT_FRACTION_DIGITS.
+	 *
+	 * @param type In case of decimal types, it uses scale defined by DEFAULT_FRACTION_DIGITS.
 	 */
 	@Nullable
 	static public <T> T parseNumber(Class<T> type, String input, int scale) {
@@ -179,7 +183,6 @@ public class NumericUtil {
 			return parseNumber(type, input, scale, NumericPresentation.NUMBER);
 		}
 	}
-
 
 	/**
 	 * Parse any supported numeric wrapper type.
@@ -206,43 +209,73 @@ public class NumericUtil {
 	}
 
 	static private final String[] FULL_BY_SCALE = { //
-	"###,###,###,###,###,###,###,###,###,###,###,###,##0" //
+		"###,###,###,###,###,###,###,###,###,###,###,###,##0" //
 		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.0" //
 		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.00" //
 		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.000" //
 		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.0000" //
 		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.00000" //
 		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.0000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.00000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.000000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.0000000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.00000000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.000000000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.0000000000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.00000000000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.000000000000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.0000000000000000" // 16
 	};
 
-	static private final String[]	NUMBER_BY_SCALE = { //
-	"#0" //
+	static private final String[] NUMBER_BY_SCALE = { //
+		"#0" //
 		, "#0.0" //
 		, "#0.00" //
 		, "#0.000" //
 		, "#0.0000" //
 		, "#0.00000" //
 		, "#0.000000" //
+		, "#0.0000000" //
+		, "#0.00000000" //
+		, "#0.000000000" //
+		, "#0.0000000000" //
+		, "#0.00000000000" //
+		, "#0.000000000000" //
+		, "#0.0000000000000" //
+		, "#0.00000000000000" // 14
+		, "#0.000000000000000" // 15
+		, "#0.0000000000000000" // 16
 	};
 
 	static private final String[] NUMBER_BY_SCALE_TRUNC_ZEROS = { //
-	"#0" //
+		"#0" //
 		, "#0.#" //
 		, "#0.##" //
 		, "#0.###" //
 		, "#0.####" //
 		, "#0.#####" //
 		, "#0.######" //
+		, "#0.#######" //
+		, "#0.########" //
+		, "#0.#########" //
+		, "#0.##########" //
+		, "#0.###########" //
+		, "#0.############" //
+		, "#0.#############" //
+		, "#0.##############" //
+		, "#0.###############" //
+		, "#0.################" // 16
 	};
 
 	@NonNull
 	static public String renderNumber(Number v, NumericPresentation np, int inScale) {
 		if(v == null)
 			return "";
-		Class< ? > type = v.getClass();
+		Class<?> type = v.getClass();
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
 		if(DomUtil.isIntegerType(type)) {
-			switch(np){
+			switch(np) {
 				default:
 					throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 
@@ -262,12 +295,14 @@ public class NumericUtil {
 		}
 
 		int scale = inScale;
-		if(scale > 6)
-			scale = 6;
-		else if(scale < 0)
+		if(scale < 0)
 			scale = 0;
+		//if(scale > 6)
+		//	scale = 6;
+		//else if(scale < 0)
+		//	scale = 0;
 
-		switch(np){
+		switch(np) {
 			default:
 				throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 

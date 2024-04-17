@@ -89,6 +89,22 @@ public enum Msgs implements IBundleCode {
 	/** Invalid monetary amount */
 	vBadAmount, // = "v.bad.amount";
 
+	/** Monetary sign used in non-monetary value */
+	vNotMonetary,
+
+	/** Confused input with dots and commas */
+	vBadDots,
+
+	vBadThousandsSeparator,
+
+	vBadCharInNumber,
+
+	vExpectStrictScale,
+
+	vFractionWithoutLeadingDigit,
+
+	vTooManyFractionDigits,
+
 	/** Invalid percentage value */
 	vBadPercentage, // = "v.bad.percentage";
 
