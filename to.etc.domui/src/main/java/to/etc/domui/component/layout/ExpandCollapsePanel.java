@@ -23,6 +23,8 @@ public class ExpandCollapsePanel extends Span {
 
 	private boolean m_isInitiallyExpanded;
 
+	private LinkButton m_lb = new LinkButton("", a -> toggle());
+
 	public ExpandCollapsePanel() {
 	}
 
@@ -37,31 +39,45 @@ public class ExpandCollapsePanel extends Span {
 
 	@Override
 	final public void createContent() throws Exception {
-		LinkButton lb = new LinkButton("", a -> toggle(a));
 		if(m_isInitiallyExpanded) {
-			expandPanel(lb);
+			expandPanel();
 		} else {
-			lb.setImage(Icon.faPlus);
+			m_lb.setImage(Icon.faPlus);
 		}
-		add(lb);
+		add(m_lb);
 		add("\u00a0");
 		add(m_label);
 	}
 
-	private void toggle(LinkButton lb) {
+	private void toggle() {
 		if(m_contentDiv.isAttached()) {
-			m_contentDiv.remove();
-			lb.setImage(Icon.faPlus);
+			collapsePanel();
 		} else {
-			expandPanel(lb);
+			expandPanel();
 		}
 	}
 
-	private void expandPanel(LinkButton lb) {
-		lb.setImage(Icon.faMinus);
+	private void collapsePanel() {
+		m_contentDiv.remove();
+		m_lb.setImage(Icon.faPlus);
+	}
+
+	private void expandPanel() {
+		m_lb.setImage(Icon.faMinus);
 		m_contentDiv.removeAllChildren();
 		appendAfterMe(m_contentDiv);
 		expandContent(m_contentDiv);
+	}
+
+	public void expand() {
+		if(isCollapsed()) {
+			expandPanel();
+		}
+	}
+
+	public void collapse() {
+		if(!isCollapsed())
+			collapsePanel();
 	}
 
 	protected void expandContent(Div contentDiv) {
