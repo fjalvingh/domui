@@ -11,6 +11,7 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Pre;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
+import to.etc.util.MessageException;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.nls.CodeException;
@@ -49,6 +50,14 @@ final public class ExceptionDialog {
 		register(ExceptionDialog::translateUIException);
 		register(ExceptionDialog::translateBetterSQLException);
 		register(ExceptionDialog::translateSqlException);
+		register(ExceptionDialog::translateMessageException);
+	}
+
+	@Nullable
+	private static ExceptionPresentation translateMessageException(Exception e) {
+		if(e instanceof MessageException)
+			return new ExceptionPresentation(e.getMessage());
+		return null;
 	}
 
 	@Nullable

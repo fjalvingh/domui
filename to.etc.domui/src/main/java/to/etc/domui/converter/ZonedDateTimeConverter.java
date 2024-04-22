@@ -22,9 +22,9 @@ final public class ZonedDateTimeConverter implements IConverter<ZonedDateTime> {
 		if(in == null)
 			return "";
 		if(loc.getLanguage().equalsIgnoreCase("nl")) {
-			DateTimeFormatter.ofPattern(DATE_PATTERN_NL).format(in);
+			return DateTimeFormatter.ofPattern(DATE_PATTERN_NL).format(in);
 		} else if(loc.getLanguage().equalsIgnoreCase("en")) {
-			DateTimeFormatter.ofPattern(DATE_PATTERN_EN).format(in);
+			return DateTimeFormatter.ofPattern(DATE_PATTERN_EN).format(in);
 		}
 		return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(in);
 	}
