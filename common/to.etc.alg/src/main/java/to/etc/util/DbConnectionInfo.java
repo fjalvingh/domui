@@ -43,7 +43,7 @@ final public class DbConnectionInfo {
 
 	@NonNull
 	static public DbConnectionInfo decode(@NonNull String db) {
-		int pos = db.indexOf('@');
+		int pos = db.lastIndexOf('@');
 		if(pos != -1) {
 			String a = db.substring(0, pos);
 			String b = db.substring(pos + 1);

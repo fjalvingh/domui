@@ -40,9 +40,9 @@ import java.net.URLClassLoader;
  * <ul>
  * 	<li>If a class is already known we're done</li>
  * 	<li>If a class is part of the system (java.*, javax.*) we load thru a system loader always</li>
- *	<li>All other classes are checked against the inclusion/exclusion patterns.</li>
- *	<li>Excluded classes are loaded thru this classloader, so classes they load can be checked.</li>
- *	<li>Included classes are loaded thru the DISCARDABLE classloader.</li>
+ * 	<li>All other classes are checked against the inclusion/exclusion patterns.</li>
+ * 	<li>Excluded classes are loaded thru this classloader, so classes they load can be checked.</li>
+ * 	<li>Included classes are loaded thru the DISCARDABLE classloader.</li>
  * </ul>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -68,14 +68,14 @@ public class CheckingClassLoader extends URLClassLoader {
 	 * @see java.lang.ClassLoader#loadClass(java.lang.String)
 	 */
 	@Override
-	public synchronized Class< ? > loadClass(String name, boolean resolve) throws ClassNotFoundException {
+	public synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 		if(Reloader.DEBUG)
-			System.out.println("checkingLoader: input="+name);
+			System.out.println("checkingLoader: input=" + name);
 		if(!name.startsWith(m_applicationClass)) // Not the Application class?
 			return m_reloader.getReloadingLoader().loadClass(name); // Then delegate to the reloading classloader
 
 		//-- Load this class here, so other classes loaded *by* it will be checked too
-		Class< ? > clz = findLoadedClass(name);
+		Class<?> clz = findLoadedClass(name);
 		if(clz == null) {
 			//-- Must we handle this class?
 			LOG.debug("Load class " + name + " using checking loader");

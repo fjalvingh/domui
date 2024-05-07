@@ -89,7 +89,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	@Nullable
+	@NonNull
 	public T getRoot() throws Exception {
 		return m_root;
 	}

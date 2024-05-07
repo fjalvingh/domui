@@ -58,6 +58,7 @@ import to.etc.webapp.query.QCriteria;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Alternate version of the combobox that wraps a select instead of being one. This version properly
@@ -120,6 +121,9 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	@Nullable
 	private IExecute m_onSelectUpdated;
 
+	@Nullable
+	private Predicate<T> m_disabledCheck;
+
 	public ComboComponentBase2() {}
 
 	public ComboComponentBase2(@NonNull IListMaker<T> maker) {
@@ -173,7 +177,6 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	/**
 	 * Render the display-only presentation of this combo box.
-	 * @throws Exception
 	 */
 	private void renderReadOnly() throws Exception {
 		addCssClass("ui-cbb2");
@@ -221,6 +224,10 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 			SelectOption o = new SelectOption();
 			m_select.add(o);
 			renderOptionLabel(o, val);
+			Predicate<T> disabledCheck = m_disabledCheck;
+			if(null != disabledCheck)
+				o.setDisabled(disabledCheck.test(val));
+
 			if(null != raw) {
 				V res = listToValue(val);
 				if(cmm == null)
@@ -411,8 +418,6 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	/**
 	 * Return the index in the data list for the specified value, or -1 if not found or if the value is null.
-	 * @param newvalue
-	 * @return
 	 */
 	private int findListIndexForValue(V newvalue) {
 		if(null == newvalue)
@@ -449,12 +454,6 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	List - value conversions and list management		*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param in
-	 * @return
-	 * @throws Exception
-	 */
 	protected V listToValue(T in) throws Exception {
 		if(m_valueTransformer == null)
 			return (V) in;
@@ -764,5 +763,19 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	public void setOnSelectUpdated(@Nullable IExecute onSelectUpdated) {
 		m_onSelectUpdated = onSelectUpdated;
+	}
+
+	@Override
+	public void setWidth(String width) {
+		m_select.setWidth(width);
+	}
+
+	@Nullable
+	public Predicate<T> getDisabledCheck() {
+		return m_disabledCheck;
+	}
+
+	public void setDisabledCheck(@Nullable Predicate<T> disabledCheck) {
+		m_disabledCheck = disabledCheck;
 	}
 }

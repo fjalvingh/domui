@@ -36,6 +36,11 @@ public interface ISelectionModel<T> {
 	void clearSelection() throws Exception;
 
 	/**
+	 * Clear all values selected from the specified model.
+	 */
+	void clearSelection(ITableModel<T> model) throws Exception;
+
+	/**
 	 * This must add all (recoverable) items in the model and add them as selected as efficiently
 	 * as possible. It is NEVER called directly, but always through a {@link ISelectionAllHandler},
 	 * so that "select all" can be forbidden.
@@ -48,4 +53,11 @@ public interface ISelectionModel<T> {
 	void addListener(@NonNull ISelectionListener<T> l);
 
 	void removeListener(@NonNull ISelectionListener<T> l);
+
+	/**
+	 * This returns T if all items in the table model passed
+	 * are present in the selection model. We need to have this
+	 * to be able to handle lazy models.
+	 */
+	boolean isCompleteModelSelected(ITableModel<T> model) throws Exception;
 }

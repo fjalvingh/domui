@@ -20,8 +20,15 @@
 		gap: 8px;
 		cursor: pointer;
 		height: 28px;
+		white-space: nowrap;
 		&:hover {
 			background-color: #eee;
+		}
+
+		& .disabled {
+			background-color: lightgrey;
+			font-style: italic;
+			cursor: none;
 		}
 	}
 }

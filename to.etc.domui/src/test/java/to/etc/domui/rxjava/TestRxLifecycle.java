@@ -31,7 +31,7 @@ public class TestRxLifecycle {
 		});
 
 		Disposable subscribe = s30.subscribe(a -> {
-			System.out.println(">> result: " + a);
+			//System.out.println(">> result: " + a);
 		});
 
 		ps.onNext("Hello");

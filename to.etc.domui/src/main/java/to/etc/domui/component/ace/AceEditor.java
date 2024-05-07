@@ -101,6 +101,8 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 			if(selected != null && selected.isEmpty())
 				selected = null;
 			m_selectedText = selected;
+			if(value != null && value.isBlank())
+				value = null;
 
 			if(Objects.equals(m_value, value))
 				return false;
@@ -175,8 +177,13 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 		//m_editDiv.addCssClass("ui-aced ace_editor ace-iplastic");
 		add(m_editDiv);
 		add(m_barDiv);
-		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
-		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
+		//getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
+		//getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
+
+		initialize(getPage().getBody());
+		//
+		//getPage().addHeaderContributor(HeaderContributor.loadJavascript("js/aceeditor-" + m_version + "/ace.js"), 10);
+		//getPage().addHeaderContributor(HeaderContributor.loadJavascript("js/aceeditor-" + m_version + "/ext-language_tools.js"), 11);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
@@ -267,8 +274,11 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 	}
 
 	static public void initialize(UrlPage page) {
-		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
-		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
+		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/aceeditor-" + m_version + "/ace.js"), 10);
+		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/aceeditor-" + m_version + "/ext-language_tools.js"), 11);
+
+		//page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
+		//page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
 	}
 
 	@Nullable

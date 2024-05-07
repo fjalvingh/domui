@@ -44,12 +44,24 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 		if(append) {
 			Div controlContainer = m_lastControlContainer;
 			Div labelContainer = m_lastLabelContainer;
-			if(controlContainer != null && labelContainer != null) {
-				if(null != lbl)
-					labelContainer.add(lbl);
+			if(null != controlContainer) {
+				if(null != lbl) {
+					//-- We need to add the label to the control container
+					controlContainer.add(lbl);
+					lbl.addCssClass("ui-f5-lbl-icc");		// Mark that it is in control container
+				}
 				controlContainer.add(control);
+				control.addCssClass("ui-f5-ctl-add");
+				controlContainer.addCssClass("ui-f5-ctl-xtra");
 				return;
 			}
+
+			//if(controlContainer != null && labelContainer != null) {
+			//	if(null != lbl)
+			//		labelContainer.add(lbl);
+			//	controlContainer.add(control);
+			//	return;
+			//}
 
 			//-- No last pair added, just add a new set.
 		}

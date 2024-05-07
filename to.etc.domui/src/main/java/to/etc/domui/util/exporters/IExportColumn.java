@@ -21,7 +21,7 @@ public interface IExportColumn<T> extends IValueTransformer<T> {
 	}
 
 	@Nullable
-	default Object convertValue(@Nullable Object value) {
+	default Object convertValue(@Nullable Object value) throws Exception {
 		return value;
 	}
 }

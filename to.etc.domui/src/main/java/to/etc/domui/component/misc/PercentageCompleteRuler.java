@@ -43,7 +43,7 @@ public class PercentageCompleteRuler extends Div {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-pct-rlr");
+		addCssClass("ui-pct-rlr");
 		updateValues();
 	}
 

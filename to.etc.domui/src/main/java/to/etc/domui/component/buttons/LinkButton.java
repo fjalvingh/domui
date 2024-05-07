@@ -35,6 +35,7 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Objects;
 
@@ -71,8 +72,19 @@ public class LinkButton extends ATag implements IActionControl {
 		setImage(image);
 	}
 
+	public LinkButton(@NonNull IBundleCode code, @Nullable IIconRef image, @NonNull IClicked<LinkButton> clk) {
+		setClicked(clk);
+		setText(code.format());
+		setImage(image);
+	}
+
 	public LinkButton(@NonNull String txt, @NonNull IIconRef image) {
 		setText(txt);
+		setImage(image);
+	}
+
+	public LinkButton(@NonNull IBundleCode code, @NonNull IIconRef image) {
+		setText(code.format());
 		setImage(image);
 	}
 
@@ -80,9 +92,18 @@ public class LinkButton extends ATag implements IActionControl {
 		m_text = txt;
 	}
 
+	public LinkButton(@NonNull IBundleCode code) {
+		setText(code.format());
+	}
+
 	public LinkButton(@NonNull String txt, @NonNull IClicked<LinkButton> clk) {
 		setClicked(clk);
 		setText(txt);
+	}
+
+	public LinkButton(@NonNull IBundleCode code, @NonNull IClicked<LinkButton> clk) {
+		setClicked(clk);
+		setText(code.format());
 	}
 
 	public LinkButton(@NonNull IUIAction<Void> action) throws Exception {
@@ -141,15 +162,31 @@ public class LinkButton extends ATag implements IActionControl {
 		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this, getActionInstance()));
 	}
 
-	public void setImage(@Nullable IIconRef url) {
+	public LinkButton setImage(@Nullable IIconRef url) {
 		if(DomUtil.isEqual(url, m_icon))
-			return;
+			return this;
 		m_icon = url;
 		forceRebuild();
+		return this;
+	}
+
+	public LinkButton icon(IIconRef ref) {
+		setImage(ref);
+		return this;
+	}
+
+	public LinkButton click(IClicked<LinkButton> b) {
+		setClicked(b);
+		return this;
 	}
 
 	public IIconRef getImage() {
 		return m_icon;
+	}
+
+	@Nullable
+	public String getText() {
+		return m_text;
 	}
 
 	@Override
@@ -158,6 +195,16 @@ public class LinkButton extends ATag implements IActionControl {
 		forceRebuild();
 		if(null != txt)
 			setCalculcatedId("lbtn_" + DomUtil.convertToID(txt));
+	}
+
+	public LinkButton text(@Nullable String txt) {
+		setText(txt);
+		return this;
+	}
+
+	public LinkButton text(IBundleCode code, Object... param) {
+		setText(code.format(param));
+		return this;
 	}
 
 	@Override

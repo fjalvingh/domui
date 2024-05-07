@@ -10,6 +10,7 @@ import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.TimeoutException;
@@ -26,9 +27,14 @@ import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.annotations.UIPage;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.PageUrlMapping;
+import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.webdriver.poproxies.AbstractCpComponent;
+import to.etc.domui.webdriver.poproxies.ICpWithElement;
 import to.etc.function.IExecute;
 import to.etc.function.SupplierEx;
 import to.etc.net.HttpCallException;
@@ -47,6 +53,7 @@ import java.io.Reader;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -77,20 +84,28 @@ final public class WebDriverConnector {
 
 	final private WebDriver m_driver;
 
-	/** When T, exit registration has been done, to ensure things are released when the JVM exits. */
+	/**
+	 * When T, exit registration has been done, to ensure things are released when the JVM exits.
+	 */
 	static private boolean m_jvmExitHandlerRegistered;
 
-	/** Wait timeout in SECONDS */
+	/**
+	 * Wait timeout in SECONDS
+	 */
 	private int m_waitTimeout = 60;
 
-	/** Wait interval in MILLISECONDS */
+	/**
+	 * Wait interval in MILLISECONDS
+	 */
 	private int m_waitInterval = 250;
 
 	private int m_nextWaitTimeout = -1;
 
 	private int m_nextInterval = -1;
 
-	/** The base of the application URL, to which page names will be appended. */
+	/**
+	 * The base of the application URL, to which page names will be appended.
+	 */
 	@NonNull
 	final private String m_applicationURL;
 
@@ -104,15 +119,27 @@ final public class WebDriverConnector {
 
 	private volatile boolean m_closed;
 
-	@Nullable
-	private IExecute m_afterCommandCallback;
-
-	/** The default viewport size. */
+	/**
+	 * The default viewport size.
+	 */
 	@NonNull
 	private Dimension m_viewportSize = new Dimension(1280, 1024);
 
 	@Nullable
+	private Class<?> m_lastTestClass;
+
+	@Nullable
+	private Class<? extends UrlPage> m_lastTestPageClass;
+
+	@Nullable
+	private PageParameters m_lastTestPageParameters;
+
+	@Nullable
+	private String m_lastTestPage;
+
+	@Nullable
 	private final IWebdriverScreenshotHelper m_screenshotHelper;
+
 
 	private WebDriverConnector(@NonNull WebDriver driver, @NonNull BrowserModel kind, @NonNull String webapp, @NonNull WebDriverType driverType, @Nullable IWebdriverScreenshotHelper helper) {
 		m_driver = driver;
@@ -176,8 +203,10 @@ final public class WebDriverConnector {
 		//-- Do we have a driver for this thread?
 		WebDriverConnector wd = m_webDriverThreadLocal.get();
 		if(null != wd) {
-			if(!wd.m_closed)
+			if(!wd.m_closed) {
+				wd.reset();
 				return wd;
+			}
 		}
 		initLogging();
 		registerExitHandler();
@@ -210,15 +239,61 @@ final public class WebDriverConnector {
 		WebDriverType webDriverType = getDriverType(remote);
 		boolean canTakeScreenshot = /* browserModel == BrowserModel.PHANTOMJS || */ webDriverType == WebDriverType.LOCAL || webDriverType == WebDriverType.REMOTE;
 
-		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, remote, null);
+		String forceLocale = p.getProperty("forcelocale");
+		Locale forcedLocale = null == forceLocale ? null : Locale.forLanguageTag(forceLocale);
+		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, remote, forcedLocale);
 
 		IWebdriverScreenshotHelper sshelper = WebDriverFactory.getScreenshotHelper(webDriverType, browserModel);
 
 		WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, sshelper);
-		initializeAfterCommandListener(tu);
 		m_webDriverConnectorList.add(tu);
 		m_webDriverThreadLocal.set(tu);
 		return tu;
+	}
+
+	/**
+	 * Clears all persistent settings in the instance to enable it for reuse.
+	 */
+	public void reset() {
+		m_lastTestClass = null;
+		m_lastTestPageClass = null;
+		m_lastTestPage = null;
+		m_lastTestPageParameters = null;
+		m_openScreenUrlCalculator = null;
+		m_inhibitAfter = false;
+		m_nextInterval = -1;
+		m_nextWaitTimeout = -1;
+		m_waitInterval = 250;
+		m_waitTimeout = 60;
+		m_viewportSize = new Dimension(1280, 1024);
+
+
+		/*
+		 * jal 20221213 Deleting all cookies to prevent the screen from being reused from
+		 * a previous test.
+		 */
+		clearAlert();								// Ordered! Must be 1st otherwise clearcookies throws exception
+		m_driver.manage().deleteAllCookies();
+	}
+
+	public void clearAlert() {
+		try {
+			Alert alert = m_driver.switchTo().alert();
+			alert.dismiss();
+			System.out.println("Alert cleared");
+		} catch(NoAlertPresentException x) {
+			//System.out.println("No alert");
+			// Ignore
+		}
+	}
+
+	public boolean isAlertPresent() {
+		try {
+			m_driver.switchTo().alert();
+			return true;
+		} catch(NoAlertPresentException x) {
+			return false;
+		}
 	}
 
 	@NonNull
@@ -233,25 +308,6 @@ final public class WebDriverConnector {
 			}
 		}
 		return WebDriverType.REMOTE;
-	}
-
-	/**
-	 * Called after every screen action, this checks whether the DomUI "waiting" backdrop is present and waits for it
-	 * to be gone.
-	 */
-	private static void initializeAfterCommandListener(@NonNull WebDriverConnector tu) {
-		tu.setAfterCommandCallback(new IExecute() {
-			@Override
-			public void execute() {
-				try {
-					tu.waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
-				} catch(UnhandledAlertException e) {
-					//-- If an alert is present then we just ignore and continue.
-				} catch(Exception x) {
-					throw WrappedException.wrap(x);
-				}
-			}
-		});
 	}
 
 	public int getWaitTimeout() {
@@ -293,22 +349,58 @@ final public class WebDriverConnector {
 			m_inhibitAfter = false;
 			return;
 		}
-		IExecute callback = m_afterCommandCallback;
-		if(null != callback) {
-			try {
-				callback.execute();
-			} catch(Exception x) {
-				throw WrappedException.wrap(x);
-			}
-		}
+		waitForUiIoBlk(this);
 	}
 
-	protected void setAfterCommandCallback(@Nullable IExecute callback) {
-		m_afterCommandCallback = callback;
+	private void waitForUiIoBlk(@NonNull WebDriverConnector tu) {
+		try {
+			tu.waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+		} catch(UnhandledAlertException e) {
+			//-- If an alert is present then we just ignore and continue.
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 	public void inhibitAfter() {
 		m_inhibitAfter = true;
+	}
+
+	/**
+	 * This executes the code in action, and waits for the response
+	 * counter to increment. This should mean that the Ajax response
+	 * has been received.
+	 */
+	public void waitAnswer(IExecute action) throws Exception {
+		long replyId = getReplyId();
+		System.out.println(">> replyId=" + replyId);
+		action.execute();
+
+		//-- Now: wait until the response index differs
+		long ets = System.currentTimeMillis() + 10_000;					// Wait 10 seconds max
+		for(;;) {
+			try {
+				long nextId = getReplyId();
+				System.out.println(">> nextReplyId=" + nextId);
+				if(nextId != replyId)						// If it differs -> we've got a response
+					return;
+			} catch(Exception x) {
+				//-- Just ignore; can be a page change
+			}
+
+			//-- No go.. Sleep 100ms, then retry
+			Thread.sleep(100);
+			if(System.currentTimeMillis() >= ets)
+				throw new TimeoutException("Timeout in waiting for AJAX response to arrive (domui)");
+		}
+	}
+
+	private final long getReplyId() throws Exception {
+		JavascriptExecutor executor = (JavascriptExecutor) driver();
+		Object response = executor.executeScript("return WebUI.getReplyId()");
+		if(! (response instanceof Long))
+			throw new IllegalStateException("?? Unexpected response: " + response);
+		return ((Long) response).longValue();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -381,8 +473,10 @@ final public class WebDriverConnector {
 	 * Wait for the given element to appear.
 	 */
 	public void wait(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		});
 	}
 
 	/**
@@ -391,7 +485,8 @@ final public class WebDriverConnector {
 	public void wait(@NonNull By locator, long time, TimeUnit unit) {
 		long seconds = unit.toSeconds(time);
 		WebDriverWait wait = new WebDriverWait(driver(), seconds, getWaitInterval());
-		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		WebElement until = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		System.out.println("until: " + until.getAttribute("id"));
 	}
 
 	@Nullable
@@ -422,18 +517,24 @@ final public class WebDriverConnector {
 	}
 
 	void waitForElementClickable(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.elementToBeClickable(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.elementToBeClickable(locator));
+		});
 	}
 
 	void waitForElementPresent(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		});
 	}
 
 	public void waitForElementVisible(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		});
 	}
 
 	public void waitForElementVisible(@NonNull String testid) {
@@ -441,8 +542,10 @@ final public class WebDriverConnector {
 	}
 
 	void waitForElementInvisible(@NonNull By locator) {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+		});
 	}
 
 	void waitForLink(@NonNull String linkText) {
@@ -455,8 +558,10 @@ final public class WebDriverConnector {
 	}
 
 	public void waitAlert() {
-		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
-		wait.until(ExpectedConditions.alertIsPresent());
+		repeatedWait(() -> {
+			WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+			wait.until(ExpectedConditions.alertIsPresent());
+		});
 	}
 
 	private int readWaitTimeout(int defaultTimeout) {
@@ -467,6 +572,28 @@ final public class WebDriverConnector {
 		} catch(NumberFormatException e) {
 			throw new IllegalArgumentException("webdriver.waittimeout parameter in .test.properties file can't be converted to int");
 		}
+	}
+
+	protected void repeatedWait(IExecute waiter) {
+		long end = System.currentTimeMillis() + 20_000;
+		int errorCount = 0;
+		Exception lastException = null;
+		while(System.currentTimeMillis() < end) {
+			try {
+				waiter.execute();
+				return;
+			} catch(Exception x) {
+				errorCount++;
+				if(errorCount > 5) {
+					throw WrappedException.wrap(x);
+				}
+				lastException = x;
+				System.out.println("wd(): retrying wait, retry " + errorCount);
+			}
+		}
+		if(lastException == null)
+			throw new IllegalStateException("??");
+		throw WrappedException.wrap(lastException);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -626,7 +753,6 @@ final public class WebDriverConnector {
 	public boolean isChecked(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
-		System.out.println(elem.getTagName());
 		return elem.isSelected();
 	}
 
@@ -733,6 +859,22 @@ final public class WebDriverConnector {
 		return findAttribute(byId(testid), attribute);
 	}
 
+	/**
+	 * Checks whether the specified element has a scrollbar.
+	 */
+	public boolean isScrollbarPresent(@NonNull By locator) throws Exception {
+		WebElement elem = driver().findElement(locator);
+		String id = elem.getAttribute("id");
+		if(null == id)
+			throw new IllegalStateException("No ID on element; this is required to check fox scrollbar presence");
+		StringBuilder sb = new StringBuilder();
+		sb.append("return document.getElementById('").append(id).append("').scrollHeight>document.getElementById('").append(id).append("').clientHeight;");
+		Boolean result = (Boolean) ((JavascriptExecutor) driver()).executeScript(sb.toString());
+		if(null == result)
+			throw new IllegalStateException("Unexpected result null from scrollbar test");
+		return result.booleanValue();
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Setting values.										*/
 	/*--------------------------------------------------------------*/
@@ -743,8 +885,8 @@ final public class WebDriverConnector {
 	 * contain an indicator of what is wanted:
 	 * <dl>
 	 * 	<dt>label=xxx</dt><dd>Select the option that is shown on-screen as "xxx"</dd>
-	 *	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
-	 *	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
+	 * 	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
+	 * 	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
 	 * </dl>
 	 */
 	public void select(@NonNull String testid, @NonNull String value) throws Exception {
@@ -757,8 +899,8 @@ final public class WebDriverConnector {
 	 * contain an indicator of what is wanted:
 	 * <dl>
 	 * 	<dt>label=xxx</dt><dd>Select the option that is shown on-screen as "xxx"</dd>
-	 *	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
-	 *	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
+	 * 	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
+	 * 	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
 	 * </dl>
 	 */
 	public void select(@NonNull By locator, @NonNull String value) throws Exception {
@@ -977,7 +1119,6 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 *
 	 * @return size of the browser window
 	 */
 	@NonNull
@@ -1119,36 +1260,60 @@ final public class WebDriverConnector {
 	 */
 	@NonNull
 	public WebDriverConnector openScreen(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object... parameters) throws Exception {
+		System.out.println(">> OPENSCREEN " + clz);
 		m_lastTestClass = null;
 		m_lastTestPage = null;
 
+		//-- Remove any pending alert
+		discardAlertIfPresent();
+
 		checkSize();
 
-		String sb = calculatePageURL(locale, clz, parameters);
+		String url = calculatePageURL(locale, clz, parameters);
 
 		IWdUrlCalculator calculator = m_openScreenUrlCalculator;
 		if(null != calculator) {
-			sb = calculator.updateUrlFor(sb, locale, clz, parameters);
+			url = calculator.updateUrlFor(url, locale, clz, parameters);
 		}
 
-		System.out.println("webdriver: navigate to " + sb);
-		m_driver.navigate().to(sb);
+		System.out.println("webdriver: navigate to " + url);
+		m_driver.navigate().to(url);
 		checkSize();
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
-
 		WebElement we = wait(xdomui);
 
+		System.out.println(">> OPENSCREEN ELEMENT=" + we + (we == null ? "" : " " + we.getTagName()));
+
 		String id = DomUtil.nullChecked(we).getAttribute("id");
-		if("_1".equals(id))                        // If this is a domUI body then be done
-			return this;
+		if(! "_1".equals(id))                        // If this is a domUI body then be done
+			throw new IllegalStateException("Expecting a DomUI screen, but did not get the correct body");
 
-		doLogin();
-
-		xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
-		we = wait(xdomui);
-		waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+		m_lastTestPageClass = clz;
+		m_lastTestPageParameters = new PageParameters(parameters);
+		m_lastTestPage = url;
 		return this;
+
+		//doLogin();
+		//
+		//xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
+		//we = wait(xdomui);
+		//waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+		//return this;
+	}
+
+	public void discardAlertIfPresent() {
+		if(!isAlertPresent())
+			return;
+		//-- Try to handle alert
+		try {
+			String message = alertGetMessage();
+			System.err.println("An alert was present, message is:\n" + message);
+		} catch(Exception xx) {
+			System.err.println("An alert was present, but an exception occurred getting the alert message");
+			xx.printStackTrace();
+		}
+		clearAlert();
 	}
 
 	/**
@@ -1160,12 +1325,6 @@ final public class WebDriverConnector {
 			return;
 		driver().manage().window().setSize(m_viewportSize);
 	}
-
-	@Nullable
-	private Class<?> m_lastTestClass;
-
-	@Nullable
-	private String m_lastTestPage;
 
 	@NonNull
 	public WebDriverConnector openScreenIf(@NonNull Object testClass, @NonNull Class<? extends UrlPage> clz, Object... parameters) throws Exception {
@@ -1183,7 +1342,7 @@ final public class WebDriverConnector {
 		m_driver.navigate().to(sb);
 		checkSize();
 
-		size = getSize();
+		//size = getSize();
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
 
@@ -1191,13 +1350,11 @@ final public class WebDriverConnector {
 
 		String id = DomUtil.nullChecked(we).getAttribute("id");
 		if(!"_1".equals(id)) {                            // If this is a domUI body then be done
-			doLogin();
-
-			xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
-			we = wait(xdomui);
-			waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+			throw new IllegalStateException("Expecting a DomUI page, but did not get the correct body");
 		}
 		m_lastTestClass = testClass.getClass();
+		m_lastTestPageClass = clz;
+		m_lastTestPageParameters = new PageParameters(parameters);
 		m_lastTestPage = sb;
 		size = getSize();
 		return this;
@@ -1205,15 +1362,41 @@ final public class WebDriverConnector {
 
 	@NonNull
 	public String calculatePageURL(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object[] parameters) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(m_applicationURL);
-		sb.append(clz.getName());
-		sb.append(".ui");
 		PageParameters pp = new PageParameters(parameters);
 		if(null != locale) {
 			pp.addParameter("___locale", locale.toString());
 		}
-		DomUtil.addUrlParameters(sb, pp, true);
+		pp.addParameter("__ts__", String.valueOf(System.nanoTime()));    // Force a new URL every time, to prevent reloading the same page
+
+		//-- If we have a @UIPage annotation: calculate the nice url
+		String url;
+		if(clz.isAnnotationPresent(UIPage.class)) {
+			PageUrlMapping pum = new PageUrlMapping();
+			pum.appendPage(clz);
+			UrlAndParameters uap = pum.getUrlString(clz, pp);
+			String pagePath;
+			if(uap != null) {
+				pagePath = uap.getUrl();
+				pp = uap.getPageParameters();
+			} else {
+				pagePath = clz.getName() + ".ui";
+			}
+			StringBuilder sb = new StringBuilder();
+			sb.append(pagePath);
+			DomUtil.addUrlParameters(sb, pp, true);
+			url = sb.toString();
+		} else {
+			StringBuilder sb = new StringBuilder();
+			sb.append(m_applicationURL);
+			sb.append(clz.getName());
+			sb.append(".ui");
+			DomUtil.addUrlParameters(sb, pp, true);
+			return sb.toString();
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(m_applicationURL);
+		sb.append(url);
 		return sb.toString();
 	}
 
@@ -1226,18 +1409,6 @@ final public class WebDriverConnector {
 		WebElement we = wait(xdomui);
 		waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
 		return this;
-	}
-
-	private void doLogin() throws Exception {
-		String login = TUtilTestProperties.getViewpointLoginName();
-		TestProperties p = TUtilTestProperties.getTestProperties();
-		String password = p.getProperty("webdriver.loginpassword");
-
-		//-- We have the login screen. Enter credentials.
-		cmd().type(login).on(locator("#given_username"));
-		cmd().type(password).on(locator("#given_password"));
-		cmd().click().on(locator("#loginbutton"));
-//		System.out.println("Logging in as " + login);
 	}
 
 	/**
@@ -1256,6 +1427,122 @@ final public class WebDriverConnector {
 	public WebDriverConnector waitScreenNotPresent(@NonNull Class<? extends UrlPage> clz) throws Exception {
 		notPresent(locator("body[" + PAGENAME_PARAMETER + "='" + clz.getName() + "']"));
 		return this;
+	}
+
+	/**
+	 * Wait until the URL gets some specified pattern.
+	 */
+	@NonNull
+	public WebDriverConnector waitUrl(@NonNull Predicate<String> acceptUrl, Duration timeout) throws Exception {
+		new WebDriverWait(m_driver, timeout.toSeconds() + 1)
+			.until(webDriver -> {
+				String currentURL = getCurrentURL();
+				return Boolean.valueOf(acceptUrl.test(currentURL));
+			});
+		return this;
+	}
+
+	/**
+	 * Wait for a max duration to see whether the browser is on the page
+	 * containing the specified URL part. If not this returns false.
+	 */
+	public boolean isBrowserOnPage(String expectedUrlPart, Duration duration) {
+		try {
+			new WebDriverWait(m_driver, duration.toSeconds())
+				.until(webDriver -> {
+					String currentURL = getCurrentURL();
+					return Boolean.valueOf(currentURL.toLowerCase().contains(expectedUrlPart.toLowerCase()));
+				});
+			return true;
+		} catch(TimeoutException x) {
+			return false;
+		}
+	}
+
+	/**
+	 * Wait for a max duration to see whether the browser is on the page. If
+	 * not this returns false.
+	 */
+	public boolean isBrowserOnPage(Class<? extends UrlPage> page, Duration duration) {
+		try {
+			new WebDriverWait(m_driver, duration.toSeconds())
+				.until(webDriver -> {
+					String currentURL = getCurrentURL();
+					return Boolean.valueOf(isUrlFor(currentURL, page));
+				});
+			return true;
+		} catch(TimeoutException x) {
+			return false;
+		}
+	}
+
+	/**
+	 * Wait for the browser to have moved to some other page. This
+	 * checks the URL in the browser window to see if it is the same
+	 * as the URL we navigated to last.
+	 */
+	public void waitNewPage() throws Exception {
+		waitNewPage(Duration.ofSeconds(20));
+	}
+
+	/**
+	 * Wait for the browser to have moved to some other page. This
+	 * checks the URL in the browser window to see if it is the same
+	 * as the URL we navigated to last.
+	 */
+	public void waitNewPage(Duration duration) throws Exception {
+		Class<? extends UrlPage> lastTestPage = m_lastTestPageClass;
+		PageParameters lastTestClassParameters = m_lastTestPageParameters;
+		if(null == lastTestPage || null == lastTestClassParameters)
+			throw new IllegalStateException("No page has yet been opened using openScreen() or related");
+		waitUrl(url -> ! isUrlFor(url, lastTestPage), duration);
+	}
+
+	/**
+	 * Checks whether the specified URL is an URL for the specified DomUI page. This
+	 * only checks the page url, not parameters.
+	 */
+	static public boolean isUrlFor(String fullUrl, Class<? extends UrlPage> pageClass) {
+		String expectedUrlPart = pageClass.getName() + ".ui";
+		if(fullUrl.contains(expectedUrlPart))
+			return true;
+
+		UIPage pageAnn = pageClass.getAnnotation(UIPage.class);
+		if(null == pageAnn)
+			return false;
+		String path = pageAnn.value();
+		if(path.length() == 0)
+			return false;
+
+		//-- Matcher: we match from the back to the front. We skip parameter names in the comparison.
+		int ix = fullUrl.indexOf('?');						// Do we have query params?
+		String url = ix == -1 ? fullUrl : fullUrl.substring(0, ix);	// String query string
+		if(url.endsWith("/"))
+			url = url.substring(0, url.length() - 1);		// Trim last /
+
+		//-- Split both
+		if(path.startsWith("/"))
+			path = path.substring(1);
+		if(path.endsWith("/"))
+			path = path.substring(0, path.length() - 1);
+		String[] urlSegments = url.split("/");
+		String[] pathSegments = path.split("/");
+
+		if(urlSegments.length < pathSegments.length)
+			return false;
+
+		//-- We must have a match for ALL path segments, so walk those.
+		int pathIx = pathSegments.length - 1;
+		for(int urlIx = urlSegments.length; --urlIx >= 0 && pathIx >= 0;) {
+			String uf = urlSegments[urlIx];
+			if(uf.contains("{")) {
+				//-- Parameter -> assume matched
+			} else if(! uf.equals(pathSegments[pathIx])) {
+				return false;
+			}
+			pathIx--;
+		}
+		return true;
 	}
 
 	@NonNull
@@ -1478,6 +1765,7 @@ final public class WebDriverConnector {
 
 	/**
 	 * Wait until the element is not present.
+	 *
 	 * @deprecated does not work - use other one notPresent(By)
 	 */
 	@Deprecated
@@ -1749,7 +2037,7 @@ final public class WebDriverConnector {
 
 	static public void onTestFailure(@NonNull WebDriverConnector wd, @Nullable Method failedMethod) throws Exception {
 		//-- Make a screenshot
-		System.out.println("@onTestFailure: attempting to create a screenshot");
+		System.err.println("@onTestFailure: attempting to create a screenshot");
 		File tmpf = File.createTempFile("screenshot", ".png");
 
 		/*
@@ -1775,7 +2063,7 @@ final public class WebDriverConnector {
 			//-- Try screenshot a 2nd time, die this time if it fails again
 			wd.screenshot(tmpf);
 		}
-		System.out.println("Made screenshot in " + tmpf);
+		System.err.println("Made screenshot in " + tmpf);
 		if(tmpf.exists()) {
 			IPaterContext context = Pater.context();
 //			System.out.println("@onTestFailure: context = " + context);
@@ -1937,7 +2225,18 @@ final public class WebDriverConnector {
 		try {
 			Alert alert = driver().switchTo().alert();
 			String msg = alert.getText();
-			alert.accept();
+
+			try {
+				alert.accept();
+			} catch(Exception x) {
+
+				try {
+					alert.dismiss();
+				} catch(Exception xx) {
+					System.err.println("Failed to accept/dismiss alert");
+					xx.printStackTrace();
+				}
+			}
 			return msg;
 		} catch(Exception ex) {
 			return null;
@@ -1967,7 +2266,7 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 * Used for switching control to a page with string part contained in url.</br>
+	 * Used for switching control to a page with string part contained in url.
 	 * Used when you are expecting some parameters in your popup
 	 */
 	public void switchToByUrlPart(@NonNull String urlPart) throws Exception {
@@ -1987,7 +2286,7 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 * Expects new popup with specified body #PAGENAME_PARAMETER attribute</br>
+	 * Expects new popup with specified body #PAGENAME_PARAMETER attribute.
 	 * Returns handle for expected popup.
 	 */
 	@NonNull
@@ -2015,7 +2314,7 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 * Expects popup page with string part contained in url.</br>
+	 * Expects popup page with string part contained in url.
 	 * Good for searching by parameters
 	 * Return handle for expected page with defined string in url.
 	 */
@@ -2038,6 +2337,34 @@ final public class WebDriverConnector {
 			}
 		});
 	}
+
+	/**
+	 * Executes some actions, and then waits until the specified element is
+	 * updated as result of those actions.
+	 */
+	public void waitForRefreshOf(AbstractCpComponent component, Duration duration, IExecute action) throws Exception {
+		WebElement element = Objects.requireNonNull(component.getInputElement());
+		waitForRefreshOf(element, duration, action);
+	}
+
+	/**
+	 * Executes some actions, and then waits until the specified element is
+	 * updated as result of those actions.
+	 */
+	public void waitForRefreshOf(ICpWithElement component, Duration duration, IExecute action) throws Exception {
+		WebElement element = component.getElement();
+		waitForRefreshOf(element, duration, action);
+	}
+
+	public void waitForRefreshOf(WebElement element, Duration duration, IExecute action) throws Exception {
+		action.execute();
+
+		//-- Wait for the element to become stale, indicating that something has refreshed
+		new WebDriverWait(m_driver, duration.toSeconds())
+			.until(ExpectedConditions.stalenessOf(element));
+	}
+
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Assertion helpers.									*/
@@ -2074,7 +2401,8 @@ final public class WebDriverConnector {
 	/*	CODING:	Assertions.											*/
 	/*--------------------------------------------------------------*/
 
-	/** Compares two strings, but handles "regexp:" strings like HTML Selenese
+	/**
+	 * Compares two strings, but handles "regexp:" strings like HTML Selenese
 	 *
 	 * @return true if actual matches the expectedPattern, or false otherwise
 	 */
@@ -2194,6 +2522,7 @@ final public class WebDriverConnector {
 	public void verifyTextEquals(@NonNull By locator, @NonNull String text) {
 		assertEquals(getText(locator), text);
 	}
+
 	public void verifyHtmlTextEquals(@NonNull By locator, @NonNull String text) {
 		assertEquals(getHtmlText(locator), text);
 	}
@@ -2215,7 +2544,6 @@ final public class WebDriverConnector {
 		String html = getHtmlText(locator);
 		assertTrue("Locator " + locator + " does not contain " + text + "(value = " + html + ")", html.toLowerCase().contains(text.toLowerCase()));
 	}
-
 
 	public void verifyTextStartsWith(@NonNull String testid, @NonNull String text) {
 		verifyTextStartsWith(byId(testid), text);

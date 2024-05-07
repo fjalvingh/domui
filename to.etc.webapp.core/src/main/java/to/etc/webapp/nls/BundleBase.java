@@ -47,9 +47,6 @@ abstract public class BundleBase implements NlsMessageProvider {
 	 * closest to it). If no translation exists for the message in the
 	 * specified bundle then we try the "default" bundle; if it still
 	 * does not exist we return a string containing the key with ????.
-	 * @param loc
-	 * @param key
-	 * @throws  ResourceNotFoundException the bundle cannot be located.
 	 */
 	@NonNull
 	public String getString(@NonNull final Locale loc, @NonNull final String key) {
@@ -60,9 +57,6 @@ abstract public class BundleBase implements NlsMessageProvider {
 	/**
 	 * Returns the translation of the key passed in the <i>current</i> client
 	 * locale.
-	 *
-	 * @param key
-	 * @return
 	 */
 	@NonNull
 	public String getString(@NonNull final String key) {
@@ -72,28 +66,21 @@ abstract public class BundleBase implements NlsMessageProvider {
 	/**
 	 * Gets the string, and applies default message formatting using the parameters
 	 * passed in the current locale.
-	 * @param key
-	 * @param param
-	 * @return
 	 */
 	@NonNull
 	public String formatMessage(@NonNull final String key, @NonNull final Object... param) {
 		return formatMessage(NlsContext.getLocale(), key, param);
 	}
-	
+
 	/**
 	 * Gets the string, and applies default message formatting using the parameters
 	 * passed in the specified locale.
-	 * @param loc
-	 * @param key
-	 * @param param
-	 * @return
 	 */
 	@NonNull
 	public String formatMessage(@NonNull final Locale loc, @NonNull final String key, @NonNull final Object... param) {
 		String s = findMessage(loc, key);
 		if(s == null)
 			return "???" + key + "???";
-		return MessageFormat.format(s, param);
-	}	
+		return new MessageFormat(s, loc).format(param);
+	}
 }

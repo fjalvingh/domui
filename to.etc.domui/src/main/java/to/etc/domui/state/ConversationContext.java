@@ -27,6 +27,8 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.delayed.DelayedActivitiesManager;
+import to.etc.domui.component.delayed.DelayedActivityInfo;
 import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -397,13 +399,6 @@ public class ConversationContext extends AbstractConversationContext implements 
 	public <T extends NodeContainer & IPolledForUpdate> void unregisterPoller(T nc) {
 		getDelayedActivitiesManager().unregisterPoller(nc);
 	}
-
-	//	/**
-	//	 * Forces the activity manager to enable continuous polling by the client system, at least every interval millis.
-	//	 */
-	//	public void internalSetContinuousPolling(int interval) {
-	//		getDelayedActivitiesManager().setContinuousPolling(interval);
-	//	}
 
 	@Override
 	public void dump() {

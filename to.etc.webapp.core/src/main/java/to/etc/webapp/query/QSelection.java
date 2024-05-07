@@ -26,6 +26,7 @@ package to.etc.webapp.query;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
 
 
@@ -89,4 +90,293 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 		setTestId(testId);
 		return this;
 	}
+
+	/**
+	 * Add a simple property selector to the list.
+	 */
+	protected void addPropertySelection(@NonNull QSelectionFunction f, @NonNull @GProperty String prop, @Nullable String alias) {
+		if(prop == null || prop.isEmpty())
+			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
+		QPropertySelection ps = new QPropertySelection(f, prop);
+		addColumn(ps, alias);
+	}
+
+	/**
+	 * Add a simple property selector to the list.
+	 */
+	protected <V> void addPropertySelection(@NonNull QSelectionFunction f, @NonNull QField<T, V> property, @Nullable String alias) {
+		String prop = property.getName();
+		if(prop == null || prop.isEmpty())
+			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
+		QPropertySelection ps = new QPropertySelection(f, prop);
+		addColumn(ps, alias);
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 */
+	@NonNull
+	public QSelection<T> selectProperty(@NonNull @GProperty final String property) {
+		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> selectProperty(@NonNull QField<T, V> property) {
+		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 *
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 */
+	@NonNull
+	public QSelection<T> selectProperty(@NonNull @GProperty final String property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> selectProperty(@NonNull QField<T, V> property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select the max of a property in the set. (QSelection<T>) this will cause a group by.
+	 *
+	 * @param property		The property whose literal value is to be selected
+	 */
+	@NonNull
+	public QSelection<T> max(@NonNull @GProperty String property) {
+		addPropertySelection(QSelectionFunction.MAX, property, null);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> max(@NonNull QField<T, V> property) {
+		addPropertySelection(QSelectionFunction.MAX, property, null);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select the max of a property in the set. (QSelection<T>) this will cause a group by.
+	 *
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 */
+	@NonNull
+	public QSelection<T> max(@NonNull @GProperty String property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.MAX, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> max(@NonNull QField<T, V> property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.MAX, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select the minimal value of a property in the set. (QSelection<T>) this will cause a group by.
+	 * @param property		The property whose literal value is to be selected
+	 */
+	@NonNull
+	public QSelection<T> min(@NonNull @GProperty final String property) {
+		addPropertySelection(QSelectionFunction.MIN, property, null);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> min(@NonNull QField<T, V> property) {
+		addPropertySelection(QSelectionFunction.MIN, property, null);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select the minimal value of a property in the set. (QSelection<T>) this will cause a group by.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 */
+	@NonNull
+	public QSelection<T> min(@NonNull @GProperty String property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.MIN, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> min(@NonNull QField<T, V> property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.MIN, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select the average value of a property in the set. (QSelection<T>) this will cause a group by.
+	 * @param property		The property whose literal value is to be selected
+	 */
+	@NonNull
+	public QSelection<T> avg(@NonNull @GProperty String property) {
+		addPropertySelection(QSelectionFunction.AVG, property, null);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> avg(@NonNull @GProperty QField<T, V> property) {
+		addPropertySelection(QSelectionFunction.AVG, property, null);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select the average value of a property in the set. (QSelection<T>) this will cause a group by.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 */
+	@NonNull
+	public QSelection<T> avg(@NonNull @GProperty final String property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.AVG, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> avg(@NonNull @GProperty QField<T, V> property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.AVG, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select the sum of a property in the set. (QSelection<T>) this will cause a group by.
+	 * @param property		The property whose literal value is to be selected
+	 */
+	@NonNull
+	public QSelection<T> sum(@NonNull @GProperty String property) {
+		addPropertySelection(QSelectionFunction.SUM, property, null);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> sum(@NonNull QField<T, V> property) {
+		addPropertySelection(QSelectionFunction.SUM, property, null);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select the sum of a property in the set. (QSelection<T>) this will cause a group by.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 */
+	@NonNull
+	public QSelection<T> sum(@NonNull @GProperty String property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.SUM, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> sum(@NonNull QField<T, V> property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.SUM, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select a count over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 */
+	@NonNull
+	public QSelection<T> count(@NonNull @GProperty String property) {
+		addPropertySelection(QSelectionFunction.COUNT, property, null);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> count(@NonNull QField<T, V> property) {
+		addPropertySelection(QSelectionFunction.COUNT, property, null);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select a count over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 */
+	@NonNull
+	public QSelection<T> count(@NonNull @GProperty String property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.COUNT, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> count(@NonNull QField<T, V> property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.COUNT, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select a count of the distinct values over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 */
+	@NonNull
+	public QSelection<T> countDistinct(@NonNull @GProperty String property) {
+		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> countDistinct(@NonNull QField<T, V> property) {
+		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select a count of the distinct values over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 */
+	@NonNull
+	public QSelection<T> countDistinct(@NonNull @GProperty final String property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> countDistinct(@NonNull QField<T, V> property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select of the distinct values over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 */
+	@NonNull
+	public QSelection<T> distinct(@NonNull @GProperty String property) {
+		addPropertySelection(QSelectionFunction.DISTINCT, property, null);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> distinct(@NonNull QField<T, V> property) {
+		addPropertySelection(QSelectionFunction.DISTINCT, property, null);
+		return (QSelection<T>) this;
+	}
+
+	/**
+	 * Select of the distinct values over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 */
+	@NonNull
+	public QSelection<T> distinct(@NonNull @GProperty final String property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.DISTINCT, property, alias);
+		return (QSelection<T>) this;
+	}
+
+	@NonNull
+	public <V> QSelection<T> distinct(@NonNull QField<T, V> property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.DISTINCT, property, alias);
+		return (QSelection<T>) this;
+	}
+
+
 }

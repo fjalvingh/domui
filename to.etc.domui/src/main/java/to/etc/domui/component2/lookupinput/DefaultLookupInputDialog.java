@@ -7,15 +7,14 @@ import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.searchpanel.SearchPanel;
-import to.etc.domui.component.tbl.BasicRowRenderer;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
-import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.component.tbl.IRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component.tbl.PageQueryHandler;
+import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.dom.errors.IErrorMessageListener;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IClicked;
@@ -37,7 +36,9 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
 	private String m_formTitle;
 
-	/** When T (default) you can press search on an empty popup form. 20120511 jal Default set to true. */
+	/**
+	 * When T (default) you can press search on an empty popup form. 20120511 jal Default set to true.
+	 */
 	private boolean m_allowEmptyQuery = true;
 
 	private boolean m_searchImmediately;
@@ -46,7 +47,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	 * Default false for backward compatibility . Controls if the serach panel is initially collapsed or not
 	 */
 	private boolean m_initiallyCollapsed;
-
 
 	/**
 	 * Default T. When set, table result would be stretched to use entire available height on FloatingWindow.
@@ -77,7 +77,9 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
 	private IQueryHandler<QT> m_queryHandler;
 
-	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
+	/**
+	 * The search properties to use in the lookup form when created. If null uses the default attributes on the class.
+	 */
 	@Nullable
 	private List<SearchPropertyMetaModel> m_searchPropertyList;
 
@@ -101,7 +103,9 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
 	private ITableModel<OT> m_initialModel;
 
-	/** The selected value or null if no selection made (yet) */
+	/**
+	 * The selected value or null if no selection made (yet)
+	 */
 	@Nullable
 	private OT m_value;
 
@@ -144,7 +148,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		ITableModel<OT> initialModel = m_initialModel;
 
 		//-- Ordered!
-		lf.forceRebuild(); 										// jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
+		lf.forceRebuild();                                        // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 
 		// this collapse search fields by configuration or if we enter the lookup popup with some already pre set results, for example given by search as you type.
 		lf.setCollapsed(m_initiallyCollapsed || (initialModel != null && initialModel.getRows() > 0));
@@ -170,7 +174,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			search(lf);
 		}
 
-
 	}
 
 	public void setInitiallyCollapsed(boolean initiallyCollapsed) {
@@ -179,13 +182,13 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	private void search(@NonNull SearchPanel<QT> lf) throws Exception {
 		QCriteria<QT> c = lf.getCriteria();
-		if(c == null)						// Some error has occured?
-			return;							// Don't do anything (errors will have been registered)
+		if(c == null)                        // Some error has occured?
+			return;                            // Don't do anything (errors will have been registered)
 
 		IQueryManipulator<QT> m = m_queryManipulator;
 		if(null != m) {
 			c = m.adjustQuery(c);
-			if(c == null) {					// Cancelled by manipulator?
+			if(c == null) {                    // Cancelled by manipulator?
 				return;
 			}
 		}
@@ -200,7 +203,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	}
 
 	private void setTableQuery(@NonNull QCriteria<QT> qc) throws Exception {
-		ITableModel<OT> model = createTableModel(qc);					// Ask derived to convert the query into my output model
+		ITableModel<OT> model = createTableModel(qc);                    // Ask derived to convert the query into my output model
 		setResultModel(model);
 	}
 
@@ -225,7 +228,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			if(isUseStretchedLayout()) {
 				dt.setStretchHeight(true);
 				NodeContainer delegate = getDelegate();
-				if (null != delegate && !delegate.isStretchHeight()){
+				if(null != delegate && !delegate.isStretchHeight()) {
 					delegate.setStretchHeight(true);
 				}
 			}
@@ -245,7 +248,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * Either use the user-specified popup form row renderer or create one using resultColumns or the default metadata.
-	 * @return
 	 */
 	@NonNull
 	private IRowRenderer<OT> getActualFormRowRenderer() {
@@ -254,25 +256,18 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			//-- Is a form row renderer specified by the user - then use it, else create a default one.
 			actualFormRowRenderer = m_actualFormRowRenderer = getFormRowRenderer();
 			if(null == actualFormRowRenderer) {
-				actualFormRowRenderer = m_actualFormRowRenderer = new BasicRowRenderer<OT>((Class<OT>) getOutputMetaModel().getActualClass(), getOutputMetaModel());
+				actualFormRowRenderer = m_actualFormRowRenderer = new RowRenderer<>((Class<OT>) getOutputMetaModel().getActualClass(), getOutputMetaModel());
 			}
 
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
-			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
-				@Override
-				public void cellClicked(@NonNull OT val) throws Exception {
-					rowSelected(val);
-				}
-			});
+			actualFormRowRenderer.setRowClicked(this::rowSelected);
 		}
 		return actualFormRowRenderer;
 	}
 
 	/**
 	 * Called when a row is selected in the form. By default this sets the selected value
-	 * in {@link value}, closes the dialog and sends the onSelection event.
-	 * @param value
-	 * @throws Exception
+	 * in value, closes the dialog and sends the onSelection event.
 	 */
 	protected void rowSelected(@NonNull OT value) throws Exception {
 		clearGlobalMessage(Msgs.vMissingSearch);
@@ -290,7 +285,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * When the dialog is closed we clear the value, and send the onSelection event.
-	 * @see to.etc.domui.component.layout.FloatingDiv#onClosed(java.lang.String)
 	 */
 	@Override
 	protected void onClosed(String closeReason) throws Exception {
@@ -299,17 +293,18 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		super.onClosed(closeReason);
 	}
 
-	/**
-	 * Add column specs for the full query form's result list, according to the specifications as defined by {@link BasicRowRenderer}.
-	 * @param columns
-	 */
-	public void addFormColumns(@NonNull Object... columns) {
-		IRowRenderer<OT> rr = getActualFormRowRenderer();
-		if(rr instanceof BasicRowRenderer) {
-			((BasicRowRenderer<OT>) rr).addColumns(columns);
-		} else
-			throw new IllegalStateException("The row renderer for the form is set to something else than a BasicRowRenderer.");
-	}
+	///**
+	// * Add column specs for the full query form's result list, according to the specifications as defined by {@link BasicRowRenderer}.
+	// */
+	//public void addFormColumns(@NonNull Object... columns) {
+	//	IRowRenderer<OT> rr = getActualFormRowRenderer();
+	//
+	//
+	//	if(rr instanceof BasicRowRenderer) {
+	//		((BasicRowRenderer<OT>) rr).addColumns(columns);
+	//	} else
+	//		throw new IllegalStateException("The row renderer for the form is set to something else than a BasicRowRenderer.");
+	//}
 
 	@NonNull
 	public ClassMetaModel getQueryMetaModel() {
@@ -324,7 +319,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	/**
 	 * Can be set by a specific lookup form to use when the full query popup is shown. If unset the code will create
 	 * a SearchPanel using metadata.
-	 * @return
 	 */
 	@Nullable
 	public SearchPanel<QT> getSearchPanel() {
@@ -337,7 +331,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * When T the user can press search even when no criteria are entered.
-	 * @return
 	 */
 	public boolean isAllowEmptyQuery() {
 		return m_allowEmptyQuery;
@@ -349,7 +342,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * When T this will immediately search with an empty query.
-	 * @return
 	 */
 	public boolean isSearchImmediately() {
 		return m_searchImmediately;
@@ -383,7 +375,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * When set this defines the title of the lookup window.
-	 * @return
 	 */
 	@Nullable
 	public String getFormTitle() {
@@ -392,8 +383,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * When set this defines the title of the lookup window.
-	 *
-	 * @param lookupTitle
 	 */
 	public void setFormTitle(@Nullable String lookupTitle) {
 		m_formTitle = lookupTitle;
@@ -410,8 +399,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * When set this defines the {@link IClickableRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
-	 *
-	 * @return
 	 */
 	@Nullable
 	public IClickableRowRenderer<OT> getFormRowRenderer() {
@@ -420,7 +407,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * When set this defines the {@link IClickableRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
-	 * @param lookupFormRenderer
 	 */
 	public void setFormRowRenderer(@Nullable IClickableRowRenderer<OT> lookupFormRenderer) {
 		m_formRowRenderer = lookupFormRenderer;
@@ -428,7 +414,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * Set the list of lookup properties to use for lookup in the lookup form, when shown.
-	 * @return
 	 */
 	public List<SearchPropertyMetaModel> getSearchProperties() {
 		return m_searchPropertyList;
@@ -450,7 +435,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	/**
 	 * The handler to call when a selection is made or the dialog is closed; if the dialog
 	 * is closed the value will be null.
-	 * @return
 	 */
 	@Nullable
 	public IClicked<DefaultLookupInputDialog<QT, OT>> getOnSelection() {
@@ -483,7 +467,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	}
 
 	public void setInitialModel(@Nullable ITableModel<OT> initialModel) {
-		if (m_initialModel != initialModel) {
+		if(m_initialModel != initialModel) {
 			m_initialModel = initialModel;
 			if(isBuilt()) {
 				forceRebuild();

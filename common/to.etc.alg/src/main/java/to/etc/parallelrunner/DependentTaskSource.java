@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static to.etc.util.StringTool.isBlank;
+
 /**
  * This wraps a tree of dependent things, and supports "creating" each dependent thing
  * in the correct order in parallel. It can return at any time a list of T that can be
@@ -512,7 +514,11 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		public synchronized String getErrorMessage() {
 			Throwable exception = m_exception;
 			if(null != exception) {
-				return exception.toString();
+				String message = exception.getMessage();
+				if(isBlank(message)) {
+					message = exception.toString();
+				}
+				return message;
 			}
 			return null;
 		}

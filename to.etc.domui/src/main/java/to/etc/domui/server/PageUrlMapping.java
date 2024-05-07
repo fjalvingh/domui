@@ -18,6 +18,7 @@ import to.etc.domui.state.PageParameters;
 import to.etc.util.StringTool;
 
 import java.beans.Introspector;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,8 +36,6 @@ final public class PageUrlMapping {
 
 	private final Map<String, String> m_urlToPage = new ConcurrentHashMap<>();
 
-	private final DomApplication m_application;
-
 	private final Level m_root = new Level();
 
 	public enum PageSubtype {
@@ -44,12 +43,11 @@ final public class PageUrlMapping {
 		SubPage
 	}
 
-	public PageUrlMapping(DomApplication application) {
-		m_application = application;
+	public PageUrlMapping() {
 	}
 
-	public void scan() {
-		ScanResult r = m_application.getClasspathScanResult();
+	public void scan(DomApplication application) {
+		ScanResult r = application.getClasspathScanResult();
 		for(ClassInfo classInfo : r.getClassesWithAnnotation(UIPage.class.getName())) {
 			AnnotationInfo anninfo = classInfo.getAnnotationInfo(UIPage.class.getName());
 			String pattern = (String) anninfo.getParameterValues().getValue("value");
@@ -89,6 +87,35 @@ final public class PageUrlMapping {
 			}
 			appendPage(type, classInfo.getName(), pattern, pageParams);
 		}
+	}
+
+	/**
+	 * Called to handle decoding a single page class.
+	 */
+	public void appendPage(Class<? extends UrlPage> pageClass) {
+		UIPage pa = pageClass.getAnnotation(UIPage.class);
+		if(null == pa)
+			return;
+		String pattern = pa.value();
+		Map<String, String> pageParams = new HashMap<>();
+
+		for(Method method : pageClass.getMethods()) {
+			UIUrlParameter upa = method.getAnnotation(UIUrlParameter.class);
+			if(null != upa) {
+				String pname = upa.name();
+				if(pname == null || pname.isEmpty()) {
+					pname = method.getName();
+					if(pname.startsWith("is")) {
+						pname = pname.substring(2);
+					} else if(pname.startsWith("get")) {
+						pname = pname.substring(3);
+					}
+					pname = Introspector.decapitalize(pname);
+				}
+				pageParams.put(pname, method.getReturnType().getName());
+			}
+		}
+		appendPage(PageSubtype.UrlPage, pageClass.getName(), pattern, pageParams);
 	}
 
 	private void appendPage(PageSubtype type, String name, String pattern, Map<String, String> pageParams) {

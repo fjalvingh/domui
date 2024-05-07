@@ -220,7 +220,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	 * Create a combo for a manually specified list of objects. It calls toString on them to
 	 * get a String value.
 	 */
-	static public <T> ComboFixed<T>	createCombo(T... items) {
+	static public <T> ComboFixed<T>	createCombo(T... items) throws Exception {
 		return createCombo((IObjectToStringConverter<T>) TOSTRING_CV, items);
 	}
 
@@ -228,8 +228,8 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	 * Create a combo for a manually specified list of objects. Use the specified converter
 	 * to convert to a string.
 	 */
-	static public <T> ComboFixed<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) {
-		List<ValueLabelPair<T>> values = new ArrayList<ValueLabelPair<T>>();
+	static public <T> ComboFixed<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) throws Exception {
+		List<ValueLabelPair<T>> values = new ArrayList<>();
 		for(T item : items) {
 			String v = converter.convertObjectToString(NlsContext.getLocale(), item);
 			if(null == v)
@@ -244,7 +244,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	 * get a String value.
 	 */
 	static public <T> ComboFixed<T>	createCombo(List<T> items , QField<T,?> labelField) throws Exception {
-		List<ValueLabelPair<T>> values = new ArrayList<ValueLabelPair<T>>();
+		List<ValueLabelPair<T>> values = new ArrayList<>();
 		for(T item : items) {
 			PropertyMetaModel<?> meta = MetaManager.findPropertyMeta(item.getClass(), labelField);
 			Object v = meta == null ? null : meta.getValue(item);

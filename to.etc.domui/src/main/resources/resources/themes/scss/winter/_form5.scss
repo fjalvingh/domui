@@ -60,3 +60,21 @@ $form-label-color: #363636 !default;
 //		display: inline-block;
 //	}
 //}
+
+.ui-f5-lbl-icc {
+	color: $form-label-color;
+	font-weight: $form-label-weight;
+}
+
+.ui-f5-ctl-xtra {
+	display: inline-flex;
+	flex-direction: row;
+	justify-items: flex-start;
+	align-items: center;
+	gap: 5px;
+}
+
+.ui-f5-ctl-add {
+
+}
+

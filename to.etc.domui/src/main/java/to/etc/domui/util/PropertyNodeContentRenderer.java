@@ -27,6 +27,7 @@ package to.etc.domui.util;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.query.QField;
 
 /**
  * Renders the content for a node by looking up a property value of the specified class and rendering that one.
@@ -45,6 +46,11 @@ public class PropertyNodeContentRenderer<T> implements IRenderInto<T>{
 	public PropertyNodeContentRenderer(String... properties) {
 		m_converter = new PropertyValueConverter<T>(properties);
 	}
+
+	public PropertyNodeContentRenderer(QField<T, ?>... properties) {
+		m_converter = new PropertyValueConverter<T>(properties);
+	}
+
 
 	@Override public void render(@NonNull NodeContainer node, @NonNull T object) throws Exception {
 		String val = m_converter.convertObjectToString(NlsContext.getLocale(), object);

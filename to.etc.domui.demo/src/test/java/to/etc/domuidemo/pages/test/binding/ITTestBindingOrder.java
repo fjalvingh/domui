@@ -96,6 +96,7 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 		wd().openScreen(BindingConversionTestForm.class);
 		wd().cmd().type("123abc").on("value");
 		wd().cmd().click().on("button_click");
+		wd().waitForElementVisible(By.className("ui-emd-error"));
 		String result = wd().getHtmlText(By.className("ui-emd-error"));
 		wd().assertTrue("There must be an error message", result.contains("123abc"));
 		System.out.println(">> " + result);

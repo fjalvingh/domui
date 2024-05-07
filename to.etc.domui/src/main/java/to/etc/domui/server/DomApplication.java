@@ -37,6 +37,7 @@ import to.etc.domui.component.binding.IBindingHandlerFactory;
 import to.etc.domui.component.controlfactory.ControlBuilder;
 import to.etc.domui.component.controlfactory.ControlFactoryMoney;
 import to.etc.domui.component.controlfactory.PropertyControlFactory;
+import to.etc.domui.component.delayed.DelayedActivitiesExecutor;
 import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
@@ -74,6 +75,7 @@ import to.etc.domui.login.ILoginDialogFactory;
 import to.etc.domui.login.ILoginListener;
 import to.etc.domui.login.IPageAccessChecker;
 import to.etc.domui.parts.SvgPartFactory;
+import to.etc.domui.parts.TempFileManager;
 import to.etc.domui.sass.SassPartFactory;
 import to.etc.domui.server.parts.IPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
@@ -83,7 +85,7 @@ import to.etc.domui.server.parts.PartService;
 import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.ConversationContext;
-import to.etc.domui.state.DelayedActivitiesManager;
+import to.etc.domui.component.delayed.DelayedActivitiesManager;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
@@ -199,7 +201,7 @@ public abstract class DomApplication {
 
 	private List<String> m_ignorePrefixList = new ArrayList<>();
 
-	private PageUrlMapping m_pageUrlMapping = new PageUrlMapping(this);
+	private PageUrlMapping m_pageUrlMapping = new PageUrlMapping();
 
 	/** The default XSS checker. */
 	private volatile XssChecker m_xssChecker = new XssChecker();
@@ -240,6 +242,8 @@ public abstract class DomApplication {
 	private boolean m_uiTestMode;
 
 	private boolean m_defaultHintsOnControl = true;
+
+	private boolean m_underSeleniumTest = System.getProperty("domui.selenium") != null;
 
 	/** When > 0, this defines that pages are automatically reloaded when changed */
 	private int m_autoRefreshPollInterval;
@@ -303,6 +307,9 @@ public abstract class DomApplication {
 	@NonNull
 	private ResourceInfoCache m_resourceInfoCache = new ResourceInfoCache(this);
 
+	@NonNull
+	private TempFileManager m_tempFileManager = new TempFileManager();
+
 	/** The theme manager where theme calls are delegated to. */
 	final private ThemeManager m_themeManager = new ThemeManager(this);
 
@@ -323,6 +330,9 @@ public abstract class DomApplication {
 	private volatile Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
 
 	private boolean m_dieOnUncheckedInjectors;
+
+	@Nullable
+	private DelayedActivitiesExecutor m_delayedExecutor;
 
 	/**
 	 * Default handling of leaving the page with unsaved changes.
@@ -828,6 +838,7 @@ public abstract class DomApplication {
 	 * Override to destroy resources when the application terminates.
 	 */
 	protected void destroy() {
+		getTempFileManager().terminate();
 	}
 
 	/**
@@ -847,7 +858,7 @@ public abstract class DomApplication {
 		calculateUiTestMode(development);
 		runListenersStartInitialization();
 		configureHeaders(pp);
-		m_pageUrlMapping.scan();
+		m_pageUrlMapping.scan(this);
 		try {
 			initialize(pp);
 
@@ -859,7 +870,7 @@ public abstract class DomApplication {
 		} finally {
 			closeClasspathScanResult();
 		}
-
+		getTempFileManager().initialize();
 		runListenersEndInitialization();
 		calculateRefreshInterval(development);
 
@@ -1295,11 +1306,13 @@ public abstract class DomApplication {
 		if(! DeveloperOptions.getBool("domui.polling", true))
 			return 0;
 		int pollinterval = Integer.MAX_VALUE;
-		if(m_keepAliveInterval > 0)
-			pollinterval = m_keepAliveInterval;
-		if(m_autoRefreshPollInterval > 0) {
-			if(m_autoRefreshPollInterval < pollinterval)
-				pollinterval = m_autoRefreshPollInterval;
+		if(! m_underSeleniumTest) {
+			if(m_keepAliveInterval > 0)
+				pollinterval = m_keepAliveInterval;
+			if(m_autoRefreshPollInterval > 0) {
+				if(m_autoRefreshPollInterval < pollinterval)
+					pollinterval = m_autoRefreshPollInterval;
+			}
 		}
 		if(pollCallbackRequired) {
 			if(m_defaultPollInterval < pollinterval)
@@ -1987,6 +2000,15 @@ public abstract class DomApplication {
 		}
 	}
 
+	/**
+	 * Return the temp file handler, which keeps track of tmpfiles
+	 * that will need to be deleted regularly.
+	 */
+	@NonNull
+	public TempFileManager getTempFileManager() {
+		return m_tempFileManager;
+	}
+
 	@NonNull
 	public Function<IRequestContext, Boolean> getIsCrawlerFunctor() {
 		return m_isCrawlerFunctor;
@@ -2043,7 +2065,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Add a new listener for asynchronous job events.
-	 * @param l
 	 */
 	public synchronized <T> void addAsyncListener(@NonNull IAsyncListener<T> l) {
 		m_asyncListenerList = new ArrayList<>(m_asyncListenerList);
@@ -2620,6 +2641,21 @@ public abstract class DomApplication {
 	 */
 	public void mailException(Message m) throws Exception {
 		BulkMailer.getInstance().store(m);
+	}
+
+	@NonNull
+	final public synchronized DelayedActivitiesExecutor getDelayedExecutor() {
+		DelayedActivitiesExecutor dx = m_delayedExecutor;
+		if(null == dx) {
+			dx = m_delayedExecutor = createDelayedExecutor();
+		}
+		return dx;
+	}
+
+	protected DelayedActivitiesExecutor createDelayedExecutor() {
+		DelayedActivitiesExecutor dx = new DelayedActivitiesExecutor();
+		dx.initialize(20);
+		return dx;
 	}
 
 	static {

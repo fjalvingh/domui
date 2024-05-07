@@ -5,13 +5,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -481,5 +480,25 @@ public class TestStringTool {
 	public void testReplaceVariableNameInExpression() {
 		assertEquals(StringTool.replaceVariableNameInExpression("aaaa + aaab-aAa", "aaa", "ccc"), "aaaa + aaab-ccc");
 		assertEquals(StringTool.replaceVariableNameInExpression("baaa-aaa*1-AAa ", "aaa", "ccc"), "baaa-ccc*1-ccc ");
+	}
+
+	/**
+	 * Test correct calculation of dutch plurals.
+	 */
+	@Test
+	public void testDutchPlurals() throws Exception {
+		String string = FileTool.readResourceAsString(getClass(), "plurals.txt", StandardCharsets.UTF_8.name());
+		for(String line : new LineIterator(string)) {
+			String trim = line.trim();
+			if(trim.length() > 0) {
+				String[] pair = trim.split("\\s+");
+				if(pair.length != 2)
+					throw new IllegalStateException("Bad example line: " + trim);
+				String plu = StringTool.dutchPluralOf(pair[0]);
+				Assert.assertEquals("Plural should be correct", pair[1], plu);
+			}
+
+		}
+
 	}
 }

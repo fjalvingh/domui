@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -14,6 +15,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -21,6 +23,9 @@ import java.util.Map;
  */
 @NonNullByDefault
 public class ExcelWriterUtil {
+
+	@Nullable
+	private Font m_defaultFont;
 
 	public enum FontStyle {
 		BOLD("B"),
@@ -99,6 +104,24 @@ public class ExcelWriterUtil {
 			addStyle(key, cs);
 		}
 		return cs;
+	}
+
+	public CellStyle wrapTextCs() {
+		String key = "wrapText";
+		CellStyle cs = m_styles.get(key);
+		if(null == cs) {
+			cs = createCellStyle();
+			addStyle(key, cs);
+		}
+		return cs;
+	}
+
+	/**
+	 * Custom color background.
+	 * @return
+	 */
+	public CellStyle colorBk(Color color, @Nullable IndexedColors alternative) {
+		return customCs(color, alternative, false);
 	}
 
 	/**
@@ -192,12 +215,27 @@ public class ExcelWriterUtil {
 	}
 
 	public Font cloneFromDefault() {
+		Font defaultFont = m_defaultFont;
+		if(defaultFont == null) {
+			defaultFont = m_defaultFont = m_workbook.getFontAt(0);
+		}
 		Font font = m_workbook.createFont();
-		Font defaultFont = m_workbook.getFontAt((short) 0);
 		font.setFontHeightInPoints(defaultFont.getFontHeightInPoints());
 		font.setFontName(defaultFont.getFontName());
 		font.setColor(defaultFont.getColor());
 		return font;
+	}
+
+	public void setDefaultFont(String fontName, short fontHeightInPoints) {
+		setDefaultFont(fontName, fontHeightInPoints, Font.COLOR_NORMAL);
+	}
+
+	public void setDefaultFont(String fontName, short fontHeightInPoints, short fontColor) {
+		Font font = m_workbook.createFont();
+		font.setFontHeightInPoints(fontHeightInPoints);
+		font.setFontName(fontName);
+		font.setColor(fontColor);
+		m_defaultFont = font;
 	}
 
 	private String fontKey(FontStyle... fontStyles) {
@@ -223,5 +261,22 @@ public class ExcelWriterUtil {
 
 	public void setAutoSizeCols(boolean autoSizeCols) {
 		this.m_autoSizeCols = autoSizeCols;
+	}
+
+	public void autoSizeCols(int from, int to, @Nullable Integer maxWidthPx) {
+		Iterator<Sheet> sheetIterator = m_workbook.sheetIterator();
+		while (sheetIterator.hasNext()) {
+			Sheet sheet = sheetIterator.next();
+			for(int index = from; index < to; index++) {
+				sheet.autoSizeColumn(index, true);
+				if(null != maxWidthPx) {
+					int colWidth = sheet.getColumnWidth(index);
+					if(colWidth > maxWidthPx) {
+						sheet.setColumnWidth(index, maxWidthPx);
+						sheet.getColumnStyle(index).setWrapText(true);
+					}
+				}
+			}
+		}
 	}
 }

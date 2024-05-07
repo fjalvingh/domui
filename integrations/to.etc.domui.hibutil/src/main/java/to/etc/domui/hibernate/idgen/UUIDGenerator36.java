@@ -34,6 +34,10 @@ final public class UUIDGenerator36 implements IdentifierGenerator {
 
 	@Override
 	public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
+		return generate();
+	}
+
+	static public String generate() {
 		UUID uuid = UUID.randomUUID();
 		byte[] data = new byte[16];
 
@@ -43,7 +47,7 @@ final public class UUIDGenerator36 implements IdentifierGenerator {
 		return str;
 	}
 
-	private void moveBytes(byte[] bytes, int offset, long bits) {
+	private static void moveBytes(byte[] bytes, int offset, long bits) {
 		for(int i = 8; --i >= 0; ) {
 			bytes[i + offset] = (byte) (bits & 0xff);
 			bits = bits >> 8;

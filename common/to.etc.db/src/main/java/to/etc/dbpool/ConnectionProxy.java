@@ -901,7 +901,10 @@ final public class ConnectionProxy implements Connection {
 		check();
 		if(iface.isAssignableFrom(getClass()))
 			return (T) this;
-		return m_pe.getConnection().unwrap(iface);
+		Connection connection = m_pe.getConnection();
+		if(iface.isAssignableFrom(connection.getClass()))
+			return (T) connection;
+		return connection.unwrap(iface);
 	}
 
 	@Override

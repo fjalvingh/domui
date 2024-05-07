@@ -112,4 +112,8 @@ final public class DataPager extends Div implements IDataTableChangeListener {
 	@NonNull private synchronized static Function<PageableTabularComponentBase<?>, IDataTablePager> getPagerFactory() {
 		return m_pagerFactory;
 	}
+
+	public void setShowAlways(boolean on) {
+		m_pager.setShowAlways(on);
+	}
 }

@@ -26,6 +26,7 @@ import to.etc.domui.util.Msgs;
 import to.etc.domuidemo.components.PageHeader;
 import to.etc.domuidemo.pages.HomePage;
 import to.etc.domuidemo.sourceviewer.SourcePage;
+import to.etc.testutil.TestUtil;
 import to.etc.util.FileTool;
 import to.etc.webapp.query.QContextManager;
 
@@ -156,11 +157,24 @@ public class Application extends DomApplication {
 	 * database is empty and if so will re-create the demo/example tables and populate them.
 	 */
 	private void initDatabase() throws Exception {
-		File appFile = getAppFile(".").getAbsoluteFile();
-		String context = appFile.getParentFile().getName();
-		File dbPath = new File("/tmp/" + context + "DB");
+		if(TestUtil.isMavenTest()) {
+			/*
+			 * When running under Maven we want a unique DB to prevent parallel builds
+			 * from interfering with one another.
+			 */
+			File tmp = File.createTempFile("testdb", ".domui");
+			tmp.delete();
+			tmp.mkdirs();
+			String dbPath = tmp.getAbsolutePath();
+			DbUtil.initialize(TestDB.getDataSource(dbPath.toString()));
+		} else {
+			//-- Local machine normal run: use a well-known database to prevent reloading it every run.
+			File appFile = getAppFile(".").getAbsoluteFile();
+			String context = appFile.getParentFile().getName();
+			File dbPath = new File("/tmp/" + context + "DB");
 
-		DbUtil.initialize(TestDB.getDataSource(dbPath.toString()));
+			DbUtil.initialize(TestDB.getDataSource(dbPath.toString()));
+		}
 
 		//-- Tell the generic layer how to create default DataContext's.
 		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source

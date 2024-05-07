@@ -43,7 +43,6 @@ import to.etc.domui.component.searchpanel.lookupcontrols.LookupQueryBuilderResul
 import to.etc.domui.component.searchpanel.lookupcontrols.ObjectLookupQueryBuilder;
 import to.etc.domui.dom.Animations;
 import to.etc.domui.dom.css.DisplayType;
-import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
@@ -160,7 +159,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	private IQueryFactory<T> m_queryFactory;
 
 	@Nullable
-	private UIMessage m_newBtnDisableReason;
+	private String m_newBtnDisableReason;
 
 	private boolean m_hasBeenUsed;
 
@@ -616,7 +615,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 						getOnNew().clicked(SearchPanel.this);
 					}
 				});
-				m_newBtn.setDisabled(m_newBtnDisableReason);
+				m_newBtn.setDisabledBecause(m_newBtnDisableReason);
 				addButtonItem(m_newBtn, 500, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
 				for(ButtonRowItem bri : m_buttonItemList) {
@@ -854,10 +853,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return m_buttonFactory;
 	}
 
-	public void setNewBtnDisableReason(@Nullable UIMessage rsn) {
+	public void setNewBtnDisableReason(@Nullable String rsn) {
 		m_newBtnDisableReason = rsn;
 		if(null != m_newBtn) {
-			m_newBtn.setDisabled(rsn);
+			m_newBtn.setDisabledBecause(rsn);
 		}
 	}
 

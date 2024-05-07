@@ -3,7 +3,7 @@ package to.etc.domuidemo.pages.binding.tut1;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.derbydata.db.Invoice;
-import to.etc.domui.pages.generic.BasicListPage;
+import to.etc.domuidemo.pages.special.BasicListPage;
 import to.etc.domui.state.UIGoto;
 
 /**

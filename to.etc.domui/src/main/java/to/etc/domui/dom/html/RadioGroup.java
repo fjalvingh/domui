@@ -130,7 +130,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	public List<RadioButton<T>> getButtonList() {
-		return Collections.unmodifiableList(m_buttonList);
+		return new ArrayList<>(m_buttonList);
 	}
 
 	@Override
@@ -191,8 +191,6 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 			rb.setChecked(MetaManager.areObjectsEqual(m_value, rb.getButtonValue()));
 		}
 
-		if(isBuilt())
-			forceRebuild();
 		return rb;
 	}
 
@@ -211,7 +209,19 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		return createEnumRadioGroup(clz, null, exceptions);
 	}
 
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroupUnsorted(Class<T> clz, @NonNull T... exceptions) {
+		return createEnumRadioGroup(clz, false, null, exceptions);
+	}
+
 	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(Class<T> clz, @Nullable IRenderInto<ValueLabelPair<T>> valueRenderer, T... exceptions) {
+		return createEnumRadioGroup(clz, true, valueRenderer, exceptions);
+	}
+
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroupUnsortedWithRenderer(Class<T> clz, @Nullable IRenderInto<ValueLabelPair<T>> valueRenderer, T... exceptions) {
+		return createEnumRadioGroup(clz, false, valueRenderer, exceptions);
+	}
+
+	static private <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(Class<T> clz, boolean sorted, @Nullable IRenderInto<ValueLabelPair<T>> valueRenderer, T... exceptions) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		T[] ar = clz.getEnumConstants();
@@ -223,7 +233,9 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 				l.add(new ValueLabelPair<T>(v, label));
 			}
 		}
-		Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+		if(sorted) {
+			Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+		}
 		var rg = new RadioGroup<T>();
 		rg.setValueRenderer(valueRenderer);
 		for(ValueLabelPair<T> tValueLabelPair : l) {
@@ -233,6 +245,14 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(T... enums) {
+		return createEnumRadioGroup(Arrays.asList(enums));
+	}
+
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(List<T> enums) {
+		return createEnumRadioGroup(enums, null);
+	}
+
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(List<T> enums, @Nullable IRenderInto<ValueLabelPair<T>> valueRenderer) {
 		ClassMetaModel metaModel = null;
 		List<ValueLabelPair<T>> l = new ArrayList<>();
 		for(T anEnum : enums) {
@@ -244,8 +264,8 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 				label = anEnum.name();
 			l.add(new ValueLabelPair<T>(anEnum, label));
 		}
-		Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
 		var rg = new RadioGroup<T>();
+		rg.setValueRenderer(valueRenderer);
 		for(ValueLabelPair<T> tValueLabelPair : l) {
 			rg.addButton(tValueLabelPair.getLabel(), tValueLabelPair.getValue());
 		}

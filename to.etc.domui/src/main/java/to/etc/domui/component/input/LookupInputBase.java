@@ -32,13 +32,13 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.searchpanel.SearchPanel;
-import to.etc.domui.component.tbl.BasicRowRenderer;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.IRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component2.lookupinput.DefaultLookupInputDialog;
 import to.etc.domui.dom.errors.IErrorMessageListener;
 import to.etc.domui.dom.errors.UIMessage;
@@ -48,9 +48,9 @@ import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.DomUtil;
-import to.etc.function.IExecute;
 import to.etc.domui.util.LookupInputPropertyRenderer;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.util.RuntimeConversions;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.IIdentifyable;
@@ -90,7 +90,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	@Nullable
 	private IKeyWordSearchQueryFactory<QT> m_keyWordSearchHandler;
 
-	/** When T (default) you can press search on an empty popup form. 20120511 jal Default set to true. */
+	/**
+	 * When T (default) you can press search on an empty popup form. 20120511 jal Default set to true.
+	 */
 	private boolean m_allowEmptyQuery = true;
 
 	/**
@@ -113,7 +115,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	// */
 	//private boolean m_absolutePopupLayoutQuirkMode;
 
-	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
+	/**
+	 * The search properties to use in the lookup form when created. If null uses the default attributes on the class.
+	 */
 	@Nullable
 	private List<SearchPropertyMetaModel> m_searchPropertyList;
 
@@ -135,13 +139,15 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	private ILookupFormModifier<QT> m_lookupFormInitialization;
 
 	/**
-	 * Internal: the actual form row renderer used by the code. This will be set to a {@link BasicRowRenderer} if the user
+	 * Internal: the actual form row renderer used by the code. This will be set to a default renderer if the user
 	 * did not specify a row renderer.
 	 */
 	@Nullable
 	private IClickableRowRenderer<OT> m_actualFormRowRenderer;
 
-	/** The row renderer used to render rows in the quick search dropdown box showing the results of the quick search. */
+	/**
+	 * The row renderer used to render rows in the quick search dropdown box showing the results of the quick search.
+	 */
 	@Nullable
 	private KeyWordPopupRowRenderer<OT> m_dropdownRowRenderer;
 
@@ -154,11 +160,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	public interface ILookupFormModifier<T> {
 		/**
 		 * Sends SearchPanel for initialization.
-		 * @param lf
 		 */
 		void initialize(@NonNull SearchPanel<T> lf) throws Exception;
 	}
-
 
 	/**
 	 * Factory for the lookup dialog, to be shown when the lookup button is pressed.
@@ -167,14 +171,12 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * Created on Sep 1, 2017
 	 */
 	public interface IPopupOpener {
-		@Nullable <A, B, L extends LookupInputBase<A, B>> Dialog createDialog(@NonNull L control, @Nullable ITableModel<B> initialModel, @NonNull IExecute callOnWindowClose);
+		@Nullable
+		<A, B, L extends LookupInputBase<A, B>> Dialog createDialog(@NonNull L control, @Nullable ITableModel<B> initialModel, @NonNull IExecute callOnWindowClose);
 	}
 
 	/**
 	 * This must create the table model for the output type from the query on the input type.
-	 * @param query
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	abstract protected ITableModel<OT> createTableModel(@NonNull QCriteria<QT> query) throws Exception;
@@ -182,9 +184,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	/**
 	 * Create a lookup control that shows the specified column set in both quick lookup mode and form lookup
 	 * mode.
-	 * @param queryClass
-	 * @param resultClass
-	 * @param resultColumns
 	 */
 	public LookupInputBase(@NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass, @NonNull String... resultColumns) {
 		this(null, queryClass, resultClass, null, null);
@@ -193,7 +192,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * Lookup a POJO Java bean persistent class.
-	 * @param queryClass
 	 */
 	public LookupInputBase(@NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass) {
 		this(null, queryClass, resultClass, null, null);
@@ -300,14 +298,14 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		return m_keySearch;
 	}
 
-	@Override protected void clearKeySearch() {
+	@Override
+	protected void clearKeySearch() {
 		m_keySearch = null;
 	}
 
 	/**
 	 * Return the special row renderer used to display the quick-search results in the small
 	 * dropdown below the quicksearch input box.
-	 * @return
 	 */
 	@NonNull
 	private KeyWordPopupRowRenderer<OT> getDropdownRowRenderer() {
@@ -319,9 +317,8 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * Returns data that matches keyword search string.
-	 * @param searchString
+	 *
 	 * @return Matching data or null in case that search is cancelled because of insufficient number of characters typed into keyword search field.
-	 * @throws Exception
 	 */
 	@Nullable
 	private ITableModel<OT> searchKeyWord(@Nullable String searchString) throws Exception {
@@ -352,8 +349,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * Extracting object id from magic string.
-	 * @param searchString
-	 * @return
 	 */
 	@Nullable
 	private Long getMagicString(@NonNull String searchString) {
@@ -371,10 +366,10 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	}
 
 	/**
-	 * Create query for filling up lookup by IIdentifyable id.</br>
+	 * Create query for filling up lookup by IIdentifyable id.
 	 * Used for speeding up tests
 	 */
-	@Nullable
+	@NonNull
 	private QCriteria<QT> createTestQuery(@NonNull Long magicId) throws Exception {
 		if(IIdentifyable.class.isAssignableFrom(getQueryClass())) {
 			QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
@@ -456,7 +451,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * Toggle the full search popup window.
-	 * @throws Exception
 	 */
 	@Override
 	protected void openPopupWithClick() throws Exception {
@@ -471,9 +465,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	/**
 	 * Show the full search window, and if a model is passed populate the search result list
 	 * with the contents of that model.
-	 *
-	 * @param keySearchModel
-	 * @throws Exception
 	 */
 	private void toggleFloater(@Nullable ITableModel<OT> keySearchModel) throws Exception {
 		if(m_floater != null) {
@@ -636,10 +627,8 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		// DEFAULT EMPTY IMPLEMENTATION.
 	}
 
-
 	/**
 	 * Either use the user-specified popup form row renderer or create one using resultColumns or the default metadata.
-	 * @return
 	 */
 	@NonNull
 	public IRowRenderer<OT> getActualFormRowRenderer() {
@@ -648,7 +637,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			//-- Is a form row renderer specified by the user - then use it, else create a default one.
 			actualFormRowRenderer = m_actualFormRowRenderer = getFormRowRenderer();
 			if(null == actualFormRowRenderer) {
-				actualFormRowRenderer = m_actualFormRowRenderer = new BasicRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
+				actualFormRowRenderer = m_actualFormRowRenderer = new RowRenderer<>(getOutputClass(), getOutputMetaModel());
 			}
 
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
@@ -666,9 +655,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		return actualFormRowRenderer;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected String getKeySearchValue() {
 		KeyWordSearchInput<OT> ks = getKeySearch();
@@ -679,7 +665,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * When set this defines the title of the lookup window.
-	 * @return
 	 */
 	@Nullable
 	public String getFormTitle() {
@@ -688,8 +673,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * When set this defines the title of the lookup window.
-	 *
-	 * @param lookupTitle
 	 */
 	public void setFormTitle(@Nullable String lookupTitle) {
 		m_formTitle = lookupTitle;
@@ -697,7 +680,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * When T the user can press search even when no criteria are entered.
-	 * @return
 	 */
 	public boolean isAllowEmptyQuery() {
 		return m_allowEmptyQuery;
@@ -710,7 +692,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	/**
 	 * Can be set by a specific lookup form to use when the full query popup is shown. If unset the code will create
 	 * a SearchPanel using metadata.
-	 * @return
 	 */
 	@Nullable
 	public SearchPanel<QT> getSearchPanel() {
@@ -761,7 +742,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * Set the list of lookup properties to use for lookup in the lookup form, when shown.
-	 * @return
 	 */
 	@Nullable
 	public List<SearchPropertyMetaModel> getSearchProperties() {
@@ -804,48 +784,38 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		}
 	}
 
-	/**
-	 * @See  {@link LookupInput#m_lookupFormInitialization}.
-	 * @return
-	 */
 	public ILookupFormModifier<QT> getSearchPanelInitialization() {
 		return m_lookupFormInitialization;
 	}
 
-	/**
-	 * @See  {@link LookupInput#m_lookupFormInitialization}.
-	 * @return
-	 */
 	public void setSearchPanelInitialization(ILookupFormModifier<QT> lookupFormInitialization) {
 		m_lookupFormInitialization = lookupFormInitialization;
 	}
 
 	/**
 	 * Define the columns to show in "display current value" mode. This actually creates a
-	 * content renderer (a {@link LookupInputPropertyRenderer}) to render the fields.
-	 *
-	 * @param columns
+	 * content renderer to render the fields.
 	 */
 	public void setValueColumns(String... columns) {
 		setValueRenderer(new LookupInputPropertyRenderer<OT>(getOutputClass(), columns));
 	}
 
 	/**
-	 * Add column specs for the full query form's result list, according to the specifications as defined by {@link BasicRowRenderer}.
-	 * @param columns
+	 * Add column specs for the full query form's result list.
 	 */
 	public void addFormColumns(@NonNull Object... columns) {
 		IRowRenderer<OT> rr = getActualFormRowRenderer();
-		if(rr instanceof BasicRowRenderer) {
-			((BasicRowRenderer<OT>) rr).addColumns(columns);
+		if(rr instanceof RowRenderer<?>) {
+			RowRenderer<?> r = (RowRenderer<?>) rr;
+			for(Object column : columns)
+				r.column((String) column);
 		} else
 			throw new IllegalStateException("The row renderer for the form is set to something else than a BasicRowRenderer.");
 	}
 
 	/**
-	 * Define the full column spec in the format described for {@link BasicRowRenderer} for the dropdown box
+	 * Define the full column spec in the format described for {@link RowRenderer} for the dropdown box
 	 * showing quick search results.
-	 * @param columns
 	 */
 	public void addDropdownColumns(@NonNull Object... columns) {
 		getDropdownRowRenderer().addColumns(columns);
@@ -854,9 +824,8 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	/**
 	 * DO NOT USE - this sets both dropdown columns AND full lookup form columns to the column spec passed... It
 	 * is preferred to separate those.
-	 *
-	 * @param resultColumns
 	 */
+	@Deprecated
 	public void setResultColumns(@NonNull String... resultColumns) {
 		addDropdownColumns((Object[]) resultColumns);
 		addFormColumns((Object[]) resultColumns);
@@ -864,7 +833,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * When T this will immediately search with an empty query.
-	 * @return
 	 */
 	public boolean isSearchImmediately() {
 		return m_searchImmediately;

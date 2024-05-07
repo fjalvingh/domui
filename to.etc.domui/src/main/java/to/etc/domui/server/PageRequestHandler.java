@@ -208,14 +208,26 @@ final public class PageRequestHandler {
 				windowSession = m_ctx.getSession().createWindowSession();
 				cida = new CidPair(windowSession.getWindowID(), "x");
 			} else {
-				LOG.debug("createSessionAndReload");
+				if(null != cida && cida.getConversationId().equals("r")) {
+					LOG.error("Seems that session redirect can't work, detected retry on session redirect, aborting...");
+					IBrowserOutput out = new PrettyXmlOutputWriter(m_ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"), null);
+					out.writeRaw("Can't create session, session cookie is blocked by the browser!\n");
+					return;
+				}
 				//-- no session yet: create one and redirect to a new URL that contains it.
-				createSessionAndReload();
+				createSessionAndReload("r");
 				return;
 			}
 		}
 		if(cida == null)                                        // Cannot happen, but make sure.
 			throw new IllegalStateException("Cannot happen: cida is null??");
+
+		if(cida.getConversationId().equals("r") && null == m_action) {
+			//-- session reload worked - we again recreate session to mark it as normal one, with x as conversation id
+			createSessionAndReload("x");
+			return;
+		}
+
 		String conversationId = cida.getConversationId();
 
 		/*
@@ -656,7 +668,8 @@ final public class PageRequestHandler {
 	 * There is no session yet, so create one and redirect to an URL that contains
 	 * a session ID so that the page can get loaded there.
 	 */
-	private void createSessionAndReload() throws Exception {
+	private void createSessionAndReload(String conversationId) throws Exception {
+		LOG.debug("createSessionAndReload " + conversationId);
 		WindowSession windowSession;
 		boolean nonReloadableExpiredDetected = false;
 		if(m_action != null) {
@@ -684,7 +697,8 @@ final public class PageRequestHandler {
 			LOG.debug(newmsg);
 		logUser(newmsg);
 
-		String conversationId = "x";                            // If not reloading a saved set- use x as the default conversation id
+		//when conversationId is "r" - If not reloading a saved set- use r as the default conversation id for created session redirect
+		//when conversationId is "x" - It means that we successfully reloaded with "r" once, so we reload one more time with "x", to mark session as normal (not as reloaded from redirect)
 		CidPair cida = m_cida;
 		if(m_application.inDevelopmentMode() && cida != null) {
 			/*
