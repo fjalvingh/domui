@@ -2179,6 +2179,14 @@ public class StringTool {
 		return sb.toString();
 	}
 
+	public static boolean isAsciiLetter(char c) {
+		return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+	}
+
+	public static boolean isAsciiDigit(char c) {
+		return c >= '0' && c <= '9';
+	}
+
 	private final static class ExceptionDup {
 		private final String m_message;
 
