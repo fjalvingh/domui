@@ -747,6 +747,10 @@ public class JDBCReverser implements Reverser {
 
 	@Override
 	public void reverseChildRelations(Connection dbc, DbTable t) throws Exception {
+		if(!hasOption(ReverserOption.ReverseRelations)) {
+			return;
+		}
+
 		ResultSet rs = null;
 		try {
 			String name = null;
