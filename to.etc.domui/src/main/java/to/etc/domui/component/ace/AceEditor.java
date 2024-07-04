@@ -36,7 +36,7 @@ import java.util.function.Predicate;
 
 /**
  * DomUI wrapper for the <a href="https://ace.c9.io/">ACE code editor</a>.
- *
+ * <p>
  * Todo:
  * <pre>
  *     https://github.com/ajaxorg/ace/wiki/How-to-enable-Autocomplete-in-the-Ace-editor
@@ -166,6 +166,10 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 	@Nullable
 	private ICompletionHandler m_completionHandler;
 
+	public AceEditor() {
+		//-- Empty
+	}
+
 	private String getEditorId() {
 		return m_editDiv.getActualID();
 	}
@@ -234,6 +238,7 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 			sb.append("});");
 		}
 		sb.append("WebUI.aceMakeResizable('" + editorId + "', '" + m_barDiv.getActualID() + "');\n");
+		sb.append("ed.resize();");
 
 		//-- Autocomplete?
 		ICompletionHandler ch = getCompletionHandler();
@@ -932,6 +937,34 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 		var sb = new StringBuilder();
 		sb.append("var pos = ").append("{row: ").append(row).append(", column: ").append(column).append("};");
 		appendJavascript(handle(sb).append("session.insert(pos, ").append(escape(text)).append(");").toString());
+	}
+
+	public enum AceWrapMode {
+		None,
+		Wrap,
+		IndentedWrap
+	}
+
+	public void setWrapMode(AceWrapMode mode) {
+		StringBuilder sb = new StringBuilder();
+		switch(mode) {
+			default:
+				return;
+
+			case None:
+				handle(sb).append("session.setUseWrapMode(false);");
+				break;
+
+			case Wrap:
+				handle(sb).append("session.setUseWrapMode(true);");
+				break;
+
+			case IndentedWrap:
+				handle(sb).append("session.setOption('indentedSoftWrap');");
+				handle(sb).append("session.setUseWrapMode(true);");
+				break;
+		}
+		appendJavascript(sb);
 	}
 
 	private String escape(String s) {
