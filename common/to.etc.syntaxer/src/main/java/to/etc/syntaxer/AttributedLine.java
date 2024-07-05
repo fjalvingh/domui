@@ -42,20 +42,17 @@ final public class AttributedLine {
 	 * within the available characters. The attribute value is
 	 * first masked by mask, after that the value is orred in.
 	 */
-	public void mark(int start, int end, byte maskIn, byte valueIn) {
+	public void mark(int start, int end, short mask, short value) {
 		if(end > m_printOffset)
 			throw new IllegalStateException("End (" + end + ") must be inside the available string size (" + m_printOffset + ")");
-		short mask = (short) ((short) maskIn << 8);
-		short value = (short) ((short) valueIn << 8);
 		for(int i = start; i < end; i++) {
 			m_attributes[i] = (short) ((m_attributes[i] & mask) | value);
 		}
 	}
 
-	public void setMark(int start, int end, byte markIn) {
+	public void setMark(int start, int end, short mark) {
 		if(end > m_printOffset)
 			throw new IllegalStateException("End (" + end + ") must be inside the available string size (" + m_printOffset + ")");
-		short mark = (short) ((short) markIn << 8);
 		for(int i = start; i < end; i++) {
 			m_attributes[i] = (short) ((m_attributes[i] & 0xff) | mark);
 		}
