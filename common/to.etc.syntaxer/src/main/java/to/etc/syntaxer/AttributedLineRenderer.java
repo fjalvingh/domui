@@ -1,13 +1,9 @@
-package to.etc.syntaxer.tests;
+package to.etc.syntaxer;
 
-import to.etc.syntaxer.AttributedLine;
-import to.etc.syntaxer.HighlightTokenType;
-import to.etc.syntaxer.IHighlightRenderer;
-
-public class AttributeLineRenderer implements IHighlightRenderer {
+public class AttributedLineRenderer implements IHighlightRenderer {
 	private final AttributedLine m_line;
 
-	public AttributeLineRenderer(AttributedLine line) {
+	public AttributedLineRenderer(AttributedLine line) {
 		m_line = line;
 	}
 

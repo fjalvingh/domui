@@ -85,14 +85,14 @@ final public class AttributedLine {
 	}
 
 	public interface IRunListener {
-		void renderRun(String text, short attribute) throws Exception;
+		void renderRun(String text, short attribute);
 	}
 
 	/**
 	 * Scan the data, and collect ranges of text and attributes where
 	 * the attributes are the same.
 	 */
-	public void render(IRunListener listener) throws Exception {
+	public void render(IRunListener listener) {
 		if(m_printOffset == 0)
 			return;
 		short currentAttr = m_attributes[0];
@@ -100,10 +100,10 @@ final public class AttributedLine {
 		while(index < m_printOffset) {
 			//-- Collect a range
 			int startIndex = index;
-			while(m_attributes[index] == currentAttr)
+			while(m_attributes[index] == currentAttr && index < m_printOffset)
 				index++;
 
-			listener.renderRun(new String(m_characters, startIndex, index), currentAttr);
+			listener.renderRun(new String(m_characters, startIndex, index - startIndex), currentAttr);
 			currentAttr = m_attributes[index];
 		}
 	}
