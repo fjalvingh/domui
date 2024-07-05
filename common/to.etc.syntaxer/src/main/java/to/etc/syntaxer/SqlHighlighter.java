@@ -777,6 +777,16 @@ public class SqlHighlighter extends HiParser implements IHighlighter {
 	static private String SSS = ""
 		;
 
+	@Override
+	protected boolean isComment() {
+		if(is("--")) {
+			//-- Just copy everything
+			lineComment();
+			return true;
+		}
+		return super.isComment();
+	}
+
 	static public final void main(String[] args) {
 		List<String> words = new ArrayList<>();
 		for(String line : new LineIterator(SSS)) {

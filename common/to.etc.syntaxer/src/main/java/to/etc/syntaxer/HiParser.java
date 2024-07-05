@@ -55,10 +55,14 @@ abstract public class HiParser {
 		m_tokenStart = 0;
 		if(null != startContext) {
 			m_state = startContext.getLexerState();
+			if(m_state == HighlightTokenType.newline) {
+				calculatePhaseFor();
+			}
 		} else {
 			calculatePhaseFor();
 		}
 		int eolct = 0;							// The eol char is always offered to the phase once.
+	loop:
 		for(;;) {
 			int c = la();
 			if(c == -1) {
@@ -71,6 +75,9 @@ abstract public class HiParser {
 				switch(m_state) {
 					default:
 						throw new IllegalStateException("Unhandled token type " + m_state);
+
+					case newline:
+						break loop;
 
 					case comment:
 						sComment();
@@ -155,6 +162,11 @@ abstract public class HiParser {
 	protected void calculatePhaseFor() {
 		m_tokenStart = m_ix;
 
+		if(la(0) == -1) {
+			m_state = HighlightTokenType.newline;
+			return;
+		}
+
 		if(isWsStart()) {
 			m_state = HighlightTokenType.whitespace;
 			return;
@@ -210,7 +222,7 @@ abstract public class HiParser {
 			&& c != -1;
 	}
 
-	private boolean isComment() {
+	protected boolean isComment() {
 		if(is("/*")) {
 			m_state = HighlightTokenType.comment;
 			m_tokenEnd = "*/";

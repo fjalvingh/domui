@@ -45,6 +45,9 @@ final public class AttributedLine {
 	public void mark(int start, int end, short mask, short value) {
 		if(end > m_printOffset)
 			throw new IllegalStateException("End (" + end + ") must be inside the available string size (" + m_printOffset + ")");
+
+		//-- The mask must not change the lower 8 bits
+		mask |= 0xff;										// Make sure lower bits remain as-is
 		for(int i = start; i < end; i++) {
 			m_attributes[i] = (short) ((m_attributes[i] & mask) | value);
 		}

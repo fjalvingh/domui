@@ -8,17 +8,29 @@ import to.etc.syntaxer.IHighlightRenderer;
  * Created on 10-05-22.
  */
 final class CopyRenderer implements IHighlightRenderer {
-	private final StringBuilder m_sb;
+	private final StringBuilder m_sb = new StringBuilder();
 
-	public CopyRenderer(StringBuilder sb) {
-		m_sb = sb;
+	private final StringBuilder m_detailed = new StringBuilder();
+
+	public CopyRenderer() {
 	}
 
 	@Override
 	public void renderToken(HighlightTokenType tokenType, String token, int characterIndex) {
-		if(tokenType == HighlightTokenType.newline)
+		if(tokenType == HighlightTokenType.newline) {
 			m_sb.append("\n");
-		else
+			m_detailed.append("\n");
+		} else {
 			m_sb.append(token);
+			m_detailed.append(tokenType.name()).append(":").append(token).append("\n");
+		}
+	}
+
+	public String getLiteral() {
+		return m_sb.toString();
+	}
+
+	public String getDetailed() {
+		return m_detailed.toString();
 	}
 }

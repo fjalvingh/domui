@@ -8,32 +8,54 @@ import to.etc.syntaxer.LineContext;
 import to.etc.util.FileTool;
 import to.etc.util.LineIterator;
 
+import java.io.File;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 10-05-22.
  */
 public class SyntaxerTests {
 	@Test
-	public void testSqlSyntaxes() throws Exception {
-		String allFiles = FileTool.readResourceAsString(getClass(), "/sql/all.txt", "utf-8");
+	public void testSql1() throws Exception {
+		checkFile("sql1.sql");
+	}
 
-		for(String file : new LineIterator(allFiles)) {
-			checkFile(file);
-		}
+	@Test
+	public void testSql2() throws Exception {
+		checkFile("sql2.sql");
+	}
+
+	@Test
+	public void testSql3() throws Exception {
+		checkFile("sql3.sql");
 	}
 
 	private void checkFile(String file) throws Exception {
 		System.out.println("Testing " + file);
-		StringBuilder sb = new StringBuilder();
-		CopyRenderer renderer = new CopyRenderer(sb);
+		CopyRenderer renderer = new CopyRenderer();
 		IHighlighter h = HighlighterFactory.getHighlighter("sql");
 
-		String text = FileTool.readResourceAsString(getClass(), file, "utf-8");
+		String text = FileTool.readResourceAsString(getClass(), "/sql/" + file, "utf-8");
 		LineContext lc = null;
 		for(String line : new LineIterator(text)) {
 			lc = h.highlightLine(renderer, lc, line);
 		}
 
-		Assert.assertEquals("In- and output must be the same", text, sb.toString());
+		String literal = renderer.getLiteral();
+
+		Assert.assertEquals("In- and output must be the same", text, literal);
+
+		File outputDir = new File("/tmp/syntaxer/");
+		outputDir.mkdirs();
+		File out = new File(outputDir, file + ".lit");
+		FileTool.writeFileFromString(out, renderer.getDetailed(), "utf-8");
+
+		String patterned;
+		try {
+			patterned = FileTool.readResourceAsString(getClass(), "/sql/" + file + ".lit", "utf-8");
+		} catch(Exception x) {
+			return;
+		}
+		Assert.assertEquals("Encoded output must be equal", patterned, renderer.getDetailed());
 	}
 }
