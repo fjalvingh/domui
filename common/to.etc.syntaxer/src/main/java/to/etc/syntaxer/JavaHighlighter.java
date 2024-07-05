@@ -8,10 +8,8 @@ import org.eclipse.jdt.annotation.Nullable;
  * Created on 02-05-22.
  */
 public class JavaHighlighter extends HiParser implements IHighlighter {
-	private final IHighlightRenderer m_renderer;
-
-	public JavaHighlighter(@NonNull IHighlightRenderer renderer) {
-		m_renderer = renderer;
+	public JavaHighlighter() {
+		//-- Empty
 	}
 
 	@Override
@@ -21,9 +19,9 @@ public class JavaHighlighter extends HiParser implements IHighlighter {
 
 	@NonNull
 	@Override
-	public LineContext highlightLine(@Nullable LineContext previous, @NonNull String line) {
-		m_renderer.renderToken(HighlightTokenType.text, line, 0);
-		m_renderer.renderToken(HighlightTokenType.newline, "", line.length());
+	public LineContext highlightLine(IHighlightRenderer renderer, @Nullable LineContext previous, @NonNull String line) {
+		renderer.renderToken(HighlightTokenType.text, line, 0);
+		renderer.renderToken(HighlightTokenType.newline, "", line.length());
 		return new LineContext(HighlightTokenType.whitespace);
 	}
 }

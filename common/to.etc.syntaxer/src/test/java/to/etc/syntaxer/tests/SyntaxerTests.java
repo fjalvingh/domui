@@ -25,12 +25,13 @@ public class SyntaxerTests {
 	private void checkFile(String file) throws Exception {
 		System.out.println("Testing " + file);
 		StringBuilder sb = new StringBuilder();
-		IHighlighter h = HighlighterFactory.getHighlighter("sql", new CopyRenderer(sb));
+		CopyRenderer renderer = new CopyRenderer(sb);
+		IHighlighter h = HighlighterFactory.getHighlighter("sql");
 
 		String text = FileTool.readResourceAsString(getClass(), file, "utf-8");
 		LineContext lc = null;
 		for(String line : new LineIterator(text)) {
-			lc = h.highlightLine(lc, line);
+			lc = h.highlightLine(renderer, lc, line);
 		}
 
 		Assert.assertEquals("In- and output must be the same", text, sb.toString());

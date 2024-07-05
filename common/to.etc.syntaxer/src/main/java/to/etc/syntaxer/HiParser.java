@@ -40,6 +40,13 @@ abstract public class HiParser {
 
 	private Map<String, HighlightTokenType> m_keywordMap = new HashMap<>();
 
+	protected IHighlightRenderer m_renderer = new IHighlightRenderer() {
+		@Override
+		public void renderToken(HighlightTokenType tokenType, String token, int characterIndex) {
+			//-- Dummy
+		}
+	};
+
 	public LineContext start(String line, @Nullable LineContext startContext) {
 		m_line = line;
 		m_ix = 0;

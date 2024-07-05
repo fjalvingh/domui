@@ -9,5 +9,5 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public interface IHighlighter {
 	@NonNull
-	LineContext highlightLine(@Nullable LineContext previous, @NonNull String line);
+	LineContext highlightLine(IHighlightRenderer renderInto, @Nullable LineContext previous, @NonNull String line);
 }
