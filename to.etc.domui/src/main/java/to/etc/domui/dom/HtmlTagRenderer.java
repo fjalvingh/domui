@@ -1093,7 +1093,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 			}
 		}
 		if(n.getSpecialAttribute("autocomplete") == null) {
-			o().attr("autocomplete", "off");
+			o().attr("autocomplete", "false");
 		}
 		renderTagend(n, m_o);
 	}
