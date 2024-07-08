@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * Created on Feb 3, 2013
  */
 @SupportedAnnotationTypes({"javax.persistence.Entity", "to.etc.annotations.GenerateProperties"})
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_21)
 public class PropertyAnnotationProcessor extends AbstractProcessor {
 	static public final String PERSISTENCE_ANNOTATION = "javax.persistence.Entity";
 
