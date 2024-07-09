@@ -276,6 +276,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		sroot.setCssClass("ui-lf-mainContent");
 		//-- END ORDERED
 
+		if (m_collapsed) {
+			sroot.setSpecialAttribute("style", "display: none;");
+		}
+
 		//-- Start populating the lookup form with lookup items.
 		ISearchFormBuilder formBuilder = getFormBuilder();
 		formBuilder.setTarget(sroot);
