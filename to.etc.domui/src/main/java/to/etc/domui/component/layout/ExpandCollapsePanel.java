@@ -5,6 +5,7 @@ import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.TextNode;
 
@@ -33,6 +34,11 @@ public class ExpandCollapsePanel extends Span {
 	}
 
 	public ExpandCollapsePanel(String label, String content) {
+		setLabel(label);
+		setContent(content);
+	}
+
+	public ExpandCollapsePanel(String label, NodeContainer content) {
 		setLabel(label);
 		setContent(content);
 	}
