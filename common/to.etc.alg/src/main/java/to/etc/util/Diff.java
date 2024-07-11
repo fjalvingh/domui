@@ -18,9 +18,13 @@ final public class Diff<T> {
 		ADD, DELETE, SAME
 	}
 
-	final private int		m_startIndex;
+	final private int m_oldStartIndex;
 
-	final private int		m_endIndex;
+	final private int m_oldEndIndex;
+
+	final private int m_newStartIndex;
+
+	final private int m_newEndIndex;
 
 	@NonNull
 	final private List<T>	m_list;
@@ -28,9 +32,11 @@ final public class Diff<T> {
 	@NonNull
 	final private Type		m_type;
 
-	private Diff(int startIndex, int endIndex, @NonNull List<T> list, @NonNull Type type) {
-		m_startIndex = startIndex;
-		m_endIndex = endIndex;
+	private Diff(int oldStartIndex, int oldEndIndex, int newStartIndex, int newEndIndex, @NonNull List<T> list, @NonNull Type type) {
+		m_oldStartIndex = oldStartIndex;
+		m_oldEndIndex = oldEndIndex;
+		m_newStartIndex = newStartIndex;
+		m_newEndIndex = newEndIndex;
 		m_list = list;
 		m_type = type;
 	}
@@ -39,12 +45,20 @@ final public class Diff<T> {
 		return m_type;
 	}
 
-	public int getEndIndex() {
-		return m_endIndex;
+	public int getOldEndIndex() {
+		return m_oldEndIndex;
 	}
 
-	public int getStartIndex() {
-		return m_startIndex;
+	public int getOldStartIndex() {
+		return m_oldStartIndex;
+	}
+
+	public int getNewStartIndex() {
+		return m_newStartIndex;
+	}
+
+	public int getNewEndIndex() {
+		return m_newEndIndex;
 	}
 
 	@NonNull
@@ -70,7 +84,9 @@ final public class Diff<T> {
 				break;
 		}
 
-		sb.append(c).append(" @").append(m_startIndex).append(",").append(m_endIndex).append(" ").append("\n");
+		sb.append(c).append(" @").append(m_oldStartIndex).append(",").append(m_oldEndIndex)
+			.append("-").append(m_newStartIndex).append(",").append(m_newEndIndex)
+			.append(" ").append("\n");
 		for(T item: m_list) {
 			sb.append(c).append(" ").append(item).append("\n");
 		}
@@ -314,13 +330,13 @@ final public class Diff<T> {
 				default:
 					throw new IllegalStateException(type + "?");
 				case ADD:
-					dres.add(new Diff<I>(lastoindex, oindex, newl.subList(lastnindex, nindex), Type.ADD));
+					dres.add(new Diff<I>(lastoindex, oindex, lastnindex, nindex, newl.subList(lastnindex, nindex), Type.ADD));
 					break;
 				case DELETE:
-					dres.add(new Diff<I>(lastoindex, oindex, oldl.subList(lastoindex, oindex), Type.DELETE));
+					dres.add(new Diff<I>(lastoindex, oindex, lastnindex, nindex, oldl.subList(lastoindex, oindex), Type.DELETE));
 					break;
 				case SAME:
-					dres.add(new Diff<I>(lastoindex, oindex, oldl.subList(lastoindex, oindex), Type.SAME));
+					dres.add(new Diff<I>(lastoindex, oindex, lastnindex, nindex, oldl.subList(lastoindex, oindex), Type.SAME));
 					break;
 			}
 		}

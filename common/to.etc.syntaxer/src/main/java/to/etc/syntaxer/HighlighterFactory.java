@@ -1,11 +1,10 @@
 package to.etc.syntaxer;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -13,17 +12,17 @@ import java.util.function.Function;
  */
 @NonNullByDefault
 final public class HighlighterFactory {
-	static private final Map<String, Function<IHighlightRenderer, IHighlighter>> m_factoryByExtMap = new ConcurrentHashMap<>();
+	static private final Map<String, Supplier<IHighlighter>> m_factoryByExtMap = new ConcurrentHashMap<>();
 
-	static public IHighlighter getHighlighter(String ext, @NonNull IHighlightRenderer renderer) {
-		Function<IHighlightRenderer, IHighlighter> fact = m_factoryByExtMap.get(ext.toLowerCase());
+	static public IHighlighter getHighlighter(String ext) {
+		Supplier<IHighlighter> fact = m_factoryByExtMap.get(ext.toLowerCase());
 		if(null == fact)
-			return new NullHighlighter(renderer);
+			return new NullHighlighter();
 
-		return fact.apply(renderer);
+		return fact.get();
 	}
 
-	static public void register(String ext, Function<IHighlightRenderer, IHighlighter> factory) {
+	static public void register(String ext, Supplier<IHighlighter> factory) {
 		m_factoryByExtMap.put(ext.toLowerCase(), factory);
 	}
 

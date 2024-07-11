@@ -84,16 +84,16 @@ public class CsvExportWriter<T> implements IExportWriter<T> {
 			if(null == convertedValue) {
 				writer.printNull();
 			} else {
-				if(value instanceof Date) {
-					writer.printDate((Date) value);
-				} else if(value instanceof Boolean) {
-					writer.printString(((Boolean) value) ? "true" : "false");
-				} else if(value instanceof Number) {
-					writer.printNumber((Number) value);
-				} else if(value instanceof String) {
-					writer.printString((String) value);
+				if(convertedValue instanceof Date) {
+					writer.printDate((Date) convertedValue);
+				} else if(convertedValue instanceof Boolean) {
+					writer.printString(((Boolean) convertedValue) ? "true" : "false");
+				} else if(convertedValue instanceof Number) {
+					writer.printNumber((Number) convertedValue);
+				} else if(convertedValue instanceof String) {
+					writer.printString((String) convertedValue);
 				} else {
-					writer.printString(String.valueOf(value));
+					writer.printString(String.valueOf(convertedValue));
 				}
 			}
 		}

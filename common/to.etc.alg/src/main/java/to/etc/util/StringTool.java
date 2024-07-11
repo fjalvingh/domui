@@ -2164,6 +2164,50 @@ public class StringTool {
 		return true;
 	}
 
+	/**
+	 * Strip characters with a code < 32 (except newline) from
+	 * the string.
+	 */
+	static public String stripInvalidCharacters(String in) {
+		StringBuilder sb = new StringBuilder(in.length());
+		for(int i = 0; i < in.length(); i++) {
+			char c = in.charAt(i);
+			if(c >= 32 || c == '\n') {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
+
+	public static boolean isAsciiLetter(char c) {
+		return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+	}
+
+	public static boolean isAsciiDigit(char c) {
+		return c >= '0' && c <= '9';
+	}
+
+	public static String trimSource(String viewSource) {
+		StringBuilder sb = new StringBuilder();
+		boolean atstart = true;
+		for(String s : new LineIterator(viewSource)) {
+			//-- brute-force strip ws
+			int len = s.length();
+			while(len > 0 && Character.isWhitespace(s.charAt(len - 1)))
+				len--;
+			if(len != 0 || !atstart) {
+				atstart = false;
+				sb.append(s, 0, len).append("\n");
+			}
+		}
+
+		//-- Strip trailing
+		while(sb.length() > 2 && sb.charAt(sb.length() - 1) == '\n' && sb.charAt(sb.length() - 2) == '\n') {
+			sb.setLength(sb.length() - 1);
+		}
+		return sb.toString();
+	}
+
 	private final static class ExceptionDup {
 		private final String m_message;
 

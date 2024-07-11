@@ -199,7 +199,7 @@ i, em {
 	padding: 1px 2px;
 	border-left: 1px solid #aaaaaa;
 	vertical-align: top;
-	line-height: 130%;
+	//line-height: 130%; 20240417 Causes lines to overlap
 }
 
 .listtbl THEAD TH {

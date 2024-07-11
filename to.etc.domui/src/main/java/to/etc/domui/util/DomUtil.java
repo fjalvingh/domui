@@ -1926,11 +1926,13 @@ final public class DomUtil {
 	@NonNull
 	static public String createOpenWindowJS(@NonNull String url, @Nullable WindowParameters newWindowParameters, boolean useSingleQuotes) {
 		char quotes = useSingleQuotes ? '\'' : '"';
+		String encUrl = StringTool.strToJavascriptString(url, !useSingleQuotes);
+
 		//-- Send a special JAVASCRIPT open command, containing the stuff.
 		StringBuilder sb = new StringBuilder();
-		sb.append("DomUI.openWindow(").append(quotes);
-		sb.append(url);
-		sb.append(quotes).append(",").append(quotes);
+		sb.append("DomUI.openWindow(");
+		sb.append(encUrl);
+		sb.append(",").append(quotes);
 		String name = null;
 		if(newWindowParameters != null)
 			name = newWindowParameters.getName();
