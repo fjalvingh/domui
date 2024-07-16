@@ -2,11 +2,12 @@ package to.etc.domui.component.input;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.CheckboxButton;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
@@ -29,7 +30,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	private IRenderInto<T> m_actualContentRenderer;
 
-	private Map<V, Checkbox> m_checkMap = new HashMap<>();
+	private Map<V, IControl<Boolean>> m_checkMap = new HashMap<>();
 
 	private boolean m_asButtons;
 
@@ -97,31 +98,26 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		setContainer.add(pair);
 		V listval = listToValue(lv);
 
-		Checkbox cb = new Checkbox();
+		IControl<Boolean> cb = m_asButtons ? new CheckboxButton() : new Checkbox();
 		Collection<V> value = getValue();
 		if(value != null && value.contains(lv))
-			cb.setChecked(true);
+			cb.setValue(true);
 		boolean disa = isDisabled() || isReadOnly();
 		cb.setReadOnly(disa);
 
-		pair.add(cb);
+		pair.add((NodeBase) cb);
 		IRenderInto<T> cr = m_actualContentRenderer;
 		if(cr == null)
 			cr = m_actualContentRenderer = calculateContentRenderer(lv);
 		Label span = new Label();
-		span.setForTarget(cb);
+		span.setForTarget((NodeBase) cb);
 		pair.add(span);
 		cr.render(span, lv);
 		m_checkMap.put(listval, cb);
 
 		final IValueChanged<CheckboxSetInputBase<V, T>> ovc = (IValueChanged<CheckboxSetInputBase<V, T>>) getOnValueChanged();
 		if(ovc != null) {
-			cb.setClicked(new IClicked<Checkbox>() {
-				@Override
-				public void clicked(@NonNull Checkbox clickednode) throws Exception {
-					ovc.onValueChanged(CheckboxSetInputBase.this);
-				}
-			});
+			cb.setOnValueChanged(a -> ovc.onValueChanged(CheckboxSetInputBase.this));
 		}
 	}
 
@@ -152,8 +148,8 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 	}
 
 	private void updateValue(@NonNull Set<V> value) {
-		for(Map.Entry<V, Checkbox> me : m_checkMap.entrySet()) {
-			if(me.getValue().isChecked()) {
+		for(Map.Entry<V, IControl<Boolean>> me : m_checkMap.entrySet()) {
+			if(me.getValue().getValue() == Boolean.TRUE) {
 				value.add(me.getKey());
 			} else {
 				value.remove(me.getKey());
@@ -170,7 +166,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 	@Override
 	protected void disabledChanged() {
 		boolean disa = isDisabled() || isReadOnly();
-		for(Checkbox cb : m_checkMap.values()) {
+		for(IControl<Boolean> cb : m_checkMap.values()) {
 			cb.setReadOnly(disa);
 		}
 	}
