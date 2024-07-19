@@ -63,6 +63,9 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 	private CellStyle m_numberStyle;
 
 	@Nullable
+	private CellStyle m_decimalStyle;
+
+	@Nullable
 	private CellStyle m_headerStyle;
 
 	@Nullable
@@ -112,6 +115,10 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		CellStyle nums = m_numberStyle = wb.createCellStyle();
 		nums.setDataFormat(wb.createDataFormat().getFormat("#0"));
 		nums.setFont(defaultFont);
+
+		CellStyle dums = m_decimalStyle = wb.createCellStyle();
+		dums.setDataFormat(wb.createDataFormat().getFormat("#,##0.####"));
+		dums.setFont(defaultFont);
 
 		Font headerFont = wb.createFont();
 		headerFont.setFontHeightInPoints((short) 10);
@@ -322,6 +329,17 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		public void renderCell(ExcelExportWriter<?> exporter, Cell cell, int cellIndex, @Nullable Number value) throws Exception {
 			cell.setCellStyle(exporter.m_numberStyle);
 			if(null != value) {
+				cell.setCellValue(value.longValue());
+			}
+			exporter.setCellWidth(cellIndex, String.valueOf(value));
+		}
+	};
+
+	static private final IExportCellRenderer<ExcelExportWriter<?>, Cell, Number> DECIMAL_CONVERTER = new IExportCellRenderer<ExcelExportWriter<?>, Cell, Number>() {
+		@Override
+		public void renderCell(ExcelExportWriter<?> exporter, Cell cell, int cellIndex, @Nullable Number value) throws Exception {
+			cell.setCellStyle(exporter.m_decimalStyle);
+			if(null != value) {
 				cell.setCellValue(value.doubleValue());
 			}
 			exporter.setCellWidth(cellIndex, String.valueOf(value));
@@ -367,18 +385,18 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		register(byte.class, NUMBER_CONVERTER);
 		register(short.class, NUMBER_CONVERTER);
 		register(int.class, NUMBER_CONVERTER);
-		register(long.class, NUMBER_CONVERTER);
-		register(float.class, NUMBER_CONVERTER);
+		register(long.class, DECIMAL_CONVERTER);
+		register(float.class, DECIMAL_CONVERTER);
 		register(double.class, NUMBER_CONVERTER);
 
 		register(Byte.class, NUMBER_CONVERTER);
 		register(Short.class, NUMBER_CONVERTER);
 		register(Integer.class, NUMBER_CONVERTER);
 		register(Long.class, NUMBER_CONVERTER);
-		register(Float.class, NUMBER_CONVERTER);
-		register(Double.class, NUMBER_CONVERTER);
+		register(Float.class, DECIMAL_CONVERTER);
+		register(Double.class, DECIMAL_CONVERTER);
 
-		register(BigDecimal.class, NUMBER_CONVERTER);
+		register(BigDecimal.class, DECIMAL_CONVERTER);
 		register(BigInteger.class, NUMBER_CONVERTER);
 
 		register(Date.class, DATE_CONVERTER);
