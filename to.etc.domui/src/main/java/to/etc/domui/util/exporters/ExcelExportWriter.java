@@ -117,7 +117,7 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		nums.setFont(defaultFont);
 
 		CellStyle dums = m_decimalStyle = wb.createCellStyle();
-		dums.setDataFormat(wb.createDataFormat().getFormat("#,##0.####"));
+		dums.setDataFormat(wb.createDataFormat().getFormat("#,##0.###############"));
 		dums.setFont(defaultFont);
 
 		Font headerFont = wb.createFont();
