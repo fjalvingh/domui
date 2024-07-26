@@ -329,7 +329,11 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		public void renderCell(ExcelExportWriter<?> exporter, Cell cell, int cellIndex, @Nullable Number value) throws Exception {
 			cell.setCellStyle(exporter.m_numberStyle);
 			if(null != value) {
-				cell.setCellValue(value.longValue());
+				if(value instanceof BigInteger) {
+					cell.setCellValue(value.doubleValue());
+				} else {
+					cell.setCellValue(value.longValue());
+				}
 			}
 			exporter.setCellWidth(cellIndex, String.valueOf(value));
 		}
@@ -385,9 +389,9 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		register(byte.class, NUMBER_CONVERTER);
 		register(short.class, NUMBER_CONVERTER);
 		register(int.class, NUMBER_CONVERTER);
-		register(long.class, DECIMAL_CONVERTER);
+		register(long.class, NUMBER_CONVERTER);
 		register(float.class, DECIMAL_CONVERTER);
-		register(double.class, NUMBER_CONVERTER);
+		register(double.class, DECIMAL_CONVERTER);
 
 		register(Byte.class, NUMBER_CONVERTER);
 		register(Short.class, NUMBER_CONVERTER);
