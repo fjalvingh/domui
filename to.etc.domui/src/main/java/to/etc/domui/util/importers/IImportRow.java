@@ -16,4 +16,9 @@ public interface IImportRow {
 
 	@NonNull
 	IImportColumn get(@NonNull String name) throws IOException;
+
+	/**
+	 * Needed for MS formats; they make the usual mess of storing empty rows at the end, sigh.
+	 */
+	boolean isEmpty() throws IOException;
 }

@@ -96,6 +96,16 @@ public class ExcelImportRow implements IImportRow {
 		return new ExcelColumn(this, cell, headerName);
 	}
 
+	@Nullable
+	private Cell getCell(int index) {
+		if(index > m_row.getLastCellNum() || index < 0)
+			return null;
+		if(index < m_row.getFirstCellNum())
+			return null;
+
+		return m_row.getCell(index);
+	}
+
 	@Override
 	public IImportColumn get(String name) {
 		int index = -1;
@@ -110,6 +120,19 @@ public class ExcelImportRow implements IImportRow {
 		if(index == -1)
 			throw new QNotFoundException("Column", "The column with header name '" + name + "' could not be found");
 		return get(index);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		for(int i = 0; i < getColumnCount(); i++) {
+			Cell cell = getCell(i);
+			if(null != cell) {
+				String va = getCellStringValue(cell);
+				if(null != va)
+					return false;
+			}
+		}
+		return true;
 	}
 
 	@Nullable
