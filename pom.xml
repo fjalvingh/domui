@@ -291,6 +291,14 @@
                         <groupId>com.google.http-client</groupId>
                         <artifactId>google-http-client</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.checkerframework</groupId>
+                        <artifactId>checker-qual</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -341,7 +349,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>32.1.2-jre</version>
+                <version>33.1.0-jre</version>
 
                 <exclusions>
                     <exclusion>
