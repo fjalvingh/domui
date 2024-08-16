@@ -171,7 +171,7 @@
         <allure.version>1.5.4</allure.version>
         <allure.maven.version>2.6</allure.maven.version>
         <aspectj.version>1.9.1</aspectj.version>
-        <graal.version>23.0.5</graal.version>
+        <graal.version>22.2.0</graal.version>
 
         <!-- Versions needed for dependency convergence-->
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
