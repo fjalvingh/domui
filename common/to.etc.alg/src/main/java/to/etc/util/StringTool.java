@@ -229,6 +229,15 @@ public class StringTool {
 		return dots < 2 && digits >= 1;
 	}
 
+	static public boolean isDigitsOnly(@NonNull String s) {
+		for(int i = s.length(); --i >= 0; ) {
+			char c = s.charAt(i);
+			if(!Character.isDigit(c))
+				return false;
+		}
+		return true;
+	}
+
 	static public boolean isDomainChar(final char c) {
 		return c == '-' || c == '.' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 	}
