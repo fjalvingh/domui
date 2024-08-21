@@ -908,7 +908,11 @@
                 <artifactId>truffle-api</artifactId>
                 <version>${graal.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.graalvm.sdk</groupId>
+                <artifactId>graal-sdk</artifactId>
+                <version>${graal.version}</version>
+            </dependency>
             <!-- Security -->
             <!-- https://mvnrepository.com/artifact/org.owasp.esapi/esapi -->
             <!--			<dependency>-->
