@@ -159,7 +159,8 @@
         <selenium.version>3.141.59</selenium.version>
         <hsqldb.version>2.7.1</hsqldb.version>
 
-        <jaxb.version>2.3.0</jaxb.version>
+        <javax-jaxb.version>2.3.1</javax-jaxb.version>
+        <glassfish-jaxb.version>2.3.9</glassfish-jaxb.version>
 
         <xml-apis.version>2.0.2</xml-apis.version>
         <com.ibm.icu.version>69.1</com.ibm.icu.version>
@@ -832,17 +833,16 @@
                 <version>5.10.5-PATCH</version>
             </dependency>
 
-            <!-- Java 9 muck -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>${jaxb.version}</version>
+                <version>${javax-jaxb.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
-                <version>${jaxb.version}</version>
+                <version>${glassfish-jaxb.version}</version>
             </dependency>
 
             <dependency>
@@ -908,7 +908,11 @@
                 <artifactId>truffle-api</artifactId>
                 <version>${graal.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.graalvm.sdk</groupId>
+                <artifactId>graal-sdk</artifactId>
+                <version>${graal.version}</version>
+            </dependency>
             <!-- Security -->
             <!-- https://mvnrepository.com/artifact/org.owasp.esapi/esapi -->
             <!--			<dependency>-->
