@@ -34,6 +34,8 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	private boolean m_asButtons;
 
+	private boolean m_labelBeforeCheckbox;
+
 	@NonNull
 	abstract protected V listToValue(@NonNull T in) throws Exception;
 
@@ -105,13 +107,18 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		boolean disa = isDisabled() || isReadOnly();
 		cb.setReadOnly(disa);
 
-		pair.add((NodeBase) cb);
 		IRenderInto<T> cr = m_actualContentRenderer;
 		if(cr == null)
 			cr = m_actualContentRenderer = calculateContentRenderer(lv);
 		Label span = new Label();
 		span.setForTarget((NodeBase) cb);
-		pair.add(span);
+		if(m_labelBeforeCheckbox) {
+			pair.add(span);
+			pair.add((NodeBase) cb);
+		} else {
+			pair.add((NodeBase) cb);
+			pair.add(span);
+		}
 		cr.render(span, lv);
 		m_checkMap.put(listval, cb);
 
@@ -183,6 +190,14 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	protected CheckboxSetInputBase<V, T> asButtons() {
 		m_asButtons = true;
+		return this;
+	}
+
+	/**
+	 * Sets the label to appear before the checkbox. By default, the label is set to appear after the checkbox.
+	 */
+	protected CheckboxSetInputBase<V, T> labelBeforeCheckbox() {
+		m_labelBeforeCheckbox = true;
 		return this;
 	}
 
