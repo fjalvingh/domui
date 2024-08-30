@@ -113,6 +113,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		Label span = new Label();
 		span.setForTarget((NodeBase) cb);
 		if(m_labelBeforeCheckbox) {
+			span.addCssClass("label-first");
 			pair.add(span);
 			pair.add((NodeBase) cb);
 		} else {

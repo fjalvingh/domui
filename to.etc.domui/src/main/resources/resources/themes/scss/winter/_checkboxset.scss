@@ -1,5 +1,6 @@
 .ui-cbis {
 	display: inline;
+
 	.ui-cbis-c {
 		display: flex;
 		flex-direction: row;
@@ -10,7 +11,8 @@
 			display: flex;
 			align-items: center;
 		}
-		.ui-cbis-p label {
+
+		.ui-cbis-p .label-first {
 			margin-right: 4px;
 		}
 
