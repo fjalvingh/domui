@@ -1,5 +1,6 @@
 .ui-cbis {
 	display: inline;
+
 	.ui-cbis-c {
 		display: flex;
 		flex-direction: row;
@@ -7,6 +8,12 @@
 
 		.ui-cbis-p {
 			padding-right: 10px;
+			display: flex;
+			align-items: center;
+		}
+
+		.ui-cbis-p .label-first {
+			margin-right: 4px;
 		}
 
 		input, span, label {
