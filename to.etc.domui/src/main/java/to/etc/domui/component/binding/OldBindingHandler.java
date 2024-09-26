@@ -143,4 +143,57 @@ final public class OldBindingHandler {
 		}
 		return null;
 	}
+
+	public static <T> boolean bindErrors(List<UIMessage> errors, T instance, NodeBase root) throws Exception {
+
+		for(UIMessage error: errors) {
+			ComponentPropertyBindingBidi<?, ?, T, ?> binding = OldBindingHandler.findInstanceBinding(root, instance, error.getErrorLocation());
+			if(null != binding) {
+				binding.setBindError(error);
+				error.location(binding.m_control.getErrorLocation());
+			}else {
+				root.addGlobalMessage(error);
+			}
+		}
+		return reportBindingErrors(root) || ! errors.isEmpty();
+	}
+
+	@Nullable
+	public static <T> ComponentPropertyBindingBidi<?,?,T,?> findInstanceBinding(NodeBase root, T instance, String instancePropertyName) throws Exception {
+
+		final List<ComponentPropertyBindingBidi<?, ?, T, ?>> foundBindings = new ArrayList<>();
+		DomUtil.walkTreeUndelegated(root, new DomUtil.IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				List<IBinding> list = n.getBindingList();
+				if(null != list) {
+					for(IBinding sb : list) {
+						if(sb instanceof ComponentPropertyBindingBidi) {
+							ComponentPropertyBindingBidi<?, ?, ?, ?> sib = (ComponentPropertyBindingBidi<?, ?, ?, ?>) sb;
+							if(instance.equals(sib.getInstance())){
+								IValueAccessor<?> instanceProperty = sib.getInstanceProperty();
+								if(null != instanceProperty && instanceProperty instanceof PropertyMetaModel) {
+									if(instancePropertyName.equals(((PropertyMetaModel<?>) instanceProperty).getName())) {
+										foundBindings.add((ComponentPropertyBindingBidi<?, ?, T, ?>) sib);
+										return sib;
+									}
+								}
+							}
+						}
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+		if(foundBindings.isEmpty()) {
+			return null;
+		}
+		return foundBindings.get(0);
+	}
+
 }
