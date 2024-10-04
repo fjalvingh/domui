@@ -8,6 +8,7 @@
  */
 .ui-dspv {
 	@include ui-control-base;
+	@include ui-ro-base;
 	display: inline-block;
 	text-align: left;
 }
