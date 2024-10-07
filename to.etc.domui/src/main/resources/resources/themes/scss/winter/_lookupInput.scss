@@ -35,29 +35,13 @@ $lui-min-width: 14em;
 	@include ui-input-base;
 	min-width: $lui-min-width;
 	height: auto;
-	//
-	//line-height: $form-line-height;
-	//
-	//padding: 0px;
-	//margin: 0px;
-	//width: 100%;
-	//min-width: $lui-min-width;
-	//white-space: pre;
-	//
-	background: #f2f9fe; /* Old browsers */
-	background: -moz-linear-gradient(top, #f2f9fe 0%, #d6f0fd 100%); /* FF3.6-15 */
-	background: -webkit-linear-gradient(top, #f2f9fe 0%,#d6f0fd 100%); /* Chrome10-25,Safari5.1-6 */
-	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	@include ui-ro-base;
 }
 
 .ui-lui-empty {
 	@include ui-input-base;
 	min-width: $lui-min-width;
-
-	background: #f2f9fe; /* Old browsers */
-	background: -moz-linear-gradient(top, #f2f9fe 0%, #d6f0fd 100%); /* FF3.6-15 */
-	background: -webkit-linear-gradient(top, #f2f9fe 0%,#d6f0fd 100%); /* Chrome10-25,Safari5.1-6 */
-	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	@include ui-ro-base;
 }
 
 //.ui-lui-v > div { 20170913 makes input have trailing space
