@@ -666,7 +666,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			default:
 				throw new IllegalStateException(m_numberMode + "?");
 			case NONE:
-				m_input.setOnKeyPressJS("");
+				m_input.setOnKeyPressJS("WebUI.isEnterKey()");
 				break;
 			case DIGITS:
 				m_input.setOnKeyPressJS("WebUI.isNumberKey(event)");

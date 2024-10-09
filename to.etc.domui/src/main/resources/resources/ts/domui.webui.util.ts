@@ -71,6 +71,8 @@ namespace WebUI {
 	}
 
 	export function isNumberKey(evt: any): boolean {
+		if(isEnterKey(evt))
+			return true;
 		//-- onKeyPress event: use keyCode
 		let keyCode = normalizeKey(evt);
 		//$.dbg("kp: norm="+keyCode+", keyCode="+evt.keyCode+", chc="+evt.charCode+", which="+evt.which, evt);
@@ -81,6 +83,16 @@ namespace WebUI {
 		let keyCode = normalizeKey(evt);
 		//alert('keycode='+evt.keyCode+", charCode="+evt.charCode+", which="+evt.which+", norm="+keyCode);
 		return (keyCode >= 1000 || keyCode == 0x2c || keyCode == 0x2e || (keyCode >= 48 && keyCode <= 57) || keyCode == 45);
+	}
+
+	export function isEnterKey(evt: any): boolean {
+		if(evt.key == 'Enter') {
+			//-- Send a change event
+			console.debug("enter", evt);
+			WebUI.valuechanged('', evt.target.id);
+			return true;
+		}
+		return false;
 	}
 
 	export function delayedSetAttributes(): void {
