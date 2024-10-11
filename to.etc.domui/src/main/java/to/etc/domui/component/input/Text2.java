@@ -163,6 +163,9 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	private boolean m_disableFocus;
 
+	@Nullable
+	private String m_disabledBecause;
+
 	public enum NumberMode {
 		NONE,
 		DIGITS,
@@ -524,6 +527,23 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Override
 	public void setDisabled(boolean d) {
 		m_input.setDisabled(d);
+	}
+
+	/**
+	 * Disables a button and set a hover text as the reason for being disabled.
+	 */
+	@Nullable
+	final public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	final public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		setOverrideTitle(msg);
+		setDisabled(msg != null);
 	}
 
 	@Override

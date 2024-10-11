@@ -771,6 +771,26 @@ final public class FormBuilder {
 			currentBuilder.copyFrom(this);
 			return currentBuilder;
 		}
+
+		/**
+		 * Adds the specified css class to the control cell.
+		 */
+		@NonNull
+		public ItemBuilder cssControl(@NonNull String cssClass) {
+			m_controlCss = cssClass;
+			return this;
+		}
+
+		/**
+		 * Adds the specified css class to the label cell.
+		 */
+		@NonNull
+		public ItemBuilder cssLabel(@NonNull String cssClass) {
+			m_labelCss = cssClass;
+			return this;
+		}
+
+
 	}
 
 	/**

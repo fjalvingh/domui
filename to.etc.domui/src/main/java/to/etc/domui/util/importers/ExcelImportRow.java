@@ -29,12 +29,40 @@ public class ExcelImportRow implements IImportRow {
 
 	private final List<String> m_headerNames;
 
+	private final int m_realColumnCount;
+
 	public ExcelImportRow(IExcelRowReader rr, Row row, List<String> headerNames) {
 		m_rr = rr;
 		if(null == row)
 			throw new IllegalStateException();
 		m_row = row;
 		m_headerNames = headerNames;
+
+		/*
+		 * This idiot-"designed" file format also stores empty
+		 * columns at the end of a row, of course. That
+		 * confuses a lot of code, and these empty columns
+		 * cannot be seen in the spreadsheet, of course, and they
+		 * are not deleted when deleting them. Morons. Hence we
+		 * calculate the real column count by trailing empty columns.
+		 */
+		m_realColumnCount = getRealColumnCount(row);
+	}
+
+	private int getRealColumnCount(Row row) {
+		int cellNr = row.getLastCellNum();
+		if(cellNr <= 0)
+			return 0;
+		while(cellNr > 0) {
+			Cell cell = row.getCell(cellNr - 1);
+			if(cell != null) {
+				String sv = getCellStringValue(cell);
+				if(sv != null && !sv.isEmpty())
+					return cellNr;
+			}
+			cellNr--;
+		}
+		return 0;
 	}
 
 	@Nullable
@@ -46,9 +74,10 @@ public class ExcelImportRow implements IImportRow {
 
 	@Override
 	public int getColumnCount() {
-		short cell = m_row.getLastCellNum();
-		return cell < 0 ? 0 : cell;
-		//return cell /* + 1 jal 20190204 removed, last cell number seems 1 based */ ;
+		return m_realColumnCount;
+		//short cell = m_row.getLastCellNum();
+		//return cell < 0 ? 0 : cell;
+		////return cell /* + 1 jal 20190204 removed, last cell number seems 1 based */ ;
 	}
 
 	@Override
@@ -67,6 +96,16 @@ public class ExcelImportRow implements IImportRow {
 		return new ExcelColumn(this, cell, headerName);
 	}
 
+	@Nullable
+	private Cell getCell(int index) {
+		if(index > m_row.getLastCellNum() || index < 0)
+			return null;
+		if(index < m_row.getFirstCellNum())
+			return null;
+
+		return m_row.getCell(index);
+	}
+
 	@Override
 	public IImportColumn get(String name) {
 		int index = -1;
@@ -81,6 +120,65 @@ public class ExcelImportRow implements IImportRow {
 		if(index == -1)
 			throw new QNotFoundException("Column", "The column with header name '" + name + "' could not be found");
 		return get(index);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		for(int i = 0; i < getColumnCount(); i++) {
+			Cell cell = getCell(i);
+			if(null != cell) {
+				String va = getCellStringValue(cell);
+				if(null != va)
+					return false;
+			}
+		}
+		return true;
+	}
+
+	@Nullable
+	private String getCellStringValue(Cell cell) {
+		try {
+			CellType cellType = cell.getCellType();
+			if(CellType.FORMULA == cellType) {
+				cellType = cell.getCachedFormulaResultType();
+			}
+			switch(cellType){
+				default:
+					return AbstractImportColumn.trimAllWS(cell.toString());
+
+				case BLANK:
+					return "";
+
+				case BOOLEAN:
+					return String.valueOf(cell.getBooleanCellValue());
+
+				case NUMERIC:
+					DateFormat forceStringDateFormat = m_rr.getForceStringDateFormat();
+					if(null != forceStringDateFormat) {
+						try {
+							Date dt = cell.getDateCellValue();
+							if(dt != null) {
+								return forceStringDateFormat.format(dt);
+							}
+						} catch(Exception x) {
+							//-- Apparently not a date, so just continue
+						}
+					}
+
+					return m_rr.convertDouble(cell.getNumericCellValue());
+
+				case STRING:
+					return AbstractImportColumn.trimAllWS(cell.getStringCellValue());
+
+				case _NONE:
+					return null;
+			}
+
+		} catch(Exception x) {
+			throw new ImportValueException(x, "@[" + cell.getSheet().getSheetName() + ":" + cell.getAddress() + "] " + x.toString());
+			//throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress().getRow()+ ", " + m_cell.getAddress().getColumn() + "] " + x.toString());
+		}
+
 	}
 
 	static private class ExcelColumn extends AbstractImportColumn implements IImportColumn {
@@ -107,47 +205,7 @@ public class ExcelImportRow implements IImportRow {
 		@Nullable
 		@Override
 		public String getStringValue() {
-			try {
-				CellType cellType = m_cell.getCellType();
-				if(CellType.FORMULA == cellType) {
-					cellType = m_cell.getCachedFormulaResultType();
-				}
-				switch(cellType){
-					default:
-						return trimAllWS(m_cell.toString());
-
-					case BLANK:
-						return "";
-
-					case BOOLEAN:
-						return String.valueOf(m_cell.getBooleanCellValue());
-
-					case NUMERIC:
-						DateFormat forceStringDateFormat = m_row.m_rr.getForceStringDateFormat();
-						if(null != forceStringDateFormat) {
-							try {
-								Date dt = m_cell.getDateCellValue();
-								if(dt != null) {
-									return forceStringDateFormat.format(dt);
-								}
-							} catch(Exception x) {
-								//-- Apparently not a date, so just continue
-							}
-						}
-
-						return m_row.m_rr.convertDouble(m_cell.getNumericCellValue());
-
-					case STRING:
-						return trimAllWS(m_cell.getStringCellValue());
-
-					case _NONE:
-						return null;
-				}
-
-			} catch(Exception x) {
-				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress() + "] " + x.toString());
-				//throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress().getRow()+ ", " + m_cell.getAddress().getColumn() + "] " + x.toString());
-			}
+			return m_row.getCellStringValue(m_cell);
 		}
 
 		@Nullable

@@ -51,6 +51,15 @@ public class CsvImportRow implements IImportRow {
 		return get(index);
 	}
 
+	@Override
+	public boolean isEmpty() throws IOException {
+		for(int i = 0; i < getColumnCount(); i++) {
+			if(get(i).getStringValue() != null)
+				return false;
+		}
+		return true;
+	}
+
 	private class Col extends AbstractImportColumn implements IImportColumn {
 		private final int m_index;
 

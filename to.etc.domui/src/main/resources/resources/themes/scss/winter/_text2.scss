@@ -31,6 +31,10 @@
 		margin: 0;
 	}
 
+	input.ui-ro  {
+		@include ui-ro-base;
+	}
+
 	&.ui-input-err input {
 		background-color: $errors_input_background;
 	}

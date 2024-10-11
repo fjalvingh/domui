@@ -213,7 +213,6 @@ public class JSTemplateCompiler {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Compile the Javascript program in m_jsb, then create a template.
-	 * @throws Exception
 	 */
 	private JSTemplate compile() throws Exception {
 		ScriptEngine jsengine = createScriptEngine();

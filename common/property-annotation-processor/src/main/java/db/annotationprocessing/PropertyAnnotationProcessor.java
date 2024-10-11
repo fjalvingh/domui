@@ -137,8 +137,8 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 					List<Property> properties = getProperties(classElement);
 
 					//generateRootClass(pkgName, entityName, ann, properties);
-					generateLinkClass(pkgName, entityName, ann, properties);
-					generateStaticClass(pkgName, entityName, ann, properties);
+					generateLinkClass(pkgName, entityName, classElement, ann, properties);
+					generateStaticClass(pkgName, entityName, classElement, ann, properties);
 				} catch(Exception e1) {
 
 					/*
@@ -163,24 +163,24 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 		return entityName + "_Link";
 	}
 
-	private JavaFileObject createFile(String name, TypeElement ann) throws IOException {
+	private JavaFileObject createFile(String name, Element classElement, TypeElement ann) throws IOException {
 		if((m_debug))
 			System.out.println("ANN> createFile " + name + " source " + ann);
-		return processingEnv.getFiler().createSourceFile(name, ann);
+		return processingEnv.getFiler().createSourceFile(name, classElement, ann);
 	}
 
-	private void generateStaticClass(String pkgName, String targetClassName, TypeElement ann, List<Property> properties) throws Exception {
+	private void generateStaticClass(String pkgName, String targetClassName, Element classElement, TypeElement ann, List<Property> properties) throws Exception {
 		String className = getStaticClass(targetClassName);
-		FileObject jf2 = createFile(pkgName + "." + className, ann);
+		FileObject jf2 = createFile(pkgName + "." + className, classElement, ann);
 
 		try(Writer w = jf2.openWriter()) {
 			new StaticClassGenerator(this, w, pkgName, className, properties, targetClassName).generate();
 		}
 	}
 
-	private void generateLinkClass(String pkgName, String targetClassName, TypeElement ann, List<Property> properties) throws Exception {
+	private void generateLinkClass(String pkgName, String targetClassName, Element classElement, TypeElement ann, List<Property> properties) throws Exception {
 		String className = getLinkClass(targetClassName);
-		FileObject jf2 = createFile(pkgName + "." + className, ann);
+		FileObject jf2 = createFile(pkgName + "." + className, classElement, ann);
 
 		try(Writer w = jf2.openWriter()) {
 			new LinkClassGenerator(this, w, pkgName, className, properties, targetClassName).generate();
@@ -281,6 +281,8 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 				return super.visitExecutable(m, p);
 			}
 
+			if(m_debug)
+				System.out.println("property " + propertyName + " type " + returnType);
 			m_result.add(new Property(returnType, propertyName, annotationNames));
 			return super.visitExecutable(m, p);
 		}

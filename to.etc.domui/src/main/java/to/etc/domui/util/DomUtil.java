@@ -1603,6 +1603,47 @@ final public class DomUtil {
 		rci.getRequestResponse().addCookie(k);
 	}
 
+	/**
+	 * Scans the text for links, and replaces the link text with
+	 * an actual link.
+	 */
+	static public String htmlEncapsulateLinks(String in) {
+		StringBuilder sb = new StringBuilder(in.length() * 2);
+		int ix = 0;
+		int len = in.length();
+		String lc = in.toLowerCase();
+		while(ix < len) {
+			int pos = lc.indexOf("http", ix);						// Find lead.
+			if(pos == -1) {
+				//-- We're done
+				sb.append(in, ix, len);									// Append remainder
+				return sb.toString();
+			}
+
+			//-- Append the current fragment before the possible match
+			if(pos > ix) {
+				sb.append(in, ix, pos);
+				ix = pos;
+			}
+			if(ix + 10 < len && (in.charAt(ix + 4) == ':' || (lc.charAt(ix + 4) == 's' && lc.charAt(ix + 5) == ':'))) {
+				//-- Be lazy: just scan until space
+				StringBuilder linksb = new StringBuilder();
+				while(ix < len && !Character.isSpaceChar(in.charAt(ix)) && in.charAt(ix) != '<') {
+					linksb.append(in.charAt(ix));
+					ix++;
+				}
+
+				//-- Link is now in linksb
+				sb.append("<a href=\"").append(linksb).append("\" target=\"_blank\">").append(linksb).append("</a>");
+			} else {
+				//-- Just copy the false match
+				sb.append(in, pos, pos + 1);
+				ix = pos + 1;
+			}
+		}
+		return sb.toString();
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree walking helpers.								*/
 	/*--------------------------------------------------------------*/

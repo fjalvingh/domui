@@ -476,7 +476,7 @@ final public class NetTools {
 	static public boolean ping(InetAddress addr) {
 		//-- 1. Try isReachable
 		try {
-			if(addr.isReachable(5))
+			if(addr.isReachable(2000))
 				return true;
 		} catch(Exception x) {
 		}
