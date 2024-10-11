@@ -3235,6 +3235,7 @@ public class StringTool {
 			|| c == '"'
 			|| c == ' '
 			|| c == '-'
+			|| c == '/'					// Oh brother.
 			;
 	}
 
