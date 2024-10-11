@@ -9,4 +9,5 @@
 	align-items: center;
 	height: auto;
 	min-height: 2.25em;
+	@include ui-ro-base;
 }
