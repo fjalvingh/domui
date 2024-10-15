@@ -110,11 +110,11 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	public void createContent() throws Exception {
 		T val = getValue();
 
-		//-- For an empty value put the empty string
-		if(val == null) {
-			setString(null);
-			return;
-		}
+		////-- For an empty value put the empty string
+		//if(val == null) {
+		//	setString(null);
+		//	return;
+		//}
 
 		//-- If a converter is present it *must* convert the value
 		IConverter<T> converter = getConverter();
@@ -127,9 +127,15 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		//-- If a node renderer is set ask it to render content inside me. It is required to render proper info.
 		IRenderInto<T> renderer = getRenderer();
 		if(renderer != null) {
-			renderer.render(this, val); // Ask node renderer.
+			renderer.renderOpt(this, val); // Ask node renderer.
 			if(getChildCount() == 0 && m_emptyString != null)
 				add(m_emptyString);
+			return;
+		}
+
+		//-- For an empty value put the empty string
+		if(val == null) {
+			setString(null);
 			return;
 		}
 
