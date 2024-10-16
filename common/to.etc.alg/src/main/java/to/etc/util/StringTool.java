@@ -3227,16 +3227,22 @@ public class StringTool {
 	}
 
 	private static boolean isValidSqlNameChar(char c) {
-		return Character.isLetterOrDigit(c)
-			|| c == '_'
-			|| c == '.'
-			|| c == '['
-			|| c == ']'
-			|| c == '"'
-			|| c == ' '
-			|| c == '-'
-			|| c == '/'					// Oh brother.
-			;
+		/*
+		 * Since we need to support Microsoft's crap we need to accept any kind
+		 * of garbage characters in database names. These incompetent idiots must
+		 * really like SQL injection attacks and other security issues.
+		 */
+		return c >= ' ' && c < 128;
+		//return Character.isLetterOrDigit(c)
+		//	|| c == '_'
+		//	|| c == '.'
+		//	|| c == '['
+		//	|| c == ']'
+		//	|| c == '"'
+		//	|| c == ' '
+		//	|| c == '-'
+		//	|| c == '/'					// Oh brother.
+		//	;
 	}
 
 	static public void sqlCheckNoQuotes(@Nullable String password) {
