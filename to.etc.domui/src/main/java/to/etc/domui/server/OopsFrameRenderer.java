@@ -4,8 +4,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.themes.ThemeManager;
-import to.etc.domui.util.js.IScriptScope;
-import to.etc.domui.util.js.MapScriptScope;
+import to.etc.domui.util.js.RhinoExecutor;
+import to.etc.domui.util.js.RhinoExecutorFactory;
 import to.etc.domui.util.js.RhinoTemplate;
 import to.etc.domui.util.js.RhinoTemplateCompiler;
 import to.etc.util.FileTool;
@@ -73,8 +73,10 @@ public class OopsFrameRenderer {
 		Writer w = ctx.getRequestResponse().getOutputWriter("text/html", "utf-8");
 		RhinoTemplate xt = getExceptionTemplate();
 
-		IScriptScope scope = new MapScriptScope(dataMap);
-		xt.execute(w, scope);
+		RhinoExecutor executor = RhinoExecutorFactory.getInstance().createExecutor();
+		dataMap.entrySet().forEach(e -> executor.put(e.getKey(), e.getValue()));
+
+		xt.execute(w, executor);
 		w.flush();
 		w.close();
 	}

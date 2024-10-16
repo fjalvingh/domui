@@ -36,9 +36,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This singleton creates a compiled template for a JSP like template. The
@@ -160,12 +158,12 @@ public class RhinoTemplateCompiler {
 	 */
 	public Object execute(Appendable res, Class< ? > clz, String resource, Object... assignments) throws Exception {
 		RhinoTemplate tmpl = compile(clz, resource, "utf-8");
-		Map<String, Object> map = new HashMap<>();
+		RhinoExecutor executor = RhinoExecutorFactory.getInstance().createExecutor();
+
 		for(int index = 0; index < assignments.length; index = index + 2) {
-			map.put((String) assignments[index], assignments[index + 1]);
+			executor.put((String) assignments[index], assignments[index + 1]);
 		}
-		IScriptScope mapScope = new MapScriptScope(map);
-		return tmpl.execute(res, mapScope);
+		return tmpl.execute(res, executor);
 	}
 
 	/**

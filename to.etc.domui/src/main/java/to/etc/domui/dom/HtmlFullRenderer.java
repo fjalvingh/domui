@@ -40,8 +40,8 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.util.javascript.JavascriptStmt;
-import to.etc.domui.util.js.IScriptScope;
-import to.etc.domui.util.js.MapScriptScope;
+import to.etc.domui.util.js.RhinoExecutor;
+import to.etc.domui.util.js.RhinoExecutorFactory;
 import to.etc.domui.util.js.RhinoTemplate;
 import to.etc.domui.util.js.RhinoTemplateCompiler;
 import to.etc.domui.util.resources.IResourceRef;
@@ -154,8 +154,10 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		map.put("r", this);
 		map.put("appUrl", m_ctx.getRelativePath(""));
 
-		IScriptScope scope = new MapScriptScope(map);
-		template.execute(a, scope);
+		RhinoExecutor executor = RhinoExecutorFactory.getInstance().createExecutor();
+		map.entrySet().forEach(e -> executor.put(e.getKey(), e.getValue()));
+
+		template.execute(a, executor);
 	}
 
 	/**
