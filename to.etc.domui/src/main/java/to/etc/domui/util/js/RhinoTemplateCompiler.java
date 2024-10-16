@@ -28,9 +28,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
-import to.etc.template.IJSTemplateContext;
-import to.etc.template.JSLocationMapping;
-import to.etc.template.JSTemplateError;
 
 import javax.script.ScriptException;
 import java.io.BufferedReader;
@@ -39,7 +36,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This singleton creates a compiled template for a JSP like template. The
@@ -150,6 +149,26 @@ public class RhinoTemplateCompiler {
 	}
 
 	/**
+	 * Compile, then execute the specified template once. Transforms var arg assignments into an map scope.
+	 *
+	 * @param res
+	 * @param clz
+	 * @param resource
+	 * @param assignments
+	 * @return
+	 * @throws Exception
+	 */
+	public Object execute(Appendable res, Class< ? > clz, String resource, Object... assignments) throws Exception {
+		RhinoTemplate tmpl = compile(clz, resource, "utf-8");
+		Map<String, Object> map = new HashMap<>();
+		for(int index = 0; index < assignments.length; index = index + 2) {
+			map.put((String) assignments[index], assignments[index + 1]);
+		}
+		IScriptScope mapScope = new MapScriptScope(map);
+		return tmpl.execute(res, mapScope);
+	}
+
+	/**
 	 * Compile, then execute the specified template once.
 	 * @param res
 	 * @param input
@@ -167,7 +186,7 @@ public class RhinoTemplateCompiler {
 	 * @param tc
 	 * @param input
 	 * @param sourceName
-	 * @param assignments
+	 * @param scope
 	 * @throws Exception
 	 */
 	public void execute(IJSTemplateContext tc, Reader input, String sourceName, Scriptable scope) throws Exception {
@@ -426,5 +445,29 @@ public class RhinoTemplateCompiler {
 
 	protected void error(String string) {
 		throw new JSTemplateError(string, m_source, m_line, m_col);
+	}
+
+	/**
+	 * Walk the remap list, and try to calculate a source location for a given output location.
+	 * @param mapList
+	 * @param lineNumber
+	 * @param columnNumber
+	 * @return
+	 */
+	static public int[] remapLocation(List<JSLocationMapping> mapList, int lineNumber, int columnNumber) {
+		//-- Walk the mapping backwards. Find 1st thing that is at/before this location.
+		for(int i = mapList.size(); --i >= 0;) {
+			JSLocationMapping m = mapList.get(i);
+			if(m.getTline() <= lineNumber) {
+				if(m.getTcol() <= columnNumber) {
+					//-- Gotcha.
+					int dline = lineNumber - m.getTline();
+					int dcol = columnNumber - m.getTcol();
+					return new int[]{m.getSline() + dline, m.getScol() + dcol};
+				}
+			}
+		}
+		//-- Nothing found: return verbatim.
+		return new int[]{lineNumber, columnNumber};
 	}
 }

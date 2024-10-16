@@ -1,4 +1,4 @@
-package to.etc.alg.test;
+package to.etc.domui.util.js;
 
 import java.util.*;
 
@@ -6,12 +6,10 @@ import javax.script.*;
 
 import org.junit.*;
 
-import to.etc.template.*;
-
 public class TestTemplater {
 	@Test
 	public void testCompile1() throws Exception {
-		JSTemplateCompiler tc = new JSTemplateCompiler();
+		RhinoTemplateCompiler tc = new RhinoTemplateCompiler();
 		tc.compile(TestTemplater.class, "template1.txt", "utf-8");
 		System.out.println("JS:\n" + tc.getTranslation());
 
@@ -34,7 +32,7 @@ public class TestTemplater {
 
 	private String run(String res, Object... assign) throws Exception {
 		StringBuilder sb = new StringBuilder();
-		JSTemplateCompiler tc = new JSTemplateCompiler();
+		RhinoTemplateCompiler tc = new RhinoTemplateCompiler();
 		tc.execute(sb, TestTemplater.class, res, assign);
 		//		System.out.println("CALL RES: " + xx);
 		return sb.toString();
