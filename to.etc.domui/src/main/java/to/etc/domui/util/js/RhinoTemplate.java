@@ -28,8 +28,6 @@ import java.util.*;
 
 import org.mozilla.javascript.*;
 
-import to.etc.template.*;
-
 /**
  * A single template which can be generated.
  *
@@ -65,7 +63,7 @@ public class RhinoTemplate {
 		try {
 			return m_code.exec(cx, scope);
 		} catch(RhinoException sx) {
-			int[] res = JSTemplateCompiler.remapLocation(m_locMap, sx.lineNumber(), sx.columnNumber());
+			int[] res = RhinoTemplateCompiler.remapLocation(m_locMap, sx.lineNumber(), sx.columnNumber());
 			throw new JSTemplateError(sx, sx.getMessage(), m_source, res[0], res[1]);
 		} finally {
 			Context.exit();
@@ -98,7 +96,7 @@ public class RhinoTemplate {
 	/**
 	 * Execute this template, and leave the result in the specified appendable.
 	 * @param a
-	 * @param assignments
+	 * @param scope
 	 */
 	public Object execute(final Appendable a, Scriptable scope) {
 		return execute(createContext(a), scope);
@@ -107,7 +105,7 @@ public class RhinoTemplate {
 	/**
 	 * Execute this template, and leave the result in the specified appendable.
 	 * @param a
-	 * @param assignments
+	 * @param scope
 	 */
 	public Object execute(final Appendable a, IScriptScope scope) {
 		Scriptable ss = scope.getAdapter(Scriptable.class);

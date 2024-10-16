@@ -105,19 +105,5 @@
             <artifactId>activation</artifactId>
             <version>1.1</version>
         </dependency>
-
-        <!-- Nashorn being deprecated -->
-        <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js-scriptengine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-api</artifactId>
-        </dependency>
     </dependencies>
 </project>
