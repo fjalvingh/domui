@@ -90,6 +90,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	private final long m_fileSize;
 
+	private boolean m_dontSkipWs;
+
 	static public class CsvError {
 		private final ImporterErrorCodes m_code;
 
@@ -469,6 +471,14 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	public CsvRowReader multiLine() {
 		m_multiLine = true;
 		return this;
+	}
+
+	public CsvRowReader dontFixWS() {
+		m_dontSkipWs = true;
+		return this;
+	}
+	public boolean isDontSkipWs() {
+		return m_dontSkipWs;
 	}
 
 	public CsvRowReader dateFormat(String dateFormat) {

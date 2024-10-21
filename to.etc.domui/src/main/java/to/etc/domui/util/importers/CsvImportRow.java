@@ -65,7 +65,12 @@ public class CsvImportRow implements IImportRow {
 		@Nullable
 		@Override
 		public String getStringValue() {
-			return m_columns.size() <= m_index ? null : trimAllWS(m_columns.get(m_index));
+			if(m_columns.size() <= m_index)
+				return null;
+			String txt = m_columns.get(m_index);
+			if(m_reader.isDontSkipWs())
+				return txt;
+			return trimAllWS(txt);
 		}
 
 		@Nullable
