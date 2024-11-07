@@ -674,7 +674,7 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
-	public <T> MsgBox2 icon(@NonNull IIconRef icon) {
+	public MsgBox2 icon(@NonNull IIconRef icon) {
 		m_theImage = icon.createNode();
 		return this;
 	}
