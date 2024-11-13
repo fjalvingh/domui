@@ -29,7 +29,7 @@ public class NotoFontHeaderContributor extends HeaderContributor {
 		o.tag("link");
 		o.attr("rel", "preconnect");
 		o.attr("href", "https://fonts.gstatic.com");
-		o.writeRaw(" crossorigin");
+		o.writeRaw(" crossorigin='anonymous'");
 		if(r.isXml())
 			o.endAndCloseXmltag();
 		else
@@ -37,7 +37,6 @@ public class NotoFontHeaderContributor extends HeaderContributor {
 		o.dec();
 
 		o.tag("link");
-		o.attr("rel", "preconnect");
 		o.attr("href", "https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 		o.attr("rel", "stylesheet");
 		if(r.isXml())
