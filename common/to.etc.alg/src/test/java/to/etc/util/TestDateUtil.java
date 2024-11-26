@@ -1,9 +1,11 @@
 package to.etc.util;
 
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -115,6 +117,37 @@ public class TestDateUtil {
 		Assert.assertEquals(cal19400516.getTime(), DateUtil.dateFor(1940, Calendar.MAY, 16, 1, 40, 0, 0));
 
 		TimeZone.setDefault(zone);
+	}
+
+	@Test
+	public final void testGetPreviousDayAndHourForReferenceDate() throws ParseException {
+		testLastFridayAt4Pm("2024-11-26 15:59", "2024-11-22 16:00");
+		testLastFridayAt4Pm("2024-11-22 16:59", "2024-11-22 16:00");
+		testLastFridayAt4Pm("2025-01-01 12:00", "2024-12-27 16:00");
+
+		testLastMondayAt8Am("2024-11-26 15:59", "2024-11-25 08:00");
+		testLastMondayAt8Am("2024-11-25 07:59", "2024-11-18 08:00");
+		testLastMondayAt8Am("2024-11-25 08:00", "2024-11-25 08:00");
+		testLastMondayAt8Am("2025-01-01 12:00", "2024-12-30 08:00");
+
+	}
+
+	private void testLastFridayAt4Pm(String refDateStr, String expectedLastFridayAt16Pm) throws ParseException {
+		testGetPreviousDayAndHourForReferenceDate(refDateStr, expectedLastFridayAt16Pm, Calendar.FRIDAY, 16);
+	}
+
+	private void testLastMondayAt8Am(String refDateStr, String expectedLastMondayAt8Am) throws ParseException {
+		testGetPreviousDayAndHourForReferenceDate(refDateStr, expectedLastMondayAt8Am, Calendar.MONDAY, 8);
+	}
+
+	private void testGetPreviousDayAndHourForReferenceDate(String refDateStr, String expectedDateStr, int dayOfWeek, int hour) throws ParseException {
+		final FastDateFormat DF = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
+
+		Date refDate = DF.parse(refDateStr);
+		Date expectedDate = DF.parse(expectedDateStr);
+
+		Date lastFridayAt16Pm = DateUtil.getPreviousDayAndHourForReferenceDate(dayOfWeek, hour, refDate);
+		Assert.assertEquals(lastFridayAt16Pm, expectedDate);
 	}
 
 }
