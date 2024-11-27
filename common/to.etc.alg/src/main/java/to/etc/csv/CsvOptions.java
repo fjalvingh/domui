@@ -40,6 +40,12 @@ final public class CsvOptions {
 
 	private char m_delimiter = ';';
 
+	/**
+	 * When set, a quote character inside a quoted string
+	 * is escaped by adding a double quote, i.e. " becomes "".
+	 */
+	private boolean m_escapeQuoteDouble;
+
 	final private List<String> m_header = new ArrayList<>();
 
 	public static final Locale DUTCH = new Locale("NL", "nl");
@@ -112,6 +118,19 @@ final public class CsvOptions {
 	public CsvOptions header(List<String> header) {
 		m_header.addAll(header);
 		return this;
+	}
+
+	/**
+	 * When set, a quote character inside a quoted string
+	 * is escaped by adding a double quote, i.e. " becomes "".
+	 */
+	public CsvOptions escapeQuoteByDoubling() {
+		m_escapeQuoteDouble = true;
+		return this;
+	}
+
+	public boolean isEscapeQuoteDouble() {
+		return m_escapeQuoteDouble;
 	}
 
 	public CsvOptions quote(char quote) {

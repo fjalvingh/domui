@@ -195,7 +195,10 @@ public class CsvWriter implements AutoCloseable {
 		for(int i = 0; i < value.length(); i++) {
 			char c = value.charAt(i);
 			if(quote != 0 && c == quote) {
-				if(0 != escape) {
+				//-- We have a quote.
+				if(m_options.isEscapeQuoteDouble()) {
+					sb.append(quote);
+				} else if(0 != escape) {
 					sb.append(escape);
 				} else {
 					sb.append(quote);
