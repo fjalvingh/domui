@@ -65,6 +65,10 @@ public class JdbcAnyRecord {
 				switch(type) {
 					default:
 						throw new IllegalStateException("Cannot handle SQLType=" + type + " for column " + tablename + "." + name);
+					case Types.BOOLEAN:
+					case Types.BIT:
+						set(name, rs.getBoolean(i));
+						break;
 					case Types.NUMERIC:
 					case Types.INTEGER:
 					case Types.SMALLINT:
