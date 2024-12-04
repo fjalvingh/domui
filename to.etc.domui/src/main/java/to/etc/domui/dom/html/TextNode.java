@@ -77,6 +77,6 @@ public class TextNode extends NodeBase {
 
 	@Override
 	public void setTitle(@Nullable String title) {
-		throw new IllegalStateException("Title attribute is not supported on TextNode");
+		throw new IllegalStateException("Title attribute is not supported on TextNode element");
 	}
 }
