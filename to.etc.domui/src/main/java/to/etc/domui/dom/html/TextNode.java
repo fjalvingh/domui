@@ -24,6 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.*;
 
 public class TextNode extends NodeBase {
@@ -72,5 +73,10 @@ public class TextNode extends NodeBase {
 
 	@Override public String getTextOnly() {
 		return m_text == null ? "" : m_text;
+	}
+
+	@Override
+	public void setTitle(@Nullable String title) {
+		throw new IllegalStateException("Title attribute is not supported on TextNode");
 	}
 }
