@@ -68,9 +68,9 @@ import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
 import to.etc.webapp.nls.IBundleCode;
+import to.etc.webapp.query.IQDataContextSource;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
-import to.etc.webapp.query.QDataContextFactory;
 import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
@@ -1815,12 +1815,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	@NonNull
-	final public QDataContextFactory getSharedContextFactory() {
+	final public IQDataContextSource getSharedContextFactory() {
 		return getSharedContextFactory(QContextManager.DEFAULT);
 	}
 
 	@NonNull
-	public QDataContextFactory getSharedContextFactory(@NonNull String key) {
+	public IQDataContextSource getSharedContextFactory(@NonNull String key) {
 		return getParent().getSharedContextFactory(key);
 	}
 
