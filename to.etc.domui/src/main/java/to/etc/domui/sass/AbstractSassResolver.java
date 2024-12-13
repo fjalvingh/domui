@@ -242,7 +242,12 @@ abstract public class AbstractSassResolver<O> {
 		}
 
 		//-- Now do the same for application level things
-		DomApplication.get().getThemeProperties().forEach((name, value) -> {
+		Map<String, String> themeProperties = new HashMap<>(DomApplication.get().getThemeProperties());
+
+		Map<String, String> calculatedMap = DomApplication.get().getThemeVariablesCalculator().calculate(m_params);
+		themeProperties.putAll(calculatedMap);
+
+		themeProperties.forEach((name, value) -> {
 			if(value.startsWith("$")) {
 				value = StringTool.strToJavascriptString(value.substring(1), true);
 			}
