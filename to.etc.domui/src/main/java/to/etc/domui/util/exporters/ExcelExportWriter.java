@@ -40,6 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ExcelExportWriter<T> implements IExportWriter<T> {
 	private static final int EXCEL_CHAR_WIDTH = 256;
 
+	public static final int EXCEL_CELL_MAX_CHARACTERS = 32766;
+
 	private final ExcelFormat m_format;
 
 	private int m_sheetIndex;
@@ -365,8 +367,8 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		@Override
 		public void renderCell(ExcelExportWriter<?> w, Cell cell, int cellIndex, @Nullable Object value) throws Exception {
 			String string = String.valueOf(value);
-			if(string.length() > 32666)
-				string = string.substring(0, 32766);
+			if(string.length() > EXCEL_CELL_MAX_CHARACTERS)
+				string = string.substring(0, EXCEL_CELL_MAX_CHARACTERS);
 			cell.setCellValue(string);
 			cell.setCellStyle(w.m_defaultCellStyle);
 			w.setCellWidth(cellIndex, string);
