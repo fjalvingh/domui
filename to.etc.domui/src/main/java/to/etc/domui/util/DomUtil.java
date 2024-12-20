@@ -1598,6 +1598,7 @@ final public class DomUtil {
 		IRequestContext rci = UIContext.getRequestContext();
 		Cookie k = new Cookie(name, value);
 		k.setSecure(false);
+		k.setHttpOnly(true);
 		k.setMaxAge(maxageInSeconds);
 		k.setPath("/" + rci.getRequestResponse().getWebappContext());
 		rci.getRequestResponse().addCookie(k);
