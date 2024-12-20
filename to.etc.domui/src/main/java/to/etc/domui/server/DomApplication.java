@@ -170,9 +170,8 @@ public abstract class DomApplication {
 	static public final Logger LOGRES = LoggerFactory.getLogger("to.etc.domui.resources");
 
 	static private final String[][] JQUERYSETS = {                                                //
-		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},                                //
-		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 		{"3.6.0", "jquery-3.6.0", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
+		{"3.7.1", "jquery-3.7.1", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 	};
 
 	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
@@ -528,7 +527,7 @@ public abstract class DomApplication {
 	 */
 	public DomApplication() {
 		//-- Handle jQuery version.
-		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "3.6.0");
+		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "3.7.1");
 		String[] jqdata = null;
 		for(String[] jqd : JQUERYSETS) {
 			if(jqd[0].equalsIgnoreCase(jqversion)) {
