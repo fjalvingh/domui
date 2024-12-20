@@ -148,6 +148,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 				ctx.flush();
 			} else {
 				//-- Non-DomUI request.
+				DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 				handleDoFilter(chain, requestResponse.getRequest(), requestResponse.getResponse());
 			}
 
