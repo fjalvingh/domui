@@ -172,7 +172,6 @@
         <allure.version>1.5.4</allure.version>
         <allure.maven.version>2.6</allure.maven.version>
         <aspectj.version>1.9.1</aspectj.version>
-        <graal.version>22.2.0</graal.version>
 
         <!-- Versions needed for dependency convergence-->
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
@@ -893,26 +892,6 @@
                 </exclusions>
             </dependency>
 
-            <dependency>
-                <groupId>org.graalvm.js</groupId>
-                <artifactId>js</artifactId>
-                <version>${graal.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.graalvm.js</groupId>
-                <artifactId>js-scriptengine</artifactId>
-                <version>${graal.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.graalvm.truffle</groupId>
-                <artifactId>truffle-api</artifactId>
-                <version>${graal.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.graalvm.sdk</groupId>
-                <artifactId>graal-sdk</artifactId>
-                <version>${graal.version}</version>
-            </dependency>
             <!-- Security -->
             <!-- https://mvnrepository.com/artifact/org.owasp.esapi/esapi -->
             <!--			<dependency>-->
@@ -1172,7 +1151,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>3.1.1</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>true</useReleaseProfile>

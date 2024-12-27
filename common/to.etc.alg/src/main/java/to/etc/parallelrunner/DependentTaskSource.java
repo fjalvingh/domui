@@ -256,7 +256,6 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 
 	private void handleCompletedTask(Task<T, X> task, @Nullable Throwable exception) {
 		task.completed(exception);								// ORDERED Mark the task itself as done so that the listener can be called
-		m_listeners.forEach(a -> ExceptionUtil.silentFails(() -> a.onTaskFinished(task, exception)));
 
 		//-- Now remove the task from running lists et al.
 		synchronized(this) {
@@ -269,6 +268,8 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			}
 			notifyAll();										// Some state changed, notify waiters
 		}
+
+		m_listeners.forEach(a -> ExceptionUtil.silentFails(() -> a.onTaskFinished(task, exception)));
 	}
 
 	/**

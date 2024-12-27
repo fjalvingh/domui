@@ -1,4 +1,4 @@
-package to.etc.template;
+package to.etc.domui.util.js;
 
 /**
  * A context for a template.

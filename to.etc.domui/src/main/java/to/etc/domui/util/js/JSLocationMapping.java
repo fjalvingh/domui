@@ -1,4 +1,4 @@
-package to.etc.template;
+package to.etc.domui.util.js;
 
 final public class JSLocationMapping {
 	private int	m_sline, m_scol, m_tline, m_tcol;

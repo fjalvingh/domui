@@ -94,9 +94,10 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 
 @mixin ui-ro-base {
 	border-color: $input-border-color;
-	&:hover:not([disabled]),
-	&.is-hovered:not([disabled]) {
+	&:hover,
+	&.is-hovered {
 		border-color: $input-hover-border-color;
+		cursor: default;
 	}
 	background: #f2f9fe; /* Old browsers */
 	background: -moz-linear-gradient(top, #f2f9fe 0%, #d6f0fd 100%); /* FF3.6-15 */

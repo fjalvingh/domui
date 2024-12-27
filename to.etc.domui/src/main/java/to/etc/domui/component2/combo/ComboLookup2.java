@@ -104,6 +104,13 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> implements ICombo
 		setContentRenderer(new PropertyNodeContentRenderer<>(properties));
 	}
 
+	/**
+	 * Create a combo which fills it's list with the specified in list. Each value is filled from the values of the properties specified.
+	 */
+	public ComboLookup2(List<T> in, QField<T, ?>... properties) {
+		super(in);
+		setContentRenderer(new PropertyNodeContentRenderer<>(properties));
+	}
 
 	/**
 	 * This implements the identical conversion, i.e. in=out, because this component returns
