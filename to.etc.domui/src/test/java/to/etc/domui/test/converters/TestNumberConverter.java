@@ -24,16 +24,17 @@ import java.util.Locale;
 /**
  * All kinds of conversions tests.
  *
- *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 18 Jul 2011
  */
 
 public class TestNumberConverter {
-	private static final String[] BAD_NUMBER = {"\u20ac", "\u20ac 1,000.00", "abc", "1,00,000", "1.00.000", "1.000.000.00", "1,000,000,00", "1,00.00", "1.00,00", "1..000", "1,,000", "1.,000", "1,.000",
+	private static final String[] BAD_NUMBER = {"\u20ac", "\u20ac 1,000.00", "abc", "1,00,000", "1.00.000", "1.000.000.00", "1,000,000,00", "1,00.00", "1.00,00", "1..000", "1,,000", "1.,000",
+		"1,.000",
 		"1,000000,000.00", "1-100", "1000,-10,000.00"};
 
-	private static final String[] BAD_MONEY = {"\u20ac", "abc", "1,00,000", "1.00.000", "1.000.000.00", "1,000,000,00", "1,00.00", "1.00,00", "1..000", "1,,000", "1.,000", "1,.000", "1,000000,000.00", "1-100",
+	private static final String[] BAD_MONEY = {"\u20ac", "abc", "1,00,000", "1.00.000", "1.000.000.00", "1,000,000,00", "1,00.00", "1.00,00", "1..000", "1,,000", "1.,000", "1,.000", "1,000000,000.00",
+		"1-100",
 		"1000,-10,000.00"};
 
 	@BeforeClass
@@ -45,8 +46,6 @@ public class TestNumberConverter {
 
 	/**
 	 * Checks a valid conversion and compares the output with the expected output.
-	 * @param in
-	 * @param out
 	 */
 	public <T extends Number> void check(IConverter<T> nc, String in, String out, NumericPresentation np, int scale, int minScale, boolean monetary) throws Exception {
 		if(monetary && !NumericPresentation.isMonetary(np)) {
@@ -60,8 +59,6 @@ public class TestNumberConverter {
 
 	/**
 	 * Checks a valid conversion and compares the output with the expected output.
-	 * @param in
-	 * @param out
 	 */
 	public <T extends Number> void checkT(IConverter<T> nc, String in, String out, NumericPresentation np, int scale, int minScale, boolean monetary) throws Exception {
 		if(monetary && !NumericPresentation.isMonetary(np)) {
@@ -75,8 +72,6 @@ public class TestNumberConverter {
 
 	/**
 	 * Checks a valid conversion and compares the output with the expected output.
-	 * @param in
-	 * @param out
 	 */
 	public <T extends Number> void good(IConverter<T> nc, String in, String out) throws Exception {
 		//System.out.print("good\t");
@@ -89,7 +84,6 @@ public class TestNumberConverter {
 
 	/**
 	 * Checks a conversion which must result in ValidationException and the proper code.
-	 * @param in
 	 */
 	public <T extends Number> void bad(IConverter<T> nc, String in, boolean monetary) throws Exception {
 		String badAsConverted = null;
@@ -103,11 +97,14 @@ public class TestNumberConverter {
 				return;
 			if(vx.getCode().equals(Msgs.vInvalid) && !monetary)
 				return;
-			Assert.fail("Unexpected ValidationException!? " + vx.getLocalizedMessage());
+			if(vx.getCode().equals(Msgs.vNotMonetary) && !monetary)
+				return;
+			if(vx.getCode() == Msgs.vBadCharInNumber || vx.getCode() == Msgs.vBadThousandsSeparator)
+				return;
+			Assert.fail("Unexpected ValidationException!? " + vx.getCode() + ": " + vx.getLocalizedMessage());
 		}
 		Assert.fail("Validated an invalid amount: '" + in + "', '" + badAsConverted + "'");
 	}
-
 
 	/**
 	 * Test INVALID conversions.
@@ -450,8 +447,8 @@ public class TestNumberConverter {
 			br = new BufferedReader(new InputStreamReader(in));
 			NumericPresentation np = NumericPresentation.NUMBER;
 			int scale = 0;
-			Class< ? extends Number> classType = Double.TYPE;
-			IConverter< ? extends Number> nc = null;
+			Class<? extends Number> classType = Double.TYPE;
+			IConverter<? extends Number> nc = null;
 			while((linebuf = br.readLine()) != null) {
 				if(linebuf.startsWith("SETTINGS:")) {
 					linebuf = linebuf.substring(9);
@@ -467,7 +464,7 @@ public class TestNumberConverter {
 							scale = Integer.parseInt(vals[1].trim());
 						} else if("classType".equals(vals[0].trim())) {
 							try {
-								classType = (Class< ? extends Number>) Class.forName(vals[1].trim());
+								classType = (Class<? extends Number>) Class.forName(vals[1].trim());
 							} catch(ClassNotFoundException e) {
 								if("double".equals(vals[1].trim())) {
 									classType = double.class;

@@ -276,26 +276,6 @@ final public class WebDriverConnector {
 		m_driver.manage().deleteAllCookies();
 	}
 
-	public void clearAlert() {
-		try {
-			Alert alert = m_driver.switchTo().alert();
-			alert.dismiss();
-			System.out.println("Alert cleared");
-		} catch(NoAlertPresentException x) {
-			//System.out.println("No alert");
-			// Ignore
-		}
-	}
-
-	public boolean isAlertPresent() {
-		try {
-			m_driver.switchTo().alert();
-			return true;
-		} catch(NoAlertPresentException x) {
-			return false;
-		}
-	}
-
 	@NonNull
 	private static WebDriverType getDriverType(@Nullable String hubUrl) {
 		if(null != hubUrl) {
@@ -1278,6 +1258,7 @@ final public class WebDriverConnector {
 
 		System.out.println("webdriver: navigate to " + url);
 		m_driver.navigate().to(url);
+		discardAlertIfPresent();
 		checkSize();
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
@@ -1300,20 +1281,6 @@ final public class WebDriverConnector {
 		//we = wait(xdomui);
 		//waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
 		//return this;
-	}
-
-	public void discardAlertIfPresent() {
-		if(!isAlertPresent())
-			return;
-		//-- Try to handle alert
-		try {
-			String message = alertGetMessage();
-			System.err.println("An alert was present, message is:\n" + message);
-		} catch(Exception xx) {
-			System.err.println("An alert was present, but an exception occurred getting the alert message");
-			xx.printStackTrace();
-		}
-		clearAlert();
 	}
 
 	/**
@@ -2208,6 +2175,20 @@ final public class WebDriverConnector {
 	/*	CODING:	Alert handling.										*/
 	/*--------------------------------------------------------------*/
 
+	public void discardAlertIfPresent() {
+		if(!isAlertPresent())
+			return;
+		//-- Try to handle alert
+		try {
+			String message = alertGetMessage();
+			System.out.println("An alert was present, message is:\n" + message);
+		} catch(Exception xx) {
+			System.out.println("An alert was present, but an exception occurred getting the alert message");
+			xx.printStackTrace();
+		}
+		clearAlert();
+	}
+
 	/**
 	 * In case that alert is present, accept it, otherwise do nothing
 	 */
@@ -2240,6 +2221,33 @@ final public class WebDriverConnector {
 			return msg;
 		} catch(Exception ex) {
 			return null;
+		}
+	}
+
+	public void clearAlert() {
+		try {
+			Alert alert = m_driver.switchTo().alert();
+
+			//-- If that worked there is an alert, so get the message, if possible
+			try {
+				String msg = alert.getText();
+				System.out.println("Alert cleared: \" + msg + \"");
+			} catch(Exception x) {
+				System.out.println("Alert cleared, message unknown");
+			}
+			alert.dismiss();
+		} catch(NoAlertPresentException x) {
+			//System.out.println("No alert");
+			// Ignore
+		}
+	}
+
+	public boolean isAlertPresent() {
+		try {
+			m_driver.switchTo().alert();
+			return true;
+		} catch(NoAlertPresentException x) {
+			return false;
 		}
 	}
 

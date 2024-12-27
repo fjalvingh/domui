@@ -40,9 +40,11 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.domui.util.js.RhinoExecutor;
+import to.etc.domui.util.js.RhinoExecutorFactory;
+import to.etc.domui.util.js.RhinoTemplate;
+import to.etc.domui.util.js.RhinoTemplateCompiler;
 import to.etc.domui.util.resources.IResourceRef;
-import to.etc.template.JSTemplate;
-import to.etc.template.JSTemplateCompiler;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
 
@@ -122,9 +124,9 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	private void renderTemplatePage(IResourceRef rt) throws Exception {
 		//-- Load the template.
-		JSTemplate template;
+		RhinoTemplate template;
 		try(InputStream is = rt.getInputStream()) {
-			JSTemplateCompiler compiler = new JSTemplateCompiler();
+			RhinoTemplateCompiler compiler = new RhinoTemplateCompiler();
 			template = compiler.compile(new InputStreamReader(is, "utf-8"), rt.toString());
 		}
 
@@ -151,7 +153,11 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		Map<String, Object> map = new HashMap<>();
 		map.put("r", this);
 		map.put("appUrl", m_ctx.getRelativePath(""));
-		template.execute(a, map);
+
+		RhinoExecutor executor = RhinoExecutorFactory.getInstance().createExecutor();
+		map.entrySet().forEach(e -> executor.put(e.getKey(), e.getValue()));
+
+		template.execute(a, executor);
 	}
 
 	/**

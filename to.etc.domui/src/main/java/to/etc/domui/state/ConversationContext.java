@@ -35,6 +35,7 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.parallelrunner.IAsyncRunnable;
+import to.etc.util.DeveloperOptions;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.IQContextContainer;
 
@@ -363,6 +364,8 @@ public class ConversationContext extends AbstractConversationContext implements 
 	 * all listeners, and stores their "keep object" for later use.
 	 */
 	public DelayedActivityInfo scheduleDelayed(@NonNull final AsyncContainer container, @NonNull final IAsyncRunnable a) throws Exception {
+		if(!DeveloperOptions.getBool("domui.polling", true))
+			throw new IllegalStateException("You have set domui.polling=false in developer.options, async tasks cannot work");
 		return getDelayedActivitiesManager().schedule(a, container);
 	}
 

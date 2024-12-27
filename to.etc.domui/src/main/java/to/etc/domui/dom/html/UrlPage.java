@@ -38,9 +38,9 @@ import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
+import to.etc.webapp.query.IQDataContextSource;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
-import to.etc.webapp.query.QDataContextFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -180,7 +180,7 @@ public class UrlPage extends AbstractPage {
 
 	@Override
 	@NonNull
-	public QDataContextFactory getSharedContextFactory(@NonNull String key) {
+	public IQDataContextSource getSharedContextFactory(@NonNull String key) {
 		return QContextManager.getDataContextFactory(key, getPage().getContextContainer(key));
 	}
 

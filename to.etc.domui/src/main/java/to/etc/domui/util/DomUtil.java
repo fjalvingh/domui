@@ -1599,9 +1599,51 @@ final public class DomUtil {
 		IRequestContext rci = UIContext.getRequestContext();
 		Cookie k = new Cookie(name, value);
 		k.setSecure(false);
+		k.setHttpOnly(true);
 		k.setMaxAge(maxageInSeconds);
 		k.setPath("/" + rci.getRequestResponse().getWebappContext());
 		rci.getRequestResponse().addCookie(k);
+	}
+
+	/**
+	 * Scans the text for links, and replaces the link text with
+	 * an actual link.
+	 */
+	static public String htmlEncapsulateLinks(String in) {
+		StringBuilder sb = new StringBuilder(in.length() * 2);
+		int ix = 0;
+		int len = in.length();
+		String lc = in.toLowerCase();
+		while(ix < len) {
+			int pos = lc.indexOf("http", ix);						// Find lead.
+			if(pos == -1) {
+				//-- We're done
+				sb.append(in, ix, len);									// Append remainder
+				return sb.toString();
+			}
+
+			//-- Append the current fragment before the possible match
+			if(pos > ix) {
+				sb.append(in, ix, pos);
+				ix = pos;
+			}
+			if(ix + 10 < len && (in.charAt(ix + 4) == ':' || (lc.charAt(ix + 4) == 's' && lc.charAt(ix + 5) == ':'))) {
+				//-- Be lazy: just scan until space
+				StringBuilder linksb = new StringBuilder();
+				while(ix < len && !Character.isSpaceChar(in.charAt(ix)) && in.charAt(ix) != '<') {
+					linksb.append(in.charAt(ix));
+					ix++;
+				}
+
+				//-- Link is now in linksb
+				sb.append("<a href=\"").append(linksb).append("\" target=\"_blank\">").append(linksb).append("</a>");
+			} else {
+				//-- Just copy the false match
+				sb.append(in, pos, pos + 1);
+				ix = pos + 1;
+			}
+		}
+		return sb.toString();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1927,11 +1969,13 @@ final public class DomUtil {
 	@NonNull
 	static public String createOpenWindowJS(@NonNull String url, @Nullable WindowParameters newWindowParameters, boolean useSingleQuotes) {
 		char quotes = useSingleQuotes ? '\'' : '"';
+		String encUrl = StringTool.strToJavascriptString(url, !useSingleQuotes);
+
 		//-- Send a special JAVASCRIPT open command, containing the stuff.
 		StringBuilder sb = new StringBuilder();
-		sb.append("DomUI.openWindow(").append(quotes);
-		sb.append(url);
-		sb.append(quotes).append(",").append(quotes);
+		sb.append("DomUI.openWindow(");
+		sb.append(encUrl);
+		sb.append(",").append(quotes);
 		String name = null;
 		if(newWindowParameters != null)
 			name = newWindowParameters.getName();

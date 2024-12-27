@@ -31,6 +31,12 @@ public class CheckboxSetInput<T> extends CheckboxSetInputBase<T, T> {
 		return this;
 	}
 
+	@Override
+	public CheckboxSetInput<T> labelBeforeCheckbox() {
+		super.labelBeforeCheckbox();
+		return this;
+	}
+
 	static public <T extends Enum<T>> CheckboxSetInput<T> create(Class<T> clz, T... exceptions) {
 		T[] ar = clz.getEnumConstants();
 		List<T> l = new ArrayList<>(ar.length);

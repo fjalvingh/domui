@@ -268,7 +268,7 @@ final class WebDriverFactory {
 		if(m_chromeDriverUpdated)
 			return;
 
-		WebDriverManager.chromedriver().setup();
+		WebDriverManager.chromedriver().clearDriverCache().setup();
 		m_chromeDriverUpdated = true;
 	}
 

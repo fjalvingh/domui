@@ -339,6 +339,11 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		public IImportColumn get(@NonNull String name) throws IOException {
 			return new EmptyColumn(name);
 		}
+
+		@Override
+		public boolean isEmpty() {
+			return true;
+		}
 	}
 
 }

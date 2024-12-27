@@ -52,7 +52,7 @@ namespace WebUI {
 
 			var size = tgt.files[0].size;
 			if(size > maxSize) {
-				alert(WebUI.format(WebUI._T.buplTooBig, maxSize));
+				alert(WebUI.format(WebUI._T.buplTooBig, size + " > " + maxSize));
 				tgt.value = "";
 				return;
 			}

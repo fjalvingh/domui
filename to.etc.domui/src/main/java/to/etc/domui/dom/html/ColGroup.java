@@ -32,4 +32,14 @@ final public class ColGroup extends NodeContainer {
 		m_span = span;
 		changed();
 	}
+
+	public Col addCol(String cssClass) {
+		Col col = new Col(cssClass);
+		add(col);
+		return col;
+	}
+
+	public Col addCol() {
+		return addCol(null);
+	}
 }

@@ -51,6 +51,15 @@ public class CsvImportRow implements IImportRow {
 		return get(index);
 	}
 
+	@Override
+	public boolean isEmpty() throws IOException {
+		for(int i = 0; i < getColumnCount(); i++) {
+			if(get(i).getStringValue() != null)
+				return false;
+		}
+		return true;
+	}
+
 	private class Col extends AbstractImportColumn implements IImportColumn {
 		private final int m_index;
 
@@ -65,7 +74,12 @@ public class CsvImportRow implements IImportRow {
 		@Nullable
 		@Override
 		public String getStringValue() {
-			return m_columns.size() <= m_index ? null : trimAllWS(m_columns.get(m_index));
+			if(m_columns.size() <= m_index)
+				return null;
+			String txt = m_columns.get(m_index);
+			if(m_reader.isDontSkipWs())
+				return txt;
+			return trimAllWS(txt);
 		}
 
 		@Nullable

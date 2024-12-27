@@ -22,7 +22,7 @@ public class MessageLine extends Div {
 	final private MsgType m_type;
 
 	@Nullable
-	final private String m_text;
+	private String m_text;
 
 	@Nullable
 	final private String m_icon;
@@ -76,5 +76,18 @@ public class MessageLine extends Div {
 		} else if(r != null) {
 			r.accept(sp);
 		}
+	}
+
+	@Override
+	public void setText(@Nullable String text) {
+		m_text = text;
+		if(isBuilt()) {
+			forceRebuild();
+		}
+	}
+
+	@Override
+	public void setText(@NonNull IBundleCode code, Object... param) {
+		setText(code.format(param));
 	}
 }

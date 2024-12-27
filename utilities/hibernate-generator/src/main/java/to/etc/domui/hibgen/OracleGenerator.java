@@ -41,6 +41,6 @@ public class OracleGenerator extends AbstractGenerator {
 
 	@Override protected Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception {
 		Reverser reverser = ReverserRegistry.findReverser(getFakeDatasource(), new HashSet<>());
-		return reverser.loadSchemaSet(schemaSet, false);
+		return reverser.getSchemasByName(false, schemaSet);
 	}
 }

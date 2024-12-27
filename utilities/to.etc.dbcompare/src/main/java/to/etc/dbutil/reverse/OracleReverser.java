@@ -188,7 +188,7 @@ public class OracleReverser extends JDBCReverser {
 						precision = charlen;
 				}
 
-				c = new DbColumn(t, cn, ct, precision, scale, nullable, Boolean.FALSE);
+				c = new DbColumn(t, cn, ct, charlen, precision, scale, nullable, Boolean.FALSE);
 				if(null != columnMap.put(cn, c))
 					throw new IllegalStateException("Duplicate column name '" + cn + "' in table " + t.getName());
 				columnList.add(c);

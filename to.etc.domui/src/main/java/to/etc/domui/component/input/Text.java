@@ -412,8 +412,16 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		if((converted == null || converted.trim().isEmpty()) && isMandatory())
 			m_validated = false;
 		else {
-			m_validated = true;
-			m_validationResult = null;
+			try {
+				validatePrimitive();
+				m_validated = true;
+				m_validationResult = null;
+			} catch(UIException x) {
+				m_validated = false;
+				m_validationResult = x;
+			}
+			//m_validated = true;
+			//m_validationResult = null;
 		}
 	}
 

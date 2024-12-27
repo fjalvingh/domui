@@ -102,6 +102,7 @@ import to.etc.domui.themes.ThemeManager;
 import to.etc.domui.themes.ThemePartFactory;
 import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.themes.fragmented.FragmentedThemeFactory;
+import to.etc.domui.themes.sass.IThemeVariablesCalculator;
 import to.etc.domui.themes.sass.SassThemeFactory;
 import to.etc.domui.themes.simple.SimpleThemeFactory;
 import to.etc.domui.trouble.DataAccessViolationException;
@@ -171,9 +172,8 @@ public abstract class DomApplication {
 	static public final Logger LOGRES = LoggerFactory.getLogger("to.etc.domui.resources");
 
 	static private final String[][] JQUERYSETS = {                                                //
-		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},                                //
-		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 		{"3.6.0", "jquery-3.6.0", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
+		{"3.7.1", "jquery-3.7.1", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 	};
 
 	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
@@ -319,6 +319,8 @@ public abstract class DomApplication {
 	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
 	@NonNull
 	private volatile String m_defaultTheme = "";
+
+	private IThemeVariablesCalculator m_themeVariablesCalculator = parameters -> Map.of();
 
 	private ConfigParameters m_configParameters;
 
@@ -527,7 +529,7 @@ public abstract class DomApplication {
 	 */
 	public DomApplication() {
 		//-- Handle jQuery version.
-		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "3.6.0");
+		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "3.7.1");
 		String[] jqdata = null;
 		for(String[] jqd : JQUERYSETS) {
 			if(jqd[0].equalsIgnoreCase(jqversion)) {
@@ -2306,6 +2308,14 @@ public abstract class DomApplication {
 	 */
 	final public void setDefaultThemeFactory(@NonNull IThemeFactory themer) {
 		m_defaultTheme = themer.getDefaultThemeName();
+	}
+
+	public IThemeVariablesCalculator getThemeVariablesCalculator() {
+		return m_themeVariablesCalculator;
+	}
+
+	public void setThemeVariablesCalculator(IThemeVariablesCalculator themeVariablesCalculator) {
+		m_themeVariablesCalculator = themeVariablesCalculator;
 	}
 
 	/**

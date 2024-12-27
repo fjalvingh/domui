@@ -26,6 +26,7 @@ package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.RadioGroup.RadioButtonInstance;
 import to.etc.domui.util.DomUtil;
 
 import java.util.Arrays;
@@ -53,12 +54,15 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 		super("input");
 	}
 
-	public RadioButton(@NonNull RadioGroup<T> g) {
-		super("input");
-		m_radioGroup = g;
-		g.addButton(this);
-	}
+	//public RadioButton(@NonNull RadioGroup<T> g) {
+	//	super("input");
+	//	m_radioGroup = g;
+	//	g.addButton(this);
+	//}
 
+	/**
+	 * Should only be called from group
+	 */
 	public RadioButton(@NonNull RadioGroup<T> g, T value) {
 		super("input");
 		m_radioGroup = g;
@@ -130,17 +134,11 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 		RadioGroup<T> g = getGroup();
 		if(m_checked) {
 			//-- This becomes the current group value
-			g.internalSetValue(getButtonValue());
-
-			//-- Make sure all other buttons are deselected
-			for(RadioButton<T> rb : g.getButtonList()) {
-				if(this != rb)
-					rb.setChecked(false);
-			}
+			g.internalRadioButtonSelected(this);
 		} else {
 			//-- This one was unchecked. If it is the currently selected value too set it to null
-			if(g.internalGetValue() == getButtonValue())
-				g.internalSetValue(null);
+			if(g.getValueInternal() == getButtonValue())
+				g.setValueInternal(null);
 		}
 	}
 
@@ -185,11 +183,11 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 		if(!on)
 			return true;
 		RadioGroup<T> g = getGroup();
-		for(RadioButton<T> rb : g.getButtonList())
-			rb.selectionChangedTo(this);
+		for(RadioButtonInstance<T> rb : g.getButtonList())
+			rb.getRadioButton().selectionChangedTo(this);
 
 		//-- Notify the group of the changed value
-		g.internalSetValue(getButtonValue());
+		g.setValueInternal(getButtonValue());
 
 		return true;
 	}
@@ -248,6 +246,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 
 	/**
 	 * Set or clear the modified by user flag.
+	 *
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
 	@Override
@@ -259,5 +258,9 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 	@Override
 	public NodeBase getForTarget() {
 		return this;
+	}
+
+	void internalSetGroup(RadioGroup<T> g) {
+		m_radioGroup = g;
 	}
 }

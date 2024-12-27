@@ -65,7 +65,7 @@ public class SourcePage extends UrlPage {
 		//-- Syntax highlighter
 		String ext = FileTool.getFileExtension(name);
 		if(!ext.isEmpty())
-			m_mode = HighlighterFactory.getHighlighter(ext, m_th);
+			m_mode = HighlighterFactory.getHighlighter(ext);
 		m_th.setTabSize(m_tabSize);
 		m_th.setImportList(m_importList);
 		Div scrolldiv = new Div();
@@ -112,6 +112,6 @@ public class SourcePage extends UrlPage {
 		td.setText(Integer.toString(linenr));
 		td = tb.addCell("dm-srcp-txt");
 		m_th.setTarget(td);
-		return m_mode.highlightLine(lc, line);
+		return m_mode.highlightLine(m_th, lc, line);
 	}
 }

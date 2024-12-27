@@ -199,7 +199,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> param.getRequestResponse().addHeader(header, value));
 		OutputStream os = param.getRequestResponse().getOutputStream(fi.getMime(), null, (int) fi.getSource().length());
 		InputStream is = new FileInputStream(fi.getSource());
-		final int maxSize = 1024 * 1024 * 1024;
+		final long maxSize = 1024L * 1024L * 1024L * 20L;
 		try {
 			byte[] buf = new byte[32768];
 			int sz;

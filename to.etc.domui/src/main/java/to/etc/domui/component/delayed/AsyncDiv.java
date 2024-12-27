@@ -58,8 +58,12 @@ abstract public class AsyncDiv<T extends IAsyncRunnable> extends Div {
 		} else if(errorException instanceof MessageException) {
 			add(new MessageLine(MsgType.ERROR, errorException.getMessage()));
 		} else {
-			add(new MessageLine(MsgType.ERROR, Msgs.BUNDLE.getString(Msgs.ASYNC_ERROR)));
-
+			String msg = errorException.getMessage();
+			if(null == msg) {
+				add(new MessageLine(MsgType.ERROR, Msgs.BUNDLE.getString(Msgs.ASYNC_ERROR)));
+			} else {
+				add(new MessageLine(MsgType.ERROR, Msgs.BUNDLE.getString(Msgs.ASYNC_ERROR) + ": " + msg));
+			}
 			StringBuilder sb = new StringBuilder(8192);
 			StringTool.strStacktrace(sb, errorException);
 			String s = sb.toString();

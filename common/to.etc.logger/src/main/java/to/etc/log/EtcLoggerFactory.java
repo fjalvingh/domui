@@ -132,7 +132,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 			return;
 		m_initialized = true;
 
-		System.out.println("[etclogger] Initializing");;
+		//System.out.println("[etclogger] Initializing");;
 		try {
 			String cfname = System.getProperty("LOGCONFIG");
 			if(null != cfname) {
@@ -181,9 +181,9 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		//-- Either no file or no editable config -> just load the specified resource
 		String configXml = LogUtil.readResourceAsString(this.getClass(), resourceName, "utf-8");
 		loadConfigFromXml(configXml);
-		System.out.println(getClass().getName() + "@" + System.identityHashCode(this) + " initialized from classpath resource " + resourceName);
-		if(null != m_writableConfig)
-			System.out.println(getClass().getName() + " writable config file location set to " + m_writableConfig);
+		//System.out.println(getClass().getName() + "@" + System.identityHashCode(this) + " initialized from classpath resource " + resourceName);
+		//if(null != m_writableConfig)
+		//	System.out.println(getClass().getName() + " writable config file location set to " + m_writableConfig);
 	}
 
 	private boolean initializeFromEditableFile(@Nullable File editableConfigPath) {
@@ -220,7 +220,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 		String configXml = LogUtil.readFileAsString(configFile, "utf-8");
 		loadConfigFromXml(configXml);
-		System.out.println(getClass().getName() + " initialized from file " + configFile);
+		//System.out.println(getClass().getName() + " initialized from file " + configFile);
 	}
 
 	/**
@@ -228,7 +228,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	 */
 	public synchronized void initializeFromConfigXml(@NonNull String configXml) throws Exception {
 		loadConfigFromXml(configXml);
-		System.out.println(getClass().getName() + " initialized from " + configXml);
+		//System.out.println(getClass().getName() + " initialized from " + configXml);
 	}
 
 	public synchronized void loadConfigFromXml(@NonNull String configXml) throws Exception {
@@ -363,7 +363,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 					} while(checkNext);
 					logLocation = logLocation.replace("/", File.separator);
 					m_logDir = new File(logLocation).getAbsoluteFile();
-					System.out.println(getClass().getName() + " - log dir configured to : " + m_logDir.getAbsolutePath());
+					//System.out.println(getClass().getName() + " - log dir configured to : " + m_logDir.getAbsolutePath());
 				} catch(Exception ex) {
 					System.out.println(
 						"Etc logger - problem in resolving logger configuration location from loaded default config: "

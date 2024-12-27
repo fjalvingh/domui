@@ -1,5 +1,6 @@
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -11,5 +12,11 @@ import to.etc.domui.dom.html.*;
 public class ContentPanel extends Div {
 	public ContentPanel() {
 		setCssClass("ui-cpnl");
+	}
+
+	@NonNull
+	@Override
+	public ContentPanel css(@NonNull String... classNames) {
+		return (ContentPanel) super.css(classNames);
 	}
 }

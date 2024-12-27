@@ -1996,4 +1996,21 @@ public class FileTool {
 			LOG.debug("Failed to delete " + file + ": " + x, x);
 		}
 	}
+
+	public static InputStream dumpInputStream(@NonNull InputStream is, File target, String message) throws Exception {
+		byte[][] buffers;
+		try(ByteBufferOutputStream bbos = new ByteBufferOutputStream()) {
+			FileTool.copyFile(bbos, is);
+			bbos.close();
+			buffers = bbos.getBuffers();
+		}
+		try(FileOutputStream fos = new FileOutputStream(target)) {
+			try(ByteBufferInputStream bbis = new ByteBufferInputStream(buffers)) {
+				FileTool.copyFile(fos, bbis);
+				System.out.println(">> saved " + message + " into " + target);
+			}
+		}
+		return new ByteBufferInputStream(buffers);
+	}
+
 }

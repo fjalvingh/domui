@@ -38,6 +38,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 
@@ -230,7 +231,7 @@ final public class NetTools {
 	 * and a relative URL "general/images/button.png" this will append the string
 	 * "/demoapp/general/images/button.png" to the appendable passed.
 	 *
-	 * @throws IOException    Nonsense exception needed by stupid Java checked exception crap
+	 * @throws IOException Nonsense exception needed by stupid Java checked exception crap
 	 */
 	static public void appendRootRelativeURL(Appendable a, HttpServletRequest req, String rurl) throws IOException {
 		String s = req.getContextPath();
@@ -473,20 +474,47 @@ final public class NetTools {
 		return hcx;
 	}
 
+	/**
+	 * This uses isReachable which is a nonworking joke. Use {@link #pingWithProcess(String)}
+	 * or one of the port based checks below.
+	 */
+	@Deprecated
 	static public boolean ping(InetAddress addr) {
 		//-- 1. Try isReachable
 		try {
-			if(addr.isReachable(5))
+			if(addr.isReachable(2000))
 				return true;
 		} catch(Exception x) {
 		}
 		return false;
 	}
 
+	/**
+	 * Use {@link #isPortOpen(InetAddress, int, int)} instead.
+	 */
+	@Deprecated
 	static public boolean isPortOpen(InetAddress addr, int port) {
 		try(Socket s = new Socket(addr, port)) {
 			return true;
 		} catch(Exception x) {
+			return false;
+		}
+	}
+
+	static public boolean isPortOpen(InetAddress addr, int port, int timeoutInMillis) {
+		try(Socket soc = new Socket()) {
+			soc.connect(new InetSocketAddress(addr, port), timeoutInMillis);
+			return true;
+		} catch(IOException ex) {
+			return false;
+		}
+	}
+
+	static public boolean isPortOpen(String addr, int port, int timeoutInMillis) {
+		try(Socket soc = new Socket()) {
+			soc.connect(new InetSocketAddress(addr, port), timeoutInMillis);
+			return true;
+		} catch(IOException ex) {
 			return false;
 		}
 	}
