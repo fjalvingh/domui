@@ -350,6 +350,15 @@ final public class HibernateConfigurator {
 		 */
 		serviceBuilder.applySetting("hibernate.id.new_generator_mappings", "true"); // MUST BE BEFORE config.configure
 
+		/*
+		 * WARN HHH000457: Joined inheritance hierarchy [nl.bloomville.cdb.model.Party] defined explicit @DiscriminatorColumn.
+		 * Legacy Hibernate behavior was to ignore the @DiscriminatorColumn.
+		 * However, as part of issue HHH-6911 we now apply the explicit @DiscriminatorColumn.
+		 * If you would prefer the legacy behavior, enable the `hibernate.discriminator.ignore_explicit_for_joined`
+		 * setting (hibernate.discriminator.ignore_explicit_for_joined=true)
+		 */
+		serviceBuilder.applySetting("hibernate.discriminator.ignore_explicit_for_joined", "true");
+
 		m_hibernateOptions.forEach((option, value) -> serviceBuilder.applySetting(option, value));
 
 		if(DeveloperOptions.getBool("hibernate.format_sql", true)) {
