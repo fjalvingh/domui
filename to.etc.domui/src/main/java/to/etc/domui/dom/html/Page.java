@@ -1283,6 +1283,10 @@ final public class Page implements IQContextContainer {
 		getRemovedSubPages().clear();
 	}
 
+	public long getLastClickTime() {
+		return m_lastClickTime;
+	}
+
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Notifications												*/
 	/*----------------------------------------------------------------------*/

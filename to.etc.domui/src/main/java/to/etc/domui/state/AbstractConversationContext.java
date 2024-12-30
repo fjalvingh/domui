@@ -28,7 +28,7 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 	private Map<String, Object> m_map = new HashMap<>();
 
 	@Nullable
-	private WindowSession m_manager;
+	protected WindowSession m_manager;
 
 	@NonNull
 	protected ConversationState m_state = ConversationState.DETACHED;

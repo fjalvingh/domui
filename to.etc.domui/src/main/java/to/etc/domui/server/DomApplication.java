@@ -584,6 +584,10 @@ public abstract class DomApplication {
 			public void onPageCreated(@NonNull Page page) throws Exception {
 				synchronized(this) {
 					m_activePageList.add(page);
+					if(m_activePageList.size() > MAX_PAGES) {
+						reapOldPages();
+					}
+
 				}
 			}
 
@@ -594,6 +598,36 @@ public abstract class DomApplication {
 				}
 			}
 		});
+	}
+
+	static private final int MAX_PAGES = 6000;
+
+	private void reapOldPages() {
+		List<Page> toRemove;
+		synchronized(this) {
+			ArrayList<Page> pages = new ArrayList<>(m_activePageList);
+			pages.sort(Comparator.comparing(a -> a.getLastClickTime()));
+
+			//-- Remove the eldest pages
+			toRemove = pages.subList(0, pages.size() - MAX_PAGES - 500);
+			m_activePageList.removeAll(toRemove);
+		}
+
+		System.out.println("--- PAGE OVERFLOW REAPER ---");
+		System.out.println("Destroying " + toRemove.size() + " pages");
+		Set<String> cids = new HashSet<>();
+		for(Page page : toRemove) {
+			try {
+				ConversationContext conversation = page.internalGetConversation();
+				if(null != conversation) {
+					if(cids.add(conversation.getFullId())) {
+						conversation.destroy();
+					}
+				}
+			} catch(Exception x) {
+				System.out.println("Failed to destroy page: " + x);
+			}
+		}
 	}
 
 	private void addDefaultHttpHeaders() {
