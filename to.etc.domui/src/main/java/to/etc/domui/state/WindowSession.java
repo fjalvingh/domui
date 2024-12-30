@@ -271,7 +271,7 @@ final public class WindowSession {
 			IShelvedEntry she = m_shelvedPageStack.get(i);
 			if(she instanceof ShelvedDomUIPage) {
 				ShelvedDomUIPage sdp = (ShelvedDomUIPage) she;
-				if(sdp.getPage().getConversation() == cc) {
+				if(sdp.getPage().internalGetConversation() == cc) {
 					m_shelvedPageStack.remove(i);
 				}
 			}

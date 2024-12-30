@@ -609,7 +609,7 @@ public abstract class DomApplication {
 			pages.sort(Comparator.comparing(a -> a.getLastClickTime()));
 
 			//-- Remove the eldest pages
-			toRemove = pages.subList(0, pages.size() - MAX_PAGES - 500);
+			toRemove = pages.subList(0, pages.size() - (MAX_PAGES - 500));
 			m_activePageList.removeAll(toRemove);
 		}
 
@@ -626,6 +626,7 @@ public abstract class DomApplication {
 				}
 			} catch(Exception x) {
 				System.out.println("Failed to destroy page: " + x);
+				//x.printStackTrace();
 			}
 		}
 	}
