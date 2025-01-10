@@ -150,19 +150,23 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 	}
 
 	@Override
-	public void clearSelection(ITableModel<T> model) {
+	public void clearSelection(ITableModel<T> model) throws Exception {
 		if(model instanceof TableKeyModelBase) {
 			TableKeyModelBase<K, T> tm = (TableKeyModelBase<K, T>) model;
 			for(K key : tm.getKeys()) {
 				m_selectedSet.remove(key);
 			}
 		} else {
-			throw new IllegalStateException("Expecting a keyed table model");
+			for(T item : model.getItems(0, model.getRows())) {
+				K key = getKey(item);
+				m_selectedSet.remove(key);
+			}
 		}
+		callSelectionAllChanged();
 	}
 
 	@Override
-	public boolean isCompleteModelSelected(ITableModel<T> model) {
+	public boolean isCompleteModelSelected(ITableModel<T> model) throws Exception {
 		if(model instanceof TableKeyModelBase) {
 			TableKeyModelBase<K, T> tm = (TableKeyModelBase<K, T>) model;
 			for(K key : tm.getKeys()) {
@@ -171,7 +175,12 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 			}
 			return true;
 		} else {
-			throw new IllegalStateException("Expecting a keyed table model");
+			for(T item : model.getItems(0, model.getRows())) {
+				K key = getKey(item);
+				if(!m_selectedSet.containsKey(key))
+					return false;
+			}
+			return true;
 		}
 	}
 
