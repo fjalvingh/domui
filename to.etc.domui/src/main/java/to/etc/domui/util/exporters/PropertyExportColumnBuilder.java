@@ -14,7 +14,7 @@ import java.util.List;
 public class PropertyExportColumnBuilder {
 	private final ClassMetaModel	m_model;
 
-	private final List<PropertyExportColumn<?>> m_list = new ArrayList<>();
+	private final List<IExportColumn<?>> m_list = new ArrayList<>();
 
 	public PropertyExportColumnBuilder(ClassMetaModel model) {
 		m_model = model;
@@ -43,7 +43,12 @@ public class PropertyExportColumnBuilder {
 		return this;
 	}
 
-	public List<PropertyExportColumn<?>> build() {
+	public <T> PropertyExportColumnBuilder add(IExportColumn<T> column) {
+		m_list.add(column);
+		return this;
+	}
+
+	public List<IExportColumn<?>> build() {
 		return m_list;
 	}
 }
