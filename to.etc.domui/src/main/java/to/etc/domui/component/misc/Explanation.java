@@ -25,25 +25,33 @@
 package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.XmlTextNode;
 
 public class Explanation extends Div {
+	private MsgType m_type;
+
 	private final XmlTextNode m_text = new XmlTextNode();
+
+	public Explanation(MsgType type, String text) {
+		setCssClass("ui-expl ui-" + type.name().toLowerCase());
+		m_type = type;
+		setText(text);
+	}
 
 	public Explanation() {
 	}
 
 	public Explanation(final String txt) {
-		setCssClass("ui-expl");
-		setText(txt);
+		this(MsgType.INFO, txt);
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		Img i = new Img("THEME/big-info.png");
+		Img i = new Img("THEME/big-" + m_type.name().toLowerCase() + ".png");
 		i.setAlign(ImgAlign.LEFT);
 		add(0, i);
 		add(1, m_text);
