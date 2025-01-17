@@ -533,6 +533,8 @@ final public class FormBuilder {
 
 		protected Boolean m_mandatory;
 
+		protected Boolean m_mandatoryIcon;
+
 		@Nullable
 		protected String m_controlCss;
 
@@ -588,7 +590,7 @@ final public class FormBuilder {
 					}
 				}
 			}
-			if(res != null && calculateMandatory() && !isReadOnly()) {
+			if(res != null && ((calculateMandatory() && !isReadOnly()) || isMandatoryIconOn())) {
 				res.addCssClass("ui-f4-mandatory");
 			}
 
@@ -602,6 +604,14 @@ final public class FormBuilder {
 			PropertyMetaModel<?> pmm = m_propertyMetaModel;
 			if(null != pmm) {
 				return pmm.isRequired();
+			}
+			return false;
+		}
+
+		private boolean isMandatoryIconOn() {
+			Boolean m = m_mandatoryIcon;
+			if(null != m) {
+				return m;
 			}
 			return false;
 		}
@@ -716,6 +726,12 @@ final public class FormBuilder {
 		@NonNull
 		public ItemBuilder mandatory(boolean yes) {
 			m_mandatory = Boolean.valueOf(yes);
+			return this;
+		}
+
+		@NonNull
+		public ItemBuilder addMandatoryIcon(boolean yes) {
+			m_mandatoryIcon = Boolean.valueOf(yes);
 			return this;
 		}
 
@@ -1060,6 +1076,12 @@ final public class FormBuilder {
 		@NonNull
 		public UntypedControlBuilder<I> mandatory(boolean yes) {
 			m_mandatory = Boolean.valueOf(yes);
+			return this;
+		}
+
+		@NonNull
+		public UntypedControlBuilder<I> addMandatoryIcon(boolean yes) {
+			m_mandatoryIcon = Boolean.valueOf(yes);
 			return this;
 		}
 
