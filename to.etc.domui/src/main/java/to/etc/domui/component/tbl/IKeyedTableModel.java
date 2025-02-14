@@ -24,8 +24,13 @@
  */
 package to.etc.domui.component.tbl;
 
-public interface IKeyedTableModel<T> extends ITableModel<T> {
-	String getRowKey(int row) throws Exception;
+import org.eclipse.jdt.annotation.Nullable;
 
-	T findRowObject(String key) throws Exception;
+public interface IKeyedTableModel<T> extends ITableModel<T> {
+	Object getRowKey(int row) throws Exception;
+
+	@Nullable
+	T findRowObject(Object key) throws Exception;
+
+	void updateByKey(Object key) throws Exception;
 }

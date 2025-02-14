@@ -24,10 +24,17 @@
  */
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 public interface ITruncateableDataModel {
 	/**
 	 * Return true if the result is truncated.
-	 * @return
 	 */
 	boolean isTruncated();
+
+	/**
+	 * If applicable, this <i>can</i> return the actual row count. It returns null if that is not possible.
+	 */
+	@Nullable
+	Integer getActualRowCount() throws Exception;
 }

@@ -11,13 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.annotations.UIPage;
 import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
+import to.etc.util.StringTool;
 
 import java.beans.Introspector;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +38,11 @@ final public class PageUrlMapping {
 
 	private final Level m_root = new Level();
 
+	public enum PageSubtype {
+		UrlPage,
+		SubPage
+	}
+
 	public PageUrlMapping() {
 	}
 
@@ -45,7 +51,20 @@ final public class PageUrlMapping {
 		for(ClassInfo classInfo : r.getClassesWithAnnotation(UIPage.class.getName())) {
 			AnnotationInfo anninfo = classInfo.getAnnotationInfo(UIPage.class.getName());
 			String pattern = (String) anninfo.getParameterValues().getValue("value");
-			LOG.info("Page " + classInfo.getName() + " url " + pattern);
+			if(! pattern.startsWith("/")) {
+				LOG.error("Page " + classInfo.getName() + ": @UIPage pattern must start with /");
+			} else {
+				pattern = pattern.substring(1);							// Remove leading slash
+			}
+
+			PageSubtype type;
+			if(classInfo.extendsSuperclass(SubPage.class.getCanonicalName())) {
+				type = PageSubtype.SubPage;
+			} else {
+				type = PageSubtype.UrlPage;
+			}
+
+			LOG.error("Page " + classInfo.getName() + " url " + pattern + ", type " + type);
 
 			//-- Find all methods annotated with UIUrlParameter
 			Map<String, String> pageParams = new HashMap<>();
@@ -66,7 +85,7 @@ final public class PageUrlMapping {
 					pageParams.put(pname, typeStr);
 				}
 			}
-			appendPage(classInfo.getName(), pattern, pageParams);
+			appendPage(type, classInfo.getName(), pattern, pageParams);
 		}
 	}
 
@@ -96,10 +115,10 @@ final public class PageUrlMapping {
 				pageParams.put(pname, method.getReturnType().getName());
 			}
 		}
-		appendPage(pageClass.getName(), pattern, pageParams);
+		appendPage(PageSubtype.UrlPage, pageClass.getName(), pattern, pageParams);
 	}
 
-	private void appendPage(String name, String pattern, Map<String, String> pageParams) {
+	private void appendPage(PageSubtype type, String name, String pattern, Map<String, String> pageParams) {
 		String[] segments = pattern.split("/");
 		Level currentLevel = m_root;
 
@@ -111,7 +130,7 @@ final public class PageUrlMapping {
 			}
 
 			//-- We're here -> set the action on this level. If there already is an action we have a duplicate.
-			currentLevel.setTargetPage(name, varMap);
+			currentLevel.setTargetPage(type, name, varMap);
 		} catch(PageUrlPatternException px) {
 			LOG.error("ERROR: Page " + name + " pattern " + pattern + ": " + px.getMessage() + " (segment " + px.getSegment() + ")");
 		}
@@ -121,7 +140,7 @@ final public class PageUrlMapping {
 	 * Decode the page URL, and find the target to generate.
 	 */
 	@Nullable
-	public Target findTarget(String inputPath, IPageParameters parameters) {
+	public Target findTarget(PageSubtype type, String inputPath, IPageParameters parameters) {
 		String[] segments = inputPath.split("/");
 
 		Level currentLevel = m_root;
@@ -138,12 +157,14 @@ final public class PageUrlMapping {
 		}
 
 		//-- Reached the end. Do we have a target?
-		String targetPage = currentLevel.getTargetPage();
-		if(null == targetPage)
+		TypedPage page = currentLevel.findPage(type);
+		if(null == page)
 			return null;
 
+		String targetPage = page.getTargetPage();
+
 		//-- Create parameters from the URL
-		Map<Level, String> varMap = currentLevel.getVarMap();
+		Map<Level, String> varMap = page.getVarMap();
 		PageParameters pp = parameters.getUnlockedCopy();
 		paramValues.forEach((level, value) -> {
 			if(varMap == null)
@@ -229,16 +250,40 @@ final public class PageUrlMapping {
 		}
 	}
 
+	private static final class TypedPage {
+		private final PageSubtype m_pageType;
+
+		final private String m_targetPage;
+
+		final private Map<Level, String> m_varMap;
+
+		public TypedPage(PageSubtype pageType, String targetPage, Map<Level, String> varMap) {
+			m_pageType = pageType;
+			m_targetPage = targetPage;
+			m_varMap = varMap;
+		}
+
+		public String getTargetPage() {
+			return m_targetPage;
+		}
+
+		public Map<Level, String> getVarMap() {
+			return m_varMap;
+		}
+	}
+
 	/**
 	 * Represents all matchers at a given level.
 	 */
 	private static final class Level {
 		private Map<String, Level> m_byName = new ConcurrentHashMap<>();
 
-		@Nullable
-		private String m_targetPage;
+		private final Map<PageSubtype, TypedPage> m_typedPageMap = new HashMap<>(3);
 
-		private Map<Level, String> m_varMap = Collections.emptyMap();
+		//@Nullable
+		//private String m_targetPage;
+		//
+		//private Map<Level, String> m_varMap = Collections.emptyMap();
 
 		public Level createMatcher(String segment, Map<String, String> pageParams, Map<Level, String> paramMap) {
 			if(segment.isEmpty())
@@ -261,20 +306,24 @@ final public class PageUrlMapping {
 			}
 		}
 
+		//@Nullable
+		//public synchronized String getTargetPage() {
+		//	return m_targetPage;
+		//}
+		//
+		//public Map<Level, String> getVarMap() {
+		//	return m_varMap;
+		//}
+
+		public synchronized void setTargetPage(PageSubtype subType, String targetPage, Map<Level, String> varMap) {
+			if(m_typedPageMap.get(subType) != null)
+				throw new PageUrlPatternException("", "Duplicate URL pattern: page " + targetPage);
+			m_typedPageMap.put(subType, new TypedPage(subType, targetPage, varMap));
+		}
+
 		@Nullable
-		public synchronized String getTargetPage() {
-			return m_targetPage;
-		}
-
-		public Map<Level, String> getVarMap() {
-			return m_varMap;
-		}
-
-		public synchronized void setTargetPage(@Nullable String targetPage, Map<Level, String> varMap) {
-			if(m_targetPage != null)
-				throw new PageUrlPatternException("", "Duplicate URL pattern: page " + m_targetPage + " and " + targetPage);
-			m_targetPage = targetPage;
-			m_varMap = varMap;
+		public synchronized TypedPage findPage(PageSubtype type) {
+			return m_typedPageMap.get(type);
 		}
 
 		@Nullable
@@ -286,7 +335,7 @@ final public class PageUrlMapping {
 
 			level = m_byName.get("");                        // Variable level present?
 			if(null != level) {
-				paramValues.put(this, segment);                // Assign the value for this level
+				paramValues.put(this, StringTool.decodeURLEncoded(segment));                // Assign the value for this level
 				return level;
 			}
 			return null;

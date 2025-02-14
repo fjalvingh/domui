@@ -350,6 +350,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 		if(suc.getState() == ConversationState.DETACHED) {
 			suc.internalDestroy(false);
 		}
+		suc.clear();
 	}
 
 	/*--------------------------------------------------------------*/

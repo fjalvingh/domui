@@ -28,7 +28,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.AbstractPage;
-import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.IPageParameters;
 import to.etc.util.PropertyInfo;
@@ -45,7 +44,7 @@ import java.util.Objects;
 public abstract class PropertyInjector {
 	private final PropertyInfo m_propertyInfo;
 
-	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp, @NonNull Map<String, Object> attributeMap) throws Exception;
+	public abstract void inject(@NonNull AbstractPage page, @NonNull IPageParameters pp, @NonNull Map<String, Object> attributeMap) throws Exception;
 
 	public PropertyInjector(@NonNull PropertyInfo info) {
 		m_propertyInfo = info;

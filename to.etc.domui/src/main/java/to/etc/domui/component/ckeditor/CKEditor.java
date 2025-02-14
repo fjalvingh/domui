@@ -25,10 +25,13 @@
 package to.etc.domui.component.ckeditor;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.event.INotify;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.htmleditor.IEditorFileSystem;
+import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.misc.MsgBox.IAnswer;
@@ -52,6 +55,8 @@ import to.etc.domui.server.XssChecker;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.function.ConsumerEx;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 import to.etc.webapp.nls.NlsContext;
 
@@ -80,8 +85,11 @@ public class CKEditor extends Div implements IControl<String> {
 
 	private IEditorFileSystem m_fileSystem; //not in use?
 
+	//@Nullable
+	//private IClicked<NodeBase> m_onDomuiImageClicked;
+
 	@Nullable
-	private IClicked<NodeBase> m_onDomuiImageClicked;
+	private ConsumerEx<CKImageSelectionContext> m_imageSelectorFactory;
 
 	@Nullable
 	private IClicked<NodeBase> m_onDomuiOddCharsClicked;
@@ -103,6 +111,56 @@ public class CKEditor extends Div implements IControl<String> {
 	@Nullable
 	private IValueChanged<?> m_onValueChanged;
 
+	private boolean m_resizeAble;
+
+	private int m_maxLengthEditor = -1;    // Default -1 means unlimited size
+
+	private boolean m_showCharCounter;
+
+	public enum CKImageInsertType {
+		IMAGE,
+		BACKGROUND
+	}
+
+	@NonNullByDefault
+	public final class CKImageSelectionContext {
+		private final CKImageInsertType m_type;
+
+		private final INotify<String> m_onSelected;
+
+		private final IExecute m_onCancel;
+
+		public CKImageSelectionContext(CKImageInsertType type, INotify<String> onSelected, IExecute onCancel) {
+			m_type = type;
+			m_onSelected = onSelected;
+			m_onCancel = onCancel;
+		}
+
+		/**
+		 * The type of insert action we're performing.
+		 */
+		public CKImageInsertType getType() {
+			return m_type;
+		}
+
+		/**
+		 * The dialog must call this with the image URL of the selected
+		 * image, which must be resolvable in the editor's context, of course. It
+		 * can be a partial URL relative to the current page.
+		 */
+		public INotify<String> getOnSelected() {
+			return m_onSelected;
+		}
+
+		/**
+		 * This <b>must</b> be called if the selection action is cancelled, to
+		 * let the editor know nothing will happen!!
+		 */
+		public IExecute getOnCancel() {
+			return m_onCancel;
+		}
+	}
+
 	public CKEditor() {
 		setCssClass("ui-cked");
 		m_area.setCssClass("ui-ckeditor");
@@ -110,7 +168,7 @@ public class CKEditor extends Div implements IControl<String> {
 	}
 
 	static public void initialize(UrlPage page) {
-		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
+		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"), -760);
 	}
 
 
@@ -143,15 +201,22 @@ public class CKEditor extends Div implements IControl<String> {
 		} else {
 			sb.append(", toolbarCanCollapse: false\n");
 		}
-		sb.append(", resize_enabled: false\n");
+
+		boolean b = m_resizeAble;
+		if(b) {
+			sb.append(", resize_enabled: true\n");
+		} else {
+			sb.append(", resize_enabled: false\n");
+		}
 
 		sb.append(", toolbar: '" + m_toolbarSet.name() + "'\n");
 		switch (m_toolbarSet) {
 			case DOMUI:
 			case FULL:
-				sb.append(", extraPlugins : 'domuiimage,domuioddchar,justify,colorbutton,smiley,font'\n");
+				sb.append(", extraPlugins : 'domuiimage,domuioddchar,justify,colorbutton,smiley,font,backgrounds'\n");
 				break;
 			case BASIC:
+			case BASICPLUS:
 			case TXTONLY:
 			default:
 				break;
@@ -172,6 +237,9 @@ public class CKEditor extends Div implements IControl<String> {
 			sb.append(", height:'").append(s).append("'\n");
 			sb.append(", _setHeight:'").append(s).append("'\n");
 		}
+		if(isShowCharCounter()) {
+			setCharacterCounter(sb);
+		}
 
 		//-- Finish.
 		sb.append("});\n");
@@ -188,6 +256,70 @@ public class CKEditor extends Div implements IControl<String> {
 		appendJavascript("WebUI.CKeditor_setValue('" + m_area.getActualID() + "'," + StringTool.strToJavascriptString(value, true) + ");\n");
 		super.renderJavascriptState(b);
 	}
+
+	void setCharacterCounter(StringBuilder sb) {
+
+		sb.append(", extraPlugins : 'wordcount,notification'\n");
+		sb.append(", wordcount: {\n");
+		// Whether or not you want to show the Paragraphs Count
+		sb.append("  showParagraphs: false\n");
+		// Whether or not you want to show the Word Count
+		sb.append(", showWordCount: false\n");
+		// Whether or not you want to show the Char Count
+		sb.append(", showCharCount: true\n");
+		// Whether or not you want to count Spaces as Chars
+		sb.append(", countSpacesAsChars: true\n");
+		// Whether or not to include Html chars in the Char Count
+		sb.append(", countHTML: true\n");
+		sb.append(", countLineBreaks: true\n");
+		sb.append(", countBytesAsChars: true\n");
+//		sb.append(", showRemaining: true\n");
+		sb.append(", warnOnLimitOnly: true\n");
+
+		sb.append(", hardLimit: true\n");
+		// Maximum allowed Word Count, -1 is default for unlimited
+		sb.append(", maxWordCount: -1\n");
+		// Maximum allowed Char Count, -1 is default for unlimited
+		sb.append(", maxCharCount: ").append(getMaxLengthEditor()).append("\n");
+
+		sb.append("}\n");
+	}
+
+	@Override
+	public void setWidth(@Nullable String width) {
+		m_internalWidth = width;
+	}
+
+	public boolean isResizeAble() {
+		return m_resizeAble;
+	}
+
+	public void setResizeAble(boolean resizeAble) {
+		m_resizeAble = resizeAble;
+	}
+
+	@Override
+	public void setHeight(@Nullable String height) {
+		m_internalHeight = height;
+	}
+
+	public int getMaxLengthEditor() {
+		return m_maxLengthEditor;
+	}
+
+	public void setMaxLengthEditor(int maxLength) {
+		m_maxLengthEditor = maxLength;
+	}
+
+	public boolean isShowCharCounter() {
+		return m_showCharCounter;
+	}
+
+	public void setShowCharCounter(boolean showCharCounter) {
+		m_showCharCounter = showCharCounter;
+	}
+
+
 
 	//@Override
 	//public void setWidth(@Nullable String width) {
@@ -233,14 +365,91 @@ public class CKEditor extends Div implements IControl<String> {
 		m_fileSystem = fileSystem;
 	}
 
-
-	@Nullable
-	public IClicked<NodeBase> getOnDomuiImageClicked() {
-		return m_onDomuiImageClicked;
+	/**
+	 * Handle {@link CKEditor#WEBUI_CK_DOMUIIMAGE_ACTION} activity on CKEditor customized commands that interacts with domui.
+	 * Handle {@link CKEditor#WEBUI_CK_DOMUIODDCHAR_ACTION} activity on CKEditor customized commands that interacts with domui.
+	 *
+	 * @see to.etc.domui.dom.html.Div#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
+	 */
+	@Override
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
+		if(WEBUI_CK_DOMUIIMAGE_ACTION.equals(action))
+			selectImage(ctx);
+		else if(WEBUI_CK_DOMUIODDCHAR_ACTION.equals(action))
+			oddChars(ctx);
+		else
+			super.componentHandleWebAction(ctx, action);
 	}
 
-	public void setOnDomuiImageClicked(@NonNull IClicked<NodeBase> onDomuiImageClicked) {
-		m_onDomuiImageClicked = onDomuiImageClicked;
+	public void webActionCKBACKGROUNDIMAGE(@NonNull RequestContextImpl ctx) throws Exception {
+		ConsumerEx<CKImageSelectionContext> factory = m_imageSelectorFactory;
+		if(null == factory) {
+			MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
+				@Override
+				public void onAnswer(@NonNull MsgBoxButton result) {
+					renderCancelImage();
+				}
+			});
+			return;
+		}
+		CKImageSelectionContext context = new CKImageSelectionContext(CKImageInsertType.BACKGROUND, this::renderImageSelected, this::renderCancelImage);
+		factory.accept(context);
+	}
+
+	private void selectImage(@NonNull RequestContextImpl ctx) throws Exception {
+		ConsumerEx<CKImageSelectionContext> factory = m_imageSelectorFactory;
+		if(null == factory) {
+			MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
+				@Override
+				public void onAnswer(@NonNull MsgBoxButton result) {
+					renderCancelImage();
+				}
+			});
+			return;
+		}
+		CKImageSelectionContext context = new CKImageSelectionContext(CKImageInsertType.IMAGE, this::renderImageSelected, this::renderCancelImage);
+		factory.accept(context);
+	}
+
+	private void oddChars(@NonNull RequestContextImpl ctx) throws Exception {
+		IClicked<NodeBase> clicked = m_onDomuiOddCharsClicked;
+		if(clicked == null) {
+			//if no other handler is specified we show framework default OddCharacters dialog
+			OddCharacters oddChars = new OddCharacters();
+			oddChars.setOnClose(new IWindowClosed() {
+				@Override
+				public void closed(@NonNull String closeReason) {
+					CKEditor.this.renderCloseOddCharacters();
+				}
+			});
+			getPage().getBody().add(oddChars);
+		} else {
+			clicked.clicked(this);
+		}
+	}
+
+	private void renderImageSelected(@NonNull String url) {
+		m_area.renderImageSelected(url);
+	}
+
+	private void renderCancelImage() {
+		appendJavascript("CkeditorDomUIImage.cancel('" + getActualID() + "');");
+	}
+
+	public void renderCloseOddCharacters() {
+		appendJavascript("CkeditorDomUIOddChar.cancel('" + getActualID() + "');");
+	}
+
+	public void renderOddCharacters(@NonNull String input) {
+		appendJavascript("CkeditorDomUIOddChar.addString('" + getActualID() + "', '" + input + "');");
+	}
+
+	@Nullable public ConsumerEx<CKImageSelectionContext> getImageSelectorFactory() {
+		return m_imageSelectorFactory;
+	}
+
+	public void setImageSelectorFactory(@Nullable ConsumerEx<CKImageSelectionContext> imageSelectorFactory) {
+		m_imageSelectorFactory = imageSelectorFactory;
 	}
 
 	@Nullable
@@ -353,7 +562,7 @@ public class CKEditor extends Div implements IControl<String> {
 		setValue(value);
 	}
 
-	final private class CkEditorArea extends TextArea {
+	final public class CkEditorArea extends TextArea {
 		@Override public void setValue(String v) {
 			internalSetValue(v);
 		}
@@ -379,18 +588,41 @@ public class CKEditor extends Div implements IControl<String> {
 				super.componentHandleWebAction(ctx, action);
 		}
 
-		private void selectImage(@NonNull RequestContextImpl ctx) throws Exception {
-			IClicked<NodeBase> clicked = m_onDomuiImageClicked;
-			if(clicked == null) {
+		public void webActionCKBACKGROUNDIMAGE(@NonNull RequestContextImpl ctx) throws Exception {
+			ConsumerEx<CKImageSelectionContext> factory = m_imageSelectorFactory;
+			if(null == factory) {
 				MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
 					@Override
-					public void onAnswer(MsgBoxButton result) throws Exception {
+					public void onAnswer(@NonNull MsgBoxButton result) {
 						renderCancelImage();
 					}
 				});
-			} else {
-				clicked.clicked(this);
+				return;
 			}
+			String cbId = ctx.getPageParameters().getString("_callback");
+			if(null == cbId)
+				throw new IllegalStateException("No _callback specified for background image select");
+
+			CKImageSelectionContext context = new CKImageSelectionContext(CKImageInsertType.BACKGROUND, image -> {
+				appendJavascript("WebUI.callCallBack('" + cbId + "', '" + image + "');");
+
+			}, this::renderCancelImage);
+			factory.accept(context);
+		}
+
+		private void selectImage(@NonNull RequestContextImpl ctx) throws Exception {
+			ConsumerEx<CKImageSelectionContext> factory = m_imageSelectorFactory;
+			if(null == factory) {
+				MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
+					@Override
+					public void onAnswer(@NonNull MsgBoxButton result) {
+						renderCancelImage();
+					}
+				});
+				return;
+			}
+			CKImageSelectionContext context = new CKImageSelectionContext(CKImageInsertType.IMAGE, this::renderImageSelected, this::renderCancelImage);
+			factory.accept(context);
 		}
 
 		private void oddChars(@NonNull RequestContextImpl ctx) throws Exception {
@@ -404,6 +636,7 @@ public class CKEditor extends Div implements IControl<String> {
 				clicked.clicked(this);
 			}
 		}
+
 
 		public void renderImageSelected(@NonNull String url) {
 			appendJavascript("CkeditorDomUIImage.addImage('" + getActualID() + "', '" + url + "');");

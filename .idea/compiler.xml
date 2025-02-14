@@ -60,6 +60,7 @@
       <module name="property-annotations-processor" target="1.8" />
       <module name="security" target="11" />
       <module name="skarp-dev" target="1.5" />
+      <module name="spi" target="1.5" />
       <module name="to.etc.alg" target="11" />
       <module name="to.etc.db" target="11" />
       <module name="to.etc.dbcompare" target="11" />
@@ -102,5 +103,8 @@
       <module name="to.etc.syntaxer" options="-properties $PROJECT_DIR$/common/to.etc.syntaxer/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
       <module name="to.etc.webapp.core" options="-properties $PROJECT_DIR$/to.etc.webapp.core/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
     </option>
+  </component>
+  <component name="TypeScriptCompiler">
+    <option name="recompileOnChanges" value="true" />
   </component>
 </project>

@@ -116,7 +116,7 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
 
 		Writer outputWriter = ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8");
-		IBrowserOutput w = new PrettyXmlOutputWriter(outputWriter);
+		IBrowserOutput w = new PrettyXmlOutputWriter(outputWriter, null);
 		w.tag("Connector");
 		w.attr("command", cmd);
 		w.attr("resourceType", rtype);
@@ -200,7 +200,7 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 		IRequestResponse rr = ctx.getRequestResponse();
 		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
 
-		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
+		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"), null);
 		w.tag("Connector");
 		w.endtag();
 		w.tag("Error");

@@ -52,7 +52,7 @@ final public class PartRequestHandler implements IFilterRequestHandler {
 		} catch(NotLoggedInException x) {
 			String url = DomApplication.get().handleNotLoggedInException(ctx, x);
 			if(url != null) {
-				ApplicationRequestHandler.generateHttpRedirect(ctx, url, "You need to be logged in");
+				ApplicationRequestHandler.generateHttpRedirect(ctx, url, "You need to log in", true);
 				return true;
 			}
 			throw x;

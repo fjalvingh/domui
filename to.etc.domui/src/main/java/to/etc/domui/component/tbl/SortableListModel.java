@@ -1,5 +1,6 @@
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.converter.ConverterRegistry;
@@ -24,6 +25,11 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 
 	/** T if the sort order is currently descending. */
 	private boolean m_descending;
+
+	private boolean m_truncated;
+
+	@Nullable
+	private Integer m_actualRowCount;
 
 	public SortableListModel(Class<T> clz, List<T> list) {
 		super(list);
@@ -74,5 +80,25 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 	@Override
 	public boolean isSortDescending() {
 		return m_descending;
+	}
+
+	@Override
+	public boolean isTruncated() {
+		return m_truncated;
+	}
+
+	@Override
+	public void setTruncated(boolean tr) {
+		m_truncated = tr;
+	}
+
+	@Nullable
+	@Override
+	public Integer getActualRowCount() throws Exception {
+		return m_actualRowCount;
+	}
+
+	public void setActualRowCount(@Nullable Integer actualRowCount) {
+		m_actualRowCount = actualRowCount;
 	}
 }

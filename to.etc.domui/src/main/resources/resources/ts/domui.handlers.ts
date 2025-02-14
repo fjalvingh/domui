@@ -112,6 +112,7 @@ namespace WebUI {
 	}
 
 	export function onDocumentReady(): void {
+		$(window).bind('hashchange', WebUI.handleHashChange);
 		checkBrowser();
 		WebUI.handleCalendarChanges();
 		if ((window as any).DomUIDevel)
@@ -233,6 +234,75 @@ namespace WebUI {
 
 	let _checkLeavePage = false;
 	let _skipLeavePageCheck = false;
+
+	var _lastUrlFragment : string;
+
+	/**
+	 * Called as soon as a page is loaded, this checks whether we have bookmarks (hash)
+	 * references in the page's location, and if so we check whether these need to be loaded
+	 * for each content area.
+	 */
+	export function loadSpiFragments() : void {
+		let hash = location.hash;
+		// if(hash == "")
+		// 	return;
+		console.debug("loadSpiFragments: hash=" + hash + ", prev=" + _lastUrlFragment);
+		if(hash == _lastUrlFragment)
+			return;
+
+		//-- Do not decode the hash! If it contains url encoded parts we need to decode them late, after we've parsed the paths components on the server!
+		// hash = decodeURIComponent(hash);
+
+		let fields = {};
+		fields["webuia"] = "LOADFRAGS";
+		fields["webuic"] = document.body.id;
+		fields["$pt"] = (window as any).DomUIpageTag;
+		fields["$cid"] = (window as any).DomUICID;
+		fields["hashes"] = hash;
+		cancelPolling();
+		_lastUrlFragment = hash;
+
+		$.ajax({
+			url: WebUI.getPostURL(),
+			dataType: "*",
+			data: fields,
+			cache: false,
+			type: "GET",
+			success: handleResponse,
+			error: handleError
+		});
+	}
+
+	var spiWasUpdate = false;
+
+	/**
+	 * Called when the SERVER wants to update the hashes inside the browser - but has already
+	 * loaded the appropriate pages. If the hashes actually changed then the hash will be set
+	 * but with a flag signaling the "change hash" handler that no SPI load is needed.
+	 */
+	export function spiUpdateHashes(hashes: string) : void {
+		if(location.hash != "#" + hashes) {
+			console.debug("spiUpdateHashes: new hashes=" + hashes + ", old=" + location.hash + "; updating browser hash");
+			location.hash = "#" + hashes;
+			spiWasUpdate = true;
+			_lastUrlFragment = '#' + hashes;
+		} else {
+			console.debug("spiUpdateHashes: new hashes=" + hashes + "are same as current hashes, not updated");
+		}
+	}
+
+	/**
+	 * Called when the URL hash value changes, this calls the server to reload the page.
+	 */
+	export function handleHashChange() : void {
+		if(! spiWasUpdate) {
+			console.debug("handleHashChange: loading spi fragments (was not a SPI update)");
+			loadSpiFragments();
+		} else {
+			console.debug("handleHashChange: skipping load for SPI fragments (hash=" + location.hash +")");
+		}
+		spiWasUpdate = false;
+	}
 
 	const beforeUnloadListener = (event) => {
 		if (_checkLeavePage && !_skipLeavePageCheck) {

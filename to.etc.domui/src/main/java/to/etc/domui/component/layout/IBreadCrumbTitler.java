@@ -24,8 +24,13 @@
  */
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 public interface IBreadCrumbTitler {
+	@NonNull
 	String getBreadcrumbName();
 
+	@Nullable
 	String getBreadcrumbTitle();
 }

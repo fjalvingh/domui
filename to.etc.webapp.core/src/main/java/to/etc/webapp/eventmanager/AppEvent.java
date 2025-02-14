@@ -36,7 +36,7 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public class AppEvent extends AppEventBase {
 
-	private long m_key;
+	private String m_key;
 
 	@Nullable
 	private ChangeType m_type;
@@ -45,16 +45,16 @@ public class AppEvent extends AppEventBase {
 		super();
 	}
 
-	public AppEvent(final ChangeType type, final long key) {
+	public AppEvent(final ChangeType type, final String key) {
 		setKey(key);
 		setType(type);
 	}
 
-	public long getKey() {
+	public String getKey() {
 		return m_key;
 	}
 
-	public void setKey(long key) {
+	public void setKey(String key) {
 		m_key = key;
 	}
 

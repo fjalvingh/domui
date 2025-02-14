@@ -193,6 +193,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		 * as soon as the body load has completed.
 		 */
 		o().tag("script");
+		o().attr("nonce", getPage().getNonce());
 		o().endtag();
 		o().text("$(document).ready(function() {");
 
@@ -202,13 +203,20 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 			o().text("WebUI.focus('" + f.getActualID() + "');");
 			m_page.setFocusComponent(null);
 		}
+
+		//-- Render all component-requested Javascript code for this phase. First domuiJs (js as result of CSP header support js), then createJs and at the end normal js, in that strict order.
+		StringBuilder domuiSb = m_page.internalFlushAppendDomuiJS();
+		if(null != domuiSb) {
+			o().writeRaw(domuiSb);
+		}
 		if(getCreateJS().length() > 0) {
 			o().writeRaw(getCreateJS().toString());
 			//				o().text(m_createJS.toString());
 		}
 		StringBuilder sb = m_page.internalFlushAppendJS();
-		if(null != sb)
+		if(null != sb) {
 			o().writeRaw(sb);
+		}
 		sb = m_page.internalFlushJavascriptStateChanges();
 		if(null != sb)
 			o().writeRaw(sb);
@@ -232,6 +240,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		//		if(kit > 0) {
 		//			o().writeRaw("WebUI.startPingServer(" + kit + ");");
 		//		}
+		o().writeRaw("WebUI.loadSpiFragments();");
 
 		o().text("});");
 		o().closetag("script");
@@ -257,7 +266,9 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	 * Called from template.
 	 */
 	public void renderHeadContent() throws Exception {
-		o().writeRaw("<script>");
+		o().tag("script");
+		o().attr("nonce", getPage().getNonce());
+		o().endtag();
 		if(!isXml())
 			o().writeRaw("<!--\n");
 
@@ -466,7 +477,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		String sheet = theme.getStyleSheetName();
 
 		//-- Render style fragments part.
-		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
+		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" nonce=\"" + m_page.getNonce() + "\" href=\"");
 		o().writeRaw(ctx().getRelativePath(sheet));
 		if(isXml())
 			o().writeRaw("\"/>");
@@ -478,7 +489,6 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
-	 * @throws Exception
 	 */
 	public void renderHeadContributors() throws Exception {
 		List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(page().getApplication().getHeaderContributorList());
@@ -499,6 +509,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
 		o().rawAttr("href", path);
+		o().attr("nonce", m_page.getNonce());
 
 		for(int i = 0; i < options.length; i += 2) {
 			o().rawAttr(options[i], options[i + 1]);
@@ -521,6 +532,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 		//-- render an app-relative url
 		o().tag("script");
+		o().attr("nonce", getPage().getNonce());
 		o().attr("src", path);
 		if(async)
 			o().writeRaw(" async='async'");

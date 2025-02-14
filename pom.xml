@@ -77,6 +77,12 @@
     </developers>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+
         <!-- MAVEN -->
         <domui.test.skip>false</domui.test.skip>
         <maven.test.skip>${domui.test.skip}</maven.test.skip>
@@ -329,7 +335,7 @@
             <dependency>
                 <groupId>com.google.http-client</groupId>
                 <artifactId>google-http-client-gson</artifactId>
-                <version>1.42.3</version>
+                <version>1.43.3</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.httpcomponents</groupId>
@@ -342,6 +348,18 @@
                     <exclusion>
                         <groupId>com.google.j2objc</groupId>
                         <artifactId>j2objc-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.httpcomponents</groupId>
+                        <artifactId>httpclient</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.opencensus</groupId>
+                        <artifactId>opencensus-contrib-http-util</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.opencensus</groupId>
+                        <artifactId>opencensus-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -495,6 +513,10 @@
                     <exclusion>
                         <groupId>org.hibernate</groupId>
                         <artifactId>hibernate-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-core</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -832,6 +854,7 @@
                 <version>5.10.5-PATCH</version>
             </dependency>
 
+            <!-- Java 9 muck -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -859,12 +882,12 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient-cache</artifactId>
-                <version>4.5.13</version>
+                <version>4.5.14</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.5.13</version>
+                <version>4.5.14</version>
             </dependency>
 
             <dependency>
@@ -977,7 +1000,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>${maven-source-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>

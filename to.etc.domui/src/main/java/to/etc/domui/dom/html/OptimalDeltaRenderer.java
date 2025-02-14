@@ -254,15 +254,22 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			m_page.setFocusComponent(null);
 		}
 
-		//-- Render all component-requested Javascript code for this phase
-		o().text(m_fullRenderer.getCreateJS().toString());
-		StringBuilder sb = m_page.internalFlushAppendJS();
-		if(null != sb)
-			o().text(sb.toString());
-		sb = m_page.internalFlushJavascriptStateChanges();
-		if(null != sb)
-			o().writeRaw(sb);
+		//-- Render all component-requested Javascript code for this phase. First domuiJs (js as result of CSP header support js), then createJs and at the end normal js, in that strict order.
+		StringBuilder domuiSb = m_page.internalFlushAppendDomuiJS();
+		if(null != domuiSb) {
+			o().text(domuiSb.toString());
+		}
 
+		o().text(m_fullRenderer.getCreateJS().toString());
+
+		StringBuilder sb = m_page.internalFlushAppendJS();
+		if(null != sb) {
+			o().text(sb.toString());
+		}
+		sb = m_page.internalFlushJavascriptStateChanges();
+		if(null != sb) {
+			o().writeRaw(sb);
+		}
 
 		//-- Handle delayed stuff...
 		if(DeveloperOptions.getBool("domui.polling", true)) {
@@ -297,14 +304,14 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 	public void renderLoadCSS(@NonNull String path, String... options) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
-		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");
+		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ", '" + m_page.getNonce() + "');\n");
 	}
 
 	@Override
 	public void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
-		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ");\n");
+		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ", '" + m_page.getNonce() + "');\n");
 	}
 
 	/**

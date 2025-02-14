@@ -129,7 +129,7 @@ final public class DomUIBugContributor implements IBugInfoContributor {
 		final StringWriter comp = new StringWriter();
 		final IndentWriter ciw = new IndentWriter(comp);
 		final StringWriter	sw	= new StringWriter(8192);
-		final PrettyXmlOutputWriter xw = new PrettyXmlOutputWriter(sw);
+		final PrettyXmlOutputWriter xw = new PrettyXmlOutputWriter(sw, null);
 
 		DomUtil.walkTree(page.getBody(), new DomUtil.IPerNode() {
 			@Override

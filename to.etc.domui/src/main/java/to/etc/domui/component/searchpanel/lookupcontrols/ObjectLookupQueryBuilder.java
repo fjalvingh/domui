@@ -47,4 +47,12 @@ final public class ObjectLookupQueryBuilder<Q, D> implements ILookupQueryBuilder
 	public static void setLookupWildcardByDefault(boolean lookupWildcardByDefault) {
 		m_lookupWildcardByDefault = lookupWildcardByDefault;
 	}
+
+	public static String addWildcards(String searchTerm) {
+		if(!searchTerm.endsWith(".")) {
+			searchTerm = searchTerm.trim().replace("*", "%") + "%";
+		}
+		return searchTerm;
+	}
+
 }

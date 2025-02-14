@@ -1,7 +1,7 @@
 package to.etc.domui.injector;
 
 import to.etc.domui.annotations.UIUrlParameter;
-import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.state.IPageParameters;
 import to.etc.function.BiFunctionEx;
 import to.etc.util.ClassUtil;
@@ -21,9 +21,9 @@ import java.util.Map;
 public class PagePropertyInjector implements IPagePropertyFactory {
 	private final Class<?> m_acceptClass;
 
-	private final BiFunctionEx<UrlPage, String, Object> m_calculator;
+	private final BiFunctionEx<AbstractPage, String, Object> m_calculator;
 
-	public PagePropertyInjector(Class<?> acceptClass, BiFunctionEx<UrlPage, String, Object> calculator) {
+	public PagePropertyInjector(Class<?> acceptClass, BiFunctionEx<AbstractPage, String, Object> calculator) {
 		m_acceptClass = acceptClass;
 		m_calculator = calculator;
 	}
@@ -56,20 +56,20 @@ public class PagePropertyInjector implements IPagePropertyFactory {
 	}
 
 	private static class CalculatedInjector extends PropertyInjector {
-		private final BiFunctionEx<UrlPage, String, Object> m_calculator;
+		private final BiFunctionEx<AbstractPage, String, Object> m_calculator;
 
 		private final String m_name;
 
 		private final boolean m_mandatory;
 
-		public CalculatedInjector(BiFunctionEx<UrlPage, String, Object> calculator, PropertyInfo info, String name, boolean mandatory) {
+		public CalculatedInjector(BiFunctionEx<AbstractPage, String, Object> calculator, PropertyInfo info, String name, boolean mandatory) {
 			super(info);
 			m_calculator = calculator;
 			m_name = name;
 			m_mandatory = mandatory;
 		}
 
-		@Override public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
+		@Override public void inject(AbstractPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
 			String value = pp.getString(m_name, null);
 			if(null == value) {
 				if(m_mandatory)

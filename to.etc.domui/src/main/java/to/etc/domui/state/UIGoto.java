@@ -25,11 +25,16 @@
 package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.SpiPage;
+import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.spi.SpiContainer;
+import to.etc.domui.util.ISpiContainerName;
 import to.etc.domui.util.Msgs;
 
 import java.util.ArrayList;
@@ -47,7 +52,8 @@ final public class UIGoto {
 
 	static public final String PAGE_ACTION = "uigoto.action";
 
-	private UIGoto() {}
+	private UIGoto() {
+	}
 
 	static private WindowSession context() {
 		return UIContext.getRequestContext().getWindowSession();
@@ -60,7 +66,7 @@ final public class UIGoto {
 	 */
 	static public void reload() {
 		Page pg = UIContext.getCurrentPage();
-		Class< ? extends UrlPage> clz = pg.getBody().getClass();
+		Class<? extends UrlPage> clz = pg.getBody().getClass();
 		IPageParameters pp = pg.getPageParameters();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
@@ -70,7 +76,7 @@ final public class UIGoto {
 	 */
 	static public void reload(@NonNull IPageParameters pp) {
 		Page pg = UIContext.getCurrentPage();
-		Class< ? extends UrlPage> clz = pg.getBody().getClass();
+		Class<? extends UrlPage> clz = pg.getBody().getClass();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
 
@@ -119,7 +125,7 @@ final public class UIGoto {
 	/**
 	 * Push (shelve) the current page, then move to a new page. The page is parameterless, and is started in a NEW ConversationContext.
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz) {
+	static public void moveSub(final Class<? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.SUB, clz, null, null, null);
@@ -128,7 +134,7 @@ final public class UIGoto {
 	/**
 	 * Push (shelve) the current page, then move to a new page. The page is started in a NEW ConversationContext.
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz, final IPageParameters pp) {
+	static public void moveSub(final Class<? extends UrlPage> clz, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.SUB, clz, null, null, pp);
@@ -137,7 +143,7 @@ final public class UIGoto {
 	/**
 	 * Push (shelve) the current page, then move to a new page. The page is started in a NEW ConversationContext.
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz, final Object... param) {
+	static public void moveSub(final Class<? extends UrlPage> clz, final Object... param) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		PageParameters pp;
@@ -152,7 +158,7 @@ final public class UIGoto {
 	 * Push (shelve) the current page, then move to a new page. The page JOINS the conversation context passed; if the page does not accept
 	 * that conversation an exception is thrown.
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz, final ConversationContext cc, final IPageParameters pp) {
+	static public void moveSub(final Class<? extends UrlPage> clz, final ConversationContext cc, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		if(cc == null)
@@ -163,7 +169,7 @@ final public class UIGoto {
 	/**
 	 * Clear the entire shelf, then goto a new page. The page uses a NEW ConversationContext.
 	 */
-	static public void moveNew(final Class< ? extends UrlPage> clz, final IPageParameters pp) {
+	static public void moveNew(final Class<? extends UrlPage> clz, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, pp);
@@ -172,7 +178,7 @@ final public class UIGoto {
 	/**
 	 * Clear the entire shelf, then goto a new page. The page uses a NEW ConversationContext.
 	 */
-	static public void moveNew(final Class< ? extends UrlPage> clz, Object... param) {
+	static public void moveNew(final Class<? extends UrlPage> clz, Object... param) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		PageParameters pp;
@@ -186,7 +192,7 @@ final public class UIGoto {
 	/**
 	 * Clear the entire shelve, then goto a new page. The page uses a NEW ConversationContext.
 	 */
-	static public void moveNew(final Class< ? extends UrlPage> clz) {
+	static public void moveNew(final Class<? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, null);
@@ -195,7 +201,7 @@ final public class UIGoto {
 	/**
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 */
-	static public void replace(final Class< ? extends UrlPage> clz) {
+	static public void replace(final Class<? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, null);
@@ -204,7 +210,7 @@ final public class UIGoto {
 	/**
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 */
-	static public void replace(final Class< ? extends UrlPage> clz, final IPageParameters pp) {
+	static public void replace(final Class<? extends UrlPage> clz, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
@@ -229,7 +235,7 @@ final public class UIGoto {
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 * On the new page show the specified message as an UI message.
 	 */
-	static public final void replace(Page pg, final Class< ? extends UrlPage> clz, final IPageParameters pp, UIMessage msg) {
+	static public final void replace(Page pg, final Class<? extends UrlPage> clz, final IPageParameters pp, UIMessage msg) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
@@ -300,4 +306,72 @@ final public class UIGoto {
 		replace(pg.getBody().getClass(), pp); // Destroy the current page, and replace with a new one. This will also destroy
 	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	SPI interface calls.										*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Move to a new page, and put the previous one on the stack. If the "new page" is actually stacked already
+	 * the stack is rewound back.
+	 */
+	static public void moveSub(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiPage, Object... param) throws Exception {
+		PageParameters pp;
+		if(param == null)
+			pp = new PageParameters();
+		else
+			pp = new PageParameters(param);
+		moveSub(name, spiPage, pp);
+	}
+
+	/**
+	 * Move to a new page, and put the previous one on the stack. If the "new page" is actually stacked already
+	 * the stack is rewound back.
+	 */
+	static public void moveSub(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @NonNull IPageParameters pp) throws Exception {
+		SpiContainer container = getSpiContainer(name);
+		container.handleMoveSub(spiClass, pp);
+	}
+
+	@NonNull
+	private static SpiContainer getSpiContainer(@NonNull ISpiContainerName name) {
+		Page currentPage = UIContext.getCurrentPage();
+		UrlPage body = currentPage.getBody();
+		if(!(body instanceof SpiPage)) {
+			throw new IllegalStateException("The current page is not a SpiPage");
+		}
+		SpiPage spiPage = (SpiPage) body;
+		SpiContainer container = spiPage.findSpiContainerByName(name.name());
+		if(null == container)
+			throw new IllegalArgumentException("SPI Page " + body.getClass().getName() + " does not have a container named " + name.name());
+		return container;
+	}
+
+	/**
+	 * Replace the current topmost page in the container with a new page. The old page gets destroyed, so
+	 * the stack size remains the same. If the page to replace is already on the stack then the stack
+	 * is unwound till that page before the replace takes place; in that case the "old" entry on the stack
+	 * will also be destroyed and be replaced with a new fresh page.
+	 */
+	static public void replace(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @Nullable IPageParameters pp) throws Exception {
+		SpiContainer container = getSpiContainer(name);
+		container.replace(spiClass, pp);
+	}
+
+	/**
+	 * Clear the entire shelf, and start completely anew with a fresh page on top.
+	 */
+	static public void moveNew(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @Nullable IPageParameters pp) throws Exception {
+		SpiContainer container = getSpiContainer(name);
+		container.moveNew(spiClass, pp);
+	}
+
+	static public void moveNew(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiPage, Object... param) throws Exception {
+		PageParameters pp;
+		if(param == null)
+			pp = new PageParameters();
+		else
+			pp = new PageParameters(param);
+
+		moveNew(name, spiPage, pp);
+	}
 }

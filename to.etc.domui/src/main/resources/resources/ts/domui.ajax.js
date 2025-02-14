@@ -29,9 +29,9 @@ var WebUI;
         }
         q1 = $("textarea").get();
         for (var i = q1.length; --i >= 0;) {
-            var sel = q1[i];
+            var sel = q1[i];+
             var val = void 0;
-            if (sel.className == 'ui-ckeditor') {
+            if (sel.className.startsWith('ui-ckeditor')) {
                 var editor = window.CKEDITOR.instances[sel.id];
                 if (null == editor)
                     throw "Cannot locate editor with id=" + sel.id;

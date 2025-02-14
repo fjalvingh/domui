@@ -153,6 +153,37 @@ $.fn.extend({
 			});
 			$(this).markerTransformed = true;
 		});
+	},
+
+	doSlideUp: function(callback) {
+		let fixDisplayCallback = function(elem) {
+			WebUI.fixDisplayClass(elem);
+		}
+
+		let myOnSlideUp = fixDisplayCallback;
+		if(null != callback) {
+			myOnSlideUp = function(elem) {
+				callback();
+				fixDisplayCallback(elem);
+			}
+		}
+		this.slideUp(myOnSlideUp(this));
+	},
+
+	doSlideDown: function(callback) {
+		let fixDisplayCallback = function(elem) {
+			WebUI.fixDisplayClass(elem);
+		}
+
+		let myOnSlideDown = fixDisplayCallback;
+		if(null != callback) {
+			myOnSlideDown = function(elem) {
+				callback();
+				fixDisplayCallback(elem);
+			}
+		}
+		this.slideDown(myOnSlideDown(this));
 	}
+
 });
 

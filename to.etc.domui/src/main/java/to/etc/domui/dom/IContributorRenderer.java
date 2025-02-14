@@ -17,7 +17,7 @@ public interface IContributorRenderer {
 
 	boolean isXml();
 
-	void renderLoadCSS(@NonNull String path,String... options) throws Exception;
+	void renderLoadCSS(@NonNull String path, String... options) throws Exception;
 
 	void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception;
 }

@@ -58,6 +58,8 @@ import static java.lang.Character.isJavaIdentifierPart;
 public class StringTool {
 	static private final Pattern NORMALIZE_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
+	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?:(https?|ftp|file)://|www\\.)?([\\w-]+[\\.\\:\\-])+[\\w-]+(/[\\w- ;#,./?%&=]*)?", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
 	/**
 	 * PLEASE DO NOT USE ANYMORE - this limit will change in Oracle 12. To get the
 	 * correct limit please call DomApplication.getPlatformVarcharByteLimit() which will
@@ -2374,6 +2376,7 @@ public class StringTool {
 			case ']':
 			case '<':
 			case '>':
+			case '|':
 			case '{':
 			case '}':
 				return true;
@@ -3079,6 +3082,18 @@ public class StringTool {
 	@NonNull
 	public static String replaceNewLineChars(@NonNull String content, @NonNull String replacement) {
 		return content.replace("\r\n", replacement).replace("\r", replacement).replace("\n", replacement);
+	}
+
+	/**
+	 * Loose checks if provided URL is valid.</br>
+	 * It allows URLs with and without http, https, ftp... online PDFs, Images, locally mapped IP addresses and IP
+	 * addresses itself.
+	 */
+	public static boolean validateUrl(@Nullable String urlValue) {
+		if(urlValue == null || urlValue.isEmpty()) {
+			return false;
+		}
+		return URL_PATTERN.matcher(urlValue).matches();
 	}
 
 	/**

@@ -17,6 +17,7 @@ import to.etc.domui.dom.html.IHasChangeListener;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
+import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.injector.AccessCheckException;
 import to.etc.domui.login.AccessCheckResult;
@@ -51,6 +52,7 @@ import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.IRebuildOnRefresh;
 import to.etc.domui.util.Msgs;
 import to.etc.function.ConsumerEx;
+import to.etc.util.DeveloperOptions;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -62,6 +64,7 @@ import to.etc.webapp.query.QContextManager;
 import javax.servlet.http.HttpSession;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static to.etc.domui.util.DomUtil.nullChecked;
@@ -140,11 +143,12 @@ final public class PageRequestHandler {
 		try {
 			runClass();
 		} catch(ThingyNotFoundException | ClientDisconnectedException xxxx) {
+			renderApplicationMail(xxxx);
 			throw xxxx;
 		} catch(Exception x) {
 			renderApplicationMail(x);
-			//if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
-			//	throw x;
+			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
+				throw x;
 
 			tryRenderOopsFrame(x);
 		} catch(Error x) {
@@ -207,7 +211,7 @@ final public class PageRequestHandler {
 			} else {
 				if(null != cida && cida.getConversationId().equals("r")) {
 					LOG.error("Seems that session redirect can't work, detected retry on session redirect, aborting...");
-					IBrowserOutput out = new PrettyXmlOutputWriter(m_ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
+					IBrowserOutput out = new PrettyXmlOutputWriter(m_ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"), null);
 					out.writeRaw("Can't create session, session cookie is blocked by the browser!\n");
 					return;
 				}
@@ -286,6 +290,8 @@ final public class PageRequestHandler {
 			} else if(Constants.ACMD_PAGEDATA.equals(action)) {
 				//-- If this is a PAGEDATA request - handle that
 				runOutOfBoundAction(page, wcomp -> ((IComponentUrlDataProvider) wcomp).provideUrlData(m_ctx));
+			} else if(Constants.ACMD_LOADFRAGS.equals(action)) {
+				loadSpiFragments(page);
 			} else if(null != action) {
 				runAction(page, action);
 			} else if(papa != null) {
@@ -298,6 +304,79 @@ final public class PageRequestHandler {
 		}
 	}
 
+	/**
+	 * Called when a page has an url fragment, from the Javascript that loads the page. This should decode
+	 * the url fragment and load all content blocks in the spi page.
+	 */
+	private void loadSpiFragments(Page page) throws Exception {
+		String hashes = m_ctx.getPageParameters().getString("hashes", null);
+		//if(null == hashes || hashes.isEmpty())
+		//	return;
+
+		//-- 1. Are we actually ON an SPI page?
+		UrlPage body = page.getBody();
+		//if(! (body instanceof SpiPage)) {
+		//	//logUser(page, "url fragment found on non-SPI page: " + hashes);
+		//	return;
+		//}
+
+		long ts = System.nanoTime();
+		m_application.internalCallPageAction(m_ctx, page);
+		page.callRequestStarted();
+
+		try {
+			if(body instanceof SpiPage) {
+				SpiPage spiPage = (SpiPage) body;
+				new SpiPageHelper(m_application).loadSpiFragmentFromHashes(spiPage, hashes);
+				ConversationContext conversation = page.internalGetConversation();
+				if(null != conversation && conversation.isValid())
+					page.modelToControl();
+			}
+		} catch(ValidationException x) {
+			/*
+			 * When an action handler failed because it accessed a component which has a validation error
+			 * we just continue - the failed validation will have posted an error message.
+			 */
+			if(LOG.isDebugEnabled())
+				LOG.debug("rq: ignoring validation exception " + x);
+			page.modelToControl();
+		} catch(MsgException msg) {
+			MsgBox.error(page.getBody(), msg.getMessage());
+			logUser(page, "error message: " + msg.getMessage());
+			page.modelToControl();
+		} catch(Exception ex) {
+			if(handleActionException(page, null, ex))
+				return;
+		}
+		page.callRequestFinished();
+
+		if(PageUtil.m_logPerf && !m_inhibitlog) {
+			ts = System.nanoTime() - ts;
+			System.out.println("domui: loadSpiFragment load handling took " + StringTool.strNanoTime(ts));
+		}
+		if(!page.isDestroyed()) 								// jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
+			page.getConversation().processDelayedResults(page);
+
+		//-- Determine the response class to render; exit if we have a redirect,
+		WindowSession cm = m_ctx.getWindowSession();
+		if(cm.handleGoto(m_ctx, page, true))
+			return;
+
+		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
+		callNewPageBuiltListeners(page);
+		renderDeltaResponse(page, m_inhibitlog);
+	}
+
+	private void loadSpiFragment(SpiPage spiPage, String fragmentIdentifier) throws Exception {
+		new SpiPageHelper(m_application).loadSpiFragment(spiPage, fragmentIdentifier);
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Others														*/
+	/*----------------------------------------------------------------------*/
+	/**
+	 *
+	 */
 	@NonNull
 	private PageParameters getPageParameters(@Nullable ConversationContext conversation) {
 		PageParameters papa = PageParameters.createFrom(m_ctx.getPageParameters());
@@ -382,7 +461,7 @@ final public class PageRequestHandler {
 				w = m_ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8");
 			}
 
-			IBrowserOutput out = new PrettyXmlOutputWriter(w);
+			IBrowserOutput out = new PrettyXmlOutputWriter(w, page);
 
 			HtmlFullRenderer hr = m_application.findRendererFor(m_ctx.getBrowserVersion(), out);
 			hr.render(m_ctx, page);
@@ -453,7 +532,7 @@ final public class PageRequestHandler {
 		if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 			String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
 			if(url != null) {
-				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to be logged in");
+				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to log in", true);
 				return true;
 			}
 		}
@@ -581,7 +660,8 @@ final public class PageRequestHandler {
 
 		//-- Send an empty response because IE will actually act on it sometimes.
 		IRequestResponse rr = m_ctx.getRequestResponse();
-		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+		DomApplication da = DomApplication.get();
+		da.renderHeaders(rr, da.getDefaultHTTPHeaderMap(), Collections.emptyMap());
 		m_ctx.getOutputWriter("text/html", "utf-8");
 	}
 
@@ -596,9 +676,9 @@ final public class PageRequestHandler {
 		if(m_action != null) {
 			if(INotReloadablePage.class.isAssignableFrom(m_runClass)) {
 				nonReloadableExpiredDetected = true;
-			} else {
+			} else if(Constants.ACMD_ASYPOLL.equals(m_action)) {
 				// In auto refresh: do not send the "expired" message, but let the refresh handle this.
-				if(m_application.getAutoRefreshPollInterval() <= 0) {
+				if(false && m_application.getAutoRefreshPollInterval() <= 0) {
 					String msg = Msgs.sSessionExpired.format();
 					m_commandWriter.generateExpired(m_ctx, msg);
 					logUser(msg);
@@ -642,6 +722,7 @@ final public class PageRequestHandler {
 		}
 
 		if(nonReloadableExpiredDetected) {
+			logUser("Sending AJAX redirect for new session");
 			generateNonReloadableExpired(windowSession);
 			return;
 		}
@@ -676,8 +757,17 @@ final public class PageRequestHandler {
 		sb.append('=');
 		sb.append(windowSession.getWindowID());
 		sb.append(".").append(conversationId);
+
+		pp.removeParameter(Constants.PARAM_CONVERSATION_ID);
+		pp.removeParameter(Constants.PARAM_PAGE_TAG);
 		DomUtil.addUrlParameters(sb, pp, false);
-		ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.");
+		logUser("Sending redirect, action=" + m_action);
+		if(m_action == null) {
+			ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.", false);
+		} else {
+			ApplicationRequestHandler.generateAjaxRedirect(m_ctx, sb.toString(), false);
+
+		}
 		String expmsg = "Session " + m_cid + " has expired - starting a new session by redirecting to " + sb.toString();
 		logUser(expmsg);
 		if(DomUtil.USERLOG.isDebugEnabled())
@@ -767,7 +857,7 @@ final public class PageRequestHandler {
 		if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
 			String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
 			if(url != null) {
-				ApplicationRequestHandler.generateAjaxRedirect(m_ctx, url);
+				ApplicationRequestHandler.generateAjaxRedirect(m_ctx, url, true);
 				return true;
 			}
 		}
@@ -829,7 +919,7 @@ final public class PageRequestHandler {
 		} catch(NotLoggedInException x) {                        // FIXME Fugly. Generalize this kind of exception handling somewhere.
 			String url = m_application.handleNotLoggedInException(m_ctx, x);
 			if(url != null) {
-				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to be logged in");
+				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to log in", true);
 			}
 		} catch(Exception x) {
 			logUser(page, "Delta render failed: " + x);
@@ -898,8 +988,12 @@ final public class PageRequestHandler {
 		}
 	}
 
+	static private boolean LOGUSER = DeveloperOptions.getBool("domui.loguser", false);
+
 	private void logUser(String string) {
 		m_ctx.getSession().log(new UserLogItem(m_cid, m_runClass.getName(), null, null, string));
+		if(LOGUSER)
+			System.out.println("lu>> " + string);
 	}
 
 	private void logUser(Page page, String string) {
@@ -987,7 +1081,7 @@ final public class PageRequestHandler {
 		sb.append('=');
 		sb.append(cm.getWindowID());
 		sb.append(".x"); // Dummy conversation ID
-		ApplicationRequestHandler.generateAjaxRedirect(m_ctx, sb.toString());
+		ApplicationRequestHandler.generateAjaxRedirect(m_ctx, sb.toString(), true);
 	}
 
 	/**

@@ -24,20 +24,35 @@
  */
 package to.etc.domui.dom;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.Pair;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Stack;
 
 public class XmlOutputWriterBase {
 	private Writer m_w;
 
 	protected boolean m_intag;
 
-	public XmlOutputWriterBase(Writer w) {
+	@Nullable
+	private final ICSPSupport m_scp;
+
+	@NonNull
+	protected Stack<Pair<String, String>> m_tagNamesAndIds = new Stack<>();
+
+	public XmlOutputWriterBase(Writer w, @Nullable ICSPSupport scp) {
 		m_w = w;
+		m_scp = scp;
 	}
 
 	protected Writer getWriter() {
 		return m_w;
 	}
+
 
 	/**
 	 * Writes string data. This escapes XML control characters to their entity
@@ -95,9 +110,11 @@ public class XmlOutputWriterBase {
 
 	public void nl() throws IOException {}
 
-	public void inc() {}
+	public void inc() {
+	}
 
-	public void dec() {}
+	public void dec() {
+	}
 
 	public boolean isIndentEnabled() {
 		return false;
@@ -106,9 +123,6 @@ public class XmlOutputWriterBase {
 	/**
 	 * Writes a tag start. It can be followed by attr() calls. If the namespace is in the current
 	 * namespace the tag will not have prefixes.
-	 *
-	 * @param namespace
-	 * @param tagname
 	 */
 	public void tag(final String tagname) throws IOException {
 		closePrevious(); // If an earlier tag is open close it,
@@ -118,6 +132,7 @@ public class XmlOutputWriterBase {
 		writeRaw(tagname);
 		m_intag = true;
 		inc();
+		m_tagNamesAndIds.push(new Pair<>(tagname, null));
 	}
 
 	/**
@@ -143,7 +158,6 @@ public class XmlOutputWriterBase {
 
 	/**
 	 * Ends a tag by adding />.
-	 * @throws IOException
 	 */
 	public void endAndCloseXmltag() throws IOException {
 		if(!m_intag)
@@ -151,6 +165,7 @@ public class XmlOutputWriterBase {
 		m_intag = false;
 		writeRaw("/>");
 		dec();
+		m_tagNamesAndIds.pop();
 	}
 
 	public void closetag(String name) throws IOException {
@@ -161,6 +176,7 @@ public class XmlOutputWriterBase {
 		writeRaw(">");
 		if(isIndentEnabled())
 			nl();
+		m_tagNamesAndIds.pop();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -169,15 +185,36 @@ public class XmlOutputWriterBase {
 	/**
 	 * Appends an attribute to the last tag. The value's characters that are invalid are quoted into
 	 * entities.
-	 *
-	 * @param namespace
-	 * @param name
-	 * @param value
-	 * @throws IOException
 	 */
 	public void attr(String name, String value) throws IOException {
 		if(!m_intag)
 			throw new IllegalStateException("No tag is currently 'active'");
+
+		ICSPSupport scp = m_scp;
+		if(DomUtil.isIn(name, "id") && null != scp) {
+			Pair<String, String> current = m_tagNamesAndIds.pop();
+			m_tagNamesAndIds.push(new Pair<>(current.get1(), value));
+		}
+		if("select".equals(name) && null != scp) {
+			Pair<String, String> current = m_tagNamesAndIds.peek();
+			if(null != current && "changeTagAttributes".equals(current.get1())) {
+				m_tagNamesAndIds.pop();
+				if(value.startsWith("#")) {
+					m_tagNamesAndIds.push(new Pair<>(current.get1(), value.substring(1)));
+				}
+			}
+		}
+
+		if(null != scp && scp.isAttributeHandled(name)) {
+			Pair<String, String> current = m_tagNamesAndIds.peek();
+			if(null == current) {
+				throw new IllegalStateException("Can't resolve the tagNameAndId on stack!?");
+			}
+			//m_scp.registerInlineJs(value);
+			scp.renderAsJavaScript(current.get2(), name, value);
+			return;
+		}
+
 		writeRaw(" ");
 		writeRaw(name);
 		writeRaw("=\"");
@@ -247,11 +284,6 @@ public class XmlOutputWriterBase {
 
 	/**
 	 * Write a simple numeric attribute thingy.
-	 *
-	 * @param namespace
-	 * @param name
-	 * @param value
-	 * @throws IOException
 	 */
 	public void attr(String name, long value) throws IOException {
 		attr(name, Long.toString(value));

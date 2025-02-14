@@ -100,7 +100,7 @@ public class TestDelta {
 
 	public String getFullRenderText(BrowserVersion bv, Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
-		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
+		IBrowserOutput ro = new PrettyXmlOutputWriter(sw, pg);
 		HtmlFullRenderer hr = getFullRenderer(ro);
 
 		pg.internalFullBuild();
@@ -116,7 +116,7 @@ public class TestDelta {
 	}
 	public String getDeltaRenderText(BrowserVersion bv, Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
-		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
+		IBrowserOutput ro = new PrettyXmlOutputWriter(sw, pg);
 		IRequestContext ctx = new TestRequestContext();
 		HtmlFullRenderer hr = getFullRenderer(ro);
 		pg.internalDeltaBuild();

@@ -33,7 +33,7 @@ package to.etc.webapp.eventmanager;
  */
 public enum ListenerType {
 	/** A Delayed listener gets called only after an event is posted at the time that the event is read by the separate event thread. */
-	DELAYED
+	DELAYED,
 
 	/**
 	 * An immediate event is passed to all listeners at the time that the postEvent call is done. This means that
@@ -43,11 +43,11 @@ public enum ListenerType {
 	 * <b>Important</b>: Please ensure that your event handling does not contain expensive (slow) actions,
 	 * as it directly influences the user's code!
 	 */
-	, IMMEDIATELY
+	IMMEDIATELY,
 
 	/**
 	 * The event is only fired on this-server. All other servers in the cluster do not see it(!). This should only
 	 * be used in exceptional circumstances.
 	 */
-	, LOCALLY,
+	LOCALLY,
 }

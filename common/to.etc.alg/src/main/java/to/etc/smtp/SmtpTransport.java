@@ -28,7 +28,6 @@ import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -375,10 +374,10 @@ public class SmtpTransport {
 			}
 
 			int c = text.charAt(index++) & 0xffff;
-			if(Character.isLetterOrDigit(c)) {
-				sb.append((char) c);
+			if(c == ' ') {
+				sb.append('=').append(hex(c));				// Space must be quoted
 			} else if(c < 0x80) {
-				sb.append('=').append(hex(c));
+				sb.append((char)c);
 			} else if(c <= 0x7ff) {
 				sb
 					.append('=').append(hex(((c >> 6) & 0x1f) | 0b11000000))
@@ -470,18 +469,19 @@ public class SmtpTransport {
 		}
 
 		String mailTo = "jal@etc.to";
+		//String mailTo = "i@qd.ax";
 		String imagePath = "/home/jal/again.jpg";
 		try {
 			MailBuilder mb = new MailBuilder();
 			mb.initialize("Run mailBuilder");
-			mb.appendText("Hello, this is the mailBuilder (4)");
+			mb.appendText("Hello, this is the mailBuilder (6)");
 			mb.appendHTML("<p>This is <b>HTML</b> text</p>");
 
 			//add attachment?
-			mb.image("image.jpg", new File(imagePath), "image/jpeg");
+//			mb.image("formatEmail.png", new File(imagePath), "image/jpeg");
 
-			Address from = new Address("itris@info.nl", "Mailer \u20ac daemon");
-			Address to = new Address(mailTo, "Frits \u20acJalvingh");
+			Address from = new Address("jal@etc.to", "Mailer Çoiriet \u20a4 daemon");
+			Address to = new Address(mailTo, "Frits Çoiriet Jalvingh");
 			mb.send(new SmtpTransport("localhost"), from, to);
 		} catch(Exception x) {
 			x.printStackTrace();

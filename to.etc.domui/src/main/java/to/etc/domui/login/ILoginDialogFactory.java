@@ -26,6 +26,7 @@ package to.etc.domui.login;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * This must be used when the application uses demand-based logins. It provides a function
@@ -44,7 +45,8 @@ public interface ILoginDialogFactory {
 	 * The URL returned <b>must</b> be an URL relative to the webapp root or the
 	 * properly defined name of a Page class.
 	 */
-	String getLoginRURL(String originalTarget);
+	@NonNull
+	String getLoginRURL(@NonNull String originalTarget);
 
 	/**
 	 * Must return the RURL of the page/JSP to use as an "access denied" page. The

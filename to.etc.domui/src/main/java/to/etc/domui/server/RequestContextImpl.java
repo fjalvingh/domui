@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.server.PageUrlMapping.PageSubtype;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.state.AppSession;
@@ -164,7 +165,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		/*
 		 * Is the input known to the URL mapper?
 		 */
-		Target target = app.getPageUrlMapping().findTarget(urlin, m_parameterWrapper);
+		Target target = app.getPageUrlMapping().findTarget(PageSubtype.UrlPage, urlin, m_parameterWrapper);
 		if(null != target) {
 			m_pageName = target.getTargetPage();
 			m_parameterWrapper = target.getParameters();
@@ -516,7 +517,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	}
 
 	public void renderResponseHeaders(@Nullable UrlPage currentPage) throws Exception {
-		m_application.applyPageHeaderTransformations(getPageName(), currentPage).forEach((header, value) -> getRequestResponse().addHeader(header, value));
+		Map<String, String> httpHeaders = m_application.applyPageHeaderTransformations(getPageName(), currentPage);
+		m_application.renderHeaders(getRequestResponse(), httpHeaders, currentPage == null ? Collections.emptyMap() : currentPage.getPage().getHeaderVariableMap());
 	}
 
 	/**

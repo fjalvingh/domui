@@ -18,6 +18,47 @@ namespace WebUI {
 
 	let FCKeditor_fixLayout;
 
+
+	/**
+	 * Ajax Callbacks are Javascript methods that are registered by name, associated
+	 * with a component, and that can be called from Server code using that name.
+	 */
+	class AxCallBack {
+		id: string;
+		componentId: String;
+		callbackMethod: (...args) => void;
+
+		constructor(id: string, comp: string, cb: (...args) => void) {
+			this.id = id;
+			this.componentId = comp;
+			this.callbackMethod = cb;
+		}
+	}
+
+	let _callbackMap = {};
+
+	let _callbackIdCount = 1;
+
+	/**
+	 * Register a callback method that can be called at a later time by server
+	 * code. The callback is identified by name.
+	 */
+	export function registerCallback(componentId: string, callbackMethod: (...args) => void) : string {
+		let cbid = "cb" + _callbackIdCount++;
+		_callbackMap[cbid] = new AxCallBack(cbid, componentId, callbackMethod);
+		return cbid;
+	}
+
+	export function callCallBack(callbackId: string, ...args) {
+		let cb = _callbackMap[callbackId] as AxCallBack;
+		if(! cb) {
+			console.log("error: Missing callback " + callbackId);
+			return;
+		}
+		delete _callbackMap[callbackId];
+		cb.callbackMethod(args);
+	}
+
 	export function oddCharAndClickCallback(nodeId, clickId): void {
 		oddChar(document.getElementById(nodeId));
 		document.getElementById(clickId).click();
@@ -396,8 +437,54 @@ namespace WebUI {
 		WebUI.valuechanged('eh', id);
 	}
 
+	export function fixDisplayClass(elem): void {
+		let style = $(elem).attr("style");
+		if(null == style) {
+			return;
+		}
+		if(style.includes("display: none;")) {
+			style = style
+				.replace("display: none;", "")
+			$(elem).attr("style", style);
+			$(elem).removeClass("ui-display-block");
+			$(elem).removeClass("ui-display-flex");
+			$(elem).removeClass("ui-display-inline");
+			$(elem).addClass("ui-display-none");
+		}
+		if(style.includes("display: block;")) {
+			style = style
+				.replace("display: block;", "")
+			$(elem).attr("style", style);
+			$(elem).removeClass("ui-display-none");
+			$(elem).removeClass("ui-display-flex");
+			$(elem).removeClass("ui-display-inline");
+			$(elem).addClass("ui-display-block");
+		}
+		if(style.includes("display: inline;")) {
+			style = style
+				.replace("display: inline;", "")
+			$(elem).attr("style", style);
+			$(elem).removeClass("ui-display-none");
+			$(elem).removeClass("ui-display-block");
+			$(elem).removeClass("ui-display-flex");
+			$(elem).addClass("ui-display-inline");
+		}
+		if(style.includes("display: flex;")) {
+			style = style
+				.replace("display: flex;", "")
+			$(elem).attr("style", style);
+			$(elem).removeClass("ui-display-none");
+			$(elem).removeClass("ui-display-block");
+			$(elem).removeClass("ui-display-inline");
+			$(elem).addClass("ui-display-flex");
+		}
+	}
+
 	export function flare(id): void {
+		$('#' + id).css('display', 'none');
+		$('#' + id).removeClass("ui-display-none");
 		$('#' + id).fadeIn('fast', function() {
+			WebUI.fixDisplayClass($('#' + id));
 			$('#' + id).delay(500).fadeOut(1000, function() {
 				$('#' + id).remove();
 			});
@@ -405,7 +492,10 @@ namespace WebUI {
 	}
 
 	export function flareStay(id): void {
+		$('#' + id).css('display', 'none');
+		$('#' + id).removeClass("ui-display-none");
 		$('#' + id).fadeIn('fast', function() {
+			WebUI.fixDisplayClass($('#' + id));
 			$('body,html').bind('mousemove.' + id, function(e) {
 				$('body,html').unbind('mousemove.' + id);
 				$('#' + id).delay(500).fadeOut(1000, function() {
@@ -416,7 +506,10 @@ namespace WebUI {
 	}
 
 	export function flareStayCustom(id, delay, fadeOut): void {
+		$('#' + id).css('display', 'none');
+		$('#' + id).removeClass("ui-display-none");
 		$('#' + id).fadeIn('fast', function() {
+			WebUI.fixDisplayClass($('#' + id));
 			$('body,html').bind('mousemove.' + id, function(e) {
 				$('body,html').unbind('mousemove.' + id);
 				$('#' + id).delay(delay).fadeOut(fadeOut, function() {

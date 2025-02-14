@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component2.lookupinput;
+	package to.etc.domui.component2.lookupinput;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -44,12 +44,14 @@ import to.etc.domui.server.IRequestContext;
  */
 public class SearchInput2 extends Div implements IForTarget {
 	@NonNull
-	final private Input m_keySearch = new Input();
+	final private Input m_keySearch = createKeySearch();
 
 	@Nullable
 	private IValueChanged<SearchInput2> m_onLookupTyping;
 
 	private int m_popupWidth;
+
+	private int m_maxLength = 40;
 
 	public SearchInput2() {
 	}
@@ -62,7 +64,7 @@ public class SearchInput2 extends Div implements IForTarget {
 	@Override
 	public void createContent() throws Exception {
 		css("ui-lui-srip", "ui-control");
-		m_keySearch.setMaxLength(40);
+		m_keySearch.setMaxLength(m_maxLength);
 		m_keySearch.setSize(14);
 		m_keySearch.setMarker();
 
@@ -122,8 +124,6 @@ public class SearchInput2 extends Div implements IForTarget {
 	/**
 	 * Sent regularly whenever the search box is typed in. Causes a ValueChanged event which can then do
 	 * whatever lookup is needed.
-	 * @param ctx
-	 * @throws Exception
 	 */
 	public void webActionlookupTyping(IRequestContext ctx) throws Exception {
 		IValueChanged<SearchInput2> lookupTyping = getOnLookupTyping();
@@ -134,12 +134,31 @@ public class SearchInput2 extends Div implements IForTarget {
 	/**
 	 * Send when return is pressed in the search box. Should finalize the selected value, if
 	 * one is present.
-	 * @param ctx
-	 * @throws Exception
 	 */
 	public void webActionlookupTypingDone(IRequestContext ctx) throws Exception {
 		IReturnPressed< ? extends NodeBase> returnPressed = getReturnPressed();
 		if(null != returnPressed)
 			((IReturnPressed<NodeBase>) returnPressed).returnPressed(this);
+		else
+			webActionlookupTyping(ctx);						// Make sure that an ENTER also counts as some data entered.
 	}
+
+	/**
+	 * Sets a placeholder text in a text input.
+	 */
+	public void setPlaceHolder(String placeHolder) {
+		m_keySearch.setPlaceHolder(placeHolder);
+	}
+
+	/**
+	 * Sets the maximum length of the text input field.
+	 */
+	public void setMaxLength(int maxLength) {
+		m_maxLength = maxLength;
+	}
+
+	protected Input createKeySearch() {
+		return new Input();
+	}
+
 }

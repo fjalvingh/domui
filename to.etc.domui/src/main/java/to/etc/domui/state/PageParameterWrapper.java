@@ -101,7 +101,7 @@ public class PageParameterWrapper implements IPageParameters {
 		if(ar.length == 1)
 			return ar[0];
 
-		LOG.error("PARAMERROR Multiple parameter values for " + name + " urlin=" + getInputPath());
+		LOG.error("PARAMERROR Multiple parameter values for " + name + ", input URL=" + getInputPath());
 		return ar[0];
 	}
 

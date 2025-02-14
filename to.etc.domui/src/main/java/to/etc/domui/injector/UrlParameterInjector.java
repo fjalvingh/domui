@@ -26,7 +26,7 @@ package to.etc.domui.injector;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.converter.ConverterRegistry;
-import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.state.IPageParameters;
 import to.etc.util.PropertyInfo;
 
@@ -56,7 +56,7 @@ final public class UrlParameterInjector extends PropertyInjector {
 	 * Effects the actual injection of an URL parameter to a value.
 	 */
 	@Override
-	public void inject(@NonNull final UrlPage page, final @NonNull IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
+	public void inject(@NonNull AbstractPage page, final @NonNull IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = papa.getString(m_name, null);
 		if(pv == null) {

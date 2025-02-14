@@ -1,11 +1,13 @@
 ﻿/**
- * @license Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 CKEDITOR.plugins.add( 'smiley', {
 	requires: 'dialog',
-	lang: 'af,ar,bg,bn,bs,ca,cs,cy,da,de,el,en,en-au,en-ca,en-gb,eo,es,et,eu,fa,fi,fo,fr,fr-ca,gl,gu,he,hi,hr,hu,id,is,it,ja,ka,km,ko,ku,lt,lv,mk,mn,ms,nb,nl,no,pl,pt,pt-br,ro,ru,si,sk,sl,sq,sr,sr-latn,sv,th,tr,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
+	// jscs:disable maximumLineLength
+	lang: 'af,ar,az,bg,bn,bs,ca,cs,cy,da,de,de-ch,el,en,en-au,en-ca,en-gb,eo,es,es-mx,et,eu,fa,fi,fo,fr,fr-ca,gl,gu,he,hi,hr,hu,id,is,it,ja,ka,km,ko,ku,lt,lv,mk,mn,ms,nb,nl,no,oc,pl,pt,pt-br,ro,ru,si,sk,sl,sq,sr,sr-latn,sv,th,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
+	// jscs:enable maximumLineLength
 	icons: 'smiley', // %REMOVE_LINE_CORE%
 	hidpi: true, // %REMOVE_LINE_CORE%
 	init: function( editor ) {
@@ -18,10 +20,10 @@ CKEDITOR.plugins.add( 'smiley', {
 			label: editor.lang.smiley.toolbar,
 			command: 'smiley',
 			toolbar: 'insert,50'
-		});
+		} );
 		CKEDITOR.dialog.add( 'smiley', this.path + 'dialogs/smiley.js' );
 	}
-});
+} );
 
 /**
  * The base path used to build the URL for the smiley images. It must end with a slash.
@@ -53,7 +55,8 @@ CKEDITOR.config.smiley_images = [
 	'regular_smile.png', 'sad_smile.png', 'wink_smile.png', 'teeth_smile.png', 'confused_smile.png', 'tongue_smile.png',
 	'embarrassed_smile.png', 'omg_smile.png', 'whatchutalkingabout_smile.png', 'angry_smile.png', 'angel_smile.png', 'shades_smile.png',
 	'devil_smile.png', 'cry_smile.png', 'lightbulb.png', 'thumbs_down.png', 'thumbs_up.png', 'heart.png',
-	'broken_heart.png', 'kiss.png', 'envelope.png' ];
+	'broken_heart.png', 'kiss.png', 'envelope.png'
+];
 
 /**
  * The description to be used for each of the smileys defined in the

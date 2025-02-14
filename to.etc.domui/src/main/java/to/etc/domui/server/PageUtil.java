@@ -36,7 +36,7 @@ final public class PageUtil {
 		// /ORDERED
 
 		ctx.renderResponseHeaders(page.getBody());
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"), page);
 
 		long ts = System.nanoTime();
 		//		String	usag = ctx.getUserAgent();

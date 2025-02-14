@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.*;
 
 /**
@@ -54,6 +56,10 @@ public class SimpleListModel<T> extends TableListModelBase<T> implements ITrunca
 	@Override
 	public boolean isTruncated() {
 		return m_isTruncated;
+	}
+
+	@Nullable @Override public Integer getActualRowCount() throws Exception {
+		return null;
 	}
 
 	public void setTruncated(boolean truncated) {

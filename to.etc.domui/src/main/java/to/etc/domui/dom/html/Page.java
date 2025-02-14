@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.component.misc.WindowParameters;
+import to.etc.domui.dom.ICSPSupport;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.header.HeaderContributor;
@@ -47,6 +48,8 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.function.IExecute;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
@@ -74,7 +77,7 @@ import java.util.stream.Collectors;
  * Created on Aug 18, 2007
  */
 @NonNullByDefault
-final public class Page implements IQContextContainer {
+final public class Page implements IQContextContainer, ICSPSupport {
 	static private final Logger LOG = LoggerFactory.getLogger(Page.class);
 
 	static private final int MAX_DOMUI_NODES_PER_PAGE = 100_000;
@@ -97,6 +100,11 @@ final public class Page implements IQContextContainer {
 
 	@Nullable
 	private ConversationContext m_cc;
+
+	@Nullable
+	private String m_nonce;
+
+	private final Map<String, String> m_headerVariableMap = new HashMap<>(9);
 
 	//	private boolean					m_built;
 
@@ -128,6 +136,9 @@ final public class Page implements IQContextContainer {
 
 	@Nullable
 	private StringBuilder m_appendJS;
+
+	@Nullable
+	private StringBuilder m_appendDomuiJS;
 
 	/** Temp for checking shelve order. */
 	private boolean m_shelved;
@@ -275,7 +286,6 @@ final public class Page implements IQContextContainer {
 		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
 		//m_HTTPHeaderMap.putAll(app.applyPageHeaderTransformations(pageContent.getClass().getName(), app.getDefaultHTTPHeaderMap()));
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Phase handling (debug internals)					*/
@@ -473,11 +483,15 @@ final public class Page implements IQContextContainer {
 			getConversation().addSubConversation(sp.getConversation());
 			m_removedSubPages.remove(sp);                // If we removed it earlier- unremove it (keeping its conversation state)
 
+			long ts = System.nanoTime();
 			try {
 				DomApplication.get().getSubPageInjector().inject(sp);
 			} catch(Exception x) {
+				System.err.println("ERROR: SubPage injection failed for page " + n.getClass().getSimpleName() + ": " + x);
 				throw WrappedException.wrap(x);
 			}
+			ts = System.nanoTime() - ts;
+			spilog("injecting " + n.getClass().getSimpleName() + " took " + StringTool.strNanoTime(ts));
 		}
 
 		//-- Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
@@ -748,8 +762,18 @@ final public class Page implements IQContextContainer {
 		}
 		getFloatingStack().add(window); // Add on top (defines order)
 
+		//-- Find the closest SubPage, or Body.
+		NodeContainer nc = originalParent;
+		for(;;) {
+			if(nc instanceof SubPage)
+				break;
+			if(nc == getBody())
+				break;
+			nc = nc.getParent();
+		}
+
 		//-- Add the floater to the body,
-		getBody().internalAdd(Integer.MAX_VALUE, window); // Add to body,
+		nc.internalAdd(Integer.MAX_VALUE, window); // Add to body,
 	}
 
 	/**
@@ -880,6 +904,13 @@ final public class Page implements IQContextContainer {
 	}
 
 	@Nullable
+	public StringBuilder internalFlushAppendDomuiJS() {
+		StringBuilder sb = m_appendDomuiJS;
+		m_appendDomuiJS = null;
+		return sb;
+	}
+
+	@Nullable
 	public StringBuilder internalFlushAppendJS() {
 		if(internalCanLeaveCurrentPageByBrowser()) {
 			if(m_rootContent instanceof IPageWithNavigationCheck) {
@@ -899,6 +930,15 @@ final public class Page implements IQContextContainer {
 		StringBuilder sb = m_appendJS;
 		if(null == sb) {
 			sb = m_appendJS = new StringBuilder(2048);
+		}
+		return sb;
+	}
+
+	@NonNull
+	private StringBuilder internalGetAppendDomuiJS() {
+		StringBuilder sb = m_appendDomuiJS;
+		if(null == sb) {
+			sb = m_appendDomuiJS = new StringBuilder(512);
 		}
 		return sb;
 	}
@@ -1274,10 +1314,14 @@ final public class Page implements IQContextContainer {
 	public void discardRemovedSubPages() {
 		for(SubPage subPage : getRemovedSubPages()) {
 			SubConversationContext scs = subPage.getConversation();
-			try {
-				getConversation().removeAndDestroySubConversation(scs);
-			} catch(Exception x) {
-				LOG.error("Subpage discard failed: " + x, x);
+			if(scs.getShelvedIn() == null) {
+				spilog("destroying context for " + subPage.getClass().getSimpleName());
+				//-- Only destroy subpages that are not part of an SPI container (they might be stacked on the shelf)
+				try {
+					getConversation().removeAndDestroySubConversation(scs);
+				} catch(Exception x) {
+					LOG.error("Subpage discard failed: " + x, x);
+				}
 			}
 		}
 		getRemovedSubPages().clear();
@@ -1413,6 +1457,13 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
+	static private boolean LOGSPI = DeveloperOptions.getBool("domui.logspi", false);
+
+	public static void spilog(String s) {
+		if(LOGSPI)
+			System.out.println("spi>> " + s);
+	}
+
 	/**
 	 * Checks if page can be left caused by browser navigation.
 	 */
@@ -1468,11 +1519,72 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
-
 	/**
 	 * Do not use, you will OOM the server just like that!!
 	 */
 	public void internalSetAllowTooManyNodes(boolean allowTooManyNodes) {
 		m_allowTooManyNodes = allowTooManyNodes;
+	}
+
+	/**
+	 * Return an unique page nonce.
+	 */
+	public String getNonce() {
+		String nonce = m_nonce;
+		if(null == nonce) {
+			m_nonce = nonce = DomUtil.createNonce();
+		}
+		return nonce;
+	}
+
+	/**
+	 * Currently supported list of attributes (other than event handlers) that we handle by CSP handler.
+	 */
+	private static final Set<String> CSP_JS_INLINE_ATTRIBUTES_TO_HANDLE = Set.of("style");
+
+	@Override
+	public boolean isAttributeHandled(@NonNull String attributeName) {
+		if(attributeName.startsWith("on")) {
+			return true;
+		}
+		return CSP_JS_INLINE_ATTRIBUTES_TO_HANDLE.contains(attributeName);
+	}
+
+	@Override
+	public void renderAsJavaScript(String id, String attribute, String value) {
+		boolean isFunction = isAttributeMappedToJsFunction(attribute);
+		if(isFunction) {
+			String event = translateAttributeToEvent(attribute);
+			internalGetAppendDomuiJS().append("$('#" + id + "').off('" + event + "');");
+			if(!StringTool.isBlank(value)) {
+				internalGetAppendDomuiJS().append("$('#" + id + "').on('" + event + "', function() {" + value + ";});");
+			}
+		}else {
+			String field = translateAttributeToField(attribute);
+			internalGetAppendDomuiJS().append("$('#" + id + "').attr(\"" + field + "\", \"" + value + "\");");
+		}
+	}
+
+	private boolean isAttributeMappedToJsFunction(String attribute) {
+		return attribute.startsWith("on");
+	}
+
+	private String translateAttributeToEvent(String attribute) {
+		if(attribute.startsWith("on")) {
+			return attribute.substring(2);
+		}
+		throw new IllegalArgumentException("What else? " + attribute);
+	}
+
+	private String translateAttributeToField(String attribute) {
+		switch(attribute) {
+			case "style": return "style";
+			default: throw new IllegalArgumentException("What else? " + attribute);
+		}
+	}
+
+	public Map<String, String> getHeaderVariableMap() {
+		m_headerVariableMap.put("NONCE", getNonce());
+		return m_headerVariableMap;
 	}
 }
