@@ -428,7 +428,7 @@ namespace WebUI {
 			_colorTimer = undefined;
 		}
 		_colorLastID = id;
-		_colorTimer = window.setTimeout("WebUI.colorPickerChangeEvent('" + id + "')", 500);
+		_colorTimer = window.setTimeout(() => WebUI.colorPickerChangeEvent(id), 500);
 	}
 
 	export function colorPickerChangeEvent(id): void {

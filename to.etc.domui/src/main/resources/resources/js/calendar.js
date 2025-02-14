@@ -542,10 +542,10 @@ Calendar.dayMouseDown = function(ev) {
 	}
 	if (el.navtype == -1 || el.navtype == 1) {
 		if (cal.timeout) clearTimeout(cal.timeout);
-		cal.timeout = setTimeout("Calendar.showMonthsCombo()", 250);
+		cal.timeout = setTimeout(() =>Calendar.showMonthsCombo(), 250);
 	} else if (el.navtype == -2 || el.navtype == 2) {
 		if (cal.timeout) clearTimeout(cal.timeout);
-		cal.timeout = setTimeout((el.navtype > 0) ? "Calendar.showYearsCombo(true)" : "Calendar.showYearsCombo(false)", 250);
+		cal.timeout = setTimeout((el.navtype > 0) ? () => Calendar.showYearsCombo(true) : () => Calendar.showYearsCombo(false), 250);
 	} else {
 		cal.timeout = null;
 	}
@@ -1459,7 +1459,7 @@ Calendar.prototype.showAtElement = function (el, opts) {
 		self.showAt(p.x, p.y);
 	};
 	if (Calendar.is_khtml)
-		setTimeout("Calendar.continuation_for_the_fucking_khtml_browser()", 10);
+		setTimeout(() =>Calendar.continuation_for_the_fucking_khtml_browser(), 10);
 	else
 		Calendar.continuation_for_the_fucking_khtml_browser();
 };
@@ -1670,10 +1670,10 @@ Date.parseDate = function(str, fmt) {
 	if (isNaN(d))	throw Calendar._TT ["INVALID_DATE"];
 	if (isNaN(hr))	throw Calendar._TT ["INVALID_HOUR"];
 	if (isNaN(min))	throw Calendar._TT ["INVALID_MINUTE"];
-	
+
 	if (m != -1 && d != 0){
 		// If no year was entered assume current year.
-		if (y == 0)	
+		if (y == 0)
 			y = today.getFullYear();
 		return Date.dateFromYMDHMS(y, m, d, hr, min, 0);
 	}
@@ -1712,7 +1712,7 @@ Date.parseDate = function(str, fmt) {
  * Convert year which can be in 2 digit format to 4 digit year.
  * This was based on arbitrary decision to interpret years
  * 0-29 as XXI century and 30-99 as XX century.
- *  
+ *
  * @param year
  * @returns 4 digit year.
  */
