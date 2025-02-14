@@ -219,6 +219,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			Collections.sort(list, HeaderContributor.C_ENTRY);
 
 			o().tag("eval");
+			o().attr("loadk", page().getNonce());
 			o().endtag();
 			for(HeaderContributorEntry hc : list)
 				hc.getContributor().contribute(this);
@@ -231,6 +232,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		//-- 20091127 jal Add header contributors delta rendering end
 		calc(m_page);
 		o().tag("eval");
+		o().attr("loadk", page().getNonce());
 		o().endtag();
 
 		//-- If we have a special calculate focus request (Window created) - calculate it

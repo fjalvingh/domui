@@ -16,6 +16,7 @@ import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencyList;
 import to.etc.util.ByteBufferOutputStream;
 import to.etc.util.DeveloperOptions;
+import to.etc.util.StringTool;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -266,7 +267,13 @@ public class PartService {
 		if(cp.getCacheTime() > 0 && m_allowExpires) {
 			ctx.getRequestResponse().setExpiry(cp.getCacheTime());
 		}
-		DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
+
+		Map<String, String> headerMap = ctx.getApplication().getDefaultSiteResourceHeaderMap();
+		Map<String, String> varMap = new HashMap<String, String>();
+		varMap.put("NONCE", StringTool.generateGUID());
+		ctx.getApplication().renderHeaders(ctx.getRequestResponse(), headerMap, varMap);
+
+		//DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 
 		try {
 			os = ctx.getRequestResponse().getOutputStream(cp.getContentType(), null, cp.getSize());

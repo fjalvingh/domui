@@ -319,6 +319,11 @@ public class HttpServerRequestResponse implements IRequestResponse {
 
 	@Override
 	public void addHeader(@NonNull String name, @NonNull String value) {
+		if(DomApplication.get().logOutput()) {
+			System.out.println("- Header added: " + name + ": " + value);
+			if(value.contains("${NONCE}"))
+				System.err.println("UNREPLACED NONCE!?");
+		}
 		getResponse().addHeader(name, value);
 	}
 

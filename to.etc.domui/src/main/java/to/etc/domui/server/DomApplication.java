@@ -1461,6 +1461,7 @@ public abstract class DomApplication {
 		for(String jqresource : getJQueryScripts()) {
 			addHeaderContributor(HeaderContributor.loadJavascript("$js/" + jqresource), order++);
 		}
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jqAttrFix.js"), order++);
 
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
@@ -1483,6 +1484,7 @@ public abstract class DomApplication {
 		 */
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar-setup.js"), -770);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui-date-checker.js"), -760);
 		//-- Localized calendar resources are added per-page.
 
 		/*

@@ -233,9 +233,10 @@ class BodyParseException extends ResponseException {
 			let js;
 			try {
 				js = (cmdNode.firstChild ? cmdNode.textContent : null); //textContent due to AJAX 4096 limit per single node content.
+				let nonce = cmdNode.getAttribute("loadk");
 				//log('invoking "eval" command: ', js);
 				if(js)
-					$.globalEval(js);
+					$.globalEval(js, {nonce: nonce});
 			} catch(ex) {
 				alert('eval failed: ' + ex + ", js=" + js);
 				throw ex;
