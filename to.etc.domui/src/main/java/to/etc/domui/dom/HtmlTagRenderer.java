@@ -1377,8 +1377,10 @@ public class HtmlTagRenderer implements INodeVisitor {
 			String txt = n.getRawValue();
 			if(txt == null)
 				txt = "";
-			txt = StringTool.strToJavascriptString(txt, false);
-			o().attr("domjs_value", txt); // FIXME THIS DOES NOT ALWAYS WORK
+			if(false) {
+				txt = StringTool.strToJavascriptString(txt, false);
+				o().attr("data-domvalue", txt); // FIXME THIS DOES NOT ALWAYS WORK
+			}
 		}
 
 		/*
@@ -1386,17 +1388,17 @@ public class HtmlTagRenderer implements INodeVisitor {
 		 * characters wrong.
 		 */
 		if(n.getMaxLength() > 0) {
-			o().attr("mxlength", n.getMaxLength());					// Not valid for html < 5, handled by Javascript
+			o().attr("data-mxlength", n.getMaxLength());					// Not valid for html < 5, handled by Javascript
 		}
 		if(n.getMaxByteLength() > 0) {
-			o().attr("maxbytes", n.getMaxByteLength());				// If byte-limited, send to Javascript too
+			o().attr("data-maxbytes", n.getMaxByteLength());				// If byte-limited, send to Javascript too
 		}
 
 		renderTagend(n, o());
+		//String rawValue = n.getRawValue();
 		o().setIndentEnabled(false); // jal 20090923 again: do not indent content (bug 627)
-		//		if(n.getRawValue() != null)
-		//			o().text(n.getRawValue());
-		//		o().closetag(n.getTag());
+		//if(null != rawValue)
+		//	o().text(rawValue);
 	}
 
 	@Override

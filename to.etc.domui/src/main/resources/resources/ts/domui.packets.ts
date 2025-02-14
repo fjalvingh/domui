@@ -370,14 +370,14 @@ class BodyParseException extends ResponseException {
 			return;
 		}
 
-		if(attributeName.substring(0, 6) == 'domjs_') {
+		if(attributeName.substring(0, 8) == 'data-dom') {
 			let s = undefined;
 			try {
-				s = "dest." + attributeName.substring(6) + " = " + value;
+				s = "dest." + attributeName.substring(8) + " = " + value;
 				eval(s);
 				return;
 			} catch(ex) {
-				alert('domjs_ eval failed: ' + ex + ", value=" + s);
+				alert('data-dom* eval failed: ' + ex + ", value=" + s);
 				throw ex;
 			}
 		}
@@ -481,7 +481,12 @@ class BodyParseException extends ResponseException {
 			let tag = node.tagName.toLowerCase();
 			e = document.createElement(tag);
 		}
-		copyAttrs(e, node, false);
+		try {
+			copyAttrs(e, node, false);
+		} catch(x) {
+			console.log("Error in copyAttributes ", node);
+			throw x;
+		}
 		for(var i = 0, max = node.childNodes.length; i < max; i++) {
 			var child = createNode(node.childNodes[i], cdataWrap, xmlns);
 			if(child)
@@ -507,8 +512,8 @@ class BodyParseException extends ResponseException {
 
 			if(inline) {
 				//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
-				if(n.substring(0, 6) == 'domjs_') {
-					alert('Unsupported domjs_ attribute in INLINE mode: ' + n);
+				if(n.substring(0, 8) == 'data-dom') {
+					alert('Unsupported data-dom* attribute in INLINE mode: ' + n);
 				} else {
 					//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
 					if("checked" == n || "selected" == n || "disabled" == n || "readonly" == n) {
@@ -519,13 +524,13 @@ class BodyParseException extends ResponseException {
 					} else
 						attr += (n + '="' + v + '" ');
 				}
-			} else if(n.substring(0, 6) == 'domjs_') {
-				var s = "dest." + n.substring(6) + " = " + v;
+			} else if(n.substring(0, 8) == 'data-dom') {
+				var s = "dest." + n.substring(8) + " = " + v;
 				//alert('domjs eval: '+s);
 				try {
 					eval(s);
 				} catch (ex) {
-					alert('domjs_ eval failed: ' + ex + ", js=" + s);
+					alert('data-dom* eval failed: ' + ex + ", js=" + s);
 					throw ex;
 				}
 			// } else if(n == 'xmlns') {
