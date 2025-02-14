@@ -1055,7 +1055,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitA(final ATag a) throws Exception {
 		basicNodeRender(a, m_o);
 		if(a.getHref() == null || a.getHref().trim().isEmpty()) {
-			o().attr("href", "javascript: void(0);");
+			o().attr("href", "#");
+			//o().attr("href", "javascript: void(0);");
 		} else
 			o().attr("href", a.getHref());
 		if(a.getTarget() != null)
