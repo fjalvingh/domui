@@ -29,7 +29,7 @@ var WebUI;
         }
         q1 = $("textarea").get();
         for (var i = q1.length; --i >= 0;) {
-            var sel = q1[i];+
+            var sel = q1[i];
             var val = void 0;
             if (sel.className.startsWith('ui-ckeditor')) {
                 var editor = window.CKEDITOR.instances[sel.id];
@@ -317,7 +317,7 @@ var WebUI;
         if (_pollActive)
             return;
         _pollActive = true;
-        _pollTimer = setTimeout("WebUI.poll()", _pollInterval);
+        _pollTimer = setTimeout(() => "WebUI.poll()", _pollInterval);
     }
     WebUI.startPolling = startPolling;
     function cancelPolling() {
