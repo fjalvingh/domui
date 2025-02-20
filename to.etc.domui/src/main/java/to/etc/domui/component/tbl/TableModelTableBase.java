@@ -65,7 +65,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	}
 
 	public TableModelTableBase() {
-		m_model = new SimpleListModel<>(Collections.emptyList());
+		m_model = new SimpleListModel<>(new ArrayList<>());
 	}
 
 	/*--------------------------------------------------------------*/
