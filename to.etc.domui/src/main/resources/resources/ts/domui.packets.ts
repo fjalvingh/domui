@@ -554,7 +554,20 @@ class BodyParseException extends ResponseException {
 			} else if(n == '' +
 				'style') { // IE workaround
 				dest.style.cssText = v;
-				dest.setAttribute(n, v);
+//				dest.setAttribute(n, v);
+
+				var styles = v.split(';').filter(Boolean);
+				styles.forEach(property => {
+					let index = property.indexOf(":");
+					if (index !== -1) {
+						let p = property.substring(0, index).trim();
+						let value = property.substring(index + 1).trim();
+						p = p.replace(/-(\w)/g, (match, letter) => letter.toUpperCase());
+						dest.style[p.trim()] = value.trim();
+					}
+				});
+
+
 			} else {
 				//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
 				if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
