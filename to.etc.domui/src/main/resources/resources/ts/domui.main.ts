@@ -3,10 +3,6 @@
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
-$(function(){
-	$.getScript(window['DomUIappURL'] + "$js/domui-date-checker.js");
-});
-
 function _block() : void {
 	WebUI.blockUI();
 }

@@ -198,7 +198,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 		if(qDivPopup.length > 0) {
 			divPopup = qDivPopup.get(0);
 			//z-index correction must be set manually from javascript (because some bug in IE7 -> if set from domui renders incorrectly until page is refreshed?)
-			divPopup.style.zIndex = node.style.zIndex + 1;
+			divPopup.style.zIndex = node.style.zIndex + 10;
 			node.parentNode.style.zIndex = divPopup.style.zIndex;
 		} else {
 			//fix z-index to one saved in input node

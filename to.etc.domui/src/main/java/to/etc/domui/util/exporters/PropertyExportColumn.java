@@ -3,8 +3,10 @@ package to.etc.domui.util.exporters;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QField;
 
 /**
@@ -36,15 +38,32 @@ public class PropertyExportColumn<T> implements IExportColumn<T> {
 		m_label = null;
 	}
 
-	@NonNull @Override public Class<?> getActualType() {
+	@NonNull
+	@Override
+	public Class<?> getActualType() {
 		return m_pmm.getActualType();
 	}
 
-	@Nullable @Override public String getLabel() {
+	@Nullable
+	@Override
+	public String getLabel() {
 		return m_label == null ? m_pmm.getDefaultLabel() : m_label;
 	}
 
-	@Nullable @Override public T getValue(@NonNull Object in) throws Exception {
+	@Nullable
+	@Override
+	public T getValue(@NonNull Object in) throws Exception {
 		return m_pmm.getValue(in);
+	}
+
+	@Nullable
+	@Override
+	public Object convertValue(@Nullable Object value) throws Exception {
+		if(value instanceof Enum) {
+			ClassMetaModel ecmm = MetaManager.findClassMeta(value.getClass());
+			String v = ecmm.getDomainLabel(NlsContext.getLocale(), value);
+			return v == null ? ((T) value).toString() : v;
+		}
+		return value;
 	}
 }

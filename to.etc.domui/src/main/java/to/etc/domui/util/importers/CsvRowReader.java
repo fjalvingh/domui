@@ -86,6 +86,12 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	private final Map<String, DateFormat> m_dateFormatMap = new HashMap<>();
 
+	private long m_totalCharactersRead;
+
+	private final long m_fileSize;
+
+	private boolean m_dontSkipWs;
+
 	static public class CsvError {
 		private final ImporterErrorCodes m_code;
 
@@ -102,8 +108,16 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		}
 	}
 
-	public CsvRowReader(Reader r) {
+	/**
+	 * FileSize is used to report progress while reading.
+	 */
+	public CsvRowReader(Reader r, long fileSize) {
 		m_r = new BufferedReader(r, 8192);
+		m_fileSize = fileSize;
+	}
+
+	public CsvRowReader(Reader r) {
+		this(r, 0);
 	}
 
 	private int la() throws IOException {
@@ -118,6 +132,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		if(la != -2)
 			return la;
 		int c = Objects.requireNonNull(m_r).read();
+		m_totalCharactersRead++;
 		m_la1 = c;
 		return c;
 	}
@@ -133,6 +148,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		} else {
 			c = Objects.requireNonNull(m_r).read();
 			m_charNumber++;
+			m_totalCharactersRead++;
 		}
 		if(c == -1) {
 			m_eof = true;
@@ -380,7 +396,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	@Override
 	public long getSetSizeIndicator() {
-		return 0;
+		return m_fileSize;
 	}
 
 	@Override
@@ -404,7 +420,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	@Override
 	public long getProgressIndicator() {
-		return 0;
+		return m_totalCharactersRead;
 	}
 
 	public List<CsvError> getErrorList() {
@@ -455,6 +471,14 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	public CsvRowReader multiLine() {
 		m_multiLine = true;
 		return this;
+	}
+
+	public CsvRowReader dontFixWS() {
+		m_dontSkipWs = true;
+		return this;
+	}
+	public boolean isDontSkipWs() {
+		return m_dontSkipWs;
 	}
 
 	public CsvRowReader dateFormat(String dateFormat) {

@@ -132,6 +132,9 @@ public class TabPanelBase extends Div {
 					INotify<ITabHandle> onDisplay = ti.getOnDisplay();
 					if(onDisplay != null)
 						onDisplay.onNotify(ti);
+					if(content instanceof ITabSelectionListener) {
+						((ITabSelectionListener) content).tabSelected();
+					}
 				} else {
 					content.setDisplay(DisplayType.NONE);
 				}
@@ -415,13 +418,15 @@ public class TabPanelBase extends Div {
 
 			NodeBase oldc = oldti.getContent();
 			oldc.setDisplay(DisplayType.NONE);					// Switch displays on content
+			if(oldc instanceof ITabSelectionListener) {
+				((ITabSelectionListener) oldc).tabDeselected();
+			}
 
 			NodeBase newc = newti.getContent();
 			if(newti.isLazy() && !newti.isAdded()) {			// Add the new thing if it was lazy.
 				Objects.requireNonNull(m_contentContainer).add(newc);
 				newti.setAdded(true);
 			}
-			//newc.setDisplay(DisplayType.BLOCK);
 			newc.setDisplay(null);
 
 			Li oldtab = oldti.getTab();
@@ -444,6 +449,9 @@ public class TabPanelBase extends Div {
 			INotify<ITabHandle> onDisplay = newti.getOnDisplay();
 			if(null != onDisplay)
 				onDisplay.onNotify(newti);
+			if(newc instanceof ITabSelectionListener) {
+				((ITabSelectionListener) newc).tabSelected();
+			}
 //			appendJavascript("$(window).trigger('resize');");
 			appendJavascript("WebUI.visibilityChanged();");
 		}

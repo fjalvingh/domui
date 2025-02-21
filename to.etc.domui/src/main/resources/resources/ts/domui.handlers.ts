@@ -34,12 +34,12 @@ namespace WebUI {
 		$('input[marker]').setBackgroundImageMarker();
 
 		//-- Limit textarea size on paste events
-		$("textarea[mxlength], textarea[maxbytes]")
+		$("textarea[data-mxlength], textarea[data-maxbytes]")
 			.unbind("input.domui")
 			.unbind("propertychange.domui")
 			.bind('input.domui propertychange.domui', function () {
-				let maxLength = attrNumber(this, 'mxlength');				// Use mxlength because Chrome improperly implements maxlength (issue 252613)
-				let maxBytes = attrNumber(this, 'maxbytes');
+				let maxLength = attrNumber(this, 'data-mxlength');				// Use mxlength because Chrome improperly implements maxlength (issue 252613)
+				let maxBytes = attrNumber(this, 'data-maxbytes');
 				let val = $(this).val() as string;
 				let newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
 				if (maxBytes < 0) {
@@ -63,15 +63,15 @@ namespace WebUI {
 			});
 
 		//-- Limit textarea size on key presses
-		$("textarea[mxlength], textarea[maxbytes]")
+		$("textarea[data-mxlength], textarea[data-maxbytes]")
 			.unbind("keypress.domui")
 			.bind('keypress.domui', function (evt) {
 				if (evt.which == 0 || evt.which == 8)
 					return true;
 
 				//-- Is the thing too long already?
-				let maxLength = attrNumber(this, 'mxlength');				// Use mxlength because Chrome improperly implements maxlength (issue 252613)
-				let maxBytes = attrNumber(this, 'maxbytes');
+				let maxLength = attrNumber(this, 'data-mxlength');				// Use mxlength because Chrome improperly implements maxlength (issue 252613)
+				let maxBytes = attrNumber(this, 'data-maxbytes');
 				let val = $(this).val() as string;
 				let newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
 				if (maxBytes < 0) {

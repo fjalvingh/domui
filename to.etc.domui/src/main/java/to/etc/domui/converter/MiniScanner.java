@@ -24,9 +24,10 @@
  */
 package to.etc.domui.converter;
 
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.NlsContext;
 
 /**
  * A helper class which handles string scanning for converters.
@@ -35,7 +36,9 @@ import to.etc.webapp.nls.*;
  * Created on Jul 29, 2009
  */
 public class MiniScanner {
-	/** Cached copy of the instance */
+	/**
+	 * Cached copy of the instance
+	 */
 	static private ThreadLocal<MiniScanner> m_current = new ThreadLocal<MiniScanner>();
 
 	private String m_in;
@@ -51,7 +54,6 @@ public class MiniScanner {
 	/**
 	 * Get a miniscanner instance. This is the preferred method to allocate one if you need it a lot (it caches
 	 * an instance in a threadlocal).
-	 * @return
 	 */
 	static public MiniScanner getInstance() {
 		MiniScanner ms = m_current.get();
@@ -64,7 +66,6 @@ public class MiniScanner {
 
 	/**
 	 * Reset the scanner for a next string to scan.
-	 * @param in
 	 */
 	public void init(String in) {
 		m_in = in.trim();
@@ -78,7 +79,6 @@ public class MiniScanner {
 
 	/**
 	 * Return the character at the current location, or -1 if at end of the string.
-	 * @return
 	 */
 	public int LA() {
 		if(m_ix >= m_len)
@@ -88,8 +88,6 @@ public class MiniScanner {
 
 	/**
 	 * Return the nth char after the current location, or -1 if that is past the end of the string.
-	 * @param ix
-	 * @return
 	 */
 	public int LA(int ix) {
 		if(m_ix + ix >= m_len)
@@ -108,7 +106,6 @@ public class MiniScanner {
 
 	/**
 	 * Accept the current character and copy it to the buffer; return eof if we are at eof after the accept.
-	 * @return
 	 */
 	public boolean copy() {
 		if(m_ix >= m_len)
@@ -125,8 +122,6 @@ public class MiniScanner {
 	/**
 	 * If the current character equals the specified one skip it by accept() and return true, else
 	 * do nothing and return false.
-	 * @param c
-	 * @return
 	 */
 	public boolean skip(char c) {
 		if(LA() == (c & 0xffff)) {
@@ -138,7 +133,6 @@ public class MiniScanner {
 
 	/**
 	 * Return T if at eof.
-	 * @return
 	 */
 	public boolean eof() {
 		return m_ix >= m_len;
@@ -146,9 +140,8 @@ public class MiniScanner {
 
 	/**
 	 * Returns the string built in the buffer and clears the buffer in the process.
-	 * @return
 	 */
-	public String	getStringResult() {
+	public String getStringResult() {
 		String s = m_buffer.toString();
 		if(m_buffer.length() > 256)
 			m_buffer = new StringBuilder(128);
@@ -159,7 +152,6 @@ public class MiniScanner {
 
 	/**
 	 * Returns T if all that is left is whitespace before eof.
-	 * @return
 	 */
 	public boolean eofSkipWS() {
 		if(eof())
@@ -175,6 +167,7 @@ public class MiniScanner {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Lax scanner for euro amounts.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Scans the input as a lax euro string and leave the buffer to hold
 	 * a parseable numeric string for one of the to-java-type converters.
@@ -185,11 +178,6 @@ public class MiniScanner {
 
 	/**
 	 * Does LAX Scanning on input using numeric (non monetary) values parser.
-	 * @param input
-	 * @param scale
-	 * @param useStrictScale
-	 * @return
-	 * @throws ValidationException
 	 */
 	public boolean scanLaxNumber(String input, int scale, boolean useStrictScale) throws ValidationException {
 		return scanLax(input, false, scale, useStrictScale);
@@ -212,12 +200,8 @@ public class MiniScanner {
 	 * a parseable numeric string for one of the to-java-type converters.
 	 * TESTING: method is tested via verbose testing on NumberConverter that uses internaly this method
 	 *
-	 * @param in
-	 * @param monetary
-	 * @param scale	What scale do we use?
+	 * @param scale          What scale do we use?
 	 * @param useStrictScale If set to T, we expect that in inputs need to be formatted to comply with specified scale.
-	 * @return
-	 * @throws ValidationException
 	 */
 	private boolean scanLax(String in, boolean monetary, int scale, boolean useStrictScale) throws ValidationException {
 		init(in.trim()); // Remove leading and trailing spaces
@@ -229,7 +213,7 @@ public class MiniScanner {
 			return false; // But accept whitespace only (empty input, null value)
 		}
 		if(haseur && !monetary)
-			badnumber();
+			throw new ValidationException(Msgs.vNotMonetary, in);
 
 		if(skip('-')) { // Leading minus?
 			m_buffer.append('-');
@@ -264,11 +248,11 @@ public class MiniScanner {
 				if(commact > 1) {
 					//-- COMMA Encountered at least 2ce, this means this MUST be the thousands separator. Issue checks for that, then;
 					if(dotct > 1) // Also has more dots - cannot determine thousands separator.
-						badamount(monetary);
+						throw new ValidationException(Msgs.vBadDots, in);
 
 					//-- Since this is thousands separator the last encounter must be 3 pos ago
 					if(lastcommaix + 4 != cix) // Bad location of thousands separator (4 = 3 digits + separator).
-						badamount(monetary);
+						throw new ValidationException(Msgs.vBadThousandsSeparator, c, in);
 				}
 				lastcommaix = cix;
 				accept();
@@ -277,11 +261,11 @@ public class MiniScanner {
 				if(dotct > 1) {
 					//-- DOT Encountered at least 2ce, this means this MUST be the thousands separator. Issue checks for that, then;
 					if(commact > 1) // Also has more commas - cannot determine thousands separator.
-						badamount(monetary);
+						throw new ValidationException(Msgs.vBadDots, in);
 
 					//-- Since this is thousands separator the last encounter must be 3 pos ago
 					if(lastdotix + 4 != cix) // Bad location of thousands separator (4 = 3 digits + separator).
-						badamount(monetary);
+						throw new ValidationException(Msgs.vBadThousandsSeparator, c, in);
 				}
 				lastdotix = cix;
 				accept();
@@ -289,7 +273,7 @@ public class MiniScanner {
 				copy(); // copy to output buffer,
 				ndigits++;
 			} else
-				badamount(monetary);
+				throw new ValidationException(Msgs.vBadCharInNumber, c, in);
 			cix++;
 		}
 
@@ -305,7 +289,7 @@ public class MiniScanner {
 		//-- Have we had either comma's or dots? If not we're done and the number is valid in the buffert.
 		if(dotct == 0 && commact == 0) {
 			if(scale > 0 && useStrictScale) {
-				badamount(monetary);
+				throw new ValidationException(Msgs.vExpectStrictScale, scale);
 			}
 			return true;
 		}
@@ -333,7 +317,7 @@ public class MiniScanner {
 			int lastDotOrComma = (dotct == 1 ? lastdotix : lastcommaix);
 			if(delta <= 2) {
 				if(useStrictScale && scale != delta) {
-					badamount(monetary);
+					throw new ValidationException(Msgs.vExpectStrictScale, scale);
 				}
 				//-- 0=ending in ., 1=.5, 2=.50 which are valid for decimal point.
 				decimalpos = lastDotOrComma;
@@ -341,23 +325,23 @@ public class MiniScanner {
 				if(scale == 0) {
 					//-- 3= .000 which is proper for thousands separator. Since that is checked by this we leave the lastthoupos unaltered
 					if(ndigits <= 3) // Do not allow .000 but require 1.000
-						badamount(monetary);
+						throw new ValidationException(Msgs.vFractionWithoutLeadingDigit);
 					lastthoupos = lastDotOrComma;
 				} else if(scale == 3 && useStrictScale) {
-					if(delta < 3) // Do not allow .000 but require 1.000
-						badamount(monetary);
+					//if(delta < 3) // Do not allow .000 but require 1.000
+					//	badamount(monetary);						// FIXMEFIXMEFIXME WTF??
 					decimalpos = lastDotOrComma; //this is actually decimal separator
 				} else if(useStrictScale) {
-					badamount(monetary);
+					throw new ValidationException(Msgs.vExpectStrictScale, scale);
 				} else if(scale >= 3) {
 					decimalpos = lastDotOrComma; //this is actually decimal separator
 				}
 			} else if(delta > scale) {
-				badamount(monetary);
+				throw new ValidationException(Msgs.vTooManyFractionDigits, scale);
 			} else if(delta == scale) {
 				decimalpos = lastDotOrComma;
 			} else if(useStrictScale) {
-				badamount(monetary);
+				throw new ValidationException(Msgs.vExpectStrictScale, scale);
 			} else {
 				decimalpos = lastDotOrComma;
 			}
@@ -387,15 +371,15 @@ public class MiniScanner {
 			if(lastthoupos != -1 && (cix - lastthoupos) != 4)
 				badamount(monetary);
 			if(scale > 0 && useStrictScale) {
-				badamount(monetary);
+				throw new ValidationException(Msgs.vExpectStrictScale, scale);
 			}
 		} else {
-			//-- We have a decimal point; check it's location;
+			//-- We have a decimal point; check its location;
 			int ddelta = cix - decimalpos - 1;
 			if(ddelta > scale)
 				badamount(monetary);
 			if(ddelta < scale && useStrictScale)
-				badamount(monetary);
+				throw new ValidationException(Msgs.vExpectStrictScale, scale);
 			if(lastthoupos != -1 && decimalpos - lastthoupos != 4)
 				badamount(monetary);
 
@@ -419,9 +403,9 @@ public class MiniScanner {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Code to scan for a "duration".						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Scan a number-delimiter pair.
-	 * @return
 	 */
 	private char nextNumberDelimiter() {
 		skipWs();
@@ -451,7 +435,6 @@ public class MiniScanner {
 
 	/**
 	 * Returns the last integer "value" scanned.
-	 * @return
 	 */
 	public int val() {
 		return m_val;
@@ -462,8 +445,7 @@ public class MiniScanner {
 
 		long res = 0;
 
-
-		for(;;) {
+		for(; ; ) {
 
 			char c = nextNumberDelimiter();
 			if(c == 1) {
@@ -482,7 +464,7 @@ public class MiniScanner {
 			} else if(c == 0) {
 				return res;
 			} else if(c == ':') {
-				res += val() * 60*60l;
+				res += val() * 60 * 60l;
 				c = nextNumberDelimiter();
 				c = 'S';
 			} else {
@@ -494,6 +476,7 @@ public class MiniScanner {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Globally useful thingies.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Skip till the 1st non-ws character.
 	 */
@@ -516,6 +499,5 @@ public class MiniScanner {
 		copy(s.length());
 		return true;
 	}
-
 
 }

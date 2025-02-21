@@ -372,6 +372,11 @@ public class ExcelStreamingRowReader implements IRowReader, AutoCloseable, Itera
 		public IImportColumn get(@NonNull String name) throws IOException {
 			return new EmptyColumn(name);
 		}
+
+		@Override
+		public boolean isEmpty() throws IOException {
+			return false;
+		}
 	}
 
 

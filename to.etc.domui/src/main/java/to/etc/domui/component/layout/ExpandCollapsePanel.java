@@ -5,6 +5,7 @@ import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.TextNode;
 
@@ -21,35 +22,68 @@ public class ExpandCollapsePanel extends Span {
 
 	private final Div m_contentDiv = new Div();
 
+	private boolean m_isInitiallyExpanded;
+
+	private LinkButton m_lb = new LinkButton("", a -> toggle());
+
 	public ExpandCollapsePanel() {
 	}
 
 	public ExpandCollapsePanel(String label) {
 		setLabel(label);
 	}
+
 	public ExpandCollapsePanel(String label, String content) {
+		setLabel(label);
+		setContent(content);
+	}
+
+	public ExpandCollapsePanel(String label, NodeContainer content) {
 		setLabel(label);
 		setContent(content);
 	}
 
 	@Override
 	final public void createContent() throws Exception {
-		LinkButton lb = new LinkButton("", Icon.faPlus, a -> toggle(a));
-		add(lb);
+		if(m_isInitiallyExpanded) {
+			expandPanel();
+		} else {
+			m_lb.setImage(Icon.faPlus);
+		}
+		add(m_lb);
 		add("\u00a0");
 		add(m_label);
 	}
 
-	private void toggle(LinkButton lb) {
+	private void toggle() {
 		if(m_contentDiv.isAttached()) {
-			m_contentDiv.remove();
-			lb.setImage(Icon.faPlus);
+			collapsePanel();
 		} else {
-			lb.setImage(Icon.faMinus);
-			m_contentDiv.removeAllChildren();
-			appendAfterMe(m_contentDiv);
-			expandContent(m_contentDiv);
+			expandPanel();
 		}
+	}
+
+	private void collapsePanel() {
+		m_contentDiv.remove();
+		m_lb.setImage(Icon.faPlus);
+	}
+
+	private void expandPanel() {
+		m_lb.setImage(Icon.faMinus);
+		m_contentDiv.removeAllChildren();
+		appendAfterMe(m_contentDiv);
+		expandContent(m_contentDiv);
+	}
+
+	public void expand() {
+		if(isCollapsed()) {
+			expandPanel();
+		}
+	}
+
+	public void collapse() {
+		if(!isCollapsed())
+			collapsePanel();
 	}
 
 	protected void expandContent(Div contentDiv) {
@@ -83,5 +117,17 @@ public class ExpandCollapsePanel extends Span {
 
 	public void setContent(String name) {
 		setContent(new TextNode(name));
+	}
+
+	public boolean isInitiallyExpanded() {
+		return m_isInitiallyExpanded;
+	}
+
+	public void setInitiallyExpanded(boolean initiallyExpanded) {
+		m_isInitiallyExpanded = initiallyExpanded;
+	}
+
+	public boolean isCollapsed() {
+		return !m_contentDiv.isAttached();
 	}
 }

@@ -783,4 +783,15 @@ final public class JdbcUtil {
 		return null == ts ? null : new java.util.Date(ts.getTime());
 	}
 
+	/**
+	 * Validates a given PostgreSQL regular expression by attempting to execute it against a sample string.
+	 * This method checks whether the provided regex is well-formed and supported by PostgreSQL's regular expression engine
+	 *
+	 * @param connection Db connection
+	 * @param regex      regex the regular expression to validate.
+	 * @throws SQLException if the database query execution fails or if the regular expression is invalid.
+	 */
+	public static void checkValidPsqlRegex(@NonNull Connection connection, @NonNull String regex) throws SQLException {
+		selectOne(connection, Boolean.class, "select 'abc' ~ ?", regex);
+	}
 }

@@ -231,6 +231,15 @@ public class StringTool {
 		return dots < 2 && digits >= 1;
 	}
 
+	static public boolean isDigitsOnly(@NonNull String s) {
+		for(int i = s.length(); --i >= 0; ) {
+			char c = s.charAt(i);
+			if(!Character.isDigit(c))
+				return false;
+		}
+		return true;
+	}
+
 	static public boolean isDomainChar(final char c) {
 		return c == '-' || c == '.' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 	}
@@ -2166,6 +2175,50 @@ public class StringTool {
 		return true;
 	}
 
+	/**
+	 * Strip characters with a code < 32 (except newline) from
+	 * the string.
+	 */
+	static public String stripInvalidCharacters(String in) {
+		StringBuilder sb = new StringBuilder(in.length());
+		for(int i = 0; i < in.length(); i++) {
+			char c = in.charAt(i);
+			if(c >= 32 || c == '\n') {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
+
+	public static boolean isAsciiLetter(char c) {
+		return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+	}
+
+	public static boolean isAsciiDigit(char c) {
+		return c >= '0' && c <= '9';
+	}
+
+	public static String trimSource(String viewSource) {
+		StringBuilder sb = new StringBuilder();
+		boolean atstart = true;
+		for(String s : new LineIterator(viewSource)) {
+			//-- brute-force strip ws
+			int len = s.length();
+			while(len > 0 && Character.isWhitespace(s.charAt(len - 1)))
+				len--;
+			if(len != 0 || !atstart) {
+				atstart = false;
+				sb.append(s, 0, len).append("\n");
+			}
+		}
+
+		//-- Strip trailing
+		while(sb.length() > 2 && sb.charAt(sb.length() - 1) == '\n' && sb.charAt(sb.length() - 2) == '\n') {
+			sb.setLength(sb.length() - 1);
+		}
+		return sb.toString();
+	}
+
 	private final static class ExceptionDup {
 		private final String m_message;
 
@@ -3184,12 +3237,27 @@ public class StringTool {
 		for(int i = 0, len = name.length(); i < len; i++) {
 			char c = name.charAt(i);
 			if(!isValidSqlNameChar(c))
-				throw new IllegalArgumentException("Invalid characters in SQL name");
+				throw new IllegalArgumentException("Invalid characters in SQL name <<" + name + ">>: " + c);
 		}
 	}
 
 	private static boolean isValidSqlNameChar(char c) {
-		return Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '[' || c == ']' || c == '"';
+		/*
+		 * Since we need to support Microsoft's crap we need to accept any kind
+		 * of garbage characters in database names. These incompetent idiots must
+		 * really like SQL injection attacks and other security issues.
+		 */
+		return c >= ' ' && c < 128;
+		//return Character.isLetterOrDigit(c)
+		//	|| c == '_'
+		//	|| c == '.'
+		//	|| c == '['
+		//	|| c == ']'
+		//	|| c == '"'
+		//	|| c == ' '
+		//	|| c == '-'
+		//	|| c == '/'					// Oh brother.
+		//	;
 	}
 
 	static public void sqlCheckNoQuotes(@Nullable String password) {

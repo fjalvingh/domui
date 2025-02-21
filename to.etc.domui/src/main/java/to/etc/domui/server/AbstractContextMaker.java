@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.state.UIContext;
 import to.etc.net.HttpCallException;
+import to.etc.util.StringTool;
 import to.etc.webapp.nls.NlsContext;
 
 import javax.servlet.FilterChain;
@@ -39,8 +40,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 abstract public class AbstractContextMaker implements IContextMaker {
@@ -148,6 +151,12 @@ abstract public class AbstractContextMaker implements IContextMaker {
 				ctx.flush();
 			} else {
 				//-- Non-DomUI request.
+				Map<String, String> headerMap = ctx.getApplication().getDefaultSiteResourceHeaderMap();
+				Map<String, String> varMap = new HashMap<String, String>();
+				varMap.put("NONCE", StringTool.generateGUID());
+				ctx.getApplication().renderHeaders(requestResponse, headerMap, varMap);
+
+				//headerMap.forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 				handleDoFilter(chain, requestResponse.getRequest(), requestResponse.getResponse());
 			}
 

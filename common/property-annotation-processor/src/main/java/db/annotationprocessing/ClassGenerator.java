@@ -200,6 +200,9 @@ abstract class ClassGenerator {
 		TypeElement enumElement = elementUtils().getTypeElement("java.util.Collection");
 		if(typeUtils().isSubtype(type, typeUtils().getDeclaredType(enumElement)))
 			return true;
+		enumElement = elementUtils().getTypeElement("java.util.Map");
+		if(typeUtils().isSubtype(type, typeUtils().getDeclaredType(enumElement)))
+			return true;
 		return false;
 	}
 

@@ -121,7 +121,9 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	}
 
 	protected void mandatoryChanged() {
-		forceRebuild();
+		if(isBuilt()) {
+			forceRebuild();
+		}
 	}
 
 	@Override
@@ -138,7 +140,9 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	}
 
 	protected void readOnlyChanged() {
-		forceRebuild();
+		if(isBuilt()) {
+			forceRebuild();
+		}
 	}
 
 	protected void validate() {
@@ -182,7 +186,9 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	}
 
 	protected void disabledChanged() {
-		forceRebuild();
+		if(isBuilt()) {
+			forceRebuild();
+		}
 	}
 
 	@Override

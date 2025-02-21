@@ -1055,7 +1055,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitA(final ATag a) throws Exception {
 		basicNodeRender(a, m_o);
 		if(a.getHref() == null || a.getHref().trim().isEmpty()) {
-			o().attr("href", "javascript: void(0);");
+			o().attr("href", "#");
+			//o().attr("href", "javascript: void(0);");
 		} else
 			o().attr("href", a.getHref());
 		if(a.getTarget() != null)
@@ -1135,7 +1136,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 			}
 		}
 		if(n.getSpecialAttribute("autocomplete") == null) {
-			o().attr("autocomplete", "off");
+			o().attr("autocomplete", "false");
 		}
 		renderTagend(n, m_o);
 	}
@@ -1210,7 +1211,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getName() != null)
 			o().attr("name", n.getName());
 
-		renderDiRo(n, n.isDisabled() || n.isReadOnly(), false);				// 20151007 Radio buttons cannot be read only, sigh.
+		renderDisabled(n, n.isDisabled());
+		renderReadOnly(n, n.isReadOnly());
 		renderChecked(n, n.isChecked());
 
 		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
@@ -1376,8 +1378,10 @@ public class HtmlTagRenderer implements INodeVisitor {
 			String txt = n.getRawValue();
 			if(txt == null)
 				txt = "";
-			txt = StringTool.strToJavascriptString(txt, false);
-			o().attr("domjs_value", txt); // FIXME THIS DOES NOT ALWAYS WORK
+			if(false) {
+				txt = StringTool.strToJavascriptString(txt, false);
+				o().attr("data-domvalue", txt); // FIXME THIS DOES NOT ALWAYS WORK
+			}
 		}
 
 		/*
@@ -1385,17 +1389,17 @@ public class HtmlTagRenderer implements INodeVisitor {
 		 * characters wrong.
 		 */
 		if(n.getMaxLength() > 0) {
-			o().attr("mxlength", n.getMaxLength());					// Not valid for html < 5, handled by Javascript
+			o().attr("data-mxlength", n.getMaxLength());					// Not valid for html < 5, handled by Javascript
 		}
 		if(n.getMaxByteLength() > 0) {
-			o().attr("maxbytes", n.getMaxByteLength());				// If byte-limited, send to Javascript too
+			o().attr("data-maxbytes", n.getMaxByteLength());				// If byte-limited, send to Javascript too
 		}
 
 		renderTagend(n, o());
+		//String rawValue = n.getRawValue();
 		o().setIndentEnabled(false); // jal 20090923 again: do not indent content (bug 627)
-		//		if(n.getRawValue() != null)
-		//			o().text(n.getRawValue());
-		//		o().closetag(n.getTag());
+		//if(null != rawValue)
+		//	o().text(rawValue);
 	}
 
 	@Override

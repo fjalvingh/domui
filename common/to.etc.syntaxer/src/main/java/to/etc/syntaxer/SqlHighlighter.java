@@ -13,12 +13,8 @@ import java.util.List;
  * Created on 05-05-22.
  */
 public class SqlHighlighter extends HiParser implements IHighlighter {
-	@NonNull
-	private final IHighlightRenderer m_renderer;
-
-	public SqlHighlighter(@NonNull IHighlightRenderer renderer) {
+	public SqlHighlighter() {
 		//-- Configure the parser for Java
-		m_renderer = renderer;
 		setKeywordCaseIndependent();
 		initKeywords();
 	}
@@ -773,15 +769,23 @@ public class SqlHighlighter extends HiParser implements IHighlighter {
 
 	@NonNull
 	@Override
-	public LineContext highlightLine(@Nullable LineContext previous, @NonNull String line) {
+	public LineContext highlightLine(IHighlightRenderer renderer, @Nullable LineContext previous, @NonNull String line) {
+		m_renderer = renderer;
 		return start(line, previous);
-		//m_renderer.renderToken(HighlightTokenType.text, line, 0);
-		//m_renderer.renderToken(HighlightTokenType.newline, "", line.length());
-		//return new LineContext(this::dummy);
 	}
 
 	static private String SSS = ""
 		;
+
+	@Override
+	protected boolean isComment() {
+		if(is("--")) {
+			//-- Just copy everything
+			lineComment();
+			return true;
+		}
+		return super.isComment();
+	}
 
 	static public final void main(String[] args) {
 		List<String> words = new ArrayList<>();

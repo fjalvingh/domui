@@ -798,6 +798,29 @@ final public class DateUtil {
 		return Date.from(ldt.toInstant());
 	}
 
+	/**
+	 * @param targetDayOfWeek The target day of the week (Calendar constants, i.e., Calendar.FRIDAY)
+	 * @param targetHour The target hour (24-hour format)
+	 * @param referenceDate The reference date
+	 * @return
+	 */
+
+	static public Date getPreviousDayAndHourForReferenceDate(int targetDayOfWeek, int targetHour, Date referenceDate) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(referenceDate);
+
+		int currentDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+		int currentHour = cal.get(Calendar.HOUR_OF_DAY);
+
+		int daysToSubtract = (currentDayOfWeek >= targetDayOfWeek && currentHour >= targetHour)
+			? currentDayOfWeek - targetDayOfWeek
+			: currentDayOfWeek + (7 - targetDayOfWeek);
+
+		Date date = DateUtil.addDays(referenceDate, -1 * daysToSubtract);
+		date = DateUtil.truncateDate(date);
+		return DateUtil.addMinutes(date, targetHour * 60);
+	}
+
 }
 
 

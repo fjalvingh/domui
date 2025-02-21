@@ -369,7 +369,7 @@ namespace WebUI {
 		try {
 			document.write(txt);
 			document.close();
-			window.setTimeout('document.body.style.cursor="default"', 1000);
+			window.setTimeout(() => document.body.style.cursor="default", 1000);
 		} catch(x) {
 			alert("Error: " + txt);
 		}
@@ -481,7 +481,7 @@ namespace WebUI {
 		if(_pollActive)
 			return;
 		_pollActive = true;
-		_pollTimer = setTimeout("WebUI.poll()", _pollInterval);
+		_pollTimer = setTimeout(() => WebUI.poll(), _pollInterval);
 	}
 
 	export function cancelPolling(): void {
@@ -550,7 +550,7 @@ namespace WebUI {
 	export function startPingServer(timeout: number) : void {
 		if(timeout < 60*1000)
 			timeout = 60*1000;
-		setTimeout("WebUI.pingServer("+timeout+")", timeout);
+		setTimeout(() => WebUI.pingServer(timeout), timeout);
 	}
 
 	function executePollCommands(data) {

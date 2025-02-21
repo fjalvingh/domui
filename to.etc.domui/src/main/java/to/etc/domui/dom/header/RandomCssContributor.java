@@ -1,0 +1,110 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
+package to.etc.domui.dom.header;
+
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.IContributorRenderer;
+import to.etc.domui.state.AppSession;
+
+final public class RandomCssContributor extends HeaderContributor {
+
+	public static final String KEY = "RandomCssCon";
+
+	private final int m_maxVariants;
+
+	private final boolean m_offline;
+
+	private final String[] m_options;
+
+	private String m_path;
+
+	public RandomCssContributor(int maxVariants, @NonNull String path, boolean offline, String... options) {
+		m_maxVariants = maxVariants;
+		m_offline = offline;
+		m_options = options;
+		if(path == null || path.isEmpty())
+			throw new IllegalArgumentException("Null path not allowed");
+		m_path = path;
+	}
+
+	@Override public boolean isOfflineCapable() {
+		return m_offline;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + m_path.hashCode();
+		result = prime * result + m_maxVariants;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		RandomCssContributor other = (RandomCssContributor) obj;
+		if(m_path == null) {
+			return other.m_path == null;
+		} else if(m_maxVariants != other.m_maxVariants) {
+			return false;
+		} else {
+			return m_path.equals(other.m_path);
+		}
+	}
+
+	@Override
+	public void contribute(IContributorRenderer r) throws Exception {
+		//-- Get a random int if not yet known in the session
+		AppSession session = r.ctx().getSession();
+		Integer key;
+		if(null != session) {
+			key = (Integer) session.getAttribute(KEY);
+			if(null == key) {
+				key = (int) (Math.random() * m_maxVariants);
+				session.setAttribute(KEY, key);
+			}
+		} else {
+			key = 0;
+		}
+		StringBuilder sb = new StringBuilder(m_path);
+		if(m_path.contains("?"))
+			sb.append("&");
+		else
+			sb.append("?");
+		sb.append("__r=").append(key);
+
+		r.renderLoadCSS(sb.toString(), m_options);
+	}
+
+	@Override public String toString() {
+		return m_path;
+	}
+}

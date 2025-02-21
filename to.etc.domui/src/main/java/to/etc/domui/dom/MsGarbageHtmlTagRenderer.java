@@ -24,11 +24,12 @@
  */
 package to.etc.domui.dom;
 
-import java.io.*;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.util.StringTool;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.util.*;
+import java.io.IOException;
 
 /**
  * This is the HTML tag renderer for Microsoft Internet Exploder < 8.x, which tries
@@ -97,7 +98,7 @@ public class MsGarbageHtmlTagRenderer extends HtmlTagRenderer {
 			String txt = n.getRawValue();
 			if(txt != null) {
 				txt = StringTool.strToJavascriptString(txt, false);
-				o().attr("domjs_value", txt);
+				o().attr("data-domvalue", txt);
 			}
 		}
 		if(n.getMaxLength() > 0) {

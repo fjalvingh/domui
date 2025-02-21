@@ -85,7 +85,7 @@ public class TestDiff {
 					break;
 			}
 			sb.append('@');
-			sb.append(de.getStartIndex());
+			sb.append(de.getOldStartIndex());
 			sb.append(':');
 
 			for(Character dch : de.getList()) {

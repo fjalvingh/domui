@@ -182,6 +182,8 @@ public class SshKeyUtils {
 				EncodedKeySpec pks = new PKCS8EncodedKeySpec(pkcs8);
 				KeyFactory kf = KeyFactory.getInstance("RSA");
 				return kf.generatePrivate(pks);
+			} else if(key.startsWith(BEGIN + OPENSSH_PRIVATE_KEY)) {
+				return decodeOpenSSHPrivateKey(key);
 			} else if(key.startsWith("-----BEGIN ENCRYPTED PRIVATE KEY-----")) {
 
 			} else if(key.startsWith("-----BEGIN PRIVATE KEY-----")) {

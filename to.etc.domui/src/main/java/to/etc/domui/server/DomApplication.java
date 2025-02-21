@@ -102,6 +102,7 @@ import to.etc.domui.themes.ThemeManager;
 import to.etc.domui.themes.ThemePartFactory;
 import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.themes.fragmented.FragmentedThemeFactory;
+import to.etc.domui.themes.sass.IThemeVariablesCalculator;
 import to.etc.domui.themes.sass.SassThemeFactory;
 import to.etc.domui.themes.simple.SimpleThemeFactory;
 import to.etc.domui.trouble.DataAccessViolationException;
@@ -171,9 +172,8 @@ public abstract class DomApplication {
 	static public final Logger LOGRES = LoggerFactory.getLogger("to.etc.domui.resources");
 
 	static private final String[][] JQUERYSETS = {                                                //
-		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},                                //
-		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 		{"3.6.0", "jquery-3.6.0", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
+		{"3.7.1", "jquery-3.7.1", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 	};
 
 	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
@@ -319,6 +319,8 @@ public abstract class DomApplication {
 	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
 	@NonNull
 	private volatile String m_defaultTheme = "";
+
+	private IThemeVariablesCalculator m_themeVariablesCalculator = parameters -> Map.of();
 
 	private ConfigParameters m_configParameters;
 
@@ -527,7 +529,7 @@ public abstract class DomApplication {
 	 */
 	public DomApplication() {
 		//-- Handle jQuery version.
-		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "3.6.0");
+		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "3.7.1");
 		String[] jqdata = null;
 		for(String[] jqd : JQUERYSETS) {
 			if(jqd[0].equalsIgnoreCase(jqversion)) {
@@ -584,6 +586,10 @@ public abstract class DomApplication {
 			public void onPageCreated(@NonNull Page page) throws Exception {
 				synchronized(this) {
 					m_activePageList.add(page);
+					if(m_activePageList.size() > MAX_PAGES) {
+						reapOldPages();
+					}
+
 				}
 			}
 
@@ -594,6 +600,37 @@ public abstract class DomApplication {
 				}
 			}
 		});
+	}
+
+	static private final int MAX_PAGES = 6000;
+
+	private void reapOldPages() {
+		List<Page> toRemove;
+		synchronized(this) {
+			ArrayList<Page> pages = new ArrayList<>(m_activePageList);
+			pages.sort(Comparator.comparing(a -> a.getLastClickTime()));
+
+			//-- Remove the eldest pages
+			toRemove = pages.subList(0, pages.size() - (MAX_PAGES - 500));
+			m_activePageList.removeAll(toRemove);
+		}
+
+		System.out.println("--- PAGE OVERFLOW REAPER ---");
+		System.out.println("Destroying " + toRemove.size() + " pages");
+		Set<String> cids = new HashSet<>();
+		for(Page page : toRemove) {
+			try {
+				ConversationContext conversation = page.internalGetConversation();
+				if(null != conversation) {
+					if(cids.add(conversation.getFullId())) {
+						conversation.destroy();
+					}
+				}
+			} catch(Exception x) {
+				System.out.println("Failed to destroy page: " + x);
+				//x.printStackTrace();
+			}
+		}
 	}
 
 	private void addDefaultHttpHeaders() {
@@ -1424,6 +1461,7 @@ public abstract class DomApplication {
 		for(String jqresource : getJQueryScripts()) {
 			addHeaderContributor(HeaderContributor.loadJavascript("$js/" + jqresource), order++);
 		}
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jqAttrFix.js"), order++);
 
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
@@ -1446,6 +1484,7 @@ public abstract class DomApplication {
 		 */
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar-setup.js"), -770);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui-date-checker.js"), -760);
 		//-- Localized calendar resources are added per-page.
 
 		/*
@@ -2306,6 +2345,14 @@ public abstract class DomApplication {
 	 */
 	final public void setDefaultThemeFactory(@NonNull IThemeFactory themer) {
 		m_defaultTheme = themer.getDefaultThemeName();
+	}
+
+	public IThemeVariablesCalculator getThemeVariablesCalculator() {
+		return m_themeVariablesCalculator;
+	}
+
+	public void setThemeVariablesCalculator(IThemeVariablesCalculator themeVariablesCalculator) {
+		m_themeVariablesCalculator = themeVariablesCalculator;
 	}
 
 	/**

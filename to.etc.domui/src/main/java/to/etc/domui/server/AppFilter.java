@@ -35,6 +35,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.log.EtcLoggerFactory;
 import to.etc.util.ClassUtil;
 import to.etc.util.DeveloperOptions;
+import to.etc.util.MessageException;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
@@ -166,6 +167,10 @@ public class AppFilter implements Filter {
 				System.out.println(minitime() + " rq=" + rq.getRequestURI() + rs);
 			}
 			m_contextMaker.handleRequest(rq, response, chain);
+		} catch(MessageException mx) {
+			failure = mx;
+			System.err.println("appfilter: " + mx);
+			throw mx;
 		} catch(RuntimeException | ServletException x) {
 			failure = x;
 			DomUtil.dumpExceptionIfSevere(x);
@@ -267,6 +272,9 @@ public class AppFilter implements Filter {
 			}
 
 			config.getServletContext().addListener(new ActiveSessionListener());
+		} catch(MessageException mx) {
+			System.err.println("app exception: " + mx);
+			throw mx;
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
 			throw x;

@@ -53,6 +53,8 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 				controlContainer.add(control);
 				control.addCssClass("ui-f5-ctl-add");
 				controlContainer.addCssClass("ui-f5-ctl-xtra");
+				if(null != controlCss)
+					controlContainer.addCssClass(controlCss);
 				return;
 			}
 
@@ -85,12 +87,19 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 			//-- For horizontal forms an empty label will cause the div to have 0 size, so add something to align.
 			lc.add(new Label("\u00a0"));
 		}
+		if(labelCss != null) {
+			lc.addCssClass(labelCss);
+		}
+
 		if(hintText != null)
 			hintRenderer.accept(lc, hintText);
 
 		Div cc = m_lastControlContainer = new Div("ui-f5-ctl ui-f5-ctl" + fix);
 		pair.add(cc);
 		cc.add(control);
+		if(null != controlCss) {
+			cc.addCssClass(controlCss);
+		}
 	}
 
 	@Override public void clear() {

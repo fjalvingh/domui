@@ -494,16 +494,17 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 		//		fireModelChanged(old, model);
 	}
 
-	public void setExpandRoot(boolean x) throws Exception {
-		if(m_expandRoot == x)
-			return;
-		m_expandRoot = x;
-		if(!x || !isBuilt())
-			return;
-		T root = getModel().getRoot();
-		if(!isExpanded(root))
-			expandNode(root);
-	}
+	// jal 20240627 Causes misrendering of all leafs "opened"
+	//public void setExpandRoot(boolean x) throws Exception {
+	//	if(m_expandRoot == x)
+	//		return;
+	//	m_expandRoot = x;
+	//	if(!x || !isBuilt())
+	//		return;
+	//	T root = getModel().getRoot();
+	//	if(!isExpanded(root))
+	//		expandNode(root);
+	//}
 
 	public boolean getExpandRoot() {
 		return m_expandRoot;

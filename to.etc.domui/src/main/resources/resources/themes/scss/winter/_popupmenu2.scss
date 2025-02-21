@@ -7,10 +7,19 @@
 	flex-direction: column;
 	justify-content: flex-start;
 
-	padding: 8px 24px;
+	padding: 8px 16px;
 	border-radius: 8px;
 	box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.1), 0 2px 4px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.16);
 	background-color: #fff;
+
+	//.ui-pome2-t {
+	//	padding: 0 10px;
+	//	border: 1px solid transparent;
+	//	border-radius: 3px;
+	//	.disabled {
+	//		background-color: lightgrey;
+	//	}
+	//}
 
 	.ui-pome2-r {
 		display: flex;
@@ -25,10 +34,14 @@
 			background-color: #eee;
 		}
 
-		& .disabled {
+		border: 1px solid transparent;
+		border-radius: 3px;
+		padding: 0 10px;
+
+		&.disabled {
 			background-color: lightgrey;
 			font-style: italic;
-			cursor: none;
+			cursor: default;
 		}
 	}
 }

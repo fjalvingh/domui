@@ -1,75 +1,84 @@
-/*
- * DomUI Java User Interface - shared code
- * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * See the "sponsors" file for a list of supporters.
- *
- * The latest version of DomUI and related code, support and documentation
- * can be found at http://www.domui.org/
- * The contact for the project is Frits Jalvingh <jal@etc.to>.
- */
 package to.etc.util;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
- * This is an OutputStream wrapper which counts the #of bytes that was written to it.
- *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Mar 31, 2009
+ * A wrapped outputstream which calls listeners every 1MB of data output, to track
+ * size.
  */
 public class SizeCountingOutputStream extends OutputStream {
-	private final OutputStream	m_os;
+	/** Report progress every 100MB */
+	static private final long REPORTINTERVALBYTES = 100 * 1024L * 1024L;
 
-	private long				m_size;
+	final private OutputStream m_out;
 
-	public SizeCountingOutputStream(final OutputStream os) {
-		m_os = os;
+	private long m_notifyChunk = REPORTINTERVALBYTES;
+
+	private long m_totalWritten;
+
+	@Nullable
+	private IBytesWrittenListener m_listener;
+
+	public interface IBytesWrittenListener {
+		void bytesWritten(long amount);
 	}
 
-	public long getSize() {
-		return m_size;
+	public SizeCountingOutputStream(OutputStream outputStream) {
+		m_out = outputStream;
+	}
+
+	public SizeCountingOutputStream(OutputStream outputStream, IBytesWrittenListener listener) {
+		m_out = outputStream;
+		m_listener = listener;
+	}
+
+
+	@Override
+	public void write(int b) throws IOException {
+		m_out.write(b);
+		notifyProgress(1);
 	}
 
 	@Override
-	public void write(final int b) throws IOException {
-		m_os.write(b);
-		m_size++;
-	}
-
-	@Override
-	public void close() throws IOException {
-		m_os.close();
+	public void write(byte[] b, int off, int len) throws IOException {
+		m_out.write(b, off, len);
+		notifyProgress(len);
 	}
 
 	@Override
 	public void flush() throws IOException {
-		m_os.flush();
+		m_out.flush();
 	}
 
 	@Override
-	public void write(final byte[] b, final int off, final int len) throws IOException {
-		m_os.write(b, off, len);
-		m_size += len;
+	public void close() throws IOException {
+		m_out.close();
+		IBytesWrittenListener listener = m_listener;
+		if(null != listener)
+			listener.bytesWritten(m_totalWritten);
 	}
 
-	@Override
-	public void write(final byte[] b) throws IOException {
-		m_os.write(b);
-		m_size += b.length;
+	public void setListener(@Nullable IBytesWrittenListener listener) {
+		m_listener = listener;
+	}
+
+	private void notifyProgress(int bytes) {
+		m_totalWritten += bytes;
+		IBytesWrittenListener listener = m_listener;
+		if(null != listener) {
+			m_notifyChunk -= bytes;
+			if(m_notifyChunk <= 0) {
+				//-- Time to report
+				m_notifyChunk = REPORTINTERVALBYTES;
+				listener.bytesWritten(m_totalWritten);
+			}
+		}
+	}
+
+	public long getSize() {
+		return m_totalWritten;
 	}
 }

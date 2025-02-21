@@ -4,8 +4,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.themes.ThemeManager;
-import to.etc.template.JSTemplate;
-import to.etc.template.JSTemplateCompiler;
+import to.etc.domui.util.js.RhinoExecutor;
+import to.etc.domui.util.js.RhinoExecutorFactory;
+import to.etc.domui.util.js.RhinoTemplate;
+import to.etc.domui.util.js.RhinoTemplateCompiler;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
@@ -31,7 +33,7 @@ import java.util.Set;
 @NonNullByDefault
 public class OopsFrameRenderer {
 	@Nullable
-	private JSTemplate m_exceptionTemplate;
+	private RhinoTemplate m_exceptionTemplate;
 
 	private boolean m_testMode;
 
@@ -69,8 +71,12 @@ public class OopsFrameRenderer {
 		//util.renderEmail(x);
 
 		Writer w = ctx.getRequestResponse().getOutputWriter("text/html", "utf-8");
-		JSTemplate xt = getExceptionTemplate();
-		xt.execute(w, dataMap);
+		RhinoTemplate xt = getExceptionTemplate();
+
+		RhinoExecutor executor = RhinoExecutorFactory.getInstance().createExecutor();
+		dataMap.entrySet().forEach(e -> executor.put(e.getKey(), e.getValue()));
+
+		xt.execute(w, executor);
 		w.flush();
 		w.close();
 	}
@@ -165,24 +171,24 @@ public class OopsFrameRenderer {
 	}
 
 	@NonNull
-	public JSTemplate getExceptionTemplate() throws Exception {
-		JSTemplate xt = m_exceptionTemplate;
+	public RhinoTemplate getExceptionTemplate() throws Exception {
+		RhinoTemplate xt = m_exceptionTemplate;
 		String templateName = "exceptionTemplate.html";
 		if(!m_testMode) {
 			templateName = "exceptionPrdTemplate.html";
 		}
 		if(xt == null) {
-			JSTemplateCompiler jtc = new JSTemplateCompiler();
+			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
 			File src = new File(getClass().getResource(templateName).getFile());
 			if(src.exists() && src.isFile()) {
 				Reader r = new FileReader(src);
 				try {
-					xt = jtc.compile(r, src.getAbsolutePath());
+					xt = rtc.compile(r, src.getAbsolutePath());
 				} finally {
 					FileTool.closeAll(r);
 				}
 			} else {
-				xt = jtc.compile(ApplicationRequestHandler.class, templateName, "utf-8");
+				xt = rtc.compile(ApplicationRequestHandler.class, templateName, "utf-8");
 			}
 			m_exceptionTemplate = xt;
 		}

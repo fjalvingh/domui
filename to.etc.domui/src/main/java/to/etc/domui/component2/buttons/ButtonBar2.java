@@ -115,6 +115,20 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 		forceRebuild();
 	}
 
+	/**
+	 * Removes a button node from button bar and it's internals. Intended to be used if button is dynamically added or removed from the ButtonBar2.
+	 */
+	public void removeButton(@NonNull NodeBase b) {
+		Item item = m_list.stream().filter(it -> it.m_node == b).findFirst().orElse(null);
+		b.remove();
+		if(null != item) {
+			m_list.remove(item);
+			if(isBuilt()) {
+				forceRebuild();
+			}
+		}
+	}
+
 	public ButtonBar2 right() {
 		m_addRight = true;
 		return this;

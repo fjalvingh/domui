@@ -16,6 +16,7 @@ import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencyList;
 import to.etc.util.ByteBufferOutputStream;
 import to.etc.util.DeveloperOptions;
+import to.etc.util.StringTool;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class PartService {
 		IPartFactory factory = executionReference.getFactory();
 		if(factory instanceof IUnbufferedPartFactory) {
 			IUnbufferedPartFactory upf = (IUnbufferedPartFactory) factory;
-			DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
+			writeDefaultHeaders(ctx);
 			upf.generate(getApplication(), executionReference.getInfo().getInputPath(), ctx);
 		} else if(factory instanceof IBufferedPartFactory) {
 			generate((IBufferedPartFactory<?>) factory, ctx, executionReference.getInfo());
@@ -266,7 +267,10 @@ public class PartService {
 		if(cp.getCacheTime() > 0 && m_allowExpires) {
 			ctx.getRequestResponse().setExpiry(cp.getCacheTime());
 		}
-		DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
+
+		writeDefaultHeaders(ctx);
+
+		//DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 
 		try {
 			os = ctx.getRequestResponse().getOutputStream(cp.getContentType(), null, cp.getSize());
@@ -278,6 +282,13 @@ public class PartService {
 					os.close();
 			} catch(Exception x) {}
 		}
+	}
+
+	private static void writeDefaultHeaders(RequestContextImpl ctx) {
+		Map<String, String> headerMap = ctx.getApplication().getDefaultSiteResourceHeaderMap();
+		Map<String, String> varMap = new HashMap<String, String>();
+		varMap.put("NONCE", StringTool.generateGUID());
+		ctx.getApplication().renderHeaders(ctx.getRequestResponse(), headerMap, varMap);
 	}
 
 	private <K> PartData getCachedInstance2(final IBufferedPartFactory<K> pf, final IPageParameters parameters) throws Exception {
