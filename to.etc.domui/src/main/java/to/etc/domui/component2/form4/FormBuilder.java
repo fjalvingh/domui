@@ -533,6 +533,7 @@ final public class FormBuilder {
 
 		protected Boolean m_mandatory;
 
+
 		protected Boolean m_mandatoryIcon;
 
 		@Nullable
