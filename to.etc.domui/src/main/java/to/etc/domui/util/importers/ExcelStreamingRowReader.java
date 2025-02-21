@@ -265,8 +265,20 @@ public class ExcelStreamingRowReader implements IRowReader, AutoCloseable, Itera
 	public void close() throws IOException {
 		InputStream is = m_inputStream;
 		if(null != is) {
-			is.close();
 			m_inputStream = null;
+			try {
+				is.close();
+			} catch(Exception x) {
+				//-- Ignore.
+			}
+		}
+		Workbook workbook = m_workbook;
+		if(null != workbook) {
+			try {
+				workbook.close();
+			} catch(Exception x) {
+				//-- ignore
+			}
 		}
 	}
 
