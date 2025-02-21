@@ -13,9 +13,13 @@
 	function applyStyles(element, styleString) {
 		var styles = styleString.split(';').filter(Boolean);
 		styles.forEach(property => {
-			let [p, v] = property.split(":").map(item => item.trim());
-			p = p.replace(/-(\w)/g, (match, letter) => letter.toUpperCase());
-			element.style[p.trim()] = v.trim();
+			let index = property.indexOf(":");
+			if (index !== -1) {
+				let p = property.substring(0, index).trim(); // Eerste deel vóór ":"
+				let v = property.substring(index + 1).trim(); // Rest van de string
+				p = p.replace(/-(\w)/g, (match, letter) => letter.toUpperCase());
+				element.style[p.trim()] = v.trim();
+			}
 		});
 	}
 
