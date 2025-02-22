@@ -72,6 +72,9 @@ final public class JavaScriptletContributor extends HeaderContributor {
 			r.o().tag("script");
 			r.o().attr("language", "javascript");
 			r.o().attr("nonce", r.getPage().getNonce());
+			if (m_javascript.startsWith("window.Trengo")) {
+				r.o().attr("id", "trengo-widget-script");
+			}
 			r.o().endtag();
 			r.o().writeRaw("<!--\n"); // Embed JS in comment IMPORTANT: the \n is required!!!
 			r.o().writeRaw(m_javascript);
