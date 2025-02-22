@@ -1462,6 +1462,7 @@ public abstract class DomApplication {
 			addHeaderContributor(HeaderContributor.loadJavascript("$js/" + jqresource), order++);
 		}
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jqAttrFix.js"), order++);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jqiFrameFix.js"), order++);
 
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
