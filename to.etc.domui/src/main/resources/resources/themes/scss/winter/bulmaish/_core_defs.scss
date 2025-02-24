@@ -99,11 +99,8 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 		border-color: $input-hover-border-color;
 		cursor: default;
 	}
-	background: #f2f9fe; /* Old browsers */
-	background: -moz-linear-gradient(top, #f2f9fe 0%, #d6f0fd 100%); /* FF3.6-15 */
-	background: -webkit-linear-gradient(top, #f2f9fe 0%,#d6f0fd 100%); /* Chrome10-25,Safari5.1-6 */
-	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-	box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
+	background: #0a0a0a00; /* Old browsers */
+	box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0);
 }
 
 @mixin ui-input-base {
