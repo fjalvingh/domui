@@ -54,7 +54,7 @@ textarea {
 }
 
 textarea[readonly="readonly"] {
-	@include ui-ro-base;
+	background-color: transparent;
 }
 
 input[type=checkbox] {

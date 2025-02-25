@@ -1,7 +1,3 @@
 .ui-otxt {
 	@include ui-input-base;
-
-	&.ui-ro  {
-		@include ui-ro-base;
-	}
 }
