@@ -62,11 +62,12 @@ public class OracleReverser extends JDBCReverser {
 
 	@Override
 	protected String translateSchemaName(@NonNull Connection dbc, @Nullable String name) throws Exception {
-		if(IGNORE_SCHEMAS.contains(name.toUpperCase())) {
-			return null;
-		}
-		if(name != null)
+		if(name != null) {
+			if(IGNORE_SCHEMAS.contains(name.toUpperCase())) {
+				return null;
+			}
 			return name.toUpperCase();
+		}
 
 		//-- Get current schema
 		PreparedStatement ps = null;
@@ -76,7 +77,13 @@ public class OracleReverser extends JDBCReverser {
 			rs = ps.executeQuery();
 			if(!rs.next())
 				throw new SQLException("No result");
-			return rs.getString(1);
+			String schma = rs.getString(1);
+			if(schma != null) {
+				if(IGNORE_SCHEMAS.contains(schma.toUpperCase())) {
+					return null;
+				}
+			}
+			return schma;
 		} finally {
 			FileTool.closeAll(rs, ps);
 		}
