@@ -81,3 +81,33 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 .ui-rbb-buttons.ui-input-err label {
 	background-color: $errors_input_background;
 }
+
+/*** On/Off single state label that looks like an checkbox button ***/
+.ui-boolean-btn {
+	display: inline-block;
+	border: 1px solid;
+	border-radius: 4px;
+	height: 30px;
+	width: 50px;
+	text-align: center;
+	align-content: center;
+
+	&.ui-on {
+		background-color: $rbb-common-color;
+		color: $background-color;
+		border-color: $rbb-border-color;
+		&:hover {
+			color: $rbb-common-bg;
+		}
+	}
+
+	&.ui-off {
+		background-color: $rbb-common-bg;
+		color: $rbb-common-color;
+		border-color: $rbb-border-color;
+		&:hover {
+			background-color: $background-color;
+		}
+	}
+}
+
