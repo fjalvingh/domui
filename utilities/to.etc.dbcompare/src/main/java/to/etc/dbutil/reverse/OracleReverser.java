@@ -1001,8 +1001,11 @@ public class OracleReverser extends JDBCReverser {
 						s = rs3.getString(2);
 						boolean desc = s != null && s.equalsIgnoreCase("DESC");
 						DbColumn c = t.findColumn(cn);
-						if(c == null)
-							throw new IllegalStateException("Unknown column " + tn + "." + cn + " in index " + name);
+						if(c == null) {
+							warning("Unknown column " + tn + "." + cn + " in index " + name + ", removing index");
+							indexMap.remove(name);
+							continue;
+						}
 						ix.addColumn(c, desc);
 					}
 					rs3.close();
