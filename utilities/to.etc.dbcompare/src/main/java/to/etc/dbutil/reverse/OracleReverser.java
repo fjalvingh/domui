@@ -41,6 +41,8 @@ import java.util.Set;
  * Created on Nov 14, 2007
  */
 public class OracleReverser extends JDBCReverser {
+	static private final Set<String> IGNORE_SCHEMAS = Set.of("SYS", "SYSTEM");
+
 	public OracleReverser(DataSource dbc, Set<ReverserOption> optionSet) {
 		super(dbc, optionSet);
 	}
@@ -60,6 +62,9 @@ public class OracleReverser extends JDBCReverser {
 
 	@Override
 	protected String translateSchemaName(@NonNull Connection dbc, @Nullable String name) throws Exception {
+		if(IGNORE_SCHEMAS.contains(name.toUpperCase())) {
+			return null;
+		}
 		if(name != null)
 			return name.toUpperCase();
 
