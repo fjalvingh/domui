@@ -1007,17 +1007,21 @@ public class OracleReverser extends JDBCReverser {
 					}
 					rs3.close();
 				} else { // if("FUNC".equalsIgnoreCase(type)) {
-					//-- All others: get DDL
-					ps2.setString(1, name);
-					rs2 = ps2.executeQuery();
-					if(!rs2.next()) {
-						warning("Cannot obtain index DDL for index=" + name);
-						continue;
-					}
-					String ddl = rs2.getString(1);
-					SpecialIndex sx = new SpecialIndex(name, ddl);
+					try {
+						//-- All others: get DDL
+						ps2.setString(1, name);
+						rs2 = ps2.executeQuery();
+						if(!rs2.next()) {
+							warning("Cannot obtain index DDL for index=" + name);
+							continue;
+						}
+						String ddl = rs2.getString(1);
+						SpecialIndex sx = new SpecialIndex(name, ddl);
 //					schema.addSpecialIndex(sx);
-					rs2.close();
+						rs2.close();
+					} catch(Exception x) {
+						warning("Cannot obtain index DDL for index=" + name);
+					}
 
 				} //else throw new IllegalStateException("Unexpected index type "+type);
 			}
