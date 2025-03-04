@@ -11,6 +11,9 @@
 	};
 
 	function applyStyles(element, styleString) {
+		if (!styleString) {
+			return;
+		}
 		var styles = styleString.split(';').filter(Boolean);
 		styles.forEach(property => {
 			let index = property.indexOf(":");
