@@ -100,7 +100,7 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	}
 
 	private static String getURL(String icon, String caption, String color) {
-		if(null != icon && icon.startsWith("THEME/")) {
+		if(null != icon && !icon.startsWith("THEME/")) {
 			LOG.error("BAD ICON SPEC: " + icon);
 			throw new IllegalStateException("BAD ICON SPEC: " + icon);
 		}
