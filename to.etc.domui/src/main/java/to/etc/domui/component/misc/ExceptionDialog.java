@@ -162,6 +162,7 @@ final public class ExceptionDialog {
 				.content(pre)
 				//.text(message + "\n" + x.toString() + "\n\n" + sb)
 				.modal()
+				.resizable()
 				//.size(700, 500)
 			;
 			return;
@@ -174,6 +175,7 @@ final public class ExceptionDialog {
 			.content(presentation.getFragment())
 			.text(presentation.getMessage())
 			.modal()
+			.resizable()
 			//.size(700, 500)
 		;
 	}
