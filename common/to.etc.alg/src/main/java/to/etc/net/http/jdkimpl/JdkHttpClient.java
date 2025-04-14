@@ -17,11 +17,14 @@ import to.etc.util.WrappedException;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.CookieManager;
+import java.net.Socket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -35,6 +38,7 @@ import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -111,7 +115,6 @@ public class JdkHttpClient implements IHttpClient {
 		return new GenericHttpResponse<>(response.statusCode(), gh, response.body());
 	}
 
-
 	private <T> BodyHandler<T> handlerFromReader(IBodyReader<T> reader) {
 		if(reader.getTypeClass() == String.class)
 			return (BodyHandler<T>) BodyHandlers.ofString();
@@ -155,7 +158,9 @@ public class JdkHttpClient implements IHttpClient {
 		SSLContext sslContext;
 		if(null != certSha1Thumbprint) {
 			sslContext = createSslContextForTrustedServerThumbprint(certSha1Thumbprint);
-		}else {
+		} else if(ssl.isIgnoreRemoteCertificate()) {
+			sslContext = createSslContextAcceptingAllCerts();
+		} else {
 			sslContext = createSscContext(ssl);
 		}
 
@@ -168,6 +173,43 @@ public class JdkHttpClient implements IHttpClient {
 			.version(Version.HTTP_1_1)
 			.connectTimeout(Duration.ofMinutes(10))
 			.build();
+	}
+
+	private SSLContext createSslContextAcceptingAllCerts() throws Exception {
+		SSLContext context = SSLContext.getInstance("TLSv1.2");
+
+		TrustManager trustAllCerts = new X509ExtendedTrustManager() {
+			@Override
+			public X509Certificate[] getAcceptedIssuers() {
+				return new X509Certificate[0];
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
+
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
+			}
+
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
+			}
+
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
+			}
+		};
+		context.init(null, new TrustManager[]{trustAllCerts}, new SecureRandom());
+		return context;
 	}
 
 	private static SSLContext createSscContext(SslParameters ssl) throws Exception {
@@ -204,10 +246,10 @@ public class JdkHttpClient implements IHttpClient {
 				if(Arrays.equals(SslParameters.INSECURE_SSL_THUMBPRINT.getBytes(StandardCharsets.UTF_8), certSha1Thumbprint)) {
 					return;
 				}
-				if (Arrays.stream(chain).noneMatch(crt -> {
+				if(Arrays.stream(chain).noneMatch(crt -> {
 					try {
 						return Arrays.equals(certSha1Thumbprint, getSha1Thumbprint(crt));
-					} catch (Exception ex) {
+					} catch(Exception ex) {
 						throw new WrappedException(ex);
 					}
 				})) {
@@ -271,7 +313,7 @@ public class JdkHttpClient implements IHttpClient {
 	private void closeClient(HttpClient client) {
 		System.out.println("destroy: closing http client resources");
 		Optional<Executor> executorStupidity = client.executor();
-		if(executorStupidity.isPresent()) {					// Sure. This is of course better than NULL because no one would forget this. Idiots. And now the compiler cannot check.
+		if(executorStupidity.isPresent()) {                    // Sure. This is of course better than NULL because no one would forget this. Idiots. And now the compiler cannot check.
 			System.out.println("destroy: preparing to close HTTP executor");
 			Executor executor = executorStupidity.get();
 			if(executor instanceof ExecutorService) {
