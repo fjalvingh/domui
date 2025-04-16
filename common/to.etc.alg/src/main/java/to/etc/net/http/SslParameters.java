@@ -29,11 +29,26 @@ final public class SslParameters {
 	@Nullable
 	private final String m_sslPasskey;
 
+	private final boolean m_ignoreRemoteCertificate;
+
 	SslParameters(@Nullable SslCertificateType sslType, @Nullable byte[] sslCertificate, @Nullable String sslPasskey, @Nullable byte[] certSha1Thumbprint) {
 		m_sslCertificate = sslCertificate;
 		m_sslType = sslType;
 		m_sslPasskey = sslPasskey;
 		m_certSha1Thumbprint = certSha1Thumbprint;
+		m_ignoreRemoteCertificate = false;
+	}
+
+	SslParameters(boolean ignoreRemoteCertificate) {
+		m_ignoreRemoteCertificate = ignoreRemoteCertificate;
+		m_sslCertificate = null;
+		m_sslType = null;
+		m_sslPasskey = null;
+		m_certSha1Thumbprint = null;
+	}
+
+	public boolean isIgnoreRemoteCertificate() {
+		return m_ignoreRemoteCertificate;
 	}
 
 	@Nullable

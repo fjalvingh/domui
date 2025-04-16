@@ -47,6 +47,16 @@ public class GenericHttpRequest {
 		return this;
 	}
 
+	/**
+	 * When set we will accept any ssl certificate from the remote without checking.
+	 */
+	public GenericHttpRequest sslIgnoreRemoteCertificate(boolean ignoreRemoteCertificate) {
+		if(ignoreRemoteCertificate) {
+			m_sslParameters = new SslParameters(true);
+		}
+		return this;
+	}
+
 	public GenericHttpRequest uri(URI uri) {
 		try {
 			m_url = uri.toURL().toExternalForm();
