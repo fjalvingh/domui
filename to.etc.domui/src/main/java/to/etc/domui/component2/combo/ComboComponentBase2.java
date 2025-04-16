@@ -181,7 +181,6 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	private void renderReadOnly() throws Exception {
 		addCssClass("ui-cbb2");
 		addCssClass("ui-cbb2-ro");
-		removeCssClass("xxui-cbb2-rw");
 		removeCssClass("ui-control");
 
 		//-- Append stuff to the combo
@@ -204,7 +203,6 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	private void renderEditable() throws Exception {
 		addCssClass("ui-cbb2");
-		addCssClass("xxui-cbb2-rw");
 		addCssClass("ui-control");
 		removeCssClass("ui-cbb2-ro");
 		add(m_select);
