@@ -1,10 +1,12 @@
 package to.etc.domui.component.delayed;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.ExpandCollapsePanel;
 import to.etc.domui.component.layout.MessageLine;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Pre;
 import to.etc.domui.util.Msgs;
 import to.etc.parallelrunner.IAsyncRunnable;
@@ -59,23 +61,31 @@ abstract public class AsyncDiv<T extends IAsyncRunnable> extends Div {
 			add(new MessageLine(MsgType.ERROR, errorException.getMessage()));
 		} else {
 			String msg = errorException.getMessage();
-			if(null == msg) {
-				add(new MessageLine(MsgType.ERROR, Msgs.BUNDLE.getString(Msgs.ASYNC_ERROR)));
-			} else {
-				add(new MessageLine(MsgType.ERROR, Msgs.BUNDLE.getString(Msgs.ASYNC_ERROR) + ": " + msg));
-			}
-			StringBuilder sb = new StringBuilder(8192);
-			StringTool.strStacktrace(sb, errorException);
-			String s = sb.toString();
-			s = s.replace("\n", "<br/>\n");
-
-			ExpandCollapsePanel ecp = new ExpandCollapsePanel("Details");
-			add(ecp);
-
-			Pre p = new Pre();
-			ecp.setContent(p);
-			p.setText(s);
+			addErrorMessage(this, msg);
+			addExpandableExceptionDetails(errorException);
 		}
+	}
+
+	protected MessageLine addErrorMessage(NodeContainer node, @Nullable String msg) {
+		if(null == msg) {
+			return node.add(new MessageLine(MsgType.ERROR, Msgs.BUNDLE.getString(Msgs.ASYNC_ERROR)));
+		} else {
+			return node.add(new MessageLine(MsgType.ERROR, Msgs.BUNDLE.getString(Msgs.ASYNC_ERROR) + ": " + msg));
+		}
+	}
+
+	protected void addExpandableExceptionDetails(Exception errorException) {
+		StringBuilder sb = new StringBuilder(8192);
+		StringTool.strStacktrace(sb, errorException);
+		String s = sb.toString();
+		s = s.replace("<br/>", "\n");
+
+		ExpandCollapsePanel ecp = new ExpandCollapsePanel("Details");
+		add(ecp);
+
+		Pre p = new Pre();
+		ecp.setContent(p);
+		p.setText(s);
 	}
 
 	abstract public void createContent(T task) throws Exception;
