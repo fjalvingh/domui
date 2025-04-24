@@ -737,7 +737,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(inhibitevents)
 			return;
 
-		if(b.internalNeedClickHandler()) {
+		/*
+		 * Prefer a manually written onclick handler over the default.
+		 */
+		if(b.getOnClickJS() != null) {
+			o.attr("onclick", b.getOnClickJS());
+		} else if(b.internalNeedClickHandler()) {
 			StringBuilder a = sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)");
 			if(makeClickReturn != null) {
 				if(makeClickReturn) {
@@ -747,8 +752,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 				}
 			}
 			o.attr("onclick", a.toString());
-		} else if(b.getOnClickJS() != null) {
-			o.attr("onclick", b.getOnClickJS());
 		} else if(isAttrRender()) {
 			o.attr("onclick", "");
 		}
