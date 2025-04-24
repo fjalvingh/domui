@@ -937,16 +937,16 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		System.out.println(v.getClass().getCanonicalName() + " size " + InstrumentationAgent.getObjectSize(v));
 	}
 
-	/**
-	 * Start this with: java -javaagent:xxxxx/instrument.jar to calculate object sizes.
-	 */
-	static public void main(String[] args) {
-		printsize(new Div());
-		printsize(new TextNode());
-		printsize(new UrlPage());
-		printsize(new CssBase());
-	}
-
+	///**
+	// * Start this with: java -javaagent:xxxxx/instrument.jar to calculate object sizes.
+	// */
+	//static public void main(String[] args) {
+	//	printsize(new Div());
+	//	printsize(new TextNode());
+	//	printsize(new UrlPage());
+	//	printsize(new CssBase());
+	//}
+	//
 	/**
 	 * Wraps execution exception into ExceptionDialog, to keeps errors local on UI.
 	 * @param what
