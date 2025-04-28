@@ -10,6 +10,7 @@ import to.etc.dbutil.schema.DbRelation;
 import to.etc.dbutil.schema.DbRelation.RelationUpdateAction;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
+import to.etc.dbutil.schema.DbView;
 import to.etc.util.FileTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
@@ -152,7 +153,7 @@ public class JDBCReverser implements Reverser {
 				}
 				if(hasOption(ReverserOption.ReverseViews)) {
 					System.out.println("Reversing views");
-					reverseViews(dbc, schema);
+					reverseViews(dbc, schemaSet);
 				}
 				if(hasOption(ReverserOption.ReverseProcedures)) {
 					System.out.println("Reversing procedures");
@@ -872,7 +873,33 @@ public class JDBCReverser implements Reverser {
 		return null;
 	}
 
-	public void reverseViews(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
+	public void reverseViews(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
+		ResultSet rs = null;
+		try {
+			rs = dbc.getMetaData().getTables(null, null, null, new String[]{"VIEW"});
+			int count = 0;
+			ResultSetMetaData md = rs.getMetaData();
+			while(rs.next()) {
+				if(isValidTable(rs)) {
+					String schemaName = getSchemaFromMetadataSet(rs);
+					DbSchema schema = findSchema(schemaSet, schemaName);
+					if(null != schema) {
+						String name = rs.getString("TABLE_NAME");
+						DbView view = new DbView(name, null);
+						schema.addView(view);
+						count++;
+						//view.setComments(rs.getString("REMARKS"));
+					}
+				}
+			}
+			msg("Loaded " + count + " views");
+		} finally {
+			try {
+				if(rs != null)
+					rs.close();
+			} catch(Exception x) {
+			}
+		}
 	}
 
 	public void reverseProcedures(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
