@@ -283,6 +283,11 @@ public class JDBCReverser implements Reverser {
 				reversePrimaryKeys(dbc, schemaSet);
 			}
 
+			if(hasOption(ReverserOption.ReverseViews)) {
+				System.out.println("Reversing views");
+				reverseViews(dbc, schemaSet);
+			}
+
 			if(hasOption(ReverserOption.ReverseRelations)) {
 				System.out.println("Reversing relations");
 				reverseRelations(dbc, schemaSet);
