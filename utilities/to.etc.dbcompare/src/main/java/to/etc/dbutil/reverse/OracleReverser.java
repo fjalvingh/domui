@@ -564,29 +564,22 @@ public class OracleReverser extends JDBCReverser {
 	 * to obtain the view definitions.
 	 */
 	@Override
-	public void reverseViews(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			ps = dbc.prepareStatement("select view_name,text from all_views where owner=?");
-			ps.setString(1, schema.getName().toUpperCase());
-			rs = ps.executeQuery();
-			while(rs.next()) {
-				String name = rs.getString(1);
-				String sql = rs.getString(2);
-				DbView v = new DbView(name, sql);
-				schema.addView(v);
+	public void reverseViews(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
+		try(PreparedStatement ps = dbc.prepareStatement("select view_name,text from all_views where owner=?")) {
+			int count = 0;
+			for(DbSchema schema : schemaSet) {
+				ps.setString(1, schema.getName().toUpperCase());
+				try(ResultSet rs = ps.executeQuery()) {
+					while(rs.next()) {
+						String name = rs.getString(1);
+						String sql = rs.getString(2);
+						DbView v = new DbView(name, sql);
+						schema.addView(v);
+						count++;
+					}
+				}
 			}
-			System.out.println(this + ": loaded " + schema.getViewMap().size() + " views");
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			System.out.println(this + ": loaded " + count + " views");
 		}
 	}
 
