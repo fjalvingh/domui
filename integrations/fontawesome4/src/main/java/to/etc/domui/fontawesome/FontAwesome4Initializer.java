@@ -33,6 +33,7 @@ final public class FontAwesome4Initializer implements IApplicationInitializer {
 				throw new IllegalStateException("No implementation known for Icon." + icon.name());
 			Icon.setIcon(icon, alt);
 		}
+		da.iconPackInitialized();
 	}
 
 	public void onAfterDestroy(DomApplication da) {
