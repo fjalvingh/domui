@@ -977,6 +977,14 @@ public abstract class DomApplication {
 	}
 
 	private void checkIconPackInitialization() {
+		boolean test = false;                            // FIXME Horrible
+		for(HeaderContributorEntry hce : getHeaderContributorList()) {
+			if(hce.getContributor().toString().contains("font-awesome") || hce.getContributor().toString().contains("fontawesome")) {
+				if(hce.getContributor().toString().contains("font-awesome-test"))
+					test = true;
+			}
+		}
+
 		if(!isIconPackInitialized()) {
 			throw new ProgrammerErrorException("FATAL: No FontAwesome version registered\n"
 				+ "DomUI uses FontAwesome for some of its standard icons. You need to include the version of FontAwesome you"
@@ -985,7 +993,8 @@ public abstract class DomApplication {
 			);
 		}
 
-		Icon.initialize();                                    // Make sure all default icons have an impl
+		if(!test)
+			Icon.initialize();                                    // Make sure all default icons have an impl
 	}
 
 	/**
