@@ -6,6 +6,7 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
 
 /**
  * An input button to enter a color code, with a small div behind it showing the
@@ -15,7 +16,7 @@ import to.etc.domui.dom.html.Page;
  * Created on May 1, 2011
  */
 public class ColorPickerInput extends Input implements IControl<String> {
-	final private Div		m_coldiv = new Div();
+	final private Div m_coldiv = new Div();
 
 	private boolean m_mandatory = true;
 
@@ -33,7 +34,7 @@ public class ColorPickerInput extends Input implements IControl<String> {
 //		appendCreateJS("$('#"+getActualID()+"').ColorPicker({});");
 		appendAfterMe(m_coldiv);
 		if(!isOff())
-			appendCreateJS("WebUI.colorPickerInput('#" + getActualID() +"','#"+m_coldiv.getActualID() + "','" + getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
+			appendCreateJS("WebUI.colorPickerInput('#" + getActualID() + "','#" + m_coldiv.getActualID() + "','" + getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
 	}
 
 	private boolean isOff() {
@@ -46,6 +47,11 @@ public class ColorPickerInput extends Input implements IControl<String> {
 //		if(m_coldiv.getPage() == null)
 //			appendAfterMe(m_coldiv);
 	}
+
+	public static void initialize(UrlPage page) {
+		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/colorpicker.js"), 100);
+	}
+
 	@Override
 	public void onRemoveFromPage(Page p) {
 		m_coldiv.remove();
@@ -60,7 +66,7 @@ public class ColorPickerInput extends Input implements IControl<String> {
 		setRawValue(value); // Set the color value;
 		if(null != value) {
 			m_coldiv.setBackgroundColor("#" + value);
-		}else {
+		} else {
 			m_coldiv.setBackgroundColor("inherit");
 		}
 		if(!isBuilt())
@@ -70,12 +76,13 @@ public class ColorPickerInput extends Input implements IControl<String> {
 		if(!isOff())
 			appendJavascript("$('#" + getActualID() + "').ColorPickerSetColor('" + value + "');");
 	}
+
 	@Override
-	public String	getValue() {
+	public String getValue() {
 		String v = getRawValue();
 		if(isMandatory() && (v == null || v.isEmpty())) {
 			v = "000000";
-		}else if(!isMandatory() && v.isEmpty()) {
+		} else if(!isMandatory() && v.isEmpty()) {
 			v = null;
 		}
 		return v;
@@ -85,6 +92,7 @@ public class ColorPickerInput extends Input implements IControl<String> {
 	public String getValueSafe() {
 		return getValue();
 	}
+
 	@Override
 	public boolean isMandatory() {
 		return m_mandatory;
@@ -94,6 +102,7 @@ public class ColorPickerInput extends Input implements IControl<String> {
 	public void setMandatory(boolean ro) {
 		m_mandatory = ro;
 	}
+
 	@Override
 	public void setDisabled(boolean disabled) {
 		boolean wasoff = isOff();
@@ -112,12 +121,13 @@ public class ColorPickerInput extends Input implements IControl<String> {
 		if(isOff() == old)
 			return;
 		if(isOff())
-			appendJavascript("WebUI.colorPickerDisable('#"+getActualID()+"');");
+			appendJavascript("WebUI.colorPickerDisable('#" + getActualID() + "');");
 		else
-			appendCreateJS("WebUI.colorPickerInput('#" + getActualID() +"','#"+m_coldiv.getActualID() + "','" + getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
+			appendCreateJS("WebUI.colorPickerInput('#" + getActualID() + "','#" + m_coldiv.getActualID() + "','" + getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 }
