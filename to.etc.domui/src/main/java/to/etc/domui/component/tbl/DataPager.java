@@ -45,13 +45,13 @@ import java.util.function.Function;
 @NonNullByDefault
 final public class DataPager extends Div implements IDataTableChangeListener {
 	@NonNull
-	static private Function<PageableTabularComponentBase<?>, IDataTablePager> m_pagerFactory = table -> new DataPager2(table);
+	static private Function<IPageableComponent, IDataTablePager> m_pagerFactory = table -> new DataPager2(table);
 
 	private final IDataTablePager m_pager;
 
 //	public DataPager() {}
 
-	public DataPager(final PageableTabularComponentBase< ? > tbl) {
+	public DataPager(final IPageableComponent tbl) {
 		m_pager = getPagerFactory().apply(tbl);
 	}
 
@@ -61,7 +61,7 @@ final public class DataPager extends Div implements IDataTableChangeListener {
 	}
 
 	@Override
-	public void selectionUIChanged(@NonNull TableModelTableBase< ? > tbl) throws Exception {
+	public void selectionUIChanged(@NonNull IPageableComponent tbl) throws Exception {
 		m_pager.selectionUIChanged(tbl);
 	}
 
@@ -78,12 +78,12 @@ final public class DataPager extends Div implements IDataTableChangeListener {
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void modelChanged(@NonNull TableModelTableBase< ? > tbl, @Nullable ITableModel< ? > old, @Nullable ITableModel< ? > nw) throws Exception {
+	public void modelChanged(@NonNull TableModelTableBase<?> tbl, @Nullable ITableModel<?> old, @Nullable ITableModel<?> nw) throws Exception {
 		m_pager.modelChanged(tbl, old, nw);
 	}
 
 	@Override
-	public void pageChanged(@NonNull TableModelTableBase< ? > tbl) throws Exception {
+	public void pageChanged(@NonNull IPageableComponent tbl) throws Exception {
 		m_pager.pageChanged(tbl);
 	}
 
@@ -105,11 +105,12 @@ final public class DataPager extends Div implements IDataTableChangeListener {
 		return sib;
 	}
 
-	public synchronized static void setPagerFactory(@NonNull Function<PageableTabularComponentBase<?>, IDataTablePager> pagerFactory) {
+	public synchronized static void setPagerFactory(@NonNull Function<IPageableComponent, IDataTablePager> pagerFactory) {
 		m_pagerFactory = pagerFactory;
 	}
 
-	@NonNull private synchronized static Function<PageableTabularComponentBase<?>, IDataTablePager> getPagerFactory() {
+	@NonNull
+	private synchronized static Function<IPageableComponent, IDataTablePager> getPagerFactory() {
 		return m_pagerFactory;
 	}
 

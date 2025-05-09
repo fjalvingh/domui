@@ -10,6 +10,7 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
 
 /**
  * This is a Small button which shows a selected color, and which opens
@@ -50,6 +51,10 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 	@Override
 	public void onAddedToPage(Page p) {
 		p.addHeaderContributor(HeaderContributor.loadJavascript("$js/colorpicker.js"), 100);
+	}
+
+	public static void initialize(UrlPage page) {
+		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/colorpicker.js"), 100);
 	}
 
 	@Override

@@ -900,4 +900,18 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	public void setEnableRowEdit(boolean enableRowEdit) {
 		m_enableRowEdit = enableRowEdit;
 	}
+
+	@Override
+	public int getPageCount() throws Exception {
+		return 0;
+	}
+
+	@Override
+	public void setCurrentPage(int page) throws Exception {
+	}
+
+	@Override
+	public int getCurrentPage() {
+		return 0;
+	}
 }

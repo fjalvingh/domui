@@ -29,7 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
 
-abstract public class PageableTabularComponentBase<T> extends SelectableTabularComponent<T> implements ITableModelListener<T> {
+abstract public class PageableTabularComponentBase<T> extends SelectableTabularComponent<T> implements IPageableComponent, ITableModelListener<T> {
 	/** The current page #, starting at 0 */
 	private int m_currentPage;
 
@@ -80,10 +80,12 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 		return getModel().getItems(m_six, m_eix); // Data to show
 	}
 
+	@Override
 	public int getCurrentPage() {
 		return m_currentPage;
 	}
 
+	@Override
 	public void setCurrentPage(int currentPage) throws Exception {
 		if(m_currentPage < 0 || (currentPage != 0 && getPageSize() <= 0))
 			throw new IllegalStateException("Cannot set current page to " + currentPage);
@@ -99,6 +101,7 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 		firePageChanged();
 	}
 
+	@Override
 	public int getPageCount() throws Exception {
 		int pageSize = getPageSize();
 		if(pageSize <= 0)
