@@ -4,7 +4,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbutil.reverse.IExec;
 import to.etc.dbutil.reverse.Reverser;
-import to.etc.dbutil.reverse.ReverserOption;
 import to.etc.util.FileTool;
 
 import java.io.Serializable;
@@ -22,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A database table.
@@ -73,6 +73,9 @@ public class DbTable implements Serializable {
 
 	@Nullable
 	private List<DbColumn> m_sortedColumns;
+
+	@Nullable
+	private Map<String, DbColumn> m_lcColumnMap;
 
 	public DbTable(DbSchema schema, String name) {
 		m_schema = schema;
@@ -263,9 +266,22 @@ public class DbTable implements Serializable {
 		}
 	}
 
+	private boolean m_colLookupWarned;
+
 	@Nullable
 	public DbColumn findColumn(String name) {
-		return getColumnMap().get(name);
+		DbColumn dbColumn = getColumnMap().get(name);
+		if(null == dbColumn) {
+			//-- Try with lowercase
+			dbColumn = Objects.requireNonNull(m_lcColumnMap).get(name.toLowerCase());
+			if(null != dbColumn) {
+				if(!m_colLookupWarned) {
+					System.out.println("reverser: column '" + name + "' could only be found by lowercasing all names (" + dbColumn.getName() + ")");
+					m_colLookupWarned = true;
+				}
+			}
+		}
+		return dbColumn;
 	}
 
 	public DbColumn getColumn(String name) {
@@ -432,6 +448,8 @@ public class DbTable implements Serializable {
 	public void initializeColumns(@NonNull List<DbColumn> columnList, @NonNull Map<String, DbColumn> columnMap) {
 		m_columnList = Collections.unmodifiableList(columnList);
 		m_columnMap = Collections.unmodifiableMap(columnMap);
+		m_lcColumnMap = columnList.stream()
+			.collect(Collectors.toMap(a -> a.getName().toLowerCase(), a -> a));
 	}
 
 	public boolean isQuoteName() {
