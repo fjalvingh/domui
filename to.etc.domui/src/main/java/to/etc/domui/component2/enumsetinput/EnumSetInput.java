@@ -155,15 +155,18 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 
 	private void removeItem(T value) throws Exception {
 		//-- Remove this from screen and from the value.
-		Set<T> set = getValue();
-		if(null != set) {
-			set.remove(value);
-			valueHasChanged();
+		Set<T> aValue = getValue();
+		if(null != aValue) {
+			Set<T> set = new HashSet<>(aValue);
+			if(set.remove(value)) {
+				internalSetValue(set);
+			}
 		}
 		Div node = m_displayMap.remove(value);
 		if(null != node) {
 			node.remove();
 		}
+		valueHasChanged();
 	}
 
 	public void addItem(T item) throws Exception {
