@@ -77,6 +77,7 @@ public enum Theme implements IIconRef {
 	, ICON_SELECT_ALL
 	, ICON_SELECT_NONE
 	, BTN_SKULL
+	, ICON_SECRET
 	;
 
 	static private Map<Theme, IIconRef> m_iconMap = new ConcurrentHashMap<>();
@@ -164,5 +165,6 @@ public enum Theme implements IIconRef {
 		update(ICON_SELECT_ALL, Icon.of("THEME/dpr-select-all.png"));
 		update(ICON_SELECT_NONE, Icon.of("THEME/dpr-select-none.png"));
 		update(BTN_SKULL, Icon.of("THEME/btnSkull.png"));
+		update(ICON_SECRET, Icon.of("THEME/secret.png"));
 	}
 }

@@ -252,6 +252,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@NonNull
 	public Text2<T> password() {
 		m_password = true;
+		setSpecialAttribute("autocomplete", "new-password"); //prevent annoying last pass prefilling data
 		return this;
 	}
 

@@ -14,6 +14,13 @@ public class PopinClosePanel extends Div {
 	@Nullable
 	private Runnable m_onClosed;
 
+	public PopinClosePanel() {
+	}
+
+	public PopinClosePanel(String cssClass) {
+		addCssClass(cssClass);
+	}
+
 	@Override public void createContent() throws Exception {
 		appendCreateJS("WebUI.registerPopinClose('#" + getActualID() + "');");
 	}

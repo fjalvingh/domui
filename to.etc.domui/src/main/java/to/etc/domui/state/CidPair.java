@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.trouble.UnexpectedErrorException;
 
 final public class CidPair {
 	static private final Logger LOG = LoggerFactory.getLogger(CidPair.class);
@@ -20,11 +21,11 @@ final public class CidPair {
 
 		if(!isValid(windowId)) {
 			LOG.error("Invalid window ID in $CID " + windowId + "." + conversationId);
-			throw new IllegalStateException("Invalid window ID in CID");    // Do not show the ID - can be a XSS attack
+			throw new UnexpectedErrorException("Invalid window ID in CID");    // Do not show the ID - can be a XSS attack
 		}
 		if(!isValid(conversationId)) {
 			LOG.error("Invalid conversation ID in $CID " + windowId + "." + conversationId);
-			throw new IllegalStateException("Invalid conversation ID in CID");    // Do not show the ID - can be a XSS attack
+			throw new UnexpectedErrorException("Invalid conversation ID in CID");    // Do not show the ID - can be a XSS attack
 		}
 	}
 
@@ -50,10 +51,10 @@ final public class CidPair {
 	@NonNull
 	static public CidPair decode(@NonNull final String param) {
 		if(param == null)
-			throw new IllegalStateException("$cid cannot be null");
+			throw new UnexpectedErrorException("$cid cannot be null");
 		int pos = param.indexOf('.');
 		if(pos == -1)
-			throw new IllegalStateException("Missing '.' in $CID parameter");
+			throw new UnexpectedErrorException("Missing '.' in $CID parameter");
 		return new CidPair(param.substring(0, pos), param.substring(pos + 1));
 	}
 

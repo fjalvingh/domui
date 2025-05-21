@@ -66,9 +66,14 @@ public class CodeException extends MessageException {
 
 	@Override
 	public String getMessage() {
-		Locale loc = NlsContext.getLocale();
-		String msg = m_code.format(m_parameters);
-		MessageFormat temp = new MessageFormat(msg, loc); // SUN people are dumb. It's idiotic to have to create an object for this.
-		return temp.format(m_parameters);
+		try {
+			Locale loc = NlsContext.getLocale();
+			String msg = m_code.format(m_parameters);
+			MessageFormat temp = new MessageFormat(msg, loc); // SUN people are dumb. It's idiotic to have to create an object for this.
+			return temp.format(m_parameters);
+		} catch(Exception x) {
+			//-- If you have an error in the format string...
+			return m_code.name() + ": error in expanding format!!";
+		}
 	}
 }

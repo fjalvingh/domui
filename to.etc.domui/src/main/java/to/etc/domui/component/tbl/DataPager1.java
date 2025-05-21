@@ -48,7 +48,7 @@ import java.util.List;
  * A pager component for a DataTable-based table. This gets attached
  * to a table, and then controls the table's paging. This pager has
  * a fixed L&F.
- *
+ * <p>
  * The pager looks something like:
  * <pre>
  * [<<] [<] [>] [>>]     Record 50-75
@@ -70,13 +70,15 @@ public class DataPager1 extends Div implements IDataTablePager {
 
 	private Img m_truncated;
 
-	private PageableTabularComponentBase< ? > m_table;
+	private PageableTabularComponentBase<?> m_table;
 
 	private TextNode m_txt;
 
 	private NodeContainer m_textDiv;
 
-	/** When set (default) this shows selection details when a table has a selectable model. */
+	/**
+	 * When set (default) this shows selection details when a table has a selectable model.
+	 */
 	private boolean m_showSelection = true;
 
 	private Div m_buttonDiv;
@@ -86,9 +88,10 @@ public class DataPager1 extends Div implements IDataTablePager {
 	@NonNull
 	private List<SmallImgButton> m_extraButtonList = new ArrayList<SmallImgButton>();
 
-	public DataPager1() {}
+	public DataPager1() {
+	}
 
-	public DataPager1(final PageableTabularComponentBase< ? > tbl) {
+	public DataPager1(final PageableTabularComponentBase<?> tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
 	}
@@ -175,15 +178,15 @@ public class DataPager1 extends Div implements IDataTablePager {
 	}
 
 	@Nullable
-	private ISelectableTableComponent< ? > getSelectableTable() {
-		if(m_table instanceof ISelectableTableComponent< ? >)
+	private ISelectableTableComponent<?> getSelectableTable() {
+		if(m_table instanceof ISelectableTableComponent<?>)
 			return m_table;
 		return null;
 	}
 
 	@Nullable
-	private ISelectionModel< ? > getSelectionModel() {
-		ISelectableTableComponent< ? > stm = getSelectableTable();
+	private ISelectionModel<?> getSelectionModel() {
+		ISelectableTableComponent<?> stm = getSelectableTable();
 		if(null == stm)
 			return null;
 		return stm.getSelectionModel();
@@ -191,16 +194,14 @@ public class DataPager1 extends Div implements IDataTablePager {
 
 	/**
 	 * Return T if the "show selection UI" button should be visible.
-	 * @return
-	 * @throws Exception
 	 */
 	private boolean isNeedSelectionButton() throws Exception {
-		ISelectionModel< ? > sm = getSelectionModel();
+		ISelectionModel<?> sm = getSelectionModel();
 		if(sm == null || !m_showSelection)
 			return false;
 		if(!sm.isMultiSelect())
 			return false;
-		ISelectableTableComponent< ? > tc = getSelectableTable();
+		ISelectableTableComponent<?> tc = getSelectableTable();
 		if(null == tc)
 			throw new IllegalStateException("Null selectable table?");
 		if(tc.isMultiSelectionVisible())
@@ -209,7 +210,7 @@ public class DataPager1 extends Div implements IDataTablePager {
 	}
 
 	@Override
-	public void selectionUIChanged(@NonNull TableModelTableBase< ? > tbl) throws Exception {
+	public void selectionUIChanged(@NonNull IPageableComponent tbl) throws Exception {
 		redraw();
 	}
 
@@ -313,14 +314,14 @@ public class DataPager1 extends Div implements IDataTablePager {
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void modelChanged(final @NonNull TableModelTableBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
-		forceRebuild();										// jal See bugzilla 7383: table queries done twice
-		m_buttonDiv = null;									// Odd thing indicating that control is unbuilt, apparently
+	public void modelChanged(final @NonNull TableModelTableBase<?> tbl, final @Nullable ITableModel<?> old, final @Nullable ITableModel<?> nw) throws Exception {
+		forceRebuild();                                        // jal See bugzilla 7383: table queries done twice
+		m_buttonDiv = null;                                    // Odd thing indicating that control is unbuilt, apparently
 		//redraw();
 	}
 
 	@Override
-	public void pageChanged(final @NonNull TableModelTableBase< ? > tbl) throws Exception {
+	public void pageChanged(final @NonNull IPageableComponent tbl) throws Exception {
 		redraw();
 	}
 

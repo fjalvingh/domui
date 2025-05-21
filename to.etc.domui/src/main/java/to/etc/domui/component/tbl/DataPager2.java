@@ -45,7 +45,6 @@ import java.util.List;
 /**
  * Datapager using buttons and a page number list.
  *
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 2, 2019
  */
@@ -54,9 +53,13 @@ final public class DataPager2 extends Div implements IDataTablePager {
 
 	private Button m_nextBtn;
 
-	private PageableTabularComponentBase< ? > m_table;
+	private IPageableComponent m_table;
 
-	/** When set (default) this shows selection details when a table has a selectable model. */
+	//private PageableTabularComponentBase< ? > m_table;
+
+	/**
+	 * When set (default) this shows selection details when a table has a selectable model.
+	 */
 	private boolean m_showSelection = true;
 
 	private Div m_buttonContainer;
@@ -68,7 +71,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 
 	private boolean m_showAlways;
 
-	public DataPager2(final PageableTabularComponentBase< ? > tbl) {
+	public DataPager2(final IPageableComponent tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
 	}
@@ -87,7 +90,6 @@ final public class DataPager2 extends Div implements IDataTablePager {
 				return;
 			m_table.setCurrentPage(cp - 1);
 		});
-
 
 		//-- Last part
 		m_nextBtn = appendButton(bd, Msgs.uiPagerNext, () -> {
@@ -110,15 +112,15 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	}
 
 	@Nullable
-	private ISelectableTableComponent< ? > getSelectableTable() {
-		if(m_table instanceof ISelectableTableComponent< ? >)
-			return m_table;
+	private ISelectableTableComponent<?> getSelectableTable() {
+		if(m_table instanceof ISelectableTableComponent<?>)
+			return (ISelectableTableComponent<?>) m_table;
 		return null;
 	}
 
 	@Nullable
-	private ISelectionModel< ? > getSelectionModel() {
-		ISelectableTableComponent< ? > stm = getSelectableTable();
+	private ISelectionModel<?> getSelectionModel() {
+		ISelectableTableComponent<?> stm = getSelectableTable();
 		if(null == stm)
 			return null;
 		return stm.getSelectionModel();
@@ -128,12 +130,12 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	 * Return T if the "show selection UI" button should be visible.
 	 */
 	private boolean isNeedSelectionButton() throws Exception {
-		ISelectionModel< ? > sm = getSelectionModel();
+		ISelectionModel<?> sm = getSelectionModel();
 		if(sm == null || !m_showSelection)
 			return false;
 		if(!sm.isMultiSelect())
 			return false;
-		ISelectableTableComponent< ? > tc = getSelectableTable();
+		ISelectableTableComponent<?> tc = getSelectableTable();
 		if(null == tc)
 			throw new IllegalStateException("Null selectable table?");
 		if(tc.isMultiSelectionVisible())
@@ -142,7 +144,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	}
 
 	@Override
-	public void selectionUIChanged(@NonNull TableModelTableBase< ? > tbl) throws Exception {
+	public void selectionUIChanged(@NonNull IPageableComponent tbl) throws Exception {
 		redraw();
 	}
 
@@ -151,7 +153,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	/*--------------------------------------------------------------*/
 
 	private void redraw() throws Exception {
-		if(! isBuilt())
+		if(!isBuilt())
 			return;
 		Div bd = m_buttonDiv;
 		int np = m_table.getPageCount();
@@ -236,18 +238,19 @@ final public class DataPager2 extends Div implements IDataTablePager {
 			sib.addCssClass("ui-dp2-btn");
 		}
 
-		Span reco = new Span();
-		reco.addCssClass("ui-dp2-nurec");
-		reco.add(Msgs.uiPagerRecordCount.format(m_table.getResultCount()));
-		bd.add(reco);
-		if(m_table.isTruncated()) {
-			Div node = new Div("ui-dp2-trunc");
-			bd.add(node);
-			node.setTitle(Msgs.uiPagerOverflow2.getString());
+		if(m_table instanceof PageableTabularComponentBase<?>) {
+			PageableTabularComponentBase<?> tbl = (PageableTabularComponentBase<?>) m_table;
+			Span reco = new Span();
+			reco.addCssClass("ui-dp2-nurec");
+			reco.add(Msgs.uiPagerRecordCount.format(tbl.getResultCount()));
+			bd.add(reco);
+			if(tbl.isTruncated()) {
+				Div node = new Div("ui-dp2-trunc");
+				bd.add(node);
+				node.setTitle(Msgs.uiPagerOverflow2.getString());
+			}
 		}
-
 	}
-
 
 	private int renderButtons(int ci, int from, int to) throws Exception {
 		int np = m_table.getPageCount();
@@ -314,14 +317,14 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void modelChanged(final @NonNull TableModelTableBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
-		forceRebuild();										// jal See bugzilla 7383: table queries done twice
-		m_buttonDiv = null;									// Odd thing indicating that control is unbuilt, apparently
+	public void modelChanged(final @NonNull TableModelTableBase<?> tbl, final @Nullable ITableModel<?> old, final @Nullable ITableModel<?> nw) throws Exception {
+		forceRebuild();                                        // jal See bugzilla 7383: table queries done twice
+		m_buttonDiv = null;                                    // Odd thing indicating that control is unbuilt, apparently
 		//redraw();
 	}
 
 	@Override
-	public void pageChanged(final @NonNull TableModelTableBase< ? > tbl) throws Exception {
+	public void pageChanged(final @NonNull IPageableComponent tbl) throws Exception {
 		redraw();
 	}
 

@@ -28,9 +28,29 @@ div.ui-ipa img {
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 	-webkit-border-radius: 10px;
-	background: linear-gradient(0deg, rgba(218,239,244,1) 0%, rgba(151,212,233,1) 100%);
+	//background: linear-gradient(0deg, rgba(218,239,244,1) 0%, rgba(151,212,233,1) 100%);
 	color: black;
 	max-width: 600px;
+
+	img {
+		padding: 4px;
+	}
+
+	&.ui-warning {
+		border-color: $warnings_border;
+		background: $warnings_transparent; /* Old browsers */
+		background: linear-gradient(to bottom, $warnings_transparent 0%, $white_transparent 100%);
+	}
+	&.ui-info {
+		border-color: $info_border;
+		background: $info_transparent; /* Old browsers */
+		background: linear-gradient(to bottom, $info_border 0%, $white_transparent 100%);
+	}
+	&.ui-error {
+		border-color: $errors_border;
+		background: $errors_transparent; /* Old browsers */
+		background: linear-gradient(to bottom, $errors_transparent 0%, $white_transparent 100%);
+	}
 }
 
 /* AsyncContainer */
@@ -126,7 +146,7 @@ table.ui-tbl-spaced td, tbody.ui-tbl-spaced td {
 }
 
 /**
-*DomUI components style options 
+*DomUI components style options
 **/
 
 /** Removing top or bottom margin */

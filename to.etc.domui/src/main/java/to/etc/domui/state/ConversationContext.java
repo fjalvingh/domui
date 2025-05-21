@@ -279,8 +279,11 @@ public class ConversationContext extends AbstractConversationContext implements 
 	 */
 	@Override
 	public void destroy() {
-		getWindowSession().destroyConversation(this);
-		super.destroy();
+		WindowSession manager = m_manager;
+		if(null != manager) {
+			manager.destroyConversation(this);
+			super.destroy();
+		}
 	}
 
 	/*--------------------------------------------------------------*/

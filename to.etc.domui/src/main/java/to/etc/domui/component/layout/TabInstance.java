@@ -109,30 +109,9 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 		return m_image;
 	}
 
-	//@Nullable
-	//public Img getImg() {
-	//	return m_img;
-	//}
-	//
-	//public void setImage(Img image) {
-	//	m_img = image;
-	//}
-	//
-	//public void setImage(String image) {
-	//	if(image.isEmpty()) {
-	//		return; // If string is empty, we do not have to create an image.
-	//	}
-	//	Img img = createIcon(image);
-	//	m_img = img;
-	//}
-
 	public boolean isLazy() {
 		return m_lazy;
 	}
-
-	//public void setLazy(boolean lazy) {
-	//	m_lazy = lazy;
-	//}
 
 	boolean isAdded() {
 		return m_added;

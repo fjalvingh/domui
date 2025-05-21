@@ -124,6 +124,7 @@ public class TUtilDomUI {
 					return Collections.emptyList();
 				}
 			};
+			m_application.iconPackInitialized();
 
 			m_application.addHeaderContributor(HeaderContributor.loadStylesheet("font-awesome-test"), 11);
 			m_application.internalInitialize(cp, false);

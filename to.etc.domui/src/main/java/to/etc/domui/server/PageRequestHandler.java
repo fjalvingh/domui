@@ -42,6 +42,7 @@ import to.etc.domui.trouble.MsgException;
 import to.etc.domui.trouble.NotLoggedInException;
 import to.etc.domui.trouble.SessionInvalidException;
 import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.trouble.UnexpectedErrorException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.uitest.pogenerator.PoGenerator;
 import to.etc.domui.util.Constants;
@@ -216,7 +217,7 @@ final public class PageRequestHandler {
 			}
 		}
 		if(cida == null)                                        // Cannot happen, but make sure.
-			throw new IllegalStateException("Cannot happen: cida is null??");
+			throw new UnexpectedErrorException("Cannot happen: cida is null??");
 
 		if(cida.getConversationId().equals("r") && null == m_action) {
 			//-- session reload worked - we again recreate session to mark it as normal one, with x as conversation id
@@ -305,11 +306,11 @@ final public class PageRequestHandler {
 		String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
 		if(null != hpq) {
 			if(null == conversation)
-				throw new IllegalStateException("The conversation " + m_cida + " containing POST data does not exist (anymore) the WindowSession");
+				throw new UnexpectedErrorException("The conversation " + m_cida + " containing POST data does not exist (anymore) the WindowSession");
 
 			papa = (PageParameters) conversation.getAttribute("__ORIPP");
 			if(null == papa)
-				throw new IllegalStateException("The conversation " + m_cid + " no (longer) has the post data??");
+				throw new UnexpectedErrorException("The conversation " + m_cid + " no (longer) has the post data??");
 		}
 		return papa;
 	}
@@ -437,7 +438,7 @@ final public class PageRequestHandler {
 				AppSession aps = m_ctx.getSession();
 				if(aps.incrementExceptionCount() > 10) {
 					aps.clearExceptionRetryCount();
-					throw new IllegalStateException("Loop in exception handling in a full page (new page) render", x);
+					throw new UnexpectedErrorException(x, "Loop in exception handling in a full page (new page) render");
 				}
 				return true;
 			}
@@ -569,10 +570,10 @@ final public class PageRequestHandler {
 		 */
 		int pageTag = m_ctx.getPageParameters().getInt(Constants.PARAM_PAGE_TAG, -1);
 		if(-1 == pageTag)
-			throw new IllegalStateException("Missing or invalid $pt PageTAG in OBITUARY request");
+			throw new UnexpectedErrorException("Missing or invalid $pt PageTAG in OBITUARY request");
 		CidPair cida = m_cida;
 		if(cida == null)
-			throw new IllegalStateException("Missing $cid in OBITUARY request");
+			throw new UnexpectedErrorException("Missing $cid in OBITUARY request");
 
 		if(LOG.isDebugEnabled())
 			LOG.debug("OBITUARY received for " + m_cid + ": pageTag=" + pageTag);

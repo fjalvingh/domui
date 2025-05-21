@@ -833,4 +833,18 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	@Override
 	public void setHint(String hintText) {
 	}
+
+	@Override
+	public int getPageCount() throws Exception {
+		return 0;
+	}
+
+	@Override
+	public void setCurrentPage(int page) throws Exception {
+	}
+
+	@Override
+	public int getCurrentPage() {
+		return 0;
+	}
 }

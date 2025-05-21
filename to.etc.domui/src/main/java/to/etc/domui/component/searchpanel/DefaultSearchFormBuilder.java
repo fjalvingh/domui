@@ -33,7 +33,7 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 	public void append(SearchControlLine<?, ?> it) throws Exception {
 		NodeContainer label = it.getLabel();
 		IControl<?> control = it.getControl();
-		fb().label(label).item((NodeBase) control);
+		fb().label(label).mandatory(control.isMandatory()).item((NodeBase) control);
 		//fb().control(control);
 	}
 

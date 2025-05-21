@@ -41,6 +41,8 @@ import java.util.Set;
  * Created on Nov 14, 2007
  */
 public class OracleReverser extends JDBCReverser {
+	static private final Set<String> IGNORE_SCHEMAS = Set.of("SYS", "SYSTEM");
+
 	public OracleReverser(DataSource dbc, Set<ReverserOption> optionSet) {
 		super(dbc, optionSet);
 	}
@@ -60,8 +62,12 @@ public class OracleReverser extends JDBCReverser {
 
 	@Override
 	protected String translateSchemaName(@NonNull Connection dbc, @Nullable String name) throws Exception {
-		if(name != null)
+		if(name != null) {
+			if(IGNORE_SCHEMAS.contains(name.toUpperCase())) {
+				return null;
+			}
 			return name.toUpperCase();
+		}
 
 		//-- Get current schema
 		PreparedStatement ps = null;
@@ -71,7 +77,13 @@ public class OracleReverser extends JDBCReverser {
 			rs = ps.executeQuery();
 			if(!rs.next())
 				throw new SQLException("No result");
-			return rs.getString(1);
+			String schma = rs.getString(1);
+			if(schma != null) {
+				if(IGNORE_SCHEMAS.contains(schma.toUpperCase())) {
+					return null;
+				}
+			}
+			return schma;
 		} finally {
 			FileTool.closeAll(rs, ps);
 		}
@@ -552,29 +564,22 @@ public class OracleReverser extends JDBCReverser {
 	 * to obtain the view definitions.
 	 */
 	@Override
-	public void reverseViews(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			ps = dbc.prepareStatement("select view_name,text from all_views where owner=?");
-			ps.setString(1, schema.getName().toUpperCase());
-			rs = ps.executeQuery();
-			while(rs.next()) {
-				String name = rs.getString(1);
-				String sql = rs.getString(2);
-				DbView v = new DbView(name, sql);
-				schema.addView(v);
+	public void reverseViews(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
+		try(PreparedStatement ps = dbc.prepareStatement("select view_name,text from all_views where owner=?")) {
+			int count = 0;
+			for(DbSchema schema : schemaSet) {
+				ps.setString(1, schema.getName().toUpperCase());
+				try(ResultSet rs = ps.executeQuery()) {
+					while(rs.next()) {
+						String name = rs.getString(1);
+						String sql = rs.getString(2);
+						DbView v = new DbView(name, sql);
+						schema.addView(v);
+						count++;
+					}
+				}
 			}
-			System.out.println(this + ": loaded " + schema.getViewMap().size() + " views");
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			System.out.println(this + ": loaded " + count + " views");
 		}
 	}
 
@@ -989,23 +994,30 @@ public class OracleReverser extends JDBCReverser {
 						s = rs3.getString(2);
 						boolean desc = s != null && s.equalsIgnoreCase("DESC");
 						DbColumn c = t.findColumn(cn);
-						if(c == null)
-							throw new IllegalStateException("Unknown column " + tn + "." + cn + " in index " + name);
+						if(c == null) {
+							warning("Unknown column " + tn + "." + cn + " in index " + name + ", removing index");
+							indexMap.remove(name);
+							continue;
+						}
 						ix.addColumn(c, desc);
 					}
 					rs3.close();
 				} else { // if("FUNC".equalsIgnoreCase(type)) {
-					//-- All others: get DDL
-					ps2.setString(1, name);
-					rs2 = ps2.executeQuery();
-					if(!rs2.next()) {
-						warning("Cannot obtain index DDL for index=" + name);
-						continue;
-					}
-					String ddl = rs2.getString(1);
-					SpecialIndex sx = new SpecialIndex(name, ddl);
+					try {
+						//-- All others: get DDL
+						ps2.setString(1, name);
+						rs2 = ps2.executeQuery();
+						if(!rs2.next()) {
+							warning("Cannot obtain index DDL for index=" + name);
+							continue;
+						}
+						String ddl = rs2.getString(1);
+						SpecialIndex sx = new SpecialIndex(name, ddl);
 //					schema.addSpecialIndex(sx);
-					rs2.close();
+						rs2.close();
+					} catch(Exception x) {
+						warning("Cannot obtain index DDL for index=" + name);
+					}
 
 				} //else throw new IllegalStateException("Unexpected index type "+type);
 			}

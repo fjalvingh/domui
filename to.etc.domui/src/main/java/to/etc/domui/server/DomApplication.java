@@ -160,7 +160,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
  */
@@ -201,7 +200,9 @@ public abstract class DomApplication {
 
 	private PageUrlMapping m_pageUrlMapping = new PageUrlMapping();
 
-	/** The default XSS checker. */
+	/**
+	 * The default XSS checker.
+	 */
 	private volatile XssChecker m_xssChecker = new XssChecker();
 
 	/**
@@ -230,29 +231,41 @@ public abstract class DomApplication {
 	@NonNull
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
-	/** DOMUI2 */
+	/**
+	 * DOMUI2
+	 */
 	@NonNull
 	private ControlCreatorRegistry m_controlCreatorRegistry = new ControlCreatorRegistry();
 
 	private boolean m_developmentMode;
 
-	/** When T the UI will try to generate test ID's and helper thingies to easily show those IDs */
+	/**
+	 * When T the UI will try to generate test ID's and helper thingies to easily show those IDs
+	 */
 	private boolean m_uiTestMode;
 
 	private boolean m_defaultHintsOnControl = true;
 
 	private boolean m_underSeleniumTest = System.getProperty("domui.selenium") != null;
 
-	/** When > 0, this defines that pages are automatically reloaded when changed */
+	/**
+	 * When > 0, this defines that pages are automatically reloaded when changed
+	 */
 	private int m_autoRefreshPollInterval;
 
-	/** When > 0, this defines the #of milliseconds for doing page keepalive. */
+	/**
+	 * When > 0, this defines the #of milliseconds for doing page keepalive.
+	 */
 	private int m_keepAliveInterval;
 
-	/** The default poll interval time for pages containing Async objects (see {@link DelayedActivitiesManager}). */
+	/**
+	 * The default poll interval time for pages containing Async objects (see {@link DelayedActivitiesManager}).
+	 */
 	private int m_defaultPollInterval = 2500;
 
-	/** When set, problem reports have a "mail" button and send mail here, */
+	/**
+	 * When set, problem reports have a "mail" button and send mail here,
+	 */
 	private String m_problemMailAddress;
 
 	private String m_problemMailSubject;
@@ -277,10 +290,14 @@ public abstract class DomApplication {
 	@NonNull
 	private List<INewPageInstantiated> m_newPageInstListeners = Collections.EMPTY_LIST;
 
-	/** Timeout for a window session, in minutes. */
+	/**
+	 * Timeout for a window session, in minutes.
+	 */
 	private int m_windowSessionTimeout = 15;
 
-	/** The default expiry time for resources, in seconds. */
+	/**
+	 * The default expiry time for resources, in seconds.
+	 */
 	private int m_defaultExpiryTime = 1 * 24 * 60 * 60;
 
 	private ILoginAuthenticator m_loginAuthenticator;
@@ -308,13 +325,19 @@ public abstract class DomApplication {
 	@NonNull
 	private TempFileManager m_tempFileManager = new TempFileManager();
 
-	/** The theme manager where theme calls are delegated to. */
+	/**
+	 * The theme manager where theme calls are delegated to.
+	 */
 	final private ThemeManager m_themeManager = new ThemeManager(this);
 
-	/** Global properties for all themes */
+	/**
+	 * Global properties for all themes
+	 */
 	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
 
-	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
+	/**
+	 * The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources.
+	 */
 	@NonNull
 	private volatile String m_defaultTheme = "";
 
@@ -333,6 +356,8 @@ public abstract class DomApplication {
 
 	@Nullable
 	private DelayedActivitiesExecutor m_delayedExecutor;
+
+	private boolean m_iconPackInitialized;
 
 	/**
 	 * Default handling of leaving the page with unsaved changes.
@@ -417,10 +442,10 @@ public abstract class DomApplication {
 	 * page) you need a page header transformer.
 	 * The transformer gets called for your page at any time headers need to be generated for
 	 * your page. This can be even before the page actually exists!
-	 *
+	 * <p>
 	 * The transformer gets called with the page instance (if it exists, otherwise it will be null) and a header
 	 * map. You must alter the header map so that it represents the headers you want sent.
-	 *
+	 * <p>
 	 * The header map is case-independent automatically.
 	 */
 	protected <T extends UrlPage> void registerPageHeaderTransformations(Class<T> pageClass, BiConsumerEx<Map<String, String>, UrlPage> transformation) {
@@ -462,10 +487,14 @@ public abstract class DomApplication {
 	@NonNull
 	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
 
-	/** The ORDERED list of [exception.class, handler] pairs. Exception SUPERCLASSES are ordered AFTER their subclasses. */
+	/**
+	 * The ORDERED list of [exception.class, handler] pairs. Exception SUPERCLASSES are ordered AFTER their subclasses.
+	 */
 	private List<ExceptionEntry<?>> m_exceptionListeners = new ArrayList<>();
 
-	/** A set of parameter names that will be kept in URLs if present */
+	/**
+	 * A set of parameter names that will be kept in URLs if present
+	 */
 	@NonNull
 	private Set<String> m_persistentParameterSet = new HashSet<>();
 
@@ -584,6 +613,10 @@ public abstract class DomApplication {
 			public void onPageCreated(@NonNull Page page) throws Exception {
 				synchronized(this) {
 					m_activePageList.add(page);
+					if(m_activePageList.size() > MAX_PAGES) {
+						reapOldPages();
+					}
+
 				}
 			}
 
@@ -594,6 +627,37 @@ public abstract class DomApplication {
 				}
 			}
 		});
+	}
+
+	static private final int MAX_PAGES = 6000;
+
+	private void reapOldPages() {
+		List<Page> toRemove;
+		synchronized(this) {
+			ArrayList<Page> pages = new ArrayList<>(m_activePageList);
+			pages.sort(Comparator.comparing(a -> a.getLastClickTime()));
+
+			//-- Remove the eldest pages
+			toRemove = pages.subList(0, pages.size() - (MAX_PAGES - 500));
+			m_activePageList.removeAll(toRemove);
+		}
+
+		System.out.println("--- PAGE OVERFLOW REAPER ---");
+		System.out.println("Destroying " + toRemove.size() + " pages");
+		Set<String> cids = new HashSet<>();
+		for(Page page : toRemove) {
+			try {
+				ConversationContext conversation = page.internalGetConversation();
+				if(null != conversation) {
+					if(cids.add(conversation.getFullId())) {
+						conversation.destroy();
+					}
+				}
+			} catch(Exception x) {
+				System.out.println("Failed to destroy page: " + x);
+				//x.printStackTrace();
+			}
+		}
 	}
 
 	private void addDefaultHttpHeaders() {
@@ -687,7 +751,6 @@ public abstract class DomApplication {
 	/**
 	 * Returns the defined extension for DomUI pages. This returns the extension without
 	 * the dot, i.e. "ui" for [classname].ui pages.
-	 * @return
 	 */
 	@NonNull
 	public String getUrlExtension() {
@@ -737,7 +800,6 @@ public abstract class DomApplication {
 
 	/**
 	 * If the application URL has been set manually this returns that URL.
-	 * @return
 	 */
 	@Nullable
 	public String getApplicationURL() {
@@ -746,7 +808,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Internal: return the sorted-by-descending-priority list of request handlers.
-	 * @return
 	 */
 	@NonNull
 	private synchronized List<FilterRef> getRequestHandlerList() {
@@ -755,7 +816,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Add a toplevel request handler to the chain.
-	 * @param fh
 	 */
 	public synchronized void addRequestHandler(@NonNull IFilterRequestHandler fh, int priority) {
 		m_requestHandlerList = new ArrayList<>(m_requestHandlerList);
@@ -777,8 +837,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Add a part that reacts on some part of the input URL instead of [classname].part.
-	 *
-	 * @param factory
 	 */
 	public void registerUrlPart(@NonNull IPartFactory factory, IUrlMatcher matcher) {
 		m_partService.registerPart(matcher, factory);
@@ -791,7 +849,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Can be overridden to create your own instance of a session.
-	 * @return
 	 */
 	@NonNull
 	public AppSession createSession() {
@@ -920,22 +977,22 @@ public abstract class DomApplication {
 	}
 
 	private void checkIconPackInitialization() {
-		boolean reg = false;
 		boolean test = false;                            // FIXME Horrible
 		for(HeaderContributorEntry hce : getHeaderContributorList()) {
 			if(hce.getContributor().toString().contains("font-awesome") || hce.getContributor().toString().contains("fontawesome")) {
 				if(hce.getContributor().toString().contains("font-awesome-test"))
 					test = true;
-				reg = true;
 			}
 		}
-		if(!reg) {
+
+		if(!isIconPackInitialized()) {
 			throw new ProgrammerErrorException("FATAL: No FontAwesome version registered\n"
 				+ "DomUI uses FontAwesome for some of its standard icons. You need to include the version of FontAwesome you"
 				+ " want to use by including one of domui's fontawesome (Maven) modules in your project, and then register "
 				+ " it with a call to it"
 			);
 		}
+
 		if(!test)
 			Icon.initialize();                                    // Make sure all default icons have an impl
 	}
@@ -1021,7 +1078,7 @@ public abstract class DomApplication {
 	 * in a proxied request (x-forwarded-host) because of course the scheme and port number are missing-
 	 * so those are pretty useless.
 	 *
-	 * @param url        The url including scheme, like "https://demo.domui.org".
+	 * @param url The url including scheme, like "https://demo.domui.org".
 	 */
 	protected void setApplicationURL(String url) {
 		String s = url.toLowerCase();
@@ -1227,7 +1284,6 @@ public abstract class DomApplication {
 	/**
 	 * Returns T when running in development mode; this is defined as a mode where web.xml contains
 	 * reloadable classes.
-	 * @return
 	 */
 	public synchronized boolean inDevelopmentMode() {
 		return m_developmentMode;
@@ -1246,7 +1302,6 @@ public abstract class DomApplication {
 	 * to check for server-side changes. It defaults to 2.5 seconds (in domui.js), and can be set to a faster update value
 	 * to have the update check faster for development. If the interval is not set this contains 0, else it contains the
 	 * refresh time in milliseconds.
-	 * @return
 	 */
 	public synchronized int getAutoRefreshPollInterval() {
 		return m_autoRefreshPollInterval;
@@ -1266,7 +1321,7 @@ public abstract class DomApplication {
 
 	public synchronized int calculatePollInterval(boolean pollCallbackRequired) {
 		int pollinterval = Integer.MAX_VALUE;
-		if(! m_underSeleniumTest) {
+		if(!m_underSeleniumTest) {
 			if(m_keepAliveInterval > 0)
 				pollinterval = m_keepAliveInterval;
 			if(m_autoRefreshPollInterval > 0) {
@@ -1285,8 +1340,6 @@ public abstract class DomApplication {
 
 	/**
 	 * The #of minutes that a WindowSession remains valid; defaults to 15 minutes.
-	 *
-	 * @return
 	 */
 	public int getWindowSessionTimeout() {
 		return m_windowSessionTimeout;
@@ -1294,7 +1347,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Sets the windowSession timeout, in minutes.
-	 * @param windowSessionTimeout
 	 */
 	public void setWindowSessionTimeout(final int windowSessionTimeout) {
 		m_windowSessionTimeout = windowSessionTimeout;
@@ -1305,7 +1357,6 @@ public abstract class DomApplication {
 	 * running in production mode all "static" resources are sent to the browser
 	 * with an "Expiry" header. This causes the browser to cache the resources
 	 * until the expiry time has been reached. This is important for performance.
-	 * @return
 	 */
 	public synchronized int getDefaultExpiryTime() {
 		return m_defaultExpiryTime;
@@ -1313,7 +1364,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Set the static resource browser cache expiry time, in seconds.
-	 * @param defaultExpiryTime
 	 */
 	public synchronized void setDefaultExpiryTime(final int defaultExpiryTime) {
 		m_defaultExpiryTime = defaultExpiryTime;
@@ -1323,8 +1373,6 @@ public abstract class DomApplication {
 	 * This returns the locale to use for the request passed. It defaults to the locale
 	 * in the request itself, as returned by {@link HttpServletRequest#getLocale()}. You
 	 * can override this method to define the locale by yourself.
-	 * @param request
-	 * @return
 	 */
 	@NonNull
 	public Locale getRequestLocale(HttpServletRequest request) {
@@ -1452,13 +1500,10 @@ public abstract class DomApplication {
 	 * DomUI framework. It's also only needed for the "BasicPage" and has no
 	 * meaning for any other part of the framework. It should move to some
 	 * BasicPage factory.
-	 *
+	 * <p>
 	 * This returns default page title component.
 	 * {@link AppPageTitleBar} is default one used by framework.
 	 * To set some custom page title component override this method in your application specific class.
-	 *
-	 * @param title
-	 * @return
 	 */
 	@Deprecated
 	public BasePageTitleBar getDefaultPageTitleBar(String title) {
@@ -1479,7 +1524,6 @@ public abstract class DomApplication {
 
 	/**
 	 * DOMUI2 Experimental
-	 * @return
 	 */
 	@NonNull
 	public ControlCreatorRegistry getControlCreatorRegistry() {
@@ -1488,7 +1532,8 @@ public abstract class DomApplication {
 
 	/**
 	 * Add a new control factory to the registry.
-	 * @param cf        The new factory
+	 *
+	 * @param cf The new factory
 	 */
 	final public void registerControlFactory(final PropertyControlFactory cf) {
 		getControlBuilder().registerControlFactory(cf);
@@ -1538,7 +1583,7 @@ public abstract class DomApplication {
 	 */
 	@NonNull
 	public File getAppFile(final String path) {
-		if(! StringTool.isValidPath(path))
+		if(!StringTool.isValidPath(path))
 			throw new SecurityException("Invalid relative path " + path);
 		return new File(m_webFilePath, path);
 	}
@@ -1639,8 +1684,8 @@ public abstract class DomApplication {
 	 * class resource with this name below /resources/. But {@link IResourceFactory} instances registered
 	 * with DomApplication can provide other means to locate resources.
 	 *
-	 * @param rdl    The dependency list. Pass {@link ResourceDependencyList#NULL} if you do not need the
-	 * 				dependencies.
+	 * @param rdl The dependency list. Pass {@link ResourceDependencyList#NULL} if you do not need the
+	 *            dependencies.
 	 */
 	@NonNull
 	public IResourceRef getResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
@@ -1710,9 +1755,9 @@ public abstract class DomApplication {
 	 * This returns the name of an <i>existing</i> resource for the given name/suffix and locale. It uses the
 	 * default DomUI/webapp.core resource resolution pattern.
 	 *
-	 * @param basename        The base name: the part before the locale info
-	 * @param suffix        The suffix: the part after the locale info. This usually includes a ., like .js
-	 * @param loc            The locale to get the resource for.
+	 * @param basename The base name: the part before the locale info
+	 * @param suffix   The suffix: the part after the locale info. This usually includes a ., like .js
+	 * @param loc      The locale to get the resource for.
 	 */
 	public String findLocalizedResourceName(final String basename, final String suffix, final Locale loc) throws Exception {
 		StringBuilder sb = new StringBuilder(128);
@@ -1898,6 +1943,7 @@ public abstract class DomApplication {
 	/**
 	 * This locates the handler for the specfied exception type, if it has been registered. It
 	 * currently uses a loop to locate the appropriate handler.
+	 *
 	 * @return null if the handler was not registered.
 	 */
 	@Nullable
@@ -2150,7 +2196,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Return a list of all currently registered right names.
-	 * @return
 	 */
 	public List<String> getRegisteredRights() {
 		synchronized(m_rightsBundleMap) {
@@ -2160,8 +2205,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Translates a right name to a description from the registered bundle, if registered.
-	 * @param right
-	 * @return
 	 */
 	public String findRightsDescription(final String right) {
 		BundleRef br;
@@ -2174,8 +2217,6 @@ public abstract class DomApplication {
 	/**
 	 * Translates a right name to a description from the registered bundle, if registered. Returns the right name if no bundle or description is
 	 * found.
-	 * @param right
-	 * @return
 	 */
 	public String getRightsDescription(final String right) {
 		String v = findRightsDescription(right);
@@ -2190,7 +2231,6 @@ public abstract class DomApplication {
 	/**
 	 * When > 0, automatically created TextArea's will have their maxByteLength property
 	 * set to this value. Used to work around Oracle &lt;=11 4000 varchar2 limit.
-	 * @return
 	 */
 	public static int getPlatformVarcharByteLimit() {
 		return m_platformVarcharByteLimit;
@@ -2222,7 +2262,7 @@ public abstract class DomApplication {
 	 * as a "parameter" for the theme factory which will use it to decide on the "real"
 	 * theme to use.
 	 *
-	 * @param themeName    The theme name, valid for the current theme engine. Cannot be null nor the empty string.
+	 * @param themeName The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
 	final public void setDefaultThemeName(@NonNull String themeName) {
 		m_defaultTheme = themeName;
@@ -2311,7 +2351,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Get the cache that keeps things like icon sizes for themes.
-	 * @return
 	 */
 	@NonNull
 	public ResourceInfoCache getResourceInfoCache() {
@@ -2328,7 +2367,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Set the keep-alive interval for DomUI screens, in milliseconds.
-	 * @param keepAliveInterval
 	 */
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
 		if(!DeveloperOptions.getBool("domui.log", false)
@@ -2343,7 +2381,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Register a listener for internal DomUI events.
-	 * @param sl
 	 */
 	public synchronized void addUIStateListener(IDomUIStateListener sl) {
 		m_uiStateListeners = new ArrayList<IDomUIStateListener>(m_uiStateListeners); // Dup list;
@@ -2352,7 +2389,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Remove a registered UI state listener.
-	 * @param sl
 	 */
 	public synchronized void removeUIStateListener(IDomUIStateListener sl) {
 		m_uiStateListeners = new ArrayList<IDomUIStateListener>(m_uiStateListeners); // Dup list;
@@ -2466,6 +2502,7 @@ public abstract class DomApplication {
 	/**
 	 * Override this to add specific page {@link HeaderContributor}s to a page when
 	 * we're in UI testing mode (Selenium testing mode).
+	 *
 	 * @since 1.2
 	 */
 	protected void appendUITestingContributors() {
@@ -2610,5 +2647,13 @@ public abstract class DomApplication {
 		register(SassThemeFactory.INSTANCE);
 		register(SimpleThemeFactory.INSTANCE);
 		register(FragmentedThemeFactory.getInstance());
+	}
+
+	public synchronized void iconPackInitialized() {
+		m_iconPackInitialized = true;
+	}
+
+	private synchronized boolean isIconPackInitialized() {
+		return m_iconPackInitialized;
 	}
 }

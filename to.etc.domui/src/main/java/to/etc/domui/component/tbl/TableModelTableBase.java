@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T>, IListChangeListener<T> {
+abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T>, IListChangeListener<T>, IPageableComponent {
 	private static final Logger LOG = LoggerFactory.getLogger(TableModelTableBase.class);
 
 	@Nullable
@@ -65,7 +65,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	}
 
 	public TableModelTableBase() {
-		m_model = new SimpleListModel<>(Collections.emptyList());
+		m_model = new SimpleListModel<>(new ArrayList<>());
 	}
 
 	/*--------------------------------------------------------------*/
@@ -74,6 +74,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	/**
 	 * Add a change listener to this model. Don't forget to remove it at destruction time.
 	 */
+	@Override
 	public void addChangeListener(@NonNull IDataTableChangeListener l) {
 		synchronized(this) {
 			if(m_listeners.contains(l))

@@ -72,7 +72,6 @@ public class DefaultButton extends Button implements IActionControl {
 	 * Create an empty button.
 	 */
 	public DefaultButton() {
-		//addCssClass("xxui-sdbtn");
 		addCssClass("ui-button");
 		addCssClass("ui-control");
 	}
@@ -192,7 +191,7 @@ public class DefaultButton extends Button implements IActionControl {
 		}
 		if(! StringTool.isBlank(getText())) {
 			Span txt = new Span();
-			txt.setCssClass("xxui-sdbtn-txt");
+			txt.setCssClass("ui-sdbtn-txt");
 			add(txt);
 			if(!DomUtil.isBlank(m_text))
 				decodeAccelerator(m_text, txt);

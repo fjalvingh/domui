@@ -175,10 +175,19 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 		Ul cont = new Ul();
 		add(cont);
 
-		//-- Render the items in reverse order
+		////-- Render the items in reverse order
+		//List<IItem> value = getValue();
+		//if(null != value) {
+		//	for(int i = value.size() - 1; i >= 0; i--) {
+		//		IItem item = value.get(i);
+		//		renderItem(cont, item, i == value.size() - 1);
+		//	}
+		//}
+
+
 		List<IItem> value = getValue();
 		if(null != value) {
-			for(int i = value.size() - 1; i >= 0; i--) {
+			for(int i = 0; i < value.size(); i++) {
 				IItem item = value.get(i);
 				renderItem(cont, item, i == value.size() - 1);
 			}

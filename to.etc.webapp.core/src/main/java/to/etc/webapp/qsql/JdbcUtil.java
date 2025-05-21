@@ -342,6 +342,8 @@ final public class JdbcUtil {
 			ps.setBlob(px, ((Blob) val));
 		} else if(val instanceof Clob) {
 			ps.setClob(px, ((Clob) val));
+		} else if(val instanceof Enum<?>) {
+			ps.setString(px, ((Enum<?>) val).name());
 		} else
 			throw new IllegalStateException("Call error: unknown SQL parameter of type " + val.getClass());
 	}

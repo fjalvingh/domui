@@ -129,7 +129,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 		return Objects.requireNonNull(m_progress).isCancelled();
 	}
 
-	public synchronized List<Task<T, SingleTaskExecutor<T>>> getRunningTasks() {
+	public List<Task<T, SingleTaskExecutor<T>>> getRunningTasks() {
 		return m_taskSource.getRunning();
 	}
 
