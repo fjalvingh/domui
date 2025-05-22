@@ -3432,6 +3432,49 @@ public class StringTool {
 		System.out.println(dutchPluralOf("huurtoeslag"));
 	}
 
+	public static class Chunk {
+		private int nextStartIndex;
+		private String content;
+
+		public Chunk(int startIndex, String content) {
+			this.nextStartIndex = startIndex;
+			this.content = content;
+		}
+
+		public int getNextStartIndex() {
+			return nextStartIndex;
+		}
+
+		public String getContent() {
+			return content;
+		}
+	}
+
+	/**
+	 * Calculates next chunk of split message,
+	 * with decorating ... at the beginning of continued text
+	 * and with decorating ... at the end of the text that has more chinks to follow.
+	 */
+	@Nullable
+	static public Chunk nextChunk(String content, int start, int chunkSize) {
+		if(isBlank(content)) {
+			return null;
+		}
+		if(start >= content.length()) {
+			return null;
+		}
+		int offset = start > 0 ? 3 : 0;
+		int end = start + chunkSize - offset - 3;
+		if(end > content.length()) {
+			end = content.length();
+		}
+		String chunk = content.substring(start, end);
+		if(start > 0) {
+			chunk = "..." + chunk;
+		}
+		if(end < content.length()) {
+			chunk += "...";
+		}
+		return new Chunk(end, chunk);
+	}
 }
-
-
