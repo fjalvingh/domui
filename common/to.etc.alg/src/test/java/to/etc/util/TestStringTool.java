@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
+import to.etc.util.StringTool.Chunk;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -500,5 +501,18 @@ public class TestStringTool {
 
 		}
 
+	}
+
+	@Test
+	public void testChunks() throws Exception {
+		String text = "abcdefghijklmnopqrstuvwxyz";
+		Chunk chunk = StringTool.nextChunk(text, 0, 15);
+		Assert.assertEquals("First chunk", chunk.getContent(), "abcdefghijkl...");
+		chunk = StringTool.nextChunk(text, chunk.getNextStartIndex(), 15);
+		Assert.assertEquals("Second chunk", chunk.getContent(), "...mnopqrstu...");
+		chunk = StringTool.nextChunk(text, chunk.getNextStartIndex(), 15);
+		Assert.assertEquals("Third chunk", chunk.getContent(), "...vwxyz");
+		chunk = StringTool.nextChunk(text, chunk.getNextStartIndex(), 15);
+		Assert.assertNull("No more chunks", chunk);
 	}
 }
