@@ -29,19 +29,23 @@ import to.etc.domui.util.bugs.Bug;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static to.etc.util.StringTool.isBlank;
 
 /**
  * Easier to use MsgBox using Builder pattern.
- *
+ * <p>
  * Created by jal on 4/3/14.
  */
 final public class MsgBox2 extends Window {
 	private IClicked<MsgBox2> m_clicked;
 
 	private MsgBoxButton m_clickedButton;
+
+	@Nullable
+	private BoxButton m_defaultButton;
 
 	public interface IAnswer {
 		void onAnswer(@NonNull MsgBoxButton result) throws Exception;
@@ -93,7 +97,45 @@ final public class MsgBox2 extends Window {
 		INPUT
 	}
 
-	/** Autoclose behavior. */
+	private final static class BoxButton {
+		private final Button m_button;
+
+		@Nullable
+		private final MsgBoxButton m_type;
+
+		private MsgBoxButtonPrio m_prio;
+
+		public BoxButton(Button button, @Nullable MsgBoxButton type, MsgBoxButtonPrio prio) {
+			m_button = button;
+			m_type = type;
+			m_prio = prio;
+		}
+
+		public Button getButton() {
+			return m_button;
+		}
+
+		public MsgBoxButtonPrio getPrio() {
+			return m_prio;
+		}
+
+		public int getOrder() {
+			return m_prio.ordinal();
+		}
+
+		@Nullable
+		public MsgBoxButton getType() {
+			return m_type;
+		}
+
+		public void setPrio(MsgBoxButtonPrio prio) {
+			m_prio = prio;
+		}
+	}
+
+	/**
+	 * Autoclose behavior.
+	 */
 	private Boolean m_autoClose;
 
 	@Nullable
@@ -105,7 +147,7 @@ final public class MsgBox2 extends Window {
 
 	private Div m_buttonDiv = new Div();
 
-	private List<Button> m_theButtons = new ArrayList<>();
+	private List<BoxButton> m_theButtons = new ArrayList<>();
 
 	private static final int WIDTH = 500;
 
@@ -252,8 +294,49 @@ final public class MsgBox2 extends Window {
 		Div bd = m_buttonDiv = new Div();
 		add(bd);
 		bd.addCssClass("ui-mbx-btns");
-		for(Button btn : m_theButtons) {
-			bd.add(btn);
+
+		//-- Sort the buttons if all of them are "default"
+		List<BoxButton> theButtons = m_theButtons;
+		if(theButtons.stream().allMatch(btn -> btn.getPrio() == MsgBoxButtonPrio.Default)) {
+			theButtons = new ArrayList<>(theButtons);
+
+			//-- Auto-assign prio's if we can
+			boolean assigned = false;
+			List<BoxButton> defList = new ArrayList<>(2);
+			for(BoxButton btn : theButtons) {
+				MsgBoxButton type = btn.getType();
+				if(null != type) {
+					btn.setPrio(type.getPrio());
+					assigned = true;
+					if(type.getPrio() == MsgBoxButtonPrio.Primary) {
+						defList.add(btn);
+					}
+				}
+			}
+
+			if(m_defaultButton == null && defList.size() == 1) {
+				m_defaultButton = defList.get(0);
+			}
+
+			if(assigned) {
+				theButtons.sort(Comparator.comparing(BoxButton::getOrder).reversed());
+			}
+		}
+
+		for(BoxButton btn : theButtons) {
+			bd.add(btn.getButton());
+			switch(btn.getPrio()) {
+				default:
+					break;
+
+				case Primary:
+					btn.getButton().addCssClass("is-primary");
+					break;
+
+				case PrimaryDanger:
+					btn.getButton().addCssClass("is-danger");
+					break;
+			}
 		}
 
 		if(unfocused)
@@ -451,11 +534,29 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
+	@NonNull
+	public MsgBox2 button(@NonNull final MsgBoxButton mbb) {
+		return button(mbb, MsgBoxButtonPrio.Default, false);
+	}
+
+	@NonNull
+	public MsgBox2 button(@NonNull MsgBoxButton mbb, @NonNull MsgBoxButtonPrio prio) {
+		return button(mbb, prio, false);
+	}
+
+	/**
+	 * Add a button that is a default button.
+	 */
+	@NonNull
+	public MsgBox2 buttonDefault(@NonNull MsgBoxButton mbb, @NonNull MsgBoxButtonPrio prio) {
+		return button(mbb, prio, true);
+	}
+
 	/**
 	 * Add a default kind of button.
 	 */
 	@NonNull
-	public MsgBox2 button(@NonNull final MsgBoxButton mbb) {
+	private MsgBox2 button(@NonNull final MsgBoxButton mbb, MsgBoxButtonPrio prio, boolean asDefault) {
 		String lbl = MetaManager.findEnumLabel(mbb);
 		if(lbl == null)
 			lbl = mbb.name();
@@ -469,7 +570,11 @@ final public class MsgBox2 extends Window {
 		if(m_theButtons.isEmpty()) {
 			m_assumedOkButton = mbb;
 		}
-		m_theButtons.add(btn);
+		BoxButton bb = new BoxButton(btn, mbb, prio);
+		m_theButtons.add(bb);
+		if(asDefault) {
+			m_defaultButton = bb;
+		}
 		return this;
 	}
 
@@ -477,13 +582,32 @@ final public class MsgBox2 extends Window {
 	 * Add a non-answering button that executes some action.
 	 */
 	public MsgBox2 button(String title, IClicked<DefaultButton> clicked) {
+		return button(title, MsgBoxButtonPrio.Default, false, clicked);
+	}
+
+	/**
+	 * Add a non-answering button that executes some action.
+	 */
+	public MsgBox2 button(String title, MsgBoxButtonPrio prio, IClicked<DefaultButton> clicked) {
+		return button(title, prio, false, clicked);
+	}
+
+	public MsgBox2 buttonDefault(String title, MsgBoxButtonPrio prio, IClicked<DefaultButton> clicked) {
+		return button(title, prio, true, clicked);
+	}
+
+	public MsgBox2 button(String title, MsgBoxButtonPrio prio, boolean asDefault, IClicked<DefaultButton> clicked) {
 		DefaultButton btn = new DefaultButton(title, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@NonNull DefaultButton b) throws Exception {
 				clicked.clicked(b);
 			}
 		});
-		m_theButtons.add(btn);
+		BoxButton bb = new BoxButton(btn, null, prio);
+		m_theButtons.add(bb);
+		if(asDefault) {
+			m_defaultButton = bb;
+		}
 		return this;
 	}
 
@@ -497,7 +621,8 @@ final public class MsgBox2 extends Window {
 				clicked.clicked(b);
 			}
 		});
-		m_theButtons.add(btn);
+		BoxButton bb = new BoxButton(btn, null, MsgBoxButtonPrio.Default);
+		m_theButtons.add(bb);
 		return this;
 	}
 
@@ -522,12 +647,14 @@ final public class MsgBox2 extends Window {
 
 	@NonNull
 	public MsgBox2 button(String lbl, IIconRef icon, final Object selval) {
-		m_theButtons.add(new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
+		DefaultButton btn = new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@NonNull DefaultButton b) throws Exception {
 				answer(selval);
 			}
-		}));
+		});
+		BoxButton bb = new BoxButton(btn, null, MsgBoxButtonPrio.Default);
+		m_theButtons.add(bb);
 		return this;
 	}
 
