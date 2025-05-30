@@ -97,42 +97,6 @@ final public class MsgBox2 extends Window {
 		INPUT
 	}
 
-	private final static class BoxButton {
-		private final Button m_button;
-
-		@Nullable
-		private final MsgBoxButton m_type;
-
-		private MsgBoxButtonPrio m_prio;
-
-		public BoxButton(Button button, @Nullable MsgBoxButton type, MsgBoxButtonPrio prio) {
-			m_button = button;
-			m_type = type;
-			m_prio = prio;
-		}
-
-		public Button getButton() {
-			return m_button;
-		}
-
-		public MsgBoxButtonPrio getPrio() {
-			return m_prio;
-		}
-
-		public int getOrder() {
-			return m_prio.ordinal();
-		}
-
-		@Nullable
-		public MsgBoxButton getType() {
-			return m_type;
-		}
-
-		public void setPrio(MsgBoxButtonPrio prio) {
-			m_prio = prio;
-		}
-	}
-
 	/**
 	 * Autoclose behavior.
 	 */
@@ -297,12 +261,22 @@ final public class MsgBox2 extends Window {
 
 		//-- Sort the buttons if all of them are "default"
 		List<BoxButton> theButtons = m_theButtons;
+		BoxButton defaultButton = renderBoxButtons(bd, theButtons);
+		if(m_defaultButton != null) {
+			defaultButton = m_defaultButton;
+		}
+		if(unfocused)
+			setFocusOnButton();
+	}
+
+	@Nullable
+	static BoxButton renderBoxButtons(NodeContainer into, List<BoxButton> theButtons) {
+		List<BoxButton> defList = new ArrayList<>(2);
 		if(theButtons.stream().allMatch(btn -> btn.getPrio() == MsgBoxButtonPrio.Default)) {
 			theButtons = new ArrayList<>(theButtons);
 
 			//-- Auto-assign prio's if we can
 			boolean assigned = false;
-			List<BoxButton> defList = new ArrayList<>(2);
 			for(BoxButton btn : theButtons) {
 				MsgBoxButton type = btn.getType();
 				if(null != type) {
@@ -314,17 +288,13 @@ final public class MsgBox2 extends Window {
 				}
 			}
 
-			if(m_defaultButton == null && defList.size() == 1) {
-				m_defaultButton = defList.get(0);
-			}
-
 			if(assigned) {
 				theButtons.sort(Comparator.comparing(BoxButton::getOrder).reversed());
 			}
 		}
 
 		for(BoxButton btn : theButtons) {
-			bd.add(btn.getButton());
+			into.add(btn.getButton());
 			switch(btn.getPrio()) {
 				default:
 					break;
@@ -339,9 +309,9 @@ final public class MsgBox2 extends Window {
 			}
 		}
 
-		if(unfocused)
-			setFocusOnButton();
+		return defList.size() == 1 ? defList.get(0) : null;
 	}
+
 
 	private boolean renderInputs(@NonNull NodeContainer nc) {
 		boolean unfocused = true;
