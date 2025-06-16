@@ -45,7 +45,7 @@
         <target.jdk.version>21</target.jdk.version>
         <ecj.version>3.36.0</ecj.version>
 
-        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     </properties>
 
     <dependencies>
