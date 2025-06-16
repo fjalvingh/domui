@@ -91,7 +91,7 @@
 
         <!-- JDK properties -->
         <jdk.version>21</jdk.version>
-        <ecj.version>3.36.0</ecj.version>
+        <ecj.version>3.37.0</ecj.version>
         <kotlin.version>1.9.21</kotlin.version>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
