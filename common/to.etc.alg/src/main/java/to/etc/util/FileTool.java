@@ -175,14 +175,54 @@ public class FileTool {
 	 * Returns the java.io.tmpdir directory. Throws an exception if it does not exist or
 	 * is inaccessible.
 	 */
-	static public File getTmpDir() {
-		String v = System.getProperty("java.io.tmpdir");
-		if(v == null)
-			v = "/tmp";
-		File tmp = new File(v);
-		if(!tmp.exists() || !tmp.isDirectory())
-			throw new IllegalStateException("The 'java.io.tmpdir' variable does not point to an existing directory (" + tmp + ")");
-		return tmp;
+	//static public File getTmpDir() {
+	//	String v = System.getProperty("java.io.tmpdir");
+	//	if(v == null) {
+	//		v = System.getenv("TEMP");
+	//
+	//		v = "/tmp";
+	//	}
+	//	File tmp = new File(v);
+	//	if(!tmp.exists() || !tmp.isDirectory())
+	//		throw new IllegalStateException("The 'java.io.tmpdir' variable does not point to an existing directory (" + tmp + ")");
+	//	return tmp;
+	//}
+
+	@Nullable
+	static private File m_tmpDir;
+
+	static public synchronized File getTmpDir() {
+		File tmpDir = m_tmpDir;
+		if(null == tmpDir) {
+			tmpDir = checkTempDir(System.getProperty("java.io.tmpdir"));
+			if(tmpDir == null) {
+				tmpDir = checkTempDir(System.getenv("TEMP"));
+			}
+			if(tmpDir == null) {
+				if(StringTool.isLinux()) {
+					tmpDir = checkTempDir(File.separator + "tmp");
+				} else if(StringTool.isWindows()) {
+					tmpDir = checkTempDir("c:\\tmp");
+				}
+			}
+
+			if(null == tmpDir) {
+				throw new IllegalStateException("Cannot find the temp directory");
+			} else {
+				m_tmpDir = tmpDir;
+			}
+		}
+		return tmpDir;
+	}
+
+	@Nullable
+	private static File checkTempDir(@Nullable String path) {
+		if(null == path)
+			return null;
+		File f = new File(path);
+		if(f.exists() && f.isDirectory())
+			return f;
+		return null;
 	}
 
 	static {
