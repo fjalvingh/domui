@@ -24,6 +24,8 @@
  */
 package to.etc.domui.util;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -31,6 +33,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -45,33 +48,43 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 
 	static private final float LOAD = 0.75f;
 
-	/** The bucket table. */
+	/**
+	 * The bucket table.
+	 */
 	transient Entry<K, V>[] m_buckets;
 
-	private SizeCalculator<V> m_sizeCalculator;
+	final private SizeCalculator<V> m_sizeCalculator;
 
-	/** Head of the LRU chain for this map. */
+	/**
+	 * Head of the LRU chain for this map.
+	 */
+	@Nullable
 	private Entry<K, V> m_lruFirst, m_lruLast;
 
-	/** The current #elements in the cache */
+	/**
+	 * The current #elements in the cache
+	 */
 	transient int m_currentSize;
 
-	/** The current "size" of the entries in the cache. */
+	/**
+	 * The current "size" of the entries in the cache.
+	 */
 	private transient int m_objectSize;
 
-	/** The max. "size" in the cache. */
+	/**
+	 * The max. "size" in the cache.
+	 */
 	private transient int m_maxSize;
 
 	/**
 	 * The next size value at which to resize (capacity * load factor).
-	 * @serial
 	 */
 	private int m_threshold;
 
 	/**
 	 * The number of times this HashMap has been modified
 	 */
-	transient volatile int m_updateCounter;
+	transient int m_updateCounter;
 
 	private transient Set<Map.Entry<K, V>> m_entrySet = null;
 
@@ -119,7 +132,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		public boolean equals(Object o) {
 			if(!(o instanceof Map.Entry))
 				return false;
-			Map.Entry< ? , ? > e = (Map.Entry< ? , ? >) o;
+			Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
 			Object k1 = getKey();
 			Object k2 = e.getKey();
 			if(k1 == k2 || (k1 != null && k1.equals(k2))) {
@@ -169,8 +182,6 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 
 	/**
 	 * Hash function stolen from HashMap impl.
-	 * @param x
-	 * @return
 	 */
 	static private int hash(Object x) {
 		int h = x.hashCode();
@@ -195,7 +206,6 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 
 	/**
 	 * Return the size of all stored objects.
-	 * @return
 	 */
 	public int getObjectSize() {
 		return m_objectSize;
@@ -221,30 +231,27 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 
 	/**
 	 * Links the entry at the most recently used position of the LRU chain.
-	 * @param e
 	 */
 	private void link(Entry<K, V> e) {
-		unlink(e); // Make sure we're unlinked
-		if(m_lruFirst == null) // Empty initial list?
-		{
+		unlink(e);                            // Make sure we're unlinked
+		if(m_lruFirst == null || m_lruLast == null) { // Empty initial list?
 			m_lruFirst = e;
 			m_lruLast = e;
 			e.m_lruNext = e;
 			e.m_lruPrev = e;
 			return;
 		}
-		e.m_lruPrev = m_lruFirst; // Previous first is my previous
-		e.m_lruNext = m_lruLast; // After me I wrap back to the end
-		m_lruLast.m_lruPrev = e;
-		m_lruFirst.m_lruNext = e; // I'm his next
-		m_lruFirst = e; // I'm the 1st one now;
+		e.m_lruPrev = m_lruFirst;            // Previous first is my previous
+		e.m_lruNext = m_lruLast;            // After me I wrap back to the end
+		Objects.requireNonNull(m_lruLast).m_lruPrev = e;
+		Objects.requireNonNull(m_lruFirst).m_lruNext = e;            // I'm his next
+		m_lruFirst = e;                        // I'm the 1st one now;
 	}
 
 	private void unlink(Entry<K, V> e) {
 		if(e.m_lruNext == null) // Already unlinked?
 			return;
-		if(e.m_lruNext == e.m_lruPrev) // I'm the only one?
-		{
+		if(e.m_lruNext == e.m_lruPrev) { // I'm the only one?
 			m_lruFirst = null;
 			m_lruLast = null;
 			e.m_lruNext = null;
@@ -304,12 +311,12 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 * If the map previously contained a mapping for this key, the old
 	 * value is replaced.
 	 *
-	 * @param key key with which the specified value is to be associated.
+	 * @param key   key with which the specified value is to be associated.
 	 * @param value value to be associated with the specified key.
 	 * @return previous value associated with specified key, or <tt>null</tt>
-	 *	       if there was no mapping for key.  A <tt>null</tt> return can
-	 *	       also indicate that the HashMap previously associated
-	 *	       <tt>null</tt> with the specified key.
+	 * if there was no mapping for key.  A <tt>null</tt> return can
+	 * also indicate that the HashMap previously associated
+	 * <tt>null</tt> with the specified key.
 	 */
 	@Override
 	public V put(K key, V value) {
@@ -341,6 +348,11 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		//-- If the map has become too big then release the LRU item from it.
 		while(m_objectSize > m_maxSize) {
 			e = m_lruLast;
+			if(null == e) {                                            // If there is nothing to remove -> exit. This is a bug.
+				System.out.println("BUG: LRUHashMap has no 'last lru' item but has exceeded size? m_objectSize=" + m_objectSize + ", m_maxSize=" + m_maxSize + ", m_currentSize=" + m_currentSize);
+				m_objectSize = 0;
+				return null;
+			}
 			removeEntry(e);
 			m_objectSize -= m_sizeCalculator.getObjectSize(e.m_value);
 		}
@@ -356,8 +368,8 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		m_buckets = new Entry[newsize];
 
 		//-- Move all thingies to their new location.
-		for(int i = oldt.length; --i >= 0;) { // All buckets in the old geezer
-			for(Entry<K, V> curr = oldt[i]; curr != null;) {
+		for(int i = oldt.length; --i >= 0; ) { // All buckets in the old geezer
+			for(Entry<K, V> curr = oldt[i]; curr != null; ) {
 				Entry<K, V> e = curr;
 				curr = e.m_bucketNext; // Move to next bucket before remapping
 				int index = e.m_hashCode % newsize; // Get bucket pos
@@ -371,7 +383,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 * Adds all of the elements to this map.
 	 */
 	@Override
-	public void putAll(Map< ? extends K, ? extends V> m) {
+	public void putAll(Map<? extends K, ? extends V> m) {
 		int numKeysToBeAdded = m.size();
 		if(numKeysToBeAdded == 0)
 			return;
@@ -379,9 +391,8 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		int newtotal = numKeysToBeAdded + m_currentSize; // Optimistic,
 		if(newtotal > m_maxSize)
 			newtotal = m_maxSize;
-		if(newtotal > m_threshold) // Would the max overflow?
-		{
-			int newsize = m_buckets.length; // Take current size,
+		if(newtotal > m_threshold) {            // Would the max overflow?
+			int newsize = m_buckets.length;    // Take current size,
 			while(newsize <= newtotal)
 				// Grow to nearest ^2
 				newsize <<= 1;
@@ -389,15 +400,16 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 				resize(newsize);
 		}
 
-		//-- Add all of the entries
-		for(Iterator< ? extends Map.Entry< ? extends K, ? extends V>> i = m.entrySet().iterator(); i.hasNext();) {
-			Map.Entry< ? extends K, ? extends V> e = i.next();
+		//-- Add all entries
+		for(Iterator<? extends Map.Entry<? extends K, ? extends V>> i = m.entrySet().iterator(); i.hasNext(); ) {
+			Map.Entry<? extends K, ? extends V> e = i.next();
 			put(e.getKey(), e.getValue());
 		}
 	}
 
 	/**
 	 * Remove an entry by key.
+	 *
 	 * @see java.util.Map#remove(java.lang.Object)
 	 */
 	@Override
@@ -432,7 +444,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	Entry<K, V> removeEntry(Object o) {
 		if(!(o instanceof Map.Entry))
 			return null;
-		return _remove(((Map.Entry< ? , ? >) o).getKey());
+		return _remove(((Map.Entry<?, ?>) o).getKey());
 	}
 
 	/**
@@ -445,7 +457,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	public boolean containsValue(Object value) {
 		if(value == null) {
 			//-- Null has a faster comparison so handle it separately
-			for(int i = m_buckets.length; --i >= 0;) {
+			for(int i = m_buckets.length; --i >= 0; ) {
 				for(Entry<K, V> e = m_buckets[i]; e != null; e = e.m_bucketNext) {
 					if(e.m_value == null)
 						return true;
@@ -455,7 +467,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		}
 
 		//-- The normal, non-null case.
-		for(int i = m_buckets.length; --i >= 0;) {
+		for(int i = m_buckets.length; --i >= 0; ) {
 			for(Entry<K, V> e = m_buckets[i]; e != null; e = e.m_bucketNext) {
 				if(value == e.m_value || value.equals(e.m_value))
 					return true;
@@ -480,13 +492,19 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 * This abstract iterator walks the hash chain.
 	 */
 	private abstract class HashIterator<E> implements Iterator<E> {
-		/** The current bucket index we're traversing. */
+		/**
+		 * The current bucket index we're traversing.
+		 */
 		int m_bucketIndex;
 
-		/** Next entry to return */
+		/**
+		 * Next entry to return
+		 */
 		Entry<K, V> m_next;
 
-		/** The update count at the time of construction of this iterator. */
+		/**
+		 * The update count at the time of construction of this iterator.
+		 */
 		int m_currentUpdateCount;
 
 		Entry<K, V> m_current;
@@ -495,7 +513,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 			m_currentUpdateCount = m_updateCounter;
 			Entry<K, V> e = null;
 			if(m_currentSize > 0) {
-				for(int bucket = m_buckets.length; --bucket >= 0;) {
+				for(int bucket = m_buckets.length; --bucket >= 0; ) {
 					e = m_buckets[bucket];
 					if(e != null) {
 						m_bucketIndex = bucket;
@@ -518,8 +536,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 				throw new NoSuchElementException();
 			m_current = m_next;
 			m_next = m_next.m_bucketNext;
-			if(m_next == null) // Chain expired?
-			{
+			if(m_next == null) {			// Chain expired?
 				while(--m_bucketIndex >= 0) {
 					m_next = m_buckets[m_bucketIndex];
 					if(m_next != null)
@@ -543,7 +560,8 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 	private class ValueIterator extends HashIterator<V> {
-		public ValueIterator() {}
+		public ValueIterator() {
+		}
 
 		@Override
 		public V next() {
@@ -552,7 +570,8 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 	private class KeyIterator extends HashIterator<K> {
-		public KeyIterator() {}
+		public KeyIterator() {
+		}
 
 		@Override
 		public K next() {
@@ -561,7 +580,8 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 	private class EntryIterator extends HashIterator<Map.Entry<K, V>> {
-		public EntryIterator() {}
+		public EntryIterator() {
+		}
 
 		@Override
 		public Map.Entry<K, V> next() {
@@ -582,7 +602,8 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 	private class KeySet extends AbstractSet<K> {
-		public KeySet() {}
+		public KeySet() {
+		}
 
 		@Override
 		public Iterator<K> iterator() {
@@ -625,7 +646,8 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 	private class ValuesCollection extends AbstractCollection<V> {
-		public ValuesCollection() {}
+		public ValuesCollection() {
+		}
 
 		@Override
 		public Iterator<V> iterator() {
@@ -668,9 +690,9 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		return m_entrySet;
 	}
 
-	private class EntrySet extends AbstractSet<Map.Entry<K, V>>
-	{
-		public EntrySet() {}
+	private class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+		public EntrySet() {
+		}
 
 		@Override
 		public Iterator<Map.Entry<K, V>> iterator() {
