@@ -12,8 +12,8 @@ import to.etc.domui.server.IServerSession;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpSession;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;

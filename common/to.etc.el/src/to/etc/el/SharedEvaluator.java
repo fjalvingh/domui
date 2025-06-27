@@ -26,7 +26,7 @@ package to.etc.el;
 
 import java.util.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 import to.etc.el.node.*;
 

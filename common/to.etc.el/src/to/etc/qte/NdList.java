@@ -24,7 +24,7 @@
  */
 package to.etc.qte;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 /**
  * List of nodes to generate

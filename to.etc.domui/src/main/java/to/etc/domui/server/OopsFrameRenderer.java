@@ -11,7 +11,7 @@ import to.etc.domui.util.js.RhinoTemplateCompiler;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;

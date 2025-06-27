@@ -24,8 +24,8 @@
  */
 package to.etc.el;
 
-import javax.servlet.jsp.*;
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.*;
+import jakarta.servlet.jsp.el.*;
 
 /**
  * Resolver for JSP pages, using the different names for JSP context

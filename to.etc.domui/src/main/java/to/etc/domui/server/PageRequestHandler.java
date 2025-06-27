@@ -59,7 +59,7 @@ import to.etc.webapp.ajax.renderer.json.JSONRegistry;
 import to.etc.webapp.ajax.renderer.json.JSONRenderer;
 import to.etc.webapp.query.QContextManager;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;

@@ -26,7 +26,7 @@ package to.etc.el;
 
 import java.math.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 import to.etc.util.*;
 

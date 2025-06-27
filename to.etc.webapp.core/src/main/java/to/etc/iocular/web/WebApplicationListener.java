@@ -31,15 +31,15 @@ import to.etc.iocular.Container;
 import to.etc.iocular.ioccontainer.BasicContainer;
 import to.etc.iocular.util.ClassUtil;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
 
 /**
  * <p>This listener must be registered as a 'listener' entry in web.xml for
@@ -64,7 +64,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 	 * A webapp is starting. This retrieves the configuration for all containers,
 	 * and creates the Application container.
 	 *
-	 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
+	 * @see jakarta.servlet.ServletContextListener#contextInitialized(jakarta.servlet.ServletContextEvent)
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent cxe) {
@@ -89,7 +89,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 	/**
 	 * Creates the session container when a new session is registered.
 	 *
-	 * @see javax.servlet.http.HttpSessionListener#sessionCreated(javax.servlet.http.HttpSessionEvent)
+	 * @see jakarta.servlet.http.HttpSessionListener#sessionCreated(jakarta.servlet.http.HttpSessionEvent)
 	 */
 	@Override
 	public void sessionCreated(HttpSessionEvent se) {

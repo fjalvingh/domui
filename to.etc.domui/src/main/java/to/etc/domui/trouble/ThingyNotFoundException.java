@@ -24,7 +24,7 @@
  */
 package to.etc.domui.trouble;
 
-import javax.servlet.http.*;
+import jakarta.servlet.http.*;
 
 import to.etc.net.*;
 

@@ -140,7 +140,7 @@ import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QNotFoundException;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

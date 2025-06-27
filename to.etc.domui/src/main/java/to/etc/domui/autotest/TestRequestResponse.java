@@ -11,7 +11,7 @@ import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.upload.UploadItem;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;

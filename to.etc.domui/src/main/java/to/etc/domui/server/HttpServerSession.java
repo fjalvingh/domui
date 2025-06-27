@@ -3,7 +3,7 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 public class HttpServerSession implements IServerSession {
 	@NonNull

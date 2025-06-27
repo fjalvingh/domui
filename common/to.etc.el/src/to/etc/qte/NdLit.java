@@ -24,7 +24,7 @@
  */
 package to.etc.qte;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 public class NdLit extends NdBase {
 	private String m_data;

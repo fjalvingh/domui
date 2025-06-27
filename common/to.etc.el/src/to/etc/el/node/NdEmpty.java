@@ -28,7 +28,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 public class NdEmpty extends NdUnary {
 	public NdEmpty(NdBase expr) {
@@ -44,7 +44,7 @@ public class NdEmpty extends NdUnary {
 
 	/**
 	 * As per JSP 2.0 std, JSP2.3.7
-	 * @see to.etc.el.node.NdBase#evaluate(javax.servlet.jsp.el.VariableResolver)
+	 * @see to.etc.el.node.NdBase#evaluate(jakarta.servlet.jsp.el.VariableResolver)
 	 */
 	@Override
 	public Object evaluate(VariableResolver vr) throws ELException {

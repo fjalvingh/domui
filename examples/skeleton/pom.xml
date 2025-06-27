@@ -56,7 +56,7 @@
 
 		<jetty.version>9.3.8.v20160314</jetty.version>
 		<hsqldb.version>2.4.0</hsqldb.version>
-		<javax.servlet.version>4.0.1</javax.servlet.version>
+		<jakarta.servlet.version>4.0.1</jakarta.servlet.version>
 		<antlr.runtime.version>4.7</antlr.runtime.version>
 		<cxf.version>3.5.9</cxf.version>
 		<jackson.version>2.15.2</jackson.version>
@@ -77,11 +77,11 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+			<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
-				<version>${javax.servlet.version}</version>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
+				<version>${jakarta.servlet.version}</version>
 				<scope>provided</scope>
 			</dependency>
 

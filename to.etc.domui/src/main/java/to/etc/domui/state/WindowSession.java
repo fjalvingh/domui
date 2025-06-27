@@ -42,7 +42,7 @@ import to.etc.domui.util.INewPageInstantiated;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;

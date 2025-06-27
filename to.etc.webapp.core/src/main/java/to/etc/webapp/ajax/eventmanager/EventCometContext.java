@@ -27,8 +27,8 @@ package to.etc.webapp.ajax.eventmanager;
 import java.io.*;
 import java.util.*;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 
 import to.etc.webapp.ajax.comet.*;
 import to.etc.webapp.ajax.renderer.*;
@@ -264,7 +264,7 @@ public class EventCometContext implements CometContext {
 	 *
 	 *
 	 *
-	 * @see to.etc.webapp.ajax.comet.CometContext#respond(javax.servlet.http.HttpServletResponse, boolean)
+	 * @see to.etc.webapp.ajax.comet.CometContext#respond(jakarta.servlet.http.HttpServletResponse, boolean)
 	 */
 	@Override
 	public void respond(final HttpServletResponse resp, final boolean timeout) throws Exception {

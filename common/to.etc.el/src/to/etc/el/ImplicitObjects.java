@@ -26,9 +26,9 @@ package to.etc.el;
 
 import java.util.*;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import javax.servlet.jsp.*;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import jakarta.servlet.jsp.*;
 
 public class ImplicitObjects {
 	static final String sAttributeName = "to.etc.el.ImplObjs";

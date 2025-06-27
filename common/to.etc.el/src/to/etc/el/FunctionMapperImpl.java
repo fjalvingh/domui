@@ -27,7 +27,7 @@ package to.etc.el;
 import java.lang.reflect.*;
 import java.util.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 /**
  * A function mapper implementation.

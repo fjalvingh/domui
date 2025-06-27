@@ -24,7 +24,7 @@
  */
 package to.etc.webapp.ajax.comet;
 
-import javax.servlet.http.*;
+import jakarta.servlet.http.*;
 
 /**
  * A context call for a COMET environment.

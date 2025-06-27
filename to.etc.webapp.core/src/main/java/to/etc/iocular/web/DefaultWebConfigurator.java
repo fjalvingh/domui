@@ -24,7 +24,7 @@
  */
 package to.etc.iocular.web;
 
-import javax.servlet.*;
+import jakarta.servlet.*;
 
 import to.etc.iocular.*;
 import to.etc.iocular.def.*;

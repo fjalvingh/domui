@@ -27,7 +27,7 @@ package to.etc.qte;
 import java.io.*;
 import java.util.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 import to.etc.el.*;
 

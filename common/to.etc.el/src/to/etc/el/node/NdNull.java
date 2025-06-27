@@ -26,7 +26,7 @@ package to.etc.el.node;
 
 import java.io.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 public class NdNull extends NdBase {
 	static private final NdNull m_inst = new NdNull();

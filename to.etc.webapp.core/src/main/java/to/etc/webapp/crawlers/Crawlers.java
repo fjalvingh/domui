@@ -3,7 +3,7 @@ package to.etc.webapp.crawlers;
 import to.etc.net.NetTools;
 import to.etc.util.WrappedException;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.util.Collections;
 import java.util.List;
