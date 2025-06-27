@@ -145,8 +145,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public boolean acceptRequestParameter(@NonNull String[] values) {
 		String oldValue = getRawValue();									// Retain previous value,
 		super.acceptRequestParameter(values);								// Set the new one;
-		oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.trim();
-		String newValue = getRawValue() == null ? "" : m_untrimmed ? getRawValue() : getRawValue().trim();
+		oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.strip();
+		String newValue = getRawValue() == null ? "" : m_untrimmed ? getRawValue() : getRawValue().strip();
 		if(oldValue.equals(newValue)) {
 			return false;
 		}
@@ -199,7 +199,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		//-- 1. Get the appropriate raw value && trim
 		String raw = getRawValue();
 		if(raw != null && !m_untrimmed)
-			raw = raw.trim();
+			raw = raw.strip();
 
 		//-- Do mandatory checking && exit if value is missing.
 		if(raw == null || raw.isEmpty()) {
@@ -409,7 +409,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		clearMessage();
 
 		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
-		if((converted == null || converted.trim().isEmpty()) && isMandatory())
+		if((converted == null || converted.strip().isEmpty()) && isMandatory())
 			m_validated = false;
 		else {
 			try {

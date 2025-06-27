@@ -87,8 +87,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			String oldValue = getRawValue();                                    // Retain previous value,
 			super.acceptRequestParameter(values);                                // Set the new one;
 
-			oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.trim();
-			String newValue = getRawValue() == null ? "" : m_untrimmed ? getRawValue() : getRawValue().trim();
+			oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.strip();
+			String newValue = getRawValue() == null ? "" : m_untrimmed ? getRawValue() : getRawValue().strip();
 			if(oldValue.equals(newValue)) {
 				return false;
 			}
@@ -292,7 +292,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		//-- 1. Get the appropriate raw value && trim
 		String raw = m_input.getRawValue();
 		if(raw != null && !m_untrimmed)
-			raw = raw.trim();
+			raw = raw.strip();
 
 		//-- Do mandatory checking && exit if value is missing.
 		if(raw == null || raw.isEmpty()) {
