@@ -450,4 +450,8 @@ final public class HibernateConfiguratorInstance {
 	public interface InterceptorFactory {
 		Interceptor create(BuggyHibernateBaseContext cx);
 	}
+
+	public QDataContext createDataContext() throws Exception {
+		return getDataContextFactory().getDataContext();
+	}
 }

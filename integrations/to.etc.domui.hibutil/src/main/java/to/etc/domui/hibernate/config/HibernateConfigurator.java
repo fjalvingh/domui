@@ -276,4 +276,8 @@ final public class HibernateConfigurator {
 	public interface InterceptorFactory {
 		Interceptor create(BuggyHibernateBaseContext cx);
 	}
+
+	public static HibernateConfiguratorInstance getDefaultInstance() {
+		return m_instance;
+	}
 }
