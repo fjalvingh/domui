@@ -42,7 +42,7 @@ public interface ILogSink {
 		@Override
 		public void exception(@NonNull Throwable t, @NonNull String msg) {
 			System.out.println(msg);
-			t.printStackTrace();
+			t.printStackTrace(System.out);
 		}
 	};
 

@@ -12,9 +12,12 @@
 }
 
 .ui-flw-ttl {
-	height: 1.5em;
-	padding: 3px 3px 3px 8px;
-	border-bottom: 1px solid #aaa;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 2.5em;
+	padding: 3px 23px 3px 8px;
+	border-bottom: 1px solid #eee;
 	font-size: 140%;
 	line-height: 20px;
 }
@@ -30,6 +33,7 @@
 	overflow: auto;
 	background-color: white;
 	border-bottom: 1px solid #aaa;
+	border-bottom-left-radius: 0;
 }
 
 .with-tab-panel-on-top .ui-flw-ttl {
@@ -77,6 +81,7 @@
 
 .ui-flw-btn-close {
 	padding: 0px 0px 0px 4px;
+	cursor: pointer;
 }
 
 .ui-flw .ui-emd {

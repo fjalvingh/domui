@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.function.IExecute;
+import to.etc.util.WrappedException;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -77,6 +78,21 @@ final public class Animations {
 			.select(node)
 			.append(".slideUp(function() { " + jsCallback + " })")
 			.next();
+	}
+
+	/**
+	 * Does JQuery animate with specified features.
+	 */
+	static public void animate(NodeBase node, String what) {
+		try {
+			node.appendStatement()
+				.select(node)
+				.method("animate").var(what).end()
+				.endmethod()
+				.next();
+		} catch(Exception e) {
+			WrappedException.wrap(e);
+		}
 	}
 
 	static public void slideUpAndRemove(NodeBase node) {

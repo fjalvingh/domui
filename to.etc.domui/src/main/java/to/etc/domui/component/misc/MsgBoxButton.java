@@ -25,5 +25,23 @@
 package to.etc.domui.component.misc;
 
 public enum MsgBoxButton {
-	OK, YES, NO, CANCEL, RETRY, IGNORE, BUGGEROFF, CONTINUE, MORE
+	OK(MsgBoxButtonPrio.Primary),
+	YES(MsgBoxButtonPrio.Primary),
+	NO(MsgBoxButtonPrio.Cancel),
+	CANCEL(MsgBoxButtonPrio.Cancel),
+	RETRY(MsgBoxButtonPrio.Primary),
+	IGNORE(MsgBoxButtonPrio.Cancel),
+	BUGGEROFF(MsgBoxButtonPrio.Primary),
+	CONTINUE(MsgBoxButtonPrio.Primary),
+	MORE(MsgBoxButtonPrio.Secondary);
+
+	private final MsgBoxButtonPrio m_prio;
+
+	MsgBoxButton(MsgBoxButtonPrio prio) {
+		m_prio = prio;
+	}
+
+	public MsgBoxButtonPrio getPrio() {
+		return m_prio;
+	}
 }

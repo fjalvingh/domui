@@ -2,7 +2,7 @@
 @import "variables";
 
 .ui-mbx-top {
-	min-height: 100px;
+	min-height: 50px;
 }
 
 .ui-mbx-bb {
@@ -37,12 +37,19 @@
 }
 
 .ui-mbx-btns {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
 	padding: 8px $horizontal-padding 8px $horizontal-padding;
+	gap: 12px;
 	//margin-bottom: 8px;
-
-	& > * {
-		margin-right: 10px;
+	.ui-button {
+		margin-right: 0;
 	}
+
+	//& > * {
+	//	margin-right: 10px;
+	//}
 	//button {
 	//	margin-bottom: 2px !important;
 	//}

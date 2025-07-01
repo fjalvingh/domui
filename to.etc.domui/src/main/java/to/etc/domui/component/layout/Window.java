@@ -26,12 +26,13 @@ package to.etc.domui.component.layout;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.dom.css.FloatType;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.nls.IBundleCode;
 
@@ -68,7 +69,7 @@ public class Window extends FloatingDiv {
 	/**
 	 * The close button in the title bar.
 	 */
-	private Img m_closeButton;
+	private NodeBase m_closeButton;
 
 	/**
 	 * If present, an image to use as the icon inside the title bar.
@@ -248,10 +249,23 @@ public class Window extends FloatingDiv {
 		//-- The titlebar div must not change after creation because it is the drag handle.
 		m_titleBar.removeAllChildren();
 		m_titleBar.setCssClass("ui-flw-ttl");
+
+		NodeContainer leftSize = m_titleBar;
+
+		if(m_titleIcon != null) {
+			leftSize = new Div("ui-flw-ttl-l");
+			m_titleBar.add(leftSize);
+			leftSize.add(m_titleIcon);
+		}
+
+		leftSize.add(new Span(null, getWindowTitle()));
+
 		if(m_closable) {
-			m_closeButton = new Img();
-			m_closeButton.setSrc("THEME/close.png");
-			m_closeButton.setFloat(FloatType.RIGHT);
+			m_closeButton = Icon.faTimes.createNode();
+
+			//m_closeButton = new Img();
+			//m_closeButton.setSrc("THEME/close.png");
+			//m_closeButton.setFloat(FloatType.RIGHT);
 
 			//some margin fixes have to be applied with css
 			m_closeButton.setCssClass("ui-flw-btn-close");
@@ -263,9 +277,6 @@ public class Window extends FloatingDiv {
 				}
 			});
 		}
-		if(m_titleIcon != null)
-			m_titleBar.add(m_titleIcon);
-		m_titleBar.add(getWindowTitle());
 	}
 
 	private Img createIcon() {

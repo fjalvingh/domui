@@ -36,7 +36,6 @@ import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
@@ -55,6 +54,9 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.bugs.Bug;
 import to.etc.webapp.nls.IBundleCode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MsgBox extends Window {
 	public interface IAnswer {
@@ -91,14 +93,12 @@ public class MsgBox extends Window {
 		}
 	}
 
-	//private Img m_theImage = new Img();
-
 	@Nullable
 	private IIconRef m_icon;
 
 	private String m_theText;
 
-	private Div m_theButtons = new Div();
+	private List<BoxButton> m_theButtons = new ArrayList<>();
 
 	private static final int WIDTH = 500;
 
@@ -126,7 +126,6 @@ public class MsgBox extends Window {
 	protected MsgBox() {
 		super(true, false, WIDTH, -1, "");
 		setErrorFence(null); // Do not accept handling errors!!
-		m_theButtons.addCssClass("ui-mbx-btns");
 		setOnClose(closeReason -> {
 			if(null != m_onAnswer) {
 				m_selectedChoice = m_closeButtonObject;
@@ -653,7 +652,9 @@ public class MsgBox extends Window {
 			ic.setFocus();
 		}
 
-		add(m_theButtons);
+		Div buttonDiv = new Div("ui-mbx-btns");
+		add(buttonDiv);
+		MsgBox2.renderBoxButtons(buttonDiv, m_theButtons);
 
 		//FIXME: vmijic 20090911 Set initial focus to first button. However preventing of keyboard input focus on window in background has to be resolved properly.
 		if(m_inputControl == null)
@@ -661,8 +662,8 @@ public class MsgBox extends Window {
 	}
 
 	private void setFocusOnButton() {
-		if(m_theButtons.getChildCount() > 0 && m_theButtons.getChild(0) instanceof Button) {
-			m_theButtons.getChild(0).setFocus();
+		if(m_theButtons.size() > 0) {
+			m_theButtons.get(0).getButton().setFocus();
 		}
 	}
 
@@ -734,11 +735,12 @@ public class MsgBox extends Window {
 
 		DefaultButton btn = new DefaultButton(lbl, icon, b -> answer(mbb));
 		btn.setTestID(mbb.name());
-		m_theButtons.add(btn);
+		m_theButtons.add(new BoxButton(btn, mbb, MsgBoxButtonPrio.Default));
 	}
 
 	protected void addButton(final String lbl, final Object selval) {
-		m_theButtons.add(new DefaultButton(lbl, b -> answer(selval)));
+		DefaultButton btn = new DefaultButton(lbl, b -> answer(selval));
+		m_theButtons.add(new BoxButton(btn, null, MsgBoxButtonPrio.Default));
 	}
 
 	protected IAnswer getOnAnswer() {
