@@ -34,10 +34,10 @@
 		<jetty.http.port>8082</jetty.http.port>
 
 		<!-- JDK properties -->
-		<source.jdk.version>1.8</source.jdk.version>
-		<target.jdk.version>1.8</target.jdk.version>
-		<ecj.version>3.12.3</ecj.version>
-		<kotlin.version>1.7.20</kotlin.version>
+		<source.jdk.version>21</source.jdk.version>
+		<target.jdk.version>21</target.jdk.version>
+		<ecj.version>3.37.0</ecj.version>
+		<kotlin.version>1.9.21</kotlin.version>
 
 		<!-- Plugin versions -->
 		<maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>

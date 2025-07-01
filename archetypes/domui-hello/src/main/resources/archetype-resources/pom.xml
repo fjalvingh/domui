@@ -11,10 +11,10 @@
     <inceptionYear>2017</inceptionYear>
 
     <properties>
-        <ecj.version>3.12.3</ecj.version>
-        <source.jdk.version>1.8</source.jdk.version>
-        <target.jdk.version>1.8</target.jdk.version>
-        <kotlin.version>1.7.20</kotlin.version>
+        <ecj.version>3.37.0</ecj.version>
+        <source.jdk.version>21</source.jdk.version>
+        <target.jdk.version>21</target.jdk.version>
+        <kotlin.version>1.9.21</kotlin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <jetty.version>9.4.6.v20170531</jetty.version>
