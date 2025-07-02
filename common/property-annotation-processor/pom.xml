@@ -41,11 +41,11 @@
 
     <properties>
         <!-- JDK properties -->
-        <source.jdk.version>1.8</source.jdk.version>
-        <target.jdk.version>1.8</target.jdk.version>
+        <source.jdk.version>21</source.jdk.version>
+        <target.jdk.version>21</target.jdk.version>
         <ecj.version>3.12.3</ecj.version>
         <plexus-compiler-eclipse.version>2.8</plexus-compiler-eclipse.version>
-        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     </properties>
 
     <dependencies>
