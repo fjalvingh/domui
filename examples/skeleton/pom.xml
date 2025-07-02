@@ -36,7 +36,7 @@
 		<!-- JDK properties -->
 		<source.jdk.version>21</source.jdk.version>
 		<target.jdk.version>21</target.jdk.version>
-		<ecj.version>3.37.0</ecj.version>
+		<ecj.version>3.36.0</ecj.version>
 		<kotlin.version>1.9.21</kotlin.version>
 
 		<!-- Plugin versions -->

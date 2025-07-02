@@ -43,7 +43,7 @@
         <!-- JDK properties -->
         <source.jdk.version>21</source.jdk.version>
         <target.jdk.version>21</target.jdk.version>
-        <ecj.version>3.37.0</ecj.version>
+        <ecj.version>3.36.0</ecj.version>
         <plexus-compiler-eclipse.version>2.15.0</plexus-compiler-eclipse.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     </properties>
