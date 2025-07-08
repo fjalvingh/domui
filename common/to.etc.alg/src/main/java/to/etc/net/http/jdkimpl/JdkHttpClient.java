@@ -103,6 +103,7 @@ public class JdkHttpClient implements IHttpClient {
 		});
 		Duration timeout = request.getTimeout();
 		if(null != timeout) {
+			System.out.println("debug: timeout set to " + timeout.toString());
 			b.timeout(timeout);
 		}
 
