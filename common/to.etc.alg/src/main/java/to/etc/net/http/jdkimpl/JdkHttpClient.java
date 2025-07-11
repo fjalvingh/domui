@@ -76,6 +76,10 @@ public class JdkHttpClient implements IHttpClient {
 	 */
 	public static final JdkHttpClient HTTP = new JdkHttpClient();
 
+	private JdkHttpClient() {
+
+	}
+
 	@Override
 	public <T> GenericHttpResponse<T> send(GenericHttpRequest request, IBodyReader<T> reader) throws Exception {
 		Builder b = HttpRequest.newBuilder()
@@ -103,6 +107,19 @@ public class JdkHttpClient implements IHttpClient {
 		});
 		Duration timeout = request.getTimeout();
 		if(null != timeout) {
+			/*
+			 * This is rather useless as this only defines a timeout between the connection
+			 * succeeding and the headers being received. There is no way to define a socket
+			 * timeout, unbelievable enough, apparently there is an exchange of incompetents
+			 * between MS and whomever built this -(. We've been doing socket connections
+			 * since 1980, hard to believe this kind of mistake is still made.
+			 *
+			 * In effect this means that the java implementation should not be used for
+			 * anything MS like.
+			 *
+			 * See https://stackoverflow.com/questions/64550136/how-to-set-socket-timeout-in-java-http-client
+			 * and https://bugs.openjdk.org/browse/JDK-8258397
+			 */
 			b.timeout(timeout);
 		}
 
@@ -282,6 +299,7 @@ public class JdkHttpClient implements IHttpClient {
 				.executor(ex)
 				.followRedirects(Redirect.NORMAL)
 				.version(Version.HTTP_1_1)
+				.connectTimeout(Duration.ofMinutes(1))
 				.cookieHandler(new CookieManager())
 				.build();
 			m_clientList.add(client);

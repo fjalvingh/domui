@@ -88,10 +88,11 @@ public class ApacheHttpClient implements IHttpClient {
 		Builder cb = RequestConfig.custom();
 		Duration timeout = request.getTimeout();
 		if(timeout != null) {
-			cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
+			cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);		// According to the source code this sets the socket timeout too
 			cb.setConnectionRequestTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 			cb.setConnectTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		}
+
 		post.setConfig(cb.build());
 		CloseableHttpClient client = client(request);
 		try {
@@ -214,7 +215,7 @@ public class ApacheHttpClient implements IHttpClient {
 		Builder cb = RequestConfig.custom();
 		Duration timeout = request.getTimeout();
 		if(timeout != null) {
-			cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
+			cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);				// According to the source code this sets the socket timeout too
 			cb.setConnectionRequestTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 			cb.setConnectTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		}
