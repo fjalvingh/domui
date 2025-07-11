@@ -107,7 +107,6 @@ public class JdkHttpClient implements IHttpClient {
 		});
 		Duration timeout = request.getTimeout();
 		if(null != timeout) {
-<<<<<<< HEAD
 			/*
 			 * This is rather useless as this only defines a timeout between the connection
 			 * succeeding and the headers being received. There is no way to define a socket
@@ -121,9 +120,6 @@ public class JdkHttpClient implements IHttpClient {
 			 * See https://stackoverflow.com/questions/64550136/how-to-set-socket-timeout-in-java-http-client
 			 * and https://bugs.openjdk.org/browse/JDK-8258397
 			 */
-=======
-			//System.out.println("debug: timeout set to " + timeout.toString());
->>>>>>> 28a62dfe35a2b750d7dd27867b316f3b1a532d1e
 			b.timeout(timeout);
 		}
 
