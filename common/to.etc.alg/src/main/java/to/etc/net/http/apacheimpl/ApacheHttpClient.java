@@ -118,7 +118,7 @@ public class ApacheHttpClient implements IHttpClient {
 
 	private CloseableHttpClient client(GenericHttpRequest r) throws Exception {
 		SslParameters ssl = r.getSslParameters();
-		if(null == ssl || ssl.getSslType() == null) {
+		if(null == ssl) {
 			return defaultClient();
 		} else {
 			return sslClient(ssl, r);
