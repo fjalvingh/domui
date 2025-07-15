@@ -11,7 +11,13 @@ import java.io.Writer;
 
 /**
  * This is used to async read strout and stderr streams from a process...
+ *
+ * @deprecated This works only with Process-derived streams, not with for instance
+ * streams that tail a File. And Process based streams have a huge problem: when
+ * a process gets killed the JDK makes a mess of them, they get closed before the
+ * last output from the process can be read.
  */
+@Deprecated
 public class StreamReaderThread extends Thread {
 	/**
 	 * The stream to read,
