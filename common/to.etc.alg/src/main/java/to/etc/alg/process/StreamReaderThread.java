@@ -99,12 +99,21 @@ public class StreamReaderThread extends Thread {
 			}
 			m_w.flush();
 		} catch(Throwable x) {
-			x.printStackTrace();
+			if(!x.toString().toLowerCase().contains("stream closed"))				// jdk bug: when process streams are closed they do not return -1 when read.
+				x.printStackTrace();
 		} finally {
 			try {
 				if(m_reader != null)
 					m_reader.close();
 			} catch(Exception x) {
+			}
+			Writer w = m_w;
+			if(null != w) {
+				try {
+					w.close();
+				} catch(Exception x) {
+					//-- Ignore
+				}
 			}
 		}
 	}
