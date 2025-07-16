@@ -18,6 +18,10 @@
 	.ui-bbar2-bc {
 		display: inline-block;
 		padding-right: 10px;
+
+		.ui-button {
+			margin-right: 0px;
+		}
 	}
 
 }
