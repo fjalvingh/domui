@@ -48,8 +48,15 @@ public class PlAxis {
 
 	private PlFont m_titleFont = new PlFont();
 
+	private String m_hoverFormat;
+
 	public Boolean getAutoTick() {
 		return m_autoTick;
+	}
+
+	public PlAxis hoverFormat(String hoverFormat) {
+		m_hoverFormat = hoverFormat;
+		return this;
 	}
 
 	public PlAxis autoTick(boolean autoTick) {
@@ -235,6 +242,11 @@ public class PlAxis {
 		if(v > 0) {
 			b.objField("tickwidth", v);
 		}
+		String hoverFormat = m_hoverFormat;
+		if(null != hoverFormat) {
+			b.objField("hoverformat", hoverFormat);
+		}
+
 		String s = m_tickColor;
 		if(s != null && !s.isEmpty()) {
 			if(! s.startsWith("#"))
