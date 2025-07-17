@@ -33,6 +33,8 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTra
 
 	private int m_zeroCount;
 
+	private PlFillType m_fill = PlFillType.none;
+
 	private TimeSeriesType m_timeType = TimeSeriesType.Date;
 
 	public PlTimeSeriesTrace add(long date, double value, @Nullable String text) {
@@ -65,6 +67,11 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTra
 			m_valueAr[index] += value;
 		}
 		m_size++;
+		return this;
+	}
+
+	public PlTimeSeriesTrace fill(PlFillType fill) {
+		m_fill = fill;
 		return this;
 	}
 
@@ -150,6 +157,11 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTra
 				b.item(l);
 			}
 			b.arrayEnd();
+		}
+
+		PlFillType fill = m_fill;
+		if(null != fill && fill.getValue() != null) {
+			b.objField("fill",  fill.getValue());
 		}
 	}
 
