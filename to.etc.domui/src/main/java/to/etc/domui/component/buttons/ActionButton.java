@@ -6,6 +6,7 @@ import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component2.popupmenus.PopupMenu2;
+import to.etc.domui.component2.popupmenus.PopupMenu2.Mode;
 import to.etc.domui.dom.html.HR;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
@@ -22,6 +23,8 @@ import java.util.List;
 @NonNullByDefault
 public class ActionButton extends DefaultButton {
 
+	private PopupMenu2.Mode m_mode = PopupMenu2.Mode.BELOW;
+
 	private final List<Pair<?, IUIAction<?>>> m_actions = new ArrayList<>();
 
 	public <T> ActionButton(T instance, IUIAction<T> action) throws Exception {
@@ -37,6 +40,16 @@ public class ActionButton extends DefaultButton {
 		if(isBuilt()) {
 			forceRebuild();
 		}
+		return this;
+	}
+
+	public ActionButton above() {
+		m_mode = PopupMenu2.Mode.ABOVE;
+		return this;
+	}
+
+	public ActionButton below() {
+		m_mode = Mode.BELOW;
 		return this;
 	}
 
@@ -64,6 +77,9 @@ public class ActionButton extends DefaultButton {
 			actionButton.setTitle("");
 			actionButton.setClicked(c -> {
 				PopupMenu2 p2 = new PopupMenu2(ActionButton.this);
+				if(m_mode == Mode.ABOVE) {
+					p2.above();
+				}
 				FloatingDiv floatingParent = ActionButton.this.findParent(FloatingDiv.class);
 				if(null != floatingParent) {
 					p2.setZIndex(floatingParent.getZIndex() + 100);
