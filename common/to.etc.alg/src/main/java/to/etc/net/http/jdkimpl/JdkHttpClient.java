@@ -143,7 +143,7 @@ public class JdkHttpClient implements IHttpClient {
 
 	private BodyPublisher calculateBody(GenericHttpRequest request) {
 		IHttpBodyProducer body = request.getBody();
-		if(body instanceof EmptyBodyProducer) {
+		if(body instanceof EmptyBodyProducer || body == null) {
 			return BodyPublishers.noBody();
 		} else if(body instanceof StringBodyProducer) {
 			return BodyPublishers.ofString(((StringBodyProducer) body).getData());
