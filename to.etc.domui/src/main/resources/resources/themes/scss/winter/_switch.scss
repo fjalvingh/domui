@@ -1,0 +1,72 @@
+/*
+ * The SwitchButton class's CSS.
+ */
+$ui-swtch-brdr: 2px;
+$ui-swtch-w: 44px;			/* 60px */
+$ui-swtch-h: 25px;
+$ui-swtch-isz: $ui-swtch-h - 2 * $ui-swtch-brdr;		/* 26px */
+$ui-swtch-pan: $ui-swtch-w / 2 - 2 * $ui-swtch-brdr;
+
+.ui-swtch {
+	position: relative;
+	display: inline-block;
+	width: $ui-swtch-w;
+	height: $ui-swtch-h;
+}
+
+.ui-swtch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.ui-swtch-sl {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+.ui-swtch-sl:before {
+	position: absolute;
+	content: "";
+	height: $ui-swtch-isz;
+	width: $ui-swtch-isz;
+	left: $ui-swtch-brdr;
+	bottom: $ui-swtch-brdr;
+	background-color: white;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+input:checked + .ui-swtch-sl {
+	background-color: #2196F3;
+}
+
+input:focus + .ui-swtch-sl {
+	box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .ui-swtch-sl:before {
+	//-webkit-transform: translateX($ui-swtch-isz);
+	//-ms-transform: translateX($ui-swtch-isz);
+	//transform: translateX($ui-swtch-isz);
+
+	-webkit-transform: translateX($ui-swtch-pan);
+	-ms-transform: translateX($ui-swtch-pan);
+	transform: translateX($ui-swtch-pan);
+}
+
+/* Rounded sliders */
+.ui-swtch-sl.ui-swtch-rounded {
+	border-radius: $ui-swtch-h;
+}
+
+.ui-swtch-sl.ui-swtch-rounded:before {
+	border-radius: 50%;
+}
