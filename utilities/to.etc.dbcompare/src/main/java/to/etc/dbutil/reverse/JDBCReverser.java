@@ -301,25 +301,22 @@ public class JDBCReverser implements Reverser {
 				reverseConstraints(dbc, schemaSet);
 			}
 
-			if(hasOption(ReverserOption.ReverseColumns, ReverserOption.ReverseSequences)) {
+			if(hasOption(ReverserOption.ReverseColumns) && hasOption(ReverserOption.ReverseSequences)) {
 				for(DbSchema schema : schemaSet) {
 					for(DbTable table : schema.getTables()) {
 						for(DbColumn column : table.getColumnList()) {
 							String dflt = column.getDefault();
 							if(null != dflt) {
-								scanColumnDefault(column, dflt);
+								scanColumnDefaultForSequence(column, dflt);
 							}
 						}
 					}
 				}
 			}
-
-//
-//				afterLoad(dbc, schema);
 		}
 	}
 
-	protected void scanColumnDefault(DbColumn column, String dflt) throws Exception {
+	protected void scanColumnDefaultForSequence(DbColumn column, String dflt) throws Exception {
 	}
 
 	protected String translateSchemaName(@NonNull Connection dbc, @Nullable String name) throws Exception {
