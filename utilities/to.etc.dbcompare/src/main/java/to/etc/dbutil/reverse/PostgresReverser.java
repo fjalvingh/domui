@@ -253,7 +253,7 @@ public class PostgresReverser extends JDBCReverser {
 	 * Detects a sequence name from a column default.
 	 */
 	@Override
-	protected void scanColumnDefault(DbColumn column, String dflt) throws Exception {
+	protected void scanColumnDefaultForSequence(DbColumn column, String dflt) throws Exception {
 		DbSequence seq = scanSequenceName(column.getTable().getSchema(), dflt);
 		column.setUsedSequence(seq);
 	}
@@ -283,7 +283,7 @@ public class PostgresReverser extends JDBCReverser {
 			if(pos == -1) {
 				DbSequence seq = schema.findSequence(sub);
 				if(null == seq) {
-					log("Sequence '" + sub + "' not found in column default '" + deflt + "'");
+					log("Sequence '" + sub + "' not found (in schema '" + schema.getName() + "') in column default '" + deflt + "'");
 				}
 				return seq;
 			}
