@@ -1,6 +1,7 @@
 package to.etc.domui.component.plotly.traces;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.javascript.JsonBuilder;
 
 import java.text.DateFormat;
@@ -25,27 +26,42 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTra
 
 	private double[] m_valueAr = new double[INITIAL_SIZE];
 
+	@Nullable
+	private String[] m_textAr = null;
+
 	private int m_size;
 
 	private int m_zeroCount;
 
+	private PlFillType m_fill = PlFillType.none;
+
 	private TimeSeriesType m_timeType = TimeSeriesType.Date;
 
-	public PlTimeSeriesTrace add(long date, double value) {
+	public PlTimeSeriesTrace add(long date, double value, @Nullable String text) {
 		if(value == 0.0D)
 			m_zeroCount++;
 		grow(1);
+		if(text != null && m_textAr == null) {
+			m_textAr = new String[m_timeAr.length];
+		}
 		int index = Arrays.binarySearch(m_timeAr, 0, m_size, date);
 		if(index < 0) {
 			index = -(index + 1);
 
 			//-- Make room at this index
+			String[] textAr = m_textAr;
 			for(int i = m_size; i > index; --i) {
 				m_timeAr[i] = m_timeAr[i - 1];
 				m_valueAr[i] = m_valueAr[i - 1];
+				if(textAr != null) {
+					textAr[i] = textAr[i - 1];
+				}
 			}
 			m_timeAr[index] = date;
 			m_valueAr[index] = value;
+			if(textAr != null && text != null) {
+				textAr[index] = text;
+			}
 		} else {
 			//-- Date exists; add the values
 			m_valueAr[index] += value;
@@ -54,8 +70,18 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTra
 		return this;
 	}
 
+	public PlTimeSeriesTrace fill(PlFillType fill) {
+		m_fill = fill;
+		return this;
+	}
+
 	public PlTimeSeriesTrace add(Date date, double value) {
-		add(date.getTime(), value);
+		add(date.getTime(), value, null);
+		return this;
+	}
+
+	public PlTimeSeriesTrace add(Date date, double value, @Nullable String text) {
+		add(date.getTime(), value, text);
 		return this;
 	}
 
@@ -72,6 +98,13 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTra
 		double[] nval = new double[nwsize];
 		System.arraycopy(m_valueAr, 0, nval, 0, m_size);
 		m_valueAr = nval;
+
+		String[] textAr = m_textAr;
+		if(null != textAr) {
+			String[] ntext = new String[nwsize];
+			System.arraycopy(textAr, 0, ntext, 0, m_size);
+			m_textAr = ntext;
+		}
 	}
 
 	public void clear() {
@@ -115,6 +148,21 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTra
 			b.item(l);
 		}
 		b.arrayEnd();
+
+		String[] textAr = m_textAr;
+		if(null != textAr) {
+			b.objArrayField("text");
+			for(int i = 0; i < m_size; i++) {
+				String l = textAr[i];
+				b.item(l);
+			}
+			b.arrayEnd();
+		}
+
+		PlFillType fill = m_fill;
+		if(null != fill && fill.getValue() != null) {
+			b.objField("fill",  fill.getValue());
+		}
 	}
 
 	public PlTimeSeriesTrace type(TraceType type) {

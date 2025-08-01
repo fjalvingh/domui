@@ -76,7 +76,7 @@ public class PlotlyGraph extends Div implements IComponentJsonProvider {
 
 	static public void initialize(NodeContainer what) {
 		//what.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdn.plot.ly/plotly-latest.min.js"), 10);
-		what.getPage().addHeaderContributor(HeaderContributor.loadJavascript("js/plotly/plotly-1.58.5.min.js"), 10);
+		what.getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/plotly/plotly-1.58.5.min.js"), 10);
 	}
 
 }

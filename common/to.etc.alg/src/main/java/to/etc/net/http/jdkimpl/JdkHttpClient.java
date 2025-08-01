@@ -1,5 +1,6 @@
 package to.etc.net.http.jdkimpl;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.alg.process.NamedThreadFactory;
 import to.etc.net.http.BodyProducers.EmptyBodyProducer;
@@ -38,7 +39,6 @@ import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
-import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -76,6 +76,10 @@ public class JdkHttpClient implements IHttpClient {
 	 */
 	public static final JdkHttpClient HTTP = new JdkHttpClient();
 
+	private JdkHttpClient() {
+
+	}
+
 	@Override
 	public <T> GenericHttpResponse<T> send(GenericHttpRequest request, IBodyReader<T> reader) throws Exception {
 		Builder b = HttpRequest.newBuilder()
@@ -103,6 +107,19 @@ public class JdkHttpClient implements IHttpClient {
 		});
 		Duration timeout = request.getTimeout();
 		if(null != timeout) {
+			/*
+			 * This is rather useless as this only defines a timeout between the connection
+			 * succeeding and the headers being received. There is no way to define a socket
+			 * timeout, unbelievable enough, apparently there is an exchange of incompetents
+			 * between MS and whomever built this -(. We've been doing socket connections
+			 * since 1980, hard to believe this kind of mistake is still made.
+			 *
+			 * In effect this means that the java implementation should not be used for
+			 * anything MS like.
+			 *
+			 * See https://stackoverflow.com/questions/64550136/how-to-set-socket-timeout-in-java-http-client
+			 * and https://bugs.openjdk.org/browse/JDK-8258397
+			 */
 			b.timeout(timeout);
 		}
 
@@ -126,7 +143,7 @@ public class JdkHttpClient implements IHttpClient {
 
 	private BodyPublisher calculateBody(GenericHttpRequest request) {
 		IHttpBodyProducer body = request.getBody();
-		if(body instanceof EmptyBodyProducer) {
+		if(body instanceof EmptyBodyProducer || body == null) {
 			return BodyPublishers.noBody();
 		} else if(body instanceof StringBodyProducer) {
 			return BodyPublishers.ofString(((StringBodyProducer) body).getData());
@@ -155,14 +172,26 @@ public class JdkHttpClient implements IHttpClient {
 
 	private HttpClient createSslClient(SslParameters ssl) throws Exception {
 		byte[] certSha1Thumbprint = ssl.getCertSha1Thumbprint();
-		SSLContext sslContext;
-		if(null != certSha1Thumbprint) {
-			sslContext = createSslContextForTrustedServerThumbprint(certSha1Thumbprint);
+
+		TrustManager tm;
+		if(certSha1Thumbprint != null) {
+			tm = createX509TrustManagerForCert(certSha1Thumbprint);
 		} else if(ssl.isIgnoreRemoteCertificate()) {
-			sslContext = createSslContextAcceptingAllCerts();
+			tm = createTrustManagerTrustAll();
 		} else {
-			sslContext = createSscContext(ssl);
+			tm = null;
 		}
+
+		SSLContext sslContext = createSSLContext(ssl);
+
+		//SSLContext sslContext;
+		//if(null != certSha1Thumbprint) {
+		//	sslContext = createSslContextForTrustedServerThumbprint(certSha1Thumbprint);
+		//} else if(ssl.isIgnoreRemoteCertificate()) {
+		//	sslContext = createSslContextAcceptingAllCerts();
+		//} else {
+		//	sslContext = createSslContext(ssl);
+		//}
 
 		ExecutorService ex = Executors.newCachedThreadPool(new NamedThreadFactory("jdkSslClnt"));
 
@@ -175,9 +204,63 @@ public class JdkHttpClient implements IHttpClient {
 			.build();
 	}
 
-	private SSLContext createSslContextAcceptingAllCerts() throws Exception {
-		SSLContext context = SSLContext.getInstance("TLSv1.2");
+	//static public SSLContext createSslContextAcceptingAllCerts() throws Exception {
+	//	SSLContext context = SSLContext.getInstance("TLSv1.2");
+	//
+	//	TrustManager trustAllCerts = createTrustManagerTrustAll();
+	//	context.init(null, new TrustManager[]{trustAllCerts}, new SecureRandom());
+	//	return context;
+	//}
 
+	static public SSLContext createSSLContext(SslParameters ssl) throws Exception {
+		byte[] certSha1Thumbprint = ssl.getCertSha1Thumbprint();
+
+		TrustManager tm;
+		if(certSha1Thumbprint != null) {
+			tm = createX509TrustManagerForCert(certSha1Thumbprint);
+		} else if(ssl.isIgnoreRemoteCertificate()) {
+			tm = createTrustManagerTrustAll();
+		} else {
+			tm = null;
+		}
+
+		SSLContext sslContext = createSSLContext(ssl, tm);
+		return sslContext;
+	}
+
+	static private SSLContext createSSLContext(SslParameters parameters, @Nullable TrustManager tm) throws Exception {
+		if(parameters.getSslType() == null) {
+			SSLContext sc = SSLContext.getInstance("ssl");
+			sc.init(null, tm == null ? null : new TrustManager[] { tm }, null);
+			return sc;
+		} else {
+			return createSslContextWithClientKey(parameters, tm);
+		}
+	}
+
+	static private SSLContext createSslContextWithClientKey(SslParameters ssl, @Nullable TrustManager tm) throws Exception {
+		SslCertificateType sslType = requireNonNull(ssl.getSslType(), "sslType is not set on ssl!");
+		KeyManagerFactory kmf = KeyManagerFactory.getInstance(sslType.getKeyManagerAlgorithm());
+		KeyStore keystore = KeyStore.getInstance(sslType.getKeyStoreType());
+
+		byte[] sslCertificate = requireNonNull(ssl.getSslCertificate(), "sslCertificate is not set on ssl!");
+		try(InputStream is = new ByteArrayInputStream(sslCertificate)) {
+			String passkey = ssl.getSslPasskey();
+			char[] passkeyArray = null != passkey ? passkey.toCharArray() : null;
+			keystore.load(is, passkeyArray);
+			kmf.init(keystore, passkeyArray);
+
+			SSLContext sslContext = SSLContext.getInstance(sslType.getSslContextProtocol());
+			sslContext.init(kmf.getKeyManagers(), tm == null ? null : new TrustManager[] { tm }, null);
+			return sslContext;
+		}
+	}
+
+	/**
+	 * Create a trust manager which accepts all server certificates without checking.
+	 */
+	@NonNull
+	private static TrustManager createTrustManagerTrustAll() {
 		TrustManager trustAllCerts = new X509ExtendedTrustManager() {
 			@Override
 			public X509Certificate[] getAcceptedIssuers() {
@@ -208,35 +291,16 @@ public class JdkHttpClient implements IHttpClient {
 			public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
 			}
 		};
-		context.init(null, new TrustManager[]{trustAllCerts}, new SecureRandom());
-		return context;
-	}
-
-	private static SSLContext createSscContext(SslParameters ssl) throws Exception {
-		SslCertificateType sslType = requireNonNull(ssl.getSslType(), "sslType is not set on ssl!");
-		KeyManagerFactory kmf = KeyManagerFactory.getInstance(sslType.getKeyManagerAlgorithm());
-		KeyStore keystore = KeyStore.getInstance(sslType.getKeyStoreType());
-
-		byte[] sslCertificate = requireNonNull(ssl.getSslCertificate(), "sslCertificate is not set on ssl!");
-		try(InputStream is = new ByteArrayInputStream(sslCertificate)) {
-			String passkey = ssl.getSslPasskey();
-			char[] passkeyArray = null != passkey ? passkey.toCharArray() : null;
-			keystore.load(is, passkeyArray);
-			kmf.init(keystore, passkeyArray);
-
-			SSLContext sslContext = SSLContext.getInstance(sslType.getSslContextProtocol());
-			sslContext.init(kmf.getKeyManagers(), null, null);
-			return sslContext;
-		}
+		return trustAllCerts;
 	}
 
 	/**
-	 * Creates the ssl context to work against a specific server-side certificate with the specified thumbprint only.
-	 * In case that we use {@link SslParametersBuilder#setInsecureSslThumbprint()} it would skip checkServerTrusted check.
+	 * Create a trust manager which only accepts a server with a specific
+	 * certificate.
 	 */
-	private static SSLContext createSslContextForTrustedServerThumbprint(byte[] certSha1Thumbprint) throws Exception {
+	@Nullable
+	private static X509TrustManager createX509TrustManagerForCert(byte[] certSha1Thumbprint) throws Exception {
 		X509TrustManager tm = new X509TrustManager() {
-
 			@Override
 			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 			}
@@ -263,8 +327,16 @@ public class JdkHttpClient implements IHttpClient {
 			}
 		};
 
+		return tm;
+	}
+
+	/**
+	 * Creates the ssl context to work against a specific server-side certificate with the specified thumbprint only.
+	 * In case that we use {@link SslParametersBuilder#setInsecureSslThumbprint()} it would skip checkServerTrusted check.
+	 */
+	private static SSLContext createSslContextForTrustedServerThumbprint(byte[] certSha1Thumbprint) throws Exception {
 		TrustManager[] noopTrustManager = new TrustManager[1];
-		noopTrustManager[0] = tm;
+		noopTrustManager[0] = createX509TrustManagerForCert(certSha1Thumbprint);
 		SSLContext sc = SSLContext.getInstance("ssl");
 		sc.init(null, noopTrustManager, null);
 		return sc;
@@ -282,6 +354,7 @@ public class JdkHttpClient implements IHttpClient {
 				.executor(ex)
 				.followRedirects(Redirect.NORMAL)
 				.version(Version.HTTP_1_1)
+				.connectTimeout(Duration.ofMinutes(1))
 				.cookieHandler(new CookieManager())
 				.build();
 			m_clientList.add(client);

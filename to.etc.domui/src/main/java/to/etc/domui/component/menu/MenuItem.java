@@ -439,4 +439,11 @@ final public class MenuItem {
 		}
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		if(m_parent == null)
+			return "[ROOT]@";
+		return m_label.getString();
+	}
 }
