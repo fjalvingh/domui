@@ -57,7 +57,7 @@ final public class GenericHttpClient {
 	}
 
 	static {
-		m_implMap.put(HttpImpl.JDK, new JdkHttpClient());
+		m_implMap.put(HttpImpl.JDK, JdkHttpClient.HTTP);
 		m_implMap.put(HttpImpl.APACHE, new ApacheHttpClient());
 	}
 

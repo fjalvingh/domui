@@ -76,6 +76,11 @@ public class GenericHttpRequest {
 		return this;
 	}
 
+	public GenericHttpRequest PUT() {
+		m_method = "PUT";
+		return this;
+	}
+
 	public GenericHttpRequest body(IHttpBodyProducer body) {
 		m_body = body;
 		return this;
