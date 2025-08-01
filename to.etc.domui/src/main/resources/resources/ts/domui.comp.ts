@@ -40,6 +40,8 @@ namespace WebUI {
 
 		if(mode == 'below') {
 			top = pos.top + $(refid).outerHeight();
+		} else if(mode == 'above') {
+			top = pos.top - 3 - $(menu).outerHeight();
 		}
 
 		let currentZIndex = $(menu).css('zIndex')

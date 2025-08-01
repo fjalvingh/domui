@@ -1,13 +1,5 @@
 package to.etc.net.http.apacheimpl;
 
-import to.etc.net.http.BodyProducers.EmptyBodyProducer;
-import to.etc.net.http.BodyProducers.StringBodyProducer;
-import to.etc.net.http.GenericHttpHeaders;
-import to.etc.net.http.GenericHttpRequest;
-import to.etc.net.http.GenericHttpResponse;
-import to.etc.net.http.IBodyReader;
-import to.etc.net.http.IHttpBodyProducer;
-import to.etc.net.http.IHttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -30,23 +22,26 @@ import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.net.http.SslCertificateType;
+import to.etc.net.http.BodyProducers.EmptyBodyProducer;
+import to.etc.net.http.BodyProducers.StringBodyProducer;
+import to.etc.net.http.GenericHttpHeaders;
+import to.etc.net.http.GenericHttpRequest;
+import to.etc.net.http.GenericHttpResponse;
+import to.etc.net.http.IBodyReader;
+import to.etc.net.http.IHttpBodyProducer;
+import to.etc.net.http.IHttpClient;
 import to.etc.net.http.SslParameters;
+import to.etc.net.http.jdkimpl.JdkHttpClient;
 import to.etc.util.FileTool;
 
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.security.KeyStore;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -88,10 +83,11 @@ public class ApacheHttpClient implements IHttpClient {
 		Builder cb = RequestConfig.custom();
 		Duration timeout = request.getTimeout();
 		if(timeout != null) {
-			cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
+			cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);		// According to the source code this sets the socket timeout too
 			cb.setConnectionRequestTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 			cb.setConnectTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		}
+
 		post.setConfig(cb.build());
 		CloseableHttpClient client = client(request);
 		try {
@@ -140,50 +136,85 @@ public class ApacheHttpClient implements IHttpClient {
 	}
 
 	private CloseableHttpClient createSslClient(SslParameters ssl, GenericHttpRequest r) throws Exception {
-		SslCertificateType sslType = requireNonNull(ssl.getSslType(), "sslType must be set on ssl");
-		KeyManagerFactory kmf = KeyManagerFactory.getInstance(sslType.getKeyManagerAlgorithm());
-		KeyStore keystore = KeyStore.getInstance(sslType.getKeyStoreType());
+		SSLContext sslContext = JdkHttpClient.createSSLContext(ssl);
+		return createApacheClient(sslContext, r);
 
-		byte[] sslCertificate = requireNonNull(ssl.getSslCertificate(), "sslCertificate must be set on ssl");
-		try(InputStream is = new ByteArrayInputStream(sslCertificate)) {
-			String passkey = ssl.getSslPasskey();
-			char[] passkeyArray = null != passkey ? passkey.toCharArray() : null;
-			keystore.load(is, passkeyArray);
-			kmf.init(keystore, passkeyArray);
-
-			SSLContext sslContext = SSLContext.getInstance(sslType.getSslContextProtocol());
-			sslContext.init(kmf.getKeyManagers(), null, null);
-
-			SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
-			Registry<ConnectionSocketFactory> socketFactoryRegistry =
-				RegistryBuilder.<ConnectionSocketFactory>create()
-					.register("https", sslsf)
-					.register("http", new PlainConnectionSocketFactory())
-					.build();
-			BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
-
-			Duration timeout = r.getTimeout();
-			RequestConfig.Builder cb = RequestConfig.custom();
-			if(timeout != null) {
-				cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
-				cb.setConnectionRequestTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
-				cb.setConnectTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
-
-				SocketConfig socketConfigShit = SocketConfig.custom()
-					.setSoTimeout((int) timeout.toMillis(), TimeUnit.MILLISECONDS)
-					.build();
-				connectionManager.setSocketConfig(socketConfigShit);
-				System.out.println("Updating socketTimeout to " + timeout);
-			}
-
-			CloseableHttpClient cl = HttpClientBuilder.create()
-				.setConnectionManager(connectionManager)
-				.setDefaultRequestConfig(cb.build())
-				.build();
-
-			return cl;
-		}
+		//SslCertificateType sslType = requireNonNull(ssl.getSslType(), "sslType must be set on ssl");
+		//KeyManagerFactory kmf = KeyManagerFactory.getInstance(sslType.getKeyManagerAlgorithm());
+		//KeyStore keystore = KeyStore.getInstance(sslType.getKeyStoreType());
+		//
+		//byte[] sslCertificate = requireNonNull(ssl.getSslCertificate(), "sslCertificate must be set on ssl");
+		//try(InputStream is = new ByteArrayInputStream(sslCertificate)) {
+		//	String passkey = ssl.getSslPasskey();
+		//	char[] passkeyArray = null != passkey ? passkey.toCharArray() : null;
+		//	keystore.load(is, passkeyArray);
+		//	kmf.init(keystore, passkeyArray);
+		//
+		//	SSLContext sslContext = SSLContext.getInstance(sslType.getSslContextProtocol());
+		//	sslContext.init(kmf.getKeyManagers(), null, null);
+		//
+		//	return createApacheClient(sslContext, r);
+		//}
 	}
+
+	private static CloseableHttpClient createApacheClient(SSLContext sslContext, GenericHttpRequest r) {
+		SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
+		Registry<ConnectionSocketFactory> socketFactoryRegistry =
+			RegistryBuilder.<ConnectionSocketFactory>create()
+				.register("https", sslsf)
+				.register("http", new PlainConnectionSocketFactory())
+				.build();
+		BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
+
+		Duration timeout = r.getTimeout();
+		Builder cb = RequestConfig.custom();
+		if(timeout != null) {
+			cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
+			cb.setConnectionRequestTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
+			cb.setConnectTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
+
+			SocketConfig socketConfigShit = SocketConfig.custom()
+				.setSoTimeout((int) timeout.toMillis(), TimeUnit.MILLISECONDS)
+				.build();
+			connectionManager.setSocketConfig(socketConfigShit);
+			System.out.println("Updating socketTimeout to " + timeout);
+		}
+
+		CloseableHttpClient cl = HttpClientBuilder.create()
+			.setConnectionManager(connectionManager)
+			.setDefaultRequestConfig(cb.build())
+			.build();
+
+		return cl;
+	}
+
+	//private SSLContext createSSLContext(SslParameters ssl) throws Exception {
+	//	byte[] certSha1Thumbprint = ssl.getCertSha1Thumbprint();
+	//	SSLContext sslContext;
+	//	if(null != ssl.getSslType()) {
+	//		sslContext = createSSLContextForSslType(ssl);
+	//	} else if(ssl.isIgnoreRemoteCertificate()) {
+	//		sslContext = JdkHttpClient.createSslContextAcceptingAllCerts();
+	//	} else {
+	//		sslContext = JdkHttpClient.createSslContext(ssl);
+	//	}
+	//
+	//}
+	//
+	//private SSLContext createSSLContextForSslType(SslParameters ssl) throws Exception {
+	//	SslCertificateType sslType = requireNonNull(ssl.getSslType(), "sslType must be set on ssl");
+	//	KeyManagerFactory kmf = KeyManagerFactory.getInstance(sslType.getKeyManagerAlgorithm());
+	//	KeyStore keystore = KeyStore.getInstance(sslType.getKeyStoreType());
+	//
+	//	byte[] sslCertificate = requireNonNull(ssl.getSslCertificate(), "sslCertificate must be set on ssl");
+	//	try(InputStream is = new ByteArrayInputStream(sslCertificate)) {
+	//		String passkey = ssl.getSslPasskey();
+	//		char[] passkeyArray = null != passkey ? passkey.toCharArray() : null;
+	//		keystore.load(is, passkeyArray);
+	//		kmf.init(keystore, passkeyArray);
+	//	}
+	//}
+
 
 	private synchronized CloseableHttpClient defaultClient() {
 		if(m_clientList.isEmpty()) {
@@ -214,7 +245,7 @@ public class ApacheHttpClient implements IHttpClient {
 		Builder cb = RequestConfig.custom();
 		Duration timeout = request.getTimeout();
 		if(timeout != null) {
-			cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
+			cb.setResponseTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);				// According to the source code this sets the socket timeout too
 			cb.setConnectionRequestTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 			cb.setConnectTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		}

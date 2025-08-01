@@ -17,7 +17,14 @@ import java.util.List;
  * Created on 10-06-2022.
  */
 public class PopupMenu2 extends Div {
+	public enum Mode {
+		BELOW, ABOVE
+	}
+
 	private final NodeContainer m_owner;
+
+	@NonNull
+	private Mode m_mode = Mode.BELOW;
 
 	@Nullable
 	private String m_text;
@@ -44,12 +51,22 @@ public class PopupMenu2 extends Div {
 		container.getPage().getBody().add(0, this);
 	}
 
+	public PopupMenu2 above() {
+		m_mode = Mode.ABOVE;
+		return this;
+	}
+
+	public PopupMenu2 below() {
+		m_mode = Mode.BELOW;
+		return this;
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-pome2");
 		if(m_iconRef != null || m_hint != null || m_text != null)
 			throw new IllegalStateException("You are missing a call to append()");
-		appendCreateJS("WebUI.popupMenuShow('#" + m_owner.getActualID() + "', '#" + getActualID() + "', 'below');");
+		appendCreateJS("WebUI.popupMenuShow('#" + m_owner.getActualID() + "', '#" + getActualID() + "', '"  + m_mode.name().toLowerCase() + "');");
 
 		boolean hasIcons = false;
 		boolean hasTexts = false;
