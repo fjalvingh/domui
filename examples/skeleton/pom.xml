@@ -54,7 +54,7 @@
 		<!-- DomUI -->
 		<domui.version>1.2-SNAPSHOT</domui.version>
 
-		<jetty.version>9.3.8.v20160314</jetty.version>
+		<jetty.version>9.4.57.v20241219</jetty.version>
 		<hsqldb.version>2.4.0</hsqldb.version>
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		<antlr.runtime.version>4.7</antlr.runtime.version>
