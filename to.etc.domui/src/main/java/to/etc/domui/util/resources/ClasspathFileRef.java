@@ -24,7 +24,9 @@
  */
 package to.etc.domui.util.resources;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  * Holds a reference to a file entry to access a timestamp, for resource changed checking only.
@@ -32,7 +34,7 @@ import java.io.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 28, 2009
  */
-final class ClasspathFileRef implements IModifyableResource {
+final class ClasspathFileRef implements IModifyableResource, IResourceRef {
 	private File m_src;
 
 	public ClasspathFileRef(File src) {
@@ -48,6 +50,16 @@ final class ClasspathFileRef implements IModifyableResource {
 		} catch(Exception x) {
 			return -1;
 		}
+	}
+
+	@Override
+	public InputStream getInputStream() throws Exception {
+		return new FileInputStream(m_src);
+	}
+
+	@Override
+	public boolean exists() {
+		return m_src.exists();
 	}
 
 	@Override

@@ -171,31 +171,41 @@ abstract public class AbstractSassResolver<O> {
 	private O tryRef(DomApplication app, String name) {
 		Line<O> line = m_map.get(name);
 		if(null != line) {
+			d("resolved " + name + " to cached " + line.getRef());
 			return line.getRef();
 		}
 
 		try {
 			IResourceRef ref = app.getResource(name, m_dependencyList);
 			if(!ref.exists()) {
-				//System.out.print("     try " + name + " failed");
+				d("try " + name + " failed");
 				return null;
 			}
 			m_dependencyList.add(ref);
 			String content;
 			try(InputStream is = ref.getInputStream()) {
-				if(is == null)
+				if(is == null) {
+					d("NULL inputstream for resource " + name + " ref " + ref);
 					throw new IllegalStateException("Null inputstream from existing resource " + ref);
+				}
 				content = FileTool.readStreamAsString(is, StandardCharsets.UTF_8);
 			}
 			O imp = createInput(name, content);
 			m_map.put(name, new Line<>(name, imp));
+			d("resolved " + name + " to " + imp + " (now cached)");
 			return imp;
 		} catch(ThingyNotFoundException tnf) {				// Normal exception if resource cannot be located.
 			return null;
 		} catch(Exception x) {
+			d("try exception: " + x);
 			LOG.error("Invalid REF: " + x);
+			//x.printStackTrace();
 			return null;
 		}
+	}
+
+	private void d(String s) {
+		//System.out.println("SASSDEBUG: " + s);
 	}
 
 	abstract protected O createInput(String path, String data);
