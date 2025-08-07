@@ -60,12 +60,36 @@ public class ReloadingClassResourceRef implements IResourceRef, IModifyableResou
 	 */
 	@Override
 	public InputStream getInputStream() throws Exception {
-		if(m_source == null || !(m_source instanceof JarredFileRef))
-			return m_base.getResourceAsStream(m_name);
+		if(m_source instanceof IResourceRef) {
+			InputStream is = ((IResourceRef) m_source).getInputStream();
+			//if(null == is) {
+			//	System.out.println("ReloadingClassResourceRef: IResourceRef returned null for " + this);
+			//}
+			return is;
+		}
 
-		//-- This is a JAR reference: ask it to return the resource to prevent URL caching in the JDK
-		JarredFileRef jref = (JarredFileRef) m_source;
-		return jref.getResource();
+		InputStream is = m_base.getResourceAsStream(m_name);
+		//if(null == is) {
+		//	System.out.println("ReloadingClassResourceRef: getResourceAsStream returned null for " + this);
+		//}
+		return is;
+
+		//
+		//if(m_source == null || !(m_source instanceof JarredFileRef)) {
+		//	InputStream is = m_base.getResourceAsStream(m_name);
+		//	if(null == is) {
+		//		System.out.println("ReloadingClassResourceRef: getResourceAsStream returned null for " + this);
+		//	}
+		//	return is;
+		//}
+		//
+		////-- This is a JAR reference: ask it to return the resource to prevent URL caching in the JDK
+		//JarredFileRef jref = (JarredFileRef) m_source;
+		//InputStream is = jref.getResource();
+		//if(null == is) {
+		//	System.out.println("ReloadingClassResourceRef: JarredFileRef returned null for " + this);
+		//}
+		//return is;
 	}
 
 	@Override
@@ -91,6 +115,6 @@ public class ReloadingClassResourceRef implements IResourceRef, IModifyableResou
 
 	@Override
 	public String toString() {
-		return "ClassResourceRef[" + m_name + "]";
+		return "ClassResourceRef[" + m_base.getName() + ":" + m_name + ", " + (m_source == null ? "nosrc" : m_source) + "]";
 	}
 }

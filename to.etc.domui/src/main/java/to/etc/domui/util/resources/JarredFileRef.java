@@ -14,7 +14,7 @@ import java.io.InputStream;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-final public class JarredFileRef implements IModifyableResource {
+final public class JarredFileRef implements IModifyableResource, IResourceRef {
 	private final JarFileContainer m_container;
 
 	private final String m_name;
@@ -65,6 +65,17 @@ final public class JarredFileRef implements IModifyableResource {
 		m_size = size;
 		if(Reloader.DEBUG)
 			System.out.println("JarredFileRef: updated " + m_name);
+	}
+
+	@Override
+	public boolean exists() {
+		return getLastModified() != -1;
+	}
+
+	@Nullable
+	@Override
+	public InputStream getInputStream() throws Exception {
+		return getResource();
 	}
 
 	@Nullable byte[][] getResourceData() {
