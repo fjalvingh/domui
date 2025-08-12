@@ -56,18 +56,18 @@ abstract class AbstractPlotlyTrace<T extends AbstractPlotlyTrace<T>> extends Abs
 					b.objField("mode", "markers+lines");
 					break;
 			}
-			switch(m_type) {
-				default:
-					break;
-
-				case Scatter:
-					b.objField("type", "scatter");
-					break;
-			}
+			//switch(m_type) {
+			//	default:
+			//		break;
+			//
+			//	case Scatter:
+			//		b.objField("type", "scatter");
+			//		break;
+			//}
 		}
 
-		if(m_name != null)
-			b.objField("name", m_name);
+		//if(m_name != null)
+		//	b.objField("name", m_name);
 
 		if(m_type != null) {
 			b.objField("type", m_type.name().toLowerCase());
