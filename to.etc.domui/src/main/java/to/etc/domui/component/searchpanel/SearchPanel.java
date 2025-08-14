@@ -1009,10 +1009,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 			}
 		}
 
-		//String hint = builder.getLookupHint();
-		//if(null != hint) {
-		//	FIXME cannot set hint here because setHint is not part of IControl
-		//}
+		String hint = builder.getLookupHint();
+		if(null != hint && null != labelNode) {
+			labelNode.setTitle(hint);
+		}
 
 		SearchControlLine<T, D> ll = new SearchControlLine<>(control, qb, property, builder.getDefaultValue(), builder.getInitialValue(), labelNode, false);
 		assignCalcTestID(ll, property, labelText);
