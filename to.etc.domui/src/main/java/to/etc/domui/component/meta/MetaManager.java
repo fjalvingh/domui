@@ -668,6 +668,8 @@ final public class MetaManager {
 				continue;
 			if(topmm.getReadOnly() == YesNoType.YES)
 				continue;
+			if(topmm.isTransient())
+				continue;
 
 			((PropertyMetaModel<Object>) topmm).setValue(to, frpmm.getValue(from));
 		}
