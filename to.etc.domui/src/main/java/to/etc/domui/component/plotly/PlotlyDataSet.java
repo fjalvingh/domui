@@ -137,7 +137,18 @@ public class PlotlyDataSet implements IPlotlyDataset {
 			b.objEnd();			// margin
 		}
 
-		b.objFieldOpt("title", m_title);
+		b.objObjField("title");
+		b.objFieldOpt("text", m_title);
+		//b.objField("yanchor", "bottom");
+		//b.objObjField("pad");
+		//b.objField("t", 40);
+		//b.objField("b", 40);
+		//b.objEnd();					// pad
+
+		b.objEnd();					// title
+
+		//b.objFieldOpt("title", m_title);
+
 		PlBarMode barMode = m_barMode;
 		if(barMode != null)
 			b.objField("barmode", barMode.name().toLowerCase());

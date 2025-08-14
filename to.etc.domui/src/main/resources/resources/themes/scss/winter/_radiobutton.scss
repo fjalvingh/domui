@@ -6,6 +6,15 @@ $rbb-disabled-color: #ddd;
 $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 
 .ui-rbb-buttons {
+	&.ui-ro {
+		@include ui-ro-base;
+		height: 2.25em;
+		border: 1px solid $border; // $input-border-color;
+		border-radius: 3px;
+		font-size: 1rem;
+		font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
+	}
+
 	.ui-rbb-item {
 		display: inline-block;
 
