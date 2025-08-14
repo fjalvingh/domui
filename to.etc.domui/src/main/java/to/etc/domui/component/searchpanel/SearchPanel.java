@@ -57,7 +57,6 @@ import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QCriteria;
-import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1081,19 +1080,12 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	}
 
 	/**
-	 * Adds search control line by referencing just direct QField.
+	 * Called when property names are provided in the constructor.
 	 */
-	public <D> SearchControlLine<T, D> addByQField(@NonNull QField<T, D> field) {
-		return internalAddByPropertyName(field.getName());
-	}
-
-	/**
-	 * Adds search control line by referencing just direct property name, internal. For public use {@link SearchPanel#addByQField(QField)}
-	 */
-	private <D> SearchControlLine<T, D> internalAddByPropertyName(String prop) {
+	private void internalAddByPropertyName(String prop) {
 		PropertyMetaModel<?> pmm = m_metaModel.getProperty(prop);
 		SearchPropertyMetaModelImpl spm = new SearchPropertyMetaModelImpl(m_metaModel, pmm);
-		return addMetadataProperty(spm, false);
+		addMetadataProperty(spm, false);
 	}
 
 	private <D> SearchControlLine<T, D> addMetadataProperty(SearchPropertyMetaModel spm, boolean fromMetadata) {
