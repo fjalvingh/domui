@@ -57,6 +57,7 @@ import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1009,10 +1010,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 			}
 		}
 
-		//String hint = builder.getLookupHint();
-		//if(null != hint) {
-		//	FIXME cannot set hint here because setHint is not part of IControl
-		//}
+		String hint = builder.getLookupHint();
+		if(null != hint && null != labelNode) {
+			labelNode.setTitle(hint);
+		}
 
 		SearchControlLine<T, D> ll = new SearchControlLine<>(control, qb, property, builder.getDefaultValue(), builder.getInitialValue(), labelNode, false);
 		assignCalcTestID(ll, property, labelText);
@@ -1080,12 +1081,19 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	}
 
 	/**
+	 * Adds search control line by referencing just direct QField.
+	 */
+	public <D> SearchControlLine<T, D> addByQField(@NonNull QField<T, D> field) {
+		return internalAddByPropertyName(field.getName());
+	}
+
+	/**
 	 * Called when property names are provided in the constructor.
 	 */
-	private void internalAddByPropertyName(String prop) {
+	private <D> SearchControlLine<T, D> internalAddByPropertyName(String prop) {
 		PropertyMetaModel<?> pmm = m_metaModel.getProperty(prop);
 		SearchPropertyMetaModelImpl spm = new SearchPropertyMetaModelImpl(m_metaModel, pmm);
-		addMetadataProperty(spm, false);
+		return addMetadataProperty(spm, false);
 	}
 
 	private <D> SearchControlLine<T, D> addMetadataProperty(SearchPropertyMetaModel spm, boolean fromMetadata) {
