@@ -1088,7 +1088,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	}
 
 	/**
-	 * Called when property names are provided in the constructor.
+	 * Adds search control line by referencing just direct property name, internal. For public use {@link SearchPanel#addByQField(QField)}
 	 */
 	private <D> SearchControlLine<T, D> internalAddByPropertyName(String prop) {
 		PropertyMetaModel<?> pmm = m_metaModel.getProperty(prop);
