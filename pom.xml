@@ -78,7 +78,8 @@
 
     <properties>
         <!-- MAVEN -->
-        <domui.test.skip>false</domui.test.skip>
+        <skipTests>false</skipTests>
+        <domui.test.skip>${skipTests}</domui.test.skip>
         <maven.test.skip>${domui.test.skip}</maven.test.skip>
 
         <!-- SONAR -->
