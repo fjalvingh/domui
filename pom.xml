@@ -1069,6 +1069,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire.version}</version>
                 <configuration>
+                    <!-- Skips unit tests if the value of maven.test.skip property is true -->
+                    <skipTests>${maven.test.skip}</skipTests>
                     <!-- Java 9 trainwreck, see https://stackoverflow.com/questions/50295487/noclassdeffounderror-could-not-initialize-class-com-sun-xml-bind-v2-model-impl -->
                     <forkMode>always</forkMode>
                     <!--                    <argLine>&#45;&#45;add-modules java.xml.bind</argLine>-->
