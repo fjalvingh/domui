@@ -12,6 +12,7 @@ import to.etc.domui.util.IReadOnlyModel;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.domui.util.IWriteOnlyModel;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -37,6 +38,8 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 	 */
 	@Nullable
 	protected MV m_lastValueFromControlAsModelValue;
+
+	protected int m_lastCollectionHashValue;
 
 	/** If this binding is in error this contains the error. */
 	@Nullable
@@ -207,10 +210,35 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 //					System.out.println(this + ": m2c " + controlValue);
 				}
 				m_bindError = null;                                    // Let's assume binding has no trouble.
+			} else if(modelValue instanceof Collection) {
+				//-- We have a list value. Try to compare by values in the list.
+				int listHash = collectionHash((Collection<?>) modelValue);
+				//System.out.println("Binding values: listhash=" + Integer.toHexString(listHash) + ", previous=" + Integer.toHexString(m_lastCollectionHashValue));
+				//((Collection<?>) modelValue).forEach(a -> System.out.println("L: " + a));
+
+				if(m_lastCollectionHashValue != listHash) {
+					//System.out.println("Moving binding to control");
+					m_lastValueFromControlAsModelValue = modelValue;
+					m_lastCollectionHashValue = listHash;
+					CV controlValue = convertModelToControl(modelValue);
+					if(m_controlProperty.getReadOnly() != YesNoType.YES) {
+						m_controlProperty.setValue(m_control, controlValue);
+//					System.out.println(this + ": m2c " + controlValue);
+					}
+					m_bindError = null;                                    // Let's assume binding has no trouble.
+				}
 			}
 		} catch(Exception x) {
 			throw new BindingFailureException(x, "Model->Control", this.toString());
 		}
+	}
+
+	private static int collectionHash(Collection<?> collection) {
+		int hashCode = 1;
+		for(Object o : collection) {
+			hashCode = 31 * hashCode + (o == null ? 0 : o.hashCode());
+		}
+		return hashCode;
 	}
 
 	@Nullable
