@@ -24,6 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.IDragHandler;
@@ -77,6 +78,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 	}
 
 	@Override
+	@OverridingMethodsMustInvokeSuper
 	protected void afterCreateContent() throws Exception {
 		m_miniTableBuilder = null;
 	}
