@@ -284,10 +284,17 @@ public class UrlPage extends AbstractPage {
 	@OverridingMethodsMustInvokeSuper
 	protected void afterCreateContent() throws Exception {
 		super.afterCreateContent();
-		handleSessionUIMessages(UIContext.getRequestContext().getWindowSession());
+		internalHandleSessionUIMessages(UIContext.getRequestContext().getWindowSession());
 	}
 
-	public void handleSessionUIMessages(WindowSession windowSession) throws Exception {
+	/**
+	 * Shows the single shot UI Message(s) if any are registered inside the session.
+	 * If such are found and shown, they are also removed from the session - as single shot means show it once and then clear it.
+	 *
+	 * @param windowSession stores the single shot messages
+	 * @throws Exception
+	 */
+	public void internalHandleSessionUIMessages(WindowSession windowSession) throws Exception {
 		List<UIMessage> ml = (List<UIMessage>) windowSession.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
 		if(ml != null) {
 			if(!ml.isEmpty()) {
@@ -298,7 +305,6 @@ public class UrlPage extends AbstractPage {
 						DomUtil.USERLOG.debug(cid + ": page reload message = " + m.getMessage());
 					}
 
-					//page.getBody().addGlobalMessage(m);
 					MessageFlare mf = MessageFlare.display(this, m);
 					mf.setTestID("SingleShotMsg");
 				}
@@ -307,4 +313,3 @@ public class UrlPage extends AbstractPage {
 		}
 	}
 }
-

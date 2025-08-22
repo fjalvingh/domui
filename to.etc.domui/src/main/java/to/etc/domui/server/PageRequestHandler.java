@@ -5,13 +5,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import to.etc.domui.component.misc.InternalParentTree;
-import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
 import to.etc.domui.dom.errors.IExceptionListener;
-import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IHasChangeListener;
 import to.etc.domui.dom.html.NodeBase;
@@ -352,7 +350,7 @@ final public class PageRequestHandler {
 			callNewPageBuiltListeners(page);
 			page.internalFullBuild();                            // Cause full build
 
-			page.getBody().handleSessionUIMessages(windowSession);        //  Handle stored messages in session
+			page.getBody().internalHandleSessionUIMessages(windowSession);        //  Handle stored messages in session
 			page.callRequestStarted();
 
 			List<IGotoAction> al = (List<IGotoAction>) windowSession.getAttribute(UIGoto.PAGE_ACTION);
