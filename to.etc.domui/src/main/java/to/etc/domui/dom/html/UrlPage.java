@@ -37,6 +37,7 @@ import to.etc.domui.dom.html.Page.AsyncMessageLink;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
@@ -284,7 +285,10 @@ public class UrlPage extends AbstractPage {
 	@OverridingMethodsMustInvokeSuper
 	protected void afterCreateContent() throws Exception {
 		super.afterCreateContent();
-		internalHandleSessionUIMessages(UIContext.getRequestContext().getWindowSession());
+		IRequestContext requestContext = UIContext.internalGetContext();
+		if(null != requestContext) {
+			internalHandleSessionUIMessages(requestContext.getWindowSession());
+		}
 	}
 
 	/**
