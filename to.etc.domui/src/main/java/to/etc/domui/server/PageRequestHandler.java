@@ -5,13 +5,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import to.etc.domui.component.misc.InternalParentTree;
-import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
 import to.etc.domui.dom.errors.IExceptionListener;
-import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IHasChangeListener;
 import to.etc.domui.dom.html.NodeBase;
@@ -352,7 +350,7 @@ final public class PageRequestHandler {
 			callNewPageBuiltListeners(page);
 			page.internalFullBuild();                            // Cause full build
 
-			handleSessionUIMessages(windowSession, page);        //  Handle stored messages in session
+			page.getBody().internalHandleSessionUIMessages(windowSession);        //  Handle stored messages in session
 			page.callRequestStarted();
 
 			List<IGotoAction> al = (List<IGotoAction>) windowSession.getAttribute(UIGoto.PAGE_ACTION);
@@ -506,24 +504,6 @@ final public class PageRequestHandler {
 		}
 		page.setInjected(true);
 		return true;
-	}
-
-	private void handleSessionUIMessages(WindowSession windowSession, Page page) throws Exception {
-		List<UIMessage> ml = (List<UIMessage>) windowSession.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
-		if(ml != null) {
-			if(!ml.isEmpty()) {
-				page.getBody().build();
-				for(UIMessage m : ml) {
-					if(DomUtil.USERLOG.isDebugEnabled())
-						DomUtil.USERLOG.debug(m_cid + ": page reload message = " + m.getMessage());
-
-					//page.getBody().addGlobalMessage(m);
-					MessageFlare mf = MessageFlare.display(page.getBody(), m);
-					mf.setTestID("SingleShotMsg");
-				}
-			}
-			windowSession.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
-		}
 	}
 
 	private boolean isPageTagStillValid(@NonNull Page page) throws Exception {

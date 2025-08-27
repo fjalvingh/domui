@@ -24,20 +24,28 @@
  */
 package to.etc.domui.dom.html;
 
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.BreadCrumb;
 import to.etc.domui.component.layout.Window;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.component.misc.MessageFlare;
+import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Page.AsyncMessageLink;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
+import to.etc.domui.state.UIGoto;
+import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.DomUtil;
 import to.etc.webapp.query.IQDataContextSource;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
@@ -272,5 +280,40 @@ public class UrlPage extends AbstractPage {
 	public void redirectIn(String url, long milliseconds) {
 		appendJavascript("setTimeout(function() { window.location.href = \"" + url + "\"; }, " + milliseconds + ");");
 	}
-}
 
+	@Override
+	@OverridingMethodsMustInvokeSuper
+	protected void afterCreateContent() throws Exception {
+		super.afterCreateContent();
+		IRequestContext requestContext = UIContext.internalGetContext();
+		if(null != requestContext) {
+			internalHandleSessionUIMessages(requestContext.getWindowSession());
+		}
+	}
+
+	/**
+	 * Shows the single shot UI Message(s) if any are registered inside the session.
+	 * If such are found and shown, they are also removed from the session - as single shot means show it once and then clear it.
+	 *
+	 * @param windowSession stores the single shot messages
+	 * @throws Exception
+	 */
+	public void internalHandleSessionUIMessages(WindowSession windowSession) throws Exception {
+		List<UIMessage> ml = (List<UIMessage>) windowSession.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
+		if(ml != null) {
+			if(!ml.isEmpty()) {
+				build();
+				for(UIMessage m : ml) {
+					if(DomUtil.USERLOG.isDebugEnabled()) {
+						String cid = getPage().getPageParameters().getString(Constants.PARAM_CONVERSATION_ID, null);
+						DomUtil.USERLOG.debug(cid + ": page reload message = " + m.getMessage());
+					}
+
+					MessageFlare mf = MessageFlare.display(this, m);
+					mf.setTestID("SingleShotMsg");
+				}
+			}
+			windowSession.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
+		}
+	}
+}
