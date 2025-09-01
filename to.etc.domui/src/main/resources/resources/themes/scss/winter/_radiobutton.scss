@@ -6,7 +6,7 @@ $rbb-disabled-color: #ddd;
 $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 
 .ui-rbb-buttons {
-	&.ui-ro {
+	&.ui-rbb-empty.ui-ro {
 		@include ui-ro-base;
 		height: 2.25em;
 		border: 1px solid $border; // $input-border-color;

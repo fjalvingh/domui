@@ -53,6 +53,9 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 		for(RadioButtonInstance<T> bi : m_buttonList) {
 			renderButton(bi);
 		}
+		if(getValueInternal() == null) {
+			addCssClass("ui-rbb-empty");
+		}
 		//m_buttonList.forEach(button -> add(button.getParent()));
 	}
 
@@ -150,8 +153,18 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 			return;
 		m_valueIsSet = true;
 		internalSetValue(value);
+		boolean hasValue = false;
 		for(RadioButtonInstance<T> bi : m_buttonList) {
-			bi.getRadioButton().setChecked(MetaManager.areObjectsEqual(value, bi.getRadioButton().getButtonValue()));
+			boolean checked = MetaManager.areObjectsEqual(value, bi.getRadioButton().getButtonValue());
+			bi.getRadioButton().setChecked(checked);
+			if(checked) {
+				hasValue = true;
+			}
+		}
+		if(hasValue) {
+			removeCssClass("ui-rbb-empty");
+		} else {
+			addCssClass("ui-rbb-empty");
 		}
 	}
 
