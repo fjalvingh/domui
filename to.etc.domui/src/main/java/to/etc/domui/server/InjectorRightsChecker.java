@@ -94,6 +94,11 @@ public class InjectorRightsChecker {
 			return;
 		}
 
+		if(parameterClass.isEnum()) {
+			m_checkedSet.add(parameterClass);
+			return;
+		}
+
 		List<IInjectedPropertyAccessChecker> checkerList = m_application.getInjectedPropertyAccessCheckerList();
 
 		for(IInjectedPropertyAccessChecker checker : checkerList) {
