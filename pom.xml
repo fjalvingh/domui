@@ -81,6 +81,8 @@
         <skipTests>false</skipTests>
         <domui.test.skip>${skipTests}</domui.test.skip>
         <maven.test.skip>${domui.test.skip}</maven.test.skip>
+        <maven.failsafe.test.skip>${maven.test.skip}</maven.failsafe.test.skip>
+        <jetty.skip>${maven.failsafe.test.skip}</jetty.skip>
 
         <!-- SONAR -->
         <sonar.organization>fjalvingh-github</sonar.organization>
@@ -1114,6 +1116,8 @@
                         <domui.testui>true</domui.testui>
                         <webdriver.hub>chrome</webdriver.hub>
                     </systemPropertyVariables>
+                    <!-- Skips integration tests if the value of ui.test.skip property is true -->
+                    <skipITs>${maven.failsafe.test.skip}</skipITs>
                 </configuration>
 
                 <executions>
