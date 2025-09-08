@@ -89,7 +89,7 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
 
-        <!-- Skip Sonar processing because those idiots decided to no longer support java 11 -->
+        <!-- Sonar disabled by default, use sonar profile to activate it -->
         <sonar.skip>true</sonar.skip>
 
         <!-- JDK properties -->
@@ -930,19 +930,8 @@
         <profile>
             <id>sonar</id>
             <properties>
-                <!-- Skip Sonar processing because those idiots decided to no longer support java 11 -->
-                <sonar.skip>true</sonar.skip>
+                <sonar.skip>false</sonar.skip>
             </properties>
-            <build>
-                <plugins>
-                    <!-- Sonar -->
-                    <plugin>
-                        <groupId>org.sonarsource.scanner.maven</groupId>
-                        <artifactId>sonar-maven-plugin</artifactId>
-                        <version>3.9.1.2184</version>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
 
         <profile>
@@ -1018,6 +1007,13 @@
 
     <build>
         <plugins>
+            <!-- Sonar -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
+            </plugin>
+
             <!-- (jal) generate jars for test classes. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
