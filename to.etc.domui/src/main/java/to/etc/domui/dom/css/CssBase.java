@@ -154,12 +154,14 @@ public class CssBase {
 	private String m_paddingTop;
 
 	private String m_paddingBottom;
-	
+
 	private TextTransformType m_transform;
 
 	private String m_gridColumn;
 
 	private String m_gridRow;
+
+	private String m_extraStyle;
 
 	public String getCachedStyle() {
 		return m_cachedStyle;
@@ -865,7 +867,7 @@ public class CssBase {
 				break;
 		}
 	}
-	
+
 	public TextTransformType getTransform() {
 		return m_transform;
 	}
@@ -898,4 +900,14 @@ public class CssBase {
 		m_gridRow = gridRow;
 	}
 
+	public String getExtraStyle() {
+		return m_extraStyle;
+	}
+
+	public void setExtraStyle(String extraStyle) {
+		if(DomUtil.isEqual(m_extraStyle, extraStyle))
+			return;
+		changed();
+		m_extraStyle = extraStyle;
+	}
 }
