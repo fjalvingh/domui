@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -515,4 +517,17 @@ public class TestStringTool {
 		chunk = StringTool.nextChunk(text, chunk.getNextStartIndex(), 15);
 		Assert.assertNull("No more chunks", chunk);
 	}
+
+	@Test
+	public void testIsValidJavaIdentifier() throws Exception {
+		String text = "_isThisValidName1";
+		assertThat(StringTool.isValidJavaIdentifier(text), is(true));
+		String text2 = "_is_This_Valid_Name_2";
+		assertThat(StringTool.isValidJavaIdentifier(text2), is(true));
+		String text3 = "is_This_Valid_Name_3_";
+		assertThat(StringTool.isValidJavaIdentifier(text3), is(true));
+		String text4 = "4is_This_Valid_Name_4";
+		assertThat(StringTool.isValidJavaIdentifier(text4), is(false));
+	}
+
 }
