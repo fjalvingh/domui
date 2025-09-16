@@ -1074,7 +1074,7 @@
                     <!--                    <argLine>&#45;&#45;add-modules java.xml.bind</argLine>-->
                     <!--                    <argLine>&#45;&#45;add-modules javax.activation</argLine>-->
                     <!--                    <argLine>&#45;&#45;add-modules java.activation</argLine>-->
-                    <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --illegal-access=deny</argLine>
+                    <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED</argLine>
 
                     <!--                    &lt;!&ndash; Allure reports &ndash;&gt;-->
                     <!--                    <argLine>-->
