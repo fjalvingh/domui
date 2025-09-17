@@ -2,6 +2,7 @@ package to.etc.domui.component.delayed;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.component.misc.MsgBox2;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.Msgs;
 import to.etc.parallelrunner.IAsyncCompletionListener;
@@ -37,7 +38,7 @@ public class DefaultAsyncCompletionListener implements IAsyncCompletionListener 
 			String s = sb.toString();
 			s = s.replace("\n", "<br/>\n");
 
-			MsgBox.error(m_parent, Msgs.BUNDLE.getString(Msgs.ASYNC_ERROR) + "<br/>" + s);
+			MsgBox2.on(m_parent).error().text(Msgs.BUNDLE.getString(Msgs.ASYNC_ERROR) + "<br/>" + s).size(1000, 800).resizable();
 		} else if(cancelled) {
 			MsgBox.info(m_parent, Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
 		}
