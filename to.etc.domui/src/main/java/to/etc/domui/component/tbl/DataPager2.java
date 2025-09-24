@@ -185,6 +185,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 
 		bd.removeAllChildren();
 		bd.add(m_prevBtn);
+		bd.add(m_nextBtn);
 
 		/*
 		 * render page numbers. The basic group is: 3 at the start, 3 at the end, 5 in the middle, unless we have <= 10 pages
@@ -230,8 +231,6 @@ final public class DataPager2 extends Div implements IDataTablePager {
 				}
 			}
 		}
-
-		bd.add(m_nextBtn);
 
 		for(@NonNull SmallImgButton sib : m_extraButtonList) {
 			bd.add(sib);
