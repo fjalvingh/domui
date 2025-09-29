@@ -108,6 +108,8 @@ import java.util.function.Function;
 final public class DomUtil {
 	static public final Logger USERLOG = LoggerFactory.getLogger("to.etc.domui.userAction");
 
+	public static final String IS_INFO = "is-info";
+
 	static private int m_guidSeed;
 
 	/** Map value types of primitive type to their boxed (wrapped) types. */
