@@ -560,5 +560,14 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		synchronized void setEndTime(@Nullable Date endTime) {
 			m_endTime = endTime;
 		}
+
+		public synchronized long getDuration() {
+			Date startTime = m_startTime;
+			Date endTime = m_endTime;
+			if(startTime == null || endTime == null) {
+				return 0;
+			}
+			return endTime.getTime() - startTime.getTime();
+		}
 	}
 }
