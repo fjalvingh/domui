@@ -2620,6 +2620,7 @@ public abstract class DomApplication {
 		ScanResult result = m_scanResult;
 		if(null != result) {
 			result.close();
+			m_scanResult = null;
 		}
 		m_scanClosed = true;
 	}
