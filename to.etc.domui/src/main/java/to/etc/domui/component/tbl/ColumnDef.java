@@ -96,6 +96,9 @@ final public class ColumnDef<I, T> {
 
 	private boolean m_rerenderOnBind;
 
+	@Nullable
+	private IRenderInto<ColumnDef<I, T>> m_headerRenderer;
+
 	/**
 	 * A property that contains a value hint, which will be shown
 	 * as the hover (title=) of the cell when present.
@@ -573,5 +576,15 @@ final public class ColumnDef<I, T> {
 	public ColumnDef<I, T> valueHint(QField<I, String> property) {
 		m_valueHintProperty = m_defList.model().findProperty(property);
 		return this;
+	}
+
+	public ColumnDef<I, T> headerRenderer(@Nullable IRenderInto<ColumnDef<I, T>> headerRenderer) {
+		m_headerRenderer = headerRenderer;
+		return this;
+	}
+
+	@Nullable
+	public IRenderInto<ColumnDef<I, T>> getHeaderRenderer() {
+		return m_headerRenderer;
 	}
 }

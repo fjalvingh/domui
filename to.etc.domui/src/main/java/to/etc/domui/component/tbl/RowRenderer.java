@@ -201,10 +201,10 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				Div cellSpan = new Div();
 
 				HeaderContainer.HeaderContainerCell cell = cc.add(cellSpan);
-				cellSpan.add(new Span(label));
-				cellSpan.setTitle(cd.getHint());
+				renderHeaderContent(cd, cellSpan);
 				Div sp = new Div("ui-dt-sorticon ui-sort-na"); //sort-na = sort not applicable
 				cellSpan.add(sp);
+				cellSpan.setTitle(cd.getHint());
 				th = cell.getTh();
 				col = cell.getCol();
 			} else {
@@ -215,14 +215,12 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				th.addCssClass("ui-sortable");
 
 				// Add the label;
-				if(!StringTool.isBlank(label))
-					cellSpan.add(new Span(label));
+				renderHeaderContent(cd, cellSpan);
 				cellSpan.setTitle(cd.getHint());
 				final ColumnDef<T, ?> scd = cd;
 				th.setClicked((IClicked<TH>) b -> handleSortClick(b, scd));
 
 				//in order to apply correct positioning, we need to wrap Span around sort indicator image and label
-
 				String sortCss;
 				if(cd == getSortColumn()) {
 					sortCss = m_columnList.isSortDescending() ? "ui-sort-d" : "ui-sort-a";
@@ -251,6 +249,18 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		if(getRowButtonFactory() != null) {
 			HeaderContainerCell cell = cc.add("");
 			cell.getCol().setWidth("10em");
+		}
+	}
+
+	private <V> void renderHeaderContent(ColumnDef<T, V> cd, NodeContainer cell) throws Exception {
+		IRenderInto<ColumnDef<T, V>> hr = cd.getHeaderRenderer();
+		if(null == hr) {
+			String label = cd.getColumnLabel();
+			if(!StringTool.isBlank(label))
+				cell.add(new Span(label));
+		} else {
+			//-- Let the renderer decide
+			hr.render(cell, cd);
 		}
 	}
 
