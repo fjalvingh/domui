@@ -79,20 +79,26 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 		Div pair = m_lastPair = new Div("ui-f5-pair ui-f5-pair" + fix);
 		form.add(pair);
 
-		Div lc = m_lastLabelContainer = new Div("ui-f5-lbl ui-f5-lbl" + fix);
-		pair.add(lc);
-		if(null != lbl) {
-			lc.add(lbl);
-		} else {
-			//-- For horizontal forms an empty label will cause the div to have 0 size, so add something to align.
-			lc.add(new Label("\u00a0"));
-		}
-		if(labelCss != null) {
-			lc.addCssClass(labelCss);
+		Div lc = null;
+		if(lbl != null) {
+			lc = m_lastLabelContainer = new Div("ui-f5-lbl ui-f5-lbl" + fix);
+			pair.add(lc);
+			if(null != lbl) {
+				lc.add(lbl);
+			} else {
+				//-- For horizontal forms an empty label will cause the div to have 0 size, so add something to align.
+				lc.add(new Label("\u00a0"));
+			}
+			if(labelCss != null) {
+				lc.addCssClass(labelCss);
+			}
 		}
 
-		if(hintText != null)
-			hintRenderer.accept(lc, hintText);
+		if(hintText != null) {
+			if(lc != null) {
+				hintRenderer.accept(lc, hintText);
+			}
+		}
 
 		Div cc = m_lastControlContainer = new Div("ui-f5-ctl ui-f5-ctl" + fix);
 		pair.add(cc);
