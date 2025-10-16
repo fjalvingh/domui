@@ -1905,6 +1905,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
+	 * @deprecated
+	 * DO NOT USE ANYMORE!!
+	 * These methods all use Javascript to set fixed sizes to dom elements. These
+	 * then do not move properly with modern styling constructs like grid and flex,
+	 * causing scroll bars at odd places and disobeying padding and margin rules.
+	 * Use proper CSS layout to get things to behave, display: flex is your friend.
+	 *
 	 * Method can be used to stretch height of element to take all available free space in parent container.
 	 * <UL>
 	 * <LI>NOTE: in order to stretchHeight can work, parent container needs to have height defined in some way (works out of box for all FloatingWindow based containers).</LI>
@@ -1913,6 +1920,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * <LI>NOTE: if you need to trigger it due to page internal layout changes, you need to add inline javascript call to start resizing by {@link Div#getCustomUpdatesCallJS()} .
 	 * </LI>
 	 */
+	@Deprecated
 	public void setStretchHeight(boolean value) {
 		if(m_stretchHeight == value) {
 			return;
