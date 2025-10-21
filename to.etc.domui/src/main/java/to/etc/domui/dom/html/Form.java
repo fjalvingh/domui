@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import to.etc.domui.util.DomUtil;
+
 public class Form extends NodeContainer {
 	private String m_method;
 
@@ -47,7 +49,10 @@ public class Form extends NodeContainer {
 	}
 
 	public void setMethod(String method) {
+		if(DomUtil.isEqual(m_method, method))
+			return;
 		m_method = method;
+		changed();
 	}
 
 	public String getEnctype() {
@@ -55,7 +60,10 @@ public class Form extends NodeContainer {
 	}
 
 	public void setEnctype(String enctype) {
+		if(DomUtil.isEqual(m_enctype, enctype))
+			return;
 		m_enctype = enctype;
+		changed();
 	}
 
 	public String getAction() {
@@ -63,7 +71,10 @@ public class Form extends NodeContainer {
 	}
 
 	public void setAction(String action) {
+		if(DomUtil.isEqual(m_action, action))
+			return;
 		m_action = action;
+		changed();
 	}
 
 	public String getTarget() {
@@ -71,6 +82,9 @@ public class Form extends NodeContainer {
 	}
 
 	public void setTarget(String target) {
+		if(DomUtil.isEqual(m_target, target))
+			return;
 		m_target = target;
+		changed();
 	}
 }
