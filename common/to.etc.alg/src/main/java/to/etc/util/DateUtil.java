@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
@@ -796,6 +797,10 @@ final public class DateUtil {
 
 	static public Date toDate(@NonNull ZonedDateTime ldt) {
 		return Date.from(ldt.toInstant());
+	}
+
+	static public Date toDate(@NonNull OffsetDateTime date) {
+		return Date.from(date.toInstant());
 	}
 
 	/**
