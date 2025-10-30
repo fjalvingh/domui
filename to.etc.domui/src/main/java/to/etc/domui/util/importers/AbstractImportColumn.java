@@ -40,16 +40,48 @@ abstract public class AbstractImportColumn implements IImportColumn {
 		return new BigDecimal(stringValue);
 	}
 
+	//public static String trimAllWS(String v) {
+	//	return String
+	//	int len = v.length();
+	//	StringBuilder sb = new StringBuilder(len);
+	//	int ix = 0;
+	//
+	//	//-- Trim leading whitespace, all types
+	//	while(ix < len) {
+	//		char c = v.charAt(ix);
+	//		if(!Character.isWhitespace(c))
+	//			break;
+	//		ix++;
+	//	}
+	//
+	//	//-- Copy chars, keep track of the first whitespace in a set
+	//	int lastws = -1;
+	//	while(ix < len) {
+	//		char c = v.charAt(ix);
+	//		if(Character.isWhitespace(c)) {
+	//			if(lastws == -1)
+	//				lastws = sb.length();
+	//		} else {
+	//			lastws = -1;
+	//		}
+	//		sb.append(c);
+	//		ix++;
+	//	}
+	//	if(lastws != -1) {
+	//		sb.setLength(lastws);
+	//	}
+	//	return sb.toString();
+	//}
+
 	/**
 	 * Uncrap the data inside an excel string row, which often contains all kinds of shitty spaces.
 	 */
 	@Nullable
-	public static String trimAllWS(String v) {
+	public static String trimAllWSOld(String v) {
 		if(null == v)
 			return null;
 		v = v.replaceAll("(^\\h*)|(\\h*$)", "");    // Replace all spaces, even nbsp's and others, sigh.
 		v = v.replaceAll("(\\h+)", " ");    // Replace all inner spaces with " "
 		return v;
 	}
-
 }

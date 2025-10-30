@@ -3,6 +3,7 @@ package to.etc.domui.util.importers;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.StringTool;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -77,9 +78,9 @@ public class CsvImportRow implements IImportRow {
 			if(m_columns.size() <= m_index)
 				return null;
 			String txt = m_columns.get(m_index);
-			if(m_reader.isDontSkipWs())
+			if(m_reader.isDontSkipWs() || txt == null)
 				return txt;
-			return trimAllWS(txt);
+			return StringTool.trimAllWS(txt);
 		}
 
 		@Nullable

@@ -515,4 +515,22 @@ public class TestStringTool {
 		chunk = StringTool.nextChunk(text, chunk.getNextStartIndex(), 15);
 		Assert.assertNull("No more chunks", chunk);
 	}
+
+
+	static private final String[] WSPATTERNS = {
+		"Hello World", "Hello World",
+		"  Hello World  ", "Hello World",
+		"  Hello  World  ", "Hello  World",
+		"\u00a0Hello  World\u00a0", "Hello  World",
+	};
+
+	@Test
+	public void testRemoveWs1() {
+		int ix = 0;
+		while(ix < WSPATTERNS.length) {
+			String s = StringTool.trimAllWS(WSPATTERNS[ix]);
+			Assert.assertEquals("Result should match", WSPATTERNS[ix + 1], s);
+			ix += 2;
+		}
+	}
 }
