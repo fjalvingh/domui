@@ -155,8 +155,8 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		return m_selectedSet.iterator();
 	}
 
-	public @NonNull
-	Set<T> getSelectedSet() {
+	@NonNull
+	public Set<T> getSelectedSet() {
 		return new HashSet<T>(m_selectedSet);
 	}
 
