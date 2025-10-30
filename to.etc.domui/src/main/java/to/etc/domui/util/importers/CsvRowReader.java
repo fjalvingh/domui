@@ -143,14 +143,19 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			return false;
 		}
 
-		m_bufferLen = m_r.read(m_buffer, laovf ? 1 : 0, BLOCKSIZE);
+		if(laovf) {
+			m_buffer[0] = m_buffer[m_bufferLen - 1];				// Wrap the last char (where ix is at) to 0
+			m_bufferLen = m_r.read(m_buffer, 1, BLOCKSIZE);		// Load the new data after that
+		} else {
+			m_bufferLen = m_r.read(m_buffer, 0, BLOCKSIZE);
+		}
 		if(m_bufferLen <= 0) {
 			m_eof = true;
 			return false;
 		}
-		if(laovf)
+		if(laovf) {
 			m_bufferLen++;
-
+		}
 		m_ix = 0;
 		return true;
 	}

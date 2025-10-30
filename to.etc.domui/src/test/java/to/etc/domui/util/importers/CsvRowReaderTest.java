@@ -21,8 +21,8 @@ public class CsvRowReaderTest {
 				int colCount = 0;
 				for(IImportRow row : rr) {
 					rowCount++;
-					String sv = row.get(0).getStringValue();
-					System.out.println(sv);
+					//String sv = row.get(0).getStringValue();
+					//System.out.println(sv);
 					for(int i = 0; i < row.getColumnCount(); i++) {
 						row.get(i).getStringValue();
 						colCount++;
