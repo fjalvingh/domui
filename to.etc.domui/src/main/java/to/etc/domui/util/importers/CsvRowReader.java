@@ -5,7 +5,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.WrappedException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.text.DateFormat;
@@ -16,18 +15,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * This reads CSV files in multiple different formats. It can
  * be used in two ways:
  * <ul>
- *	<li>As one of the generic variants reading columnar data,
- *		using a common interface of row and column objects while
- *		reading rows one by one</li>
- *	<li>As a primitive (but faster) reader which just gets the data
- *		from each column as a String, without any intermediary
- *		objects. This mode should be faster.</li>
+ * 	<li>As one of the generic variants reading columnar data,
+ * 		using a common interface of row and column objects while
+ * 		reading rows one by one</li>
+ * 	<li>As a primitive (but faster) reader which just gets the data
+ * 		from each column as a String, without any intermediary
+ * 		objects. This mode should be faster.</li>
  * </ul>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -35,12 +33,35 @@ import java.util.Objects;
  */
 @NonNullByDefault
 public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImportRow> {
-	static private int MAXBUF = 10;
+	/**
+	 * The size of the read buffer
+	 */
+	static private final int BLOCKSIZE = 65536;
 
-	@Nullable
-	private Reader m_r;
+	final private Reader m_r;
+
+	private final long m_fileSize;
+
+	/**
+	 * The +1 is to allow one character forward lookup. When we
+	 * have a la1() overflow we read into buffer[1], and buffer[0]
+	 * becomes the previous last character (la).
+	 */
+	private final char[] m_buffer = new char[BLOCKSIZE + 1];
+
+	/**
+	 * The current size inside the buffer.
+	 */
+	private int m_bufferLen;
+
+	/**
+	 * The index for the next char inside the buffer.
+	 */
+	private int m_ix = BLOCKSIZE + 1;
 
 	private boolean m_eof;
+
+	private boolean m_closed;
 
 	private boolean m_ignoreQuotes;
 
@@ -58,8 +79,6 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	private final List<String> m_headerNames = new ArrayList<>();
 
 	private int m_fieldSeparator = ',';
-
-	private int m_lastChar = -1;
 
 	private int m_lineNumber = 1;
 
@@ -79,16 +98,12 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	private boolean m_askedForErrors;
 
-	private int m_la1 = -2;
-
 	@Nullable
 	private DateFormat m_dateFormat;
 
 	private final Map<String, DateFormat> m_dateFormatMap = new HashMap<>();
 
 	private long m_totalCharactersRead;
-
-	private final long m_fileSize;
 
 	private boolean m_dontSkipWs;
 
@@ -112,7 +127,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	 * FileSize is used to report progress while reading.
 	 */
 	public CsvRowReader(Reader r, long fileSize) {
-		m_r = new BufferedReader(r, 8192);
+		m_r = r;
 		m_fileSize = fileSize;
 	}
 
@@ -120,45 +135,58 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		this(r, 0);
 	}
 
-	private int la() throws IOException {
-		if(m_lastChar == -1 && !m_eof) {
-			accept();
+	/**
+	 * Read the next block into the buffer.
+	 */
+	private boolean readBlock(boolean laovf) throws IOException {
+		if(m_eof) {
+			return false;
 		}
-		return m_lastChar;
+
+		m_bufferLen = m_r.read(m_buffer, laovf ? 1 : 0, BLOCKSIZE);
+		if(m_bufferLen <= 0) {
+			m_eof = true;
+			return false;
+		}
+		if(laovf)
+			m_bufferLen++;
+
+		m_ix = 0;
+		return true;
+	}
+
+	private int la() throws IOException {
+		if(m_eof) {
+			return -1;							// Eof
+		} else if(m_ix >= m_bufferLen) {
+			if(!readBlock(false))
+				return -1;						// Eof, again
+		}
+		return m_buffer[m_ix] & 0xffff;			// Char at current pos
 	}
 
 	private int la1() throws IOException {
-		int la = m_la1;
-		if(la != -2)
-			return la;
-		int c = Objects.requireNonNull(m_r).read();
-		m_totalCharactersRead++;
-		m_la1 = c;
-		return c;
+		int tix = m_ix + 1;
+		if(tix < m_bufferLen) {
+			//-- Can get it from the buffer.
+			return m_buffer[tix] & 0xffff;
+		}
+
+		//-- No more data in the buffer... Read a block,
+		if(!readBlock(true)) {
+			return -1;								// Eof
+		}
+		return m_buffer[tix] & 0xffff;
 	}
 
-	private int accept() throws IOException {
+	/**
+	 * Move to the next character.
+	 */
+	private void accept() {
 		if(m_eof)
-			return -1;
-		int la = m_la1;
-		int c;
-		if(la != -2) {
-			c = la;
-			m_la1 = -2;
-		} else {
-			c = Objects.requireNonNull(m_r).read();
-			m_charNumber++;
-			m_totalCharactersRead++;
-		}
-		if(c == -1) {
-			m_eof = true;
-			m_lastChar = -1;
-			return -1;
-		} else if(c == '\n') {
-			m_lineNumber++;
-			m_charNumber = 0;
-		}
-		return m_lastChar = c & 0xffff;
+			return;
+		m_ix++;
+		m_totalCharactersRead++;
 	}
 
 	boolean readRecordWithoutErrorCheck() throws IOException {
@@ -168,7 +196,6 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		}
 		return readRecordPrimitive();
 	}
-
 
 	private boolean readHeader() throws IOException {
 		if(!m_hasHeaderRow || m_headerRead)
@@ -185,10 +212,10 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	public boolean readRecordPrimitive() throws IOException {
 		m_columns.clear();
-		if(m_eof)
-			return false;
 		while(la() == '\n' || (la() == '\r' && la1() == '\n'))                                    // Skip empty lines
 			accept();
+		if(m_eof)
+			return false;
 		for(; ; ) {
 			readField();
 			int c = la();
@@ -328,9 +355,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		System.arraycopy(args, 0, param, 2, args.length);
 		param[0] = Integer.valueOf(m_lineNumber);
 		param[1] = Integer.valueOf(m_charNumber);
-		m_errorList.add(new CsvError(code, param));
+		m_errorList.add(new CsvRowReader.CsvError(code, param));
 	}
-
 
 	@Nullable
 	@Override
@@ -406,11 +432,12 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 				throw new IllegalStateException("The CSV file had errors; call getErrorList() to report them");
 			}
 
-			if(m_r != null)
+			if(!m_closed) {
+				m_closed = true;
 				m_r.close();
+			}
 		} catch(Exception x) {
 		}
-		m_r = null;
 	}
 
 	@Override
@@ -477,6 +504,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		m_dontSkipWs = true;
 		return this;
 	}
+
 	public boolean isDontSkipWs() {
 		return m_dontSkipWs;
 	}
@@ -513,6 +541,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Direct row access (without Row and Column objects)			*/
 	/*----------------------------------------------------------------------*/
+
 	/**
 	 * Reads the next record into the internal buffers.
 	 */
