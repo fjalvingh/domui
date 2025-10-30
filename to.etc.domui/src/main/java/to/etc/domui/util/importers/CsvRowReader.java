@@ -176,7 +176,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		if(!readBlock(true)) {
 			return -1;								// Eof
 		}
-		return m_buffer[tix] & 0xffff;
+		return m_buffer[m_ix + 1] & 0xffff;
 	}
 
 	/**
