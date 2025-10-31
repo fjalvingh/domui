@@ -530,4 +530,22 @@ public class TestStringTool {
 		assertThat(StringTool.isValidJavaIdentifier(text4), is(false));
 	}
 
+
+
+	static private final String[] WSPATTERNS = {
+		"Hello World", "Hello World",
+		"  Hello World  ", "Hello World",
+		"  Hello  World  ", "Hello  World",
+		"\u00a0Hello  World\u00a0", "Hello  World",
+	};
+
+	@Test
+	public void testRemoveWs1() {
+		int ix = 0;
+		while(ix < WSPATTERNS.length) {
+			String s = StringTool.trimAllWS(WSPATTERNS[ix]);
+			Assert.assertEquals("Result should match", WSPATTERNS[ix + 1], s);
+			ix += 2;
+		}
+	}
 }

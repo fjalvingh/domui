@@ -8,6 +8,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.util.StringTool;
 import to.etc.webapp.query.QNotFoundException;
 
 import java.math.BigDecimal;
@@ -144,7 +145,7 @@ public class ExcelImportRow implements IImportRow {
 			}
 			switch(cellType){
 				default:
-					return AbstractImportColumn.trimAllWS(cell.toString());
+					return StringTool.trimAllWS(cell.toString());
 
 				case BLANK:
 					return "";
@@ -168,7 +169,7 @@ public class ExcelImportRow implements IImportRow {
 					return m_rr.convertDouble(cell.getNumericCellValue());
 
 				case STRING:
-					return AbstractImportColumn.trimAllWS(cell.getStringCellValue());
+					return StringTool.trimAllWS(cell.getStringCellValue());
 
 				case _NONE:
 					return null;

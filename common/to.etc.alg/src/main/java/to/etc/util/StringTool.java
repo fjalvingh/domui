@@ -271,9 +271,6 @@ public class StringTool {
 
 	/**
 	 * Field name must start with ascii letter, then letters, digits or _.
-	 *
-	 * @param s
-	 * @return
 	 */
 	static public boolean isValidDbFieldName(@NonNull String s) {
 		if(s == null || s.isEmpty())
@@ -668,7 +665,6 @@ public class StringTool {
 	 *
 	 * @param st   the string whose start is to be checked
 	 * @param with the start string
-	 * @return
 	 */
 	static public boolean strStartsWithIgnoreCase(@NonNull final String st, @NonNull final String with) {
 		if(st.length() < with.length())
@@ -684,7 +680,6 @@ public class StringTool {
 	 *
 	 * @param st   the string whose end is to be checked
 	 * @param with the end string
-	 * @return
 	 */
 	static public boolean strEndsWithIgnoreCase(@NonNull final String st, @NonNull final String with) {
 		if(st.length() < with.length())
@@ -697,10 +692,6 @@ public class StringTool {
 
 	/**
 	 * Tries to locate a substring in a string while ignoring case.
-	 *
-	 * @param txt
-	 * @param match
-	 * @return
 	 */
 	static public int strIndexOfIgnoreCase(@NonNull final String txt, @NonNull final String match) {
 		int lm = match.length();
@@ -749,11 +740,6 @@ public class StringTool {
 	/**
 	 * Converts the integer to a string with a fixed length, adding leading zeroes
 	 * if needed.
-	 *
-	 * @param sb
-	 * @param val
-	 * @param radix
-	 * @param len
 	 */
 	static public void strAddIntFixed(@NonNull final Appendable sb, final int val, final int radix, final int len) {
 		try {
@@ -776,9 +762,6 @@ public class StringTool {
 
 	/**
 	 * Returns a properly formatted commad string for a number [english only].
-	 *
-	 * @param val
-	 * @return
 	 */
 	@NonNull
 	static public String strCommad(final long val) {
@@ -898,10 +881,6 @@ public class StringTool {
 
 	/**
 	 * Returns a string of hex bytes for a given thing.
-	 *
-	 * @parameter ar: the array that data needs to be gotten from
-	 * @parameter bufferIndex: The initial index where the 1st byte is in the array
-	 * @parameter bytesPerLine:     The number of bytes to decode.
 	 */
 	static public void arrayToHexStr(@NonNull Appendable sb, @NonNull byte[] ar, int bufferIndex, int bytesPerLine, int bufferSize, boolean fillout) throws IOException {
 		int i, ei;
@@ -1007,7 +986,6 @@ public class StringTool {
 	 * @param arr   the array containing the data to convert
 	 * @param start the first byte in the array to convert
 	 * @param end   the exclusive end of the region to convert
-	 * @return
 	 */
 	static public String toHex(final byte[] arr, final int start, final int end) {
 		StringBuilder sb = new StringBuilder(arr.length * 2);
@@ -1024,9 +1002,6 @@ public class StringTool {
 
 	/**
 	 * Converts the byte array to a hex string.
-	 *
-	 * @param arr
-	 * @return
 	 */
 	static public String toHex(final byte[] arr) {
 		return toHex(arr, 0, arr.length);
@@ -1039,7 +1014,6 @@ public class StringTool {
 	 * @param arr   the array containing the data to convert
 	 * @param start the first byte in the array to convert
 	 * @param end   the exclusive end of the region to convert
-	 * @return
 	 */
 	static public String toHexSp(final byte[] arr, final int start, final int end) {
 		StringBuilder sb = new StringBuilder(arr.length * 2);
@@ -1053,9 +1027,6 @@ public class StringTool {
 
 	/**
 	 * Converts the byte array to a hex string.
-	 *
-	 * @param arr
-	 * @return
 	 */
 	static public String toHexSp(final byte[] arr) {
 		return toHexSp(arr, 0, arr.length);
@@ -1615,9 +1586,6 @@ public class StringTool {
 
 	/**
 	 * Replaces all non-ascii stuff with their entities. Also replaces &lt;, &gt; and &amp;.
-	 *
-	 * @param sb
-	 * @param str
 	 */
 	static public void unicodeToEntities(final StringBuffer sb, final String str) {
 		int se = str.length();
@@ -1639,9 +1607,6 @@ public class StringTool {
 
 	/**
 	 * Translates an entity name to unicode. The entity can also be a numeral.
-	 *
-	 * @param ename
-	 * @return
 	 */
 	static public int entityToUnicode(final String ename) {
 		if(ename.startsWith("#")) // Decimal code?
@@ -1930,11 +1895,6 @@ public class StringTool {
 
 	/**
 	 * Report a filtered location stack trace, where the start of the stack trace and the end can be removed.
-	 *
-	 * @param sb
-	 * @param t
-	 * @param skipbefore
-	 * @param skipafter
 	 */
 	static public void strStacktraceFiltered(final Appendable sb, final Throwable t, String[] skipbefore, String[] skipafter, int linelimit) {
 		StackTraceElement[] se = t.getStackTrace();
@@ -2401,9 +2361,6 @@ public class StringTool {
 	 * </ul>
 	 * This code undoes the encoding and delivers the original string. If the
 	 * input is badly formed the result is undefined.
-	 *
-	 * @param encoded
-	 * @return
 	 */
 	static public String decodeURLEncoded(final String encoded) {
 		int len = encoded.length();
@@ -2463,8 +2420,6 @@ public class StringTool {
 	/**
 	 * Kept in api since it was useful for some debugs while coding, use just for debug purposes only, do not use in produciton code.
 	 * In case that dumping stack is required for production code for remote sessions on client side, please use sumbLEVELLocation methods that are using regular logger.
-	 *
-	 * @param msg
 	 */
 	static public final void dumpLocation(final String msg) {
 		try {
@@ -3010,9 +2965,6 @@ public class StringTool {
 	/**
 	 * Just capitalizes first letter and leaves the rest of the string intact
 	 * Example StringTool.strCapitalizedIntact("executeNow") -> "ExecuteNow"
-	 *
-	 * @param name
-	 * @return
 	 */
 	@NonNull
 	public static String strCapitalizedIntact(@NonNull String name) {
@@ -3026,9 +2978,6 @@ public class StringTool {
 	 * Decapitalizes a string and lowercases everything else
 	 * Example: StringTool.strDecapitalized("ExecuteNow") -> "executenow"
 	 * Added for consistency in the API.
-	 *
-	 * @param name
-	 * @return
 	 */
 	@NonNull
 	public static String strDecapitalized(@NonNull String name) {
@@ -3038,9 +2987,6 @@ public class StringTool {
 	/**
 	 * Decapitalizes a string and lowercases everything else
 	 * Example: StringTool.strDecapitalized("ExecuteNow") -> "executeNow"
-	 *
-	 * @param name
-	 * @return
 	 */
 	@NonNull
 	public static String strDecapitalizedIntact(@NonNull String name) {
@@ -3059,8 +3005,6 @@ public class StringTool {
 
 	/**
 	 * Checks if forwarded string can be parsed into an Integer.
-	 *
-	 * @author jradovic
 	 */
 	public static boolean isInteger(@Nullable String string) {
 		if(null == string)
@@ -3156,10 +3100,10 @@ public class StringTool {
 	 * It ignores other cases when old name is part of naming of other variables in expression.
 	 * It requires that old qualified name prefix and name are named by java identifier convention.
 	 *
-	 * @param expression expression where we replace variables with qualified names
+	 * @param expression  expression where we replace variables with qualified names
 	 * @param prefixQName prefix in qualified name to replace.
-	 * @param oldName name in qualified name to replace.
-	 * @param newQName new qualified name that replaced old one.
+	 * @param oldName     name in qualified name to replace.
+	 * @param newQName    new qualified name that replaced old one.
 	 * @return replaced expression.
 	 */
 	@Nullable
@@ -3179,7 +3123,7 @@ public class StringTool {
 	 * It requires that old and new name are named by java identifier convention.
 	 *
 	 * @param expression expression where we replace variable name
-	 * @param oldName name to replace.
+	 * @param oldName    name to replace.
 	 * @return replaced expression.
 	 */
 	@Nullable
@@ -3345,8 +3289,8 @@ public class StringTool {
 
 		if(word.length() > 3) {
 			//if(lc.charAt(word.length() - 2) == lc.charAt(word.length() - 3) && isVowel(word.charAt(word.length() - 2))) {
-				if(lc.endsWith("el") || lc.endsWith("en") || lc.endsWith("er") || lc.endsWith("em") || lc.endsWith("ie"))
-					return word + sSuffix;
+			if(lc.endsWith("el") || lc.endsWith("en") || lc.endsWith("er") || lc.endsWith("em") || lc.endsWith("ie"))
+				return word + sSuffix;
 			//}
 		}
 
@@ -3438,6 +3382,7 @@ public class StringTool {
 
 	public static class Chunk {
 		private int nextStartIndex;
+
 		private String content;
 
 		public Chunk(int startIndex, String content) {
@@ -3481,4 +3426,59 @@ public class StringTool {
 		}
 		return new Chunk(end, chunk);
 	}
+
+	/**
+	 * Yes, this is a waste of 64K, but it IS fast.
+	 */
+	private static final boolean[] WSARRAY = new boolean[65536];
+
+	static public boolean isUnicodeWhitespace(char ch) {
+		return WSARRAY[(int) ch & 0xffff];
+	}
+
+	static private void registerWhiteSpace(int... chars) {
+		for(int chr : chars) {
+			WSARRAY[chr] = true;
+		}
+	}
+
+	static {
+		// See https://en.wikipedia.org/wiki/Whitespace_character
+		registerWhiteSpace(0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x20, 0x85, 0xa0, 0x1680, 0x2000, 0x2001, 0x2002);
+		registerWhiteSpace(0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a);
+		registerWhiteSpace(0x2028, 0x2029, 0x202f, 0x205f, 0x3000);
+	}
+
+	public static String trimAllWS(String v) {
+		int len = v.length();
+		StringBuilder sb = new StringBuilder(len);
+		int ix = 0;
+
+		//-- Trim leading whitespace, all types
+		while(ix < len) {
+			char c = v.charAt(ix);
+			if(!isUnicodeWhitespace(c))
+				break;
+			ix++;
+		}
+
+		//-- Copy chars, keep track of the first whitespace in a set
+		int lastws = -1;
+		while(ix < len) {
+			char c = v.charAt(ix);
+			if(isUnicodeWhitespace(c)) {
+				if(lastws == -1)
+					lastws = sb.length();
+			} else {
+				lastws = -1;
+			}
+			sb.append(c);
+			ix++;
+		}
+		if(lastws != -1) {
+			sb.setLength(lastws);
+		}
+		return sb.toString();
+	}
+
 }
