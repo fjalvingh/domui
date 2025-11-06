@@ -190,44 +190,58 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		 * render page numbers. The basic group is: 3 at the start, 3 at the end, 5 in the middle, unless we have <= 10 pages
 		 * in which case we render all.
 		 *
-		 * 1 2 3 ... n-2 n-1 n n+1 n+2 ... np-2 np-1 np
+		 * 1 ... n-1 [n] n+1 ... np-1 np
 		 */
 		if(np <= 10) {
 			renderButtons(0, 0, 10);
 		} else {
-			int ci = renderButtons(0, 0, 3);        // First 3 buttons
+			int ci = renderButtons(0, 0, 1);
 
-			if(ci < np) {
-				//-- do we have a middle range?
-				int ms = cp - 2;
-				if(ms < ci)
-					ms = ci;
-				int me = cp + 3;            // exclusive bound
-				if(me > np)
-					me = np;
+			if(cp < 4) {
+				// [1] 2 3 4 ... 18 19 (Render 3 more pages: 2, 3, 4)
 
-				if(ms < me) {
-					if(ci < ms)
-						bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
-					ci = ms;
+				int from = 1;
+				int to = 4;
 
-					//bd.add(" ... ");
+				// (pages 2, 3, 4)
+				renderButtons(ci, from, to);
 
-					ci = renderButtons(ci, ms, me);
+				// Add Ellipsis (Gap between page 4 and the final two pages)
+				bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
+
+				// Render the last two pages  np-2 and  np-1
+				renderButtons(np - 2, np - 2, np);
+
+			} else if(cp <= np - 5) {
+				// --- ZONE Middle
+				// 1 ... 4 [5] 6 ... 19 (Render a 3-page cluster centered on cp)
+
+				bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
+
+				// --- Centered Cluster (3 pages: cp-1, cp, cp+1) ---
+				int from = cp - 1;
+				int to = cp + 2;
+				ci = renderButtons(from, from, to);
+
+				// --- Trailing Ellipsis ---
+				if(ci < np - 2) {
+					bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
 				}
 
-				//-- Now do the end range, if applicable
+				//-- Last Page
+				// Render the last page  np-1
 				if(ci < np) {
-					ms = np - 2;
-					if(ms < ci)
-						ms = ci;
-
-					if(ci < ms)
-						bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
-
-					ci = ms;
-					ci = renderButtons(ci, ms, np);
+					renderButtons(np - 1, np - 1, np);
 				}
+
+			} else { // cp is np-5 or greater
+				// 1 ... 15 16 [17] 18 19 (Render the last 5 pages)
+
+				// --- Leading Ellipsis ---
+				bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
+
+				int from = np - 5; // Start index for the last 5 pages (np -5, np-4, np-3, np-2, np-1)
+				renderButtons(from, from, np);
 			}
 		}
 

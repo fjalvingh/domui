@@ -4,14 +4,20 @@ $pager2-button-bg: $alt-button-bg !default
 
 // https://fvsch.com/styling-buttons/ is useful
 .ui-dp2 {
-	.ui-dp2-btn + .ui-dp2-btn {
-		margin-left: 10px;
-	}
+	//.ui-dp2-btn + .ui-dp2-btn {
+	//	margin-left: 10px;
+	//}
 
+	.ui-dp2-btn, span.ui-dp2-ellipsis {
+		margin-right: 10px;
+	}
 	span.ui-dp2-ellipsis {
-		display: inline-block;
-		height: 2.25em;
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		height: auto;
 		padding: $pager2-padding;
+		width: 5ch;
 	}
 
 	button, button.ui-sib2 {
@@ -75,5 +81,14 @@ $pager2-button-bg: $alt-button-bg !default
 		width: 16px;
 		height: 16px;
 		background: url(nav-overflow.png) no-repeat;
+	}
+
+	.ui-dp2-btn.ui-dp2-pn {
+		//font-family: monospace; // ensures 1 and 2 take same space
+		display: inline-flex; // for better vertical alignment
+		justify-content: center;
+		align-items: center;
+		width: 5ch;  // fixed width for all numeric buttons
+		text-align: center;
 	}
 }
