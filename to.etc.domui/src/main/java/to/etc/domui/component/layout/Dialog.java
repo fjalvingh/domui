@@ -49,6 +49,12 @@ public class Dialog extends Window {
 	@Nullable
 	private IExecute m_onSave;
 
+	/** Do not show default icons on buttons, sigh */
+	private boolean m_noIcons;
+
+	/** Global setting to disable all icons */
+	private volatile static boolean m_allNoIcons;
+
 	public Dialog() {}
 
 	public Dialog(boolean modal, boolean resizable, int width, int height, String title) {
@@ -69,6 +75,20 @@ public class Dialog extends Window {
 
 	public Dialog(int width, int height, String title) {
 		super(width, height, title);
+	}
+
+	public static void setAllNoIcons(boolean allNoIcons) {
+		m_allNoIcons = allNoIcons;
+	}
+
+	public Dialog noIcons(boolean noIcons) {
+		m_noIcons = noIcons;
+		return this;
+	}
+
+	public Dialog noIcons() {
+		m_noIcons = true;
+		return this;
 	}
 
 	@NonNull
@@ -112,7 +132,6 @@ public class Dialog extends Window {
 	/**
 	 * Define the button bar to be on the bottom. Must be called before the button bar
 	 * is created or used.
-	 * @param onbottom
 	 */
 	public void setButtonsOnBottom(boolean onbottom) {
 		if(m_buttonBar != null)
@@ -122,15 +141,12 @@ public class Dialog extends Window {
 
 	/**
 	 * Create the button bar if it does not already exists.
-	 * @param onbottom
 	 */
 	private void createButtonBar(boolean onbottom) {
 		if(m_buttonBar != null)
 			return;
 		m_buttonBar = new ButtonBar();
 		Div area = onbottom ? getBottomContent() : getTopContent();
-//		if(area.getHeight() == null)
-//			area.setHeight("34px");
 		area.add(m_buttonBar);
 	}
 
@@ -138,8 +154,6 @@ public class Dialog extends Window {
 	 * Can be overridden to add extra buttons to the button bar where needed - this default
 	 * implementation adds the save and cancel buttons. If you override you should decide on
 	 * their fate yourself!
-	 *
-	 * @throws Exception
 	 */
 	protected void createButtons() throws Exception {
 		createSaveButton();
@@ -165,10 +179,16 @@ public class Dialog extends Window {
 		createCancelButton(text, Theme.BTN_CANCEL);
 	}
 
-	protected void createCancelButton(@NonNull String text, @NonNull IIconRef image) {
-		DefaultButton b;
-		b = getButtonBar().addButton(text, image, clickednode -> buttonCancel());
+	protected void createCancelButton(@NonNull String text, @Nullable IIconRef image) {
+		if(isNoIcons())
+			image = null;
+		DefaultButton b = getButtonBar().addButton(text, image, clickednode -> buttonCancel());
 		b.setTestID("cancelButton");
+		b.addCssClass("is-primary is-outlined");
+	}
+
+	private boolean isNoIcons() {
+		return m_noIcons || m_allNoIcons;
 	}
 
 	@NonNull
@@ -178,8 +198,11 @@ public class Dialog extends Window {
 
 	@NonNull
 	protected DefaultButton createSaveButton(String caption, IIconRef iconUrl) {
+		if(isNoIcons())
+			iconUrl = null;
 		DefaultButton b = getButtonBar().addButton(caption, iconUrl, clickednode -> buttonSave());
 		b.setTestID("saveButton");
+		b.addCssClass("is-primary");
 		return b;
 	}
 
