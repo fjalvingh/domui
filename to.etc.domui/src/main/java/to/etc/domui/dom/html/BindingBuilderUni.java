@@ -119,8 +119,14 @@ final public class BindingBuilderUni<CV> {
 			 * For properties that have a generic type the Java "architects" do type erasure, so we cannot check anything. Type safe my ...
 			 */
 			if(actualType != Object.class && controlType != Object.class) {
-				if(!actualType.isAssignableFrom(controlType))
-					throw new BindingDefinitionException(toString(), actualType.getName(), controlType.getName());
+				/*
+				 * This is a unidirectional binding: we move data from the model TO the control
+				 * but never from the control back to the model. This means the control must be
+				 * assignable from the model but not vice versa.
+				 */
+
+				//if(!actualType.isAssignableFrom(controlType))
+				//	throw new BindingDefinitionException(toString(), actualType.getName(), controlType.getName());
 
 				if(!controlType.isAssignableFrom(actualType))
 					throw new BindingDefinitionException(toString(), actualType.getName(), controlType.getName());
