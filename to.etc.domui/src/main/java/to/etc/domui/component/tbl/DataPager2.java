@@ -198,19 +198,21 @@ final public class DataPager2 extends Div implements IDataTablePager {
 			int ci = renderButtons(0, 0, 1);
 
 			if(cp < 4) {
-				// [1] 2 3 4 ... 18 19 (Render 3 more pages: 2, 3, 4)
-
-				int from = 1;
-				int to = 4;
-
-				// (pages 2, 3, 4)
-				renderButtons(ci, from, to);
-
-				// Add Ellipsis (Gap between page 4 and the final two pages)
-				bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
-
-				// Render the last two pages  np-2 and  np-1
-				renderButtons(np - 2, np - 2, np);
+				if(cp == 3) {
+					// 1 2 3 [4] 5 ... 19 (Render pages 2, 3, 4, 5)
+					int from = 1;
+					int to = 5;
+					renderButtons(ci, from, to);
+					bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
+					renderButtons(np - 1, np - 1, np);
+				} else {
+					// [1] 2 3 4 ... 18 19 (Render 3 more pages: 2, 3, 4)
+					int from = 1;
+					int to = 4;
+					renderButtons(ci, from, to);
+					bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
+					renderButtons(np - 2, np - 2, np);
+				}
 
 			} else if(cp <= np - 5) {
 				// --- ZONE Middle
