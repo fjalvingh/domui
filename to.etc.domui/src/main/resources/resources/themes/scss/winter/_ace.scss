@@ -2,6 +2,10 @@
 	position: absolute;
 	border-bottom: solid 2px red;
 	z-index: 2;
+
+}
+.ace_editor.ace_autocomplete {
+	width: 600px !important;
 }
 
 .ui-input-err .ui-acedit-e {
