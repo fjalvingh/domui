@@ -211,7 +211,7 @@ open class CondUiCompound<T, F>(panel: ConditionPanel<T, F>, val node: CoCompoun
 	override fun createContent() {
 		addCssClass("ui-copa-grp-l${node.level()}")
 
-		val andor = Div("ui-copa-grp-type ui-copa-grp-type-${node.operation.name.toLowerCase()}")
+		val andor = Div("ui-copa-grp-type ui-copa-grp-type-${node.operation.name.lowercase()}")
 		add(andor)
 		andor.add(Span(node.operation.name))
 		add(container)

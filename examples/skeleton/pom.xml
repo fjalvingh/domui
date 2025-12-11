@@ -37,7 +37,7 @@
 		<source.jdk.version>21</source.jdk.version>
 		<target.jdk.version>21</target.jdk.version>
 		<ecj.version>3.36.0</ecj.version>
-		<kotlin.version>2.2.21</kotlin.version>
+		<kotlin.version>2.2.20</kotlin.version>
 
 		<!-- Plugin versions -->
 		<maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
