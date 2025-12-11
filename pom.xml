@@ -126,7 +126,7 @@
         <hibernate.core.version>5.4.24.Final</hibernate.core.version>
         <javassist.version>3.23.1-GA</javassist.version>
 
-        <bouncy.version>1.78</bouncy.version>
+        <bouncy.version>1.79</bouncy.version>
         <org.slf4j.version>1.7.36</org.slf4j.version>
         <cglib.version>2.2</cglib.version>
         <commons-codec.version>1.15</commons-codec.version>
@@ -436,7 +436,7 @@
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
-                <version>12.10.0.jre11</version>
+                <version>12.10.2.jre11</version>
             </dependency>
 
             <!-- Optional dependencies for the security related tools. -->

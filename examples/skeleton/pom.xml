@@ -62,7 +62,7 @@
 		<jackson.version>2.15.2</jackson.version>
 		<jackson.databind.version>2.15.2</jackson.databind.version>
 		<jackson.hibernate>2.12.1</jackson.hibernate>
-		<bouncy.version>1.70</bouncy.version>
+		<bouncy.version>1.79</bouncy.version>
 	</properties>
 
 	<prerequisites>
