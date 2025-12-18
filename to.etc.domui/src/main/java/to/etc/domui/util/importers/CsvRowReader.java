@@ -555,7 +555,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		if(!m_errorList.isEmpty())
 			throw new ImportValueException("CSV File format error at " + m_errorList.get(0).toString());
 
-		checkForErrors();
+		//checkForErrors();
 		return res;
 	}
 
