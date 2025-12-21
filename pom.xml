@@ -367,6 +367,10 @@
                         <groupId>com.google.errorprone</groupId>
                         <artifactId>error_prone_annotations</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1047,6 +1051,7 @@
                                 <exclude>commons-collections:commons-collections:[3.0,3.2.1]</exclude>
                                 <exclude>commons-collections:commons-collections:4.0</exclude>
                                 <exclude>com.google.code.findbugs:jsr305</exclude>
+                                <exclude>org.bouncycastle:bcprov-jdk15on</exclude>
                             </excludes>
                         </bannedDependencies>
                     </rules>
@@ -1069,26 +1074,9 @@
                 <configuration>
                     <!-- Skips unit tests if the value of maven.test.skip property is true -->
                     <skipTests>${maven.test.skip}</skipTests>
-                    <!-- Java 9 trainwreck, see https://stackoverflow.com/questions/50295487/noclassdeffounderror-could-not-initialize-class-com-sun-xml-bind-v2-model-impl -->
                     <forkMode>always</forkMode>
-                    <!--                    <argLine>&#45;&#45;add-modules java.xml.bind</argLine>-->
-                    <!--                    <argLine>&#45;&#45;add-modules javax.activation</argLine>-->
-                    <!--                    <argLine>&#45;&#45;add-modules java.activation</argLine>-->
                     <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED</argLine>
 
-                    <!--                    &lt;!&ndash; Allure reports &ndash;&gt;-->
-                    <!--                    <argLine>-->
-                    <!--                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar-->
-                    <!--                    </argLine>-->
-                    <!--                    <properties>-->
-                    <!--                        <property>-->
-                    <!--                            <name>listener</name>-->
-                    <!--                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>-->
-                    <!--                        </property>-->
-                    <!--                    </properties>-->
-
-                    <!-- The complete and utter idiots that wrote Surefire cause a failure if this class cannot be found. -->
-                    <!--                    <excludedGroups>to.etc.puzzler.GroupUsesDatabase</excludedGroups> -->
                     <excludes>
                         <exclude>**/*Db*.java</exclude>
                     </excludes>
