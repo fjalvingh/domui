@@ -214,11 +214,29 @@ final public class UILogin {
 
 	static public void impersonateByLoginId(@NonNull String userId) throws Exception {
 		//-- Be sure the current user is allowed this.
+		impersonateByLoginId(userId, true);
+	}
+
+	/**
+	 * This should called only for API users that should modify the data in behalf of real users identified by userId (email).
+	 * For this use case we do not require that API user has impersonation rights.
+	 *
+	 * @param userId user email.
+	 * @throws Exception
+	 */
+	static public void impersonateApiUserAsLoginId(@NonNull String userId) throws Exception {
+		//-- For api users we do not check for impersonation permission
+		impersonateByLoginId(userId, false);
+	}
+
+	static private void impersonateByLoginId(@NonNull String userId, boolean checkImpersonationRight) throws Exception {
+		//-- Be sure the current user is allowed this.
 		IUser realUser = getRealUser();
 		if(null == realUser)
 			throw new IllegalStateException("There is no currently logged in user");
-		if(! realUser.canImpersonate())
+		if(checkImpersonationRight && ! realUser.canImpersonate()) {
 			throw new ImpersonationFailedException("You have no rights to impersonate");
+		}
 
 		//-- Ask login provider for an IUser instance.
 		IRequestContext rc = UIContext.getRequestContext();
