@@ -133,15 +133,18 @@ import to.etc.domui.util.resources.WebappResourceRef;
 import to.etc.function.BiConsumerEx;
 import to.etc.function.ConsumerEx;
 import to.etc.util.DeveloperOptions;
+import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QNotFoundException;
+import to.etc.webapp.testsupport.TUtilTestProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -152,6 +155,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
@@ -2146,6 +2150,149 @@ public abstract class DomApplication {
 	public ISubPageInjector getSubPageInjector() {
 		return m_subPageInjector;
 	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Main application config file in WEB-INF						*/
+	/*----------------------------------------------------------------------*/
+	protected Properties getProperties(File propertyFile) throws Exception {
+		return FileTool.loadProperties(propertyFile);
+	}
+
+	/**
+	 * Calculate a value for a ${xxx} reference in the code. The xxx is passed here,
+	 * and it can be either a single variable name or a format varname:defaultvalue.
+	 *
+	 * The code tries to get the value from the Environment first, after that it uses
+	 * DeveloperOptions, after that it uses the TUtil properties.
+	 */
+	private String calculateValueFor(String ref) {
+		int pos = ref.indexOf(':');
+		String varName, defaultValue;
+
+		if(pos == -1) {
+			varName = ref;
+			defaultValue = null;
+		} else {
+			varName = ref.substring(0, pos).trim();
+			defaultValue = ref.substring(pos + 1).trim();
+		}
+
+		//-- Try values.
+		String val = System.getenv(varName);
+		if(null != val)
+			return val;
+		val = DeveloperOptions.getString(varName);
+		if(null != val)
+			return val;
+		val = TUtilTestProperties.getString(varName, null);
+		if(null != val)
+			return val;
+		return defaultValue;
+	}
+
+	/**
+	 * Get the config file to use. It is then checked for replacement strings ${} to
+	 * support testing the server.
+	 */
+	protected File getPropertyFile(@NonNull String developerKey) throws Exception {
+		File rpf = getRawPropertyFile(developerKey);
+
+		//-- 1. Read the properties file as a string
+		String content = FileTool.readFileAsString(rpf);
+
+		//-- Replace all references to variables
+		StringBuilder sb = new StringBuilder();
+
+		int ix = 0;
+		int len = content.length();
+		while(ix < len) {
+			int pos = content.indexOf('$', ix);
+			if(pos == -1) {
+				if(ix < len)
+					sb.append(content, ix, len);            // Append the rest
+				break;
+			} else if(pos > ix) {
+				sb.append(content, ix, pos);                // Copy everything up to the $
+			}
+			ix = pos;                                        // At the $
+
+			if(ix + 1 >= len) {
+				sb.append('$');
+				break;
+			}
+			if(content.charAt(ix + 1) == '{') {
+				//-- We have a leading ${
+				int epos = content.indexOf('}', ix + 2);
+				if(epos == -1) {
+					//-- No end -> keep the data verbatim,
+					sb.append('$');
+					ix++;
+				} else {
+
+					//-- Get the value between ${ and }
+					String ref = content.substring(ix + 2, epos).trim();
+					ix = epos + 1;
+
+					sb.append(calculateValueFor(ref));
+				}
+			} else {
+				//-- We have had a single $ sign. Add it, then continue
+				sb.append('$');
+				ix++;
+			}
+		}
+
+		String newContent = sb.toString();
+
+		//-- If the content did not change -> just return the original
+		if(content.equals(newContent))
+			return rpf;
+
+		//-- Create a tempfile with the new content and return that
+		File tempFile = File.createTempFile("junitpf-", ".properties");
+		FileTool.writeFileFromString(tempFile, newContent, "utf-8");
+		return tempFile;
+	}
+
+	/**
+	 * Try to find the property file to use in several ways.
+	 */
+	@NonNull
+	private File getRawPropertyFile(String developerKey) throws IOException {
+		File homeDir = new File(System.getProperty("user.home"));
+		String name = System.getProperty("config");
+		if(null != name) {
+			File f = new File(name);
+			if(!f.exists())
+				throw new IllegalStateException("The config file " + f.getAbsolutePath() + " specified in the 'config' system property cannot be found");
+			return f;
+		}
+
+		//-- Developer override?
+		File webInf = getAppFile("WEB-INF");
+		File pf;
+		name = DeveloperOptions.getString(developerKey);
+		if(null != name) {
+			if(name.startsWith("/")) {
+				pf = new File(name);
+			} else {
+				pf = new File(webInf, name);
+			}
+			if(pf.exists())
+				return pf;
+			throw new IOException(pf + ": file specified in .developer.properties does not exist");
+		}
+
+		//-- Is there an app-specific config file present in WEB-INF (using webapp context name)
+		File root = webInf.getParentFile();
+		String appName = root.getName();
+		pf = new File(webInf, appName + "-app.properties");        // skarpliance-app.properties
+		if(pf.exists())
+			return pf;
+
+		throw new IllegalStateException("I cannot find a config file.");
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Rights registry.									*/
