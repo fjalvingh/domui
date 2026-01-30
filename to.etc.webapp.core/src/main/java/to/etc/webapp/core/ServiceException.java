@@ -26,7 +26,7 @@ package to.etc.webapp.core;
 
 import java.util.*;
 
-import javax.servlet.http.*;
+import jakarta.servlet.http.*;
 
 /**
  * Any kind of service requested thru a generic container.

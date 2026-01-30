@@ -890,12 +890,12 @@ public class ColumnWrapper {
 
 		if(getType() == ColumnType.compoundKey) {
 			//-- Compound keys have no column, and have an EmbeddableId annotation
-			createOrFindMarkerAnnotation(getter, "javax.persistence.EmbeddedId");
+			createOrFindMarkerAnnotation(getter, "jakarta.persistence.EmbeddedId");
 		} else if(getRelationType() == RelationType.manyToOne) {
 			renderManyToOneAnnotations(getter);
 		} else if(getRelationType() == RelationType.oneToMany) {
-			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.OneToMany");
-			importIf("javax.persistence.FetchType");
+			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "jakarta.persistence.OneToMany");
+			importIf("jakarta.persistence.FetchType");
 			addPairIfMissing(ca, "fetch", "FetchType.LAZY");
 			ColumnWrapper cpp = m_childsParentProperty;
 			if(null == cpp)
@@ -914,7 +914,7 @@ public class ColumnWrapper {
 			/*
 			 * Normal column annotation
 			 */
-			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.Column");
+			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "jakarta.persistence.Column");
 			setPair(ca, "name", m_column.getName(), true);
 			if(m_setLengthField && m_column.getPrecision() > 0) {
 				setPair(ca, "length", Integer.toString(m_column.getPrecision()), false);
@@ -945,14 +945,14 @@ public class ColumnWrapper {
 				String idSequence = g().getIdColumnSequence(m_column);
 				if(null != idSequence) {
 					//-- Render a sequence: @SequenceGenerator(name = "sq", sequenceName = "definition.definition_comment_id_seq")
-					NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.SequenceGenerator");
+					NormalAnnotationExpr ca = createOrFindAnnotation(getter, "jakarta.persistence.SequenceGenerator");
 					addPairIfMissing(ca, "name", "\"sq\"");
 					setPair(ca, "sequenceName", idSequence, true);
 					addPairIfMissing(ca, "allocationSize", "1");
 
 					//-- And its reference: @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
-					ca = createOrFindAnnotation(getter, "javax.persistence.GeneratedValue");
-					importIf("javax.persistence.GenerationType");
+					ca = createOrFindAnnotation(getter, "jakarta.persistence.GeneratedValue");
+					importIf("jakarta.persistence.GenerationType");
 					addPairIfMissing(ca, "strategy", "GenerationType.SEQUENCE");
 					addPairIfMissing(ca, "generator", "\"sq\"");
 					renderIdAnnotation(getter);
@@ -960,10 +960,10 @@ public class ColumnWrapper {
 				}
 			}
 
-			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.GeneratedValue");
+			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "jakarta.persistence.GeneratedValue");
 			MemberValuePair p = findAnnotationPair(ca, "strategy");
 			if(null == p) {
-				importIf("javax.persistence.GenerationType");
+				importIf("jakarta.persistence.GenerationType");
 				ca.addPair("strategy", "GenerationType.IDENTITY");
 			}
 			renderIdAnnotation(getter);
@@ -991,7 +991,7 @@ public class ColumnWrapper {
 	}
 
 	private void renderIdAnnotation(MethodDeclaration getter) {
-		createOrFindMarkerAnnotation(getter, "javax.persistence.Id");
+		createOrFindMarkerAnnotation(getter, "jakarta.persistence.Id");
 	}
 
 	private void renderExtraTypeAnnotations(MethodDeclaration getter) {
@@ -1013,24 +1013,24 @@ public class ColumnWrapper {
 					break;
 
 				case EnumeratedString:
-					NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.Enumerated");
+					NormalAnnotationExpr na = createOrFindAnnotation(getter, "jakarta.persistence.Enumerated");
 					if(findAnnotationPair(na, "value") == null) {
-						importIf("javax.persistence.EnumType");
+						importIf("jakarta.persistence.EnumType");
 						na.addPair("value", "EnumType.STRING");
 					}
 					break;
 
 				case TemporalDate:
-					na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
+					na = createOrFindAnnotation(getter, "jakarta.persistence.Temporal");
 					if(findAnnotationPair(na, "value") == null) {
-						importIf("javax.persistence.TemporalType");
+						importIf("jakarta.persistence.TemporalType");
 						na.addPair("value", "TemporalType.DATE");
 					}
 					break;
 				case TemporalTimestamp:
-					na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
+					na = createOrFindAnnotation(getter, "jakarta.persistence.Temporal");
 					if(findAnnotationPair(na, "value") == null) {
-						importIf("javax.persistence.TemporalType");
+						importIf("jakarta.persistence.TemporalType");
 						na.addPair("value", "TemporalType.TIMESTAMP");
 					}
 					break;
@@ -1042,10 +1042,10 @@ public class ColumnWrapper {
 		/*
 		 * We need JoinColumn and ManyToOne
 		 */
-		NormalAnnotationExpr m2o = createOrFindAnnotation(getter, "javax.persistence.ManyToOne");
+		NormalAnnotationExpr m2o = createOrFindAnnotation(getter, "jakarta.persistence.ManyToOne");
 		MemberValuePair fetch = findAnnotationPair(m2o, "fetch");
 		if(null == fetch) {
-			importIf("javax.persistence.FetchType");
+			importIf("jakarta.persistence.FetchType");
 			m2o.addPair("fetch", "FetchType.LAZY");
 		}
 
@@ -1056,7 +1056,7 @@ public class ColumnWrapper {
 			p.setValue(new BooleanLiteralExpr(m_column.isNullable()));
 		}
 
-		NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.JoinColumn");
+		NormalAnnotationExpr na = createOrFindAnnotation(getter, "jakarta.persistence.JoinColumn");
 		p = findAnnotationPair(na, "name");
 		if(null == p) {
 			na.addPair("name", "\"" + m_column.getName() + "\"");

@@ -13,19 +13,19 @@ import to.etc.domui.hibernate.types.MappedEnumType;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
@@ -232,7 +232,7 @@ final public class HibernateChecker {
 		org.hibernate.annotations.Formula annotation = g.getAnnotation(org.hibernate.annotations.Formula.class);
 		if(null == annotation)
 			return;
-		javax.persistence.Basic lazyLoadingOnFormula = g.getAnnotation(javax.persistence.Basic.class);
+		jakarta.persistence.Basic lazyLoadingOnFormula = g.getAnnotation(jakarta.persistence.Basic.class);
 		if(null == lazyLoadingOnFormula || lazyLoadingOnFormula.fetch() != FetchType.LAZY) {
 			problem(Severity.ERROR, "@Formula that is not lazy loaded using @Basic(fetch=FetchType.LAZY), causing big performance trouble");
 			m_notLazyLoadedFormula++;
@@ -295,7 +295,7 @@ final public class HibernateChecker {
 	 * OneToMany: must have mappedBy, cannot have JoinColumn, must have List<T> resultType.
 	 */
 	private void checkOneToMany(Method g) {
-		javax.persistence.OneToMany o2m = g.getAnnotation(javax.persistence.OneToMany.class);
+		jakarta.persistence.OneToMany o2m = g.getAnnotation(jakarta.persistence.OneToMany.class);
 		if(o2m != null) {
 			if(o2m.mappedBy().isEmpty()) {
 				m_badOneToMany++;
@@ -309,7 +309,7 @@ final public class HibernateChecker {
 			}
 
 			//-- JoinColumn not allowed
-			javax.persistence.JoinColumn jc = g.getAnnotation(javax.persistence.JoinColumn.class);
+			jakarta.persistence.JoinColumn jc = g.getAnnotation(jakarta.persistence.JoinColumn.class);
 			if(null != jc) {
 				problem(Severity.ERROR, "@JoinColumn found on @OneToMany - not allowed. Use mappedBy");
 				m_badJoinColumn++;

@@ -31,7 +31,7 @@ import to.etc.domui.server.IRequestResponse;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.Writer;
 
 public class AjaxRequestContext implements IRpcCallContext {

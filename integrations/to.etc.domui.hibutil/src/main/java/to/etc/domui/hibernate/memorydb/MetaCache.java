@@ -3,11 +3,11 @@ package to.etc.domui.hibernate.memorydb;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;

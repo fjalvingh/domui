@@ -760,10 +760,10 @@ class ClassWrapper {
 	private void renderClassAnnotations() {
 		ClassOrInterfaceDeclaration rootType = getRootType();
 		if(getType() == ClassWrapperType.tableClass)
-			createOrFindMarkerAnnotation(rootType, "javax.persistence.Entity");
+			createOrFindMarkerAnnotation(rootType, "jakarta.persistence.Entity");
 		DbTable table = m_table;
 		if(null != table) {
-			NormalAnnotationExpr a = createOrFindAnnotation(rootType, "javax.persistence.Table");
+			NormalAnnotationExpr a = createOrFindAnnotation(rootType, "jakarta.persistence.Table");
 			setPair(a, "name", table.getName(), true);
 			DbSchema schema = table.getSchema();
 			if(g().isAppendSchemaNameInAnnotations()) {
@@ -1808,7 +1808,7 @@ class ClassWrapper {
 
 	public void renderEmbeddableAnnotations() {
 		ClassOrInterfaceDeclaration rootType = getRootType();
-		createOrFindMarkerAnnotation(rootType, "javax.persistence.Embeddable");
+		createOrFindMarkerAnnotation(rootType, "jakarta.persistence.Embeddable");
 	}
 
 	protected Node getTableConfig() {

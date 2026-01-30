@@ -24,7 +24,7 @@ import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.Constants;
 import to.etc.util.StringTool;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -450,7 +450,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 	/**
 	 * Do a single interaction with the page-under-test (send the request, get the response). This
-	 * code must closely mimic the code inside {@link AbstractContextMaker#execute(HttpServerRequestResponse, RequestContextImpl, javax.servlet.FilterChain)}.
+	 * code must closely mimic the code inside {@link AbstractContextMaker#execute(HttpServerRequestResponse, RequestContextImpl, jakarta.servlet.FilterChain)}.
 	 *
 	 * @param session
 	 * @param rr

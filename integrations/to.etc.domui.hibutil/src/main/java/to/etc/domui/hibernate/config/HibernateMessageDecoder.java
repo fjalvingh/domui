@@ -5,7 +5,7 @@ import to.etc.domui.component.misc.ExceptionDialog.ExceptionPresentation;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.IBundleCode;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

@@ -142,7 +142,7 @@ import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QNotFoundException;
 import to.etc.webapp.testsupport.TUtilTestProperties;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;

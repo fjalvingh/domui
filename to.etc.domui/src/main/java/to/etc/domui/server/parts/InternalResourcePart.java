@@ -37,7 +37,7 @@ import to.etc.util.FileTool;
 import to.etc.webapp.core.ServerTools;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.util.Locale;
 

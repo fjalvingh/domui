@@ -5,11 +5,11 @@ import to.etc.domui.component.meta.MetaObject;
 import to.etc.domui.component.meta.MetaSearchItem;
 import to.etc.domui.component.meta.SearchPropertyType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 

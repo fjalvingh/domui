@@ -292,14 +292,14 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	//
 	//protected void decodePropertyAnnotationByName(@NonNull DefaultJavaClassInfo colli, @NonNull DefaultPropertyMetaModel< ? > pmm, @NonNull Annotation an, @NonNull String name) {
 	//	DefaultClassMetaModel cmm = colli.getModel();
-	//	if("javax.persistence.Column".equals(name)) {
+	//	if("jakarta.persistence.Column".equals(name)) {
 	//		decodeJpaColumn(pmm, an);
-	//	} else if("javax.persistence.JoinColumn".equals(name)) {
+	//	} else if("jakarta.persistence.JoinColumn".equals(name)) {
 	//		decodeJpaJoinColumn(pmm, an);
-	//	} else if("javax.persistence.Id".equals(name)) {
+	//	} else if("jakarta.persistence.Id".equals(name)) {
 	//		pmm.setPrimaryKey(true);
 	//		cmm.setPersistentClass(true);
-	//	} else if("javax.persistence.ManyToOne".equals(name) || "javax.persistence.OneToOne".equals(name)) {
+	//	} else if("jakarta.persistence.ManyToOne".equals(name) || "jakarta.persistence.OneToOne".equals(name)) {
 	//		pmm.setRelationType(PropertyRelationType.UP);
 	//
 	//		//-- Decode fields from the annotation.
@@ -309,7 +309,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	//		} catch(Exception x) {
 	//			Trouble.wrapException(x);
 	//		}
-	//	} else if("javax.persistence.Temporal".equals(name)) {
+	//	} else if("jakarta.persistence.Temporal".equals(name)) {
 	//		try {
 	//			Object val = DomUtil.getClassValue(an, "value");
 	//			if(val != null) {
@@ -324,9 +324,9 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	//		} catch(Exception x) {
 	//			Trouble.wrapException(x);
 	//		}
-	//	} else if("javax.persistence.Transient".equals(name) || "org.hibernate.annotations.Formula".equals(name)) {
+	//	} else if("jakarta.persistence.Transient".equals(name) || "org.hibernate.annotations.Formula".equals(name)) {
 	//		pmm.setTransient(true);
-	//	} else if("javax.persistence.OneToMany".equals(name)) {
+	//	} else if("jakarta.persistence.OneToMany".equals(name)) {
 	//		//-- This must be a list
 	//		if(!Collection.class.isAssignableFrom(pmm.getActualType()))
 	//			throw new IllegalStateException("Invalid property type for DOWN relation of property " + this + ": only List<T> is allowed");
@@ -338,7 +338,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	//}
 
 	///**
-	// * Generically decode a JPA javax.persistence.Column annotation.
+	// * Generically decode a JPA jakarta.persistence.Column annotation.
 	// * FIXME Currently only single-column properties are supported.
 	// * @param pmm
 	// * @param an
@@ -378,7 +378,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	//}
 	//
 	///**
-	// * Generically decode a JPA  javax.persistence.JoinColumn annotation.
+	// * Generically decode a JPA  jakarta.persistence.JoinColumn annotation.
 	// * @param pmm
 	// * @param an
 	// */
@@ -441,16 +441,16 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	//}
 
 	//private void decodeParentClassAnnotationByName(@NonNull DefaultJavaClassInfo colli, @NonNull Annotation an, @NonNull String name) {
-	//	if("javax.persistence.Table".equals(name)) {
+	//	if("jakarta.persistence.Table".equals(name)) {
 	//		decodeTableAnnotation(colli, an);
 	//	}
 	//}
 
 	///**
-	// * Can be overridden to decode user-specific annotations. Currently only decodes the javax.persistence.Table annotation.
+	// * Can be overridden to decode user-specific annotations. Currently only decodes the jakarta.persistence.Table annotation.
 	// */
 	//protected void decodeClassAnnotationByName(@NonNull final DefaultJavaClassInfo colli, @NonNull final Annotation an, @NonNull final String name) {
-	//	if("javax.persistence.Table".equals(name)) {
+	//	if("jakarta.persistence.Table".equals(name)) {
 	//		//-- Decode fields from the annotation.
 	//		decodeTableAnnotation(colli, an);
 	//	} else if("to.etc.webapp.qsql.QJdbcTable".equals(name)) {

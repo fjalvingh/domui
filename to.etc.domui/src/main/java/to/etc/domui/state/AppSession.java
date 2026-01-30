@@ -33,9 +33,9 @@ import to.etc.domui.server.IAttributeContainer;
 import to.etc.domui.util.janitor.Janitor;
 import to.etc.domui.util.janitor.JanitorTask;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -114,7 +114,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	/**
 	 * Unused, needed for interface.
-	 * @see javax.servlet.http.HttpSessionBindingListener#valueBound(javax.servlet.http.HttpSessionBindingEvent)
+	 * @see jakarta.servlet.http.HttpSessionBindingListener#valueBound(jakarta.servlet.http.HttpSessionBindingEvent)
 	 */
 	@Override
 	final public void valueBound(final HttpSessionBindingEvent arg0) {}
@@ -123,7 +123,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Called for non-debug sessions, where this is directly bound to a
 	 * HttpSession. When that session closes this causes the destroy() methods
 	 * to be called.
-	 * @see javax.servlet.http.HttpSessionBindingListener#valueUnbound(javax.servlet.http.HttpSessionBindingEvent)
+	 * @see jakarta.servlet.http.HttpSessionBindingListener#valueUnbound(jakarta.servlet.http.HttpSessionBindingEvent)
 	 */
 	@Override
 	final public void valueUnbound(final HttpSessionBindingEvent arg0) {
