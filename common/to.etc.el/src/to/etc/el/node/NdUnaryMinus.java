@@ -27,7 +27,7 @@ package to.etc.el.node;
 import java.io.*;
 import java.math.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 import to.etc.el.*;
 import to.etc.util.*;
@@ -39,7 +39,7 @@ public class NdUnaryMinus extends NdUnary {
 
 	/**
 	 * See JSP 2.0, JSP 2.3.5.4
-	 * @see to.etc.el.node.NdBase#evaluate(javax.servlet.jsp.el.VariableResolver, javax.servlet.jsp.el.FunctionMapper)
+	 * @see to.etc.el.node.NdBase#evaluate(jakarta.servlet.jsp.el.VariableResolver, jakarta.servlet.jsp.el.FunctionMapper)
 	 */
 	@Override
 	public Object evaluate(VariableResolver vr) throws ELException {

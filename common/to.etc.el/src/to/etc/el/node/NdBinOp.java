@@ -26,7 +26,7 @@ package to.etc.el.node;
 
 import java.math.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 import to.etc.el.*;
 import to.etc.util.*;
@@ -57,7 +57,7 @@ abstract public class NdBinOp extends NdBinary {
 	/**
 	 * Handles all coerces for arithmetic operations as described in
 	 * JSP 2.0 standard JSP2.3.5.1
-	 * @see to.etc.el.node.NdBase#evaluate(javax.servlet.jsp.el.VariableResolver, javax.servlet.jsp.el.FunctionMapper)
+	 * @see to.etc.el.node.NdBase#evaluate(jakarta.servlet.jsp.el.VariableResolver, jakarta.servlet.jsp.el.FunctionMapper)
 	 */
 	@Override
 	public Object evaluate(VariableResolver vr) throws ELException {

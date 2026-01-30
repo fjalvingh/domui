@@ -26,7 +26,7 @@ package to.etc.el;
 
 import java.math.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 /**
  * A quicky lexer for EL, the expression language. This hand-coded lexer

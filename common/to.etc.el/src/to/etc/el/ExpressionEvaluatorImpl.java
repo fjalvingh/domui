@@ -24,7 +24,7 @@
  */
 package to.etc.el;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 /**
  * This implements a proper expression language decoder for the EL expression

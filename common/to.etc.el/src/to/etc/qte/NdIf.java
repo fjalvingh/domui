@@ -24,7 +24,7 @@
  */
 package to.etc.qte;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 public class NdIf extends NdBase {
 	private Expression m_expr;

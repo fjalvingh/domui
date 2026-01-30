@@ -24,7 +24,7 @@
  */
 package to.etc.iocular.web;
 
-import javax.servlet.*;
+import jakarta.servlet.ServletContext;
 
 /**
  * Default implementation of a thingy which has to configure the

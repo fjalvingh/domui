@@ -24,7 +24,7 @@
  */
 package to.etc.el;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 public class EtcELException extends ELException {
 	private String m_expression;

@@ -78,10 +78,10 @@
 	<dependencyManagement>
 		<dependencies>
 			<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+			<!-- The Jakarta version of the jsdk, which renamed all packages. May the idiots that did that rot in Hell. -->
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
-				<version>${javax.servlet.version}</version>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
 				<scope>provided</scope>
 			</dependency>
 

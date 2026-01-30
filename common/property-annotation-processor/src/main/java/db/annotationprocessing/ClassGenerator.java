@@ -143,7 +143,7 @@ abstract class ClassGenerator {
 			//-- Generated annotation moved, apparently.
 			append("import javax.annotation.processing.Generated;\n");
 		} else {
-			append("import javax.annotation.Generated;\n");
+			append("import jakarta.annotation.Generated;\n");
 		}
 
 		append("\n");

@@ -26,7 +26,7 @@ package to.etc.el.node;
 
 import java.math.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 public class NdNotEqual extends NdComparatorOp {
 	public NdNotEqual(NdBase a, NdBase b) {

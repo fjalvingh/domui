@@ -26,7 +26,7 @@ package to.etc.javabean;
 
 import java.lang.reflect.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 import to.etc.util.*;
 

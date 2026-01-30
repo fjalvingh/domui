@@ -28,7 +28,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 import to.etc.el.*;
 import to.etc.javabean.*;
@@ -74,7 +74,7 @@ public class NdLookup extends NdBase {
 
 	/**
 	 * Handle the map operation as per [jsp 2.0] JSP 2.3.4
-	 * @see to.etc.el.node.NdBase#evaluate(javax.servlet.jsp.el.VariableResolver, javax.servlet.jsp.el.FunctionMapper)
+	 * @see to.etc.el.node.NdBase#evaluate(jakarta.servlet.jsp.el.VariableResolver, jakarta.servlet.jsp.el.FunctionMapper)
 	 */
 	@Override
 	public Object evaluate(VariableResolver vr) throws ELException {

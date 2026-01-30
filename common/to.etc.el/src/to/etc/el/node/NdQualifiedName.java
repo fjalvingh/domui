@@ -26,7 +26,7 @@ package to.etc.el.node;
 
 import java.io.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 public class NdQualifiedName extends NdBase {
 	private String m_a;

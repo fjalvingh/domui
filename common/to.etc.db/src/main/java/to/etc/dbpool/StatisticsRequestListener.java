@@ -33,11 +33,11 @@ import to.etc.dbpool.info.SessionStatistics;
 import to.etc.dbpool.info.StatisticsCollector;
 import to.etc.dbpool.info.StatisticsCollectorBase;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -179,7 +179,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 
 	/**
 	 *
-	 * @see javax.servlet.ServletRequestListener#requestInitialized(javax.servlet.ServletRequestEvent)
+	 * @see jakarta.servlet.ServletRequestListener#requestInitialized(jakarta.servlet.ServletRequestEvent)
 	 */
 	@Override
 	public void requestInitialized(ServletRequestEvent ev) {

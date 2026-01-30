@@ -26,7 +26,7 @@ package to.etc.el.node;
 
 import java.math.*;
 
-import javax.servlet.jsp.el.*;
+import jakarta.servlet.jsp.el.*;
 
 public class NdGreaterThanOrEqual extends NdComparatorOp {
 	public NdGreaterThanOrEqual(NdBase a, NdBase b) {
