@@ -1,18 +1,5 @@
 package to.etc.domui.hibernate.config;
 
-import org.hibernate.annotations.Type;
-import org.hibernate.boot.Metadata;
-import org.hibernate.mapping.Bag;
-import org.hibernate.mapping.PersistentClass;
-import org.hibernate.mapping.Property;
-import org.hibernate.mapping.SimpleValue;
-import org.hibernate.property.access.spi.Getter;
-import to.etc.domui.component.meta.ClassMetaModel;
-import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.hibernate.types.MappedEnumType;
-import to.etc.util.ClassUtil;
-import to.etc.util.PropertyInfo;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,10 +13,22 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
+import org.hibernate.annotations.Type;
+import org.hibernate.boot.Metadata;
+import org.hibernate.mapping.Bag;
+import org.hibernate.mapping.PersistentClass;
+import org.hibernate.mapping.Property;
+import org.hibernate.mapping.SimpleValue;
+import org.hibernate.property.access.spi.Getter;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.hibernate.types.MappedEnumType;
+import to.etc.util.ClassUtil;
+import to.etc.util.PropertyInfo;
+
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -158,8 +157,7 @@ final public class HibernateChecker {
 
 			checkDomuiMetadata();
 
-			for(Iterator<?> iter2 = pc.getPropertyIterator(); iter2.hasNext(); ) {
-				Property property = (Property) iter2.next();
+			for(Property property : pc.getProperties()) {
 				//				System.out.println("... " + property.getName() + " type " + property.getType().getName());
 				Getter g = property.getGetter(pc.getMappedClass());
 
@@ -167,7 +165,7 @@ final public class HibernateChecker {
 				Class<?> actual = null == method ? null : method.getReturnType();
 
 				if(property.getType().getName().equals(MappedEnumType.class.getName()) || "nl.itris.viewpoint.db.hibernate.ViewPointMappedEnumType".equals(property.getType().getName())) {
-					//-- Sigh.. Try to obtain the property's actual type from the getter because Hibernate does not have an easy route to it, appearently.
+					//-- Sigh. Try to obtain the property's actual type from the getter because Hibernate does not have an easy route to it, appearently.
 					SimpleValue v = (SimpleValue) property.getValue();
 					//					System.out.println("Property " + v + " is " + v.getTypeName() + " class=" + actual);
 					if(v.getTypeParameters() == null)
@@ -274,11 +272,11 @@ final public class HibernateChecker {
 							m_badBooleans++;
 							problem(Severity.ERROR, "Missing @Type on nullable primitive boolean!");
 						} else {
-							String ttn = ty.type();
-							if(ttn.equals("yes_no")) {
-								problem(Severity.ERROR, "@Type(yes_no) on nullable primitive boolean!");
-								m_badBooleans++;
-							}
+							//Class<?> ttn = ty.value();
+							//if(ttn.equals("yes_no")) {
+							//	problem(Severity.ERROR, "@Type(yes_no) on nullable primitive boolean!");
+							//	m_badBooleans++;
+							//}
 						}
 					}
 				}

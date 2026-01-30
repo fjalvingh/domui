@@ -1,7 +1,6 @@
 package to.etc.domui.hibernate.types;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.hibernate.collection.internal.PersistentBag;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import to.etc.domui.databinding.IChangeListener;
 import to.etc.domui.databinding.list2.IListChangeListener;
@@ -19,7 +18,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 12, 2014
  */
-public class PersistentObservableList<T> extends PersistentBag implements IObservableList {
+public class PersistentObservableList<T> extends org.hibernate.collection.spi.PersistentBag<T> implements IObservableList {
 	private String m_from;
 
 	@NonNull

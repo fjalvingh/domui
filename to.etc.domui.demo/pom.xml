@@ -43,8 +43,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.servlet.el</groupId>
+			<groupId>jakarta.el</groupId>
 			<artifactId>jakarta.el-api</artifactId>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.servlet.jsp</groupId>

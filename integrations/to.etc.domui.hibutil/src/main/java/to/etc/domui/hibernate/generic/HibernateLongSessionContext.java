@@ -24,6 +24,7 @@
  */
 package to.etc.domui.hibernate.generic;
 
+import jakarta.persistence.FlushModeType;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.engine.internal.StatefulPersistenceContext;
@@ -56,7 +57,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		checkValid();
 		if(m_session == null) {
 			super.getSession();
-			m_session.setFlushMode(FlushMode.MANUAL);
+			m_session.setHibernateFlushMode(FlushMode.MANUAL);
 		}
 		if(!m_session.isConnected())
 			LOG.debug("Hibernate: reconnecting session.");
@@ -89,10 +90,10 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 			return;
 		setConversationInvalid("Conversation is detached");
 		SessionImpl sim = (SessionImpl) m_session;
-		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
-		Map< ? , ? > flups = spc.getEntitiesByKey();
-		if(LOG.isDebugEnabled())
-			LOG.debug("Hibernate: disconnecting session " + System.identityHashCode(m_session) + " containing " + flups.size() + " persisted instances");
+		//StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
+		//Map< ? , ? > flups = spc.getEntitiesByKey();
+		//if(LOG.isDebugEnabled())
+		//	LOG.debug("Hibernate: disconnecting session " + System.identityHashCode(m_session) + " containing " + flups.size() + " persisted instances");
 
 
 		/*

@@ -27,7 +27,7 @@ package to.etc.domui.hibernate.generic;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.hibernate.Session;
-import org.hibernate.internal.SessionImpl;
+import org.hibernate.jdbc.ReturningWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -44,6 +44,7 @@ import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -261,8 +262,16 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	@SuppressWarnings("deprecation")
 	public Connection getConnection() throws Exception {
 		startTransaction();
-		SessionImpl session = (SessionImpl) getSession();
-		return session.connection();
+		Connection conn = getSession().doReturningWork(new ReturningWork<Connection>() {
+			@Override
+			public Connection execute(Connection connection) throws SQLException {
+				return connection;
+			}
+		});
+		return conn;
+
+		//SessionImpl session = (SessionImpl) getSession();
+		//return session.connection();
 	}
 
 	@Override

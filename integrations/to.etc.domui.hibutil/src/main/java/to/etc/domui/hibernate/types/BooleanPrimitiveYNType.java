@@ -1,13 +1,9 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * A UserType implementation to map a boolean primitive object to a VARCHAR.<br /> A true
@@ -51,18 +47,18 @@ final public class BooleanPrimitiveYNType implements UserType {
 		return true;
 	}
 
-	@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-		if(resultSet == null)
-			return null;
-		String v = resultSet.getString(names[0]);
-		if(v == null)
-			return Boolean.FALSE;
-		return parse(v);
-	}
-
-	@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
-		statement.setString(index, value == null ? "N" : ((Boolean) value).booleanValue() ? "Y" : "N");
-	}
+	//@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+	//	if(resultSet == null)
+	//		return null;
+	//	String v = resultSet.getString(names[0]);
+	//	if(v == null)
+	//		return Boolean.FALSE;
+	//	return parse(v);
+	//}
+	//
+	//@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+	//	statement.setString(index, value == null ? "N" : ((Boolean) value).booleanValue() ? "Y" : "N");
+	//}
 
 	@Override
 	public Object replace(Object arg0, Object arg1, Object arg2) throws HibernateException {
@@ -75,8 +71,8 @@ final public class BooleanPrimitiveYNType implements UserType {
 	}
 
 	@Override
-	public int[] sqlTypes() {
-		return new int[]{java.sql.Types.VARCHAR};
+	public int getSqlType() {
+		return java.sql.Types.VARCHAR;
 	}
 
 	/**

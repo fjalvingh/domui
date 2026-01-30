@@ -14,14 +14,10 @@ import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
-import org.hibernate.event.spi.EventType;
 import org.hibernate.service.ServiceRegistry;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.domui.component.misc.ExceptionDialog;
-import to.etc.domui.hibernate.beforeimages.BeforeImageInterceptor;
-import to.etc.domui.hibernate.beforeimages.CopyCollectionEventListener;
-import to.etc.domui.hibernate.beforeimages.CreateBeforeImagePostLoadListener;
 import to.etc.domui.hibernate.generic.BuggyHibernateBaseContext;
 import to.etc.domui.hibernate.generic.HibernateLongSessionContextFactory;
 import to.etc.domui.hibernate.generic.HibernateQueryExecutor;
@@ -85,8 +81,6 @@ final public class HibernateConfiguratorInstance {
 	static private HibernateConfigurator.Mode m_mode = HibernateConfigurator.Mode.NONE;
 
 	static private boolean m_observableEnabled;
-
-	static private boolean m_beforeImagesEnabled;
 
 	public List<Class<?>> getAnnotatedClassList() {
 		return m_annotatedClassList;
@@ -214,13 +208,6 @@ final public class HibernateConfiguratorInstance {
 	public void registerQueryExecutor(IQueryExecutorFactory qexecutor) {
 		requireUnconfigured();
 		m_handlers.register(qexecutor);
-	}
-
-	public void enableBeforeImages(boolean yes) {
-		requireUnconfigured();
-		requireEmptyInterceptor();
-		m_beforeImagesEnabled = yes;
-		m_interceptorFactory = x -> new BeforeImageInterceptor(x.getBeforeCache());
 	}
 
 	public void enableObservableCollections(boolean yes) {
@@ -358,11 +345,11 @@ final public class HibernateConfiguratorInstance {
 		m_sessionFactory = sessionFactory;
 
 		EventListenerRegistry listenerRegistry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
-		if(m_beforeImagesEnabled) {
-			// https://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/chapters/events/Events.html
-			listenerRegistry.prependListeners(EventType.POST_LOAD, new CreateBeforeImagePostLoadListener());
-			listenerRegistry.prependListeners(EventType.INIT_COLLECTION, new CopyCollectionEventListener());
-		}
+		//if(m_beforeImagesEnabled) {
+		//	// https://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/chapters/events/Events.html
+		//	listenerRegistry.prependListeners(EventType.POST_LOAD, new CreateBeforeImagePostLoadListener());
+		//	listenerRegistry.prependListeners(EventType.INIT_COLLECTION, new CopyCollectionEventListener());
+		//}
 		for(IHibernateConfigListener listener : m_onConfigureList) {
 			listener.onAddListeners(listenerRegistry);
 		}

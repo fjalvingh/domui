@@ -1,13 +1,9 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 
 /**
@@ -52,18 +48,18 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 		return true;
 	}
 
-	@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-		if(resultSet == null)
-			return null;
-		long v = resultSet.getLong(names[0]);
-		if(resultSet.wasNull())
-			return Boolean.FALSE;
-		return Boolean.valueOf(v != 0);
-	}
-
-	@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
-		statement.setLong(index, value == null ? 0 : ((Boolean) value).booleanValue() ? 1 : 0);
-	}
+	//@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+	//	if(resultSet == null)
+	//		return null;
+	//	long v = resultSet.getLong(names[0]);
+	//	if(resultSet.wasNull())
+	//		return Boolean.FALSE;
+	//	return Boolean.valueOf(v != 0);
+	//}
+	//
+	//@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+	//	statement.setLong(index, value == null ? 0 : ((Boolean) value).booleanValue() ? 1 : 0);
+	//}
 
 	@Override
 	public Object replace(Object arg0, Object arg1, Object arg2) throws HibernateException {
@@ -76,8 +72,8 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 	}
 
 	@Override
-	public int[] sqlTypes() {
-		return new int[]{Types.VARCHAR};
+	public int getSqlType() {
+		return Types.VARCHAR;
 	}
 
 	/**
