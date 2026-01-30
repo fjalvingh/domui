@@ -24,6 +24,7 @@
  */
 package to.etc.domui.hibernate.model;
 
+import jakarta.persistence.criteria.CriteriaQuery;
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.Criteria;
@@ -101,11 +102,11 @@ import java.util.concurrent.Callable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 24, 2008
  */
-public class CriteriaCreatingVisitor implements QNodeVisitor {
+public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	final private Session m_session;
 
 	/** The topmost Criteria: the one that will be returned to effect the translated query */
-	private final Criteria m_rootCriteria;
+	private final CriteriaQuery<T> m_rootCriteria;
 
 	/**
 	 * This either holds a Criteria or a DetachedCriteria; since these are not related (sigh) we must
@@ -128,7 +129,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 */
 	private Map<String, String> m_aliasMap = new HashMap<String, String>();
 
-	public CriteriaCreatingVisitor(Session ses, final Criteria crit) {
+	public CriteriaCreatingVisitor(Session ses, final CriteriaQuery<T> crit) {
 		m_session = ses;
 		m_rootCriteria = crit;
 		m_currentCriteria = crit;

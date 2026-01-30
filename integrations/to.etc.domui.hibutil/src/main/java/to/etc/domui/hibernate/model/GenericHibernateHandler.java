@@ -24,8 +24,11 @@
  */
 package to.etc.domui.hibernate.model;
 
+import jakarta.persistence.criteria.CriteriaQuery;
 import org.hibernate.*;
 
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
 import to.etc.webapp.query.*;
 
 /**
@@ -38,16 +41,13 @@ import to.etc.webapp.query.*;
 public class GenericHibernateHandler {
 	/**
 	 * Translate generalized criteria to Hibernate criteria on a session.
-	 *
-	 * @param ses
-	 * @param qc
-	 * @return
 	 */
-	static public Criteria createCriteria(Session ses, QCriteria< ? > qc) {
+	static public <T> CriteriaQuery<T> createCriteria(Session ses, QCriteria<T> qc) {
 		try {
-			Criteria c = ses.createCriteria(qc.getBaseClass(), "base");
-			qc.visit(new CriteriaCreatingVisitor(ses, c));
-			return c;
+			HibernateCriteriaBuilder critBuilder = ses.getCriteriaBuilder();
+			JpaCriteriaQuery<T> query = critBuilder.createQuery(qc.getBaseClass());
+			qc.visit(new CriteriaCreatingVisitor(ses, query));
+			return query;
 		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {

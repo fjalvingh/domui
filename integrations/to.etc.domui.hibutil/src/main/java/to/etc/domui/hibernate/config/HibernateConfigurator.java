@@ -223,9 +223,9 @@ final public class HibernateConfigurator {
 		m_instance.registerQueryExecutor(qexecutor);
 	}
 
-	static public void enableBeforeImages(boolean yes) {
-		m_instance.enableBeforeImages(yes);
-	}
+	//static public void enableBeforeImages(boolean yes) {
+	//	m_instance.enableBeforeImages(yes);
+	//}
 
 	static public void enableObservableCollections(boolean yes) {
 		m_instance.enableObservableCollections(yes);

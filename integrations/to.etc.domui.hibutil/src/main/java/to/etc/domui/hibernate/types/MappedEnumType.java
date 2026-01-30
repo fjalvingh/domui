@@ -1,16 +1,11 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.type.StringType;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
 import to.etc.domui.hibernate.config.HibernateChecker;
 
 import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Properties;
 
@@ -25,12 +20,12 @@ import java.util.Properties;
  * Created on Nov 18, 2009
  */
 public class MappedEnumType implements UserType, ParameterizedType {
-	static private final int[] SQLTYPES = {Types.VARCHAR};
+	static private final int SQLTYPES = Types.VARCHAR;
 
 	private Class< ? > m_enumClass;
 
 	@Override
-	public int[] sqlTypes() {
+	public int getSqlType() {
 		return SQLTYPES;
 	}
 
@@ -100,37 +95,37 @@ public class MappedEnumType implements UserType, ParameterizedType {
 		return (Serializable) deepCopy(value);
 	}
 
-	@Override public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-		String value = (String) StringType.INSTANCE.nullSafeGet(rs, names[0], sharedSessionContractImplementor, o);
-		if(value == null)
-			return null;
-
-		//-- Find the enum label having this value.
-		Enum< ? >[] ar = (Enum[]) getEnumClass().getEnumConstants();
-		for(Enum< ? > label : ar) {
-			if(!(label instanceof IDatabaseCodeEnum))
-				throw new IllegalStateException("*Now* the label does not implement IDatabaseCodeEnum?!!?");
-			String code = ((IDatabaseCodeEnum) label).getCode();
-			if(value.equalsIgnoreCase(code))
-				return label;
-		}
-		throw new HibernateException("The database-column value '" + value + "' cannot be mapped onto a label of " + m_enumClass);
-	}
-
-	@Override public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
-		if(value == null)
-			st.setNull(index, Types.VARCHAR);
-		else {
-			try {
-				st.setString(index, ((IDatabaseCodeEnum) value).getCode());
-			} catch(SQLException | HibernateException ex) {
-				//added extra info on error -> since it is hard for trace otherwise
-				System.err.println("value: >" + value + "< can not be cased to IDatabaseCodeEnum, at index: " + index);
-				System.err.println("raised at " + getClass() + ", " + this);
-				throw ex;
-			}
-		}
-	}
+	//@Override public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+	//	String value = (String) StringType.INSTANCE.nullSafeGet(rs, names[0], sharedSessionContractImplementor, o);
+	//	if(value == null)
+	//		return null;
+	//
+	//	//-- Find the enum label having this value.
+	//	Enum< ? >[] ar = (Enum[]) getEnumClass().getEnumConstants();
+	//	for(Enum< ? > label : ar) {
+	//		if(!(label instanceof IDatabaseCodeEnum))
+	//			throw new IllegalStateException("*Now* the label does not implement IDatabaseCodeEnum?!!?");
+	//		String code = ((IDatabaseCodeEnum) label).getCode();
+	//		if(value.equalsIgnoreCase(code))
+	//			return label;
+	//	}
+	//	throw new HibernateException("The database-column value '" + value + "' cannot be mapped onto a label of " + m_enumClass);
+	//}
+	//
+	//@Override public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+	//	if(value == null)
+	//		st.setNull(index, Types.VARCHAR);
+	//	else {
+	//		try {
+	//			st.setString(index, ((IDatabaseCodeEnum) value).getCode());
+	//		} catch(SQLException | HibernateException ex) {
+	//			//added extra info on error -> since it is hard for trace otherwise
+	//			System.err.println("value: >" + value + "< can not be cased to IDatabaseCodeEnum, at index: " + index);
+	//			System.err.println("raised at " + getClass() + ", " + this);
+	//			throw ex;
+	//		}
+	//	}
+	//}
 
 	@Override
 	public Object replace(Object original, Object target, Object owner) throws HibernateException {
