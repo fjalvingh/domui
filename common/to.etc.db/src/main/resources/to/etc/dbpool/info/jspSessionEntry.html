@@ -1,0 +1,104 @@
+<h1>Statistics for request <%= entry.getId() %>, <%= plist.getDescription() %></h1>
+<table width="100%" border="0" class="tbl statptbl">
+	<thead class="statpheader">
+		<tr>
+			<td colspan="4">&nbsp;</td>
+			<td colspan="1">Prepares</td>
+			<td colspan="4">Execute: query</td>
+			<td colspan="3">Execute: update</td>
+		</tr>		
+		<tr>
+			<td>Duration</td>
+			<td title="Total time spent in the database">DB time</td>
+			<td>URL</td>
+			<td>#conns</td>
+
+			<!-- Prepares -->
+			<td>#prepares/dur</td>
+			
+			<!-- Executions -->
+			<td>#prepQueries/dur</td>
+			<td>#queryStmt/dur</td>
+			<td>#exec/dur</td>
+			<td>#selrows/dur</td>
+
+			<td>#prepUpdates/dur</td>
+			<td>#updateStmt/dur</td>
+			<td>#updrows</td>
+		</tr>
+	</thead>
+	<tbody>
+<%
+		var v = entry.getRequest();
+%>
+		<tr class="statprow <%= self.odd()%>">
+			<td title="<%= DbPoolUtil.strTime(entry.getTS())%>"><%= DbPoolUtil.strNanoTime(v.getDuration())%></td>
+			<td><%= DbPoolUtil.strNanoTime(v.getTotalDBTime())%></td>
+			<td><%= DbPoolUtil.q(v.getIdent()) %></td>
+			<td><%= DbPoolUtil.strCommad(v.getNConnectionAllocations()) %></td>
+			
+			<!-- Prepares -->
+			<td><%= DbPoolUtil.strCountDur(v.getNPrepares(), v.getPrepareDuration()) %></td>
+
+			<!-- Executions -->
+			<td><%= DbPoolUtil.strCountDur(v.getNPreparedQueries(), v.getPreparedQueryDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNStatementQueries(), v.getStatementQueryDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNExecutes(), v.getExecuteDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNRows(), v.getTotalFetchDuration()) %></td>
+
+			<td><%= DbPoolUtil.strCountDur(v.getNPreparedUpdates(), v.getPreparedUpdateDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNStatementUpdates(), v.getStatementUpdateDuration()) %></td>
+			<td><%= DbPoolUtil.strCommad(v.getNUpdatedRows()) %></td>
+		</tr>
+	</tbody>
+</table>
+
+<%
+var metrics = v.getMetrics();
+if(metrics.size() > 0) {
+%>
+<style type="text/css">
+.metrics {
+	background-color: #130069;
+	font-size: 12px;
+}
+.undefined {
+	background-color: #444;
+}
+.metrics th {
+	text-align: left;
+}
+
+</style>
+
+<h2>Oracle database metrics</h2>
+<table class="tbl statptbl">
+	<thead class="statpheader">
+		<tr>
+			<th>Value</th>
+			<th>Metric Name</th>
+		</tr>
+	</thead>
+	<tbody>
+<% for(var mi = 0; mi < metrics.size(); mi++) {
+	var m = metrics.get(mi);
+	if(m.getValue() <= 0) continue;
+%>
+		<tr class='statprow <%= m.getDefinition().isDefined() ? "defined" : "undefined" %>'>
+			<td><%= m.getFormattedValue() %></td>
+			<td title="<%= m.getDescription() %>"><%= m.getLabel() %></td>
+		</tr>
+<% } %>
+	</tbody>
+
+</table>
+
+<% } %>
+
+
+<h2>Statement table:</h2>
+<%
+//	self.expandTemplate2("perf-" + plist.getKey(), ["plist", plist, "items", pitems]);
+	self.expandTemplate2("perf-stmt-stmtcount", ["plist", plist, "items", pitems]);
+%>
+

@@ -1,0 +1,38 @@
+    <table class="maintbl">
+        <tr class="hdr">
+            <td rowspan="3">ID</td>
+            <td class="conns" colspan="10" align="center" valign="middle">Pool connection usage</td>
+            <td class="stats" colspan="3" rowspan="2" align="center">#statements</td>
+            <td class="errs" colspan="3" rowspan="2" align="center">Trouble</td>
+            <td class="info" rowspan="3"  align="center" valign="middle">Actions</td>
+        </tr>
+        
+        <tr class="hdr">
+            <td class="uconns" colspan="3" align="center" valign="middle" title="Unpooled connections are used for long-running tasks and can be used for a very long time without errors">Unpooled</td>
+            <td class="conns" colspan="6" align="center" valign="middle" title="Pooled connections should be used very shortly and only for interactive requests taking less than a few seconds to complete. These connections are allocated once from the database and reused by multiple clients, making their use very fast.">Pooled</td>
+            <td class="conns" colspan="1" align="center" valign="middle">&nbsp;</td>
+        </tr>
+        
+        <tr class="hdr">
+        	<!-- Conns block -->
+            <td class="uconns" title="#of connections that are currently in use (allocated by code and usually used to execute statements)">in use</td>
+            <td class="uconns" title="Peak #of connections used at the same time. If this gets close to the maximal pool size that should be increased to prevent pool waits">peak use</td>
+            <td class="uconns" title="The current number of unpooled connections that is assumed to be 'hanging'">Hanging</td>
+            <td class="conns">In use</td>
+            <td class="conns">peak use</td>
+            <td class="conns" title="The current number of pooled connections that is assumed to be 'hanging'">Hanging</td>
+            <td class="conns" title="The #of connections that is currently allocated from the database">Pooled<br>allocated</td>
+            <td class="conns" title="The max. #of connections that the pool is allowed to allocate from the database">max alloc<br>allowed</td>
+            <td class="conns" title="The total #of times a connection was allocated FROM the pool">#allocations<br>from pool</td>
+            <td class="conns" title="The total #of times a connection was allocated FROM the DB">#allocations<br>from DB</td>
+
+        	<!-- Statements block -->
+            <td class="stats">curr</td>
+            <td class="stats">peak open</td>
+            <td class="stats">total</td>
+
+        	<!-- error block -->
+            <td class="errs" title="The #of times a program had to wait for a pooled connection to become available">waits</td>
+            <td class="errs" title="The #of times the pool was exhausted (exception was thrown)">fails</td>
+            <td class="errs" title="The #of times a hanging connection was forcefully released">dangles</td>
+        </tr>

@@ -1,0 +1,90 @@
+<form method="get" name="blubfrm" id="blubfrm" action="Calendar.part">
+<div class="navical"><input id='date' type="hidden" name="date" value="1132927413727" />
+<table border="0" class="navicalendar">
+	<tr>
+		<td><img src="SystemResource.part?img=calendarclose.gif" alt="close" onClick="closeCalendar('calpop')" /></td>
+		<td><img src="SystemResource.part?img=calendarprevyear.gif" alt="previous year" onclick="calendarUpdate('<%= name %>',$F('date'),'next')"/></td>
+		<td><img src="SystemResource.part?img=calendarprevmonth.gif" alt="previous month" /></td>
+		<td><select id="month" name="blubmonth" class="navicalmonth" onchange="calendarUpdate('calpop',$F('date'),'month='+$F('month'))">
+			<option value="0">jan</option>
+			<option value="1">feb</option>
+			<option value="2">mrt</option>
+			<option value="3">apr</option>
+			<option value="4">mei</option>
+			<option value="5">jun</option>
+			<option value="6">jul</option>
+			<option value="7">aug</option>
+			<option value="8">sep</option>
+			<option value="9">okt</option>
+			<option value="10" selected="selected">nov</option>
+			<option value="11">dec</option>
+		</select></td>
+		<td><input type="text" name="blubyear" value="2005" maxlength="4" size="4" /></td>
+		<td><img src="SystemResource.part?img=calendarnextmonth.gif" alt="next month" /></td>
+		<td><img src="SystemResource.part?img=calendarnextyear.gif" alt="next year" /></td>
+	</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0">
+	<tr class="navicalheader">
+		<td class="navicalweekhd">&nbsp;</td>
+		<td class="navicaldaytitle">ma</td>
+		<td class="navicaldaytitle">di</td>
+		<td class="navicaldaytitle">wo</td>
+		<td class="navicaldaytitle">do</td>
+		<td class="navicaldaytitle">vr</td>
+		<td class="navicaldaytitle">za</td>
+		<td class="navicaldaytitle">zo</td>
+	</tr>
+	<tr>
+		<td class="navicalweeknr">44</td>
+		<td class="navicalempty">&nbsp;</td>
+		<td class="navicaldaynr">1</td>
+		<td class="navicaldaynr">2</td>
+		<td class="navicaldaynr">3</td>
+		<td class="navicaldaynr">4</td>
+		<td class="navicaldaynr">5</td>
+		<td class="navicaldaynr">6</td>
+	</tr>
+	<tr>
+		<td class="navicalweeknr">45</td>
+		<td class="navicaldaynr">7</td>
+		<td class="navicaldaynr">8</td>
+		<td class="navicaldaynr">9</td>
+		<td class="navicaldaynr">10</td>
+		<td class="navicaldaynr">11</td>
+		<td class="navicaldaynr">12</td>
+		<td class="navicaldaynr">13</td>
+	</tr>
+	<tr>
+		<td class="navicalweeknr">46</td>
+		<td class="navicaldaynr">14</td>
+		<td class="navicaldaynr">15</td>
+		<td class="navicaldaynr">16</td>
+		<td class="navicaldaynr">17</td>
+		<td class="navicaldaynr">18</td>
+		<td class="navicaldaynr">19</td>
+		<td class="navicaldaynr">20</td>
+	</tr>
+	<tr>
+		<td class="navicalweeknr">47</td>
+		<td class="navicaldaynr">21</td>
+		<td class="navicaldaynr">22</td>
+		<td class="navicaldaynr">23</td>
+		<td class="navicaldaynr">24</td>
+		<td class="navicaldaynr">25</td>
+		<td class="navicaldaynr">26</td>
+		<td class="navicaldaynr">27</td>
+	</tr>
+	<tr>
+		<td class="navicalweeknr">48</td>
+		<td class="navicaldaynr">28</td>
+		<td class="navicaldaynr">29</td>
+		<td class="navicaldaynr">30</td>
+		<td class="navicalempty">&nbsp;</td>
+		<td class="navicalempty">&nbsp;</td>
+		<td class="navicalempty">&nbsp;</td>
+		<td class="navicalempty">&nbsp;</td>
+	</tr>
+</table>
+</div>
+</form>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-j2ee-1.4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jsr305"/>
+	<classpathentry kind="src" path="/bin-slf4j"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.11"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/to.etc.logger"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

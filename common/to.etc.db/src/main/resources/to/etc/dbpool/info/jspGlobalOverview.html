@@ -1,0 +1,22 @@
+<h2>Global statistics (for all pools)</h2>
+<h3>All defined performance indicators: select one.</h3>
+<table width="100%"  class="maintbl">
+	<tr>
+		<td nowrap="nowrap" width="1%">Name</td>
+		<td width="99%">Description</td>
+	</tr>
+<%	for(var i = 0; i < list.size(); i++) {
+		var pl = list.get(i);
+%>
+	<tr class="statrow <%= self.odd() %>">
+		<td width="1%" nowrap="nowrap"><%
+			self.atag(DbPoolUtil.q(pl.getKey()), ["show", "globallist", "list", pl.getKey()]);
+		%></td>
+		<td width="99%"><%= DbPoolUtil.q(pl.getDescription()) %></td>
+	</tr>		
+<%	} %>
+</table>
+
+<br>
+<br>
+<a href="pool.jsp?action=clearglobal&show=globalstats">Clear global statistics</a>

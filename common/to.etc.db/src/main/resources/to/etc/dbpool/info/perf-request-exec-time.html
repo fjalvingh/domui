@@ -1,0 +1,21 @@
+<table width="100%"  class="maintbl">
+	<tr>
+		<td nowrap width="1%">Time</td>
+		<td width="99%">Key</td>
+	</tr>
+<%
+	for(var i = 0; i < items.size(); i++) {
+		var pi = items.get(i);
+%>
+	<tr class="statrow <%= self.odd() %>">
+		<td nowrap width="1%" align="right" valign="top"><%= DbPoolUtil.strNanoTime(pi.getMetric()) %></td>
+		<td width="99%" valign="top"><%= DbPoolUtil.q(pi.getKey()) %> (<a href="#" onclick="toggleStacks('allstk_<%= i %>')">details</a>)
+			<div style="display: none" id="allstk_<%= i %>">
+				<%
+					self.expandTemplate2("perf-requestDetails", ["v", pi.getData()]);
+				%>
+			</div>
+		</td>
+	</tr>
+<%	}	%>
+</table>

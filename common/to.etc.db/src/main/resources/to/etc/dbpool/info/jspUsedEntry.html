@@ -1,0 +1,44 @@
+<%
+	ot = px.getOwnerThread();
+	thr = !ot ? "--" : ot.getName();
+%>
+<tr class="connrow <%= self.odd() %>">
+	<td width="1%" nowrap><%= px.getId() %></td>
+	<td width="1%" nowrap><%= px.isUnpooled() ? "unpooled" : "pooled" %></td>
+	<td width="1%" nowrap><%= DbPoolUtil.strMilli(self.now(), px.getAllocationTime()) %></td>
+	<td width="1%" nowrap><%= DbPoolUtil.strMilli(self.now(), px.getLastUsedTime()) %> ago</td>
+	<td width="1%" nowrap><%= DbPoolUtil.q(thr) %></td>
+	<td><a href="#" onclick="toggleStacks('constk_<%= px.getId() %>')">Show details</a></td>		
+</tr>
+<tr>
+	<td colspan="6">
+		<div id="constk_<%= px.getId() %>" style="display: none;">
+			<h4>Connection allocation point</h4>
+			<div class="stmtstack">
+				<pre><%= DbPoolUtil.getStack(px.getAllocationPoint()) %></pre>
+			</div>
+			<a href="#" onclick="toggleStacks('allstk_<%= px.getId() %>')">Toggle display of all tracepoints</a><br>
+			<div style="display: none" id="allstk_<%= px.getId() %>">
+<%
+				allc = px.getTraceList();
+				var i = 1;
+				while(i < allc.size()) {
+					tp = allc.get(i);
+					i = i + 1;
+					
+%>
+				<h5>Trace <%= i+", "+DbPoolUtil.strMilli(px.getAllocationTime(), tp.getTimestamp())+" after allocation" %></h5>
+				<div class="stmtstack">
+					<pre><%= DbPoolUtil.getStack(tp) %></pre>
+				</div>
+<%					if(tp.getSql()) { %>
+				<div class="stmtdiv">
+					<div class="stmthdr">Associated SQL statement:</div>
+					<pre class="stmtsql"><%= DbPoolUtil.q(tp.getSql()) %></pre>
+				</div>
+<%					} %>
+<%				}  %>
+			</div>
+		</div>
+	</td>
+</tr>

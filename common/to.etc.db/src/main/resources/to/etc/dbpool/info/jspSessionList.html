@@ -1,0 +1,76 @@
+<h1>Session tracing: last requests</h1>
+<table width="100%" border="0" class="tbl statptbl">
+	<thead class="statpheader">
+		<tr>
+			<td colspan="8">&nbsp;</td>
+			<td colspan="1">Prepares</td>
+			<td colspan="4">Execute: query</td>
+			<td colspan="3">Execute: update</td>
+		</tr>		
+		<tr>
+			<td>req#</td>
+			<td>Duration</td>
+			<td title="Time spent in the database in total">DB time</td>
+			<td>URL</td>
+			<td>#conns</td>
+			<td>Phys reads</td>
+			<td>Log reads</td>
+			<td>Log writes</td>
+
+			<!-- Prepares -->
+			<td>#prepares/dur</td>
+			
+			<!-- Executions -->
+			<td>#prepQueries/dur</td>
+			<td>#queryStmt/dur</td>
+			<td>#exec/dur</td>
+			<td>#selrows/dur</td>
+
+			<td>#prepUpdates/dur</td>
+			<td>#updateStmt/dur</td>
+			<td>#updrows</td>
+		</tr>
+	</thead>
+	<tbody>
+<%
+	for(var i = list.size(); --i >= 0;) { // Walk in reverse, newest shown 1st
+		var item = list.get(i); // SessionStatisticsEntry
+		var v = item.getRequest(); // Info
+
+		var m = v.getMetric(1);									// MetricDefinitions: physical reads
+		var physrd = m == null ? "" : m.getFormattedValue();
+
+		m = v.getMetric(2);										// Logical reads
+		var logrd = m == null ? "" : m.getFormattedValue();
+
+		m = v.getMetric(3);										// Logical writes
+		var logwr = m == null ? "" : m.getFormattedValue();
+
+%>
+		<tr class="statprow <%= self.odd()%>">
+			<td><a href="pool.jsp?show=sessionstat&id=<%= item.getRequestId() %>&list=stmt-exec-time"><%= DbPoolUtil.strCommad(item.getId()) %></a></td>
+			<td title="<%= DbPoolUtil.strTime(item.getTS())%>"><%= DbPoolUtil.strNanoTime(v.getDuration())%></td>
+			<td><%= DbPoolUtil.strNanoTime(v.getTotalDBTime())%></td>
+			<td><%= DbPoolUtil.q(v.getIdent()) %></td>
+			<td><%= DbPoolUtil.strCommad(v.getNConnectionAllocations()) %> / <%= DbPoolUtil.strCommad(v.getMaxConcurrentConnections()) %></td>
+
+			<td><%= physrd %></td>
+			<td><%= logrd %></td>
+			<td><%= logwr %></td>
+
+			<!-- Prepares -->
+			<td><%= DbPoolUtil.strCountDur(v.getNPrepares(), v.getPrepareDuration()) %></td>
+
+			<!-- Executions -->
+			<td><%= DbPoolUtil.strCountDur(v.getNPreparedQueries(), v.getPreparedQueryDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNStatementQueries(), v.getStatementQueryDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNExecutes(), v.getExecuteDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNRows(), v.getTotalFetchDuration()) %></td>
+
+			<td><%= DbPoolUtil.strCountDur(v.getNPreparedUpdates(), v.getPreparedUpdateDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNStatementUpdates(), v.getStatementUpdateDuration()) %></td>
+			<td><%= DbPoolUtil.strCommad(v.getNUpdatedRows()) %></td>
+		</tr>
+<% } %>
+	</tbody>
+</table>
