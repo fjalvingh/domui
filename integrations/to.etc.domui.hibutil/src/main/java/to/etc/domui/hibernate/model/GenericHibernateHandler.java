@@ -46,7 +46,8 @@ public class GenericHibernateHandler {
 		try {
 			HibernateCriteriaBuilder critBuilder = ses.getCriteriaBuilder();
 			JpaCriteriaQuery<T> query = critBuilder.createQuery(qc.getBaseClass());
-			qc.visit(new CriteriaCreatingVisitor(ses, query));
+			
+			qc.visit(new CriteriaCreatingVisitor(ses, critBuilder, query, qc));
 			return query;
 		} catch(RuntimeException x) {
 			throw x;

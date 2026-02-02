@@ -72,10 +72,10 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 			setConversationInvalid("Conversation was destroyed");
 			setIgnoreClose(false);
 			SessionImpl sim = (SessionImpl) m_session;
-			StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
-			Map<?, ?> flups = spc.getEntitiesByKey();
-			if(LOG.isDebugEnabled())
-				LOG.debug("Hibernate: closing (destroying) session " + System.identityHashCode(m_session) + " containing " + flups.size() + " persisted instances");
+			//StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
+			//Map<?, ?> flups = spc.getEntitiesByKey();
+			//if(LOG.isDebugEnabled())
+			//	LOG.debug("Hibernate: closing (destroying) session " + System.identityHashCode(m_session) + " containing " + flups.size() + " persisted instances");
 			if(m_session.getTransaction().isActive())
 				m_session.getTransaction().rollback();
 			close();

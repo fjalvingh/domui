@@ -25,28 +25,29 @@
 package to.etc.domui.hibernate.model;
 
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
+import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf.Type.Argument.Projection;
+import org.apache.commons.collections4.functors.ComparatorPredicate.Criterion;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jdt.annotation.NonNull;
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projection;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
 import org.hibernate.internal.SessionFactoryImpl;
-import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.collection.OneToManyPersister;
+import org.hibernate.persister.collection.mutation.RowMutationOperations.Restrictions;
 import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.hibernate.persister.entity.SingleTableEntityPersister;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaOrder;
+import org.hibernate.query.criteria.JpaPredicate;
 import org.hibernate.type.CollectionType;
 import org.hibernate.type.ComponentType;
-import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -54,6 +55,7 @@ import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.util.RuntimeConversions;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.qsql.QQuerySyntaxException;
+import to.etc.webapp.qsql.StringType;
 import to.etc.webapp.query.QBetweenNode;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QCriteriaQueryBase;
@@ -80,6 +82,8 @@ import to.etc.webapp.query.QSubQuery;
 import to.etc.webapp.query.QUnaryNode;
 import to.etc.webapp.query.QUnaryProperty;
 
+import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -87,6 +91,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+
 /**
  * Thingy which creates a Hibernate Criteria thingy from a generic query. This is harder than
  * it looks because the Criteria and DetachedCriteria kludge and Hibernate's metadata dungheap
@@ -99,22 +104,30 @@ import java.util.concurrent.Callable;
  * the wiki page http://info.etc.to/xwiki/bin/view/Main/UIAbstractDatabase for more details
  * on the working of all this.
  *
+ * https://docs.hibernate.org/orm/6.0/migration-guide/#_jakarta_persistence
+ * https://docs.hibernate.org/orm/7.0/migration-guide/#jpa-32
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 24, 2008
  */
 public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	final private Session m_session;
 
+	private final HibernateCriteriaBuilder m_criteriaBuilder;
+
 	/** The topmost Criteria: the one that will be returned to effect the translated query */
 	private final CriteriaQuery<T> m_rootCriteria;
+
+	/** The JPA root item, i.e. the class we query. */
+	private final Root<T> m_rootItem;
 
 	/**
 	 * This either holds a Criteria or a DetachedCriteria; since these are not related (sigh) we must
 	 * use instanceof everywhere. Bad, bad, bad hibernate design.
 	 */
-	private Object m_currentCriteria;
+	private CriteriaQuery<?> m_currentCriteria;
 
-	private Criterion m_last;
+	private JpaPredicate m_last;
 
 	/** After a SUBSELECT parse, (subquery/comparison against subquery) this contains the DetachedCriteria instance created for that query. */
 	private Object m_lastSubqueryCriteria;
@@ -122,56 +135,52 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	/** The next number to use for generating unique names. */
 	private int m_aliasIndex;
 
-	private Class< ? > m_rootClass;
+	private Class<?> m_rootClass;
 
 	/**
 	 * Maps parent relation dotted paths to the alias created for that path.
 	 */
 	private Map<String, String> m_aliasMap = new HashMap<String, String>();
 
-	public CriteriaCreatingVisitor(Session ses, final CriteriaQuery<T> crit) {
+	public CriteriaCreatingVisitor(Session ses, HibernateCriteriaBuilder criteriaBuilder, final CriteriaQuery<T> crit, QCriteria<T> qc) {
 		m_session = ses;
+		m_criteriaBuilder = criteriaBuilder;
 		m_rootCriteria = crit;
 		m_currentCriteria = crit;
+		m_rootItem = crit.from(qc.getBaseClass());
 	}
 
 	/**
 	 * Does a check to see if the class is a persistent class- because Hibernate itself is too
 	 * bloody stupid to do it. Querying an unknown class in Hibernate will return an empty
 	 * result set, sigh.
-	 * @param clz
-	 * @return
 	 */
-	public void checkHibernateClass(Class< ? > clz) {
-		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(clz);
-		if(childmd == null)
+	public void checkHibernateClass(Class<?> clz) {
+		EntityType<?> entity = m_session.getSessionFactory().getMetamodel().entity(clz);
+		if(null == entity)
 			throw new IllegalArgumentException("The class " + clz + " is not known by Hibernate as a persistent class");
 	}
 
 	/**
 	 * Create a new unique alias name.
-	 * @return
 	 */
 	private String nextAlias() {
 		return "a_" + (++m_aliasIndex);
 	}
 
-	private void addCriterion(Criterion c) {
-		if(m_currentCriteria instanceof Criteria) {
-			((Criteria) m_currentCriteria).add(c); // Crapfest
-		} else if(m_currentCriteria instanceof DetachedCriteria) {
-			((DetachedCriteria) m_currentCriteria).add(c);
-		} else
-			throw new IllegalStateException("Unexpected current thing: " + m_currentCriteria);
-	}
+	//private void addCriterion(JpaPredicate c) {
+	//	if(m_currentCriteria instanceof Criteria) {
+	//		((Criteria) m_currentCriteria).add(c); // Crapfest
+	//	} else if(m_currentCriteria instanceof DetachedCriteria) {
+	//		((DetachedCriteria) m_currentCriteria).add(c);
+	//	} else
+	//		throw new IllegalStateException("Unexpected current thing: " + m_currentCriteria);
+	//}
 
-	private void addOrder(Order c) {
-		if(m_currentCriteria instanceof Criteria) {
-			((Criteria) m_currentCriteria).addOrder(c); // Crapfest
-		} else if(m_currentCriteria instanceof DetachedCriteria) {
-			((DetachedCriteria) m_currentCriteria).addOrder(c);
-		} else
-			throw new IllegalStateException("Unexpected current thing: " + m_currentCriteria);
+	private void addOrder(jakarta.persistence.criteria.Order c) {
+		List<jakarta.persistence.criteria.Order> orderList = new ArrayList<>(m_currentCriteria.getOrderList());
+		orderList.add(c);
+		m_currentCriteria = m_currentCriteria.orderBy(orderList);
 	}
 
 	@Override
@@ -214,21 +223,23 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitCriteria(final QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(final QCriteria<?> qc) throws Exception {
 		checkHibernateClass(qc.getBaseClass());
 		m_rootClass = qc.getBaseClass();
 
 		visitRestrictionsBase(qc);
 		visitOrderList(qc.getOrder());
 
-		//-- 2. Handle limits and start: applicable to root criterion only
-		if(qc.getLimit() > 0)
-			m_rootCriteria.setMaxResults(qc.getLimit());
-		if(qc.getStart() > 0) {
-			m_rootCriteria.setFirstResult(qc.getStart());
-		}
-		if(qc.getTimeout() > 0)
-			m_rootCriteria.setTimeout(qc.getTimeout());
+		////-- 2. Handle limits and start: applicable to root criterion only
+		// QTODO - implement limits
+		//if(qc.getLimit() > 0) {
+		//	m_rootCriteria.setMaxResults(qc.getLimit());
+		//}
+		//if(qc.getStart() > 0) {
+		//	m_rootCriteria.setFirstResult(qc.getStart());
+		//}
+		//if(qc.getTimeout() > 0)
+		//	m_rootCriteria.setTimeout(qc.getTimeout());
 
 		//-- 3. Handle fetch.
 		handleFetch(qc);
@@ -236,38 +247,37 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	/**
 	 * Handle fetch selections.
-	 * @param qc
 	 */
 	private void handleFetch(QCriteriaQueryBase<?, ?> qc) {
 		for(Map.Entry<String, QFetchStrategy> ms : qc.getFetchStrategies().entrySet()) {
-			PropertyMetaModel< ? > pmm = MetaManager.findPropertyMeta(m_rootClass, ms.getKey());
+			PropertyMetaModel<?> pmm = MetaManager.findPropertyMeta(m_rootClass, ms.getKey());
 			if(null == pmm)
 				throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey() + " does not resolve on class " + m_rootClass);
 			if(ms.getValue() == QFetchStrategy.LAZY)
 				continue;
 
-			switch(pmm.getRelationType()){
-				case DOWN:
-					m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.SELECT);
-					break;
-//					throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey()
-//						+ " is a child relation (list-of-children). Fetch is not yet supported for that because Hibernate will duplicate the master.");
-
-				case UP:
-					m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.JOIN);
-					break;
-
-				case NONE:
-					throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey() + " is not recognized as a relation property");
-			}
+			// QTODO - implement fetch modes
+			//switch(pmm.getRelationType()){
+			//	case DOWN:
+			//		m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.SELECT);
+			//		break;
+			//
+			//	case UP:
+			//		m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.JOIN);
+			//		break;
+			//
+			//	case NONE:
+			//		throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey() + " is not recognized as a relation property");
+			//}
 		}
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Property path resolution code.						*/
 	/*--------------------------------------------------------------*/
+
 	/** Temp array used in parser to decode the properties reached; used to prevent multiple object allocations. */
-	private PropertyMetaModel< ? >[] m_pendingJoinProps = new PropertyMetaModel[20];
+	private PropertyMetaModel<?>[] m_pendingJoinProps = new PropertyMetaModel[20];
 
 	private String[] m_pendingJoinPaths = new String[20];
 
@@ -275,12 +285,9 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	private String m_inputPath;
 
-	private StringBuilder	m_sb = new StringBuilder();
+	private StringBuilder m_sb = new StringBuilder();
 
-	private PropertyMetaModel< ? > m_targetProperty;
-
-	/** The current subcriteria's base class. */
-	//	private Class< ? > m_subCriteriaClass;
+	private PropertyMetaModel<?> m_targetProperty;
 
 	/**
 	 * Parse a dotted path property. This needs to "translate" the dotted path into a query path, and it
@@ -386,7 +393,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 * </ol>
 	 *
 	 */
-
 	private String parseSubcriteria(String input) {
 		return parseSubcriteria(input, false);
 	}
@@ -394,7 +400,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	private String parseSubcriteria(String input, boolean allowDown) {
 		m_targetProperty = null;
 		m_inputPath = input;
-		Class< ? > currentClass = m_rootClass; // The current class reached by the property; start @ the root entity
+		Class<?> currentClass = m_rootClass; // The current class reached by the property; start @ the root entity
 		String path = null; // The full path currently reached, i.e. "id.version.id.product".
 		String subpath = null; // The subpath reached from the last PK association change, i.e. "id.product"
 		int ix = 0;
@@ -429,7 +435,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			subpath = subpath == null ? name : subpath + "." + name; // Partial dotted path (from the last relation) to the currently reached name
 
 			//-- Get the property metadata and the reached class.
-			PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(currentClass, name);
+			PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(currentClass, name);
 			m_targetProperty = pmm;
 			if(pmm.isPrimaryKey()) {
 				if(previspk)
@@ -489,28 +495,10 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 				java.lang.reflect.Type coltype = pmm.getGenericActualType();
 				if(coltype == null)
 					throw new ProgrammerErrorException("The property '" + path + "' has an undeterminable child type");
-				Class< ? > childtype = MetaManager.findCollectionType(coltype);
+				Class<?> childtype = MetaManager.findCollectionType(coltype);
 
 				//-- We are not really joining here; we're just querying. Drop the pending joinset;
 				m_pendingJoinIx = 0; // Discard all pending;
-
-				//
-				//
-				//				/*
-				//				 * We need to create a joined "exists" query, or get the "existing" one.
-				//				 */
-				//				CritEntry ce = m_subCriteriaMap.get(path);
-				//				if(ce != null) {
-				//					//-- Use this.
-				//					m_subCriteria = ce.getAbomination();
-				//				} else {
-				//					//-- Create a joined subselect
-				//					DetachedCriteria dc = createExistsSubquery(childtype, currentClass, subpath);
-				//					m_subCriteriaMap.put(path, new CritEntry(childtype, dc));
-				//					m_subCriteria = dc;
-				//				}
-				//
-				//				currentClass = childtype;
 
 			} else if(pmm.getRelationType() != PropertyRelationType.NONE) {
 				/*
@@ -563,38 +551,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		throw new IllegalStateException("Should be unreachable?");
 	}
 
-	//	private DetachedCriteria createExistsSubquery(Class< ? > childtype, Class< ? > parentclass, String parentproperty) {
-	//		DetachedCriteria dc = DetachedCriteria.forClass(childtype, nextAlias());
-	//		Criterion exists = Subqueries.exists(dc);
-	//		dc.setProjection(Projections.id()); // Whatever: just some thingy.
-	//
-	//		//-- Append the join condition; we need all children here that are in the parent's collection. We need the parent reference to use in the child.
-	//		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(childtype);
-	//
-	//		//-- Entering the crufty hellhole that is Hibernate meta"data": never seen more horrible cruddy garbage
-	//		ClassMetadata parentmd = m_session.getSessionFactory().getClassMetadata(parentclass);
-	//		int index = findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(parentmd, parentproperty);
-	//		if(index == -1)
-	//			throw new IllegalStateException("Hibernate does not know property");
-	//		Type type = parentmd.getPropertyTypes()[index];
-	//		BagType bt = (BagType) type;
-	//		final OneToManyPersister persister = (OneToManyPersister) ((SessionFactoryImpl) m_session.getSessionFactory()).getCollectionPersister(bt.getRole());
-	//		String[] keyCols = persister.getKeyColumnNames();
-	//
-	//		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
-	//		int fkindex = findCruddyChildProperty(childmd, keyCols);
-	//		if(fkindex < 0)
-	//			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
-	//		String childupprop = childmd.getPropertyNames()[fkindex];
-	//
-	//		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
-	//		String parentAlias = getParentAlias();
-	//		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
-	//
-	//		addCriterion(exists);
-	//		return dc;
-	//	}
-
 	private StringBuilder sb() {
 		m_sb.setLength(0);
 		return m_sb;
@@ -602,7 +558,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	/**
 	 * Append all property names to the path.
-	 * @return
 	 */
 	private void createPendingJoinPath(StringBuilder sb) {
 		for(int i = 0; i < m_pendingJoinIx; i++) {
@@ -626,7 +581,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 		//-- Create the join path upto and including till the last relation (subpath from last criterion to it).
 		m_sb.setLength(0);
-		PropertyMetaModel< ? > pmm = null;
+		PropertyMetaModel<?> pmm = null;
 		for(int i = 0; i < m_pendingJoinIx; i++) {
 			pmm = m_pendingJoinProps[i];
 			if(m_sb.length() != 0)
@@ -642,13 +597,11 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	/**
 	 *
-	 * @param rootAlias		The current alias which starts off this last segment, or "" if we start from root object.
-	 * @param fullpath		The root object absolute path, i.e. the input up to the current level including the relation property
-	 * @param relativepath	The relative path from the rootAlias.
-	 * @param pmm
-	 * @return
+	 * @param rootAlias        The current alias which starts off this last segment, or "" if we start from root object.
+	 * @param fullpath        The root object absolute path, i.e. the input up to the current level including the relation property
+	 * @param relativepath    The relative path from the rootAlias.
 	 */
-	private String getPathAlias(String rootAlias, String fullpath, String relativepath, PropertyMetaModel< ? > pmm) {
+	private String getPathAlias(String rootAlias, String fullpath, String relativepath, PropertyMetaModel<?> pmm) {
 		String alias = m_aliasMap.get(fullpath); // Path is already known?
 		if(null != alias)
 			return alias;
@@ -661,28 +614,24 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 		m_aliasMap.put(fullpath, nextAlias);
 
-		//-- We need to create this join.
-		int joinType = pmm.isRequired() ? CriteriaSpecification.INNER_JOIN : CriteriaSpecification.LEFT_JOIN;
-		if(m_currentCriteria instanceof Criteria) {
-			((Criteria) m_currentCriteria).createAlias(aliasedPath, nextAlias, joinType); // Crapfest
-		} else if(m_currentCriteria instanceof DetachedCriteria) {
-			((DetachedCriteria) m_currentCriteria).createAlias(aliasedPath, nextAlias, joinType);
-		} else
-			throw new IllegalStateException("Unexpected current thing: " + m_currentCriteria);
-		return nextAlias;
+		// QTODO Implement
+		throw new NotImplementedException("path aliases");
+
+		////-- We need to create this join.
+		//int joinType = pmm.isRequired() ? CriteriaSpecification.INNER_JOIN : CriteriaSpecification.LEFT_JOIN;
+		//if(m_currentCriteria instanceof Criteria) {
+		//	((Criteria) m_currentCriteria).createAlias(aliasedPath, nextAlias, joinType); // Crapfest
+		//} else if(m_currentCriteria instanceof DetachedCriteria) {
+		//	((DetachedCriteria) m_currentCriteria).createAlias(aliasedPath, nextAlias, joinType);
+		//} else
+		//	throw new IllegalStateException("Unexpected current thing: " + m_currentCriteria);
+		//return nextAlias;
 	}
 
-
-	//	private void dumpStateError(String string) {
-	//		throw new IllegalStateException(string);
-	//	}
-
 	/**
-	 * Push a pending join or PK fragment on the TODO stack.
-	 * @param path
-	 * @param pmm
+	 * Push a pending join or PK fragment on the TO-DO stack.
 	 */
-	private void pushPendingJoin(String path, PropertyMetaModel< ? > pmm) {
+	private void pushPendingJoin(String path, PropertyMetaModel<?> pmm) {
 		if(m_pendingJoinIx >= m_pendingJoinPaths.length)
 			throw new QQuerySyntaxException("The property path " + m_inputPath + " is too complex");
 		m_pendingJoinPaths[m_pendingJoinIx] = path;
@@ -704,43 +653,47 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 		//-- If prop refers to some relation (dotted pair):
 		name = parseSubcriteria(name);
-
-		Criterion last = null;
+		JpaPredicate last = null;
+		Root<Object> tgt = (Root<Object>) m_rootItem;
 		switch(n.getOperation()){
 			default:
 				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
 
 			case EQ:
 				if(lit.getValue() == null) {
-					last = Restrictions.isNull(name);
+					last = m_criteriaBuilder.isNull(tgt.get(name));
 					break;
 				}
-				last = Restrictions.eq(name, lit.getValue());
+				last = m_criteriaBuilder.equal(tgt.get(name), lit.getValue());
 				break;
 			case NE:
 				if(lit.getValue() == null) {
-					last = Restrictions.isNotNull(name);
+					last = m_criteriaBuilder.isNotNull(tgt.get(name));
 					break;
 				}
-				last = Restrictions.ne(name, lit.getValue());
+				last = m_criteriaBuilder.notEqual(tgt.get(name), lit.getValue());
 				break;
 			case GT:
-				last = Restrictions.gt(name, lit.getValue());
+				Expression<Comparable<Object>> expr = tgt.get(name);
+				last = m_criteriaBuilder.greaterThan(tgt.get(name), (Comparable<Object>) lit.getValue());
 				break;
 			case GE:
-				last = Restrictions.ge(name, lit.getValue());
+				expr = tgt.get(name);
+				last = m_criteriaBuilder.greaterThanOrEqualTo(tgt.get(name), (Comparable<Object>) lit.getValue());
 				break;
 			case LT:
-				last = Restrictions.lt(name, lit.getValue());
+				expr = tgt.get(name);
+				last = m_criteriaBuilder.lessThan(tgt.get(name), (Comparable<Object>) lit.getValue());
 				break;
 			case LE:
-				last = Restrictions.le(name, lit.getValue());
+				expr = tgt.get(name);
+				last = m_criteriaBuilder.lessThanOrEqualTo(tgt.get(name), (Comparable<Object>) lit.getValue());
 				break;
 			case LIKE:
 				handleLikeOperation(name, m_targetProperty, lit.getValue());
 				return;
 			case ILIKE:
-				last = Restrictions.ilike(name, lit.getValue());
+				last = m_criteriaBuilder.ilike(tgt.get(name), (String) lit.getValue());
 				break;
 		}
 
@@ -754,136 +707,122 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		QLiteral lit = null;
 		if(rhs.getOperation() == QOperation.LITERAL) {
 			Object litval = ((QLiteral) rhs).getValue();
-			if(litval instanceof Collection) {
+			if(litval instanceof Collection<?> co) {
 				//-- If prop refers to some relation (dotted pair):
 				name = parseSubcriteria(name);
-				m_last = Restrictions.in(name, (Collection<Object>) litval);
+				m_last = m_criteriaBuilder.in(m_rootItem.get(name), co);
 				return;
 			} else {
-				throw new QQuerySyntaxException("Unexpected value for 'in' operation: " + litval+", should be Collection or subquery");
+				throw new QQuerySyntaxException("Unexpected value for 'in' operation: " + litval + ", should be Collection or subquery");
 			}
 		} else if(rhs.getOperation() == QOperation.SELECTION_SUBQUERY) {
-			QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
-			qsq.visit(this); 										// Resolve subquery
-			String fullName = parseSubcriteria(n.getProperty());	// Handle dotted pair in name
-			m_last = Subqueries.propertyIn(fullName, (DetachedCriteria) m_lastSubqueryCriteria);
-			return;
+			// QTODO - implement subquery IN
+			throw new NotImplementedException("in subquery not implemented yet");
+			//QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
+			//qsq.visit(this);                                        // Resolve subquery
+			//String fullName = parseSubcriteria(n.getProperty());    // Handle dotted pair in name
+			//m_last = Subqueries.propertyIn(fullName, (DetachedCriteria) m_lastSubqueryCriteria);
+			//return;
 		} else
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 	}
 
-	private void handleLikeOperation(String name, PropertyMetaModel< ? > pmm, Object value) throws Exception {
+	private void handleLikeOperation(String name, PropertyMetaModel<?> pmm, Object value) throws Exception {
 		//-- Check if there is a type mismatch in parameter type...
 		if(!(value instanceof String))
 			throw new QQuerySyntaxException("The argument to 'like' must be a string (and cannot be null), the value passed is: " + value);
 
 		if(pmm == null || pmm.getActualType() == String.class) {
-			m_last = Restrictions.like(name, value);
+			m_last = m_criteriaBuilder.like(m_rootItem.get(name), (String) value);
 			return;
 		}
 
-		ClassMetadata hibmd = m_session.getSessionFactory().getClassMetadata(pmm.getClassModel().getActualClass());
-		if(null == hibmd)
+		Metamodel metamodel = m_session.getMetamodel();
+		EntityType<?> entity = metamodel.entity(pmm.getActualType());
+		if(null == entity)
 			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm);
+		Attribute<?, ?> declaredAttribute = entity.getDeclaredAttribute(name);
+		if(null == declaredAttribute)
+			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + name + " on class " + pmm.getActualType());
 
-		if(!(hibmd instanceof AbstractEntityPersister))
-			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm + ": expecting AbstractEntityPersister, got a " + hibmd.getClass());
-		AbstractEntityPersister aep = (AbstractEntityPersister) hibmd;
-		String[] colar = getPropertyColumnNamesFromLousyMetadata(aep, name);
-		if(colar.length != 1)
-			throw new IllegalStateException("Attempt to do a 'like' on a multi-column property: " + pmm);
-		String columnName = colar[0];
-		int dotix = name.lastIndexOf('.');
-		String propertyName = name;
-		if(dotix > -1) {
-			propertyName = name.substring(dotix + 1);
-		}
-		var property = Objects.requireNonNull(pmm.getClassModel().findProperty(propertyName));
-		if(dotix == -1) {
-			//-- We need Hibernate metadata to find the column name....
-			if (RuntimeConversions.isNumeric(property.getActualType()) && ((String) value).contains("%")) {
-				m_last = Restrictions.sqlRestriction("CAST({alias}." + columnName + " AS VARCHAR) like ?", value, StringType.INSTANCE);
-			} else {
-				m_last = Restrictions.sqlRestriction("{alias}." + columnName + " like ?", value, StringType.INSTANCE);
-			}
-			return;
-		}
-		String sql;
-		if ( RuntimeConversions.isNumeric(property.getActualType()) && ((String) value).contains("%")) {
-			sql = "CAST({" + name + "} AS VARCHAR) like ?";
-		} else {
-			sql = "{" + name + "} like ?";
-		}
-		m_last = new HibernateAliasedSqlCriterion(sql, value, StringType.INSTANCE);
+		// QTODO - implement type casting for like on non-string properties
+		throw new NotImplementedException("like on non-string properties not implemented yet");
+		//AbstractEntityPersister aep = (AbstractEntityPersister) hibmd;
+		//String[] colar = getPropertyColumnNamesFromLousyMetadata(aep, name);
+		//if(colar.length != 1)
+		//	throw new IllegalStateException("Attempt to do a 'like' on a multi-column property: " + pmm);
+		//String columnName = colar[0];
+		//int dotix = name.lastIndexOf('.');
+		//String propertyName = name;
+		//if(dotix > -1) {
+		//	propertyName = name.substring(dotix + 1);
+		//}
+		//var property = Objects.requireNonNull(pmm.getClassModel().findProperty(propertyName));
+		//if(dotix == -1) {
+		//	//-- We need Hibernate metadata to find the column name....
+		//	if(RuntimeConversions.isNumeric(property.getActualType()) && ((String) value).contains("%")) {
+		//		m_last = Restrictions.sqlRestriction("CAST({alias}." + columnName + " AS VARCHAR) like ?", value, StringType.INSTANCE);
+		//	} else {
+		//		m_last = Restrictions.sqlRestriction("{alias}." + columnName + " like ?", value, StringType.INSTANCE);
+		//	}
+		//	return;
+		//}
+		//String sql;
+		//if(RuntimeConversions.isNumeric(property.getActualType()) && ((String) value).contains("%")) {
+		//	sql = "CAST({" + name + "} AS VARCHAR) like ?";
+		//} else {
+		//	sql = "{" + name + "} like ?";
+		//}
+		//m_last = new HibernateAliasedSqlCriterion(sql, value, StringType.INSTANCE);
 	}
 
-	/**
-	 * Hibernate's jokish metadata does not include the PK in it's properties structures. So
-	 * we explicitly need to check if the name is the PK property, then return the column names
-	 * for that PK.
-	 *
-	 * @param aep
-	 * @param compoundName
-	 * @return
-	 */
-	@NonNull
-	private String[] getPropertyColumnNamesFromLousyMetadata(AbstractEntityPersister aep, String compoundName) {
-		String name = compoundName;
-		int dotix = compoundName.lastIndexOf('.');
-		if(dotix != -1) {
-			name = compoundName.substring(dotix + 1);
-		}
-
-		//-- The PK property is not part of the "properties" in hibernate's idiot metadata. So first check if we're looking at that ID property.
-		if(name.equals(aep.getIdentifierPropertyName())) {
-			return aep.getIdentifierColumnNames();
-		}
-		int ix = aep.getPropertyIndex(name);
-		if(ix < 0)
-			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + name + ": property index not found");
-		String[] colar = aep.getPropertyColumnNames(ix);
-		if(colar == null || colar.length != 1/* || colar[0] == null*/)
-			throw new QQuerySyntaxException("'Like' cannot be done on multicolumn/0column property " + name);
-		return colar;
-	}
+	///**
+	// * Hibernate's jokish metadata does not include the PK in it's properties structures. So
+	// * we explicitly need to check if the name is the PK property, then return the column names
+	// * for that PK.
+	// */
+	//@NonNull
+	//private String[] getPropertyColumnNamesFromLousyMetadata(AbstractEntityPersister aep, String compoundName) {
+	//	String name = compoundName;
+	//	int dotix = compoundName.lastIndexOf('.');
+	//	if(dotix != -1) {
+	//		name = compoundName.substring(dotix + 1);
+	//	}
+	//
+	//	//-- The PK property is not part of the "properties" in hibernate's idiot metadata. So first check if we're looking at that ID property.
+	//	if(name.equals(aep.getIdentifierPropertyName())) {
+	//		return aep.getIdentifierColumnNames();
+	//	}
+	//	int ix = aep.getPropertyIndex(name);
+	//	if(ix < 0)
+	//		throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + name + ": property index not found");
+	//	String[] colar = aep.getPropertyColumnNames(ix);
+	//	if(colar == null || colar.length != 1/* || colar[0] == null*/)
+	//		throw new QQuerySyntaxException("'Like' cannot be done on multicolumn/0column property " + name);
+	//	return colar;
+	//}
 
 
 	private void handlePropertySubcriteriaComparison(QPropertyComparison n) throws Exception {
-		QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
-		qsq.visit(this); // Resolve subquery
-		String name = parseSubcriteria(n.getProperty()); // Handle dotted pair in name
-		Criterion last = null;
-
-		switch(n.getOperation()){
-			default:
-				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
-
-			case EQ:
-				last = Subqueries.propertyIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
-				break;
-			case NE:
-				last = Subqueries.propertyNotIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
-				break;
-//			case GT:
-//				last = Restrictions.gt(name, lit.getValue());
-//				break;
-//			case GE:
-//				last = Restrictions.ge(name, lit.getValue());
-//				break;
-//			case LT:
-//				last = Restrictions.lt(name, lit.getValue());
-//				break;
-//			case LE:
-//				last = Restrictions.le(name, lit.getValue());
-//				break;
-//			case LIKE:
-//				last = Restrictions.like(name, lit.getValue());
-//				break;
-//			case ILIKE:
-//				last = Restrictions.ilike(name, lit.getValue());
-//				break;
-		}
-		m_last = last;
+		// QTODO - implement property subcriteria comparison
+		throw new NotImplementedException("property subcriteria comparison not implemented yet");
+		//QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
+		//qsq.visit(this); // Resolve subquery
+		//String name = parseSubcriteria(n.getProperty()); // Handle dotted pair in name
+		//Criterion last = null;
+		//
+		//switch(n.getOperation()){
+		//	default:
+		//		throw new IllegalStateException("Unexpected operation: " + n.getOperation());
+		//
+		//	case EQ:
+		//		last = Subqueries.propertyIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
+		//		break;
+		//	case NE:
+		//		last = Subqueries.propertyNotIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
+		//		break;
+		//}
+		//m_last = last;
 	}
 
 	@Override
@@ -896,7 +835,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		//-- If prop refers to some relation (dotted pair):
 		String name = n.getProp();
 		name = parseSubcriteria(name);
-		m_last = Restrictions.between(name, a.getValue(), b.getValue()); // jal 20101228 was p.getProp() instead of name, which seems to be wrong.
+		m_last = m_criteriaBuilder.between(m_rootItem.get(name), (Comparable) a.getValue(), (Comparable) b.getValue());
 	}
 
 	/**
@@ -907,43 +846,34 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	@Override
 	public void visitMulti(final QMultiNode inn) throws Exception {
 		//-- Walk all members, create nodes from 'm.
-		Criterion c1 = null;
-		for(QOperatorNode n : inn.getChildren()) {
-			n.visit(this); // Convert node to Criterion thingydoodle
-			if(c1 == null) {
-				c1 = m_last; // If 1st one use as lhs,
+		List<Predicate> list = new ArrayList<>(inn.getChildren().size());
+		for(QOperatorNode on : inn.getChildren()) {
+			on.visit(this); // Convert node to Criterion thingydoodle
+			if(m_last != null) {
+				list.add(m_last);
 				m_last = null;
-			} else {
-				switch(inn.getOperation()){
-					default:
-						throw new IllegalStateException("Unexpected operation: " + inn.getOperation());
-					case AND:
-						if(m_last != null) {
-							c1 = Restrictions.and(c1, m_last);
-							m_last = null;
-						}
-						break;
-					case OR:
-						if(m_last != null) {
-							c1 = Restrictions.or(c1, m_last);
-							m_last = null;
-						}
-						break;
-				}
 			}
 		}
-		// jal 20100122 FIXME Remove to allow combinatories on subchildren; needs to be revisited when join/logic is formalized.
-		//		if(c1 == null)
-		//			throw new IllegalStateException("? Odd multi - no members?!");
-		m_last = c1;
+
+		switch(inn.getOperation()){
+			default:
+				throw new IllegalStateException("Unexpected operation: " + inn.getOperation());
+			case AND:
+				m_last = m_criteriaBuilder.and(list);
+				break;
+			case OR:
+				m_last = m_criteriaBuilder.or(list);
+				break;
+		}
 	}
 
 	@Override
 	public void visitOrder(final QOrder o) throws Exception {
 		String name = o.getProperty();
 		name = parseSubcriteria(name);
-		Order ho = o.getDirection() == QSortOrderDirection.ASC ? Order.asc(name) : Order.desc(name);
-		addOrder(ho);
+		Path<Object> path = m_rootItem.get(name);
+		JpaOrder jpaOrder = QSortOrderDirection.ASC == o.getDirection() ? m_criteriaBuilder.asc(path) : m_criteriaBuilder.desc(path);
+		addOrder(jpaOrder);
 	}
 
 	@Override
@@ -952,16 +882,18 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 			case SQL:
-				if(n.getNode() instanceof QLiteral) {
-					QLiteral l = (QLiteral) n.getNode();
-					String s = (String) l.getValue();
-					m_last = Restrictions.sqlRestriction(s);
-					return;
-				}
 				break;
+				// QTODO - implement unary SQL restriction
+				//if(n.getNode() instanceof QLiteral) {
+				//	QLiteral l = (QLiteral) n.getNode();
+				//	String s = (String) l.getValue();
+				//	m_last = Restrictions.sqlRestriction(s);
+				//	return;
+				//}
+				//break;
 			case NOT:
 				n.getNode().visit(this);
-				m_last = Restrictions.not(m_last);
+				m_last = m_criteriaBuilder.not(m_last);
 				return;
 		}
 		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
@@ -969,27 +901,30 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	@Override
 	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {
-		if(v.getParameters().length == 0) {
-			m_last = Restrictions.sqlRestriction(v.getSql());
-			return;
-		}
-
-		//-- Parameterized SQL query -> convert to Hibernate types.
-		Type[] htar = new Type[v.getParameters().length];
-		for(int i = 0; i < v.getTypes().length; i++) {
-			Class< ? > c = v.getTypes()[i];
-			if(c == null)
-				throw new QQuerySyntaxException("Type array for SQLRestriction cannot contain null");
-			org.hibernate.TypeHelper th = m_session.getTypeHelper();
-
-			Type t = th.basic(c.getName());
-			if(null == t) {
-				throw new QQuerySyntaxException("Type[" + i + "] in type array (a " + c + ") is not a proper Hibernate type");
-
-			}
-			htar[i] = t;
-		}
-		m_last = Restrictions.sqlRestriction(v.getSql(), v.getParameters(), htar);
+		// QTODO - implement SQL restriction
+		throw new NotImplementedException("SQL restriction not implemented yet");
+		//if(v.getParameters().length == 0) {
+		//	m_last = Restrictions.sqlRestriction(v.getSql());
+		//	return;
+		//}
+		//
+		////-- Parameterized SQL query -> convert to Hibernate types.
+		//Type[] htar = new Type[v.getParameters().length];
+		//for(int i = 0; i < v.getTypes().length; i++) {
+		//	Class<?> c = v.getTypes()[i];
+		//	if(c == null)
+		//		throw new QQuerySyntaxException("Type array for SQLRestriction cannot contain null");
+		//	org.hibernate.TypeHelper th = m_session.getTypeHelper();
+		//
+		//	Type t = th.basic(c.getName());
+		//	if(null == t) {
+		//		throw new QQuerySyntaxException("Type[" + i + "] in type array (a " + c + ") is not a proper Hibernate type");
+		//
+		//	}
+		//	htar[i] = t;
+		//}
+		//m_last = Restrictions.sqlRestriction(v.getSql(), v.getParameters(), htar);
+		//m_last = m_criteriaBuilder.sql();
 	}
 
 	@Override
@@ -1003,10 +938,10 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 
 			case ISNOTNULL:
-				c = Restrictions.isNotNull(name);
+				m_last = m_criteriaBuilder.isNotNull(m_rootItem.get(name));
 				break;
 			case ISNULL:
-				c = Restrictions.isNull(name);
+				m_last = m_criteriaBuilder.isNull(m_rootItem.get(name));
 				break;
 		}
 		m_last = c;
@@ -1025,13 +960,13 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 * @see to.etc.webapp.query.QNodeVisitorBase#visitExistsSubquery(to.etc.webapp.query.QExistsSubquery)
 	 */
 	@Override
-	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {
+	public void visitExistsSubquery(QExistsSubquery<?> q) throws Exception {
 		String parentAlias = getCurrentAlias();
-		Class< ? > parentBaseClass = q.getParentQuery().getBaseClass();
+		Class<?> parentBaseClass = q.getParentQuery().getBaseClass();
 
 		refactorToSubExistsIfNeeded(q);
 
-		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
+		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
 		String childListProperty = q.getParentProperty();
 		int ldot = childListProperty.lastIndexOf('.');
 		if(ldot != -1) {
@@ -1058,18 +993,16 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 		//-- Make sure there is a where condition to restrict
 		QOperatorNode where = q.getRestrictions();
-//		if(where == null)
-//			throw new ProgrammerErrorException("exists subquery has no restrictions: " + this);
 
 		//-- Get the list's generic compound type because we're unable to get it from Hibernate easily.
-		Class< ? > coltype = MetaManager.findCollectionType(pmm.getGenericActualType());
+		Class<?> coltype = MetaManager.findCollectionType(pmm.getGenericActualType());
 		if(coltype == null)
 			throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' has an undeterminable child type");
 
 		//-- 2. Create an exists subquery; create a sub-statement
 		DetachedCriteria dc = DetachedCriteria.forClass(coltype, nextAlias());
 		Criterion exists = Subqueries.exists(dc);
-		dc.setProjection(Projections.id());									// Whatever: just some thingy.
+		dc.setProjection(Projections.id());                                    // Whatever: just some thingy.
 
 		//-- Append the join condition; we need all children here that are in the parent's collection. We need the parent reference to use in the child.
 		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(coltype);
@@ -1096,7 +1029,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
 		Object old = m_currentCriteria;
-		Class< ? > oldroot = m_rootClass;
+		Class<?> oldroot = m_rootClass;
 		Map<String, String> oldAliases = m_aliasMap;
 		m_aliasMap = new HashMap<String, String>();
 
@@ -1120,13 +1053,12 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 * In case that we specify exists sub query with multiple lists on exists sub query property path,
 	 * we refactor ongoing exists into 2 expressions. Current one we modify to just path until first encountered list property,
 	 * and from the rest of the path we add new exists as subexpression of current one.
-	 * @param q
 	 */
 	private void refactorToSubExistsIfNeeded(QExistsSubquery<?> q) {
 		//-- If we have a dotted name it can only be parent.parent.parent.childList like (with multiple parents). Parse all parents.
 		String existsSubqueryPropertyPath = q.getParentProperty();
 		if(existsSubqueryPropertyPath.indexOf('.') > -1) {
-			Class< ? > parentBaseClass = q.getParentQuery().getBaseClass();
+			Class<?> parentBaseClass = q.getParentQuery().getBaseClass();
 			Triple<String, Class<?>, String> headClassAndTail = splitAfterFirstList(parentBaseClass, existsSubqueryPropertyPath);
 			String headListExpression = headClassAndTail.getLeft();
 			Class<?> actualTypeOfFirstList = headClassAndTail.getMiddle();
@@ -1142,7 +1074,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		}
 	}
 
-	private Triple<String, Class< ? >, String> splitAfterFirstList(Class< ? > currentClass, String input) {
+	private Triple<String, Class<?>, String> splitAfterFirstList(Class<?> currentClass, String input) {
 		String path = null; // The full path currently reached, i.e. "id.version.id.product".
 		int ix = 0;
 		final int len = input.length();
@@ -1158,14 +1090,14 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			path = path == null ? name : path + "." + name; // Full dotted path to the currently reached name
 
 			PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(currentClass, name);
-			if (null == pmm) {
+			if(null == pmm) {
 				throw new IllegalStateException("Unable to resolve pmm from " + currentClass + ", property " + name);
 			}
 			if(List.class.isAssignableFrom(pmm.getActualType())) {
 				java.lang.reflect.Type coltype = pmm.getGenericActualType();
 				if(coltype == null)
 					throw new ProgrammerErrorException("The property '" + path + "' has an undeterminable child type");
-				Class< ? > childtype = MetaManager.findCollectionType(coltype);
+				Class<?> childtype = MetaManager.findCollectionType(coltype);
 				return Triple.of(path, childtype, ix < len ? input.substring(ix) : null);
 			} else {
 				currentClass = pmm.getActualType();
@@ -1185,13 +1117,10 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	/**
 	 * Try to locate the property in the child that refers to the parent in a horrible way.
-	 * @param cm
-	 * @param keyCols
-	 * @return
 	 */
 	private String findCruddyChildProperty(ClassMetadata cm, String[] keyCols) {
 		SingleTableEntityPersister fuckup = (SingleTableEntityPersister) cm;
-		for(int i = fuckup.getPropertyNames().length; --i >= 0;) {
+		for(int i = fuckup.getPropertyNames().length; --i >= 0; ) {
 			String[] cols = fuckup.getPropertyColumnNames(i);
 			if(Arrays.equals(keyCols, cols)) {
 				return cm.getPropertyNames()[i];
@@ -1221,14 +1150,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		if(idtype instanceof ComponentType) {
 			ComponentType ct = (ComponentType) idtype;
 
-			//			for(int scp = 0; scp < fuckup.countSubclassProperties(); scp++) { There's no end to the incredible mess.
-			//				String scpn = fuckup.getSubclassPropertyName(scp);
-			//				cols = fuckup.getSubclassPropertyColumnNames(scpn);
-			//				System.out.println("prop: " + scpn + ", cols=" + Arrays.toString(cols));
-			//			}
-			//
-
-			String[] xx = fuckup.getSubclassPropertyColumnNames(idname);
 			String[] cpnar = ct.getPropertyNames();
 			for(int i = 0; i < cpnar.length; i++) {
 				String pname = cpnar[i];
@@ -1245,12 +1166,9 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	/**
 	 * Damn.
-	 * @param md
-	 * @param name
-	 * @return
 	 */
 	static private int findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(ClassMetadata md, String name) {
-		for(int i = md.getPropertyNames().length; --i >= 0;) {
+		for(int i = md.getPropertyNames().length; --i >= 0; ) {
 			if(md.getPropertyNames()[i].equals(name))
 				return i;
 		}
@@ -1272,7 +1190,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSelection(QSelection< ? > s) throws Exception {
+	public void visitSelection(QSelection<?> s) throws Exception {
 		if(m_proli != null)
 			throw new IllegalStateException("? Projection list already initialized??");
 		checkHibernateClass(s.getBaseClass());
@@ -1348,26 +1266,16 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Subqueries (correlated/uncorrelated).				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This handles rendering of a correlated subquery.
 	 *
 	 * @see to.etc.webapp.query.QNodeVisitor#visitSubquery(to.etc.webapp.query.QSubQuery)
 	 */
 	@Override
-	public void visitSubquery(@NonNull final QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull final QSubQuery<?, ?> n) throws Exception {
 		n.getParent().internalUseQuery(n);
 		visitSelection(n);
-//
-//
-//		DetachedCriteria dc = DetachedCriteria.forClass(n.getBaseClass(), nextAlias());
-//		recurseSubquery(dc, n, new Callable<Void>() {
-//			@Override
-//			public Void call() throws Exception {
-//				visitSelection(n);
-//
-//				return null;
-//			}
-//		});
 	}
 
 	/**
@@ -1389,18 +1297,15 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	/**
 	 * Save the whole current state, then recurse a subquery.
-	 * @param dc
-	 * @param n
-	 * @throws Exception
 	 */
-	private void recurseSubquery(@NonNull DetachedCriteria dc, @NonNull QSelection< ? > n, Callable<Void> callable) throws Exception {
+	private void recurseSubquery(@NonNull DetachedCriteria dc, @NonNull QSelection<?> n, Callable<Void> callable) throws Exception {
 		//-- Recursively apply all parts to the detached thingerydoo
 		ProjectionList oldpro = m_proli;
 		m_proli = null;
 		Projection oldlastproj = m_lastProj;
 		m_lastProj = null;
 		Object oldCriteria = m_currentCriteria;
-		Class< ? > oldroot = m_rootClass;
+		Class<?> oldroot = m_rootClass;
 		Map<String, String> oldAliases = m_aliasMap;
 		m_aliasMap = new HashMap<String, String>();
 		String oldParentAlias = m_parentAlias;
@@ -1427,9 +1332,9 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	@Override
 	public void visitPropertyJoinComparison(@NonNull QPropertyJoinComparison comparison) throws Exception {
 		String alias = m_parentAlias + "." + parseSubcriteria(comparison.getParentProperty());
-		switch(comparison.getOperation()) {
+		switch(comparison.getOperation()){
 			default:
-				throw new QQuerySyntaxException("Unsupported parent-join operation: "+comparison.getOperation());
+				throw new QQuerySyntaxException("Unsupported parent-join operation: " + comparison.getOperation());
 
 			case EQ:
 				m_last = Restrictions.eqProperty(alias, comparison.getSubProperty());
@@ -1463,7 +1368,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			o.visit(this);
 	}
 
-	public void visitSelectionColumns(@NonNull QSelection< ? > s) throws Exception {
+	public void visitSelectionColumns(@NonNull QSelection<?> s) throws Exception {
 		for(@NonNull QSelectionColumn col : s.getColumnList())
 			col.visit(this);
 	}
