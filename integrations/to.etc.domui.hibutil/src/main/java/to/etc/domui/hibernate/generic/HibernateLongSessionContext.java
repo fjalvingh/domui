@@ -24,15 +24,11 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import jakarta.persistence.FlushModeType;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
-import org.hibernate.engine.internal.StatefulPersistenceContext;
 import org.hibernate.internal.SessionImpl;
 import to.etc.domui.state.AbstractConversationContext;
 import to.etc.webapp.query.QDataContextFactory;
-
-import java.util.Map;
 
 /**
  * A context that keeps the session alive but in disconnected mode while running. The session
@@ -103,9 +99,9 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		 */
 		//if(m_session.getTransaction().isActive())
 		//	m_session.getTransaction().rollback();
-		m_session.disconnect(); // Disconnect the dude.
-		//		if(m_session.isConnected())
-		//			System.out.println("Session connected after disconnect ;-)");
+
+		// QTODO Handle this
+		//m_session.disconnect(); // Disconnect the dude.
 	}
 
 	@Override

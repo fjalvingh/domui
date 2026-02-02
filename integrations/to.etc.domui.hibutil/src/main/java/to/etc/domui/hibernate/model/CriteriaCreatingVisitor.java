@@ -127,7 +127,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 */
 	private Map<String, String> m_aliasMap = new HashMap<String, String>();
 
-	public CriteriaCreatingVisitor(Session ses, HibernateCriteriaBuilder criteriaBuilder, final CriteriaQuery<T> crit, QCriteria<T> qc) {
+	public CriteriaCreatingVisitor(Session ses, HibernateCriteriaBuilder criteriaBuilder, final CriteriaQuery<T> crit, QCriteriaQueryBase<T, ?> qc) {
 		m_session = ses;
 		m_criteriaBuilder = criteriaBuilder;
 		m_rootCriteria = crit;

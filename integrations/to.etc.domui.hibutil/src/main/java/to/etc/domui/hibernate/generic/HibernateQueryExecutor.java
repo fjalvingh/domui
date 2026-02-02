@@ -24,7 +24,9 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import org.hibernate.Criteria;
+import jakarta.persistence.criteria.CriteriaQuery;
+import org.apache.commons.lang3.NotImplementedException;
+import org.hibernate.query.Query;
 import to.etc.domui.hibernate.model.GenericHibernateHandler;
 import to.etc.webapp.query.ICriteriaTableDef;
 import to.etc.webapp.query.IQueryExecutor;
@@ -33,8 +35,6 @@ import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QSelection;
 
-import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -78,17 +78,18 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 	 */
 	@Override
 	public void delete(BuggyHibernateBaseContext root, Object o) throws Exception {
-		root.getSession().delete(o);
+		root.getSession().remove(o);
 	}
 
 	@Override
 	public <T> T find(BuggyHibernateBaseContext root, Class<T> clz, Object pk) throws Exception {
-		return (T) root.getSession().get(clz, (Serializable) pk);
+		return root.getSession().find(clz, pk);
+		//return (T) root.getSession().get(clz, (Serializable) pk);
 	}
 
 	@Override
 	public <T> T getInstance(BuggyHibernateBaseContext root, Class<T> clz, Object pk) throws Exception {
-		return (T) root.getSession().load(clz, (Serializable) pk); // Do not check if instance exists.
+		return root.getSession().getReference(clz, pk);
 	}
 
 	@Override
@@ -103,24 +104,27 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 
 	@Override
 	public <T> List<T> query(BuggyHibernateBaseContext root, QCriteria<T> q) throws Exception {
-		Criteria crit = GenericHibernateHandler.createCriteria(root.getSession(), q); // Convert to Hibernate criteria
-		return crit.list();
+		CriteriaQuery<T> query = GenericHibernateHandler.createCriteria(root.getSession(), q);
+		Query<T> anotherUselessQuery = root.getSession().createQuery(query);
+		return anotherUselessQuery.list();
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public List<Object[]> query(BuggyHibernateBaseContext root, QSelection< ? > sel) throws Exception {
-		Criteria crit = GenericHibernateHandler.createCriteria(root.getSession(), sel);
-		List resl = crit.list(); // Need to use raw class because ? is a monster fuckup
-		if(resl.isEmpty())
-			return Collections.EMPTY_LIST;
-		if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
-			//-- Re-wrap this result as a list of Object[].
-			for(int i = resl.size(); --i >= 0;) {
-				resl.set(i, new Object[]{resl.get(i)});
-			}
-		}
-		return resl;
+		// QTODO - reimplement
+		throw new NotImplementedException("selection query");
+		//Criteria crit = GenericHibernateHandler.createCriteria(root.getSession(), sel);
+		//List resl = crit.list(); // Need to use raw class because ? is a monster fuckup
+		//if(resl.isEmpty())
+		//	return Collections.EMPTY_LIST;
+		//if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
+		//	//-- Re-wrap this result as a list of Object[].
+		//	for(int i = resl.size(); --i >= 0;) {
+		//		resl.set(i, new Object[]{resl.get(i)});
+		//	}
+		//}
+		//return resl;
 	}
 
 	@Override
@@ -130,11 +134,11 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 
 	@Override
 	public void save(BuggyHibernateBaseContext root, Object o) throws Exception {
-		root.getSession().save(o);
+		root.getSession().persist(o);
 	}
 
 	@Override
 	public void attach(BuggyHibernateBaseContext root, Object o) throws Exception {
-		root.getSession().update(o);
+		root.getSession().refresh(o);
 	}
 }

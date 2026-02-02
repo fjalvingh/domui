@@ -46,7 +46,7 @@ public class GenericHibernateHandler {
 		try {
 			HibernateCriteriaBuilder critBuilder = ses.getCriteriaBuilder();
 			JpaCriteriaQuery<T> query = critBuilder.createQuery(qc.getBaseClass());
-			
+
 			qc.visit(new CriteriaCreatingVisitor(ses, critBuilder, query, qc));
 			return query;
 		} catch(RuntimeException x) {
@@ -55,11 +55,18 @@ public class GenericHibernateHandler {
 			throw new RuntimeException(x); // Cannot happen.
 		}
 	}
-	static public Criteria createCriteria(Session ses, QSelection< ? > qc) {
+
+	static public <T> CriteriaQuery<T> createCriteria(Session ses, QSelection<T> qc) {
 		try {
-			Criteria c = ses.createCriteria(qc.getBaseClass(), "base");
-			qc.visit(new CriteriaCreatingVisitor(ses, c));
-			return c;
+			HibernateCriteriaBuilder critBuilder = ses.getCriteriaBuilder();
+			JpaCriteriaQuery<T> query = critBuilder.createQuery(qc.getBaseClass());
+
+			qc.visit(new CriteriaCreatingVisitor(ses, critBuilder, query, qc));
+			return query;
+
+			//Criteria c = ses.createCriteria(qc.getBaseClass(), "base");
+			//qc.visit(new CriteriaCreatingVisitor(ses, c));
+			//return c;
 		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {
