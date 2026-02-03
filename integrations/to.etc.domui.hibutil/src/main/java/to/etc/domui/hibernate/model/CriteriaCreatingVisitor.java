@@ -831,9 +831,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	@Override
 	public void visitOrder(final QOrder o) throws Exception {
-		String name = o.getProperty();
-		name = parseSubcriteria(name);
-		Path<Object> path = m_rootItem.get(name);
+		Path<Object> path = parsePropertyPath(o.getProperty());
 		JpaOrder jpaOrder = QSortOrderDirection.ASC == o.getDirection() ? m_criteriaBuilder.asc(path) : m_criteriaBuilder.desc(path);
 		addOrder(jpaOrder);
 	}
