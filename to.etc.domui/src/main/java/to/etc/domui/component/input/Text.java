@@ -578,12 +578,14 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	@NonNull
 	static public Text<Double> createDoubleMoneyInput(@NonNull Class< ? > clz, @NonNull String property, boolean editable) {
-		return Text.createDoubleMoneyInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
+		PropertyMetaModel<Double> pmm = MetaManager.getPropertyMeta(clz, property);
+		return Text.createDoubleMoneyInput(pmm, editable);
 	}
 
 	@NonNull
 	static public Text<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
+		PropertyMetaModel<BigDecimal> pmm = MetaManager.findPropertyMeta(clz, property);
+		return Text.createBDMoneyInput(pmm, editable);
 	}
 
 	@NonNull
@@ -656,17 +658,20 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	@NonNull
 	static public Text<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createNumericInput((PropertyMetaModel<Integer>) MetaManager.findPropertyMeta(clz, property), editable);
+		PropertyMetaModel<Integer> pmm = MetaManager.findPropertyMeta(clz, property);
+		return Text.createNumericInput(pmm, editable);
 	}
 
 	@NonNull
 	static public Text<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createNumericInput((PropertyMetaModel<Long>) MetaManager.findPropertyMeta(clz, property), editable);
+		PropertyMetaModel<Long> pmm = MetaManager.findPropertyMeta(clz, property);
+		return Text.createNumericInput(pmm, editable);
 	}
 
 	@NonNull
 	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createNumericInput((PropertyMetaModel<Double>) MetaManager.findPropertyMeta(clz, property), editable);
+		PropertyMetaModel<Double> pmm = MetaManager.findPropertyMeta(clz, property);
+		return Text.createNumericInput(pmm, editable);
 	}
 
 //	@NonNull
@@ -682,7 +687,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	@NonNull
 	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createNumericInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
+		PropertyMetaModel<BigDecimal> pmm = MetaManager.findPropertyMeta(clz, property);
+		return Text.createNumericInput(pmm, editable);
 	}
 
 	@NonNull

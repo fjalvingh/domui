@@ -126,7 +126,7 @@ final public class MetaManager {
 	 * Find a property using the metamodel for a class. Returns null if not found.
 	 */
 	@Nullable
-	static public PropertyMetaModel<?> findPropertyMeta(@NonNull Class<?> clz, @NonNull String name) {
+	static public <V> PropertyMetaModel<V> findPropertyMeta(@NonNull Class<?> clz, @NonNull String name) {
 		ClassMetaModel cm = findClassMeta(clz);
 		return cm.findProperty(name);
 	}
@@ -150,8 +150,8 @@ final public class MetaManager {
 	}
 
 	@NonNull
-	static public PropertyMetaModel<?> getPropertyMeta(Class<?> clz, String name) {
-		PropertyMetaModel<?> pmm = findPropertyMeta(clz, name);
+	static public <V> PropertyMetaModel<V> getPropertyMeta(Class<?> clz, String name) {
+		PropertyMetaModel<V> pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
 		return pmm;

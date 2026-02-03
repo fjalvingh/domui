@@ -25,7 +25,6 @@
 package to.etc.domui.hibernate.model;
 
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -592,6 +591,21 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		m_pendingJoinProps[m_pendingJoinIx++] = pmm;
 	}
 
+	/**
+	 * Parse a property path, starting from the root entity. This returns a JPA Path,
+	 * and checks that all parts are indeed n -> 1 parts.
+	 */
+	private <V> Path<V> parsePropertyPath(String input) throws Exception {
+		Path<?> currentPath = m_rootItem;
+		for(String segment : input.split("\\.")) {
+			Path<?> nextPath = currentPath.get(segment);
+			if(nextPath == null)
+				throw new QQuerySyntaxException("The property path " + m_inputPath + " refers to unknown property " + segment);
+			currentPath = nextPath;
+		}
+		return (Path<V>) currentPath;
+	}
+
 	@Override
 	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
 		QOperatorNode rhs = n.getExpr();
@@ -606,52 +620,45 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 
 		//-- If prop refers to some relation (dotted pair):
-		name = parseSubcriteria(name);
-		JpaPredicate last = null;
-		Root<Object> tgt = (Root<Object>) m_rootItem;
+		//Path<?> path = parsePropertyPath(name);
+		Root<T> tgt = m_rootItem;
 		switch(n.getOperation()){
 			default:
 				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
 
 			case EQ:
 				if(lit.getValue() == null) {
-					last = m_criteriaBuilder.isNull(tgt.get(name));
+					m_last = m_criteriaBuilder.isNull(parsePropertyPath(name));
 					break;
 				}
-				last = m_criteriaBuilder.equal(tgt.get(name), lit.getValue());
+				m_last = m_criteriaBuilder.equal(parsePropertyPath(name), lit.getValue());
 				break;
 			case NE:
 				if(lit.getValue() == null) {
-					last = m_criteriaBuilder.isNotNull(tgt.get(name));
+					m_last = m_criteriaBuilder.isNotNull(parsePropertyPath(name));
 					break;
 				}
-				last = m_criteriaBuilder.notEqual(tgt.get(name), lit.getValue());
+				m_last = m_criteriaBuilder.notEqual(parsePropertyPath(name), lit.getValue());
 				break;
 			case GT:
-				Expression<Comparable<Object>> expr = tgt.get(name);
-				last = m_criteriaBuilder.greaterThan(tgt.get(name), (Comparable<Object>) lit.getValue());
+				m_last = m_criteriaBuilder.greaterThan(parsePropertyPath(name), (Comparable<Object>) lit.getValue());
 				break;
 			case GE:
-				expr = tgt.get(name);
-				last = m_criteriaBuilder.greaterThanOrEqualTo(tgt.get(name), (Comparable<Object>) lit.getValue());
+				m_last = m_criteriaBuilder.greaterThanOrEqualTo(parsePropertyPath(name), (Comparable<Object>) lit.getValue());
 				break;
 			case LT:
-				expr = tgt.get(name);
-				last = m_criteriaBuilder.lessThan(tgt.get(name), (Comparable<Object>) lit.getValue());
+				m_last = m_criteriaBuilder.lessThan(parsePropertyPath(name), (Comparable<Object>) lit.getValue());
 				break;
 			case LE:
-				expr = tgt.get(name);
-				last = m_criteriaBuilder.lessThanOrEqualTo(tgt.get(name), (Comparable<Object>) lit.getValue());
+				m_last = m_criteriaBuilder.lessThanOrEqualTo(parsePropertyPath(name), (Comparable<Object>) lit.getValue());
 				break;
 			case LIKE:
-				handleLikeOperation(name, m_targetProperty, lit.getValue());
+				handleLikeOperation(name, lit.getValue());
 				return;
 			case ILIKE:
-				last = m_criteriaBuilder.ilike(tgt.get(name), (String) lit.getValue());
+				m_last = m_criteriaBuilder.ilike(parsePropertyPath(name), (String) lit.getValue());
 				break;
 		}
-
-		m_last = last;
 	}
 
 	@Override
@@ -681,13 +688,14 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 	}
 
-	private void handleLikeOperation(String name, PropertyMetaModel<?> pmm, Object value) throws Exception {
+	private <V> void handleLikeOperation(String propertyPathString, Object value) throws Exception {
 		//-- Check if there is a type mismatch in parameter type...
 		if(!(value instanceof String))
 			throw new QQuerySyntaxException("The argument to 'like' must be a string (and cannot be null), the value passed is: " + value);
 
-		if(pmm == null || pmm.getActualType() == String.class) {
-			m_last = m_criteriaBuilder.like(m_rootItem.get(name), (String) value);
+		PropertyMetaModel<V> pmm = MetaManager.getPropertyMeta(m_rootClass, propertyPathString);
+		if(pmm.getActualType() == String.class) {
+			m_last = m_criteriaBuilder.like(m_rootItem.get(propertyPathString), (String) value);
 			return;
 		}
 
@@ -695,9 +703,9 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		EntityType<?> entity = metamodel.entity(pmm.getActualType());
 		if(null == entity)
 			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm);
-		Attribute<?, ?> declaredAttribute = entity.getDeclaredAttribute(name);
+		Attribute<?, ?> declaredAttribute = entity.getDeclaredAttribute(propertyPathString);
 		if(null == declaredAttribute)
-			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + name + " on class " + pmm.getActualType());
+			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + propertyPathString + " on class " + pmm.getActualType());
 
 		// QTODO - implement type casting for like on non-string properties
 		throw new NotImplementedException("like on non-string properties not implemented yet");

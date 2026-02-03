@@ -66,7 +66,7 @@ public interface ClassMetaModel {
 	 * accessors that reach that property by following all intermediary objects.
 	 */
 	@Nullable
-	PropertyMetaModel<?> findProperty(@NonNull String name);
+	<V> PropertyMetaModel<V> findProperty(@NonNull String name);
 
 	@Nullable
 	<V> PropertyMetaModel<V> findProperty(@NonNull QField<?, V> field);
