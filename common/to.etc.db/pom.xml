@@ -33,7 +33,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+        <!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
         <!-- The Jakarta version of the jsdk, which renamed all packages. May the idiots that did that rot in Hell. -->
         <dependency>
             <groupId>jakarta.servlet</groupId>

@@ -143,9 +143,9 @@
         <jakarta.el.version>6.0.0</jakarta.el.version>
         <jakarta.jsp.version>4.0.0</jakarta.jsp.version>
 
-<!--        <javax.servlet.version>4.0.1</javax.servlet.version>-->
+<!--        <jakarta.servlet.version>4.0.1</jakarta.servlet.version>-->
 <!--        <javax.el.version>2.2</javax.el.version>-->
-<!--        <javax.servlet.jsp.version>2.0</javax.servlet.jsp.version>-->
+<!--        <jakarta.servlet.jsp.version>2.0</jakarta.servlet.jsp.version>-->
 
         <rhino.version>1.7.7</rhino.version>
         <jcharts.version>0.7.5</jcharts.version>
@@ -848,13 +848,6 @@
                 <version>4.0.4</version>
                 <scope>compile</scope>
             </dependency>
-
-<!--            <dependency>-->
-<!--                <groupId>com.sun.xml.bind</groupId>-->
-<!--                <artifactId>jaxb-impl</artifactId>-->
-<!--                <version>4.0.6</version>-->
-<!--                <scope>runtime</scope>-->
-<!--            </dependency>-->
 
             <!-- Source: https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
             <dependency>
