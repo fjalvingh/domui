@@ -87,18 +87,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Java 9 / JUnit -->
-<!--        <dependency>-->
-<!--            &lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
-<!--            <groupId>javax.xml.bind</groupId>-->
-<!--            <artifactId>jaxb-api</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            &lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
-<!--            <groupId>org.glassfish.jaxb</groupId>-->
-<!--            <artifactId>jaxb-runtime</artifactId>-->
-<!--            <version>${jaxb.version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>

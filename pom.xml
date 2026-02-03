@@ -166,7 +166,6 @@
         <selenium.version>3.141.59</selenium.version>
         <hsqldb.version>2.7.1</hsqldb.version>
 
-        <javax-jaxb.version>2.3.1</javax-jaxb.version>
         <glassfish-jaxb.version>2.3.9</glassfish-jaxb.version>
 
         <xml-apis.version>2.0.2</xml-apis.version>
@@ -484,10 +483,22 @@
                 <artifactId>hibernate-core</artifactId>
                 <version>${hibernate.core.version}</version>
             </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.datatype</groupId>-->
+<!--                <artifactId>jackson-datatype-hibernate5</artifactId>-->
+<!--                <version>2.14.1</version>-->
+<!--                <exclusions>-->
+<!--                    <exclusion>-->
+<!--                        <groupId>org.hibernate</groupId>-->
+<!--                        <artifactId>hibernate-core</artifactId>-->
+<!--                    </exclusion>-->
+<!--                </exclusions>-->
+<!--            </dependency>-->
+
             <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-hibernate5</artifactId>
-                <version>2.14.1</version>
+                <groupId>tools.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-hibernate7</artifactId>
+                <version>3.0.4</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.hibernate</groupId>
@@ -495,6 +506,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
@@ -647,11 +659,11 @@
                 <version>5.2.1</version>
             </dependency>
 
-            <dependency>
-                <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy</artifactId>
-                <version>1.10.17</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>net.bytebuddy</groupId>-->
+<!--                <artifactId>byte-buddy</artifactId>-->
+<!--                <version>1.10.17</version>-->
+<!--            </dependency>-->
 
             <dependency>
                 <artifactId>okio</artifactId>
@@ -829,10 +841,19 @@
                 <version>5.10.5-PATCH</version>
             </dependency>
 
+            <!-- Source: https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${javax-jaxb.version}</version>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>4.0.4</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>4.0.4</version>
+                <scope>runtime</scope>
             </dependency>
 
             <dependency>
