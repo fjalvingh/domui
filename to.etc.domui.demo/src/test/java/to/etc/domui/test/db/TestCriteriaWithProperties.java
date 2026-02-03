@@ -19,34 +19,34 @@ public class TestCriteriaWithProperties extends AbstractDbTest {
 	public void testFindArtists() throws Exception {
 		List<Artist> query = dc().query(QCriteria.create(Artist.class));
 		System.out.println("Got " + query.size() + " results");
-		Assert.assertNotEquals(0, query.size());
+		Assert.assertEquals(275, query.size());
 	}
 
 	@Test
 	public void testFindArtistsByLike() throws Exception {
 		List<Artist> query = dc().query(QCriteria.create(Artist.class).like(Artist_.name(), "A%"));
 		System.out.println("Got " + query.size() + " results");
-		Assert.assertNotEquals(0, query.size());
+		Assert.assertEquals(26, query.size());
 	}
 
 	@Test
 	public void testFindArtistsByILike() throws Exception {
 		List<Artist> query = dc().query(QCriteria.create(Artist.class).ilike(Artist_.name(), "a%"));
 		System.out.println("Got " + query.size() + " results");
-		Assert.assertNotEquals(0, query.size());
+		Assert.assertEquals(26, query.size());
 	}
 
 	@Test
 	public void testFindArtistsByEquals() throws Exception {
 		List<Artist> query = dc().query(QCriteria.create(Artist.class).eq(Artist_.name(), "AC/DC"));
 		System.out.println("Got " + query.size() + " results");
-		Assert.assertNotEquals(0, query.size());
+		Assert.assertEquals(1, query.size());
 	}
 
 	@Test
 	public void testFindAlbumsByArtist() throws Exception {
 		List<Album> query = dc().query(QCriteria.create(Album.class).eq(Album_.artist().name(), "AC/DC"));
 		System.out.println("Got " + query.size() + " results");
-		Assert.assertNotEquals(0, query.size());
+		Assert.assertEquals(2, query.size());
 	}
 }
