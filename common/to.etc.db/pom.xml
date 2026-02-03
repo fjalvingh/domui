@@ -49,6 +49,14 @@
             <artifactId>org.eclipse.jdt.annotation</artifactId>
         </dependency>
 
+        <!-- Source: https://mvnrepository.com/artifact/org.openjdk.nashorn/nashorn-core -->
+        <dependency>
+            <groupId>org.openjdk.nashorn</groupId>
+            <artifactId>nashorn-core</artifactId>
+            <version>15.7</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Test dependencies  -->
         <dependency>
             <groupId>junit</groupId>
