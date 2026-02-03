@@ -153,15 +153,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		return "a_" + (++m_aliasIndex);
 	}
 
-	//private void addCriterion(JpaPredicate c) {
-	//	if(m_currentCriteria instanceof Criteria) {
-	//		((Criteria) m_currentCriteria).add(c); // Crapfest
-	//	} else if(m_currentCriteria instanceof DetachedCriteria) {
-	//		((DetachedCriteria) m_currentCriteria).add(c);
-	//	} else
-	//		throw new IllegalStateException("Unexpected current thing: " + m_currentCriteria);
-	//}
-
 	private void addOrder(jakarta.persistence.criteria.Order c) {
 		List<jakarta.persistence.criteria.Order> orderList = new ArrayList<>(m_currentCriteria.getOrderList());
 		orderList.add(c);
@@ -203,17 +194,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 		visitRestrictionsBase(qc);
 		visitOrderList(qc.getOrder());
-
-		////-- 2. Handle limits and start: applicable to root criterion only
-		// QTODO - implement limits
-		//if(qc.getLimit() > 0) {
-		//	m_rootCriteria.setMaxResults(qc.getLimit());
-		//}
-		//if(qc.getStart() > 0) {
-		//	m_rootCriteria.setFirstResult(qc.getStart());
-		//}
-		//if(qc.getTimeout() > 0)
-		//	m_rootCriteria.setTimeout(qc.getTimeout());
 
 		//-- 3. Handle fetch.
 		handleFetch(qc);

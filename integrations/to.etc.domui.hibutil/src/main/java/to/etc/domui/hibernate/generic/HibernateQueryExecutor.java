@@ -24,7 +24,6 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import jakarta.persistence.criteria.CriteriaQuery;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.query.Query;
 import to.etc.domui.hibernate.model.GenericHibernateHandler;
@@ -104,9 +103,8 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 
 	@Override
 	public <T> List<T> query(BuggyHibernateBaseContext root, QCriteria<T> q) throws Exception {
-		CriteriaQuery<T> query = GenericHibernateHandler.createCriteria(root.getSession(), q);
-		Query<T> anotherUselessQuery = root.getSession().createQuery(query);
-		return anotherUselessQuery.list();
+		Query<T> query = GenericHibernateHandler.createCriteria(root.getSession(), q);
+		return query.list();
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
