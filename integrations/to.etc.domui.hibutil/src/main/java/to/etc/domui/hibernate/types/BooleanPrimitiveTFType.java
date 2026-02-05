@@ -10,28 +10,29 @@ import java.sql.Types;
  * A UserType implementation to map a boolean primitive object to a VARCHAR.<br /> A true
  * value maps to "true" and a false value maps to "false". This type does not recognise
  * nullity; it gets interpreted as a false.
+ *
  * @author jal
  */
-final public class BooleanPrimitiveTFType implements UserType {
+final public class BooleanPrimitiveTFType implements UserType<Boolean> {
 	@Override
-	public Object assemble(Serializable cached, Object owner) throws HibernateException {
+	public Boolean assemble(Serializable cached, Object owner) throws HibernateException {
 		return null;
 	}
 
 	@Override
-	public Object deepCopy(Object value) throws HibernateException {
+	public Boolean deepCopy(Boolean value) throws HibernateException {
 		if(value == null)
 			return value;
 		return Boolean.valueOf(((Boolean) value).booleanValue());
 	}
 
 	@Override
-	public Serializable disassemble(Object value) throws HibernateException {
+	public Serializable disassemble(Boolean value) throws HibernateException {
 		return null;
 	}
 
 	@Override
-	public boolean equals(Object x, Object y) throws HibernateException {
+	public boolean equals(Boolean x, Boolean y) throws HibernateException {
 		if(x != null)
 			return x.equals(y);
 		else
@@ -39,7 +40,7 @@ final public class BooleanPrimitiveTFType implements UserType {
 	}
 
 	@Override
-	public int hashCode(Object arg0) throws HibernateException {
+	public int hashCode(Boolean arg0) throws HibernateException {
 		return arg0.hashCode();
 	}
 
@@ -62,12 +63,12 @@ final public class BooleanPrimitiveTFType implements UserType {
 	//}
 
 	@Override
-	public Object replace(Object arg0, Object arg1, Object arg2) throws HibernateException {
+	public Boolean replace(Boolean arg0, Boolean arg1, Object arg2) throws HibernateException {
 		return null;
 	}
 
 	@Override
-	public Class< ? > returnedClass() {
+	public Class<Boolean> returnedClass() {
 		return Boolean.class;
 	}
 
@@ -76,13 +77,9 @@ final public class BooleanPrimitiveTFType implements UserType {
 		return Types.VARCHAR;
 	}
 
-
 	/**
 	 * Parsing of a String yields the following results: TRUE: if src equals
 	 * y,yes,1 or 'true' (case insensitive) FALSE: in all other cases
-	 *
-	 * @param src
-	 * @return
 	 */
 	public static Boolean parse(String src) {
 		if("1".equals(src) || "t".equalsIgnoreCase(src) || "true".equalsIgnoreCase(src) || "Y".equalsIgnoreCase(src) || "yes".equalsIgnoreCase(src)) {
