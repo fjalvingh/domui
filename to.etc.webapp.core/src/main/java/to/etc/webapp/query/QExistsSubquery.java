@@ -36,13 +36,12 @@ import org.eclipse.jdt.annotation.NonNull;
  *  exists (select 1 from child_table a where a.pk = p.fk and [[conditions in this node]]).
  * </pre>
  *
- * @param <T>	The type of the child record persistent class, so the T from the List<T> getChildList() in this subquery's parent.
- *
+ * @param <T> The type of the child record persistent class, so the T from the List<T> getChildList() in this subquery's parent.
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2009
  */
 public class QExistsSubquery<T> extends QOperatorNode {
-	private QRestrictor< ?, ? > m_parentQuery;
+	private QRestrictor<?, ?> m_parentQuery;
 
 	private String m_parentProperty;
 
@@ -50,7 +49,7 @@ public class QExistsSubquery<T> extends QOperatorNode {
 
 	private QOperatorNode m_restrictions;
 
-	public QExistsSubquery(QRestrictor< ?, ? > parent, Class<T> baseClass, String property) {
+	public QExistsSubquery(QRestrictor<?, ?> parent, Class<T> baseClass, String property) {
 		super(QOperation.EXISTS_SUBQUERY);
 		m_parentQuery = parent;
 		m_parentProperty = property;
@@ -66,11 +65,11 @@ public class QExistsSubquery<T> extends QOperatorNode {
 		return q;
 	}
 
-	public QRestrictor< ?, ? > getParentQuery() {
+	public QRestrictor<?, ?> getParentQuery() {
 		return m_parentQuery;
 	}
 
-	public Class< ? > getBaseClass() {
+	public Class<?> getBaseClass() {
 		return m_baseClass;
 	}
 

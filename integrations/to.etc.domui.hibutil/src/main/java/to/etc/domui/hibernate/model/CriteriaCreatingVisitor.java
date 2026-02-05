@@ -915,12 +915,19 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 * the worthless Hibernate "meta model" API and the utterly disgusting way that mapping data is
 	 * "stored" in Hibernate we resort to getting the generic type of the child property's collection
 	 * to determine the type where the subquery is executed on.
-	 * @see to.etc.webapp.query.QNodeVisitorBase#visitExistsSubquery(to.etc.webapp.query.QExistsSubquery)
 	 */
 	@Override
 	public void visitExistsSubquery(QExistsSubquery<?> q) throws Exception {
-		// QTODO - implement exists subquery
-		throw new NotImplementedException("ExistsSubquery not implemented yet");
+		Class<?> parentBaseClass = q.getParentQuery().getBaseClass();
+		refactorToSubExistsIfNeeded(q);
+
+		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
+
+
+
+
+
+
 
 		//String parentAlias = getCurrentAlias();
 		//Class<?> parentBaseClass = q.getParentQuery().getBaseClass();
