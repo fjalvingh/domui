@@ -6,6 +6,7 @@ import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.SessionFactoryBuilder;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
@@ -13,6 +14,8 @@ import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.JdbcSettings;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
@@ -37,6 +40,7 @@ import to.etc.webapp.query.QQueryExecutorRegistry;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -257,6 +261,7 @@ final public class HibernateConfiguratorInstance {
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
 		StandardServiceRegistryBuilder serviceBuilder = new StandardServiceRegistryBuilder(bootstrapRegistry)
 			.configure(resname)
+			//.applySetting("hibernate.dialect", new OracleDialect())
 			;
 
 		/*
@@ -314,6 +319,10 @@ final public class HibernateConfiguratorInstance {
 		}
 
 		ServiceRegistry reg = serviceBuilder.build();
+
+		Dialect dialect = reg.requireService(JdbcServices.class).getDialect();
+		patchDialectSizeCrap(dialect);
+
 		MetadataSources sources = new MetadataSources(reg);
 
 		for(Class<?> clz : m_annotatedClassList)
@@ -324,7 +333,9 @@ final public class HibernateConfiguratorInstance {
 			listener.onAddSources(sources);
 		}
 
-		Metadata metaData = sources.getMetadataBuilder()
+		MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
+
+		Metadata metaData = metadataBuilder
 			.applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
 			.build();
 
@@ -346,6 +357,7 @@ final public class HibernateConfiguratorInstance {
 
 		SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) sessionFactoryBuilder.build();
 		m_sessionFactory = sessionFactory;
+
 
 		EventListenerRegistry listenerRegistry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
 		//if(m_beforeImagesEnabled) {
@@ -385,6 +397,29 @@ final public class HibernateConfiguratorInstance {
 		ExceptionDialog.register(HibernateMessageDecoder::translateHibernateException);
 
 		System.out.println("domui: Hibernate initialization took a whopping " + StringTool.strNanoTime(System.nanoTime() - ts));
+	}
+
+	/**
+	 * Hibernate 7.2 decides to badly check field sizes, and it aborts when a floating
+	 * type has a scale. And of course this is done by code that cannot simply be overridden
+	 * because hibernate configuration is a terrible mess.
+	 */
+	private void patchDialectSizeCrap(Dialect dialect) {
+		try {
+			Field theUnsafe = Dialect.class.getDeclaredField("sizeStrategy");
+			theUnsafe.setAccessible(true);
+			FixedSizeStrategyImpl fixedSizeStrategy = new FixedSizeStrategyImpl(dialect);
+			theUnsafe.set(dialect, fixedSizeStrategy);
+
+			//Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+			//Field logger = cls.getDeclaredField("logger");
+			//u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+			//
+		} catch(Exception x) {
+			x.printStackTrace();
+		}
+
+
 	}
 
 	/**
