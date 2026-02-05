@@ -59,7 +59,7 @@ public interface QNodeVisitor {
 
 	void visitMultiSelection(@NonNull QMultiSelection n) throws Exception;
 
-	void visitExistsSubquery(@NonNull QExistsSubquery<?> q) throws Exception;
+	<T> void visitExistsSubquery(@NonNull QExistsSubquery<T> q) throws Exception;
 
 	void visitSelectionSubquery(@NonNull QSelectionSubquery n) throws Exception;
 

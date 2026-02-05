@@ -69,7 +69,7 @@ public class QExistsSubquery<T> extends QOperatorNode {
 		return m_parentQuery;
 	}
 
-	public Class<?> getBaseClass() {
+	public Class<T> getBaseClass() {
 		return m_baseClass;
 	}
 

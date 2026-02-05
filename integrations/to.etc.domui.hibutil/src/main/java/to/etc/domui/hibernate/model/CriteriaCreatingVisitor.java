@@ -24,10 +24,12 @@
  */
 package to.etc.domui.hibernate.model;
 
+import jakarta.persistence.criteria.AbstractQuery;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.EntityType;
 import jakarta.persistence.metamodel.Metamodel;
@@ -99,17 +101,19 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	private final HibernateCriteriaBuilder m_criteriaBuilder;
 
-	/** The topmost Criteria: the one that will be returned to effect the translated query */
-	private final CriteriaQuery<T> m_rootCriteria;
+	/** The topmost query: the one that will be returned to effect the translated query */
+	private final CriteriaQuery<T> m_topQuery;
 
 	/** The JPA root item, i.e. the class we query. */
-	private final Root<T> m_rootItem;
+	private final Root<T> m_topRoot;
 
 	/**
 	 * This either holds a Criteria or a DetachedCriteria; since these are not related (sigh) we must
 	 * use instanceof everywhere. Bad, bad, bad hibernate design.
 	 */
-	private CriteriaQuery<?> m_currentCriteria;
+	private AbstractQuery<?> m_currentQuery;
+
+	private Root<?> m_currentRoot;
 
 	private JpaPredicate m_last;
 
@@ -129,9 +133,10 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	public CriteriaCreatingVisitor(Session ses, HibernateCriteriaBuilder criteriaBuilder, final CriteriaQuery<T> crit, QCriteriaQueryBase<T, ?> qc) {
 		m_session = ses;
 		m_criteriaBuilder = criteriaBuilder;
-		m_rootCriteria = crit;
-		m_currentCriteria = crit;
-		m_rootItem = crit.from(qc.getBaseClass());
+		m_topQuery = crit;
+		m_currentQuery = crit;
+		m_topRoot = crit.from(qc.getBaseClass());
+		m_currentRoot = m_topRoot;
 	}
 
 	/**
@@ -153,9 +158,13 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	}
 
 	private void addOrder(jakarta.persistence.criteria.Order c) {
-		List<jakarta.persistence.criteria.Order> orderList = new ArrayList<>(m_currentCriteria.getOrderList());
-		orderList.add(c);
-		m_currentCriteria = m_currentCriteria.orderBy(orderList);
+		if(m_currentQuery instanceof CriteriaQuery<?> cc) {
+			List<jakarta.persistence.criteria.Order> orderList = new ArrayList<>(cc.getOrderList());
+			orderList.add(c);
+			m_currentQuery = cc.orderBy(orderList);
+		} else {
+			throw new QQuerySyntaxException("Cannot add order to a subquery!");
+		}
 	}
 
 	@Override
@@ -167,7 +176,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		r.visit(this);
 		JpaPredicate last = m_last;
 		if(null != last) {
-			m_rootCriteria.where(last);
+			m_topQuery.where(last);
 		}
 
 		checkSubqueriesUsed(n);
@@ -596,7 +605,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 * and checks that all parts are indeed n -> 1 parts.
 	 */
 	private <V> Path<V> parsePropertyPath(String input) throws Exception {
-		Path<?> currentPath = m_rootItem;
+		Path<?> currentPath = m_topRoot;
 		for(String segment : input.split("\\.")) {
 			Path<?> nextPath = currentPath.get(segment);
 			if(nextPath == null)
@@ -621,7 +630,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 		//-- If prop refers to some relation (dotted pair):
 		//Path<?> path = parsePropertyPath(name);
-		Root<T> tgt = m_rootItem;
+		Root<T> tgt = m_topRoot;
 		switch(n.getOperation()){
 			default:
 				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
@@ -671,7 +680,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			if(litval instanceof Collection<?> co) {
 				//-- If prop refers to some relation (dotted pair):
 				name = parseSubcriteria(name);
-				m_last = m_criteriaBuilder.in(m_rootItem.get(name), co);
+				m_last = m_criteriaBuilder.in(m_topRoot.get(name), co);
 				return;
 			} else {
 				throw new QQuerySyntaxException("Unexpected value for 'in' operation: " + litval + ", should be Collection or subquery");
@@ -695,7 +704,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 		PropertyMetaModel<V> pmm = MetaManager.getPropertyMeta(m_rootClass, propertyPathString);
 		if(pmm.getActualType() == String.class) {
-			m_last = m_criteriaBuilder.like(m_rootItem.get(propertyPathString), (String) value);
+			m_last = m_criteriaBuilder.like(m_topRoot.get(propertyPathString), (String) value);
 			return;
 		}
 
@@ -797,7 +806,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		//-- If prop refers to some relation (dotted pair):
 		String name = n.getProp();
 		name = parseSubcriteria(name);
-		m_last = m_criteriaBuilder.between(m_rootItem.get(name), (Comparable) a.getValue(), (Comparable) b.getValue());
+		m_last = m_criteriaBuilder.between(m_topRoot.get(name), (Comparable) a.getValue(), (Comparable) b.getValue());
 	}
 
 	/**
@@ -897,10 +906,10 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 
 			case ISNOTNULL:
-				m_last = m_criteriaBuilder.isNotNull(m_rootItem.get(name));
+				m_last = m_criteriaBuilder.isNotNull(m_topRoot.get(name));
 				break;
 			case ISNULL:
-				m_last = m_criteriaBuilder.isNull(m_rootItem.get(name));
+				m_last = m_criteriaBuilder.isNull(m_topRoot.get(name));
 				break;
 		}
 	}
@@ -917,11 +926,20 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 * to determine the type where the subquery is executed on.
 	 */
 	@Override
-	public void visitExistsSubquery(QExistsSubquery<?> q) throws Exception {
+	public <S> void visitExistsSubquery(QExistsSubquery<S> q) throws Exception {
 		Class<?> parentBaseClass = q.getParentQuery().getBaseClass();
 		refactorToSubExistsIfNeeded(q);
 
 		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
+
+		//-- First, create a SubQuery, and append all basic conditions to it.
+		Subquery<Integer> subquery = m_currentQuery.subquery(Integer.class).select(m_criteriaBuilder.literal(1));		// Subquery selecting 1, just to check for existence
+		Root<S> subRoot = subquery.from(q.getBaseClass());
+		subquery.where(
+			subRoot.get("title").in("Back to Black", "Highway to Hell"),
+			cb.equal(subRoot.get("artist"), artistRoot)
+		);
+
 
 
 
@@ -1254,7 +1272,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	/**
 	 * Render a non-correlated subquery (the subquery has no references to the parent). This is legacy as
 	 * it should be the same as correlated.
-	 * @see to.etc.webapp.query.QNodeVisitor#visitSelectionSubquery(to.etc.webapp.query.QSelectionSubquery)
 	 */
 	@Override
 	public void visitSelectionSubquery(@NonNull final QSelectionSubquery n) throws Exception {
