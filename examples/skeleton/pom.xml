@@ -297,11 +297,11 @@
 				<version>${cxf.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>tools.jackson.jakarta.rs</groupId>
+				<groupId>com.fasterxml.jackson.jakarta.rs</groupId>
 				<artifactId>jackson-jakarta-rs-json-provider</artifactId>
 			</dependency>
 			<dependency>
-				<groupId>tools.jackson.datatype</groupId>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
 				<artifactId>jackson-datatype-hibernate7</artifactId>
 				<version>${jackson.hibernate}</version>
 			</dependency>
