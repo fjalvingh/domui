@@ -1,9 +1,13 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Types;
 
 /**
@@ -49,18 +53,20 @@ final public class BooleanPrimitiveTFType implements UserType<Boolean> {
 		return true;
 	}
 
-	//@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-	//	if(resultSet == null)
-	//		return null;
-	//	String v = resultSet.getString(names[0]);
-	//	if(v == null)
-	//		return Boolean.FALSE;
-	//	return parse(v);
-	//}
+	@Override
+	public Boolean nullSafeGet(ResultSet rs, int position, WrapperOptions options) throws SQLException {
+		if(rs == null)
+			return null;
+		String v = rs.getString(position);
+		if(v == null)
+			return Boolean.FALSE;
+		return parse(v);
+	}
 
-	//@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
-	//	statement.setString(index, value == null ? "F" : ((Boolean) value).booleanValue() ? "T" : "F");
-	//}
+	@Override
+	public void nullSafeSet(PreparedStatement statement, Boolean value, int position, WrapperOptions options) throws SQLException {
+		statement.setString(position, value == null ? "F" : ((Boolean) value).booleanValue() ? "T" : "F");
+	}
 
 	@Override
 	public Boolean replace(Boolean arg0, Boolean arg1, Object arg2) throws HibernateException {

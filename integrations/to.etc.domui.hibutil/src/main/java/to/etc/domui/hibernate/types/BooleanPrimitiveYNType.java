@@ -1,14 +1,19 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * A UserType implementation to map a boolean primitive object to a VARCHAR.<br /> A true
  * value maps to "Y" and a false value maps to "N". This type does not recognise
  * nullity; it gets interpreted as a false.
+ *
  * @author jal
  */
 final public class BooleanPrimitiveYNType implements UserType {
@@ -47,6 +52,21 @@ final public class BooleanPrimitiveYNType implements UserType {
 		return true;
 	}
 
+	@Override
+	public Object nullSafeGet(ResultSet rs, int position, WrapperOptions options) throws SQLException {
+		if(rs == null)
+			return null;
+		String v = rs.getString(position);
+		if(v == null)
+			return Boolean.FALSE;
+		return parse(v);
+	}
+
+	@Override
+	public void nullSafeSet(PreparedStatement statement, Object value, int index, WrapperOptions options) throws SQLException {
+		statement.setString(index, value == null ? "N" : ((Boolean) value).booleanValue() ? "Y" : "N");
+	}
+
 	//@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
 	//	if(resultSet == null)
 	//		return null;
@@ -66,7 +86,7 @@ final public class BooleanPrimitiveYNType implements UserType {
 	}
 
 	@Override
-	public Class< ? > returnedClass() {
+	public Class<?> returnedClass() {
 		return Boolean.class;
 	}
 
@@ -78,9 +98,6 @@ final public class BooleanPrimitiveYNType implements UserType {
 	/**
 	 * Parsing of a String yields the following results: TRUE: if src equals
 	 * y,yes,1 or 'true' (case insensitive) FALSE: in all other cases
-	 *
-	 * @param src
-	 * @return
 	 */
 	public static Boolean parse(String src) {
 		if("1".equals(src) || "true".equalsIgnoreCase(src) || "Y".equalsIgnoreCase(src) || "yes".equalsIgnoreCase(src)) {

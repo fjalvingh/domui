@@ -1,15 +1,20 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Types;
 
 /**
  * A UserType implementation to map a boolean primitive object to a numeric value.<br /> A true
  * value maps to 1 and a false value maps to 0. This type does not recognise
  * nullity; it gets interpreted as a false.
+ *
  * @author jal
  */
 final public class BooleanPrimitiveOneZeroType implements UserType {
@@ -48,18 +53,20 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 		return true;
 	}
 
-	//@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-	//	if(resultSet == null)
-	//		return null;
-	//	long v = resultSet.getLong(names[0]);
-	//	if(resultSet.wasNull())
-	//		return Boolean.FALSE;
-	//	return Boolean.valueOf(v != 0);
-	//}
-	//
-	//@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
-	//	statement.setLong(index, value == null ? 0 : ((Boolean) value).booleanValue() ? 1 : 0);
-	//}
+	@Override
+	public Object nullSafeGet(ResultSet rs, int position, WrapperOptions options) throws SQLException {
+		if(rs == null)
+			return null;
+		long v = rs.getLong(position);
+		if(rs.wasNull())
+			return Boolean.FALSE;
+		return Boolean.valueOf(v != 0);
+	}
+
+	@Override
+	public void nullSafeSet(PreparedStatement statement, Object value, int position, WrapperOptions options) throws SQLException {
+		statement.setLong(position, value == null ? 0 : ((Boolean) value).booleanValue() ? 1 : 0);
+	}
 
 	@Override
 	public Object replace(Object arg0, Object arg1, Object arg2) throws HibernateException {
@@ -67,7 +74,7 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 	}
 
 	@Override
-	public Class< ? > returnedClass() {
+	public Class<?> returnedClass() {
 		return Boolean.class;
 	}
 
@@ -79,9 +86,6 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 	/**
 	 * Parsing of a String yields the following results: TRUE: if src equals
 	 * y,yes,1 or 'true' (case insensitive) FALSE: in all other cases
-	 *
-	 * @param src
-	 * @return
 	 */
 	public static Boolean parse(String src) {
 		if("1".equals(src) || "true".equalsIgnoreCase(src) || "Y".equalsIgnoreCase(src) || "yes".equalsIgnoreCase(src)) {
