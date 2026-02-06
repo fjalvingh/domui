@@ -24,7 +24,6 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.query.Query;
 import to.etc.domui.hibernate.model.GenericHibernateHandler;
 import to.etc.webapp.query.ICriteriaTableDef;
@@ -34,6 +33,7 @@ import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QSelection;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,18 +45,19 @@ import java.util.List;
 public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBaseContext>, IQueryExecutorFactory {
 	static public final IQueryExecutorFactory FACTORY = new HibernateQueryExecutor();
 
-	protected HibernateQueryExecutor() {}
+	protected HibernateQueryExecutor() {
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQAlternateContextFactory implementation.			*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public IQueryExecutor< ? > findContextHandler(QDataContext root, ICriteriaTableDef< ? > tableMeta) {
+	public IQueryExecutor<?> findContextHandler(QDataContext root, ICriteriaTableDef<?> tableMeta) {
 		return null; // Never acceptable
 	}
 
 	@Override
-	public IQueryExecutor< ? > findContextHandler(QDataContext root, Class< ? > clz) {
+	public IQueryExecutor<?> findContextHandler(QDataContext root, Class<?> clz) {
 		if(clz == null)
 			return null;
 
@@ -65,13 +66,14 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 	}
 
 	@Override
-	public IQueryExecutor< ? > findContextHandler(QDataContext root, Object recordInstance) {
+	public IQueryExecutor<?> findContextHandler(QDataContext root, Object recordInstance) {
 		return recordInstance == null ? null : this;
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IAbstractQueryHandler implementation.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Delete the record passed.
 	 */
@@ -103,26 +105,24 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 
 	@Override
 	public <T> List<T> query(BuggyHibernateBaseContext root, QCriteria<T> q) throws Exception {
-		Query<T> query = GenericHibernateHandler.createCriteria(root.getSession(), q);
+		Query<T> query = GenericHibernateHandler.createSelectionQuery(root.getSession(), q);
 		return query.list();
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
-	public List<Object[]> query(BuggyHibernateBaseContext root, QSelection< ? > sel) throws Exception {
-		// QTODO - reimplement
-		throw new NotImplementedException("selection query");
-		//Criteria crit = GenericHibernateHandler.createCriteria(root.getSession(), sel);
-		//List resl = crit.list(); // Need to use raw class because ? is a monster fuckup
-		//if(resl.isEmpty())
-		//	return Collections.EMPTY_LIST;
-		//if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
-		//	//-- Re-wrap this result as a list of Object[].
-		//	for(int i = resl.size(); --i >= 0;) {
-		//		resl.set(i, new Object[]{resl.get(i)});
-		//	}
-		//}
-		//return resl;
+	public List<Object[]> query(BuggyHibernateBaseContext root, QSelection<?> sel) throws Exception {
+		Query<?> query = GenericHibernateHandler.createSelectionQuery(root.getSession(), sel);
+		List resl = query.list();
+		if(resl.isEmpty())
+			return Collections.EMPTY_LIST;
+		if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
+			//-- Re-wrap this result as a list of Object[].
+			for(int i = resl.size(); --i >= 0;) {
+				resl.set(i, new Object[]{resl.get(i)});
+			}
+		}
+		return resl;
 	}
 
 	@Override

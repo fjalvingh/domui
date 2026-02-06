@@ -34,7 +34,9 @@ import org.eclipse.jdt.annotation.Nullable;
  * Created on Jul 14, 2009
  */
 final public class QSelectionColumn extends QNodeBase {
-	/** When used in a restriction or order an alias is needed for complex query parts. */
+	/**
+	 * When used in a restriction or order an alias is needed for complex query parts.
+	 */
 	@Nullable
 	final private String m_alias;
 
@@ -53,7 +55,6 @@ final public class QSelectionColumn extends QNodeBase {
 
 	/**
 	 * Return the alias applied to this selection column.
-	 * @return
 	 */
 	@Nullable
 	public String getAlias() {

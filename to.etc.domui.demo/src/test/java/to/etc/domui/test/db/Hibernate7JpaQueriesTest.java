@@ -18,7 +18,7 @@ import to.etc.domui.hibernate.generic.HibernateLongSessionContext;
  * bad around JPA queries and connection management this test class creates tests to see how
  * this crap actually works.
  */
-public class CrapHibernate7GarbageQueriesTest extends AbstractDbTest {
+public class Hibernate7JpaQueriesTest extends AbstractDbTest {
 	/**
 	 * see if we can query a field of a parent relation, e.g. Album.artist.name = 'AC/DC'.
 	 */

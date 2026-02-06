@@ -25,18 +25,21 @@
 package to.etc.domui.hibernate.model;
 
 import jakarta.persistence.criteria.AbstractQuery;
+import jakarta.persistence.criteria.CompoundSelection;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.EntityType;
 import jakarta.persistence.metamodel.Metamodel;
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf.Type.Argument.Projection;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metamodel.mapping.AttributeMapping;
@@ -108,12 +111,12 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	/**
 	 * The topmost query: the one that will be returned to effect the translated query
 	 */
-	private final CriteriaQuery<T> m_topQuery;
+	private final CriteriaQuery<?> m_topQuery;
 
 	/**
 	 * The JPA root item, i.e. the class we query.
 	 */
-	private final Root<T> m_topRoot;
+	private final Root<?> m_topRoot;
 
 	/**
 	 * This either holds a Criteria or a DetachedCriteria; since these are not related (sigh) we must
@@ -142,7 +145,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 */
 	private Map<String, String> m_aliasMap = new HashMap<String, String>();
 
-	public CriteriaCreatingVisitor(Session ses, HibernateCriteriaBuilder criteriaBuilder, final CriteriaQuery<T> crit, QCriteriaQueryBase<T, ?> qc) {
+	public CriteriaCreatingVisitor(Session ses, HibernateCriteriaBuilder criteriaBuilder, final CriteriaQuery<T> crit, QCriteriaQueryBase<?, ?> qc) {
 		m_session = ses;
 		m_criteriaBuilder = criteriaBuilder;
 		m_topQuery = crit;
@@ -585,6 +588,9 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 * the worthless Hibernate "metamodel" API and the utterly disgusting way that mapping data is
 	 * "stored" in Hibernate we resort to getting the generic type of the child property's collection
 	 * to determine the type where the subquery is executed on.
+	 *
+	 * See https://vladmihalcea.com/exists-subqueries-jpa-hibernate/
+	 * See Hibernate7JpaQueriesTest as an example source.
 	 */
 	@Override
 	public <S> void visitExistsSubquery(QExistsSubquery<S> q) throws Exception {
@@ -853,11 +859,12 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Selection translation to Projection.				*/
 	/*--------------------------------------------------------------*/
-	//private ProjectionList m_proli;
+	private List<Selection<?>> m_selectionList = new ArrayList<>();
 
-	private Projection m_lastProj;
+	private List<Expression<?>> m_groupByList = new ArrayList<>();
 
-	private String m_parentAlias;
+	@Nullable
+	private Selection<?> m_lastSelection;
 
 	@Override
 	public void visitMultiSelection(QMultiSelection n) throws Exception {
@@ -866,33 +873,35 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	@Override
 	public void visitSelection(QSelection<?> s) throws Exception {
-		// QTODO - implement selection
-		throw new NotImplementedException("Selection not implemented yet");
-		//if(m_proli != null)
-		//	throw new IllegalStateException("? Projection list already initialized??");
-		//checkHibernateClass(s.getBaseClass());
-		//m_rootClass = s.getBaseClass();
-		//m_proli = Projections.projectionList();
-		//visitSelectionColumns(s);
-		//if(m_currentCriteria instanceof Criteria)
-		//	((Criteria) m_currentCriteria).setProjection(m_proli);
-		//else if(m_currentCriteria instanceof DetachedCriteria)
-		//	((DetachedCriteria) m_currentCriteria).setProjection(m_proli);
-		//else
-		//	throw new IllegalStateException("Unsupported current: " + m_currentCriteria);
-		//visitRestrictionsBase(s);
-		//visitOrderList(s.getOrder());
-		//
-		////-- 3. Handle fetch.
-		//handleFetch(s);
+		if(!m_selectionList.isEmpty())
+			throw new IllegalStateException("Selections list is already used??");
+		checkHibernateClass(s.getBaseClass());
+		m_rootClass = s.getBaseClass();
+
+		visitSelectionColumns(s);						// Append all selections to the selectionsList
+		if(m_selectionList.isEmpty())
+			throw new QQuerySyntaxException("No items to select in selection query");
+		CompoundSelection<Object[]> array = m_criteriaBuilder.array(m_selectionList);
+		CriteriaQuery<Object[]> topQuery = (CriteriaQuery<Object[]>) m_topQuery;
+		topQuery.select(array);
+		m_topQuery.groupBy(m_groupByList);
+
+		visitRestrictionsBase(s);
+		visitOrderList(s.getOrder());
+
+		//-- 3. Handle fetch.
+		handleFetch(s);
+		m_selectionList.clear();
+		m_groupByList.clear();
 	}
 
 	@Override
 	public void visitSelectionColumn(QSelectionColumn n) throws Exception {
-		// QTODO - implement selection column
-		//n.getItem().visit(this);
-		//if(m_lastProj != null)
-		//	m_proli.add(m_lastProj);
+		m_lastSelection = null;
+		n.getItem().visit(this);
+		Selection<?> lastSelection = m_lastSelection;
+		if(null != lastSelection)
+			m_selectionList.add(lastSelection);
 	}
 
 	@Override
@@ -902,44 +911,44 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	@Override
 	public void visitPropertySelection(QPropertySelection n) throws Exception {
-		// QTODO - implement property selection
-		throw new NotImplementedException("Property selection not implemented yet");
-		//String name = parseSubcriteria(n.getProperty());
-		//
-		//switch(n.getFunction()){
-		//	default:
-		//		throw new IllegalStateException("Unexpected selection item function: " + n.getFunction());
-		//	case AVG:
-		//		m_lastProj = Projections.avg(name);
-		//		break;
-		//	case MAX:
-		//		m_lastProj = Projections.max(name);
-		//		break;
-		//	case MIN:
-		//		m_lastProj = Projections.min(name);
-		//		break;
-		//	case SUM:
-		//		m_lastProj = Projections.sum(name);
-		//		break;
-		//	case COUNT:
-		//		m_lastProj = Projections.count(name);
-		//		break;
-		//	case COUNT_DISTINCT:
-		//		m_lastProj = Projections.countDistinct(name);
-		//		break;
-		//	case ID:
-		//		m_lastProj = Projections.id();
-		//		break;
-		//	case PROPERTY:
-		//		m_lastProj = Projections.groupProperty(name);
-		//		break;
-		//	case ROWCOUNT:
-		//		m_lastProj = Projections.rowCount();
-		//		break;
-		//	case DISTINCT:
-		//		m_lastProj = Projections.distinct(Projections.property(name));
-		//		break;
-		//}
+		Path<?> path = parsePropertyPath(n.getProperty());
+		switch(n.getFunction()) {
+			default:
+				throw new IllegalStateException("Unexpected selection item function: " + n.getFunction());
+			case AVG:
+				m_lastSelection = m_criteriaBuilder.avg(parsePropertyPath(n.getProperty()));
+				break;
+			case MAX:
+				m_lastSelection = m_criteriaBuilder.max(parsePropertyPath(n.getProperty()));
+				break;
+			case MIN:
+				m_lastSelection = m_criteriaBuilder.min(parsePropertyPath(n.getProperty()));
+				break;
+			case SUM:
+				m_lastSelection = m_criteriaBuilder.sum(parsePropertyPath(n.getProperty()));
+				break;
+			case COUNT:
+				m_lastSelection = m_criteriaBuilder.count(parsePropertyPath(n.getProperty()));
+				break;
+			case COUNT_DISTINCT:
+				m_lastSelection = m_criteriaBuilder.countDistinct(parsePropertyPath(n.getProperty()));
+				break;
+			case ID:
+				m_lastSelection = m_criteriaBuilder.id(parsePropertyPath(n.getProperty()));
+				m_groupByList.add(parsePropertyPath(n.getProperty()));
+				break;
+			case PROPERTY:
+				m_lastSelection = parsePropertyPath(n.getProperty());
+				m_groupByList.add(parsePropertyPath(n.getProperty()));
+				break;
+			case ROWCOUNT:
+				m_lastSelection = m_criteriaBuilder.count();
+				break;
+			case DISTINCT:
+				throw new IllegalStateException("Not implemented yet: distinct selection");
+				//m_lastSelection = m_criteriaBuilder.distinct(m_criteriaBuilder.property(parsePropertyPath(n.getProperty())));
+				//break;
+		}
 	}
 
 
@@ -983,8 +992,8 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	//	//-- Recursively apply all parts to the detached thingerydoo
 	//	ProjectionList oldpro = m_proli;
 	//	m_proli = null;
-	//	Projection oldlastproj = m_lastProj;
-	//	m_lastProj = null;
+	//	Projection oldlastproj = m_lastSelection;
+	//	m_lastSelection = null;
 	//	Object oldCriteria = m_currentCriteria;
 	//	Class<?> oldroot = m_rootClass;
 	//	Map<String, String> oldAliases = m_aliasMap;
@@ -1004,7 +1013,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	//	m_currentCriteria = oldCriteria; // Restore root query
 	//	m_rootClass = oldroot;
 	//	m_proli = oldpro;
-	//	m_lastProj = oldlastproj;
+	//	m_lastSelection = oldlastproj;
 	//	m_lastSubqueryCriteria = dc;
 	//	m_aliasMap = oldAliases;
 	//	m_parentAlias = oldParentAlias;

@@ -33,8 +33,10 @@ import org.eclipse.jdt.annotation.NonNull;
  * Created on Jul 14, 2009
  */
 public class QSelectionItem extends QNodeBase {
-	/** The type of item, */
-	private QSelectionFunction	m_function;
+	/**
+	 * The type of item,
+	 */
+	private QSelectionFunction m_function;
 
 	protected QSelectionItem(QSelectionFunction function) {
 		m_function = function;
@@ -42,11 +44,11 @@ public class QSelectionItem extends QNodeBase {
 
 	/**
 	 * Get the function applied to this selection item.
-	 * @return
 	 */
 	public QSelectionFunction getFunction() {
 		return m_function;
 	}
+
 	@Override
 	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitSelectionItem(this);
