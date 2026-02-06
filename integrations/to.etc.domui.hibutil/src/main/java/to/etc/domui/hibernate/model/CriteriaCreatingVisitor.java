@@ -562,25 +562,53 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		throw new IllegalStateException("? Unexpected literal: " + n);
 	}
 
-	private List<Pair<Class<?>, String>> reverseChildToParentPath(Class<?> parentClass, String parentToChildPath) {
+	/**
+	 * Analyzes the path from parent to child and returns the information needed to build the join condition.
+	 * The path can contain ManyToOne relations (parent navigation) followed by exactly one OneToMany relation
+	 * (the child list). Multiple OneToMany relations in the path should have been refactored into nested
+	 * EXISTS subqueries by {@link #refactorToSubExistsIfNeeded(QExistsSubquery)}.
+	 *
+	 * @return A pair containing:
+	 *         - Left: the path from the parent root to the entity that owns the child list (empty string if direct child)
+	 *         - Right: the mappedBy property in the child entity that points back to its parent
+	 */
+	private Pair<String, String> analyzeExistsPath(Class<?> parentClass, String parentToChildPath) {
 		SessionFactoryImplementor sfi = m_session.getSessionFactory().unwrap(SessionFactoryImplementor.class);
-		List<Pair<Class<?>, String>> reversedPath = new ArrayList<>();
-		for(String segment : parentToChildPath.split("\\.")) {
-			EntityPersister entityDescriptor = sfi.getMappingMetamodel().getEntityDescriptor(parentClass);
+		StringBuilder parentPrefix = new StringBuilder();
+		Class<?> currentClass = parentClass;
+
+		String[] segments = parentToChildPath.split("\\.");
+		for(int i = 0; i < segments.length; i++) {
+			String segment = segments[i];
+			EntityPersister entityDescriptor = sfi.getMappingMetamodel().getEntityDescriptor(currentClass);
 			AttributeMapping attributeMapping = entityDescriptor.findAttributeMapping(segment);
 			if(null == attributeMapping)
-				throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': unknown property '" + segment + "' in class " + parentClass.getSimpleName());
+				throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': unknown property '" + segment + "' in class " + currentClass.getSimpleName());
 
 			if(attributeMapping instanceof PluralAttributeMapping pa) {
+				// This is a child list (OneToMany/ManyToMany) - should be the last segment
+				if(i != segments.length - 1) {
+					// Multiple child lists in path - this should have been refactored by refactorToSubExistsIfNeeded
+					throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': found child list property '" + segment
+						+ "' but it's not the last segment. Multiple child lists should be refactored into nested EXISTS.");
+				}
 				String mappedBy = pa.getCollectionDescriptor().getMappedByProperty();
-				Class<?> childClass = pa.getElementDescriptor().getJavaType().getJavaTypeClass();
-
-				reversedPath.add(new Pair<>(childClass, mappedBy));
+				if(mappedBy == null) {
+					throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': child list property '" + segment
+						+ "' does not have a mappedBy - only bidirectional relations are supported for EXISTS subqueries.");
+				}
+				return new Pair<>(parentPrefix.toString(), mappedBy);
 			} else {
-				throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': property '" + segment + "' in class " + parentClass.getSimpleName() + " is not a child relation");
+				// This is a parent relation (ManyToOne) or simple property - add to prefix and continue
+				if(!parentPrefix.isEmpty()) {
+					parentPrefix.append(".");
+				}
+				parentPrefix.append(segment);
+				// Get the target class for the next iteration
+				currentClass = attributeMapping.getJavaType().getJavaTypeClass();
 			}
 		}
-		return reversedPath.reversed();
+		throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': path must end with a child list property (OneToMany/ManyToMany)");
 	}
 
 	/**
@@ -611,24 +639,34 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		JpaPredicate existsCriteria = m_last;
 
 		/*
-		 * Form the join criterion. We need to find the join path backward. The path passed is
-		 * a path from the parent to the child record, formed by adding the child list properties.
-		 * We need to transform this into a path from child to parent, formed by adding the parent
-		 * reference properties.
+		 * Form the join criterion. The path passed is a path from the parent to the child record.
+		 * It may contain ManyToOne relations (parent navigation) before the final OneToMany (child list).
+		 * For example: "customer.invoices" where customer is ManyToOne and invoices is OneToMany.
+		 *
+		 * We need to build a join like: previousRoot.parentPrefix = subRoot.mappedBy
+		 * For "customer.invoices": order.customer = invoice.customer
+		 * For "albums": artist = album.artist (parentPrefix is empty)
 		 */
-		List<Pair<Class<?>, String>> childToParentPath = reverseChildToParentPath(previousRoot.getJavaType(), q.getParentProperty());
+		Pair<String, String> pathInfo = analyzeExistsPath(previousRoot.getJavaType(), q.getParentProperty());
+		String parentPrefix = pathInfo.get1();
+		String childMappedBy = pathInfo.get2();
 
-		//-- Create a path for that
-		Path<?> path = subRoot;										// The base for the above path
-		for(Pair<Class<?>, String> pair : childToParentPath) {
-			Path<?> nextPath = path.get(pair.get2()); 				// Find property
-			if(null == nextPath)
-				throw new IllegalStateException("Unexpected missing property in path  + " + q.getParentProperty() + " at " + pair.get2());
-			path = nextPath;
+		//-- Build the parent side of the join (previousRoot or previousRoot.parentPrefix)
+		Path<?> parentSide;
+		if(parentPrefix.isEmpty()) {
+			parentSide = previousRoot;
+		} else {
+			parentSide = previousRoot;
+			for(String segment : parentPrefix.split("\\.")) {
+				parentSide = parentSide.get(segment);
+			}
 		}
 
+		//-- Build the child side of the join (subRoot.mappedBy)
+		Path<?> childSide = subRoot.get(childMappedBy);
+
 		//-- Add the join condition now.
-		JpaPredicate joinPredicate = m_criteriaBuilder.equal(previousRoot, path);
+		JpaPredicate joinPredicate = m_criteriaBuilder.equal(parentSide, childSide);
 		subquery.where(existsCriteria, joinPredicate);
 		m_last = m_criteriaBuilder.exists(subquery);
 		m_currentRoot = previousRoot;
