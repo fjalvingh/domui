@@ -81,7 +81,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Thingy which creates a Hibernate Criteria thingy from a generic query. This is harder than
@@ -571,18 +570,12 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 			if(attributeMapping instanceof PluralAttributeMapping pa) {
 				String mappedBy = pa.getCollectionDescriptor().getMappedByProperty();
-				Class<?> childClass = pa.getCollectionDescriptor().getElementClass();
+				Class<?> childClass = pa.getElementDescriptor().getJavaType().getJavaTypeClass();
+
 				reversedPath.add(new Pair<>(childClass, mappedBy));
 			} else {
 				throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': property '" + segment + "' in class " + parentClass.getSimpleName() + " is not a child relation");
 			}
-
-			//PropertyMetaModel<?> pmm = MetaManager.findPropertyMeta(parentClass, segment);
-			//if(null == pmm)
-			//	throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': unknown property '" + segment + "' in class " + parentClass.getSimpleName());
-			//if(pmm.getRelationType() != PropertyRelationType.DOWN)
-			//	throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': property '" + segment + "' in class " + parentClass.getSimpleName() + " is not a child relation");
-
 		}
 		return reversedPath.reversed();
 	}
@@ -604,7 +597,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 		//-- Swap roots,
 		Root<?> previousRoot = m_currentRoot;
-		AbstractQuery<?> currentQuery = m_currentQuery;
+		AbstractQuery<?> previousQuery = m_currentQuery;
 		m_currentRoot = subRoot;
 		m_currentQuery = subquery;
 
@@ -617,9 +610,26 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		 * We need to transform this into a path from child to parent, formed by adding the parent
 		 * reference properties.
 		 */
-		List<Pair<Class<?>, String>> childToParentPath = reverseChildToParentPath(m_currentRoot.getJavaType(), q.getParentProperty());
+		List<Pair<Class<?>, String>> childToParentPath = reverseChildToParentPath(previousRoot.getJavaType(), q.getParentProperty());
 
-		System.out.println("Child to parent path: " + childToParentPath.stream().map(a -> a.get1() + "." + a.get2()).collect(Collectors.joining(" -> ")));
+		//-- Create a path for that
+		Path<?> path = subRoot;										// The base for the above path
+		for(Pair<Class<?>, String> pair : childToParentPath) {
+			Path<?> nextPath = path.get(pair.get2()); 				// Find property
+			if(null == nextPath)
+				throw new IllegalStateException("Unexpected missing property in path  + " + q.getParentProperty() + " at " + pair.get2());
+			path = nextPath;
+		}
+
+		//-- Add the join condition now.
+		JpaPredicate joinPredicate = m_criteriaBuilder.equal(previousRoot, path);
+		subquery.where(existsCriteria, joinPredicate);
+		m_last = m_criteriaBuilder.exists(subquery);
+		m_currentRoot = previousRoot;
+		m_currentQuery = previousQuery;
+
+
+		//System.out.println("Child to parent path: " + childToParentPath.stream().map(a -> a.get1() + "." + a.get2()).collect(Collectors.joining(" -> ")));
 
 		//subquery.where(
 		//	subRoot.get("title").in("Back to Black", "Highway to Hell"),

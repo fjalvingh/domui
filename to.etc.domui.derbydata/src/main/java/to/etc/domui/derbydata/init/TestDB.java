@@ -23,13 +23,16 @@ final public class TestDB {
 	}
 
 	static public synchronized ConnectionPool getPool() throws Exception {
-		String path = "/tmp/demoDb";
-		//if(System.getProperty("maven.home") != null || System.getProperty("failsafe.test.class.path") != null) {
-		File tmp = File.createTempFile("testdb", ".domui");
-		tmp.delete();
+		File tmp;
+		if(isDeveloperTest()) {
+			tmp = new File("/tmp/demoDb");
+		} else {
+			tmp = File.createTempFile("testdb", ".domui");
+			tmp.delete();
+		}
+
 		tmp.mkdirs();
-		path = tmp.getAbsolutePath();
-		//}
+		String path = tmp.getAbsolutePath();
 		System.out.println("Database path is " + path);
 
 		return getPool(path);
@@ -61,6 +64,12 @@ final public class TestDB {
 			m_pool = pool;
 		}
 		return pool;
+	}
+
+	private static boolean isDeveloperTest() {
+		if(System.getProperty("maven.home") != null)
+			return false;
+		return DeveloperOptions.isDeveloperWorkstation();
 	}
 
 	static public DataSource getDataSource() throws Exception {
