@@ -66,7 +66,9 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 
 	private StringBuilder m_fields = new StringBuilder();
 
-	/** The list of all retrievers for a single row */
+	/**
+	 * The list of all retrievers for a single row
+	 */
 	private List<IInstanceMaker> m_retrieverList = new ArrayList<IInstanceMaker>();
 
 	private int m_nextFieldIndex = 1;
@@ -79,7 +81,9 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 
 	private List<IQValueSetter> m_valList = new ArrayList<IQValueSetter>();
 
-	/** FIXME Need some better way to set this */
+	/**
+	 * FIXME Need some better way to set this
+	 */
 	private boolean m_oracle = true;
 
 	private int m_start, m_limit;
@@ -89,7 +93,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	private String m_sql;
 
 	@Override
-	public void visitCriteria(@NonNull QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@NonNull QCriteria<?> qc) throws Exception {
 		m_root = new PClassRef(qc.getBaseClass(), "this_");
 		m_tblMap.put(m_root.getAlias(), m_root);
 		m_rootMeta = JdbcMetaManager.getMeta(qc.getBaseClass());
@@ -143,12 +147,11 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitSelection(@NonNull QSelection< ? > qc) throws Exception {
+	public void visitSelection(@NonNull QSelection<?> qc) throws Exception {
 		m_root = new PClassRef(qc.getBaseClass(), "this_");
 		m_tblMap.put(m_root.getAlias(), m_root);
 		m_rootMeta = JdbcMetaManager.getMeta(qc.getBaseClass());
 		m_timeout = 60;
-
 
 		m_retrieverList.add(new SelectorColumnsResultMaker(qc));
 		visitRestrictionsBase(qc);
@@ -177,7 +180,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 					append("(distinct ");
 					append(cm.findProperty(n.getProperty()).getColumnName());
 					append(")");
-				} else if (n.getFunction().equals(QSelectionFunction.PROPERTY)) {
+				} else if(n.getFunction().equals(QSelectionFunction.PROPERTY)) {
 					append(cm.findProperty(n.getProperty()).getColumnName());
 				} else {
 					append(n.getFunction().name().toLowerCase());
@@ -215,8 +218,6 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 
 	/**
 	 * Generate getter code for an entire class instance from a result set.
-	 * @param root
-	 * @throws Exception
 	 */
 	private void generateClassGetter(PClassRef root) throws Exception {
 		JdbcClassMeta cm = JdbcMetaManager.getMeta(root.getDataClass()); // Will throw exception if not proper jdbc class.
@@ -253,7 +254,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 		return m_retrieverList;
 	}
 
-	public JdbcQuery< ? > getQuery() throws Exception {
+	public JdbcQuery<?> getQuery() throws Exception {
 		return new JdbcQuery<Object>(getSQL(), m_retrieverList, m_valList, m_start, m_limit, m_timeout);
 	}
 
@@ -340,7 +341,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 			if(value instanceof List) {
 				List<Object> list = (List<Object>) value;
 				int ct = 0;
-				for(Object o: list) {
+				for(Object o : list) {
 					if(ct++ > 0)
 						appendWhere(",");
 
@@ -358,8 +359,6 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 
 	/**
 	 * Generate a compound eq/ne comparison.
-	 * @param n
-	 * @param pm
 	 */
 	private void generateCompoundComparison(QPropertyComparison n, JdbcPropertyMeta pm) {
 		//-- Make sure the value instance passed is of the compound's type.
@@ -396,8 +395,6 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	/**
 	 * Generate some comparison in where with a literal value. The literal must be conversion-compatible with
 	 * the type converter for the property or sadness ensues.
-	 * @param pm
-	 * @param expr
 	 */
 	private void appendValueSetter(JdbcPropertyMeta pm, QLiteral expr) {
 		appendValueSetter(pm, expr.getValue());
@@ -413,8 +410,6 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 
 	/**
 	 * Append a value setter for a like operation, where the parameter is string by definition.
-	 * @param pm
-	 * @param expr
 	 */
 	private void appendLikeValueSetter(JdbcPropertyMeta pm, QLiteral expr) {
 		if(!(expr.getValue() instanceof String))
@@ -431,7 +426,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 			JdbcClassMeta currclz = m_rootMeta;
 			JdbcPropertyMeta selpm = null;
 			int i = 0;
-			for(;;) {
+			for(; ; ) {
 				String name = segs[i++];
 				selpm = currclz.findProperty(name);
 				if(selpm == null)
@@ -535,12 +530,12 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitSubquery(@NonNull QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull QSubQuery<?, ?> n) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 
 	@Override
-	public void visitExistsSubquery(@NonNull QExistsSubquery< ? > q) throws Exception {
+	public <S> void visitExistsSubquery(@NonNull QExistsSubquery<S> q) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 
@@ -548,6 +543,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	public void visitSelectionItem(@NonNull QSelectionItem n) throws Exception {
 		//-- jal 20160105 This should throw an IllegalStateException!!
 	}
+
 	@Override
 	public void visitPropertySelection(@NonNull QPropertySelection n) throws Exception {
 		//-- jal 20160105 This should throw an IllegalStateException!!

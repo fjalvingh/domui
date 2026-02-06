@@ -52,10 +52,12 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitUnaryProperty(@NonNull QUnaryProperty n) throws Exception {}
+	public void visitUnaryProperty(@NonNull QUnaryProperty n) throws Exception {
+	}
 
 	@Override
-	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {}
+	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {
+	}
 
 	@Override
 	public void visitBetween(@NonNull QBetweenNode n) throws Exception {
@@ -71,20 +73,20 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitCriteria(@NonNull QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@NonNull QCriteria<?> qc) throws Exception {
 		visitRestrictionsBase(qc);
 		visitOrderList(qc.getOrder());
 	}
+
 	@Override
-	public void visitSelection(@NonNull QSelection< ? > s) throws Exception {
+	public void visitSelection(@NonNull QSelection<?> s) throws Exception {
 		visitSelectionColumns(s);
 		visitRestrictionsBase(s);
 		visitOrderList(s.getOrder());
 	}
 
-	public void visitSelectionColumns(@NonNull QSelection< ? > s) throws Exception {
-		for(@NonNull
-		QSelectionColumn col : s.getColumnList())
+	public void visitSelectionColumns(@NonNull QSelection<?> s) throws Exception {
+		for(QSelectionColumn col : s.getColumnList())
 			col.visit(this);
 	}
 
@@ -95,7 +97,8 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitLiteral(@NonNull QLiteral n) throws Exception {}
+	public void visitLiteral(@NonNull QLiteral n) throws Exception {
+	}
 
 	@Override
 	public void visitMulti(@NonNull QMultiNode n) throws Exception {
@@ -104,31 +107,35 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitOrder(@NonNull QOrder o) throws Exception {}
+	public void visitOrder(@NonNull QOrder o) throws Exception {
+	}
 
 	@Override
 	public void visitPropertySelection(@NonNull QPropertySelection n) throws Exception {
 	}
+
 	@Override
 	public void visitSelectionColumn(@NonNull QSelectionColumn n) throws Exception {
 		n.getItem().visit(this);
 	}
+
 	@Override
 	public void visitSelectionItem(@NonNull QSelectionItem n) throws Exception {
 	}
+
 	@Override
 	public void visitMultiSelection(@NonNull QMultiSelection n) throws Exception {
-		for(QSelectionItem it: n.getItemList())
+		for(QSelectionItem it : n.getItemList())
 			it.visit(this);
 	}
 
 	@Override
-	public void visitExistsSubquery(@NonNull QExistsSubquery< ? > q) throws Exception {
+	public <S> void visitExistsSubquery(@NonNull QExistsSubquery<S> q) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 
 	@Override
-	public void visitSubquery(@NonNull QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull QSubQuery<?, ?> n) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 

@@ -38,12 +38,16 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.Session;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.metamodel.mapping.AttributeMapping;
+import org.hibernate.metamodel.mapping.PluralAttributeMapping;
+import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaOrder;
 import org.hibernate.query.criteria.JpaPredicate;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.util.Pair;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.qsql.QQuerySyntaxException;
 import to.etc.webapp.query.QBetweenNode;
@@ -77,6 +81,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Thingy which creates a Hibernate Criteria thingy from a generic query. This is harder than
@@ -85,11 +90,11 @@ import java.util.Map;
  *
  * <p>It might be a better idea to start generating SQL from here, using Hibernate internal code
  * to instantiate the query's result only.</p>
- *
+ * <p>
  * Please look a <a href="http://bugzilla.etc.to/show_bug.cgi?id=640">Bug 640</a> for more details, and see
  * the wiki page http://info.etc.to/xwiki/bin/view/Main/UIAbstractDatabase for more details
  * on the working of all this.
- *
+ * <p>
  * https://docs.hibernate.org/orm/6.0/migration-guide/#_jakarta_persistence
  * https://docs.hibernate.org/orm/7.0/migration-guide/#jpa-32
  *
@@ -101,10 +106,14 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	private final HibernateCriteriaBuilder m_criteriaBuilder;
 
-	/** The topmost query: the one that will be returned to effect the translated query */
+	/**
+	 * The topmost query: the one that will be returned to effect the translated query
+	 */
 	private final CriteriaQuery<T> m_topQuery;
 
-	/** The JPA root item, i.e. the class we query. */
+	/**
+	 * The JPA root item, i.e. the class we query.
+	 */
 	private final Root<T> m_topRoot;
 
 	/**
@@ -117,10 +126,14 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	private JpaPredicate m_last;
 
-	/** After a SUBSELECT parse, (subquery/comparison against subquery) this contains the DetachedCriteria instance created for that query. */
+	/**
+	 * After a SUBSELECT parse, (subquery/comparison against subquery) this contains the DetachedCriteria instance created for that query.
+	 */
 	private Object m_lastSubqueryCriteria;
 
-	/** The next number to use for generating unique names. */
+	/**
+	 * The next number to use for generating unique names.
+	 */
 	private int m_aliasIndex;
 
 	private Class<?> m_rootClass;
@@ -237,379 +250,16 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Property path resolution code.						*/
 	/*--------------------------------------------------------------*/
-
-	/** Temp array used in parser to decode the properties reached; used to prevent multiple object allocations. */
-	private PropertyMetaModel<?>[] m_pendingJoinProps = new PropertyMetaModel[20];
-
-	private String[] m_pendingJoinPaths = new String[20];
-
-	private int m_pendingJoinIx;
-
-	private String m_inputPath;
-
-	private StringBuilder m_sb = new StringBuilder();
-
-	private PropertyMetaModel<?> m_targetProperty;
-
-	/**
-	 * Parse a dotted path property. This needs to "translate" the dotted path into a query path, and it
-	 * needs to generate the proper joins. A big bundle of hair is growing on this code. Take heed changing
-	 * it!
-	 *
-	 * <h1>Path types</h1>
-	 * <p>A simple path contains no dots. This references any property in the current object, which can be of
-	 * any type. Because this never implies any kind of join we can return the name as-is.</p>
-	 *
-	 * <h2>Non-PK single relation path</h2>
-	 * <p>For now we only support parent relations, i.e. where the relation reaches one record. Child relations
-	 * are disabled for now. The old code supported child relations and translated them into "exists" subqueries;
-	 * that code is disabled.</p>
-	 *
-	 * <p>A path like "relation.field" creates an <i>alias</i> "_a0" for relation. This same alias will be used
-	 * for <i>all</i> references to direct properties of that relation. The alias represents the actual joined
-	 * table for the relation. For a reference of this type the alias is created or obtained from the earlier
-	 * time it was created, then this returns "_a0.field" as a property reference on that specific table.</p>
-	 *
-	 * <h2>Non-PK multi-relation path</h2>
-	 * <p>A path like relation1.relation2.field reaches a field in the parent-of-the-parent. It can reach
-	 * as high as parents exists. These create joins where each child record joins with it's parent, all the
-	 * way up to the last one. For every relation traversed we need an alias. So the following is created:
-	 * <ol>
-	 *	<li>Create alias "_a0" for path "relation1", the subpath is now "relation2.field" based off "_a0".</li>
-	 *	<li>Create alias "_a1" for path "relation1.relation2", subpath is now "field" based off "_a1".</li>
-	 * </ol>
-	 * Because "field" is a non-relation this ends the code; the returned value is "_a1.field".
-	 *
-	 * <h2>Primary key paths</h2>
-	 * <p>Something special happens however when we are accessing only the PK for the specified relation. For
-	 * instance when we query something like "relation.id = 1234". In this case we do <i>not</i> want a join
-	 * because the field referred to actually resides inside the root record: it is the FK column of "relation".
-	 * This means that when we encounter a relation we need to <i>postpone</i> creation of it's alias until
-	 * we know what we are reaching <i>after</i> that relation. If we reach the PK of it we don't need the
-	 * join; we just need to return the actual path like "relation.id" for Hibernate.</p>
-	 *
-	 * <h2>Complex primary key paths</h2>
-	 * <p>For paths that reach a PK after traversing more than one relation, like "relation.btwCode.id=12", we
-	 * do need to join the first segment, "relation", and create an alias "_a0" for it. We then see that the next
-	 * fragment, based off that "_a0" alias refers to the PK of the second relation. That means it does not
-	 * need a join; the returned path should be "_a0.btwCode.id".</p>
-	 *
-	 * <h2>Compound primary keys</h2>
-	 * <p>A bigger problem will occur when we are using compound primary keys (identifying relations),
-	 * especially when these can also contain relations to objects containing compound primary keys. For example
-	 * lets take the following (pretty nonsense) types:
-	 * <pre>
-	 * Product {
-	 *   [id] Long id; // Simple PK, no problems
-	 *   String name; // Sample field.
-	 * }
-	 *
-	 * ProductVersionPK {
-	 *   [ManyToOne] Product product; // Relation to product as part of the PK
-	 *   String name; // The name, part of the PK
-	 * }
-	 *
-	 * ProductVersion {
-	 *   [Id] ProductVersionPK id;	// Compound PK!
-	 *   String description;	// Whatever
-	 * }
-	 *
-	 * VersionBugPK {
-	 *   [ManyToOne] ProductVersion version; // Relation to version as part of PK
-	 *   Long bugId; // Id, part of PK
-	 * }
-	 *
-	 * VersionBug {
-	 *   [Id] VersionBugPK id;  // Compound PK containing relation to another thingy with a compound PK
-	 *   Date reported;
-	 * }
-	 * </pre>
-	 * Using these classes, if we want to load all VersionBugs for a single product we would do something like:
-	 * <pre>
-	 * QCriteria<VersionBug> q = ....;
-	 * q.eq("id.version.id.product", product);
-	 * </pre>
-	 * The dotted path "id.version.id.product" refers to the "product" relation inside ProductVersionPK. Another way to
-	 * do it is:
-	 * <pre>
-	 * QCriteria<VersionBug> q = ....;
-	 * q.eq("id.version.id.product.id", Long.valueOf(120114323));
-	 * </pre>
-	 * This refers to the actual PK of the Product. Both queries generate the same SQL.</p>
-	 *
-	 * <p>The problem with this is that although we are traversing multiple parent relations we are <i>not</i> needing
-	 * any join here because the fields that are reached at the end are <i>within the root table/class itself</i>. So
-	 * the actual path to pass to Hibernate is that full path.</p>
-	 *
-	 * <p>When we are accessing properties in the relation not part of the PK we do need to generate aliases, but the
-	 * paths are different. For instance if we query:
-	 * <pre>
-	 * QCriteria<VersionBug> q = ....;
-	 * q.eq("id.version.id.product.name", "DomUI");
-	 * </pre>
-	 * We <i>are</i> joining with Product; but in this case we need to generate the aliases differently:
-	 * <ol>
-	 *	<li>Generate alias "_a0" for path "id.version" referring to ProductVersion</li>
-	 *	<li>Generate alias "_a1" for path "id.version.id.product", based from "_a0", referring to Product</li>
-	 *	<li>Return the reference "_a1.name" referring to the joined table's NAME field.</li>
-	 * </ol>
-	 *
-	 */
-	private String parseSubcriteria(String input) {
-		return parseSubcriteria(input, false);
-	}
-
-	private String parseSubcriteria(String input, boolean allowDown) {
-		m_targetProperty = null;
-		m_inputPath = input;
-		Class<?> currentClass = m_rootClass; // The current class reached by the property; start @ the root entity
-		String path = null; // The full path currently reached, i.e. "id.version.id.product".
-		String subpath = null; // The subpath reached from the last PK association change, i.e. "id.product"
-		int ix = 0;
-		final int len = input.length();
-		m_pendingJoinIx = 0;
-		boolean last = false;
-		boolean previspk = false;
-
-		String currentAlias = ""; // The last-assigned alias for the last-flushed path.
-		while(!last) {
-			//-- Get next name.
-			int pos = input.indexOf('.', ix); // Move to the NEXT dot,
-			String name;
-			if(pos == -1) {
-				//-- QUICK EXIT: if the entire name has no dots quit immediately with the input.
-				if(ix == 0) {
-					m_targetProperty = MetaManager.findPropertyMeta(currentClass, input);
-					return input;
-				}
-
-				//-- Get the last name fragment.
-				name = input.substring(ix);
-				ix = len;
-				last = true;
-			} else {
-				name = input.substring(ix, pos);
-				ix = pos + 1;
-			}
-
-			//-- Create the path and the subpath by adding the current name.
-			path = path == null ? name : path + "." + name; // Full dotted path to the currently reached name
-			subpath = subpath == null ? name : subpath + "." + name; // Partial dotted path (from the last relation) to the currently reached name
-
-			//-- Get the property metadata and the reached class.
-			PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(currentClass, name);
-			m_targetProperty = pmm;
-			if(pmm.isPrimaryKey()) {
-				if(previspk)
-					throw new IllegalStateException("The path " + subpath + " is a PK property immediately followed by another Pk property- that cannot happen.");
-
-				//-- We have found the "id" field. Assume we don't know what comes after so store this.
-				previspk = true;
-				pushPendingJoin(path, pmm);
-
-				if(last) {
-					/*
-					 * This ends in the PK field. This means that the entire stored JOIN path is part of the PK
-					 * of the current alias - we may not join. Append the stored join path to the current alias
-					 * and return that.
-					 */
-
-
-					//-- We have ended in a PK. All subrelations leading up to this are *part* of the PK of the current subcriterion. We need not join but just have to specify a dotted path.
-					StringBuilder sb = sb();
-					sb.append(currentAlias); // Add the last alias or the empty string,
-					createPendingJoinPath(sb); // Add all properties not yet done
-					return sb.toString();
-				}
-				currentClass = pmm.getActualType();
-			} else if(pmm.getRelationType() == PropertyRelationType.DOWN) {
-				if(allowDown && last) {
-					currentAlias = flushJoin(currentAlias);
-					StringBuilder sb = sb();
-					sb.append(currentAlias).append('.').append(name);
-					return sb.toString();
-				}
-
-
-				if(true) {
-					/*
-					 * For now, we're not allowing queries on children. The old version translated this into an
-					 * "exists" query to prevent row explosion, but that is quite hard to do.
-					 * When reimplementing, all references "inside" the subquery must be added to that subquery,
-					 * and not result in another subquery. In addition, all combinatories that contain stuff
-					 * inside that subquery must properly be added there. That is extremely complex.
-					 */
-					throw new IllegalStateException("You cannot query a value on a parent->child relation. Use an exists-subquery instead.");
-				}
-
-				/*
-				 * Downward (childset) relation. This implicitly queries /existence/ of a child record having these
-				 * characteristics. This can never be a last item.
-				 */
-				if(last)
-					throw new QQuerySyntaxException("The path '" + path + " reaches a 'list-of-children' (DOWN) property (" + pmm + ")- it is meaningless here");
-
-				/*
-				 * Must be a List type, and we must be able to determine the type of the child.
-				 */
-				if(!List.class.isAssignableFrom(pmm.getActualType()))
-					throw new ProgrammerErrorException("The property '" + path + "' should be a list (it is a " + pmm.getActualType() + ")");
-				java.lang.reflect.Type coltype = pmm.getGenericActualType();
-				if(coltype == null)
-					throw new ProgrammerErrorException("The property '" + path + "' has an undeterminable child type");
-				Class<?> childtype = MetaManager.findCollectionType(coltype);
-
-				//-- We are not really joining here; we're just querying. Drop the pending joinset;
-				m_pendingJoinIx = 0; // Discard all pending;
-
-			} else if(pmm.getRelationType() != PropertyRelationType.NONE) {
-				/*
-				 * This is a parent relation. If we are NOT in a PK currently AND there are relations queued then
-				 * we are sure that the queued ones must be joined, so flush as a simple join.
-				 */
-				if(m_pendingJoinIx > 0 && !previspk) {
-					currentAlias = flushJoin(currentAlias);
-				}
-
-				//-- Now queue this one- we decide whether to join @ the next name.
-				pushPendingJoin(path, pmm);
-				if(last) {
-					//-- Last entry is a relation: we do not need to join this last one, just refer to it using it's dotted path also.
-					StringBuilder sb = sb();
-					sb.append(currentAlias); // Add the last alias or the empty string,
-					createPendingJoinPath(sb); // Add all properties not yet done
-					return sb.toString();
-				}
-
-				currentClass = pmm.getActualType();
-				previspk = false;
-			} else if(!last)
-				throw new QQuerySyntaxException("Property " + subpath + " in path " + input + " must be a parent relation or a compound primary key (property=" + pmm + ")");
-			else {
-				/*
-				 * This is the last part and it is not a PK or relation itself. We need to decide what to do with the
-				 * current join stack. If the previous item was a PK we do not join but return the compound path...
-				 */
-				if(previspk) {
-					//-- This is a non-relation property immediately on a PK. Return dotted path.
-					pushPendingJoin(path, pmm);
-					StringBuilder sb = sb();
-					sb.append(currentAlias); // Add the last alias or the empty string,
-					createPendingJoinPath(sb); // Add all properties not yet done
-					return sb.toString();
-				}
-
-				/*
-				 * This is a normal property. Make sure a join is present then return the path inside that join.
-				 */
-				currentAlias = flushJoin(currentAlias);
-				StringBuilder sb = sb();
-				sb.append(currentAlias).append('.').append(name);
-				return sb.toString();
-			}
-		}
-
-		//-- Failsafe exit: all specific paths should have exited when last was signalled.
-		throw new IllegalStateException("Should be unreachable?");
-	}
-
-	private StringBuilder sb() {
-		m_sb.setLength(0);
-		return m_sb;
-	}
-
-	/**
-	 * Append all property names to the path.
-	 */
-	private void createPendingJoinPath(StringBuilder sb) {
-		for(int i = 0; i < m_pendingJoinIx; i++) {
-			if(sb.length() > 0)
-				sb.append('.');
-			sb.append(m_pendingJoinProps[i].getName());
-		}
-	}
-
-	/**
-	 * Flush everything on the join stack and create the pertinent joins. The stack
-	 * is guaranteed to end in a RELATION property, but it can have PK fragments in
-	 * between. Those fragments are all part of a single record (the one that has
-	 * that PK) and should not be "joined". Instead the entire subpath leading to
-	 * that first relation that "exits" that record will be used as a path for the
-	 * subcriterion.
-	 */
-	private String flushJoin(String rootAlias) {
-		if(m_pendingJoinIx <= 0)
-			throw new IllegalStateException("No join pending??");
-
-		//-- Create the join path upto and including till the last relation (subpath from last criterion to it).
-		m_sb.setLength(0);
-		PropertyMetaModel<?> pmm = null;
-		for(int i = 0; i < m_pendingJoinIx; i++) {
-			pmm = m_pendingJoinProps[i];
-			if(m_sb.length() != 0)
-				m_sb.append('.');
-			m_sb.append(pmm.getName());
-		}
-		String subpath = m_sb.toString(); // This leads to the relation from the LAST alias (relative path)
-		String path = m_pendingJoinPaths[m_pendingJoinIx - 1]; // The full path to this relation from the root class,
-		String alias = getPathAlias(rootAlias, path, subpath, pmm);
-		m_pendingJoinIx = 0;
-		return alias;
-	}
-
-	/**
-	 *
-	 * @param rootAlias        The current alias which starts off this last segment, or "" if we start from root object.
-	 * @param fullpath        The root object absolute path, i.e. the input up to the current level including the relation property
-	 * @param relativepath    The relative path from the rootAlias.
-	 */
-	private String getPathAlias(String rootAlias, String fullpath, String relativepath, PropertyMetaModel<?> pmm) {
-		String alias = m_aliasMap.get(fullpath); // Path is already known?
-		if(null != alias)
-			return alias;
-
-		//-- This is new... Create the alias and refer it off the previous root alias,
-		String nextAlias = nextAlias();
-		String aliasedPath = relativepath;
-		if(!rootAlias.isEmpty())
-			aliasedPath = rootAlias + "." + relativepath;
-
-		m_aliasMap.put(fullpath, nextAlias);
-
-		// QTODO Implement
-		throw new NotImplementedException("path aliases");
-
-		////-- We need to create this join.
-		//int joinType = pmm.isRequired() ? CriteriaSpecification.INNER_JOIN : CriteriaSpecification.LEFT_JOIN;
-		//if(m_currentCriteria instanceof Criteria) {
-		//	((Criteria) m_currentCriteria).createAlias(aliasedPath, nextAlias, joinType); // Crapfest
-		//} else if(m_currentCriteria instanceof DetachedCriteria) {
-		//	((DetachedCriteria) m_currentCriteria).createAlias(aliasedPath, nextAlias, joinType);
-		//} else
-		//	throw new IllegalStateException("Unexpected current thing: " + m_currentCriteria);
-		//return nextAlias;
-	}
-
-	/**
-	 * Push a pending join or PK fragment on the TO-DO stack.
-	 */
-	private void pushPendingJoin(String path, PropertyMetaModel<?> pmm) {
-		if(m_pendingJoinIx >= m_pendingJoinPaths.length)
-			throw new QQuerySyntaxException("The property path " + m_inputPath + " is too complex");
-		m_pendingJoinPaths[m_pendingJoinIx] = path;
-		m_pendingJoinProps[m_pendingJoinIx++] = pmm;
-	}
-
 	/**
 	 * Parse a property path, starting from the root entity. This returns a JPA Path,
 	 * and checks that all parts are indeed n -> 1 parts.
 	 */
 	private <V> Path<V> parsePropertyPath(String input) throws Exception {
-		Path<?> currentPath = m_topRoot;
+		Path<?> currentPath = m_currentRoot;
 		for(String segment : input.split("\\.")) {
 			Path<?> nextPath = currentPath.get(segment);
 			if(nextPath == null)
-				throw new QQuerySyntaxException("The property path " + m_inputPath + " refers to unknown property " + segment);
+				throw new QQuerySyntaxException("The property path " + input + " refers to unknown property " + segment);
 			currentPath = nextPath;
 		}
 		return (Path<V>) currentPath;
@@ -629,9 +279,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 
 		//-- If prop refers to some relation (dotted pair):
-		//Path<?> path = parsePropertyPath(name);
-		Root<T> tgt = m_topRoot;
-		switch(n.getOperation()){
+		switch(n.getOperation()) {
 			default:
 				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
 
@@ -679,8 +327,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			Object litval = ((QLiteral) rhs).getValue();
 			if(litval instanceof Collection<?> co) {
 				//-- If prop refers to some relation (dotted pair):
-				name = parseSubcriteria(name);
-				m_last = m_criteriaBuilder.in(m_topRoot.get(name), co);
+				m_last = m_criteriaBuilder.in(parsePropertyPath(n.getProperty()), co);
 				return;
 			} else {
 				throw new QQuerySyntaxException("Unexpected value for 'in' operation: " + litval + ", should be Collection or subquery");
@@ -747,7 +394,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		//m_last = new HibernateAliasedSqlCriterion(sql, value, StringType.INSTANCE);
 	}
 
-	///**
+	/// **
 	// * Hibernate's jokish metadata does not include the PK in it's properties structures. So
 	// * we explicitly need to check if the name is the PK property, then return the column names
 	// * for that PK.
@@ -772,8 +419,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	//		throw new QQuerySyntaxException("'Like' cannot be done on multicolumn/0column property " + name);
 	//	return colar;
 	//}
-
-
 	private void handlePropertySubcriteriaComparison(QPropertyComparison n) throws Exception {
 		// QTODO - implement property subcriteria comparison
 		throw new NotImplementedException("property subcriteria comparison not implemented yet");
@@ -804,9 +449,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		QLiteral b = (QLiteral) n.getB();
 
 		//-- If prop refers to some relation (dotted pair):
-		String name = n.getProp();
-		name = parseSubcriteria(name);
-		m_last = m_criteriaBuilder.between(m_topRoot.get(name), (Comparable) a.getValue(), (Comparable) b.getValue());
+		m_last = m_criteriaBuilder.between(parsePropertyPath(n.getProp()), (Comparable) a.getValue(), (Comparable) b.getValue());
 	}
 
 	/**
@@ -826,7 +469,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			}
 		}
 
-		switch(inn.getOperation()){
+		switch(inn.getOperation()) {
 			default:
 				throw new IllegalStateException("Unexpected operation: " + inn.getOperation());
 			case AND:
@@ -847,19 +490,19 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	@Override
 	public void visitUnaryNode(final QUnaryNode n) throws Exception {
-		switch(n.getOperation()){
+		switch(n.getOperation()) {
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 			case SQL:
 				break;
-				// QTODO - implement unary SQL restriction
-				//if(n.getNode() instanceof QLiteral) {
-				//	QLiteral l = (QLiteral) n.getNode();
-				//	String s = (String) l.getValue();
-				//	m_last = Restrictions.sqlRestriction(s);
-				//	return;
-				//}
-				//break;
+			// QTODO - implement unary SQL restriction
+			//if(n.getNode() instanceof QLiteral) {
+			//	QLiteral l = (QLiteral) n.getNode();
+			//	String s = (String) l.getValue();
+			//	m_last = Restrictions.sqlRestriction(s);
+			//	return;
+			//}
+			//break;
 			case NOT:
 				n.getNode().visit(this);
 				m_last = m_criteriaBuilder.not(m_last);
@@ -899,17 +542,15 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	@Override
 	public void visitUnaryProperty(final QUnaryProperty n) throws Exception {
 		String name = n.getProperty();
-		name = parseSubcriteria(name); // If this is a dotted name prepare a subcriteria on it.
-
-		switch(n.getOperation()){
+		switch(n.getOperation()) {
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 
 			case ISNOTNULL:
-				m_last = m_criteriaBuilder.isNotNull(m_topRoot.get(name));
+				m_last = m_criteriaBuilder.isNotNull(parsePropertyPath(name));
 				break;
 			case ISNULL:
-				m_last = m_criteriaBuilder.isNull(m_topRoot.get(name));
+				m_last = m_criteriaBuilder.isNull(parsePropertyPath(name));
 				break;
 		}
 	}
@@ -919,9 +560,36 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		throw new IllegalStateException("? Unexpected literal: " + n);
 	}
 
+	private List<Pair<Class<?>, String>> reverseChildToParentPath(Class<?> parentClass, String parentToChildPath) {
+		SessionFactoryImplementor sfi = m_session.getSessionFactory().unwrap(SessionFactoryImplementor.class);
+		List<Pair<Class<?>, String>> reversedPath = new ArrayList<>();
+		for(String segment : parentToChildPath.split("\\.")) {
+			EntityPersister entityDescriptor = sfi.getMappingMetamodel().getEntityDescriptor(parentClass);
+			AttributeMapping attributeMapping = entityDescriptor.findAttributeMapping(segment);
+			if(null == attributeMapping)
+				throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': unknown property '" + segment + "' in class " + parentClass.getSimpleName());
+
+			if(attributeMapping instanceof PluralAttributeMapping pa) {
+				String mappedBy = pa.getCollectionDescriptor().getMappedByProperty();
+				Class<?> childClass = pa.getCollectionDescriptor().getElementClass();
+				reversedPath.add(new Pair<>(childClass, mappedBy));
+			} else {
+				throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': property '" + segment + "' in class " + parentClass.getSimpleName() + " is not a child relation");
+			}
+
+			//PropertyMetaModel<?> pmm = MetaManager.findPropertyMeta(parentClass, segment);
+			//if(null == pmm)
+			//	throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': unknown property '" + segment + "' in class " + parentClass.getSimpleName());
+			//if(pmm.getRelationType() != PropertyRelationType.DOWN)
+			//	throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': property '" + segment + "' in class " + parentClass.getSimpleName() + " is not a child relation");
+
+		}
+		return reversedPath.reversed();
+	}
+
 	/**
 	 * Child-related subquery: determine existence of children having certain characteristics. Because
-	 * the worthless Hibernate "meta model" API and the utterly disgusting way that mapping data is
+	 * the worthless Hibernate "metamodel" API and the utterly disgusting way that mapping data is
 	 * "stored" in Hibernate we resort to getting the generic type of the child property's collection
 	 * to determine the type where the subquery is executed on.
 	 */
@@ -930,22 +598,33 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		Class<?> parentBaseClass = q.getParentQuery().getBaseClass();
 		refactorToSubExistsIfNeeded(q);
 
-		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
-
 		//-- First, create a SubQuery, and append all basic conditions to it.
-		Subquery<Integer> subquery = m_currentQuery.subquery(Integer.class).select(m_criteriaBuilder.literal(1));		// Subquery selecting 1, just to check for existence
+		Subquery<Integer> subquery = m_currentQuery.subquery(Integer.class).select(m_criteriaBuilder.literal(1));        // Subquery selecting 1, just to check for existence
 		Root<S> subRoot = subquery.from(q.getBaseClass());
-		subquery.where(
-			subRoot.get("title").in("Back to Black", "Highway to Hell"),
-			cb.equal(subRoot.get("artist"), artistRoot)
-		);
 
+		//-- Swap roots,
+		Root<?> previousRoot = m_currentRoot;
+		AbstractQuery<?> currentQuery = m_currentQuery;
+		m_currentRoot = subRoot;
+		m_currentQuery = subquery;
 
+		q.getRestrictions().visit(this);                            // Calculate the basic criteria for the exists
+		JpaPredicate existsCriteria = m_last;
 
+		/*
+		 * Form the join criterion. We need to find the join path backward. The path passed is
+		 * a path from the parent to the child record, formed by adding the child list properties.
+		 * We need to transform this into a path from child to parent, formed by adding the parent
+		 * reference properties.
+		 */
+		List<Pair<Class<?>, String>> childToParentPath = reverseChildToParentPath(m_currentRoot.getJavaType(), q.getParentProperty());
 
+		System.out.println("Child to parent path: " + childToParentPath.stream().map(a -> a.get1() + "." + a.get2()).collect(Collectors.joining(" -> ")));
 
-
-
+		//subquery.where(
+		//	subRoot.get("title").in("Back to Black", "Highway to Hell"),
+		//	cb.equal(subRoot.get("artist"), artistRoot)
+		//);
 
 		//String parentAlias = getCurrentAlias();
 		//Class<?> parentBaseClass = q.getParentQuery().getBaseClass();
@@ -1320,7 +999,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	//	m_aliasMap = oldAliases;
 	//	m_parentAlias = oldParentAlias;
 	//}
-
 	@Override
 	public void visitPropertyJoinComparison(@NonNull QPropertyJoinComparison comparison) throws Exception {
 		//-- QTODO - implement property join comparison
