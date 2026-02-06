@@ -563,16 +563,22 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	}
 
 	/**
+	 * Result of analyzing an exists path, containing all information needed to build the subquery and join condition.
+	 *
+	 * @param parentPrefix The path from the parent root to the entity that owns the child list (empty string if direct child)
+	 * @param mappedBy The mappedBy property in the child entity that points back to its parent
+	 * @param childClass The actual child class (type of items in the child list) - use this instead of q.getBaseClass()
+	 *                   because refactorToSubExistsIfNeeded may have changed the path without updating baseClass
+	 */
+	private record ExistsPathInfo(String parentPrefix, String mappedBy, Class<?> childClass) {}
+
+	/**
 	 * Analyzes the path from parent to child and returns the information needed to build the join condition.
 	 * The path can contain ManyToOne relations (parent navigation) followed by exactly one OneToMany relation
 	 * (the child list). Multiple OneToMany relations in the path should have been refactored into nested
 	 * EXISTS subqueries by {@link #refactorToSubExistsIfNeeded(QExistsSubquery)}.
-	 *
-	 * @return A pair containing:
-	 *         - Left: the path from the parent root to the entity that owns the child list (empty string if direct child)
-	 *         - Right: the mappedBy property in the child entity that points back to its parent
 	 */
-	private Pair<String, String> analyzeExistsPath(Class<?> parentClass, String parentToChildPath) {
+	private ExistsPathInfo analyzeExistsPath(Class<?> parentClass, String parentToChildPath) {
 		SessionFactoryImplementor sfi = m_session.getSessionFactory().unwrap(SessionFactoryImplementor.class);
 		StringBuilder parentPrefix = new StringBuilder();
 		Class<?> currentClass = parentClass;
@@ -597,7 +603,8 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 					throw new QQuerySyntaxException("Invalid path '" + parentToChildPath + "': child list property '" + segment
 						+ "' does not have a mappedBy - only bidirectional relations are supported for EXISTS subqueries.");
 				}
-				return new Pair<>(parentPrefix.toString(), mappedBy);
+				Class<?> childClass = pa.getElementDescriptor().getJavaType().getJavaTypeClass();
+				return new ExistsPathInfo(parentPrefix.toString(), mappedBy, childClass);
 			} else {
 				// This is a parent relation (ManyToOne) or simple property - add to prefix and continue
 				if(!parentPrefix.isEmpty()) {
@@ -622,16 +629,28 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 */
 	@Override
 	public <S> void visitExistsSubquery(QExistsSubquery<S> q) throws Exception {
-		Class<?> parentBaseClass = q.getParentQuery().getBaseClass();
 		refactorToSubExistsIfNeeded(q);
 
-		//-- First, create a SubQuery, and append all basic conditions to it.
-		Subquery<Integer> subquery = m_currentQuery.subquery(Integer.class).select(m_criteriaBuilder.literal(1));        // Subquery selecting 1, just to check for existence
-		Root<S> subRoot = subquery.from(q.getBaseClass());
-
-		//-- Swap roots,
+		//-- Save current context
 		Root<?> previousRoot = m_currentRoot;
 		AbstractQuery<?> previousQuery = m_currentQuery;
+
+		/*
+		 * Analyze the path FIRST, before creating the subquery. This gives us:
+		 * - The correct child class to query (important when refactorToSubExistsIfNeeded changed the path)
+		 * - The parent prefix path for the join condition
+		 * - The mappedBy property for the join condition
+		 *
+		 * We use pathInfo.childClass() instead of q.getBaseClass() because refactorToSubExistsIfNeeded
+		 * may have modified the path without updating baseClass.
+		 */
+		ExistsPathInfo pathInfo = analyzeExistsPath(previousRoot.getJavaType(), q.getParentProperty());
+
+		//-- Create a SubQuery using the correct child class from path analysis
+		Subquery<Integer> subquery = m_currentQuery.subquery(Integer.class).select(m_criteriaBuilder.literal(1));
+		Root<?> subRoot = subquery.from(pathInfo.childClass());
+
+		//-- Swap to subquery context
 		m_currentRoot = subRoot;
 		m_currentQuery = subquery;
 
@@ -639,17 +658,16 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		JpaPredicate existsCriteria = m_last;
 
 		/*
-		 * Form the join criterion. The path passed is a path from the parent to the child record.
-		 * It may contain ManyToOne relations (parent navigation) before the final OneToMany (child list).
+		 * Form the join criterion. The path may contain ManyToOne relations (parent navigation)
+		 * before the final OneToMany (child list).
 		 * For example: "customer.invoices" where customer is ManyToOne and invoices is OneToMany.
 		 *
-		 * We need to build a join like: previousRoot.parentPrefix = subRoot.mappedBy
+		 * We build a join like: previousRoot.parentPrefix = subRoot.mappedBy
 		 * For "customer.invoices": order.customer = invoice.customer
 		 * For "albums": artist = album.artist (parentPrefix is empty)
 		 */
-		Pair<String, String> pathInfo = analyzeExistsPath(previousRoot.getJavaType(), q.getParentProperty());
-		String parentPrefix = pathInfo.get1();
-		String childMappedBy = pathInfo.get2();
+		String parentPrefix = pathInfo.parentPrefix();
+		String childMappedBy = pathInfo.mappedBy();
 
 		//-- Build the parent side of the join (previousRoot or previousRoot.parentPrefix)
 		Path<?> parentSide;
@@ -772,6 +790,10 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 * In case that we specify exists sub query with multiple lists on exists sub query property path,
 	 * we refactor ongoing exists into 2 expressions. Current one we modify to just path until first encountered list property,
 	 * and from the rest of the path we add new exists as subexpression of current one.
+	 *
+	 * For example, path "albumList.trackList" with baseClass=Track becomes:
+	 * - Outer: path="albumList" (baseClass is ignored, we use analyzeExistsPath to get the correct class)
+	 * - Inner: path="trackList", baseClass=Track (the original baseClass)
 	 */
 	private void refactorToSubExistsIfNeeded(QExistsSubquery<?> q) {
 		//-- If we have a dotted name it can only be parent.parent.parent.childList like (with multiple parents). Parse all parents.
@@ -784,8 +806,10 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			String tailListExpression = headClassAndTail.getRight();
 			if(null != actualTypeOfFirstList && null != tailListExpression) {
 				QOperatorNode restrictions = q.getRestrictions();
+				// The inner exists has the original baseClass (q.getBaseClass()) since it queries the final child type
+				// The parent of the inner exists is actualTypeOfFirstList (the intermediate type)
 				QCriteria<?> newParent = QCriteria.create(actualTypeOfFirstList);
-				QExistsSubquery<?> subExistsQuery = new QExistsSubquery(newParent, actualTypeOfFirstList, tailListExpression);
+				QExistsSubquery<?> subExistsQuery = new QExistsSubquery(newParent, q.getBaseClass(), tailListExpression);
 				subExistsQuery.setRestrictions(restrictions);
 				q.setRestrictions(subExistsQuery);
 				q.setParentProperty(headListExpression);
