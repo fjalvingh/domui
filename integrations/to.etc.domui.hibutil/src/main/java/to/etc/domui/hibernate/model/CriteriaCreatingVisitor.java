@@ -50,7 +50,6 @@ import org.hibernate.query.criteria.JpaOrder;
 import org.hibernate.query.criteria.JpaPredicate;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.util.Pair;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.qsql.QQuerySyntaxException;
 import to.etc.webapp.query.QBetweenNode;
@@ -689,101 +688,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		m_last = m_criteriaBuilder.exists(subquery);
 		m_currentRoot = previousRoot;
 		m_currentQuery = previousQuery;
-
-
-		//System.out.println("Child to parent path: " + childToParentPath.stream().map(a -> a.get1() + "." + a.get2()).collect(Collectors.joining(" -> ")));
-
-		//subquery.where(
-		//	subRoot.get("title").in("Back to Black", "Highway to Hell"),
-		//	cb.equal(subRoot.get("artist"), artistRoot)
-		//);
-
-		//String parentAlias = getCurrentAlias();
-		//Class<?> parentBaseClass = q.getParentQuery().getBaseClass();
-		//
-		//refactorToSubExistsIfNeeded(q);
-		//
-		//PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
-		//String childListProperty = q.getParentProperty();
-		//int ldot = childListProperty.lastIndexOf('.');
-		//if(ldot != -1) {
-		//
-		//	//-- Join all parents, and get the last parent's reference and name
-		//	String last = parseSubcriteria(childListProperty, true);        // Create the join path;
-		//	String parentpath = childListProperty.substring(0, ldot);        // This now holds parent.parent.parent
-		//	childListProperty = childListProperty.substring(ldot + 1);        // And this childList
-		//
-		//	//-- We need a "new" parent class: the class that actually contains the "child" list...
-		//	PropertyMetaModel<?> parentpm = MetaManager.getPropertyMeta(parentBaseClass, parentpath);
-		//	parentBaseClass = parentpm.getActualType();
-		//
-		//	//-- The above join will have created another alias to the joined table; this is the first part of the "last" reference (which is alias.property).
-		//	ldot = last.indexOf('.');
-		//	if(ldot < 0)
-		//		throw new IllegalStateException("Invalid result from parseSubcriteria inside exists.");
-		//	parentAlias = last.substring(0, ldot);
-		//}
-		//
-		////-- Should be List type
-		//if(!List.class.isAssignableFrom(pmm.getActualType()))
-		//	throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' should be a list (it is a " + pmm.getActualType() + ")");
-		//
-		////-- Make sure there is a where condition to restrict
-		//QOperatorNode where = q.getRestrictions();
-		//
-		////-- Get the list's generic compound type because we're unable to get it from Hibernate easily.
-		//Class<?> coltype = MetaManager.findCollectionType(pmm.getGenericActualType());
-		//if(coltype == null)
-		//	throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' has an undeterminable child type");
-		//
-		////-- 2. Create an exists subquery; create a sub-statement
-		//DetachedCriteria dc = DetachedCriteria.forClass(coltype, nextAlias());
-		//Criterion exists = Subqueries.exists(dc);
-		//dc.setProjection(Projections.id());                                    // Whatever: just some thingy.
-		//
-		////-- Append the join condition; we need all children here that are in the parent's collection. We need the parent reference to use in the child.
-		//ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(coltype);
-		//
-		////-- Entering the crofty hellhole that is Hibernate meta"data" 8-(
-		//
-		//
-		//ClassMetadata parentmd = m_session.getSessionFactory().getClassMetadata(parentBaseClass);
-		//int index = findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(parentmd, childListProperty);
-		//if(index == -1)
-		//	throw new IllegalStateException("Hibernate does not know property '" + childListProperty + " in " + parentmd.getEntityName());
-		//Type type = parentmd.getPropertyTypes()[index];
-		//CollectionType bt = (CollectionType) type;
-		//final OneToManyPersister persister = (OneToManyPersister) ((SessionFactoryImpl) m_session.getSessionFactory()).getCollectionPersister(bt.getRole());
-		//String[] keyCols = persister.getKeyColumnNames();
-		//
-		////-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
-		//String childupprop = findCruddyChildProperty(childmd, keyCols);
-		//if(childupprop == null)
-		//	throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + Arrays.toString(keyCols));
-		//
-		////-- Well, that was it. What a sheitfest. Add the join condition to the parent
-		//dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
-		//
-		////-- Sigh; Recursively apply all parts to the detached thingerydoo
-		//Object old = m_currentCriteria;
-		//Class<?> oldroot = m_rootClass;
-		//Map<String, String> oldAliases = m_aliasMap;
-		//m_aliasMap = new HashMap<String, String>();
-		//
-		//m_rootClass = q.getBaseClass();
-		//checkHibernateClass(m_rootClass);
-		//m_currentCriteria = dc;
-		//if(where != null) {
-		//	where.visit(this);
-		//}
-		//if(m_last != null) {
-		//	dc.add(m_last);
-		//	m_last = null;
-		//}
-		//m_aliasMap = oldAliases;
-		//m_currentCriteria = old;
-		//m_rootClass = oldroot;
-		//m_last = exists;
 	}
 
 	/**
@@ -848,75 +752,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		}
 		throw new IllegalStateException("Should not be possible to get here!?");
 	}
-
-	//private String getCurrentAlias() {
-	//	if(m_currentCriteria instanceof Criteria)
-	//		return ((Criteria) m_currentCriteria).getAlias();
-	//	else if(m_currentCriteria instanceof DetachedCriteria)
-	//		return ((DetachedCriteria) m_currentCriteria).getAlias();
-	//	else
-	//		throw new IllegalStateException("Unknown type");
-	//}
-
-	///**
-	// * Try to locate the property in the child that refers to the parent in a horrible way.
-	// */
-	//private String findCruddyChildProperty(ClassMetadata cm, String[] keyCols) {
-	//	SingleTableEntityPersister fuckup = (SingleTableEntityPersister) cm;
-	//	for(int i = fuckup.getPropertyNames().length; --i >= 0; ) {
-	//		String[] cols = fuckup.getPropertyColumnNames(i);
-	//		if(Arrays.equals(keyCols, cols)) {
-	//			return cm.getPropertyNames()[i];
-	//		}
-	//	}
-	//
-	//	/*
-	//	 * The identifier property is fully separate from all other properties because that
-	//	 * makes it hard to use, of course. So explicitly check for a full identifying relation
-	//	 * initially.
-	//	 */
-	//	String idname = fuckup.getIdentifierPropertyName();
-	//	String[] cols = fuckup.getIdentifierColumnNames();
-	//	if(Arrays.equals(keyCols, cols)) {
-	//		return idname;
-	//	}
-	//
-	//	/*
-	//	 * The ID property can be compound, in that case we need to handle it's
-	//	 * component properties separately. This code is wrong because it only
-	//	 * handles one level of indirection - but that is enough for me now, this
-	//	 * is horrible. The proper way of implementing is to recursively determine
-	//	 * the smallest property accessing the columns specified in this call, and
-	//	 * to determine it's full path.
-	//	 */
-	//	Type idtype = fuckup.getIdentifierType();
-	//	if(idtype instanceof ComponentType) {
-	//		ComponentType ct = (ComponentType) idtype;
-	//
-	//		String[] cpnar = ct.getPropertyNames();
-	//		for(int i = 0; i < cpnar.length; i++) {
-	//			String pname = cpnar[i];
-	//			cols = fuckup.getSubclassPropertyColumnNames(idname + "." + pname);
-	//			if(Arrays.equals(keyCols, cols)) {
-	//				return idname + "." + pname;
-	//			}
-	//		}
-	//	}
-	//
-	//	//-- All has failed- mapping unknown.
-	//	return null;
-	//}
-
-	/**
-	 * Damn.
-	 */
-	//static private int findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(ClassMetadata md, String name) {
-	//	for(int i = md.getPropertyNames().length; --i >= 0; ) {
-	//		if(md.getPropertyNames()[i].equals(name))
-	//			return i;
-	//	}
-	//	return -1;
-	//}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Selection translation to Projection.				*/

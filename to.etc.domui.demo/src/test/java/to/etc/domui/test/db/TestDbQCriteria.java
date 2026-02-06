@@ -284,18 +284,6 @@ public class TestDbQCriteria {
 
 	}
 
-
-//	@Test
-//	public void testAliases2() throws Exception {
-//		QCriteria<Customer> q = QCriteria.create(Customer.class);
-//		QRestrictor<Customer> or = q.or();
-//		or.eq("supportRepresentative.firstName", "Margaret");
-//		or.eq("aaaList.bbb", "ccc");
-//		List<Customer> res = dc().query(q);
-//		Assert.assertEquals(20, res.size());
-//	}
-
-
 	/**
 	 * Test to prove that the subquery path does not work in some cases
 	 */
