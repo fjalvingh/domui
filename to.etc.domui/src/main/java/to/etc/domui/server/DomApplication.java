@@ -26,11 +26,11 @@ package to.etc.domui.server;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import jakarta.servlet.http.HttpServletRequest;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.ajax.AjaxRequestHandler;
 import to.etc.domui.component.binding.DefaultBindingHandler;
 import to.etc.domui.component.binding.IBindingHandler;
 import to.etc.domui.component.binding.IBindingHandlerFactory;
@@ -38,6 +38,7 @@ import to.etc.domui.component.controlfactory.ControlBuilder;
 import to.etc.domui.component.controlfactory.ControlFactoryMoney;
 import to.etc.domui.component.controlfactory.PropertyControlFactory;
 import to.etc.domui.component.delayed.DelayedActivitiesExecutor;
+import to.etc.domui.component.delayed.DelayedActivitiesManager;
 import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
@@ -85,7 +86,6 @@ import to.etc.domui.server.parts.PartService;
 import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.ConversationContext;
-import to.etc.domui.component.delayed.DelayedActivitiesManager;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
@@ -142,7 +142,6 @@ import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QNotFoundException;
 import to.etc.webapp.testsupport.TUtilTestProperties;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -608,7 +607,6 @@ public abstract class DomApplication {
 		//-- Register default request handlers.
 		addRequestHandler(m_partHandler, 80);
 		addRequestHandler(new ApplicationRequestHandler(this), 50);            // .ui and related
-		addRequestHandler(new AjaxRequestHandler(this), 20);        // .xaja ajax calls.
 
 		addDefaultHttpHeaders();
 
