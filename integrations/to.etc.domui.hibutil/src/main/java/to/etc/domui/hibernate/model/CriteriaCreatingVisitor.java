@@ -83,6 +83,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Thingy which creates a Hibernate Criteria thingy from a generic query. This is harder than
@@ -125,12 +126,28 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	private Root<?> m_currentRoot;
 
+	/**
+	 * When inside a subquery, holds the parent query's root so that join comparisons
+	 * can resolve parent properties against the correct root.
+	 */
+	@Nullable
+	private Root<?> m_parentRoot;
+
 	private JpaPredicate m_last;
 
 	/**
-	 * After a SUBSELECT parse, (subquery/comparison against subquery) this contains the DetachedCriteria instance created for that query.
+	 * After a SUBSELECT parse, (subquery/comparison against subquery) this contains the Subquery instance created for that query.
 	 */
-	private Object m_lastSubqueryCriteria;
+	@Nullable
+	private Subquery<?> m_lastSubqueryCriteria;
+
+	/**
+	 * When set before creating a subquery, determines the JPA type parameter for the Subquery.
+	 * This is needed because Hibernate's semantic validation requires compatible types
+	 * between the subquery result and the property it's compared against.
+	 */
+	@Nullable
+	private Class<?> m_expectedSubqueryType;
 
 	/**
 	 * The next number to use for generating unique names.
@@ -190,7 +207,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		r.visit(this);
 		JpaPredicate last = m_last;
 		if(null != last) {
-			m_topQuery.where(last);
+			m_currentQuery.where(last);
 		}
 
 		checkSubqueriesUsed(n);
@@ -256,7 +273,12 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 * and checks that all parts are indeed n -> 1 parts.
 	 */
 	private <V> Path<V> parsePropertyPath(String input) throws Exception {
-		Path<?> currentPath = m_currentRoot;
+		return parsePropertyPathFrom(m_currentRoot, input);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <V> Path<V> parsePropertyPathFrom(Path<?> root, String input) throws Exception {
+		Path<?> currentPath = root;
 		for(String segment : input.split("\\.")) {
 			Path<?> nextPath = currentPath.get(segment);
 			if(nextPath == null)
@@ -421,25 +443,27 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	//	return colar;
 	//}
 	private void handlePropertySubcriteriaComparison(QPropertyComparison n) throws Exception {
-		// QTODO - implement property subcriteria comparison
-		throw new NotImplementedException("property subcriteria comparison not implemented yet");
-		//QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
-		//qsq.visit(this); // Resolve subquery
-		//String name = parseSubcriteria(n.getProperty()); // Handle dotted pair in name
-		//Criterion last = null;
-		//
-		//switch(n.getOperation()){
-		//	default:
-		//		throw new IllegalStateException("Unexpected operation: " + n.getOperation());
-		//
-		//	case EQ:
-		//		last = Subqueries.propertyIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
-		//		break;
-		//	case NE:
-		//		last = Subqueries.propertyNotIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
-		//		break;
-		//}
-		//m_last = last;
+		QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
+
+		//-- Determine the expected return type from the property being compared
+		Path<?> propPath = parsePropertyPath(n.getProperty());
+		m_expectedSubqueryType = propPath.getJavaType();
+		qsq.visit(this);                                            // Resolve subquery, sets m_lastSubqueryCriteria
+		m_expectedSubqueryType = null;
+		Subquery<?> subquery = m_lastSubqueryCriteria;
+		if(null == subquery)
+			throw new QQuerySyntaxException("Subquery was not created during visit of " + qsq);
+
+		switch(n.getOperation()) {
+			default:
+				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
+			case EQ:
+				m_last = m_criteriaBuilder.equal(parsePropertyPath(n.getProperty()), subquery);
+				break;
+			case NE:
+				m_last = m_criteriaBuilder.notEqual(parsePropertyPath(n.getProperty()), subquery);
+				break;
+		}
 	}
 
 	@Override
@@ -768,6 +792,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		throw new ProgrammerErrorException("multi-operation selections not supported by Hibernate");
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public void visitSelection(QSelection<?> s) throws Exception {
 		if(!m_selectionList.isEmpty())
@@ -778,10 +803,16 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		visitSelectionColumns(s);						// Append all selections to the selectionsList
 		if(m_selectionList.isEmpty())
 			throw new QQuerySyntaxException("No items to select in selection query");
-		CompoundSelection<Object[]> array = m_criteriaBuilder.array(m_selectionList);
-		CriteriaQuery<Object[]> topQuery = (CriteriaQuery<Object[]>) m_topQuery;
-		topQuery.select(array);
-		m_topQuery.groupBy(m_groupByList);
+
+		if(m_currentQuery instanceof CriteriaQuery<?> cq) {
+			CompoundSelection<Object[]> array = m_criteriaBuilder.array(m_selectionList);
+			((CriteriaQuery<Object[]>) cq).select(array);
+		} else if(m_currentQuery instanceof Subquery<?> sq) {
+			if(m_selectionList.size() != 1)
+				throw new QQuerySyntaxException("Subquery must have exactly one selection column, but found " + m_selectionList.size());
+			((Subquery) sq).select((Expression) m_selectionList.get(0));
+		}
+		m_currentQuery.groupBy(m_groupByList);
 
 		visitRestrictionsBase(s);
 		visitOrderList(s.getOrder());
@@ -870,84 +901,78 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	 */
 	@Override
 	public void visitSelectionSubquery(@NonNull final QSelectionSubquery n) throws Exception {
-		// QTODO - implement selection subquery
-		throw new NotImplementedException("Selection subquery not implemented yet");
-		//DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
-		//recurseSubquery(dc, n.getSelectionQuery(), new Callable<Void>() {
-		//	@Override
-		//	public Void call() throws Exception {
-		//		n.getSelectionQuery().visit(CriteriaCreatingVisitor.this);
-		//		return null;
-		//	}
-		//});
+		recurseSubquery(n.getSelectionQuery(), () -> {
+			n.getSelectionQuery().visit(CriteriaCreatingVisitor.this);
+			return null;
+		});
 	}
 
 	/**
-	 * Save the whole current state, then recurse a subquery.
+	 * Save the whole current state, then recurse a subquery. After the callable
+	 * executes, the created subquery is stored in {@link #m_lastSubqueryCriteria}
+	 * so it can be used for property comparisons.
 	 */
-	//private void recurseSubquery(@NonNull DetachedCriteria dc, @NonNull QSelection<?> n, Callable<Void> callable) throws Exception {
-	//	//-- Recursively apply all parts to the detached thingerydoo
-	//	ProjectionList oldpro = m_proli;
-	//	m_proli = null;
-	//	Projection oldlastproj = m_lastSelection;
-	//	m_lastSelection = null;
-	//	Object oldCriteria = m_currentCriteria;
-	//	Class<?> oldroot = m_rootClass;
-	//	Map<String, String> oldAliases = m_aliasMap;
-	//	m_aliasMap = new HashMap<String, String>();
-	//	String oldParentAlias = m_parentAlias;
-	//
-	//	//-- Set new clean state for the subselect.
-	//	m_parentAlias = getCurrentAlias();
-	//	m_rootClass = n.getBaseClass();
-	//	checkHibernateClass(m_rootClass);
-	//	m_currentCriteria = dc;
-	//	callable.call();
-	//	if(m_last != null) {
-	//		dc.add(m_last);
-	//		m_last = null;
-	//	}
-	//	m_currentCriteria = oldCriteria; // Restore root query
-	//	m_rootClass = oldroot;
-	//	m_proli = oldpro;
-	//	m_lastSelection = oldlastproj;
-	//	m_lastSubqueryCriteria = dc;
-	//	m_aliasMap = oldAliases;
-	//	m_parentAlias = oldParentAlias;
-	//}
+	private void recurseSubquery(@NonNull QSelection<?> selection, Callable<Void> callable) throws Exception {
+		List<Expression<?>> oldGroupBy = m_groupByList;
+		m_groupByList = new ArrayList<>();
+		List<Selection<?>> oldSelList = m_selectionList;
+		m_selectionList = new ArrayList<>();
+
+		Root<?> previousRoot = m_currentRoot;
+		Root<?> previousParentRoot = m_parentRoot;
+		AbstractQuery<?> previousQuery = m_currentQuery;
+		Class<?> oldRootClass = m_rootClass;
+
+		//-- Set new clean state for the subselect.
+		m_rootClass = selection.getBaseClass();
+		checkHibernateClass(m_rootClass);
+
+		Class<?> subqueryType = m_expectedSubqueryType != null ? m_expectedSubqueryType : Object.class;
+		Subquery<?> subquery = m_currentQuery.subquery(subqueryType);
+		Root<?> subRoot = subquery.from(selection.getBaseClass());
+
+		m_currentQuery = subquery;
+		m_currentRoot = subRoot;
+		m_parentRoot = previousRoot;
+		callable.call();
+		m_lastSubqueryCriteria = subquery;
+
+		m_currentQuery = previousQuery;
+		m_currentRoot = previousRoot;
+		m_parentRoot = previousParentRoot;
+		m_rootClass = oldRootClass;
+		m_selectionList = oldSelList;
+		m_groupByList = oldGroupBy;
+	}
+
 	@Override
 	public void visitPropertyJoinComparison(@NonNull QPropertyJoinComparison comparison) throws Exception {
-		//-- QTODO - implement property join comparison
-		throw new NotImplementedException("Property join comparison not implemented yet");
-		//String alias = m_parentAlias + "." + parseSubcriteria(comparison.getParentProperty());
-		//switch(comparison.getOperation()){
-		//	default:
-		//		throw new QQuerySyntaxException("Unsupported parent-join operation: " + comparison.getOperation());
-		//
-		//	case EQ:
-		//		m_last = Restrictions.eqProperty(alias, comparison.getSubProperty());
-		//		break;
-		//
-		//	case NE:
-		//		m_last = Restrictions.neProperty(alias, comparison.getSubProperty());
-		//		break;
-		//
-		//	case LT:
-		//		m_last = Restrictions.ltProperty(alias, comparison.getSubProperty());
-		//		break;
-		//
-		//	case LE:
-		//		m_last = Restrictions.leProperty(alias, comparison.getSubProperty());
-		//		break;
-		//
-		//	case GT:
-		//		m_last = Restrictions.gtProperty(alias, comparison.getSubProperty());
-		//		break;
-		//
-		//	case GE:
-		//		m_last = Restrictions.geProperty(alias, comparison.getSubProperty());
-		//		break;
-		//}
+		//-- Parent property resolves against the parent root, sub property against current (subquery) root.
+		Path<?> parentPath = parsePropertyPathFrom(m_parentRoot != null ? m_parentRoot : m_currentRoot, comparison.getParentProperty());
+		Path<?> subPath = parsePropertyPath(comparison.getSubProperty());
+
+		switch(comparison.getOperation()) {
+			default:
+				throw new QQuerySyntaxException("Unsupported parent-join operation: " + comparison.getOperation());
+			case EQ:
+				m_last = m_criteriaBuilder.equal(parentPath, subPath);
+				break;
+			case NE:
+				m_last = m_criteriaBuilder.notEqual(parentPath, subPath);
+				break;
+			case LT:
+				m_last = m_criteriaBuilder.lessThan((Expression<Comparable>) (Expression<?>) parentPath, (Expression<Comparable>) (Expression<?>) subPath);
+				break;
+			case LE:
+				m_last = m_criteriaBuilder.lessThanOrEqualTo((Expression<Comparable>) (Expression<?>) parentPath, (Expression<Comparable>) (Expression<?>) subPath);
+				break;
+			case GT:
+				m_last = m_criteriaBuilder.greaterThan((Expression<Comparable>) (Expression<?>) parentPath, (Expression<Comparable>) (Expression<?>) subPath);
+				break;
+			case GE:
+				m_last = m_criteriaBuilder.greaterThanOrEqualTo((Expression<Comparable>) (Expression<?>) parentPath, (Expression<Comparable>) (Expression<?>) subPath);
+				break;
+		}
 	}
 
 	@Override

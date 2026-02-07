@@ -411,8 +411,7 @@ public class TestDbQCriteria {
 	@Test
 	public void testInQuery1() throws Exception {
 		QCriteria<Album> q = QCriteria.create(Album.class)
-			.in("title", Arrays.asList("Led Zeppelin I", "Led Zeppelin II", "Led Zeppelin III"))
-			;
+			.in("title", Arrays.asList("Led Zeppelin I", "Led Zeppelin II", "Led Zeppelin III"));
 		List<Album> ires = dc().query(q);
 		Assert.assertEquals(3, ires.size());
 	}
