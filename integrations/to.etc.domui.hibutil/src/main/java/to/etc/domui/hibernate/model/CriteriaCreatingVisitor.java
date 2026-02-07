@@ -79,7 +79,6 @@ import to.etc.webapp.query.QUnaryProperty;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -148,17 +147,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	@Nullable
 	private Class<?> m_expectedSubqueryType;
 
-	/**
-	 * The next number to use for generating unique names.
-	 */
-	private int m_aliasIndex;
-
 	private Class<?> m_rootClass;
-
-	/**
-	 * Maps parent relation dotted paths to the alias created for that path.
-	 */
-	private Map<String, String> m_aliasMap = new HashMap<String, String>();
 
 	public CriteriaCreatingVisitor(Session ses, HibernateCriteriaBuilder criteriaBuilder, final CriteriaQuery<T> crit, QCriteriaQueryBase<?, ?> qc) {
 		m_session = ses;
@@ -178,13 +167,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		EntityType<?> entity = m_session.getSessionFactory().getMetamodel().entity(clz);
 		if(null == entity)
 			throw new IllegalArgumentException("The class " + clz + " is not known by Hibernate as a persistent class");
-	}
-
-	/**
-	 * Create a new unique alias name.
-	 */
-	private String nextAlias() {
-		return "a_" + (++m_aliasIndex);
 	}
 
 	private void addOrder(jakarta.persistence.criteria.Order c) {
@@ -732,7 +714,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		} else if(m_currentQuery instanceof Subquery<?> sq) {
 			if(m_selectionList.size() != 1)
 				throw new QQuerySyntaxException("Subquery must have exactly one selection column, but found " + m_selectionList.size());
-			((Subquery) sq).select((Expression) m_selectionList.get(0));
+			sq.select((Expression) m_selectionList.getFirst());
 		}
 		m_currentQuery.groupBy(m_groupByList);
 
