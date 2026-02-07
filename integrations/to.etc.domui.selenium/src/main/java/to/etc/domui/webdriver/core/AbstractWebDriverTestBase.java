@@ -7,7 +7,6 @@ import org.openqa.selenium.UnhandledAlertException;
 import to.etc.domui.webdriver.poproxies.AbstractCpComponent;
 import to.etc.domui.webdriver.poproxies.ICpWithElement;
 import to.etc.function.IExecute;
-import to.etc.pater.OnTestFailure;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
@@ -16,7 +15,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.lang.reflect.Method;
 import java.time.Duration;
 
 /**
@@ -41,16 +39,6 @@ abstract public class AbstractWebDriverTestBase {
 	@NonNull
 	public static String prefix(int len) {
 		return StringTool.getRandomStringWithPrefix(len, "wd_");
-	}
-
-	/**
-	 * EXPERIMENTAL, PUZZLER TEST RUNNER ONLY: this method gets called by the "new" test runner if a test has failed. The implementation
-	 * uses the "test report" mechanism to register screenshots with the test runner so that they can be
-	 * part of the result report.
-	 */
-	@OnTestFailure
-	public void onTestFailure(Method failedMethod) throws Exception {
-		WebDriverConnector.onTestFailure(wd(), failedMethod);
 	}
 
 	/**

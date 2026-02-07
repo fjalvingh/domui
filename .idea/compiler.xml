@@ -12,7 +12,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="fontawesome6free" />
-        <module name="to.etc.pater" />
         <module name="to.etc.domui.hibutil" />
         <module name="to.etc.domui.selenium" />
         <module name="to.etc.dbcompare" />
@@ -48,6 +47,9 @@
         <module name="to.etc.domui.derbydata" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="to.etc.pater" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="EclipseCompilerSettings">
     <option name="ECJ_TOOL_PATH" value="$USER_HOME$/ecjs/ecj-3.37.0.jar" />
