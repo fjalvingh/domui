@@ -38,8 +38,6 @@ import to.etc.domui.webdriver.poproxies.ICpWithElement;
 import to.etc.function.IExecute;
 import to.etc.function.SupplierEx;
 import to.etc.net.HttpCallException;
-import to.etc.pater.IPaterContext;
-import to.etc.pater.Pater;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -50,7 +48,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Duration;
@@ -2000,43 +1997,6 @@ final public class WebDriverConnector {
 		if(null == element)
 			throw new ElementNotFoundException("testID " + by.toString());
 		return element;
-	}
-
-	static public void onTestFailure(@NonNull WebDriverConnector wd, @Nullable Method failedMethod) throws Exception {
-		//-- Make a screenshot
-		System.err.println("@onTestFailure: attempting to create a screenshot");
-		File tmpf = File.createTempFile("screenshot", ".png");
-
-		/*
-		 * Selenium aborts if we try to capture a screenshot with an alert on-screen 8-( So if that
-		 * abort happens we try to handle the alert, then try again. Since the alert probably
-		 * contains the reason why the test failed we try to get it's message since the screenshot
-		 * will not contain it - but the message is at least logged.
-		 */
-		try {
-			wd.screenshot(tmpf);
-		} catch(UnhandledAlertException x) {
-			System.err.println("@onTestFailure: alert present when taking screenshot - trying to get rid of it");
-
-			//-- Try to handle alert
-			try {
-				String message = wd.alertGetMessage();
-				System.err.println("@onTestFailure: alert message is:\n" + message);
-			} catch(Exception xx) {
-				System.err.println("@onTestFailure: exception accepting alert");
-				xx.printStackTrace();
-			}
-
-			//-- Try screenshot a 2nd time, die this time if it fails again
-			wd.screenshot(tmpf);
-		}
-		System.err.println("Made screenshot in " + tmpf);
-		if(tmpf.exists()) {
-			IPaterContext context = Pater.context();
-//			System.out.println("@onTestFailure: context = " + context);
-			context.registerResult("Screenshot at the end of the failed test", "image/png", tmpf);
-			tmpf.delete();
-		}
 	}
 
 	/**
