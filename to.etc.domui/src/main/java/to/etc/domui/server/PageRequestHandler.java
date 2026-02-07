@@ -1,5 +1,7 @@
 package to.etc.domui.server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -49,15 +51,11 @@ import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.IRebuildOnRefresh;
 import to.etc.domui.util.Msgs;
 import to.etc.function.ConsumerEx;
-import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
-import to.etc.webapp.ajax.renderer.json.JSONRegistry;
-import to.etc.webapp.ajax.renderer.json.JSONRenderer;
 import to.etc.webapp.query.QContextManager;
 
-import jakarta.servlet.http.HttpSession;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -937,9 +935,6 @@ final public class PageRequestHandler {
 		}
 	}
 
-	@NonNull
-	final private JSONRegistry m_jsonRegistry = new JSONRegistry();
-
 	private void renderJsonLikeResponse(Page page, @NonNull Object value) throws Exception {
 		m_ctx.renderResponseHeaders(page.getBody());
 		if(value instanceof IDataFactory) {
@@ -953,9 +948,8 @@ final public class PageRequestHandler {
 			//-- String return: we'll assume this is a javascript response by itself.
 			w.write((String) value);
 		} else {
-			//-- Object return: render as JSON
-			JSONRenderer jr = new JSONRenderer(m_jsonRegistry, new IndentWriter(w), false);
-			jr.render(value);
+			ObjectMapper om = new ObjectMapper();
+			om.writeValue(w, value);
 		}
 	}
 
