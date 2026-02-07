@@ -25,7 +25,6 @@
 package to.etc.webapp.query;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.qsql.QQuerySyntaxException;
 
 /**
@@ -68,7 +67,7 @@ public class QSubQuery<T, P> extends QSelection<T> {
 	/**
 	 * Joins the parent to this subquery on the specified property, provided that the property exists in both entities
 	 */
-	public QSubQuery<T, P> join(@NonNull @GProperty String property) {
+	public QSubQuery<T, P> join(@NonNull String property) {
 		add(new QPropertyJoinComparison(QOperation.EQ, property, property));
 		return this;
 	}

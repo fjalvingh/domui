@@ -32,7 +32,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
-import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
@@ -850,7 +849,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * do not need a typeful column use {@link #column(String)}.
 	 */
 	@NonNull
-	public <V> ColumnDef<T, V> column(@NonNull Class<V> type, @NonNull @GProperty String property) {
+	public <V> ColumnDef<T, V> column(@NonNull Class<V> type, @NonNull String property) {
 		return getColumnList().column(type, property);
 	}
 

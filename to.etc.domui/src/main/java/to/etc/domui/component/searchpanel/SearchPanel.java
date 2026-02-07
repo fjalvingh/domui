@@ -55,7 +55,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
-import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QCriteria;
 
 import java.util.ArrayList;
@@ -231,7 +230,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	//	return filterValues;
 	//}
 
-	public SearchPanel(@NonNull final Class<T> lookupClass, @GProperty String... propertyList) {
+	public SearchPanel(@NonNull final Class<T> lookupClass, String... propertyList) {
 		this(lookupClass, null, propertyList);
 	}
 

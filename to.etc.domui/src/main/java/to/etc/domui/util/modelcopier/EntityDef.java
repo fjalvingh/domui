@@ -5,7 +5,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.webapp.annotations.GProperty;
 
 /**
  * Defines search and create/ignore rules for an entity.
@@ -56,7 +55,7 @@ public class EntityDef<T> {
 	 * Define the search key set for this entity.
 	 * @param k
 	 */
-	public EntityDef<T> key(@GProperty String... k) {
+	public EntityDef<T> key(String... k) {
 		if(k.length == 0)
 			throw new IllegalStateException(this + ": key set cannot be empty");
 		m_searchKey = k;

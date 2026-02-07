@@ -25,7 +25,6 @@
 package to.etc.webapp.query;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.webapp.annotations.GProperty;
 
 import java.util.Collection;
 
@@ -82,7 +81,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 	}
 
 	@NonNull
-	public QCriteria<T> fetch(@NonNull @GProperty String property) {
+	public QCriteria<T> fetch(@NonNull String property) {
 		super.fetch(property, QFetchStrategy.EAGER);
 		return this;
 	}
@@ -95,7 +94,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 
 	@NonNull
 	@Override
-	public <V> QCriteria<T> in(@NonNull @GProperty String property, Collection<V> inlist) {
+	public <V> QCriteria<T> in(@NonNull String property, Collection<V> inlist) {
 		super.in(property, inlist);
 		return this;
 	}
@@ -116,7 +115,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 
 	@NonNull
 	@Override
-	public <V> QCriteria<T> in(@NonNull @GProperty String property, QSelection<?> selection) {
+	public <V> QCriteria<T> in(@NonNull String property, QSelection<?> selection) {
 		super.in(property, selection);
 		return this;
 	}

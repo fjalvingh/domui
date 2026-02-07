@@ -10,7 +10,6 @@ import to.etc.domui.component.meta.SortableType;
 import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.domui.util.DomUtil;
-import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
@@ -187,7 +186,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	 * @return
 	 */
 	@NonNull
-	public <V> ColumnDef<T, V> column(@NonNull Class<V> type, @NonNull @GProperty String property) {
+	public <V> ColumnDef<T, V> column(@NonNull Class<V> type, @NonNull String property) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
 		return createColumnDef(pmm);
 	}
@@ -207,7 +206,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	 * @return
 	 */
 	@NonNull
-	public ColumnDef<T, ? > column(@NonNull @GProperty String property) {
+	public ColumnDef<T, ? > column(@NonNull String property) {
 		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
 		return createColumnDef(pmm);
 	}
@@ -260,7 +259,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 //	 * @return
 //	 */
 //	@NonNull
-//	public <V> ExpandedColumnDef<V> expand(@NonNull Class<V> clz, @NonNull @GProperty String property) {
+//	public <V> ExpandedColumnDef<V> expand(@NonNull Class<V> clz, @NonNull String property) {
 //		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
 //		return createExpandedColumnDef(pmm);
 //	}
@@ -272,7 +271,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 //	 * @return
 //	 */
 //	@NonNull
-//	public ExpandedColumnDef< ? > expand(@NonNull @GProperty String property) {
+//	public ExpandedColumnDef< ? > expand(@NonNull String property) {
 //		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
 //		return createExpandedColumnDef(pmm);
 //	}
