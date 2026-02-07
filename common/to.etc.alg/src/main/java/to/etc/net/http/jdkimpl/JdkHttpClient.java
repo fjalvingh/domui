@@ -13,7 +13,6 @@ import to.etc.net.http.IHttpBodyProducer;
 import to.etc.net.http.IHttpClient;
 import to.etc.net.http.SslCertificateType;
 import to.etc.net.http.SslParameters;
-import to.etc.net.http.SslParametersBuilder;
 import to.etc.util.WrappedException;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -145,8 +144,8 @@ public class JdkHttpClient implements IHttpClient {
 		IHttpBodyProducer body = request.getBody();
 		if(body instanceof EmptyBodyProducer || body == null) {
 			return BodyPublishers.noBody();
-		} else if(body instanceof StringBodyProducer) {
-			return BodyPublishers.ofString(((StringBodyProducer) body).getData());
+		} else if(body instanceof StringBodyProducer sbp) {
+			return BodyPublishers.ofString((sbp).getData());
 		} else {
 			throw new IllegalStateException("Unsupported body producer: " + body.getClass().getName());
 		}
@@ -171,28 +170,7 @@ public class JdkHttpClient implements IHttpClient {
 	}
 
 	private HttpClient createSslClient(SslParameters ssl) throws Exception {
-		byte[] certSha1Thumbprint = ssl.getCertSha1Thumbprint();
-
-		TrustManager tm;
-		if(certSha1Thumbprint != null) {
-			tm = createX509TrustManagerForCert(certSha1Thumbprint);
-		} else if(ssl.isIgnoreRemoteCertificate()) {
-			tm = createTrustManagerTrustAll();
-		} else {
-			tm = null;
-		}
-
 		SSLContext sslContext = createSSLContext(ssl);
-
-		//SSLContext sslContext;
-		//if(null != certSha1Thumbprint) {
-		//	sslContext = createSslContextForTrustedServerThumbprint(certSha1Thumbprint);
-		//} else if(ssl.isIgnoreRemoteCertificate()) {
-		//	sslContext = createSslContextAcceptingAllCerts();
-		//} else {
-		//	sslContext = createSslContext(ssl);
-		//}
-
 		ExecutorService ex = Executors.newCachedThreadPool(new NamedThreadFactory("jdkSslClnt"));
 
 		return HttpClient.newBuilder()
@@ -203,14 +181,6 @@ public class JdkHttpClient implements IHttpClient {
 			.connectTimeout(Duration.ofMinutes(10))
 			.build();
 	}
-
-	//static public SSLContext createSslContextAcceptingAllCerts() throws Exception {
-	//	SSLContext context = SSLContext.getInstance("TLSv1.2");
-	//
-	//	TrustManager trustAllCerts = createTrustManagerTrustAll();
-	//	context.init(null, new TrustManager[]{trustAllCerts}, new SecureRandom());
-	//	return context;
-	//}
 
 	static public SSLContext createSSLContext(SslParameters ssl) throws Exception {
 		byte[] certSha1Thumbprint = ssl.getCertSha1Thumbprint();
@@ -230,7 +200,7 @@ public class JdkHttpClient implements IHttpClient {
 
 	static private SSLContext createSSLContext(SslParameters parameters, @Nullable TrustManager tm) throws Exception {
 		if(parameters.getSslType() == null) {
-			SSLContext sc = SSLContext.getInstance("ssl");
+			SSLContext sc = SSLContext.getInstance("TLSv1.2");
 			sc.init(null, tm == null ? null : new TrustManager[] { tm }, null);
 			return sc;
 		} else {
@@ -267,26 +237,32 @@ public class JdkHttpClient implements IHttpClient {
 				return new X509Certificate[0];
 			}
 
+			@SuppressWarnings("squid:S4830")
 			@Override
 			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 			}
 
+			@SuppressWarnings("squid:S4830")
 			@Override
 			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 			}
 
+			@SuppressWarnings("squid:S4830")
 			@Override
 			public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
 			}
 
+			@SuppressWarnings("squid:S4830")
 			@Override
 			public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
 			}
 
+			@SuppressWarnings("squid:S4830")
 			@Override
 			public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
 			}
 
+			@SuppressWarnings("squid:S4830")
 			@Override
 			public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
 			}
@@ -302,6 +278,7 @@ public class JdkHttpClient implements IHttpClient {
 	private static X509TrustManager createX509TrustManagerForCert(byte[] certSha1Thumbprint) throws Exception {
 		X509TrustManager tm = new X509TrustManager() {
 			@Override
+			@SuppressWarnings("squid:S4830")
 			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 			}
 
@@ -323,23 +300,11 @@ public class JdkHttpClient implements IHttpClient {
 
 			@Override
 			public X509Certificate[] getAcceptedIssuers() {
-				return null;
+				return new X509Certificate[0];
 			}
 		};
 
 		return tm;
-	}
-
-	/**
-	 * Creates the ssl context to work against a specific server-side certificate with the specified thumbprint only.
-	 * In case that we use {@link SslParametersBuilder#setInsecureSslThumbprint()} it would skip checkServerTrusted check.
-	 */
-	private static SSLContext createSslContextForTrustedServerThumbprint(byte[] certSha1Thumbprint) throws Exception {
-		TrustManager[] noopTrustManager = new TrustManager[1];
-		noopTrustManager[0] = createX509TrustManagerForCert(certSha1Thumbprint);
-		SSLContext sc = SSLContext.getInstance("ssl");
-		sc.init(null, noopTrustManager, null);
-		return sc;
 	}
 
 	/**
@@ -389,8 +354,8 @@ public class JdkHttpClient implements IHttpClient {
 		if(executorStupidity.isPresent()) {                    // Sure. This is of course better than NULL because no one would forget this. Idiots. And now the compiler cannot check.
 			System.out.println("destroy: preparing to close HTTP executor");
 			Executor executor = executorStupidity.get();
-			if(executor instanceof ExecutorService) {
-				((ExecutorService) executor).shutdownNow();
+			if(executor instanceof ExecutorService xs) {
+				xs.shutdownNow();
 				System.out.println("destroy: closed HTTP executor");
 			}
 		}

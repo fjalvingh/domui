@@ -36,21 +36,21 @@ import java.util.*;
  */
 public class ByteBufferOutputStream extends OutputStream {
 	/** The buffer size requested */
-	private int			m_bufsz;
+	private int m_bufsz;
 
 	/** The current size of the data, */
-	private int			m_sz;
+	private int m_sz;
 
 	/** The byte offset within the buffer. */
-	private int			m_boff	= Integer.MAX_VALUE;
+	private int m_boff = Integer.MAX_VALUE;
 
 	/** The current buffer being filled. */
-	private byte[]		m_buf;
+	private byte[] m_buf;
 
 	/** The array of buffers. */
-	private List<byte[]>	m_al	= new ArrayList<byte[]>(16);
+	private List<byte[]> m_al = new ArrayList<byte[]>(16);
 
-	private byte[][]	m_bar;
+	private byte[][] m_bar;
 
 	public ByteBufferOutputStream() {
 		m_bufsz = 8192;
@@ -105,7 +105,7 @@ public class ByteBufferOutputStream extends OutputStream {
 	}
 
 	@Override
-	public void close() throws java.io.IOException {
+	public void close() {
 		if(m_bar != null)
 			return;
 
@@ -127,9 +127,9 @@ public class ByteBufferOutputStream extends OutputStream {
 
 	/**
 	 * Returns the buffer table for the write.
-	 * @return
 	 */
 	public byte[][] getBuffers() {
+		close();
 		return m_bar;
 	}
 

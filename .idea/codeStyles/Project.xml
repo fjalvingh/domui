@@ -13,7 +13,7 @@
     <option name="RIGHT_MARGIN" value="200" />
     <option name="ENABLE_JAVADOC_FORMATTING" value="false" />
     <option name="SOFT_MARGINS" value="120" />
-    <DB2CodeStyleSettings version="5">
+    <DB2CodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
@@ -53,7 +53,7 @@
       <option name="EXPR_CASE_THEN_WRAP" value="true" />
       <option name="PRIMARY_KEY_NAME_TEMPLATE" value="{table}_{columns}_pk" />
     </DB2CodeStyleSettings>
-    <DerbyCodeStyleSettings version="5">
+    <DerbyCodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
@@ -93,7 +93,7 @@
       <option name="EXPR_CASE_THEN_WRAP" value="true" />
       <option name="PRIMARY_KEY_NAME_TEMPLATE" value="{table}_{columns}_pk" />
     </DerbyCodeStyleSettings>
-    <H2CodeStyleSettings version="5">
+    <H2CodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
@@ -133,47 +133,7 @@
       <option name="EXPR_CASE_THEN_WRAP" value="true" />
       <option name="PRIMARY_KEY_NAME_TEMPLATE" value="{table}_{columns}_pk" />
     </H2CodeStyleSettings>
-    <H2CodeStyleSettings version="5">
-      <option name="USE_GENERAL_STYLE" value="false" />
-      <option name="KEYWORD_CASE" value="1" />
-      <option name="IDENTIFIER_CASE" value="1" />
-      <option name="TYPE_CASE" value="3" />
-      <option name="CUSTOM_TYPE_CASE" value="3" />
-      <option name="ALIAS_CASE" value="4" />
-      <option name="BUILT_IN_CASE" value="0" />
-      <option name="QUOTE_IDENTIFIER" value="1" />
-      <option name="QUERY_TRUE_INDENT" value="false" />
-      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
-      <option name="QUERY_ALIGN_LINE_COMMENTS" value="false" />
-      <option name="INSERT_EL_COMMA" value="2" />
-      <option name="SET_EL_WRAP" value="0" />
-      <option name="SET_EL_COMMA" value="0" />
-      <option name="WITH_EL_WRAP" value="0" />
-      <option name="WITH_EL_COMMA" value="0" />
-      <option name="SELECT_EL_WRAP" value="3" />
-      <option name="SELECT_EL_COMMA" value="2" />
-      <option name="FROM_EL_WRAP" value="2" />
-      <option name="FROM_EL_COMMA" value="2" />
-      <option name="FROM_PLACE_ON" value="10" />
-      <option name="WHERE_EL_WRAP" value="3" />
-      <option name="WHERE_EL_BOUND" value="2" />
-      <option name="ORDER_EL_COMMA" value="2" />
-      <option name="TABLE_OPENING" value="1" />
-      <option name="TABLE_CONTENT" value="2" />
-      <option name="TABLE_CLOSING" value="3" />
-      <option name="TABLE_ALTER_INSTRUCTION_ALIGN" value="false" />
-      <option name="POST_OPT_WRAP_1" value="true" />
-      <option name="POST_OPT_ALIGN" value="false" />
-      <option name="ROUTINE_ARG_COMMA" value="2" />
-      <option name="ROUTINE_ARG_ALIGN_TYPES" value="true" />
-      <option name="IMP_DECLARE_EL_WRAP" value="1" />
-      <option name="IMP_IF_THEN_WRAP_THEN" value="true" />
-      <option name="CORTEGE_SPACE_BEFORE_L_PAREN" value="false" />
-      <option name="EXPR_CASE_WHEN_WRAP" value="false" />
-      <option name="EXPR_CASE_THEN_WRAP" value="true" />
-      <option name="PRIMARY_KEY_NAME_TEMPLATE" value="{table}_{columns}_pk" />
-    </H2CodeStyleSettings>
-    <HSQLCodeStyleSettings version="5">
+    <HSQLCodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
@@ -219,12 +179,13 @@
     <JavaCodeStyleSettings>
       <option name="FIELD_NAME_PREFIX" value="m_" />
       <option name="STATIC_FIELD_NAME_PREFIX" value="m_" />
+      <option name="BLANK_LINES_AROUND_FIELD_WITH_ANNOTATIONS" value="1" />
       <option name="INSERT_INNER_CLASS_IMPORTS" value="true" />
       <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="999" />
       <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="999" />
       <option name="ENABLE_JAVADOC_FORMATTING" value="false" />
     </JavaCodeStyleSettings>
-    <MSSQLCodeStyleSettings version="5">
+    <MSSQLCodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
@@ -267,7 +228,7 @@
     <MarkdownNavigatorCodeStyleSettings>
       <option name="RIGHT_MARGIN" value="72" />
     </MarkdownNavigatorCodeStyleSettings>
-    <MySQLCodeStyleSettings version="5">
+    <MySQLCodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
@@ -307,7 +268,7 @@
       <option name="EXPR_CASE_THEN_WRAP" value="true" />
       <option name="PRIMARY_KEY_NAME_TEMPLATE" value="{table}_{columns}_pk" />
     </MySQLCodeStyleSettings>
-    <OracleCodeStyleSettings version="5">
+    <OracleCodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
@@ -347,7 +308,7 @@
       <option name="EXPR_CASE_THEN_WRAP" value="true" />
       <option name="PRIMARY_KEY_NAME_TEMPLATE" value="{table}_{columns}_pk" />
     </OracleCodeStyleSettings>
-    <PostgresCodeStyleSettings version="5">
+    <PostgresCodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
@@ -387,7 +348,7 @@
       <option name="EXPR_CASE_THEN_WRAP" value="true" />
       <option name="PRIMARY_KEY_NAME_TEMPLATE" value="{table}_{columns}_pk" />
     </PostgresCodeStyleSettings>
-    <SQLiteCodeStyleSettings version="5">
+    <SQLiteCodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
@@ -427,7 +388,7 @@
       <option name="EXPR_CASE_THEN_WRAP" value="true" />
       <option name="PRIMARY_KEY_NAME_TEMPLATE" value="{table}_{columns}_pk" />
     </SQLiteCodeStyleSettings>
-    <SqlCodeStyleSettings version="5">
+    <SqlCodeStyleSettings version="7">
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
       <option name="TYPE_CASE" value="3" />
@@ -476,7 +437,7 @@
       <option name="NEW_LINE_BEFORE_OTHER_CLAUSES" value="false" />
       <option name="NEW_LINE_AFTER_SELECT_ITEM" value="false" />
     </SqlCodeStyleSettings>
-    <SybaseCodeStyleSettings version="5">
+    <SybaseCodeStyleSettings version="7">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
