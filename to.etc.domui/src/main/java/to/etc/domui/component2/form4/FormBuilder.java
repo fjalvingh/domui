@@ -23,7 +23,6 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
-import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.query.QField;
 
@@ -228,7 +227,7 @@ final public class FormBuilder {
 	/*--------------------------------------------------------------*/
 
 	@NonNull
-	public <T> UntypedControlBuilder<T> property(@NonNull T instance, @GProperty String property) {
+	public <T> UntypedControlBuilder<T> property(@NonNull T instance, String property) {
 		if(null == instance)
 			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		check();
@@ -792,7 +791,7 @@ final public class FormBuilder {
 		}
 
 		@NonNull
-		public <T> UntypedControlBuilder<T> property(@NonNull T instance, @GProperty String property) {
+		public <T> UntypedControlBuilder<T> property(@NonNull T instance, String property) {
 			UntypedControlBuilder<T> currentBuilder = new UntypedControlBuilder<>(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 			m_currentBuilder = currentBuilder;                // This is now current
 

@@ -26,8 +26,6 @@ package to.etc.webapp.query;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.webapp.ProgrammerErrorException;
-import to.etc.webapp.annotations.GProperty;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -176,7 +174,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Add a property to do an ascending sort on.
 	 */
 	@NonNull
-	public R ascending(@NonNull @GProperty String property) {
+	public R ascending(@NonNull String property) {
 		add(QOrder.ascending(property));
 		return (R) this;
 	}
@@ -191,7 +189,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Add a property to do a descending sort on.
 	 */
 	@NonNull
-	public R descending(@NonNull @GProperty String property) {
+	public R descending(@NonNull String property) {
 		add(QOrder.descending(property));
 		return (R) this;
 	}
@@ -261,7 +259,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Set a fetch strategy for a relation.
 	 */
 	@NonNull
-	public R fetch(@NonNull @GProperty String property, @NonNull QFetchStrategy strategy) {
+	public R fetch(@NonNull String property, @NonNull QFetchStrategy strategy) {
 		if(m_fetchMap.isEmpty())
 			m_fetchMap = new HashMap<>();
 		m_fetchMap.put(property, strategy);

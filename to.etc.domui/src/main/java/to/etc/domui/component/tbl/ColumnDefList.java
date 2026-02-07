@@ -16,7 +16,6 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
-import to.etc.webapp.annotations.GProperty;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -536,7 +535,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 	 * @return
 	 */
 	@NonNull
-	public <V> SimpleColumnDef<V> column(@NonNull Class<V> type, @NonNull @GProperty String property) {
+	public <V> SimpleColumnDef<V> column(@NonNull Class<V> type, @NonNull String property) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
 		return createColumnDef(pmm);
 	}
@@ -556,7 +555,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 	 * @return
 	 */
 	@NonNull
-	public SimpleColumnDef<?> column(@NonNull @GProperty String property) {
+	public SimpleColumnDef<?> column(@NonNull String property) {
 		PropertyMetaModel<?> pmm = model().getProperty(property);            // Get the appropriate model
 		return createColumnDef(pmm);
 	}
@@ -580,7 +579,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 	 * @return
 	 */
 	@NonNull
-	public <V> ExpandedColumnDef<V> expand(@NonNull Class<V> clz, @NonNull @GProperty String property) {
+	public <V> ExpandedColumnDef<V> expand(@NonNull Class<V> clz, @NonNull String property) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
 		return createExpandedColumnDef(pmm);
 	}
@@ -592,7 +591,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 	 * @return
 	 */
 	@NonNull
-	public ExpandedColumnDef<?> expand(@NonNull @GProperty String property) {
+	public ExpandedColumnDef<?> expand(@NonNull String property) {
 		PropertyMetaModel<?> pmm = model().getProperty(property);            // Get the appropriate model
 		return createExpandedColumnDef(pmm);
 	}
