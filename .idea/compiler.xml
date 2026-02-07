@@ -51,6 +51,35 @@
   <component name="EclipseCompilerSettings">
     <option name="ECJ_TOOL_PATH" value="$USER_HOME$/ecjs/ecj-3.37.0.jar" />
     <option name="ADDITIONAL_OPTIONS_STRING" value="-properties $MODULE_DIR$/.settings/org.eclipse.jdt.core.prefs" />
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="annotations" options="-properties /home/jal/git/skarp/domui/common/annotations/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="binary-dependencies" options="" />
+      <module name="common" options="" />
+      <module name="domui" options="" />
+      <module name="domui-archetypes" options="" />
+      <module name="domui-hello" options="" />
+      <module name="domui-hibernate-generator" options="-properties /home/jal/git/skarp/domui/utilities/hibernate-generator/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="domui-utilities" options="" />
+      <module name="fontawesome4" options="-properties /home/jal/git/skarp/domui/integrations/fontawesome4/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="fontawesome5free" options="-properties /home/jal/git/skarp/domui/integrations/fontawesome5free/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="fontawesome6free" options="-properties /home/jal/git/skarp/domui/integrations/fontawesome6free/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="integrations" options="" />
+      <module name="jsass" options="-properties /home/jal/git/skarp/domui/binary-dependencies/jsass/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="property-annotations-processor" options="-properties /home/jal/git/skarp/domui/common/property-annotation-processor/.settings/org.eclipse.jdt.core.prefs" />
+      <module name="security" options="-properties /home/jal/git/skarp/domui/common/security/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.alg" options="-properties /home/jal/git/skarp/domui/common/to.etc.alg/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.db" options="-properties /home/jal/git/skarp/domui/common/to.etc.db/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.dbcompare" options="-properties /home/jal/git/skarp/domui/utilities/to.etc.dbcompare/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.domui" options="-properties /home/jal/git/skarp/domui/to.etc.domui/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.domui.demo" options="-properties /home/jal/git/skarp/domui/to.etc.domui.demo/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.domui.derbydata" options="-properties /home/jal/git/skarp/domui/to.etc.domui.derbydata/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.domui.hibutil" options="-properties /home/jal/git/skarp/domui/integrations/to.etc.domui.hibutil/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.domui.selenium" options="-properties /home/jal/git/skarp/domui/integrations/to.etc.domui.selenium/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.logger" options="-properties /home/jal/git/skarp/domui/common/to.etc.logger/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.pater" options="-properties /home/jal/git/skarp/domui/common/to.etc.pater/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.syntaxer" options="-properties /home/jal/git/skarp/domui/common/to.etc.syntaxer/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+      <module name="to.etc.webapp.core" options="-properties /home/jal/git/skarp/domui/to.etc.webapp.core/.settings/org.eclipse.jdt.core.prefs -enableJavadoc -nowarn" />
+    </option>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
