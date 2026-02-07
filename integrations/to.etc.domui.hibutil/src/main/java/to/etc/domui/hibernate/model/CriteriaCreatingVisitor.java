@@ -33,9 +33,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
-import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.EntityType;
-import jakarta.persistence.metamodel.Metamodel;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jdt.annotation.NonNull;
@@ -46,6 +44,7 @@ import org.hibernate.metamodel.mapping.AttributeMapping;
 import org.hibernate.metamodel.mapping.PluralAttributeMapping;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaExpression;
 import org.hibernate.query.criteria.JpaOrder;
 import org.hibernate.query.criteria.JpaPredicate;
 import to.etc.domui.component.meta.MetaManager;
@@ -367,81 +366,24 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 	}
 
-	private <V> void handleLikeOperation(String propertyPathString, Object value) throws Exception {
+	private void handleLikeOperation(String propertyPathString, Object value) throws Exception {
 		//-- Check if there is a type mismatch in parameter type...
-		if(!(value instanceof String))
+		if(!(value instanceof String stringValue))
 			throw new QQuerySyntaxException("The argument to 'like' must be a string (and cannot be null), the value passed is: " + value);
 
-		PropertyMetaModel<V> pmm = MetaManager.getPropertyMeta(m_rootClass, propertyPathString);
+		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(m_rootClass, propertyPathString);
 		if(pmm.getActualType() == String.class) {
-			m_last = m_criteriaBuilder.like(m_topRoot.get(propertyPathString), (String) value);
+			m_last = m_criteriaBuilder.like(parsePropertyPath(propertyPathString), stringValue);
 			return;
 		}
 
-		Metamodel metamodel = m_session.getMetamodel();
-		EntityType<?> entity = metamodel.entity(pmm.getActualType());
-		if(null == entity)
-			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm);
-		Attribute<?, ?> declaredAttribute = entity.getDeclaredAttribute(propertyPathString);
-		if(null == declaredAttribute)
-			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + propertyPathString + " on class " + pmm.getActualType());
-
-		// QTODO - implement type casting for like on non-string properties
-		throw new NotImplementedException("like on non-string properties not implemented yet");
-		//AbstractEntityPersister aep = (AbstractEntityPersister) hibmd;
-		//String[] colar = getPropertyColumnNamesFromLousyMetadata(aep, name);
-		//if(colar.length != 1)
-		//	throw new IllegalStateException("Attempt to do a 'like' on a multi-column property: " + pmm);
-		//String columnName = colar[0];
-		//int dotix = name.lastIndexOf('.');
-		//String propertyName = name;
-		//if(dotix > -1) {
-		//	propertyName = name.substring(dotix + 1);
-		//}
-		//var property = Objects.requireNonNull(pmm.getClassModel().findProperty(propertyName));
-		//if(dotix == -1) {
-		//	//-- We need Hibernate metadata to find the column name....
-		//	if(RuntimeConversions.isNumeric(property.getActualType()) && ((String) value).contains("%")) {
-		//		m_last = Restrictions.sqlRestriction("CAST({alias}." + columnName + " AS VARCHAR) like ?", value, StringType.INSTANCE);
-		//	} else {
-		//		m_last = Restrictions.sqlRestriction("{alias}." + columnName + " like ?", value, StringType.INSTANCE);
-		//	}
-		//	return;
-		//}
-		//String sql;
-		//if(RuntimeConversions.isNumeric(property.getActualType()) && ((String) value).contains("%")) {
-		//	sql = "CAST({" + name + "} AS VARCHAR) like ?";
-		//} else {
-		//	sql = "{" + name + "} like ?";
-		//}
-		//m_last = new HibernateAliasedSqlCriterion(sql, value, StringType.INSTANCE);
+		//-- Non-string property: cast to String using JPA cast(), then use native like()
+		@SuppressWarnings("unchecked")
+		JpaExpression<?> path = (JpaExpression<?>) parsePropertyPath(propertyPathString);
+		JpaExpression<String> asString = m_criteriaBuilder.cast(path, String.class);
+		m_last = m_criteriaBuilder.like(asString, stringValue);
 	}
 
-	/// **
-	// * Hibernate's jokish metadata does not include the PK in it's properties structures. So
-	// * we explicitly need to check if the name is the PK property, then return the column names
-	// * for that PK.
-	// */
-	//@NonNull
-	//private String[] getPropertyColumnNamesFromLousyMetadata(AbstractEntityPersister aep, String compoundName) {
-	//	String name = compoundName;
-	//	int dotix = compoundName.lastIndexOf('.');
-	//	if(dotix != -1) {
-	//		name = compoundName.substring(dotix + 1);
-	//	}
-	//
-	//	//-- The PK property is not part of the "properties" in hibernate's idiot metadata. So first check if we're looking at that ID property.
-	//	if(name.equals(aep.getIdentifierPropertyName())) {
-	//		return aep.getIdentifierColumnNames();
-	//	}
-	//	int ix = aep.getPropertyIndex(name);
-	//	if(ix < 0)
-	//		throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + name + ": property index not found");
-	//	String[] colar = aep.getPropertyColumnNames(ix);
-	//	if(colar == null || colar.length != 1/* || colar[0] == null*/)
-	//		throw new QQuerySyntaxException("'Like' cannot be done on multicolumn/0column property " + name);
-	//	return colar;
-	//}
 	private void handlePropertySubcriteriaComparison(QPropertyComparison n) throws Exception {
 		QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
 
@@ -479,8 +421,6 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	/**
 	 * Compound. Ands and ors.
-	 *
-	 * @see to.etc.webapp.query.QNodeVisitorBase#visitMulti(to.etc.webapp.query.QMultiNode)
 	 */
 	@Override
 	public void visitMulti(final QMultiNode inn) throws Exception {
@@ -518,16 +458,16 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		switch(n.getOperation()) {
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
+
 			case SQL:
+				if(n.getNode() instanceof QLiteral l) {
+					String s = (String) l.getValue();
+					JpaExpression<Boolean> expr = m_criteriaBuilder.sql(s, Boolean.class);
+					m_last = m_criteriaBuilder.isTrue(expr);
+					return;
+				}
 				break;
-			// QTODO - implement unary SQL restriction
-			//if(n.getNode() instanceof QLiteral) {
-			//	QLiteral l = (QLiteral) n.getNode();
-			//	String s = (String) l.getValue();
-			//	m_last = Restrictions.sqlRestriction(s);
-			//	return;
-			//}
-			//break;
+
 			case NOT:
 				n.getNode().visit(this);
 				m_last = m_criteriaBuilder.not(m_last);
@@ -538,30 +478,12 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 
 	@Override
 	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {
-		// QTODO - implement SQL restriction
-		throw new NotImplementedException("SQL restriction not implemented yet");
-		//if(v.getParameters().length == 0) {
-		//	m_last = Restrictions.sqlRestriction(v.getSql());
-		//	return;
-		//}
-		//
-		////-- Parameterized SQL query -> convert to Hibernate types.
-		//Type[] htar = new Type[v.getParameters().length];
-		//for(int i = 0; i < v.getTypes().length; i++) {
-		//	Class<?> c = v.getTypes()[i];
-		//	if(c == null)
-		//		throw new QQuerySyntaxException("Type array for SQLRestriction cannot contain null");
-		//	org.hibernate.TypeHelper th = m_session.getTypeHelper();
-		//
-		//	Type t = th.basic(c.getName());
-		//	if(null == t) {
-		//		throw new QQuerySyntaxException("Type[" + i + "] in type array (a " + c + ") is not a proper Hibernate type");
-		//
-		//	}
-		//	htar[i] = t;
-		//}
-		//m_last = Restrictions.sqlRestriction(v.getSql(), v.getParameters(), htar);
-		//m_last = m_criteriaBuilder.sql();
+		Expression<?>[] args = new Expression<?>[v.getParameters().length];
+		for(int i = 0; i < v.getParameters().length; i++) {
+			args[i] = m_criteriaBuilder.literal(v.getParameters()[i]);
+		}
+		JpaExpression<Boolean> expr = m_criteriaBuilder.sql(v.getSql(), Boolean.class, args);
+		m_last = m_criteriaBuilder.isTrue(expr);
 	}
 
 	@Override
@@ -778,7 +700,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Selection translation to Projection.				*/
+	/*	CODING:	Selection translation to JPA Selections.			*/
 	/*--------------------------------------------------------------*/
 	private List<Selection<?>> m_selectionList = new ArrayList<>();
 
@@ -902,7 +824,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	@Override
 	public void visitSelectionSubquery(@NonNull final QSelectionSubquery n) throws Exception {
 		recurseSubquery(n.getSelectionQuery(), () -> {
-			n.getSelectionQuery().visit(CriteriaCreatingVisitor.this);
+			n.getSelectionQuery().visit(this);
 			return null;
 		});
 	}

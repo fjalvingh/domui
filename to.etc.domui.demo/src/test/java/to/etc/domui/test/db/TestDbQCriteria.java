@@ -550,4 +550,70 @@ public class TestDbQCriteria {
 		List<Employee> ires = dc().query(q);
 		Assert.assertSame(3, ires.size());
 	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	SQL restriction tests.									    */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Test a plain SQL restriction without parameters.
+	 */
+	@Test
+	public void testSqlRestrictionSimple() throws Exception {
+		QCriteria<Customer> q = QCriteria.create(Customer.class);
+		q.sqlCondition("1 = 1");                                    // Always true, should return all customers
+		List<Customer> res = dc().query(q);
+		Assert.assertEquals(59, res.size());
+	}
+
+	/**
+	 * Test a SQL restriction with a JDBC parameter.
+	 */
+	@Test
+	public void testSqlRestrictionWithParameter() throws Exception {
+		//-- First query with QCriteria eq() to get the expected count
+		QCriteria<Customer> q1 = QCriteria.create(Customer.class).eq("city", "Paris");
+		int expected = dc().query(q1).size();
+
+		//-- Now the same query using a raw SQL restriction with a parameter
+		QCriteria<Customer> q2 = QCriteria.create(Customer.class);
+		q2.sqlCondition("City = ?", new Object[]{"Paris"});
+		List<Customer> res = dc().query(q2);
+		Assert.assertEquals(expected, res.size());
+	}
+
+	/**
+	 * Test a SQL restriction combined with a normal QCriteria restriction.
+	 */
+	@Test
+	public void testSqlRestrictionCombinedWithCriteria() throws Exception {
+		QCriteria<Customer> q = QCriteria.create(Customer.class);
+		q.eq("country", "France");
+		q.sqlCondition("City = ?", new Object[]{"Paris"});
+		List<Customer> res = dc().query(q);
+		Assert.assertEquals(2, res.size());
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Like on non-string properties.							    */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Test like on a BigDecimal property. This uses CAST(column AS VARCHAR)
+	 * under the covers since like is a string operation.
+	 */
+	@Test
+	public void testLikeOnNumericProperty() throws Exception {
+		//-- Get the expected count using a SQL restriction (known to work)
+		QCriteria<Invoice> q1 = QCriteria.create(Invoice.class);
+		q1.sqlCondition("CAST(Total AS VARCHAR(255)) like ?", new Object[]{"1%"});
+		int expected = dc().query(q1).size();
+		Assert.assertTrue("Expected at least some invoices with total starting with 1", expected > 0);
+
+		//-- Now the same using QCriteria like() on the numeric 'total' property
+		QCriteria<Invoice> q2 = QCriteria.create(Invoice.class);
+		q2.like("total", "1%");
+		List<Invoice> res = dc().query(q2);
+		Assert.assertEquals(expected, res.size());
+	}
 }
