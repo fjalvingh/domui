@@ -39,7 +39,6 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.Page;
 import to.etc.domui.parts.ComponentPartRenderer;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.ConversationContext;
@@ -411,7 +410,6 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		forceRebuild();
 		// We need this page reference since in onValueChanged() force rebuild might happen again
 		// and then we'll lose the page reference needed for renderOptimalDelta().
-		Page p = getPage();
 		if(m_onValueChanged != null)
 			((IValueChanged<FileUpload2>) m_onValueChanged).onValueChanged(this);
 		return true;

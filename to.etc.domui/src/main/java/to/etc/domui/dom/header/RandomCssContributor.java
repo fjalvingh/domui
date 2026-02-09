@@ -44,12 +44,13 @@ final public class RandomCssContributor extends HeaderContributor {
 		m_maxVariants = maxVariants;
 		m_offline = offline;
 		m_options = options;
-		if(path == null || path.isEmpty())
+		if(path.isEmpty())
 			throw new IllegalArgumentException("Null path not allowed");
 		m_path = path;
 	}
 
-	@Override public boolean isOfflineCapable() {
+	@Override
+	public boolean isOfflineCapable() {
 		return m_offline;
 	}
 
@@ -85,14 +86,10 @@ final public class RandomCssContributor extends HeaderContributor {
 		//-- Get a random int if not yet known in the session
 		AppSession session = r.ctx().getSession();
 		Integer key;
-		if(null != session) {
-			key = (Integer) session.getAttribute(KEY);
-			if(null == key) {
-				key = (int) (Math.random() * m_maxVariants);
-				session.setAttribute(KEY, key);
-			}
-		} else {
-			key = 0;
+		key = (Integer) session.getAttribute(KEY);
+		if(null == key) {
+			key = (int) (Math.random() * m_maxVariants);
+			session.setAttribute(KEY, key);
 		}
 		StringBuilder sb = new StringBuilder(m_path);
 		if(m_path.contains("?"))
@@ -104,7 +101,8 @@ final public class RandomCssContributor extends HeaderContributor {
 		r.renderLoadCSS(sb.toString(), m_options);
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return m_path;
 	}
 }

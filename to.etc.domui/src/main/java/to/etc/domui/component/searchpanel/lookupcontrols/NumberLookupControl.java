@@ -212,7 +212,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		m_s.init(in);
 		m_s.skipWs();
 
-		if(Character.isDigit(m_s.LA()) || m_s.LA() == '-' || m_s.LA() == '+' || m_s.LA() == '%') {
+		if(Character.isDigit(m_s.la()) || m_s.la() == '-' || m_s.la() == '+' || m_s.la() == '%') {
 			//-- Does not start with operation: can only be number or a number with like
 			String v = scanNumeric(true);
 			if(v.isEmpty())
@@ -291,7 +291,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		m_s.skipWs();
 		m_s.getStringResult(); // Clear old result
 		for(; ; ) {
-			int c = m_s.LA();
+			int c = m_s.la();
 			if(c != '-' && c != '+' && c != 'E' && c != 'e' && c != ',' && c != '.' && c != 0x20ac && c != '$' && !Character.isDigit(c) && !(allowpct && c == '%'))
 				break;
 			m_s.copy();
@@ -320,7 +320,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		else {
 			m_s.getStringResult(); // Clear content
 			for(; ; ) {
-				int c = m_s.LA();
+				int c = m_s.la();
 				if(Character.isWhitespace(c) || Character.isDigit(c) || c == '-' || c == '.' || c == ',' || c == -1)
 					break;
 				m_s.copy();

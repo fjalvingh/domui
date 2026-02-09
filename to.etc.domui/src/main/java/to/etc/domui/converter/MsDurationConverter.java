@@ -32,9 +32,9 @@ import to.etc.domui.util.Msgs;
 import java.util.Locale;
 
 public class MsDurationConverter implements IConverter<Long> {
-	static private final long DAYS = 24 * 60 * 60;
+	static private final long DAYS = 24L * 60 * 60;
 
-	static private final long HOURS = 60 * 60;
+	static private final long HOURS = 60L * 60;
 
 	@Override
 	public String convertObjectToString(Locale loc, Long in) throws UIException {
@@ -63,7 +63,7 @@ public class MsDurationConverter implements IConverter<Long> {
 				throw new ValidationException(Msgs.vBadDuration);
 
 			ms.skipWs();
-			int mc = ms.LA();
+			int mc = ms.la();
 			switch(mc) {
 				default:
 					throw new ValidationException(Msgs.vBadDuration);
@@ -85,7 +85,7 @@ public class MsDurationConverter implements IConverter<Long> {
 
 				case 'm':
 				case 'M':
-					if(ms.LA(1) == 's' || ms.LA(1) == 'S') {
+					if(ms.la(1) == 's' || ms.la(1) == 'S') {
 						dur += nr;
 						ms.accept();
 					} else {
@@ -112,8 +112,8 @@ public class MsDurationConverter implements IConverter<Long> {
 	private int scanNumber(@NonNull MiniScanner ms) {
 		int nr = 0;
 		int ct = 0;
-		for(;;) {
-			int c = ms.LA();
+		for(; ; ) {
+			int c = ms.la();
 			if(!Character.isDigit(c))
 				return ct > 0 ? nr : -1;
 			nr = nr * 10 + Character.digit(c, 10);
@@ -123,7 +123,7 @@ public class MsDurationConverter implements IConverter<Long> {
 	}
 
 	static public String strDurationMillis(long dlt) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		int millis = (int) (dlt % 1000); // Get milliseconds,
 		dlt /= 1000; // Now in seconds,

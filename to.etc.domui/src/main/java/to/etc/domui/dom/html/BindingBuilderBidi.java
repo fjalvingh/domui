@@ -30,8 +30,6 @@ final public class BindingBuilderBidi<CV> {
 	final private PropertyMetaModel<CV> m_controlProperty;
 
 	BindingBuilderBidi(@NonNull NodeBase control, @NonNull String controlProperty) {
-		if(control == null)
-			throw new IllegalArgumentException("The control cannot be null.");
 		if(controlProperty.contains("."))
 			throw new ProgrammerErrorException("You cannot bind a Control property dotted path, see " + Documentation.BINDING_NO_DOTTED_PATH);
 		m_control = control;
@@ -39,8 +37,6 @@ final public class BindingBuilderBidi<CV> {
 	}
 
 	BindingBuilderBidi(@NonNull NodeBase control, @NonNull QField<?, CV> controlProperty) {
-		if(control == null)
-			throw new IllegalArgumentException("The control cannot be null.");
 		if(controlProperty.getName().contains("."))
 			throw new ProgrammerErrorException("You cannot bind a Control property dotted path, see " + Documentation.BINDING_NO_DOTTED_PATH);
 		m_control = control;
@@ -48,8 +44,6 @@ final public class BindingBuilderBidi<CV> {
 	}
 
 	BindingBuilderBidi(@NonNull NodeBase control, @NonNull PropertyMetaModel<CV> controlProperty) {
-		if(control == null)
-			throw new IllegalArgumentException("The control cannot be null.");
 		if(controlProperty.getName().contains("."))
 			throw new ProgrammerErrorException("You cannot bind a Control property dotted path, see " + Documentation.BINDING_NO_DOTTED_PATH);
 		m_control = control;
@@ -83,8 +77,6 @@ final public class BindingBuilderBidi<CV> {
 	}
 
 	public <T, MV> ComponentPropertyBindingBidi<?, CV, T, MV> to(@NonNull T instance, @NonNull QField<?, MV> property, @Nullable IBidiBindingConverter<CV, MV> converter) throws Exception {
-		if(instance == null || property == null)
-			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property), converter);
 	}
 
@@ -96,9 +88,6 @@ final public class BindingBuilderBidi<CV> {
 	 * Bind to a IValueAccessor and the given instance.
 	 */
 	public <T, MV> ComponentPropertyBindingBidi<?, CV, T, MV> to(@NonNull T instance, @NonNull PropertyMetaModel<MV> pmm, @Nullable IBidiBindingConverter<CV, MV> converter) throws Exception {
-		if(instance == null || pmm == null)
-			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
-
 		//-- Check: are the types of the binding ok?
 		if(pmm instanceof PropertyMetaModel<?> && converter == null) {
 			PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;

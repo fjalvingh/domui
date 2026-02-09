@@ -853,7 +853,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	static public <T extends Number> Text2<T> createNumericInput(PropertyMetaModel<T> pmm, boolean editable) {
 		Text2<T> txt = new Text2<>(pmm.getActualType());
 		Text2.configureNumericInput(txt, pmm, editable);
-		NumericUtil.assignNumericConverter(pmm, editable, txt, pmm.getActualType());
+		NumericUtil.assignNumericConverter(pmm, txt, pmm.getActualType());
 		return txt;
 	}
 

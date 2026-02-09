@@ -26,13 +26,20 @@ final public class Animations {
 			m_newDisplay = newDisplay;
 		}
 
-		@Override public boolean equals(@Nullable Object obj) {
-			if(! (obj instanceof NodeFixer))
+		@Override
+		public boolean equals(@Nullable Object obj) {
+			if(!(obj instanceof NodeFixer))
 				return false;
 			return ((NodeFixer) obj).m_node == m_node;
 		}
 
-		@Override public void execute() throws Exception {
+		@Override
+		public int hashCode() {
+			return m_node.hashCode();
+		}
+
+		@Override
+		public void execute() throws Exception {
 			m_node.setDisplay(m_newDisplay);
 			m_node.internalClearDelta();
 			m_node.setCachedStyle(null);
@@ -48,8 +55,6 @@ final public class Animations {
 	 * </ul>
 	 * Since after the slideDown the node in the browser will have its default display this is also the state
 	 * in DomUI's node.
-	 *
-	 * @param node
 	 */
 	static public void slideDown(NodeBase node) {
 		node.getPage().addAfterRenderListener(new NodeFixer(node, node.getDisplay()));
@@ -120,7 +125,8 @@ final public class Animations {
 
 	/**
 	 * Does pulsate effect.
-	 * @param node target node
+	 *
+	 * @param node  target node
 	 * @param times if 0 it uses default behavior for pulsate.
 	 */
 	static public void pulsate(NodeBase node, int times) {

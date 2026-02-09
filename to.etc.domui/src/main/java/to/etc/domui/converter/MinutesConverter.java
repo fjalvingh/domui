@@ -1,12 +1,14 @@
 package to.etc.domui.converter;
 
-import java.math.*;
-import java.text.*;
-import java.util.*;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.NlsContext;
 
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 /**
  * Converts a double presentation to minutes considering
@@ -57,12 +59,12 @@ public class MinutesConverter implements IConverter<Integer> {
 		in = in.trim();
 		in = in.replace(',', '.'); // If value is entered with comma replace it with dot
 
-		if(!in.startsWith(".") & !in.endsWith(".")) { // Double will parse it, but we do not allow that format
+		if(!in.startsWith(".") && !in.endsWith(".")) { // Double will parse it, but we do not allow that format
 			try {
 
 				// because of tricky numbers X.o1 work is done with BigDecimals to avoid errors in calculation
 				BigDecimal value = new BigDecimal(in);
-				BigDecimal hours = new BigDecimal(Math.floor(value.doubleValue()));
+				BigDecimal hours = BigDecimal.valueOf(Math.floor(value.doubleValue()));
 				// resolve #of decimals
 				int numDec = 0;
 				final int index = in.indexOf('.');
@@ -77,7 +79,9 @@ public class MinutesConverter implements IConverter<Integer> {
 						return Integer.valueOf(value.intValue());
 					}
 				}
-			} catch(NumberFormatException ex) {}
+			} catch(NumberFormatException ex) {
+				// Ignore
+			}
 		}
 		throw new ValidationException(Msgs.vNoReMatch, "HH[.|,]MM");
 	}

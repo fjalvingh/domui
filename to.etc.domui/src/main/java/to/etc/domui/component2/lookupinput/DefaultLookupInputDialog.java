@@ -133,14 +133,14 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 		//in case when external error message listener is set
 		IErrorMessageListener cerl = m_customErrorMessageListener;
-		if(cerl != null && cerl instanceof NodeBase) {
+		if(cerl != null && cerl instanceof NodeBase nb) {
 			setErrorFence();
-			add((NodeBase) cerl);
+			add(nb);
 			DomUtil.getMessageFence(this).addErrorListener(cerl);
 		}
 		SearchPanel<QT> lf = getSearchPanel();
 		if(lf == null) {
-			lf = new SearchPanel<QT>((Class<QT>) getQueryMetaModel().getActualClass(), getQueryMetaModel());
+			lf = new SearchPanel<>((Class<QT>) getQueryMetaModel().getActualClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && !m_searchPropertyList.isEmpty())
 				lf.setSearchProperties(m_searchPropertyList);
 		}
@@ -219,7 +219,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		DataTable<OT> dt = m_result;
 		if(dt == null) {
 			//-- We do not yet have a result table -> create one.
-			dt = m_result = new DataTable<OT>(model, getActualFormRowRenderer());
+			dt = m_result = new DataTable<>(model, getActualFormRowRenderer());
 
 			add(dt);
 			dt.setPageSize(20);
@@ -254,7 +254,8 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		IClickableRowRenderer<OT> actualFormRowRenderer = m_actualFormRowRenderer;
 		if(null == actualFormRowRenderer) {
 			//-- Is a form row renderer specified by the user - then use it, else create a default one.
-			actualFormRowRenderer = m_actualFormRowRenderer = getFormRowRenderer();
+			actualFormRowRenderer = getFormRowRenderer();
+			m_actualFormRowRenderer = actualFormRowRenderer;
 			if(null == actualFormRowRenderer) {
 				actualFormRowRenderer = m_actualFormRowRenderer = new RowRenderer<>((Class<OT>) getOutputMetaModel().getActualClass(), getOutputMetaModel());
 			}
@@ -458,7 +459,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	public IQueryHandler<QT> getQueryHandler() {
 		IQueryHandler<QT> handler = m_queryHandler;
 		if(null == handler)
-			handler = new PageQueryHandler<QT>(this);
+			handler = new PageQueryHandler<>(this);
 		return handler;
 	}
 

@@ -643,7 +643,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			throw new NullPointerException("Null property model not allowed");
 		Text<T> txt = new Text<>(pmm.getActualType());
 		Text.configureNumericInput(txt, pmm, editable);
-		NumericUtil.assignNumericConverter(pmm, editable, txt, pmm.getActualType());
+		NumericUtil.assignNumericConverter(pmm, txt, pmm.getActualType());
 		return txt;
 	}
 

@@ -3,7 +3,6 @@ package to.etc.domui.component2.form4;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 
@@ -43,7 +42,6 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 		BiConsumer<NodeContainer, String> hintRenderer) {
 		if(append) {
 			Div controlContainer = m_lastControlContainer;
-			Div labelContainer = m_lastLabelContainer;
 			if(null != controlContainer) {
 				if(null != lbl) {
 					//-- We need to add the label to the control container
@@ -83,21 +81,14 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 		if(lbl != null) {
 			lc = m_lastLabelContainer = new Div("ui-f5-lbl ui-f5-lbl" + fix);
 			pair.add(lc);
-			if(null != lbl) {
-				lc.add(lbl);
-			} else {
-				//-- For horizontal forms an empty label will cause the div to have 0 size, so add something to align.
-				lc.add(new Label("\u00a0"));
-			}
+			lc.add(lbl);
 			if(labelCss != null) {
 				lc.addCssClass(labelCss);
 			}
 		}
 
-		if(hintText != null) {
-			if(lc != null) {
-				hintRenderer.accept(lc, hintText);
-			}
+		if(hintText != null && lc != null) {
+			hintRenderer.accept(lc, hintText);
 		}
 
 		Div cc = m_lastControlContainer = new Div("ui-f5-ctl ui-f5-ctl" + fix);

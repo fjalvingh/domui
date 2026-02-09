@@ -321,7 +321,7 @@ public class NumericUtil {
 
 				@NonNull
 				String res = new DecimalFormat(NUMBER_BY_SCALE_TRUNC_ZEROS[scale], dfs).format(v);
-				if(res != null && (res.endsWith(".") || res.endsWith(","))) {
+				if(res.endsWith(".") || res.endsWith(",")) {
 					//If we have 1000. then we need to cut of last decimal separator
 					res = res.substring(0, res.length() - 2);
 				}
@@ -337,7 +337,7 @@ public class NumericUtil {
 	}
 
 	public static <T extends Number> IConverter<T> createNumberConverter(Class<T> type, NumericPresentation np, int scale) {
-		return new NumberConverter<T>(type, np, scale);
+		return new NumberConverter<>(type, np, scale);
 	}
 
 	public static <T extends Number> IConverter<T> createNumericConverter(PropertyMetaModel<T> pmm, Class<T> type) {
@@ -364,7 +364,7 @@ public class NumericUtil {
 		}
 	}
 
-	public static <T extends Number> void assignNumericConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
+	public static <T extends Number> void assignNumericConverter(final PropertyMetaModel<T> pmm, final IConvertable<T> node, Class<T> type) {
 		IConverter<T> c = createNumericConverter(pmm, type);
 		node.setConverter(c);
 	}
