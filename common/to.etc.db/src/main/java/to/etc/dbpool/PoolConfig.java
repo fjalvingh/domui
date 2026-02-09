@@ -25,6 +25,7 @@
 package to.etc.dbpool;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -74,42 +75,68 @@ final public class PoolConfig {
 
 	public static final String BINARY_LOG = "binaryLog";
 
-	/** The max. #of connections that can be allocated before the pool blocks */
+	/**
+	 * The max. #of connections that can be allocated before the pool blocks
+	 */
 	final private int m_maxConns;
 
-	/** The #of connections to allocate when INITIALIZING */
+	/**
+	 * The #of connections to allocate when INITIALIZING
+	 */
 	final private int m_minConns;
 
-	/** This pool's connection characteristics */
-	final private String m_url, m_driverClassName, m_uid, m_pw;
+	/**
+	 * This pool's connection characteristics
+	 */
+	final private String m_url;
 
-	/** If present (not null) the driver should be instantiated off this file. */
+	final private String m_driverClassName;
+
+	final private String m_uid;
+
+	final private String m_pw;
+
+	/**
+	 * If present (not null) the driver should be instantiated off this file.
+	 */
 	final private File m_driverPath;
 
-	/** The SQL statement that is to be sent as a check for valid cnnections */
+	/**
+	 * The SQL statement that is to be sent as a check for valid cnnections
+	 */
 	final private String m_checkSQL;
 
 	final private boolean m_checkConnection;
 
-	/** Set to T if logstream logging must be enabled. */
+	/**
+	 * Set to T if logstream logging must be enabled.
+	 */
 	final private boolean m_setlog;
 
 	final private boolean m_printExceptions;
 
-	/** When T this logs to stdout every time a connection is allocated or closed */
+	/**
+	 * When T this logs to stdout every time a connection is allocated or closed
+	 */
 	final private boolean m_logAllocation;
 
-	/** When T this logs to stdout a stacktrace for every allocation and close */
+	/**
+	 * When T this logs to stdout a stacktrace for every allocation and close
+	 */
 	final private boolean m_logAllocationStack;
 
-	/** When T this logs all statements to stdout */
+	/**
+	 * When T this logs all statements to stdout
+	 */
 	final private boolean m_logStatements;
 
 	final private boolean m_ignoreUnclosed;
 
 	final private boolean m_logResultSetLocations;
 
-	/** Forces every allocated connection to execute "alter session set sql_trace=true". */
+	/**
+	 * Forces every allocated connection to execute "alter session set sql_trace=true".
+	 */
 	final private boolean m_sqlTraceMode;
 
 	final private boolean m_collectStatistics;
@@ -166,6 +193,32 @@ final public class PoolConfig {
 		if(!m_driverClassName.equals(p.m_driverClassName))
 			return false;
 		return m_pw.equals(p.m_pw);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = getMaxConns();
+		result = 31 * result + getMinConns();
+		result = 31 * result + Objects.hashCode(getUrl());
+		result = 31 * result + Objects.hashCode(getDriverClassName());
+		result = 31 * result + Objects.hashCode(getUid());
+		result = 31 * result + Objects.hashCode(getPw());
+		result = 31 * result + Objects.hashCode(getDriverPath());
+		result = 31 * result + Objects.hashCode(getCheckSQL());
+		result = 31 * result + Boolean.hashCode(isCheckConnection());
+		result = 31 * result + Boolean.hashCode(isSetlog());
+		result = 31 * result + Boolean.hashCode(isPrintExceptions());
+		result = 31 * result + Boolean.hashCode(isLogAllocation());
+		result = 31 * result + Boolean.hashCode(isLogAllocationStack());
+		result = 31 * result + Boolean.hashCode(isLogStatements());
+		result = 31 * result + Boolean.hashCode(isIgnoreUnclosed());
+		result = 31 * result + Boolean.hashCode(isLogResultSetLocations());
+		result = 31 * result + Boolean.hashCode(isSqlTraceMode());
+		result = 31 * result + Boolean.hashCode(isCollectStatistics());
+		result = 31 * result + Objects.hashCode(getScanMode());
+		result = 31 * result + Objects.hashCode(getBinaryLogFile());
+		result = 31 * result + Objects.hashCode(getExtraProperties());
+		return result;
 	}
 
 	public int getMaxConns() {

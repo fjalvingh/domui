@@ -68,14 +68,17 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	static private boolean m_encodingSet = true;
 
 	static private class PerThreadData {
-		public PerThreadData() {}
+		public PerThreadData() {
+		}
 
-		public int m_count;
+		int m_count;
 
 		@Nullable
 		public StatisticsCollector m_collector;
 
-		/** If we have a http session request collector it's in here. */
+		/**
+		 * If we have a http session request collector it's in here.
+		 */
 		@Nullable
 		public SessionStatistics m_sessionStatistics;
 
@@ -88,7 +91,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	/**
 	 * Per session/thread the data related to performance/statistics collection for that thread.
 	 */
-	static private final ThreadLocal<PerThreadData> m_perThreadData = new ThreadLocal<PerThreadData>();
+	static private final ThreadLocal<PerThreadData> m_perThreadData = new ThreadLocal<>();
 
 	static private GlobalPerformanceStore m_globalStore;
 
@@ -104,8 +107,6 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	 * At request finish, we collect all of the statistics we gathered and add them
 	 * to the accounting outputs (the stores). We also check whether all connections
 	 * are properly closed.
-	 *
-	 * @param ev
 	 */
 	@Override
 	public void requestDestroyed(ServletRequestEvent ev) {
@@ -139,9 +140,9 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 		StatisticsCollector statisticsCollector = (StatisticsCollector) PoolManager.getInstance().stopCollecting(getClass().getName());
 		if(null == statisticsCollector)
 			return;
-		long duration = System.nanoTime() - statisticsCollector.getStartTS(); 		// Store duration now, before any other action.
+		long duration = System.nanoTime() - statisticsCollector.getStartTS();        // Store duration now, before any other action.
 
-		PerformanceCollector pc = new PerformanceCollector();	// A new store for the thingy.
+		PerformanceCollector pc = new PerformanceCollector();    // A new store for the thingy.
 		pc.saveCounters(statisticsCollector.getIdent(), statisticsCollector.getCounters());
 
 		/*
@@ -192,7 +193,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 		if(DEBUG) {
 			System.out.println("SRL: " + Thread.currentThread().getName() + " depth=" + (threadData == null ? "null" : threadData.m_count) + " rq=" + r.getRequestURI());
 		}
-		if(threadData != null) {								// Handle recursion
+		if(threadData != null) {                                // Handle recursion
 			threadData.m_count++;
 			return;
 		}
@@ -213,7 +214,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 			}
 		}
 
-		if(m_enableSessionStatisticsForEveryone) {					// volatile
+		if(m_enableSessionStatisticsForEveryone) {                    // volatile
 			threadData.m_sessionStatistics = createSessionStats(r);
 		} else {
 			String val = r.getParameter("__session");
@@ -248,7 +249,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 				}
 			}
 		}
-		val = r.getParameter("__trace");								// Not shown in UI: enable session trace
+		val = r.getParameter("__trace");                                // Not shown in UI: enable session trace
 		if(null != val) {
 			val = val.toLowerCase();
 			OracleStatisticsCreator.enableSessionTrace("on".equals(val) || val.startsWith("t"));
@@ -273,6 +274,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	static private synchronized String nextID() {
 		return Long.toString(nextIDNr(), 36);
 	}
+
 	static private long nextIDNr() {
 		return ++m_nextId;
 	}
@@ -284,7 +286,6 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	/**
 	 * Get the current counts for SQL statements for the current thread, if enabled/available. These
 	 * are the statistics <b>so far</b> of course.
-	 * @return
 	 */
 	@Nullable
 	public static final StatisticsCollectorBase getThreadStatistics() {
@@ -302,7 +303,6 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	/**
 	 * Return the unique ID for this request/response cycle which can be used to identify the metrics for
 	 * this request after it finished.
-	 * @return
 	 */
 	@Nullable
 	public static final String getRequestID() {
@@ -315,9 +315,9 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Session-based detailed statistics collection.		*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Destroy any known session stats structure.
-	 * @param r
 	 */
 	public static void destroySessionStats(HttpServletRequest r) {
 		HttpSession hs = r.getSession(false); // Does session exist?
@@ -331,11 +331,11 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	/**
 	 * Create a HttpSession, and add a Session Statistics block there. This will start
 	 * session statistics collection. If the block already exists nothing happens.
-	 * @param r
 	 */
+	@SuppressWarnings("squid:S2441")
 	@NonNull
 	public static SessionStatistics createSessionStats(HttpServletRequest r) {
-		HttpSession hs = r.getSession(true); 					// Get/create session.
+		HttpSession hs = r.getSession(true);                    // Get/create session.
 		SessionStatistics ss;
 		synchronized(hs) {
 			ss = (SessionStatistics) hs.getAttribute(StatisticsRequestListener.class.getName());
@@ -357,17 +357,12 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 		}
 	}
 
-
 	/**
 	 * Returns the current global performance store maintained by this listener. Returns null if not collecting statistics.
-	 * @return
 	 */
 	public synchronized static GlobalPerformanceStore getGlobalStore() {
 		return m_globalStore;
 	}
-
-
-
 
 	/**
 	 * Advanced horror mode: Internet Exploder, who else, does not send the charset it encoded
@@ -380,8 +375,6 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	 * ignored, because otherwise the problem would be clear. The workaround here is to force
 	 * input decoding to a specified encoding (usually UTF-8) always when the charset header is
 	 * missing.
-	 *
-	 * @param forceEncoding
 	 */
 	synchronized public static void setForceEncoding(String forceEncoding) {
 		m_forceEncoding = forceEncoding;
@@ -389,15 +382,23 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	}
 
 	synchronized private String getForceEncoding() {
-		if(! m_encodingSet)
+		//
+		//
+		//
+		//
+		//
+		//
+		if(!m_encodingSet)
 			//-- Lets not fail silently and cause horror.
-			throw new RuntimeException("**** INPUT ENCODING NOT DEFINED FOR DBPOOL'S STATISTICS FILTER!!\n" //
-				+ "You have added the to.etc.dbpool.StatisticsRequestListener to your web.xml.\n"//
-				+ "There is of course a bug in Internet Explorer where it does not sent proper encoding\n"//
-				+ "information (the charset header) in data it sends back to the server. If that happens the\n"//
-				+ "server guesses the encoding- usually wrong. This would lead to encoding errors (strange\n"//
-				+ "characters) in input from the browser. The only way to prevent this is to add a call in your\n"//
-				+ "web app initialization: StatisticsRequestListener.setForceEncoding(\"utf-8\");\n"//
+			throw new RuntimeException("""
+				**** INPUT ENCODING NOT DEFINED FOR DBPOOL'S STATISTICS FILTER!!
+				You have added the to.etc.dbpool.StatisticsRequestListener to your web.xml.
+				There is of course a bug in Internet Explorer where it does not sent proper encoding
+				information (the charset header) in data it sends back to the server. If that happens the
+				server guesses the encoding- usually wrong. This would lead to encoding errors (strange
+				characters) in input from the browser. The only way to prevent this is to add a call in your
+				web app initialization: StatisticsRequestListener.setForceEncoding("utf-8");
+				"""//
 			);
 		return m_forceEncoding;
 	}
