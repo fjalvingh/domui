@@ -24,10 +24,6 @@
  */
 package to.etc.webapp.core;
 
-import to.etc.util.FileTool;
-import to.etc.util.StringTool;
-
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,41 +48,6 @@ final public class ServerTools {
 	static private final String BASECODES = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_";
 
 	private ServerTools() {}
-
-	/**
-	 * Tries to find the named config file. It tries the local directory first,
-	 * followed by the WEB-INF path and all classpath entries.
-	 *
-	 * @param ctx
-	 * @param basename
-	 * @return
-	 * @throws Exception
-	 */
-	static public File findConfigFileByName(ServletContext ctx, String basename) throws Exception {
-		File f = new File(basename); // Try local directory 1st
-		if(f.exists()) // If found we're done
-			return f;
-
-		int fix = FileTool.findFilenameExtension(basename);
-		if(fix == -1) {
-			basename += ".properties";
-			f = new File(basename); // Try local directory 1st
-			if(f.exists()) // If found we're done
-				return f;
-		}
-
-		//-- Try relative to the webapps' path
-		if(ctx != null) {
-			String p = ctx.getRealPath("/WEB-INF/" + basename);
-			f = new File(p);
-			if(f.exists())
-				return f;
-		}
-
-		//-- Not found still. Use the path.
-		f = StringTool.findFileOnEnv(basename, "java.class.path");
-		return f;
-	}
 
 	static private String m_myhostname;
 

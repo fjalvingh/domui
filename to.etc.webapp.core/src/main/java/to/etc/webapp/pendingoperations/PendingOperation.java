@@ -704,14 +704,53 @@ public class PendingOperation {
 	static {
 		StringBuilder sb = new StringBuilder(512);
 		sb.append("begin ");
-		StringTool.createInsertStatement(sb, "sys_pending_operations", "spo_id", "sys_spo_seq.nextval", FLDAR);
+		createInsertStatement(sb, "sys_pending_operations", "spo_id", "sys_spo_seq.nextval", FLDAR);
 		sb.append(" returning spo_id into ?; end;");
 		m_insertSQL = sb.toString();
 
 		sb.setLength(0);
-		StringTool.createUpdateStatement(sb, "sys_pending_operations", "spo_id", FLDAR);
+		createUpdateStatement(sb, "sys_pending_operations", "spo_id", FLDAR);
 		m_updateSQL = sb.toString();
 	}
+
+	static public void createInsertStatement(final StringBuilder sb, final String table, final String pkname, final String pkexpr, final String[] fields) {
+		sb.append("insert into ");
+		sb.append(table);
+		sb.append('(');
+		int fc = 0;
+		for(String s : fields) {
+			if(fc++ > 0)
+				sb.append(',');
+			sb.append(s);
+		}
+		sb.append(',');
+		sb.append(pkname);
+		sb.append(") values (");
+		for(int i = 0; i < fields.length; i++) {
+			if(i > 0)
+				sb.append(',');
+			sb.append('?');
+		}
+		sb.append(',');
+		sb.append(pkexpr);
+		sb.append(')');
+	}
+
+	static public void createUpdateStatement(final StringBuilder sb, final String table, final String pkname, final String[] fields) {
+		sb.append("update ");
+		sb.append(table);
+		sb.append(" set ");
+		for(int i = 0; i < fields.length; i++) {
+			if(i > 0)
+				sb.append(',');
+			sb.append(fields[i]);
+			sb.append("=?");
+		}
+		sb.append(" where ");
+		sb.append(pkname);
+		sb.append("=?");
+	}
+
 
 	public void setError(final PendingOperationState rtry, final String string) {
 		m_state = rtry;
