@@ -34,6 +34,7 @@ public class StreamCopyThread extends Thread {
 	 * Read data from the stream until it closes line by line; add each line to
 	 * the output channel.
 	 */
+	@SuppressWarnings("squid:S1181")
 	@Override
 	public void run() {
 		try {
@@ -49,9 +50,9 @@ public class StreamCopyThread extends Thread {
 			x.printStackTrace();
 		} finally {
 			try {
-				if(m_is != null)
-					m_is.close();
+				m_is.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}

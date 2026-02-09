@@ -23,8 +23,8 @@ public class JsonWriter extends Writer {
 		m_writer = writer;
 		m_registry = registry;
 
-		if(writer instanceof IndentWriter) {
-			m_iw = (IndentWriter) writer;
+		if(writer instanceof IndentWriter jw) {
+			m_iw = jw;
 		}
 	}
 
