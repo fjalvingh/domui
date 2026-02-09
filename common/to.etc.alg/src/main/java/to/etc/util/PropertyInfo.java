@@ -101,8 +101,6 @@ final public class PropertyInfo implements IPropertyAccessor {
 			return getActualType().getComponentType();
 		else if(Collection.class.isAssignableFrom(getActualType())) {
 			Type t = getActualGenericType();
-			if(t == null)
-				return null;
 			return ClassUtil.findCollectionType(t);
 		} else
 			return null;

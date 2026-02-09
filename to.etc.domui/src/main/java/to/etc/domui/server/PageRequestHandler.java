@@ -132,6 +132,7 @@ final public class PageRequestHandler {
 		m_ctx.getSession().dump();                            // Log session info if enabled
 	}
 
+	@SuppressWarnings("squid:S1181")
 	private void handleMain() throws Exception {
 		try {
 			runClass();
@@ -196,7 +197,7 @@ final public class PageRequestHandler {
 		if(windowSession == null) {
 			LOG.debug("windowSession == null");
 			//-- If this is a crawler we would render a page with a fake session
-			if(m_application.getIsCrawlerFunctor().apply(m_ctx)) {
+			if(m_application.getIsCrawlerFunctor().apply(m_ctx) == Boolean.TRUE) {
 				LOG.debug("IsCrawler");
 				windowSession = m_ctx.getSession().createWindowSession();
 				cida = new CidPair(windowSession.getWindowID(), "x");
@@ -228,16 +229,14 @@ final public class PageRequestHandler {
 		 * conversation just ignore it, and send an empty response to ie, hopefully causing it to die soon.
 		 */
 		String action = m_action;
-		if(action != null) {
-			if(windowSession.isConversationDestroyed(conversationId)) {        // This conversation was recently destroyed?
-				//-- Render a null response
-				String msg = "Session " + m_cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back";
-				if(LOG.isDebugEnabled())
-					LOG.debug(msg);
-				logUser(msg);
-				m_commandWriter.generateEmptyDelta(m_ctx);
-				return;                                            // jal 20121122 Must return after sending that delta or the document is invalid!!
-			}
+		if(action != null && windowSession.isConversationDestroyed(conversationId)) {        // This conversation was recently destroyed?
+			//-- Render a null response
+			String msg = "Session " + m_cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back";
+			if(LOG.isDebugEnabled())
+				LOG.debug(msg);
+			logUser(msg);
+			m_commandWriter.generateEmptyDelta(m_ctx);
+			return;                                            // jal 20121122 Must return after sending that delta or the document is invalid!!
 		}
 
 		m_ctx.internalSetWindowSession(windowSession);
@@ -427,6 +426,7 @@ final public class PageRequestHandler {
 	/**
 	 * See if one of the registered exception handlers accepts the exception, and if so use it.
 	 */
+	@SuppressWarnings("squid:S1066")
 	private <E extends Exception> boolean tryToHandleWithRegisteredExceptionHandler(WindowSession windowSession, Page page, E x) throws Exception {
 		IExceptionListener<E> xl = m_ctx.getApplication().findExceptionListenerFor(x);
 		if(xl != null && xl.handleException(m_ctx, page, null, x)) {
@@ -446,8 +446,8 @@ final public class PageRequestHandler {
 	 * If this is a login exception and there is no specific handler for it => redirect to the login URL.
 	 */
 	private boolean handleLoginException(Exception x) throws Exception {
-		if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
-			String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
+		if(x instanceof NotLoggedInException nlix) { // Better than repeating code in separate exception handlers.
+			String url = m_application.handleNotLoggedInException(m_ctx, nlix);
 			if(url != null) {
 				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to be logged in");
 				return true;
@@ -599,23 +599,19 @@ final public class PageRequestHandler {
 		//when conversationId is "r" - If not reloading a saved set- use r as the default conversation id for created session redirect
 		//when conversationId is "x" - It means that we successfully reloaded with "r" once, so we reload one more time with "x", to mark session as normal (not as reloaded from redirect)
 		CidPair cida = m_cida;
-		if(m_application.inDevelopmentMode() && cida != null) {
-			/*
-			 * 20130227 jal The WindowSession we did not find could have been destroyed due to a
-			 * reloader event. In that case it's page shelve will be stored in the HttpSession or
-			 * perhaps in a state file. Try to resurrect that page shelve as to not lose the navigation history.
-			 */
-			if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
-				HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
+		/*
+		 * 20130227 jal The WindowSession we did not find could have been destroyed due to a
+		 * reloader event. In that case it's page shelve will be stored in the HttpSession or
+		 * perhaps in a state file. Try to resurrect that page shelve as to not lose the navigation history.
+		 */
+		if(m_application.inDevelopmentMode() && cida != null && m_ctx.getRequestResponse() instanceof HttpServerRequestResponse srr) {
+			HttpSession hs = srr.getRequest().getSession();
+			if(null != hs) {
+				m_ctx.internalSetWindowSession(windowSession);            // Should prevent issues when reloading
 
-				HttpSession hs = srr.getRequest().getSession();
-				if(null != hs) {
-					m_ctx.internalSetWindowSession(windowSession);            // Should prevent issues when reloading
-
-					String newid = windowSession.internalAttemptReload(hs, m_runClass, PageParameters.createFrom(m_ctx.getPageParameters()), cida.getWindowId());
-					if(newid != null)
-						conversationId = newid;
-				}
+				String newid = windowSession.internalAttemptReload(hs, m_runClass, PageParameters.createFrom(m_ctx.getPageParameters()), cida.getWindowId());
+				if(newid != null)
+					conversationId = newid;
 			}
 		}
 
@@ -626,13 +622,9 @@ final public class PageRequestHandler {
 
 		//-- 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
 		PageParameters pp = PageParameters.createFrom(m_ctx.getPageParameters());
-		if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
-			HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
-
-			if("post".equalsIgnoreCase(srr.getRequest().getMethod()) && pp.getDataLength() > 768) {
-				m_commandWriter.redirectForPost(m_ctx, windowSession, pp);
-				return;
-			}
+		if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse srr && "post".equalsIgnoreCase(srr.getRequest().getMethod()) && pp.getDataLength() > 768) {
+			m_commandWriter.redirectForPost(m_ctx, windowSession, pp);
+			return;
 		}
 		//-- END POST handling
 
@@ -640,7 +632,10 @@ final public class PageRequestHandler {
 		String pageName = m_ctx.getPageName();
 		String path = m_ctx.getInputPath();
 		if(null != pageName) {
-			UrlAndParameters urlString = m_application.getPageUrlMapping().getUrlString((Class<? extends UrlPage>) Class.forName(pageName), pp);
+			Class<? extends UrlPage> pageClass = (Class<? extends UrlPage>) Class.forName(pageName);
+			if(!UrlPage.class.isAssignableFrom(pageClass))
+				throw new IllegalStateException("Incorrect page name");
+			UrlAndParameters urlString = m_application.getPageUrlMapping().getUrlString(pageClass, pp);
 			if(null != urlString) {
 				path = urlString.getUrl();
 				pp = urlString.getPageParameters();
@@ -742,8 +737,8 @@ final public class PageRequestHandler {
 	private <E extends Exception> boolean handleActionException(Page page, @Nullable NodeBase targetComponent, Exception ex) throws Exception {
 		logUser(page, "Action handler exception: " + ex);
 		Exception x = WrappedException.unwrap(ex);
-		if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
-			String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
+		if(x instanceof NotLoggedInException nlix) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
+			String url = m_application.handleNotLoggedInException(m_ctx, nlix);
 			if(url != null) {
 				ApplicationRequestHandler.generateAjaxRedirect(m_ctx, url);
 				return true;
@@ -794,7 +789,7 @@ final public class PageRequestHandler {
 		} else if(Constants.ACMD_DEVTREE.equals(action)) {
 			handleDevelopmentShowCode(page, targetComponent);
 		} else if(Constants.ACMD_TESTGEN.equals(action)) {
-			handleTestUiCodeGeneratorShow(page, targetComponent);
+			handleTestUiCodeGeneratorShow(page);
 		} else {
 			targetComponent.componentHandleWebAction(m_ctx, action);
 		}
@@ -815,6 +810,7 @@ final public class PageRequestHandler {
 		}
 	}
 
+	@SuppressWarnings("squid:S1066")
 	private void callComponentOnValueChangedHandlers(Page page, String action, List<NodeBase> pendingChangeList, @Nullable NodeBase targetComponent) throws Exception {
 		//-- If we are a vchange command *and* the node that changed still exists make sure it is part of the changed list.
 		if((Constants.ACMD_VALUE_CHANGED.equals(action) || Constants.ACMD_CLICKANDCHANGE.equals(action)) && targetComponent != null) {
@@ -937,16 +933,15 @@ final public class PageRequestHandler {
 
 	private void renderJsonLikeResponse(Page page, @NonNull Object value) throws Exception {
 		m_ctx.renderResponseHeaders(page.getBody());
-		if(value instanceof IDataFactory) {
-			IDataFactory factory = (IDataFactory) value;
+		if(value instanceof IDataFactory factory) {
 			factory.renderOutput(m_ctx);
 			return;
 		}
 
 		Writer w = m_ctx.getOutputWriter("application/json", "utf-8");
-		if(value instanceof String) {
+		if(value instanceof String s) {
 			//-- String return: we'll assume this is a javascript response by itself.
-			w.write((String) value);
+			w.write(s);
 		} else {
 			ObjectMapper om = new ObjectMapper();
 			om.writeValue(w, value);
@@ -1013,17 +1008,12 @@ final public class PageRequestHandler {
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
 				NodeBase nb = page.findNodeByID(name);                // Can we find this literally?
-				if(nb != null) {
-					//-- Try to bind this value to the component.
-					if(nb.acceptRequestParameter(values, pp)) {        // Make the thingy accept the parameter(s)
-						//-- This thing has changed.
-						if(nb instanceof IHasChangeListener) {        // Can have a value changed thingy?
-							IHasChangeListener ch = (IHasChangeListener) nb;
-							if(ch.getOnValueChanged() != null) {
-								changed.add(nb);
-							}
-						}
-					}
+				//-- Try to bind this value to the component.
+				// Make the thingy accept the parameter(s)
+				//-- This thing has changed.
+				// Can have a value changed thingy?
+				if(nb != null && nb.acceptRequestParameter(values, pp) && nb instanceof IHasChangeListener ch && ch.getOnValueChanged() != null) {
+					changed.add(nb);
 				}
 			}
 		}
@@ -1049,7 +1039,7 @@ final public class PageRequestHandler {
 		page.getBody().add(0, ipt);
 	}
 
-	private void handleTestUiCodeGeneratorShow(Page page, NodeBase targetComponent) {
+	private void handleTestUiCodeGeneratorShow(Page page) {
 		PoGenerator.onGeneratePO(page.getBody());
 	}
 
@@ -1104,8 +1094,8 @@ final public class PageRequestHandler {
 			m_applicationRequestHandler.getOopsRenderer().renderOopsFrame(m_ctx, x, AppFilter.isTestMode());
 		} catch(Exception oopx) {
 			LOG.error("Exception while rendering exception page!!?? " + oopx, oopx);
-			if(x instanceof Error) {
-				throw (Error) x;
+			if(x instanceof Error err) {
+				throw err;
 			} else {
 				throw (Exception) x;
 			}
