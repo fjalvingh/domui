@@ -1,6 +1,5 @@
 package to.etc.domui.component.meta;
 
-
 public class MetaCopier<T> extends MetaObjectCopyBase<T> {
 	private T m_copy;
 
@@ -13,9 +12,6 @@ public class MetaCopier<T> extends MetaObjectCopyBase<T> {
 	 * Specify which relation properties need a "deep" copy, where the relation itself is
 	 * also copied. For list properties this implies that all elements of the list are
 	 * copied too.
-	 *
-	 * @param properties
-	 * @return
 	 */
 	public MetaCopier<T> deep(String... properties) {
 		setProperties(Mode.DEEP, properties);
@@ -34,8 +30,6 @@ public class MetaCopier<T> extends MetaObjectCopyBase<T> {
 
 	/**
 	 * Specify a set of properties that should be the only ones copied.
-	 * @param properties
-	 * @return
 	 */
 	public MetaCopier<T> only(String... properties) {
 		setOnly(properties);
@@ -44,7 +38,7 @@ public class MetaCopier<T> extends MetaObjectCopyBase<T> {
 
 	@Override
 	public MetaCopier<T> ignore(String... properties) {
-		ignore(properties);
+		super.ignore(properties);
 		return this;
 	}
 

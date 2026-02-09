@@ -56,18 +56,13 @@ import java.util.List;
 public class ControlBuilder {
 	//	private DomApplication m_app;
 	@NonNull
-	private List<PropertyControlFactory> m_controlFactoryList = new ArrayList<PropertyControlFactory>();
+	private List<PropertyControlFactory> m_controlFactoryList = new ArrayList<>();
 
 	@NonNull
 	private IControlLabelFactory m_controlLabelFactory = new DefaultControlLabelFactory();
 
 	@NonNull
-	private IControlErrorFragmentFactory m_errorFragmentfactory = new IControlErrorFragmentFactory() {
-		@Override
-		public NodeContainer createErrorFragment() {
-			return new ErrorMessageDiv();
-		}
-	};
+	private IControlErrorFragmentFactory m_errorFragmentfactory = () -> new ErrorMessageDiv();
 
 	public ControlBuilder(@NonNull DomApplication app) {
 		//		m_app = app;
@@ -79,10 +74,9 @@ public class ControlBuilder {
 
 	/**
 	 *
-	 * @param cf
 	 */
 	public synchronized void registerControlFactory(@NonNull final PropertyControlFactory cf) {
-		m_controlFactoryList = new ArrayList<PropertyControlFactory>(m_controlFactoryList); // Dup original
+		m_controlFactoryList = new ArrayList<>(m_controlFactoryList); // Dup original
 		m_controlFactoryList.add(cf);
 	}
 
@@ -93,8 +87,9 @@ public class ControlBuilder {
 
 	/**
 	 * Find the best control factory to use to create a control for the given property and mode.
-	 * @param pmm        The property to find a control for
-	 * @param editable    When false this is a displayonly control request.
+	 *
+	 * @param pmm      The property to find a control for
+	 * @param editable When false this is a displayonly control request.
 	 * @return null if no factory is found.
 	 */
 	public PropertyControlFactory findControlFactory(@NonNull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
@@ -162,7 +157,6 @@ public class ControlBuilder {
 
 	/**
 	 *
-	 * @return
 	 */
 	@NonNull
 	public synchronized IControlLabelFactory getControlLabelFactory() {
@@ -179,8 +173,6 @@ public class ControlBuilder {
 	}
 
 	public synchronized void setErrorFragmentfactory(@NonNull IControlErrorFragmentFactory errorFragmentfactory) {
-		if(errorFragmentfactory == null)
-			throw new IllegalArgumentException("Cannot accept null");
 		m_errorFragmentfactory = errorFragmentfactory;
 	}
 
@@ -224,8 +216,6 @@ public class ControlBuilder {
 	};
 
 	public <T> T createControl(@NonNull Class<T> controlClass, @NonNull PropertyMetaModel<?> pmm, boolean editable) {
-		if(controlClass == null)
-			throw new IllegalArgumentException("controlClass cannot be null");
 		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
 		ControlFactoryResult r = cf.createControl(pmm, editable, controlClass);    // FIXME Bad, bad bug: I should be able to create a control without binding!!
 
@@ -257,14 +247,14 @@ public class ControlBuilder {
 		if(vals == null || vals.length == 0)
 			throw new IllegalArgumentException("The type " + type + " is not known as a fixed-size domain type");
 
-		List<ValueLabelPair<T>> vl = new ArrayList<ValueLabelPair<T>>();
+		List<ValueLabelPair<T>> vl = new ArrayList<>();
 		for(T o : vals) {
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), o); // Label known to property?
 			if(label == null)
 				label = o == null ? "" : o.toString();
-			vl.add(new ValueLabelPair<T>(o, label));
+			vl.add(new ValueLabelPair<>(o, label));
 		}
-		ComboFixed<T> c = new ComboFixed<T>(vl);
+		ComboFixed<T> c = new ComboFixed<>(vl);
 		return c;
 	}
 
@@ -282,7 +272,7 @@ public class ControlBuilder {
 			throw new IllegalArgumentException("The type of property " + pmm + " (" + pmm.getActualType() + ") is not known as a fixed-size domain type");
 
 		ClassMetaModel ecmm = null;
-		List<ValueLabelPair<Object>> vl = new ArrayList<ValueLabelPair<Object>>();
+		List<ValueLabelPair<Object>> vl = new ArrayList<>();
 		for(Object o : vals) {
 			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o); // Label known to property?
 			if(label == null) {
@@ -292,10 +282,10 @@ public class ControlBuilder {
 				if(label == null)
 					label = o == null ? "" : o.toString();
 			}
-			vl.add(new ValueLabelPair<Object>(o, label));
+			vl.add(new ValueLabelPair<>(o, label));
 		}
 
-		ComboFixed<?> c = new ComboFixed<Object>(vl);
+		ComboFixed<?> c = new ComboFixed<>(vl);
 		UIControlUtil.configure(c, pmm, editable);
 		return c;
 	}
@@ -305,13 +295,12 @@ public class ControlBuilder {
 	 * domain-valued type (as specified by metadata returning something for getDomainValues()). This version will
 	 * properly use per-property value labels if defined.
 	 *
-	 * @param dataClass        The class whose property is to be looked up
-	 * @param property        The property path
+	 * @param dataClass The class whose property is to be looked up
+	 * @param property  The property path
 	 */
 	public ComboFixed<?> createComboFor(Class<?> dataClass, String property, boolean editable) {
 		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(dataClass, property);
 		return createComboFor(pmm, editable);
 	}
-
 
 }

@@ -73,7 +73,10 @@ public class TestDbQCriteria {
 	@Test
 	public void testReload2() throws Exception {
 		List<Album> albums = dc().query(QCriteria.create(Album.class));
-		for(Album album : albums) {
+		if(albums.isEmpty()) {
+			Assert.fail("No suitable test records found");
+		} else {
+			Album album = albums.get(0);
 			Artist artist = album.getArtist();
 			System.out.println(">> " + artist.getClass().getName());
 
@@ -81,10 +84,7 @@ public class TestDbQCriteria {
 			Artist a = dc().reload(artist);
 
 			Assert.assertEquals("Should be same Artist instance", artist, a);
-			return;
 		}
-
-		Assert.fail("No suitable test records found");
 	}
 
 	/**

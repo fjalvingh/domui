@@ -63,10 +63,10 @@ import java.util.Map;
  * <p>Getting an original image is nice but it's often not really needed - we usually need to have some specific transformed version
  * of the original, like:
  * <ul>
- *	<li>Page 7 of the original image (tiffs and the like)</li>
- *	<li>A resized copy of the original which fits the screen</li>
- *	<li>A thumbnail of the original</li>
- *	<li>A thumbnail of page 12 of the original...</li>
+ * 	<li>Page 7 of the original image (tiffs and the like)</li>
+ * 	<li>A resized copy of the original which fits the screen</li>
+ * 	<li>A thumbnail of the original</li>
+ * 	<li>A thumbnail of page 12 of the original...</li>
  * </ul>
  * This code allows you to retrieve an original image and add <i>permutations</i> to that image: operations to the image
  * that somehow transform it in another version of it. Adding permutations must be done in order: for a paged set you
@@ -120,18 +120,18 @@ import java.util.Map;
  * 	<li>Using the cacheKey, try to locate the image in the hashmap by finding the ImageRoot, then walking the CachedImageData list
  * 		to find a matching image. If we find one we return it's REF which prevents it's data from being GC'd. We also update
  * 		it's LRU location to most-recently-used.</li>
- *	<li>If not found AND the requested thing is not the ORIGINAL image we try to load it from the file system's cache location. We
- *		determine the filename that the copy would have then load it. If this load succeeds we enter it in the cache and return it's
- *		REF.</li>
- *	<li>If still not found we at the very least need the ORIGINAL (source). IF we are requesting a permutated original (not the
- *		original itself) we try to get that by doing another cache lookup. If we are locating the original itself another lookup
- *		is useless because the first lookup would have located it.</li>
- *	<li>If the original is NOT FOUND we use the factory provided to retrieve the image and it's data. The image is then entered
- *		in the cache (as the ORIGINAL) and it's REF is kept. If the original lookup <i>was</i> for the original image this REF
- *		is returned and we're done.</li>
- *	<li>Now we are sure to HAVE the original's REF, and we're sure we have to obtain some permutation of that original. Create the
- *		permutation of the original (resize, page) and store it in the file system at the appropriate location. Then add the
- *		permutation to the cache and return it's REF.
+ * 	<li>If not found AND the requested thing is not the ORIGINAL image we try to load it from the file system's cache location. We
+ * 		determine the filename that the copy would have then load it. If this load succeeds we enter it in the cache and return it's
+ * 		REF.</li>
+ * 	<li>If still not found we at the very least need the ORIGINAL (source). IF we are requesting a permutated original (not the
+ * 		original itself) we try to get that by doing another cache lookup. If we are locating the original itself another lookup
+ * 		is useless because the first lookup would have located it.</li>
+ * 	<li>If the original is NOT FOUND we use the factory provided to retrieve the image and it's data. The image is then entered
+ * 		in the cache (as the ORIGINAL) and it's REF is kept. If the original lookup <i>was</i> for the original image this REF
+ * 		is returned and we're done.</li>
+ * 	<li>Now we are sure to HAVE the original's REF, and we're sure we have to obtain some permutation of that original. Create the
+ * 		permutation of the original (resize, page) and store it in the file system at the appropriate location. Then add the
+ * 		permutation to the cache and return it's REF.
  * </ul>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -142,34 +142,45 @@ public class ImageCache {
 
 	static private ImageCache m_instance;
 
-	/** The images file cache. */
+	/**
+	 * The images file cache.
+	 */
 	private FileCache m_fileCache;
 
 	//	private long m_maxFileSize = 10l * 1024l * 1024l * 1024l;
 	//
 	//	private long m_currentFileSize = 0;
 
-
 	//	/** Max. #bytes we may allocate on the file system for cached data; defaults to 1GB */
 	//	private long				m_maxFileCacheSize = 1024l * 1024l * 1024l;
 	//
 	//	private long				m_currentFileCacheSize;
 
-	/** The max. #bytes that this cache may use in memory; defaults to 32M */
-	private long m_maxMemorySize = 32 * 1024 * 1024;
+	/**
+	 * The max. #bytes that this cache may use in memory; defaults to 32M
+	 */
+	private long m_maxMemorySize = 32L * 1024 * 1024;
 
 	private long m_currentMemorySize;
 
-	/** The max. size in bytes that a result may be to be cacheable in memory (5MB default). Any stream larger will be cached on the file system. */
+	/**
+	 * The max. size in bytes that a result may be to be cacheable in memory (5MB default). Any stream larger will be cached on the file system.
+	 */
 	private int m_memoryFenceSize = 5 * 1024 * 1024;
 
-	/** The set of registered original image factories */
-	private Map<String, IImageRetriever> m_factoryMap = new HashMap<String, IImageRetriever>();
+	/**
+	 * The set of registered original image factories
+	 */
+	private Map<String, IImageRetriever> m_factoryMap = new HashMap<>();
 
-	/** The map of keys to their image root */
-	private Map<ImageKey, ImageRoot> m_cacheMap = new HashMap<ImageKey, ImageRoot>();
+	/**
+	 * The map of keys to their image root
+	 */
+	private Map<ImageKey, ImageRoot> m_cacheMap = new HashMap<>();
 
-	private CachedImageFragment m_lruFirst, m_lruLast;
+	private CachedImageFragment m_lruFirst;
+
+	private CachedImageFragment m_lruLast;
 
 	//	/** File ID counters */
 	//	private int[] m_counters = new int[4];
@@ -182,9 +193,9 @@ public class ImageCache {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization related code.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Get the singleton image cache.
-	 * @return
 	 */
 	static synchronized public ImageCache getInstance() {
 		if(m_instance == null)
@@ -204,7 +215,6 @@ public class ImageCache {
 
 	/**
 	 * Add a new image factory.
-	 * @param r
 	 */
 	public synchronized void addRetriever(IImageRetriever r) {
 		IImageRetriever old;
@@ -222,7 +232,6 @@ public class ImageCache {
 			return null;
 		return new ImageKey(ir, instancekey);
 	}
-
 
 	//	synchronized File createTemp() {
 	//		int fnr = m_counters[m_counters.length - 1]++;
@@ -265,6 +274,7 @@ public class ImageCache {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Image task initialization.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * <p>Create a new ImageTask for some action to pass through the cache. The ImageTask
 	 * structure is used to maintain state and objects while some image or transformation
@@ -275,20 +285,17 @@ public class ImageCache {
 	 * the key and asks it's modification date; if that one has changed since last time
 	 * all cached resources are freed and retrieved anew.
 	 *
-	 * @param key	The key of the image.
-	 * @return	The root entry to use for that instance. This entry can be mostly empty!
+	 * @param key The key of the image.
 	 */
 	@NonNull
 	private ImageTask getImageTask(ImageKey key) throws Exception {
 		synchronized(this) {
-			ImageRoot r = m_cacheMap.get(key);
-			if(r == null) {
-				r = new ImageRoot(this, key);
-				m_cacheMap.put(key, r);
-				r.m_cacheUseCount = 1;
-			}
-			ImageTask task = new ImageTask(key, r);
-			return task;
+			ImageRoot r = m_cacheMap.computeIfAbsent(key, a -> {
+				ImageRoot sr = new ImageRoot(this, key);
+				sr.m_cacheUseCount = 1;
+				return sr;
+			});
+			return new ImageTask(key, r);
 		}
 	}
 
@@ -310,7 +317,9 @@ public class ImageCache {
 		} finally {
 			try {
 				it.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- sigh
+			}
 			updateCacheDetails(it);
 		}
 	}
@@ -338,6 +347,7 @@ public class ImageCache {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	User accessable calls.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Task to call getOriginalData().
 	 */
@@ -357,8 +367,6 @@ public class ImageCache {
 
 	/**
 	 * Return a data reference to the original image's data.
-	 * @param k
-	 * @return
 	 */
 	public IImageStreamSource getOriginalData(ImageKey k) throws Exception {
 		CachedImageData cid = (CachedImageData) executeTask(k, C_GETORIGINALDATA, null);
@@ -374,8 +382,6 @@ public class ImageCache {
 
 	/**
 	 * Return a data reference to the original image's info.
-	 * @param k
-	 * @return
 	 */
 	public ImageInfo getOriginalInfo(ImageKey k) throws Exception {
 		return ((CachedImageInfo) executeTask(k, C_GETORIGINALINFO, null)).getImageInfo();
@@ -404,10 +410,6 @@ public class ImageCache {
 
 	/**
 	 *
-	 * @param k
-	 * @param convlist
-	 * @return
-	 * @throws Exception
 	 */
 	public IImageStreamSource getImageData(ImageKey k, List<IImageConversionSpecifier> convlist) throws Exception {
 		CachedImageData cid = (CachedImageData) executeTask(k, C_GETCONVERTEDDATA, convlist);
@@ -419,13 +421,8 @@ public class ImageCache {
 		return cid.getImageInfo();
 	}
 
-
 	/**
 	 * Get full image data: both the data source AND it's info.
-	 * @param k
-	 * @param convlist
-	 * @return
-	 * @throws Exception
 	 */
 	public FullImage getFullImage(ImageKey k, List<IImageConversionSpecifier> convlist) throws Exception {
 		return (FullImage) executeTask(k, C_GETFULLINFO, convlist);
@@ -435,11 +432,11 @@ public class ImageCache {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Administration.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Registers an instance. When called it is implied that initialization WORKED and that the
 	 * thingy contains a valid resource.
 	 * This must take care of the race conditions caused by the double-lock initialization.
-	 * @param ii
 	 */
 	private void registerAndLink(CachedImageFragment ii) {
 		//-- Atomically add in new cache load, and if it exceeds the maximum reap the thingies to remove.
@@ -455,7 +452,7 @@ public class ImageCache {
 				return;
 
 			//-- Determine the oldest pages && discard 'm
-			dellist = new ArrayList<CachedImageFragment>();
+			dellist = new ArrayList<>();
 			int count = 0;
 			long size = 0;
 			while(m_lruLast != m_lruFirst && m_currentMemorySize > m_maxMemorySize) {
@@ -470,10 +467,9 @@ public class ImageCache {
 
 				//-- Decrement the root's use count; if it becomes zero we'll discard this root.
 				ImageRoot ir = itd.getRoot();
-				if(ir.m_cacheUseCount > 0) { // Not already removed sometimes before?
-					if(--ir.m_cacheUseCount == 0) {
-						m_cacheMap.remove(ir.getKey()); // Drop from cache @ this point.
-					}
+				// Not already removed sometimes before?
+				if(ir.m_cacheUseCount > 0 && --ir.m_cacheUseCount == 0) {
+					m_cacheMap.remove(ir.getKey()); // Drop from cache @ this point.
 				}
 			}
 			LOG.info("ImageCache: reaped " + count + " image instances totalling " + size + " bytes");

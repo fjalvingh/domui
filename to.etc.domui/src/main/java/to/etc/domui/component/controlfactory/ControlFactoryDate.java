@@ -47,14 +47,15 @@ import java.util.Date;
 public class ControlFactoryDate implements PropertyControlFactory {
 	/**
 	 * Accept java.util.Date class <i>only</i>.
+	 *
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(@NonNull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public int accepts(@NonNull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(DateInput.class))
 			return -1;
 
-		Class< ? > iclz = pmm.getActualType();
+		Class<?> iclz = pmm.getActualType();
 		if(Date.class.isAssignableFrom(iclz)) {
 			return 2;
 		}
@@ -63,24 +64,22 @@ public class ControlFactoryDate implements PropertyControlFactory {
 
 	@NonNull
 	@Override
-	public <T> ControlFactoryResult createControl(@NonNull final PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public <T> ControlFactoryResult createControl(@Nullable final PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class<?> controlClass) {
 		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
 			//			Text<Date> txt = new Text<Date>(Date.class);
 			//			txt.setReadOnly(true);
 			// FIXME EXPERIMENTAL Replace the TEXT control with a DisplayValue control.
-			DisplayValue<Date> txt = new DisplayValue<Date>(Date.class);
+			DisplayValue<Date> txt = new DisplayValue<>(Date.class);
 
 			//20100208 vmijic - fixed readonly presentation for date fields.
-			Class< ? extends IConverter<Date>> cc;
+			Class<? extends IConverter<Date>> cc;
 			if(pmm == null)
 				cc = DateTimeConverter.class;
 			else {
-				switch(pmm.getTemporal()){
+				switch(pmm.getTemporal()) {
 					default:
 						throw new IllegalStateException("Unsupported temporal metadata type: " + pmm.getTemporal());
-					case UNKNOWN:
-						/*$FALL_THROUGH$*/
-					case DATETIME:
+					case UNKNOWN, DATETIME:
 						cc = DateTimeConverter.class;
 						break;
 					case DATE:
