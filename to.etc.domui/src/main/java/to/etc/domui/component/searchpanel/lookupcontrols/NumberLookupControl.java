@@ -134,29 +134,27 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		}
 		StringBuilder sb = new StringBuilder();
 		QOperation from = value.getFromOperation();
-		if(from != null) {
-			switch(from) {
-				default:
-					throw new IllegalStateException("Unsupported operation: " + from);
-				case EQ:
-					break;
-				case LE:
-					sb.append("<=");
-					break;
-				case LT:
-					sb.append("<");
-					break;
-				case GT:
-					sb.append(">");
-					break;
-				case GE:
-					sb.append(">=");
-					break;
-				case ISNOTNULL:
-					return "*";
-				case ISNULL:
-					return "!";
-			}
+		switch(from) {
+			default:
+				throw new IllegalStateException("Unsupported operation: " + from);
+			case EQ:
+				break;
+			case LE:
+				sb.append("<=");
+				break;
+			case LT:
+				sb.append("<");
+				break;
+			case GT:
+				sb.append(">");
+				break;
+			case GE:
+				sb.append(">=");
+				break;
+			case ISNOTNULL:
+				return "*";
+			case ISNULL:
+				return "!";
 		}
 
 		Number number = value.getFrom();
@@ -165,7 +163,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		QOperation to = value.getToOperation();
 		if(null != to) {
 			sb.append(" ");
-			switch(from) {
+			switch(to) {
 				default:
 					throw new IllegalStateException("Unsupported operation: " + from);
 				case LE:
@@ -217,7 +215,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		if(Character.isDigit(m_s.LA()) || m_s.LA() == '-' || m_s.LA() == '+' || m_s.LA() == '%') {
 			//-- Does not start with operation: can only be number or a number with like
 			String v = scanNumeric(true);
-			if(v == null || "".equals(v))
+			if(v.isEmpty())
 				throw new ValidationException(Msgs.uiLookupInvalid);
 			if(v.contains("%") && m_allowLike) {
 				m_s.skipWs();
@@ -354,9 +352,8 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 			if(vx.getCode().equals(Msgs.vTooLarge)) {
 				if(m_maxValue != null)
 					throw new ValidationException(Msgs.vTooLarge, m_maxValue);
-			} else if(vx.getCode().equals(Msgs.vTooSmall)) {
-				if(m_minValue != null)
-					throw new ValidationException(Msgs.vTooSmall, m_minValue);
+			} else if(vx.getCode().equals(Msgs.vTooSmall) && m_minValue != null) {
+				throw new ValidationException(Msgs.vTooSmall, m_minValue);
 			}
 			throw vx;
 		}

@@ -11,7 +11,7 @@ import java.util.Date;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 3-12-17.
  */
-public class DateLookupQueryBuilder<T> implements ILookupQueryBuilder<T, DatePeriod> {
+final public class DateLookupQueryBuilder<T> implements ILookupQueryBuilder<T, DatePeriod> {
 	private final String m_propertyName;
 
 	public DateLookupQueryBuilder(String propertyName) {
@@ -26,9 +26,15 @@ public class DateLookupQueryBuilder<T> implements ILookupQueryBuilder<T, DatePer
 		Date from = lookupValue.getFrom();
 		Date till = lookupValue.getTo();
 
-		if(from == null && till == null)
-			return LookupQueryBuilderResult.EMPTY;
-		if(from != null && till != null) {
+		if(from == null) {
+			if(till == null) {
+				return LookupQueryBuilderResult.EMPTY;
+			} else {
+				criteria.lt(m_propertyName, till);
+			}
+		} else if(till == null) {
+			criteria.ge(m_propertyName, from);
+		} else {
 			if(from.getTime() > till.getTime()) {
 				Date tmp = from;
 				from = till;
@@ -38,12 +44,7 @@ public class DateLookupQueryBuilder<T> implements ILookupQueryBuilder<T, DatePer
 			//-- Between query
 			criteria.ge(m_propertyName, from);
 			criteria.lt(m_propertyName, till);
-		} else if(from != null) {
-			criteria.ge(m_propertyName, from);
-		} else if(till != null) {
-			criteria.lt(m_propertyName, till);
-		} else
-			throw new IllegalStateException("Logic error");
+		}
 		return LookupQueryBuilderResult.VALID;
 	}
 }

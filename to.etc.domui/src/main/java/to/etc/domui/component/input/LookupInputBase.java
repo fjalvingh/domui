@@ -819,7 +819,7 @@ abstract public class LookupInputBase<Q, O> extends AbstractLookupInputBase<Q, O
 	 * Define the full column spec in the format described for {@link RowRenderer} for the dropdown box
 	 * showing quick search results.
 	 */
-	public void addDropdownColumns(@NonNull Object... columns) {
+	public void addDropdownColumns(@NonNull String... columns) {
 		getDropdownRowRenderer().addColumns(columns);
 	}
 
@@ -829,7 +829,7 @@ abstract public class LookupInputBase<Q, O> extends AbstractLookupInputBase<Q, O
 	 */
 	@Deprecated
 	public void setResultColumns(@NonNull String... resultColumns) {
-		addDropdownColumns((Object[]) resultColumns);
+		addDropdownColumns(resultColumns);
 		addFormColumns((Object[]) resultColumns);
 	}
 

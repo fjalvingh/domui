@@ -47,27 +47,33 @@ final public class NumberLookupValue {
 		m_toOperation = toOperation;
 	}
 
-	@Nullable public Number getFrom() {
+	@Nullable
+	public Number getFrom() {
 		return m_from;
 	}
 
-	@Nullable public String getLikeString() {
+	@Nullable
+	public String getLikeString() {
 		return m_likeString;
 	}
 
-	@NonNull public QOperation getFromOperation() {
+	@NonNull
+	public QOperation getFromOperation() {
 		return m_fromOperation;
 	}
 
-	@Nullable public Number getTo() {
+	@Nullable
+	public Number getTo() {
 		return m_to;
 	}
 
-	@Nullable public QOperation getToOperation() {
+	@Nullable
+	public QOperation getToOperation() {
 		return m_toOperation;
 	}
 
-	@Override public boolean equals(Object o) {
+	@Override
+	public boolean equals(Object o) {
 		if(this == o)
 			return true;
 		if(o == null || getClass() != o.getClass())
@@ -79,7 +85,8 @@ final public class NumberLookupValue {
 			m_toOperation == that.m_toOperation;
 	}
 
-	@Override public int hashCode() {
+	@Override
+	public int hashCode() {
 		return Objects.hash(m_from, m_fromOperation, m_to, m_toOperation);
 	}
 }

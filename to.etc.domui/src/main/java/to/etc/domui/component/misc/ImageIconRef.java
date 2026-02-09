@@ -3,7 +3,6 @@ package to.etc.domui.component.misc;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.Span;
 import to.etc.util.FileTool;
 
 /**
@@ -42,11 +41,9 @@ final public class ImageIconRef implements IIconRef {
 		return m_path;
 	}
 
-	@Override public NodeBase createNode(String cssClasses) {
+	@Override
+	public NodeBase createNode(String cssClasses) {
 		String path = getPath();
-		if(null == path) {
-			return new Span("ui-icon-empty " + cssClasses, "");
-		}
 		String ext = FileTool.getFileExtension(path).toLowerCase();
 		if("svg".equals(ext))
 			return new SvgIcon(path).css(cssClasses);
@@ -57,7 +54,8 @@ final public class ImageIconRef implements IIconRef {
 		}
 	}
 
-	@Override public IIconRef css(@NonNull String... classes) {
+	@Override
+	public IIconRef css(@NonNull String... classes) {
 		return new ImageIconRef(m_path, classes);
 	}
 }

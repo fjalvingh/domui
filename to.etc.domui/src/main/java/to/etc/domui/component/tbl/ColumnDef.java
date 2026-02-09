@@ -20,7 +20,9 @@ final public class ColumnDef<I, T> {
 	@NonNull
 	final private Class<T> m_actualClass;
 
-	/** The label text, if needed, to use as the column heading */
+	/**
+	 * The label text, if needed, to use as the column heading
+	 */
 	@Nullable
 	private String m_columnLabel;
 
@@ -36,11 +38,15 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private ISortHelper<?> m_sortHelper;
 
-	/** If this is a column for the entire entity, this name defines the sort property to use if the sort button is pressed */
+	/**
+	 * If this is a column for the entire entity, this name defines the sort property to use if the sort button is pressed
+	 */
 	@Nullable
 	private String m_sortProperty;
 
-	/** Some special width, like "1%" */
+	/**
+	 * Some special width, like "1%"
+	 */
 	@Nullable
 	private String m_width;
 
@@ -53,15 +59,21 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private String m_headerCssClass;
 
-	/** Set from metadata, specifies the width in characters. */
+	/**
+	 * Set from metadata, specifies the width in characters.
+	 */
 	private int m_characterWidth;
 
-	/** Specifies the max width in characters. */
+	/**
+	 * Specifies the max width in characters.
+	 */
 	private int m_maxCharacterWidth;
 
 	private boolean m_nowrap = true;
 
-	/** If bound to a property: the metamodel for the property. This is null if the column binds to the entire row object. */
+	/**
+	 * If bound to a property: the metamodel for the property. This is null if the column binds to the entire row object.
+	 */
 	@Nullable
 	private PropertyMetaModel<T> m_propertyMetaModel;
 
@@ -83,7 +95,9 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private String m_hint;
 
-	/** @since 2014/1/2 T when this should create an editable component bound to the column's value. */
+	/**
+	 * @since 2014/1/2 T when this should create an editable component bound to the column's value.
+	 */
 	private boolean m_editable;
 
 	private IRowControlFactory<I> m_controlFactory;
@@ -162,6 +176,7 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Create an editable component bound to the column's value.
+	 *
 	 * @since 2013/1/2
 	 */
 	@NonNull
@@ -320,7 +335,7 @@ final public class ColumnDef<I, T> {
 	}
 
 	public void setSortable(@NonNull SortableType sortable) {
-		m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
+		m_sortable = sortable;
 	}
 
 	@NonNull
@@ -551,7 +566,7 @@ final public class ColumnDef<I, T> {
 	}
 
 	public ColumnStyleBindingBuilder<I, T> styleBinding(StyleBinder style) {
-		ColumnStyleBindingBuilder<I, T> csb = new ColumnStyleBindingBuilder<I, T>(this, style);
+		ColumnStyleBindingBuilder<I, T> csb = new ColumnStyleBindingBuilder<>(this, style);
 		return csb;
 	}
 

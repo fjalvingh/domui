@@ -26,8 +26,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	@Override
 	public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm, @NonNull DefaultPropertyMetaModel<?> pmm) throws Exception {
 		for(Object aobj : pmm.getAnnotations()) {
-			if(aobj instanceof Annotation) {
-				Annotation an = (Annotation) aobj;
+			if(aobj instanceof Annotation an) {
 				String ana = an.annotationType().getName();
 				decodePropertyAnnotationByName(cmm, pmm, an, ana);
 			}
@@ -49,8 +48,6 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	@Nullable
 	private Field getPropertyField(@NonNull DefaultPropertyMetaModel<?> pmm) {
 		Class<?> clz = pmm.getClassModel().getActualClass();
-		if(null == clz)
-			throw new IllegalStateException("getActualClass was null on classModel of " + pmm);
 
 		//-- Walk this class and its parent, and find the 1st private field with this name
 		for(; ; ) {
@@ -58,6 +55,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 				Field field = clz.getDeclaredField(pmm.getName());
 				return field;
 			} catch(NoSuchFieldException x) {
+				//-- Ignore, try parent class
 			}
 
 			clz = clz.getSuperclass();
@@ -127,10 +125,9 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 			 */
 			Integer iv = (Integer) DomUtil.getClassValue(an, "length");
 			pmm.setLength(iv.intValue());
-			if(pmm.getLength() == 255) { // Idiot value?
-				if(pmm.getActualType() != String.class)
-					pmm.setLength(-1);
-			}
+			// Idiot value?
+			if(pmm.getLength() == 255 && pmm.getActualType() != String.class)
+				pmm.setLength(-1);
 
 			Boolean bv = (Boolean) DomUtil.getClassValue(an, "nullable");
 			pmm.setRequired(!bv.booleanValue());
