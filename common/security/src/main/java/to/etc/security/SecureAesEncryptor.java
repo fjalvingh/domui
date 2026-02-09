@@ -32,6 +32,8 @@ final public class SecureAesEncryptor {
 	private final static int PBKDF2_SALT_SIZE = 16;
 	private final static int PBKDF2_ITERATIONS = 32767;
 
+	private static final SecureRandom RANDOM_GENERATOR = new SecureRandom();
+
 	private SecureAesEncryptor() {
 		// unused
 	}
@@ -118,8 +120,7 @@ final public class SecureAesEncryptor {
 	@NonNull
 	private static byte[] createRandom(int size) {
 		byte[] data = new byte[size];
-		SecureRandom rand = new SecureRandom();
-		rand.nextBytes(data);
+		RANDOM_GENERATOR.nextBytes(data);
 		return data;
 	}
 

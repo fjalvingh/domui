@@ -43,9 +43,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 final public class ClassUtil {
 	private ClassUtil() {
@@ -220,8 +222,8 @@ final public class ClassUtil {
 
 		//-- Construct actual list
 		List<PropertyInfo> res = new ArrayList<PropertyInfo>();
-		for(String name : map.keySet()) {
-			Info i = map.get(name);
+		for(Entry<String, Info> en : map.entrySet()) {
+			Info i = en.getValue();
 			if(i.getter == null)
 				continue;
 			Method setter = null;
@@ -238,7 +240,7 @@ final public class ClassUtil {
 			if(resolvedPropertyType == null)
 				resolvedPropertyType = i.getter.getReturnType();
 
-			res.add(new PropertyInfo(name, i.getter, setter, resolvedPropertyType));
+			res.add(new PropertyInfo(en.getKey(), i.getter, setter, resolvedPropertyType));
 		}
 		return res;
 	}
@@ -284,11 +286,7 @@ final public class ClassUtil {
 
 		boolean pvt = Modifier.isPrivate(mod);
 		name = sb.toString();
-		Info i = map.get(name);
-		if(i == null) {
-			i = new Info();
-			map.put(name, i);
-		}
+		Info i = map.computeIfAbsent(name, k -> new Info());
 
 		//-- Private rules: a property is private only if the getter is private.
 		if(pvt) {
@@ -577,9 +575,7 @@ final public class ClassUtil {
 	 * name of a method that *must* exist; it does not add a "get". If the method
 	 * does not exist this throws an exception.
 	 */
-	static public final Object getClassValue(@NonNull final Object inst, @NonNull final String name) throws Exception {
-		if(inst == null)
-			throw new IllegalStateException("The input object is null");
+	static public Object getClassValue(@NonNull final Object inst, @NonNull final String name) throws Exception {
 		Class< ? > clz = inst.getClass();
 		Method m;
 		try {
@@ -701,9 +697,7 @@ final public class ClassUtil {
 	}
 
 	private static void calculateAllFields(List<Field> all, Class<?> clz) {
-		for(Field declaredField : clz.getDeclaredFields()) {
-			all.add(declaredField);
-		}
+		Collections.addAll(all, clz.getDeclaredFields());
 
 		if(clz.getSuperclass() != Object.class) {
 			calculateAllFields(all, clz.getSuperclass());
@@ -735,7 +729,7 @@ final public class ClassUtil {
 
 	@Nullable
 	public static Class<?> findSubClassParameterType(Class<?> instanceClass, Class<?> classOfInterest, Type valueType) {
-		Map<Type, Type> typeMap = new HashMap<Type, Type>();
+		Map<Type, Type> typeMap = new HashMap<>();
 		do {
 			extractTypeArguments(typeMap, instanceClass);
 			instanceClass = instanceClass.getSuperclass();
@@ -743,7 +737,6 @@ final public class ClassUtil {
 				return null;									// Subclass containing classOfInterest not found
 		} while(classOfInterest != instanceClass);
 
-		//ParameterizedType parameterizedType = (ParameterizedType) instanceClass.getGenericSuperclass();
 		Type actualType = valueType;
 		if(typeMap.containsKey(actualType)) {
 			actualType = typeMap.get(actualType);
@@ -774,47 +767,4 @@ final public class ClassUtil {
 			typeMap.put(typeParameter[i], actualTypeArgument[i]);
 		}
 	}
-
-
-	/**
-	 * Only works when the option
-	 * <pre>
-	 *     --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
-	 * </pre>
-	 *
-	 * is added to the runtime, because the idiots defining Java 9 could not
-	 * get it into their tiny brain that there are legitimate reasons to
-	 * want to know the jars that build the classpath - despite their
-	 * horror of a module system.
-	 */
-	static public List<URL> findClassloaderURLs_JAVA11_ONLYWITHOPTION(Class<?> root) {
-		ClassLoader cl = root.getClassLoader();
-		List<URL> res = new ArrayList<>();
-		collectUrls(res, cl);
-		for(URL re : res) {
-			System.out.println(re.toString());
-		}
-		return res;
-	}
-
-	static private void collectUrls(List<URL> res, ClassLoader cl) {
-		try {
-			Field ucp = cl.getClass().getDeclaredField("ucp");		// Fuck the morons that fucked this up
-			ucp.setAccessible(true);
-			Object path = ucp.get(cl);										// Also hidden. Fuck them again.
-			Field listField = path.getClass().getDeclaredField("path");
-			listField.setAccessible(true);
-			List<URL> list = (List<URL>) listField.get(path);
-			res.addAll(list);
-		} catch(Exception x) {
-			x.printStackTrace();
-		}
-		ClassLoader parent = cl.getParent();
-		if(parent == null || parent == cl)
-			return;
-		collectUrls(res, parent);
-	}
-
-
-
 }

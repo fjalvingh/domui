@@ -50,6 +50,10 @@ public class ColorQuantize {
 			SHIFT[i] = 1 << (15 - i);
 	}
 
+	private ColorQuantize() {
+		// empty
+	}
+
 	static public void reduce(BufferedImage bi) {
 
 	}
@@ -60,50 +64,50 @@ public class ColorQuantize {
 	 *
 	 * @return The new color palette.
 	 */
-	public static int[] quantizeImage(int pixels[][], int max_colors) {
-		Cube cube = new Cube(pixels, max_colors);
+	public static int[] quantizeImage(int pixels[][], int maxColors) {
+		Cube cube = new Cube(pixels, maxColors);
 		cube.classification();
 		cube.reduction();
 		cube.assignment();
-		return cube.colormap;
+		return cube.m_colormap;
 	}
 
 	static class Cube {
 		int m_pixels[][];
 
-		int max_colors;
+		int m_maxColors;
 
-		int colormap[];
+		int m_colormap[];
 
-		Node root;
+		Node m_root;
 
-		int depth;
+		int m_depth;
 
 		// counter for the number of colors in the cube. this gets
 		// recalculated often.
-		int colors;
+		int m_colors;
 
 		// counter for the number of nodes in the tree
-		int nodes;
+		int m_nodes;
 
-		Cube(int pixels[][], int max_colors) {
-			this.m_pixels = pixels;
-			this.max_colors = max_colors;
+		Cube(int[][] pixels, int maxColors) {
+			m_pixels = pixels;
+			m_maxColors = maxColors;
 
-			int i = max_colors;
+			int i = m_maxColors;
 			// tree_depth = log max_colors
 			//                 4
-			for(depth = 1; i != 0; depth++)
+			for(m_depth = 1; i != 0; m_depth++)
 				i /= 4;
 
-			if(depth > 1)
-				--depth;
+			if(m_depth > 1)
+				--m_depth;
 
-			if(depth > MAX_TREE_DEPTH)
-				depth = MAX_TREE_DEPTH;
-			else if(depth < 2)
-				depth = 2;
-			root = new Node(this);
+			if(m_depth > MAX_TREE_DEPTH)
+				m_depth = MAX_TREE_DEPTH;
+			else if(m_depth < 2)
+				m_depth = 2;
+			m_root = new Node(this);
 		}
 
 		/**
@@ -159,16 +163,16 @@ public class ColorQuantize {
 					int blue = pixel & 0xFF;
 
 					// a hard limit on the number of nodes in the tree
-					if(nodes > MAX_NODES) {
+					if(m_nodes > MAX_NODES) {
 						System.out.println("pruning");
-						root.pruneLevel();
-						--depth;
+						m_root.pruneLevel();
+						--m_depth;
 					}
 
 					// walk the tree to depth, increasing the
 					// number_pixels count for each node
-					Node node = root;
-					for(int level = 1; level <= depth; ++level) {
+					Node node = m_root;
+					for(int level = 1; level <= m_depth; ++level) {
 						int id = ((red > node.mid_red ? 1 : 0) | ((green > node.mid_green ? 1 : 0) << 1) | ((blue > node.mid_blue ? 1 : 0) << 2));
 						if(node.child[id] == null)
 							new Node(node, id, level);
@@ -199,9 +203,9 @@ public class ColorQuantize {
 		 */
 		void reduction() {
 			int threshold = 1;
-			while(colors > max_colors) {
-				colors = 0;
-				threshold = root.reduce(threshold, Integer.MAX_VALUE);
+			while(m_colors > m_maxColors) {
+				m_colors = 0;
+				threshold = m_root.reduce(threshold, Integer.MAX_VALUE);
 			}
 		}
 
@@ -235,10 +239,10 @@ public class ColorQuantize {
 		 * the index of this node's mean color in the color map.
 		 */
 		void assignment() {
-			colormap = new int[colors];
+			m_colormap = new int[m_colors];
 
-			colors = 0;
-			root.colormap();
+			m_colors = 0;
+			m_root.colormap();
 
 			int pixels[][] = this.m_pixels;
 
@@ -256,7 +260,7 @@ public class ColorQuantize {
 					int blue = pixel & 0xFF;
 
 					// walk the tree to find the cube containing that color
-					Node node = root;
+					Node node = m_root;
 					for(; ; ) {
 						int id = (((red > node.mid_red ? 1 : 0) << 0) | ((green > node.mid_green ? 1 : 0) << 1) | ((blue > node.mid_blue ? 1 : 0) << 2));
 						if(node.child[id] == null)
@@ -345,9 +349,9 @@ public class ColorQuantize {
 				this.level = level;
 
 				// add to the cube
-				++cube.nodes;
-				if(level == cube.depth) {
-					++cube.colors;
+				++cube.m_nodes;
+				if(level == cube.m_depth) {
+					++cube.m_colors;
 				}
 
 				// add to the parent
@@ -372,7 +376,7 @@ public class ColorQuantize {
 				parent.total_green += total_green;
 				parent.total_blue += total_blue;
 				parent.child[m_id] = null;
-				--cube.nodes;
+				--cube.m_nodes;
 				cube = null;
 				parent = null;
 			}
@@ -387,7 +391,7 @@ public class ColorQuantize {
 							child[id].pruneLevel();
 					}
 				}
-				if(level == cube.depth)
+				if(level == cube.m_depth)
 					pruneChild();
 			}
 
@@ -409,7 +413,7 @@ public class ColorQuantize {
 					pruneChild();
 				else {
 					if(unique != 0)
-						cube.colors++;
+						cube.m_colors++;
 
 					if(number_pixels < next_threshold)
 						next_threshold = number_pixels;
@@ -434,8 +438,8 @@ public class ColorQuantize {
 					int r = ((total_red + (unique >> 1)) / unique);
 					int g = ((total_green + (unique >> 1)) / unique);
 					int b = ((total_blue + (unique >> 1)) / unique);
-					cube.colormap[cube.colors] = (((0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | ((b & 0xFF) << 0));
-					color_number = cube.colors++;
+					cube.m_colormap[cube.m_colors] = (((0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF));
+					color_number = cube.m_colors++;
 				}
 			}
 
@@ -452,7 +456,7 @@ public class ColorQuantize {
 				}
 
 				if(unique != 0) {
-					int color = cube.colormap[color_number];
+					int color = cube.m_colormap[color_number];
 					int distance = distance(color, red, green, blue);
 					if(distance < search.distance) {
 						search.distance = distance;
@@ -470,7 +474,7 @@ public class ColorQuantize {
 
 			@Override
 			public String toString() {
-				StringBuffer buf = new StringBuffer();
+				StringBuilder buf = new StringBuilder();
 				if(parent == this)
 					buf.append("root");
 				else
