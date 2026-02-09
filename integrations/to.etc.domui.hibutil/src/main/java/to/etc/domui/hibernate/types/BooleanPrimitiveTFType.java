@@ -14,6 +14,7 @@ import java.sql.Types;
  * A UserType implementation to map a boolean primitive object to a VARCHAR.<br /> A true
  * value maps to "true" and a false value maps to "false". This type does not recognise
  * nullity; it gets interpreted as a false.
+ *
  * @author jal
  */
 final public class BooleanPrimitiveTFType implements UserType {
@@ -24,9 +25,7 @@ final public class BooleanPrimitiveTFType implements UserType {
 
 	@Override
 	public Object deepCopy(Object value) throws HibernateException {
-		if(value == null)
-			return value;
-		return Boolean.valueOf(((Boolean) value).booleanValue());
+		return value;
 	}
 
 	@Override
@@ -52,7 +51,8 @@ final public class BooleanPrimitiveTFType implements UserType {
 		return true;
 	}
 
-	@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+	@Override
+	public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
 		if(resultSet == null)
 			return null;
 		String v = resultSet.getString(names[0]);
@@ -61,7 +61,8 @@ final public class BooleanPrimitiveTFType implements UserType {
 		return parse(v);
 	}
 
-	@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+	@Override
+	public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
 		statement.setString(index, value == null ? "F" : ((Boolean) value).booleanValue() ? "T" : "F");
 	}
 
@@ -71,7 +72,7 @@ final public class BooleanPrimitiveTFType implements UserType {
 	}
 
 	@Override
-	public Class< ? > returnedClass() {
+	public Class<?> returnedClass() {
 		return Boolean.class;
 	}
 
@@ -83,9 +84,6 @@ final public class BooleanPrimitiveTFType implements UserType {
 	/**
 	 * Parsing of a String yields the following results: TRUE: if src equals
 	 * y,yes,1 or 'true' (case insensitive) FALSE: in all other cases
-	 *
-	 * @param src
-	 * @return
 	 */
 	public static Boolean parse(String src) {
 		if("1".equals(src) || "t".equalsIgnoreCase(src) || "true".equalsIgnoreCase(src) || "Y".equalsIgnoreCase(src) || "yes".equalsIgnoreCase(src)) {

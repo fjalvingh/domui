@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FileImageRetriever implements IImageRetriever {
-	static private final long MIN_LIVE_TIME = 5 * 60 * 1000;
+	static private final long MIN_LIVE_TIME = 5L * 60 * 1000;
 
 	static private final String KEY = "RqTf";
 

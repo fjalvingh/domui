@@ -162,7 +162,7 @@ public class Application extends DomApplication {
 			 * from interfering with one another.
 			 */
 			File tmp = File.createTempFile("testdb", ".domui");
-			tmp.delete();
+			FileTool.delete(tmp);
 			tmp.mkdirs();
 			String dbPath = tmp.getAbsolutePath();
 			DbUtil.initialize(TestDB.getDataSource(dbPath.toString()));

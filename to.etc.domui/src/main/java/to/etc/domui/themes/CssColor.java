@@ -317,6 +317,7 @@ final public class CssColor {
 		double x = d * (1 - Math.abs(mod2 - 1));
 
 		int r, g, b;
+		h = h % 360;
 		int sextant = (int) (h / 60);
 		switch(sextant){
 			default:
@@ -498,7 +499,7 @@ final public class CssColor {
 //	}
 
 	static public List<CssColor> calculateColors(int count) {
-		double golden_ratio_conjugate = 1.0 / count;
+		double goldenRatioConjugate = 1.0 / count;
 		double hue = 0.198765;
 		List<CssColor> list = new ArrayList<>(count);
 		for(int i = 0; i < count; i++) {
@@ -507,7 +508,7 @@ final public class CssColor {
 			list.add(cssc);
 //			System.out.println(" css " + cssc.toString());
 
-			hue = hue += golden_ratio_conjugate;
+			hue += goldenRatioConjugate;
 			hue %= 1;
 		}
 		return list;

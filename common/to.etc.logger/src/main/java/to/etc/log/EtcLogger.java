@@ -31,7 +31,7 @@ public class EtcLogger implements Logger {
 		return new EtcLogger(key, level);
 	}
 
-	private void logEvent(@NonNull Date date, @NonNull Level level, @Nullable Marker marker, @Nullable Throwable throwable, @NonNull String msg, Object... args) {
+	private void logEvent(@NonNull Date date, @NonNull Level level, @Nullable Marker marker, @Nullable Throwable throwable, @Nullable String msg, Object... args) {
 		EtcLogEvent event = new EtcLogEvent(this, level, marker, msg, throwable, date, Thread.currentThread(), args);
 		EtcLoggerFactory.getSingleton().notifyHandlers(event);
 	}
@@ -40,7 +40,8 @@ public class EtcLogger implements Logger {
 		return m_level != null && m_level.includes(level);
 	}
 
-	private boolean checkEnabled(@NonNull Level level, @NonNull Marker marker) {
+	@SuppressWarnings("squid:S1172")
+	private boolean checkEnabled(@NonNull Level level, @Nullable Marker marker) {
 		//FIXME: in case that we introduce markers support we need to connect it here.
 		return checkEnabled(level);
 	}
