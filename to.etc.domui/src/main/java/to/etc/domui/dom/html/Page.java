@@ -73,8 +73,7 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-@NonNullByDefault
-final public class Page implements IQContextContainer {
+@NonNullByDefault final public class Page implements IQContextContainer {
 	static private final Logger LOG = LoggerFactory.getLogger(Page.class);
 
 	static private final int MAX_DOMUI_NODES_PER_PAGE = 100_000;
@@ -101,7 +100,7 @@ final public class Page implements IQContextContainer {
 	//	private boolean					m_built;
 
 	@NonNull
-	private final Map<String, NodeBase> m_nodeMap = new HashMap<String, NodeBase>(127);
+	private final Map<String, NodeBase> m_nodeMap = new HashMap<>(127);
 
 	@Nullable
 	private Map<String, NodeBase> m_beforeMap;
@@ -110,7 +109,7 @@ final public class Page implements IQContextContainer {
 	 * Contains the header contributors in the order that they were added.
 	 */
 	@NonNull
-	private List<HeaderContributorEntry> m_orderedContributorList = Collections.EMPTY_LIST;
+	private List<HeaderContributorEntry> m_orderedContributorList = Collections.emptyList();
 
 	/**
 	 * As soon as header contributor are rendered to the browser this gets set to the
@@ -123,8 +122,8 @@ final public class Page implements IQContextContainer {
 	/**
 	 * Set containing the same header contributors, but in a fast-lookup format.
 	 */
-	@Nullable
-	private Set<HeaderContributor> m_headerContributorSet;
+	@NonNull
+	private Set<HeaderContributor> m_headerContributorSet = Collections.emptySet();
 
 	@Nullable
 	private StringBuilder m_appendJS;
@@ -162,7 +161,7 @@ final public class Page implements IQContextContainer {
 	@Nullable
 	private NodeContainer m_currentPopIn;
 
-	private Map<String, Object> m_pageData = Collections.EMPTY_MAP;
+	private Map<String, Object> m_pageData = Collections.emptyMap();
 
 	private boolean m_allowVectorGraphics;
 
@@ -171,7 +170,7 @@ final public class Page implements IQContextContainer {
 	 * phase. If this set is non-empty after a build loop then the loop needs to repeat the
 	 * build for the nodes and their subtrees in here. See bug 688.
 	 */
-	private Set<NodeBase> m_pendingBuildSet = new HashSet<NodeBase>();
+	private Set<NodeBase> m_pendingBuildSet = new HashSet<>();
 
 	/**
 	 * All subpages that have been deleted during this request.
@@ -233,19 +232,19 @@ final public class Page implements IQContextContainer {
 	 * will force them to be removed from the tree after any render without causing a delta.
 	 */
 	@NonNull
-	private List<NodeBase> m_removeAfterRenderList = Collections.EMPTY_LIST;
+	private List<NodeBase> m_removeAfterRenderList = Collections.emptyList();
 
 	@NonNull
-	private List<IExecute> m_afterRequestListenerList = Collections.EMPTY_LIST;
+	private List<IExecute> m_afterRequestListenerList = Collections.emptyList();
 
 	@NonNull
-	private List<IExecute> m_beforeRequestListenerList = Collections.EMPTY_LIST;
+	private List<IExecute> m_beforeRequestListenerList = Collections.emptyList();
 
 	@NonNull
-	private List<IExecute> m_destroyListenerList = new CopyOnWriteArrayList<>();
+	final private List<IExecute> m_destroyListenerList = new CopyOnWriteArrayList<>();
 
 	@NonNull
-	private List<IExecute> m_afterRenderList = Collections.EMPTY_LIST;
+	private List<IExecute> m_afterRenderList = Collections.emptyList();
 
 	@Deprecated
 	private List<Object> m_pageMessageList = new ArrayList<>();
@@ -310,7 +309,7 @@ final public class Page implements IQContextContainer {
 	/**
 	 * Assign required data to the page.
 	 */
-	final public void internalInitialize(@NonNull IPageParameters pp, @NonNull final ConversationContext cc) {
+	public void internalInitialize(@NonNull IPageParameters pp, @NonNull final ConversationContext cc) {
 		if(pp == null)
 			throw new IllegalStateException("Internal: Page parameters cannot be null here");
 		if(cc == null)
@@ -318,8 +317,8 @@ final public class Page implements IQContextContainer {
 
 		m_cc = cc;
 		if(!pp.isReadOnly()) {
-			if(pp instanceof PageParameters) {
-				((PageParameters) pp).setReadOnly();
+			if(pp instanceof PageParameters p) {
+				p.setReadOnly();
 			} else {
 				PageParameters rpp = pp.getUnlockedCopy();
 				rpp.setReadOnly();
@@ -330,7 +329,7 @@ final public class Page implements IQContextContainer {
 		m_pageParameters = pp;
 	}
 
-	public final void internalOnDestroy() throws Exception {
+	public void internalOnDestroy() throws Exception {
 		for(IExecute listener : m_destroyListenerList) {
 			try {
 				listener.execute();
@@ -457,7 +456,7 @@ final public class Page implements IQContextContainer {
 		}
 		if(null != m_nodeMap.put(id, n))
 			throw new IllegalStateException("Duplicate node ID '" + id + "'!?!?");
-		if(! m_allowTooManyNodes && m_nodeMap.size() > MAX_DOMUI_NODES_PER_PAGE)
+		if(!m_allowTooManyNodes && m_nodeMap.size() > MAX_DOMUI_NODES_PER_PAGE)
 			throw new IllegalStateException("The page you are using is too big (it creates too many DOM nodes). Ask the developer to fix this issue.");
 		n.setPage(this);
 		n.onHeaderContributors(this);                // Ask the node for it's header contributors.
@@ -468,8 +467,7 @@ final public class Page implements IQContextContainer {
 		}
 		internalAddPendingBuild(n);
 
-		if(n instanceof SubPage) {
-			SubPage sp = (SubPage) n;                    // This is not dumb at all, sigh.
+		if(n instanceof SubPage sp) {
 			getConversation().addSubConversation(sp.getConversation());
 			m_removedSubPages.remove(sp);                // If we removed it earlier- unremove it (keeping its conversation state)
 
@@ -504,10 +502,8 @@ final public class Page implements IQContextContainer {
 			throw new IllegalStateException("The node with ID=" + n.getActualID() + " was not found!?");
 		m_pendingBuildSet.remove(n);
 
-		if(n instanceof SubPage) {
-			SubPage sp = (SubPage) n;                    // Sigh
+		if(n instanceof SubPage sp) {
 			m_removedSubPages.add(sp);
-			//m_addedSubPages.remove(sp);					// If it was added before but removed again -> nothing happened...
 		}
 	}
 
@@ -562,7 +558,7 @@ final public class Page implements IQContextContainer {
 
 
 	public void addRemoveAfterRenderNode(@NonNull NodeBase node) {
-		if(m_removeAfterRenderList == Collections.EMPTY_LIST) {
+		if(m_removeAfterRenderList.isEmpty()) {
 			m_removeAfterRenderList = new ArrayList<>();
 		}
 		m_removeAfterRenderList.add(node);
@@ -573,20 +569,15 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 
 	private static class IntRef {
-		public int m_value;
+		int m_value;
 	}
 
 	@NonNull
-	private final Map<String, IntRef> m_testIdMap = new HashMap<String, Page.IntRef>();
+	private final Map<String, IntRef> m_testIdMap = new HashMap<>();
 
 	@NonNull
 	public String allocateTestID(@NonNull String initial) {
-		IntRef ir = m_testIdMap.get(initial);
-		if(null == ir) {
-			ir = new IntRef();
-			m_testIdMap.put(initial, ir);
-			return initial;
-		}
+		IntRef ir = m_testIdMap.computeIfAbsent(initial, a -> new IntRef());
 		int v = ++ir.m_value;
 		return initial + "_" + v;
 	}
@@ -611,7 +602,7 @@ final public class Page implements IQContextContainer {
 	final public void addHeaderContributor(@NonNull final HeaderContributor hc, int order) {
 		Set<HeaderContributor> set = m_headerContributorSet;
 		List<HeaderContributorEntry> list = m_orderedContributorList;
-		if(set == null || list == null) {
+		if(set.isEmpty() && list.isEmpty()) {
 			m_headerContributorSet = set = new HashSet<>(30);
 			list = m_orderedContributorList = new ArrayList<>(30);
 		} else if(set.contains(hc))                            // Already registered?
@@ -632,7 +623,7 @@ final public class Page implements IQContextContainer {
 	@NonNull
 	public List<HeaderContributorEntry> getAddedContributors() {
 		if(m_orderedContributorList == null || m_lastContributorIndex >= m_orderedContributorList.size())
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		return new ArrayList<>(m_orderedContributorList.subList(m_lastContributorIndex, m_orderedContributorList.size()));
 	}
 
@@ -649,8 +640,8 @@ final public class Page implements IQContextContainer {
 	}
 
 	public <T> void setData(@NonNull final T inst) {
-		if(m_pageData == Collections.EMPTY_MAP)
-			m_pageData = new HashMap<String, Object>();
+		if(m_pageData.isEmpty())
+			m_pageData = new HashMap<>();
 		m_pageData.put(inst.getClass().getName(), inst);
 	}
 
@@ -706,7 +697,7 @@ final public class Page implements IQContextContainer {
 	/**
 	 * Add a floating thing to the floater stack.
 	 */
-	void internalAddFloater(@NonNull NodeContainer originalParent, @NonNull FloatingDiv in) {
+	void internalAddFloater(@NonNull FloatingDiv in) {
 		//-- Sanity checks.
 		if(!(in instanceof FloatingDiv))
 			throw new IllegalStateException("Floaters can only be FloatingDiv-derived, and " + in + " is not.");
@@ -769,7 +760,7 @@ final public class Page implements IQContextContainer {
 	private List<FloatingDiv> getFloatingStack() {
 		List<FloatingDiv> ws = m_floatingWindowStack;
 		if(ws == null)
-			m_floatingWindowStack = ws = new ArrayList<FloatingDiv>();
+			m_floatingWindowStack = ws = new ArrayList<>();
 		return ws;
 	}
 
@@ -1038,7 +1029,7 @@ final public class Page implements IQContextContainer {
 	/*	CODING:	Javascript component state registration.			*/
 	/*--------------------------------------------------------------*/
 	@NonNull
-	final private Set<NodeBase> m_javaScriptStateChangedSet = new HashSet<NodeBase>();
+	final private Set<NodeBase> m_javaScriptStateChangedSet = new HashSet<>();
 
 	/**
 	 * Registers the node specified as needing a callback at delta render time.
@@ -1062,7 +1053,7 @@ final public class Page implements IQContextContainer {
 		if(m_javaScriptStateChangedSet.isEmpty())
 			return null;
 
-		ArrayList<NodeBase> todo = new ArrayList<NodeBase>(m_javaScriptStateChangedSet);
+		ArrayList<NodeBase> todo = new ArrayList<>(m_javaScriptStateChangedSet);
 		StringBuilder sb = new StringBuilder(8192);
 		JavascriptStmt stmt = new JavascriptStmt(sb);
 		for(int count = 0; count < 10; count++) {
@@ -1193,13 +1184,13 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	public void addAfterRequestListener(@NonNull IExecute x) {
 		if(m_afterRequestListenerList.isEmpty())
-			m_afterRequestListenerList = new ArrayList<IExecute>();
+			m_afterRequestListenerList = new ArrayList<>();
 		m_afterRequestListenerList.add(x);
 	}
 
 	public void addBeforeRequestListener(@NonNull IExecute x) {
 		if(m_beforeRequestListenerList.isEmpty())
-			m_beforeRequestListenerList = new ArrayList<IExecute>();
+			m_beforeRequestListenerList = new ArrayList<>();
 		m_beforeRequestListenerList.add(x);
 	}
 
@@ -1231,8 +1222,7 @@ final public class Page implements IQContextContainer {
 	}
 
 	public void addAfterRenderListener(@NonNull IExecute x) {
-		if(m_afterRenderList == Collections.EMPTY_LIST)
-			m_afterRenderList = new ArrayList<>();
+		m_afterRenderList = new ArrayList<>(m_afterRenderList);
 		m_afterRenderList.add(x);
 	}
 
@@ -1391,6 +1381,7 @@ final public class Page implements IQContextContainer {
 
 	static public final class AsyncMessageLink {
 		@Nullable
+		@SuppressWarnings("squid:S3077")
 		volatile private Page m_page;
 
 		public AsyncMessageLink(Page up) {
@@ -1417,9 +1408,8 @@ final public class Page implements IQContextContainer {
 	 * Checks if page can be left caused by browser navigation.
 	 */
 	public boolean internalCanLeaveCurrentPageByBrowser() {
-		if(m_rootContent instanceof IPageWithNavigationCheck) {
-			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
-			boolean hasModification = pageWithNavigationCheck.hasModification();
+		if(m_rootContent instanceof IPageWithNavigationCheck pnc) {
+			boolean hasModification = pnc.hasModification();
 			return !hasModification;
 		} else {
 			return true;
@@ -1430,14 +1420,13 @@ final public class Page implements IQContextContainer {
 	 * Checks if page can be left caused by domui navigation.
 	 */
 	public boolean internalCanLeaveCurrentPageByDomui(UIGotoContext gotoCtx) throws Exception {
-		if(m_rootContent instanceof IPageWithNavigationCheck) {
-			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
-			boolean hasModification = pageWithNavigationCheck.hasModification();
+		if(m_rootContent instanceof IPageWithNavigationCheck pnc) {
+			boolean hasModification = pnc.hasModification();
 			if(!hasModification) {
 				return true;
 			}
-			if(m_rootContent instanceof IPageWithNavigationHandler) {
-				((IPageWithNavigationHandler) m_rootContent).handleNavigationOnModified(gotoCtx);
+			if(m_rootContent instanceof IPageWithNavigationHandler pnh) {
+				pnh.handleNavigationOnModified(gotoCtx);
 			} else {
 				DomApplication.get().handleNavigationOnModified(gotoCtx, this.getBody());
 			}
@@ -1451,14 +1440,13 @@ final public class Page implements IQContextContainer {
 	 * Checks if page can be left with specified callback.
 	 */
 	public boolean internalCanLeaveCurrentPageByDomui(Runnable callback) throws Exception {
-		if(m_rootContent instanceof IPageWithNavigationCheck) {
-			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
-			boolean hasModification = pageWithNavigationCheck.hasModification();
+		if(m_rootContent instanceof IPageWithNavigationCheck pnc) {
+			boolean hasModification = pnc.hasModification();
 			if(!hasModification) {
 				return true;
 			}
-			if(m_rootContent instanceof IPageWithNavigationHandler) {
-				((IPageWithNavigationHandler) m_rootContent).handleNavigationOnModified(callback);
+			if(m_rootContent instanceof IPageWithNavigationHandler pnh) {
+				pnh.handleNavigationOnModified(callback);
 			} else {
 				DomApplication.get().handleNavigationOnModified(callback, this.getBody());
 			}
