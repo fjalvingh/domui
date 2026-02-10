@@ -147,7 +147,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -573,7 +572,8 @@ public abstract class DomApplication {
 		m_jQueryVersion = jqversion;
 		m_jQueryPath = jqdata[1];
 		List<String> jqp = new ArrayList<>(jqdata.length - 2);
-		jqp.addAll(Arrays.asList(jqdata));
+		for(int i = 2; i < jqdata.length; i++)
+			jqp.add(jqdata[i]);
 		m_jQueryScripts = jqp;
 
 		registerControlFactories();

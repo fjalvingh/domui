@@ -575,9 +575,15 @@ import java.util.stream.Collectors;
 	@NonNull
 	private final Map<String, IntRef> m_testIdMap = new HashMap<>();
 
+	@SuppressWarnings("S3824") // Cannot nicely use computeIfAbsent here because we need to return the initial value if it was not present, and the new value if it was present.
 	@NonNull
 	public String allocateTestID(@NonNull String initial) {
-		IntRef ir = m_testIdMap.computeIfAbsent(initial, a -> new IntRef());
+		IntRef ir = m_testIdMap.get(initial);
+		if(null == ir) {
+			ir = new IntRef();
+			m_testIdMap.put(initial, ir);
+			return initial;
+		}
 		int v = ++ir.m_value;
 		return initial + "_" + v;
 	}
