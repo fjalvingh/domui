@@ -33,7 +33,7 @@ jobs:
         run: mvn -Psonar -q --batch-mode --update-snapshots clean install sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.organization=fjalvingh -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=fjalvingh_domui -Dmaven.javadoc.skip=true -DCI=true -Dskarp.targetdb.name=testdb${{ github.run_number }} -Dskarp.junitdb.name=fw_junit${{ github.run_number }}
       - name: Upload JUnit test results
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: junit-results
           path: to.etc.domui.demo/target/failsafe-reports/*.png
