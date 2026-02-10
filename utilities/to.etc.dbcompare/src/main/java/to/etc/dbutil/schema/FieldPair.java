@@ -33,4 +33,11 @@ final public class FieldPair implements Serializable {
 		FieldPair fp = (FieldPair) obj;
 		return m_parentColumn == fp.m_parentColumn && m_childColumn == fp.m_childColumn;
 	}
+
+	@Override
+	public int hashCode() {
+		int result = getParentColumn().hashCode();
+		result = 31 * result + getChildColumn().hashCode();
+		return result;
+	}
 }

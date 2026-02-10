@@ -48,7 +48,7 @@ public class PolledActionQueue implements IPollQueueTaskProvider {
 			if(m_queue.size() > 1000)
 				throw new IllegalStateException("FATAL: The background execution queue is FULL (more than 1000 waiting jobs)");
 			m_queue.add(run);
-			m_executor.checkProvider(this);
+			m_executor.checkProvider();
 		}
 	}
 

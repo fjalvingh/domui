@@ -27,7 +27,9 @@ public class PostgresGenerator extends AbstractGenerator {
 		m_connectorUrl = connectorUrl;
 	}
 
-	@Override protected Connection createConnection() throws Exception {
+	@SuppressWarnings({"squid:S2095", "squid:S4925"})		// Connection is closed by caller
+	@Override
+	protected Connection createConnection() throws Exception {
 		DbConnectionInfo parameters = m_connectorUrl;
 		Class.forName("org.postgresql.Driver");
 		int port = parameters.getPort();
@@ -45,7 +47,8 @@ public class PostgresGenerator extends AbstractGenerator {
 		return connection;
 	}
 
-	@Override protected Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception {
+	@Override
+	protected Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception {
 		Reverser reverser = ReverserRegistry.findReverser(getFakeDatasource(), new HashSet<>());
 		return reverser.getSchemasByName(false, schemaSet);
 	}
@@ -69,13 +72,14 @@ public class PostgresGenerator extends AbstractGenerator {
 		+ "   and     array_length(c.conkey, 1) = 1   -- single column\n"
 		+ "   and  a.attname = ?";
 
-	@Nullable @Override protected String getIdColumnSequence(DbColumn column) throws Exception {
+	@Nullable
+	@Override
+	protected String getIdColumnSequence(DbColumn column) throws Exception {
 		try(PreparedStatement ps = dbc().prepareStatement(SQL)) {
 			ps.setString(1, column.getTable().getSchema().getName() + "." + column.getTable().getName());
 			ps.setString(2, column.getName());
 			try(ResultSet rs = ps.executeQuery()) {
 				if(rs.next()) {
-					String serial = rs.getString(1);
 					String deflt = rs.getString(2);
 
 					if(null != deflt) {

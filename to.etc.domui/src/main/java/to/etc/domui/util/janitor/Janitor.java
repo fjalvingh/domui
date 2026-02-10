@@ -143,11 +143,8 @@ public class Janitor implements Runnable {
 		return m_t_last_sched_run;
 	}
 
-
 	protected synchronized void logTask(JanitorThread jt, String msg) {
-		synchronized(jt) {
-			LOG.debug("T" + jt.m_slot + ":" + jt.m_jt.m_taskname + "- " + msg);
-		}
+		jt.log(msg);
 	}
 
 

@@ -4,7 +4,6 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
-import com.github.javaparser.ast.body.EnumConstantDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -56,10 +55,11 @@ import java.util.Set;
  * Created on 21-9-17.
  */
 public class ColumnWrapper {
+	public static final String VALUE = "value";
 	enum RelationType {
-		oneToMany
-		, manyToOne
-		, none
+		oneToMany,
+		manyToOne,
+		none
 	}
 
 	enum ExtraType {
@@ -75,19 +75,20 @@ public class ColumnWrapper {
 	}
 
 	enum ColumnType {
-		column
-		, compoundKey
+		column,
+		compoundKey
 	}
 
 	private ColumnType m_type = ColumnType.column;
 
 	private ColumnWrapper m_childsParentProperty;
 
-	/** The parent class wrapper for a recognized parent relation (manyToOne property) */
+	/**
+	 * The parent class wrapper for a recognized parent relation (manyToOne property)
+	 */
 	private ClassWrapper m_parentClass;
 
 	private String m_setMappedByPropertyName;
-
 
 	final private ClassWrapper m_classWrapper;
 
@@ -101,9 +102,9 @@ public class ColumnWrapper {
 
 	private FieldDeclaration m_fieldDeclaration;
 
-	private MethodDeclaration	m_setter;
+	private MethodDeclaration m_setter;
 
-	private MethodDeclaration	m_getter;
+	private MethodDeclaration m_getter;
 
 	private VariableDeclarator m_variableDeclaration;
 
@@ -148,7 +149,6 @@ public class ColumnWrapper {
 
 	/**
 	 * T if this has source code.
-	 * @return
 	 */
 	public boolean hasSource() {
 		return m_fieldDeclaration != null || m_getter != null || m_setter != null;
@@ -262,7 +262,6 @@ public class ColumnWrapper {
 		DbTable table = column.getTable();
 		DbPrimaryKey primaryKey = table.getPrimaryKey();
 		boolean ispk = primaryKey != null && primaryKey.getColumnList().contains(column);
-		boolean nullable = column.isNullable() || ispk;
 
 		//-- Is this some kind of FK?
 		DbRelation parentRelation = isFkOf();
@@ -288,12 +287,12 @@ public class ColumnWrapper {
 				DbTable possibleTbl = g().findTableByNames(null, name);
 				if(null != possibleTbl) {
 					setConfigProperty("fk", possibleTbl.getName());
-					g().warning(this +": column ending in 'id' but not a foreign key - probably points to table " + possibleTbl);
+					g().warning(this + ": column ending in 'id' but not a foreign key - probably points to table " + possibleTbl);
 					warned = true;
 				}
 			}
-			if(! warned)
-				g().warning(this +": column ending in 'id' but not a foreign key?");
+			if(!warned)
+				g().warning(this + ": column ending in 'id' but not a foreign key?");
 		}
 
 		int sqltype = column.getSqlType();
@@ -308,19 +307,15 @@ public class ColumnWrapper {
 			case Types.NCHAR:
 			case Types.NVARCHAR:
 			case Types.NUMERIC:
-				if(column.getPrecision() <= g().getEnumMaxFieldSize() && ! ispk) {
-					if(calculateDistinctValues(dbc, false))
-						return;
-				}
+				if(column.getPrecision() <= g().getEnumMaxFieldSize() && !ispk && calculateDistinctValues(dbc, false))
+					return;
 				break;
 
 			case Types.BIGINT:
 			case Types.INTEGER:
 			case Types.DECIMAL:
-				if(column.getPrecision() < g().getEnumMaxFieldSize() && ! ispk) {
-					if(calculateDistinctValues(dbc, true))
-						return;
-				}
+				if(column.getPrecision() < g().getEnumMaxFieldSize() && !ispk && calculateDistinctValues(dbc, true))
+					return;
 				break;
 		}
 
@@ -439,7 +434,6 @@ public class ColumnWrapper {
 
 	/**
 	 * Try to get the type for the related object.
-	 * @param parentRelation
 	 */
 	private void generateRelationType(DbRelation parentRelation) throws Exception {
 		DbTable parent = parentRelation.getParent();
@@ -459,10 +453,10 @@ public class ColumnWrapper {
 		setRelationType(RelationType.manyToOne);
 		m_parentClass = parentClass;
 	}
+
 	public void setManyToOne() {
 		setRelationType(RelationType.manyToOne);
 	}
-
 
 	public void setOneToMany(String mappedBy) {
 		setRelationType(RelationType.oneToMany);
@@ -477,7 +471,6 @@ public class ColumnWrapper {
 		m_childsParentProperty = childProperty;
 	}
 
-
 	public void recalculatePropertyNameFromParentRelation() {
 		String name = m_column.getName();
 		String parentClassName = m_parentClass.getSimpleName();
@@ -485,7 +478,7 @@ public class ColumnWrapper {
 		//-- 1. Splittable name?
 		List<String> segs = AbstractGenerator.splitName(m_column.getName());
 		if(segs.size() > 1) {
-			for(int i = segs.size(); --i >= 0;) {
+			for(int i = segs.size(); --i >= 0; ) {
 				if(segs.get(i).equalsIgnoreCase("id") || segs.get(i).equalsIgnoreCase(parentClassName)) {
 					segs.remove(i);
 				}
@@ -551,13 +544,13 @@ public class ColumnWrapper {
 			boolean codeenum = false;
 			while(rs.next()) {
 				if(res.size() > 50) { // Too many enum fields?
-					g().info(m_column  + ": not an enum because it has too many distinct values");
+					g().info(m_column + ": not an enum because it has too many distinct values");
 					return false;
 				}
 				String name = rs.getString(1);
 				if(name != null && !name.isEmpty()) {
 					res.add(name);
-					if(! asnumber && !isValidJavaIdent(name)) {
+					if(!asnumber && !isValidJavaIdent(name)) {
 						if(!codeenum)
 							g().info(m_column + ": not an enum but a codeenum because label " + name + " is not a valid java identifier");
 						codeenum = true;
@@ -601,7 +594,7 @@ public class ColumnWrapper {
 				return false;
 			}
 
-			if(! codeenum) {
+			if(!codeenum) {
 				ClassWrapper enumWrapper = generateNormalEnum(res);
 				ClassOrInterfaceType referent = new ClassOrInterfaceType(enumWrapper.getClassName());
 				setPropertyType(referent);
@@ -617,7 +610,6 @@ public class ColumnWrapper {
 
 	/**
 	 * Generate the enum unless it already exists.
-	 * @param values
 	 */
 	private ClassWrapper generateNormalEnum(List<String> values) {
 		String name = m_classWrapper.getSimpleName() + AbstractGenerator.capitalizeFirst(getPropertyName());
@@ -631,33 +623,10 @@ public class ColumnWrapper {
 		EnumDeclaration et = enumWrapper.getEnumType();
 
 		for(String value : values) {
-			EnumConstantDeclaration ec = et.addEnumConstant(value);
+			et.addEnumConstant(value);
 		}
 		return enumWrapper;
 	}
-
-	/**
-	 * Generate the enum unless it already exists.
-	 * @param values
-	 */
-	private ClassWrapper generateCodeEnum(List<String> values) {
-		String name = m_classWrapper.getSimpleName() + AbstractGenerator.capitalizeFirst(getPropertyName());
-		ClassWrapper enumWrapper = g().findClassWrapper(m_classWrapper.getPackageName(), name);
-		if(null != enumWrapper) {
-			return enumWrapper;
-		}
-
-		//--
-		enumWrapper = g().createEnumWrapper(m_classWrapper.getPackageName(), name);
-		EnumDeclaration et = enumWrapper.getEnumType();
-
-		for(String value : values) {
-			EnumConstantDeclaration ec = et.addEnumConstant(AbstractGenerator.camelCase(value));
-			ec.setJavadocComment("Enum value for '" + value + "'");
-		}
-		return enumWrapper;
-	}
-
 
 	private static boolean isYes(String s) {
 		if(s == null)
@@ -704,7 +673,7 @@ public class ColumnWrapper {
 		String name = getPropertyName();
 		if(name.startsWith("is") && name.length() > 2) {
 			name = name.substring(2);
-			if(Character.isUpperCase(name.charAt(0)) && name.length() > 1 && ! Character.isUpperCase(name.charAt(1))) {
+			if(Character.isUpperCase(name.charAt(0)) && name.length() > 1 && !Character.isUpperCase(name.charAt(1))) {
 				name = name.substring(0, 1).toLowerCase() + name.substring(1);
 			}
 			setPropertyName(name);
@@ -733,14 +702,13 @@ public class ColumnWrapper {
 		m_parentListProperty = cw;
 	}
 
-
-
 	static private final Set<String> VALID_BOOLEAN_CHAR_SET = new HashSet<>(Arrays.asList("y", "n", "t", "f", "true", "false", "0", "1"));
+
 	static private final Set<String> TRUEFALSESET = new HashSet<>(Arrays.asList("t", "f", "true", "false"));
+
 	static private final Set<String> ONEZEROSET = new HashSet<>(Arrays.asList("0", "1"));
 
 	static private final Set<String> YESNOSET = new HashSet<>(Arrays.asList("y", "n"));
-
 
 	static private boolean isValidJavaIdent(String name) {
 		if(name == null || name.isEmpty())
@@ -763,7 +731,8 @@ public class ColumnWrapper {
 		return m_valueSet;
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		DbColumn column = m_column;
 		if(null != column)
@@ -856,7 +825,7 @@ public class ColumnWrapper {
 			setter = new MethodDeclaration(modifiers, new VoidType(), methodName);
 			setter.setModifiers(modifiers);
 
-			Parameter param = new Parameter(propertyType, "value");
+			Parameter param = new Parameter(propertyType, VALUE);
 			setter.addParameter(param);
 
 			ClassOrInterfaceDeclaration rootType = m_classWrapper.getRootType();
@@ -865,7 +834,7 @@ public class ColumnWrapper {
 			BlockStmt block = new BlockStmt();
 			setter.setBody(block);
 
-			AssignExpr ax = new AssignExpr(new NameExpr(m_variableDeclaration.getName().asString()), new NameExpr("value"), Operator.ASSIGN);
+			AssignExpr ax = new AssignExpr(new NameExpr(m_variableDeclaration.getName().asString()), new NameExpr(VALUE), Operator.ASSIGN);
 			block.addStatement(ax);
 			setSetter(setter);
 
@@ -879,7 +848,6 @@ public class ColumnWrapper {
 			setter.setName(new SimpleName(methodName));
 		}
 	}
-
 
 	public void renderGetter() throws Exception {
 		if(getPropertyName().equals("type")) {
@@ -1014,24 +982,24 @@ public class ColumnWrapper {
 
 				case EnumeratedString:
 					NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.Enumerated");
-					if(findAnnotationPair(na, "value") == null) {
+					if(findAnnotationPair(na, VALUE) == null) {
 						importIf("javax.persistence.EnumType");
-						na.addPair("value", "EnumType.STRING");
+						na.addPair(VALUE, "EnumType.STRING");
 					}
 					break;
 
 				case TemporalDate:
 					na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
-					if(findAnnotationPair(na, "value") == null) {
+					if(findAnnotationPair(na, VALUE) == null) {
 						importIf("javax.persistence.TemporalType");
-						na.addPair("value", "TemporalType.DATE");
+						na.addPair(VALUE, "TemporalType.DATE");
 					}
 					break;
 				case TemporalTimestamp:
 					na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
-					if(findAnnotationPair(na, "value") == null) {
+					if(findAnnotationPair(na, VALUE) == null) {
 						importIf("javax.persistence.TemporalType");
-						na.addPair("value", "TemporalType.TIMESTAMP");
+						na.addPair(VALUE, "TemporalType.TIMESTAMP");
 					}
 					break;
 			}
@@ -1067,7 +1035,6 @@ public class ColumnWrapper {
 
 	/**
 	 * Render the get method only.
-	 * @return
 	 */
 	private MethodDeclaration renderGetterMethod() {
 		String prefix = "get";
@@ -1144,7 +1111,6 @@ public class ColumnWrapper {
 		return m_classWrapper.createOrFindMarkerAnnotation(getter, fullAnnotationName);
 	}
 
-
 	public void setNew(boolean aNew) {
 		m_new = aNew;
 	}
@@ -1161,7 +1127,9 @@ public class ColumnWrapper {
 		m_relationType = relationType;
 	}
 
-	/** The parent class wrapper for a recognized parent relation (manyToOne property) */
+	/**
+	 * The parent class wrapper for a recognized parent relation (manyToOne property)
+	 */
 	public ClassWrapper getParentClass() {
 		return m_parentClass;
 	}
@@ -1211,7 +1179,7 @@ public class ColumnWrapper {
 
 			String s = ct.getName().asString();
 			if("List".equals(s)) {
-				Type containerType = ct.getTypeArguments().get().get(0);
+				Type containerType = ct.getTypeArguments().orElseThrow().getFirst();
 				String childName = containerType.asString();
 				childName = m_classWrapper.tryResolveFullName(childName);
 
@@ -1229,7 +1197,7 @@ public class ColumnWrapper {
 					if(null == childColumn) {
 						error("cannot find mappedBy property '" + mappedBy + "' in child class " + childClass);
 					} else {
-						m_classWrapper.info(this  + ": child property '" + mappedBy + "' deleted from " + childClass + ", deleting OneToMany");
+						m_classWrapper.info(this + ": child property '" + mappedBy + "' deleted from " + childClass + ", deleting OneToMany");
 
 						m_classWrapper.deleteColumn(this);
 					}
@@ -1258,9 +1226,8 @@ public class ColumnWrapper {
 		if(null == parentClass) {
 			m_classWrapper.error(this + ": cannot locate class " + parentClassName + " inside parsed entities");
 			return;
-		} else {
-			m_parentClass = parentClass;
 		}
+		m_parentClass = parentClass;
 	}
 
 	/**
@@ -1323,7 +1290,7 @@ public class ColumnWrapper {
 		//}
 
 		String oldName = vd.getName().asString();
-		if(! oldName.equals(fieldName)) {
+		if(!oldName.equals(fieldName)) {
 			vd.setName(fieldName);
 
 			//-- We need to rename inside the getter and setter too
@@ -1339,7 +1306,8 @@ public class ColumnWrapper {
 			}
 
 			m_classWrapper.getRootType().accept(new VoidVisitorAdapter<Void>() {
-				@Override public void visit(ConstructorDeclaration n, Void arg) {
+				@Override
+				public void visit(ConstructorDeclaration n, Void arg) {
 					n.accept(fieldVisitor, null);
 				}
 			}, null);
@@ -1364,7 +1332,8 @@ public class ColumnWrapper {
 			return name.equals(m_oldName) || name.equals("this." + m_oldName);
 		}
 
-		@Override public void visit(AssignExpr n, Void arg) {
+		@Override
+		public void visit(AssignExpr n, Void arg) {
 			if(n.getOperator().equals(Operator.ASSIGN)) {
 				Expression target = n.getTarget();
 				if(isOldFieldName(target.toString())) {
@@ -1375,7 +1344,8 @@ public class ColumnWrapper {
 			super.visit(n, arg);
 		}
 
-		@Override public void visit(ReturnStmt n, Void arg) {
+		@Override
+		public void visit(ReturnStmt n, Void arg) {
 			Optional<Expression> expression = n.getExpression();
 			if(expression.isPresent()) {
 				Expression xp = expression.get();
@@ -1385,7 +1355,6 @@ public class ColumnWrapper {
 			}
 		}
 	}
-
 
 	public Node getConfigNode() {
 		return m_classWrapper.getColumnConfig(this);

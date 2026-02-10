@@ -47,7 +47,7 @@ public class PollingWorkerQueue {
 
 	private int m_maxThreads;
 
-	private final List<IPollQueueTaskProvider> m_providerList = new ArrayList<IPollQueueTaskProvider>();
+	private final List<IPollQueueTaskProvider> m_providerList = new ArrayList<>();
 
 	private int m_nextProviderIndex;
 
@@ -55,7 +55,7 @@ public class PollingWorkerQueue {
 
 	private long m_tsLastBlock;
 
-	private final long m_checkInterval = 10 * 1000;
+	private static final long m_checkInterval = 10L * 1000;
 
 	private final PolledActionQueue m_actionQueue = new PolledActionQueue();
 
@@ -75,7 +75,6 @@ public class PollingWorkerQueue {
 
 	/**
 	 * Initialize: run minThread threads.
-	 * @throws Exception
 	 */
 	private synchronized void init() throws Exception {
 		if(m_minThreads <= 0)
@@ -89,12 +88,7 @@ public class PollingWorkerQueue {
 	}
 
 	private void startThread() {
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				handlerThreadMain();
-			}
-		});
+		Thread t = new Thread(() -> handlerThreadMain());
 		t.setDaemon(true);
 		t.setPriority(Thread.NORM_PRIORITY);
 		t.setName("PollExecutor");
@@ -103,7 +97,6 @@ public class PollingWorkerQueue {
 
 	/**
 	 * Register another provider to get tasks from.
-	 * @param provider
 	 */
 	public void registerProvider(final IPollQueueTaskProvider provider) {
 		synchronized(this) {
@@ -121,7 +114,7 @@ public class PollingWorkerQueue {
 		}
 	}
 
-	public synchronized void checkProvider(final IPollQueueTaskProvider provider) {
+	public synchronized void checkProvider() {
 		if(m_runningThreads == 0 || m_terminating)
 			throw new IllegalStateException("The PollingExecutor service is NOT RUNNING");
 		notify();
@@ -153,11 +146,13 @@ public class PollingWorkerQueue {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Worker thread code.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * The handler for each worker thread. Each thread is fully equal to each other thread. A worker is
 	 * either obtaining work (by polling each provider or waiting till it's time to poll again), or is
 	 * executing work obtained earlier.
 	 */
+	@SuppressWarnings("squid:S1181")
 	void handlerThreadMain() {
 		//-- Notice initialization.
 		synchronized(this) {
@@ -186,7 +181,7 @@ public class PollingWorkerQueue {
 
 	private void protectedMain() {
 		int ntodo = -1;
-		for(;;) {
+		for(; ; ) {
 			long cts = System.currentTimeMillis();
 
 			//-- Select a provider to query for work, and handle blocking if all of them were queried.
@@ -203,7 +198,9 @@ public class PollingWorkerQueue {
 					try {
 						m_tsLastBlock = cts;
 						wait(m_checkInterval);
-					} catch(InterruptedException x) {}
+					} catch(InterruptedException x) {
+						// ignore
+					}
 
 					//-- Woke up. Must be time for another scan.
 					cts = System.currentTimeMillis();
@@ -238,10 +235,9 @@ public class PollingWorkerQueue {
 			//-- We have one!! Execute it, and leave todo unaltered. If the #of executing tasks is >= the actual #of tasks try to add a new one;
 			synchronized(this) {
 				m_threadsExecutingTasks++;
-				if(m_threadsExecutingTasks >= m_runningThreads) { // All thingies are executing stuff?
-					if(m_runningThreads < m_maxThreads) { // We have threads to spare - start another one
-						startThread();
-					}
+				// All thingies are executing stuff?
+				if(m_threadsExecutingTasks >= m_runningThreads && m_runningThreads < m_maxThreads) { // We have threads to spare - start another one
+					startThread();
 				}
 			}
 			try {

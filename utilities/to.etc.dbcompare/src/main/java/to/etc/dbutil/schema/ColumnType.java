@@ -1,8 +1,14 @@
 package to.etc.dbutil.schema;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import java.io.Serializable;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Generalized column type.
@@ -11,7 +17,7 @@ import java.util.*;
  * Created on Dec 22, 2006
  */
 public class ColumnType implements Serializable {
-	static private Map<String, ColumnType> m_typeMap = new HashMap<String, ColumnType>();
+	static private Map<String, ColumnType> m_typeMap = new HashMap<>();
 
 	static private final List<ColumnType> m_typeList = new ArrayList<>();
 
@@ -22,9 +28,11 @@ public class ColumnType implements Serializable {
 	static public final ColumnType NUMBER = new ColumnType("number", Types.NUMERIC, true, true, "numeric", "number");
 
 	static public final ColumnType VARCHAR = new ColumnType("varchar", Types.VARCHAR, true, false, "varchar2", "varchar", "character varying");
+
 	static public final ColumnType NVARCHAR = new ColumnType("nvarchar", Types.NVARCHAR, true, false, "nvarchar2", "nvarchar");
 
 	static public final ColumnType CHAR = new ColumnType("char", Types.CHAR, true, false, "char", "character");
+
 	static public final ColumnType NCHAR = new ColumnType("nchar", Types.NCHAR, true, false, "nchar");
 
 	static public final ColumnType BOOLEAN = new ColumnType("boolean", Types.BOOLEAN, false, false, "bool", "boolean");
@@ -40,6 +48,7 @@ public class ColumnType implements Serializable {
 	static public final ColumnType DATE = new ColumnType("date", Types.DATE, false, false, "date");
 
 	static public final ColumnType TINYINT = new ColumnType("int16", Types.TINYINT, false, false, "tinyint");
+
 	static public final ColumnType BIGINT = new ColumnType("int64", Types.BIGINT, false, false, "bigint");
 
 	static public final ColumnType INTEGER = new ColumnType("int32", Types.INTEGER, false, false, "integer", "int");
@@ -51,7 +60,6 @@ public class ColumnType implements Serializable {
 	static public final ColumnType XML = new ColumnType("SQLXML", Types.SQLXML, false, false, "xml");
 
 	static public final ColumnType JSON = new ColumnType("json", 1111, false, false, "json");
-
 
 	static public final ColumnType UNKNOWN = new ColumnType("unknownType", Integer.MAX_VALUE, false, false, "unknown");
 
@@ -110,7 +118,7 @@ public class ColumnType implements Serializable {
 	public int hashCode() {
 		final int PRIME = 31;
 		int result = 1;
-		result = PRIME * result + ((m_platformNames == null) ? 0 : m_platformNames.hashCode());
+		result = PRIME * result + ((m_platformNames == null) ? 0 : Arrays.hashCode(m_platformNames));
 		result = PRIME * result + ((m_name == null) ? 0 : m_name.hashCode());
 		result = PRIME * result + (m_precision ? 1231 : 1237);
 		result = PRIME * result + (m_scale ? 1231 : 1237);
@@ -130,7 +138,7 @@ public class ColumnType implements Serializable {
 		if(m_platformNames == null) {
 			if(other.m_platformNames != null)
 				return false;
-		} else if(!m_platformNames.equals(other.m_platformNames))
+		} else if(!Arrays.equals(m_platformNames, other.m_platformNames))
 			return false;
 		if(m_name == null) {
 			if(other.m_name != null)
@@ -144,7 +152,8 @@ public class ColumnType implements Serializable {
 		return m_sqlType == other.m_sqlType;
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return getName() + " (" + m_platformNames + ")";
 	}
 }

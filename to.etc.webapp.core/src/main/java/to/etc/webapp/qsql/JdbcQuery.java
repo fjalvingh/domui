@@ -164,7 +164,7 @@ public class JdbcQuery<T> {
 			rs = ps.executeQuery();
 			int rownum = 0;
 
-			JdbcObjectStream<T> stream = new JdbcObjectStream<>(this, dc, ps, rs);
+			JdbcObjectStream<T> stream = new JdbcObjectStream<>(this, dc, rs);
 			rs = null;
 			ps = null;
 			return stream;

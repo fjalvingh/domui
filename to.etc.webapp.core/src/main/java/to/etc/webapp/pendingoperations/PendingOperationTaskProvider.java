@@ -60,7 +60,9 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 
 	private String m_serverID;
 
-	/** The single-thread usage baton. */
+	/**
+	 * The single-thread usage baton.
+	 */
 	private boolean m_inUse;
 
 	private int m_lastSelectedIndex;
@@ -69,17 +71,13 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 
 	private long m_tsNextCleanup;
 
-	private List<IPendingOperationListener> m_listeners = Collections.EMPTY_LIST;
+	private List<IPendingOperationListener> m_listeners = Collections.emptyList();
 
-	//	private PendingOperationTaskProvider(final DataSource ds, final String serverID) {
-	//		m_ds = ds;
-	//		m_serverID = serverID;
-	//	}
-	private PendingOperationTaskProvider() {}
+	private PendingOperationTaskProvider() {
+	}
 
 	/**
 	 * Initializes this thing, and adds it to the worker queue handler.
-	 * @param serverID
 	 */
 	static public void initialize(final DataSource ds, final String serverID) {
 		m_instance.internalInitialize(ds, serverID);
@@ -99,12 +97,12 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 	}
 
 	public synchronized void addListener(IPendingOperationListener l) {
-		m_listeners = new ArrayList<IPendingOperationListener>(m_listeners);
+		m_listeners = new ArrayList<>(m_listeners);
 		m_listeners.add(l);
 	}
 
 	public synchronized void removeListener(IPendingOperationListener l) {
-		m_listeners = new ArrayList<IPendingOperationListener>(m_listeners);
+		m_listeners = new ArrayList<>(m_listeners);
 		m_listeners.remove(l);
 	}
 
@@ -122,7 +120,8 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 		try {
 			//-- All jobs executing on me while I died need a reschedule.
 			ps = dbc
-				.prepareStatement("update sys_pending_operations set spo_executing_server=null,spo_state='RTRY',spo_retries=spo_retries+1,spo_lasterror='Server has died' where spo_executing_server=?");
+				.prepareStatement(
+					"update sys_pending_operations set spo_executing_server=null,spo_state='RTRY',spo_retries=spo_retries+1,spo_lasterror='Server has died' where spo_executing_server=?");
 			ps.setString(1, m_serverID);
 			ps.executeUpdate();
 			ps.close();
@@ -146,11 +145,15 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(dbc != null)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 		}
 	}
 
@@ -169,14 +172,14 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 		boolean cleanup = false;
 		synchronized(this) {
 			if(m_inUse || cts < m_tsNextCheck) { // Not yet time to check again?
-			//				System.out.println("potp: no need to scan for PendingOperation");
+				//				System.out.println("potp: no need to scan for PendingOperation");
 				return null;
 			}
 			m_inUse = true;
 
 			if(cts >= m_tsNextCleanup) {
 				cleanup = true;
-				m_tsNextCleanup = 4 * 60 * 60 * 1000; // Cleanup every 4 hours
+				m_tsNextCleanup = 4L * 60 * 60 * 1000; // Cleanup every 4 hours
 			}
 		}
 		if(cleanup)
@@ -188,7 +191,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			Runnable task = findBestTask();
 			//			System.out.println("potp: got task="+task);
 			if(task != null) {
-				m_executor.checkProvider(this); // Notify, allowing another thread to check for task actions too.
+				m_executor.checkProvider(); // Notify, allowing another thread to check for task actions too.
 			}
 			return task;
 		} finally {
@@ -224,25 +227,32 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(dbc != null)
 					dbc.rollback();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(dbc != null)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 		}
 	}
 
 	/**
 	 * Opens sys_pending_operations in LOCK mode, then allocates the next-task(set)-to-run from it.
-	 * @return
 	 */
 	private Runnable findBestTask() throws Exception {
 		Connection dbc = m_ds.getConnection();
@@ -261,7 +271,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			ps.setString(1, m_serverID);
 			ps.setTimestamp(2, new Timestamp(now.getTime()));
 			rs = ps.executeQuery();
-			List<PendingOperation> ack = new ArrayList<PendingOperation>();
+			List<PendingOperation> ack = new ArrayList<>();
 			while(rs.next()) {
 				PendingOperation po = new PendingOperation();
 				po.initFromRS(rs); // Get all fields.
@@ -274,7 +284,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			//-- Find the first BEST task to execute, starting at the "last index",
 			int todo = ack.size();
 			List<PendingOperation> resultlist = null;
-			for(;;) {
+			for(; ; ) {
 				if(todo-- <= 0) {
 					//-- Could not allocate job- exit and try again in x minutes.
 					synchronized(this) {
@@ -288,7 +298,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 					m_lastSelectedIndex = 0;
 				PendingOperation po = ack.get(m_lastSelectedIndex);
 				if(po.getOrderGroup() == null) { // Not a group-> always claimable
-					resultlist = new ArrayList<PendingOperation>();
+					resultlist = new ArrayList<>();
 					resultlist.add(po);
 					break;
 				}
@@ -313,18 +323,26 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				dbc.rollback();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(dbc != null)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			//			ts	= System.nanoTime() - ts;
 			//			System.out.println("PendingOperationProvider: scan took "+StringTool.strNanoTime(ts));
 		}
@@ -332,21 +350,18 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 
 	/**
 	 * Marks all of the tasks specified as "locked by server", and mark the 1st one as "EXECUTING".
-	 * @param dbc
-	 * @param polist
-	 * @throws SQLException
 	 */
 	private void markTasksExecuting(final Connection dbc, final List<PendingOperation> polist) throws SQLException {
 		int ix = 0;
 		for(PendingOperation po : polist) {
-			po.setState(PendingOperationState.EXEC); 			// All of these are EXECUTING -> they are to be done by this server(!)
-			po.setExecutesOnServerID(m_serverID); 				// So, claim them as owned by THIS server
+			po.setState(PendingOperationState.EXEC);            // All of these are EXECUTING -> they are to be done by this server(!)
+			po.setExecutesOnServerID(m_serverID);                // So, claim them as owned by THIS server
 			if(ix++ == 0) {
 				//-- Only the first one we'll execute immediately, so mark that one as started.
 				po.setLastExecutionStart(new Date());
 				po.setLastExecutionEnd(null);
-				po.setRetries(po.getRetries() + 1);				// Increment runcount
-				po.setLastError(null);							// Clear error while running,
+				po.setRetries(po.getRetries() + 1);                // Increment runcount
+				po.setLastError(null);                            // Clear error while running,
 			}
 			po.save(dbc);
 		}
@@ -356,10 +371,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 	 * Loads a group, and checks to see if it's executable. This is the case if all members of the group
 	 * can be executed or are retryable, and if the first group member to execute has met it's contained time.
 	 *
-	 * @param dbc
-	 * @param inpo
 	 * @return The list, of which the 1st member is valid, or null if the group cannot run.
-	 * @throws SQLException
 	 */
 	@Nullable
 	private List<PendingOperation> loadGroup(final Connection dbc, final PendingOperation inpo) throws SQLException {
@@ -373,7 +385,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 
 			ps.setString(1, inpo.getOrderGroup());
 			rs = ps.executeQuery();
-			List<PendingOperation> res = new ArrayList<PendingOperation>();
+			List<PendingOperation> res = new ArrayList<>();
 			while(rs.next()) {
 				PendingOperation po = new PendingOperation();
 				po.initFromRS(rs);
@@ -384,11 +396,11 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			 * Loop through all members, and
 			 */
 			//-- The first member in this list must be executable at this time, or the group is invalid.
-			for(;;) {
+			for(; ; ) {
 				if(res.isEmpty())
 					return null;
 				PendingOperation op = res.get(0);
-				if(op.getState() == PendingOperationState.EXEC)				// If already executing somewhere else-> exit.
+				if(op.getState() == PendingOperationState.EXEC)                // If already executing somewhere else-> exit.
 					return null;
 
 				if(op.getState() == PendingOperationState.BOOT || op.getState() == PendingOperationState.FATL) {
@@ -396,17 +408,17 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 					 * These types can hold up the whole group, so make sure that this is what's needed by asking the provider...
 					 */
 					IPendingOperationExecutor pox = findExecutor(op);
-					if(null == pox)											// We should find one, but do not abort at this level
+					if(null == pox)                                            // We should find one, but do not abort at this level
 						return null;
-					if(!(pox instanceof IPendingOperationExecutor2))		// No way to know if skipping the failed one is allowed?
+					if(!(pox instanceof IPendingOperationExecutor2))        // No way to know if skipping the failed one is allowed?
 						return null;
 					IPendingOperationExecutor2 px2 = (IPendingOperationExecutor2) pox;
-					if(!px2.isSkipFailedAllowed(op))						// We're not allowed to run this group -> skip it.
+					if(!px2.isSkipFailedAllowed(op))                        // We're not allowed to run this group -> skip it.
 						return null;
 
 					//-- We may skip this member and continue. To prevent reloading this same member over and over again delete it now.
-					op.delete(dbc);											// Delete this (will be committed by mainloop)
-					res.remove(0);											// Remove it from the list and retry all of this with the next member in the group
+					op.delete(dbc);                                            // Delete this (will be committed by mainloop)
+					res.remove(0);                                            // Remove it from the list and retry all of this with the next member in the group
 					continue;
 				}
 				if(op.getMustExecuteOnServerID() != null && !op.getMustExecuteOnServerID().equals(m_serverID))
@@ -422,14 +434,19 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 		}
 	}
 
+	@SuppressWarnings("squid:S2095") // allocation method
 	Connection allocateConnection() throws SQLException {
 		Connection dbc = m_ds.getConnection();
 		dbc.setAutoCommit(false);
@@ -447,13 +464,13 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Pending operation types.							*/
 	/*--------------------------------------------------------------*/
-	/** Map of ops_type to executor for that type. */
-	private final Map<String, IPendingOperationExecutor> m_typeMap = new HashMap<String, IPendingOperationExecutor>();
+	/**
+	 * Map of ops_type to executor for that type.
+	 */
+	private final Map<String, IPendingOperationExecutor> m_typeMap = new HashMap<>();
 
 	/**
 	 * Register a pending operation type and it's executor.
-	 * @param type
-	 * @param pox
 	 */
 	public void registerPendingOperationType(final String type, final IPendingOperationExecutor pox) {
 		if(null != m_typeMap.put(type.toLowerCase(), pox))
@@ -462,22 +479,13 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 
 	/**
 	 * Find an executor for a given pendingOperation type.
-	 * @param po
-	 * @return
 	 */
 	public IPendingOperationExecutor findExecutor(final PendingOperation po) {
 		return m_typeMap.get(po.getType().toLowerCase());
-		//
-		//		if("SOAP".equals(po.getType())) {
-		//			return new PendingFullSOAPCallExecutor(po, ls);
-		//		}
-		//		return null;
 	}
 
 	/**
 	 * Store a PendingOperation in the table, or die.
-	 * @param po
-	 * @param sis
 	 */
 	public void saveOperation(final PendingOperation po, final StringInputStream sis) throws Exception {
 		Connection dbc = allocateConnection();
@@ -496,14 +504,14 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			try {
 				if(dbc != null)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 		}
 	}
 
 	/**
 	 * Store a PendingOperation in the table, or die.
-	 * @param po
-	 * @param sis
 	 */
 	public void saveOperation(final PendingOperation po, final Serializable object) throws Exception {
 		Connection dbc = allocateConnection();
@@ -524,7 +532,9 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			try {
 				if(dbc != null)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 		}
 	}
 
@@ -534,8 +544,6 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 
 	/**
 	 * Updates the current progress of a given pending operation.
-	 * @param po
-	 * @throws SQLException
 	 */
 	protected void updateProgress(final PendingOperation po) throws SQLException {
 		Connection dbc = allocateConnection();
@@ -549,9 +557,6 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 
 	/**
 	 * Gets current progress of a scheduled or running calculation of a given scenario (externalId)
-	 * @param externalId
-	 * @return
-	 * @throws SQLException
 	 */
 	public PendingJobProgressInfo getCurrentProgress(final String externalId) throws SQLException {
 		Connection dbc = allocateConnection();
@@ -578,9 +583,6 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 
 	/**
 	 * Checks to see if there already is scheduled or running calculation of a given scenario (externalId).
-	 * @param externalId
-	 * @return
-	 * @throws SQLException
 	 */
 	public boolean isBusyWithJob(final String externalId) throws SQLException {
 		return (getCurrentProgress(externalId) != null);

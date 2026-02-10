@@ -26,9 +26,8 @@ class RhinoObjectBase implements IScriptScope {
 	/**
 	 * Create the local scope for this executor, inheriting the root scope containing
 	 * Object, Function and other stuff.
-	 *
-	 * @param rootScope
 	 */
+	@SuppressWarnings("squid:S2637")		// Analysis is wrong, m_scriptable is initialized here, sigh
 	RhinoObjectBase(ScriptableObject rootScope) {
 		m_writable = true;
 		Context jcx = Context.enter();
@@ -47,12 +46,12 @@ class RhinoObjectBase implements IScriptScope {
 			return null;
 		if(val == UniqueTag.NOT_FOUND)
 			return null;
-		if(targetClass.isAssignableFrom(val.getClass()))			// Directly assignable?
+		if(targetClass.isAssignableFrom(val.getClass()))            // Directly assignable?
 			return (T) val;
 
-		if(val instanceof ScriptableObject) {
-			val = new RhinoScriptScope((ScriptableObject) val);
-			if(targetClass.isAssignableFrom(val.getClass()))		// Directly assignable?
+		if(val instanceof ScriptableObject so) {
+			val = new RhinoScriptScope(so);
+			if(targetClass.isAssignableFrom(val.getClass()))        // Directly assignable?
 				return (T) val;
 		}
 
@@ -103,7 +102,7 @@ class RhinoObjectBase implements IScriptScope {
 	@Override
 	public <T> List<T> getProperties(@NonNull Class<T> filterClass) {
 		Object[] ids = m_scriptable.getIds();
-		List<T> res = new ArrayList<T>(ids.length);
+		List<T> res = new ArrayList<>(ids.length);
 		for(Object id : ids) {
 			if(filterClass.isAssignableFrom(id.getClass()))
 				res.add((T) id);
@@ -145,6 +144,5 @@ class RhinoObjectBase implements IScriptScope {
 		put(name, ns);
 		return ns;
 	}
-
 
 }

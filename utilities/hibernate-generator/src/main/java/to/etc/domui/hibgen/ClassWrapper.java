@@ -17,7 +17,6 @@ import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.Name;
@@ -57,6 +56,7 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,7 +98,7 @@ class ClassWrapper {
 
 	private DbTable m_table;
 
-	///** Mapped by lowercase property name */
+	/// ** Mapped by lowercase property name */
 	//private Map<String, ColumnWrapper> m_byPropNameMap = new HashMap<>();
 	//
 	//private Map<String, ColumnWrapper> m_byColNameMap = new HashMap<>();
@@ -119,11 +119,15 @@ class ClassWrapper {
 
 	//private boolean m_baseClass;
 
-	/** When set this class should use the specified base class as it's base class. */
+	/**
+	 * When set this class should use the specified base class as it's base class.
+	 */
 	@Nullable
 	private ClassWrapper m_useBaseClass;
 
-	/** Mostly for embedded classes, this marks when it is really used. */
+	/**
+	 * Mostly for embedded classes, this marks when it is really used.
+	 */
 	private boolean m_used;
 
 	public ClassWrapper(AbstractGenerator generator, File file, CompilationUnit unit) {
@@ -136,7 +140,7 @@ class ClassWrapper {
 
 		ClassOrInterfaceDeclaration rootType = null;
 		Optional<ClassOrInterfaceDeclaration> o = m_unit.getClassByName(getSimpleName());
-		if(! o.isPresent()) {
+		if(!o.isPresent()) {
 			error("Cannot locate class type");
 		} else {
 			rootType = o.get();
@@ -250,7 +254,10 @@ class ClassWrapper {
 	}
 
 	public String calculateClassName() {
-		String pkg = m_unit.getPackageDeclaration().get().getName().asString();
+		Optional<PackageDeclaration> packageDeclaration = m_unit.getPackageDeclaration();
+		if(packageDeclaration.isEmpty())
+			throw new IllegalStateException("Useless");
+		String pkg = packageDeclaration.get().getName().asString();
 		String name = m_file.getName();
 		name = name.substring(0, name.indexOf("."));                // Strip .java
 		return pkg + "." + name;
@@ -285,7 +292,6 @@ class ClassWrapper {
 
 	/**
 	 * If this is a wrapper for a Table - this returns that table.
-	 * @return
 	 */
 	@Nullable
 	public DbTable getTable() {
@@ -376,10 +382,6 @@ class ClassWrapper {
 		} else
 			return;
 
-		if("opentopublic".equalsIgnoreCase(propertyName)) {
-			System.out.println("GOTCHA");
-		}
-
 		//-- Decode a property name
 		ColumnWrapper cw = findColumnByPropertyName(propertyName);
 		if(null == cw) {
@@ -402,10 +404,8 @@ class ClassWrapper {
 	protected ColumnWrapper findColumnByPropertyName(String name) {
 		for(ColumnWrapper cw : m_allColumnWrappers) {
 			String propertyName = cw.getPropertyName();
-			if(null != propertyName) {
-				if(propertyName.equalsIgnoreCase(name)) {
-					return cw;
-				}
+			if(null != propertyName && propertyName.equalsIgnoreCase(name)) {
+				return cw;
 			}
 		}
 		return null;
@@ -415,10 +415,8 @@ class ClassWrapper {
 	protected ColumnWrapper findDeletedProperty(String name) {
 		for(ColumnWrapper cw : m_deletedColumns) {
 			String propertyName = cw.getPropertyName();
-			if(null != propertyName) {
-				if(propertyName.equalsIgnoreCase(name)) {
-					return cw;
-				}
+			if(null != propertyName && propertyName.equalsIgnoreCase(name)) {
+				return cw;
 			}
 		}
 		return null;
@@ -429,18 +427,11 @@ class ClassWrapper {
 		for(VariableDeclarator vd : d.getVariables()) {
 			String fieldName = vd.getName().asString();
 			String fieldPrefix = m_generator.getFieldPrefix();
-			if(null != fieldPrefix) {
-				if(fieldName.startsWith(fieldPrefix)) {
-					fieldName = fieldName.substring(fieldPrefix.length());
-				}
+			if(null != fieldPrefix && fieldName.startsWith(fieldPrefix)) {
+				fieldName = fieldName.substring(fieldPrefix.length());
 			}
 
-			if(d.getModifiers().contains(Modifier.STATIC) || d.getModifiers().contains(Modifier.FINAL)) {
-				//- Skip
-			} else {
-				if("opentopublic".equals(fieldName)) {
-					System.out.println("GOTCHA");
-				}
+			if(!d.getModifiers().contains(Modifier.STATIC) && !d.getModifiers().contains(Modifier.FINAL)) {
 				ColumnWrapper cw = findColumnByPropertyName(fieldName);
 				if(null == cw) {
 					cw = new ColumnWrapper(this);
@@ -461,13 +452,6 @@ class ClassWrapper {
 	}
 
 	private void handleDatabaseAnnotation(ColumnWrapper columnWrapper, AnnotationExpr ax) {
-		if("type".equalsIgnoreCase(columnWrapper.getPropertyName())) {
-			System.out.println("GOTCHA");
-		}
-		if("DefinitionSubscriptionindicator".equalsIgnoreCase(getSimpleName())) {
-			System.out.println("GOTCHA");
-		}
-
 		String name = ax.getName().asString();
 
 		if(name.equals("Transient")) {
@@ -491,13 +475,10 @@ class ClassWrapper {
 
 			if(name.equals("Column")) {
 				String columnName = null;
-				int length = -1;
 				for(MemberValuePair pair : annotationExpr.getPairs()) {
 					String prop = pair.getName().asString();
 					if(prop.equals("name")) {
 						columnName = resolveConstant(pair.getValue());
-					} else if(prop.equals("length")) {
-						length = resolveInt(pair.getValue());
 					}
 				}
 
@@ -520,7 +501,6 @@ class ClassWrapper {
 				}
 			} else if(name.equals("OneToMany")) {
 				String mappedBy = null;
-				int length = -1;
 				for(MemberValuePair pair : annotationExpr.getPairs()) {
 					String prop = pair.getName().asString();
 					if(prop.equals("mappedBy")) {
@@ -544,7 +524,7 @@ class ClassWrapper {
 	}
 
 	private void handleTableAnnotation(AnnotationExpr tableAnn) {
-		if(! (tableAnn instanceof NormalAnnotationExpr)) {
+		if(!(tableAnn instanceof NormalAnnotationExpr)) {
 			return;
 		}
 
@@ -581,16 +561,6 @@ class ClassWrapper {
 		return null;
 	}
 
-	private int resolveInt(Expression value) {
-		if(value == null)
-			return -1;
-		if(value instanceof IntegerLiteralExpr) {
-			return ((IntegerLiteralExpr) value).asInt();
-		}
-		error("Cannot get integer constant value for " + value);
-		return -1;
-	}
-
 	/**
 	 * Make sure that all DbColumns have a ColumnWrapper.
 	 */
@@ -603,9 +573,6 @@ class ClassWrapper {
 		for(ColumnWrapper cw : m_allColumnWrappers) { // byPropName
 			if(cw.isTransient())
 				continue;
-			if("numberlistid".equals(cw.getJavaColumnName())) {
-				System.out.println("GOTCHA");
-			}
 
 			if(cw.getColumn() == null) {
 				//-- First try by @Column/@JoinColumn name annotation
@@ -627,7 +594,7 @@ class ClassWrapper {
 
 		//-- 2. Create NEW wrappers for all columns that do not have one, yet
 		for(DbColumn dbColumn : m_table.getColumnList()) {
-			String overrideName = getColumnConfigProperty(dbColumn, "property");		// Create config property
+			String overrideName = getColumnConfigProperty(dbColumn, "property");        // Create config property
 
 			ColumnWrapper cw = findColumnByColumnName(dbColumn.getName());
 			if(cw == null) {
@@ -653,10 +620,8 @@ class ClassWrapper {
 	private ColumnWrapper findColumnByColumnName(String name) {
 		for(ColumnWrapper cw : m_allColumnWrappers) {
 			DbColumn column = cw.getColumn();
-			if(column != null) {
-				if(name.equalsIgnoreCase(column.getName())) {
-					return cw;
-				}
+			if(column != null && name.equalsIgnoreCase(column.getName())) {
+				return cw;
 			}
 			if(name.equals(cw.getJavaColumnName())) {
 				return cw;
@@ -664,7 +629,6 @@ class ClassWrapper {
 		}
 		return null;
 	}
-
 
 	/**
 	 * Remove all non-transient properties that have no column associated with it (meaning they have been deleted).
@@ -675,21 +639,11 @@ class ClassWrapper {
 			return;
 
 		//-- 1. Find all properties referring to table columns that no longer exist.
-		Set<String> columnNameSet = table.getColumnList().stream().map(c -> c.getName().toLowerCase()).collect(Collectors.toSet());
-
 		List<ColumnWrapper> deleteList = new ArrayList<>();
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
-			if(cw.getPropertyName().equals("fullName")) {
-				System.out.println("GOTCHA");
-			}
-
-			if(! cw.isTransient()) {
-				if(cw.getColumn() == null && cw.getRelationType() != RelationType.oneToMany) {
-					if(cw != m_primaryKey) {					// Embeddable pk's should remain, please.
-						deleteList.add(cw);
-					}
-				}
+			if(!cw.isTransient() && cw.getColumn() == null && cw.getRelationType() != RelationType.oneToMany && cw != m_primaryKey) {                    // Embeddable pk's should remain, please.
+				deleteList.add(cw);
 			}
 		}
 
@@ -704,39 +658,31 @@ class ClassWrapper {
 	 * Render all basic table properties.
 	 */
 	public void renderProperties() throws Exception {
-		if(getType() == ClassWrapperType.embeddableClass) {
-			if(! isUsed()) {
-				//-- Unused embeddable: do not generate anything, just add a javadoc remark to the class.
-				markClassJavadoc("This class is no longer used");
-				createOrFindMarkerAnnotation(getRootType(), "java.lang.Deprecated");
-				return;
-			}
+		if(getType() == ClassWrapperType.embeddableClass && !isUsed()) {
+			//-- Unused embeddable: do not generate anything, just add a javadoc remark to the class.
+			markClassJavadoc("This class is no longer used");
+			createOrFindMarkerAnnotation(getRootType(), "java.lang.Deprecated");
+			return;
 		}
 		renderClassAnnotations();
-
-		if("PdimetaConfDatavaultSatelliteSsmId".equalsIgnoreCase(getSimpleName())) {
-			System.out.println("GOTCHA");
-		}
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
 			if(cw.isInvalid())
 				continue;
-			if("DefinitionProductpartlist".equalsIgnoreCase(cw.getPropertyName())) {
-				System.out.println("GOTCHA");
-			}
 
 			renderColumnProperty(cw);
 			renderPropertyNls(cw.getPropertyName());
 		}
 	}
 
+	@SuppressWarnings("squid:S3655") // Bad positive: isPresent is called on the optional
 	private void markClassJavadoc(String msg) {
 		StringBuilder sb = new StringBuilder();
 		if(m_rootType.getJavadoc().isPresent()) {
 			String line = m_rootType.getJavadoc().get().toText();
 			int count = 0;
 			for(String s : new LineIterator(line)) {
-				if((!s.trim().isEmpty() && ! s.trim().startsWith("*") && count > 0) || msg == null) {
+				if((!s.trim().isEmpty() && !s.trim().startsWith("*") && count > 0) || msg == null) {
 					sb.append(" * <b>WARNING</b> ").append(msg).append("\n");
 					msg = null;
 				}
@@ -746,7 +692,6 @@ class ClassWrapper {
 			if(msg != null) {
 				sb.append(" * <b>WARNING</b> ").append(msg).append("\n");
 			}
-
 
 		} else {
 			sb.append("\n * ").append("<h1>WARNING</h1>\n")
@@ -813,34 +758,10 @@ class ClassWrapper {
 		dbColumn.renderSetter();
 	}
 
-	private FieldDeclaration	findFieldDeclaration(String baseName) {
-		for(BodyDeclaration<?> d : m_rootType.getMembers()) {
-			if(d instanceof FieldDeclaration) {
-				FieldDeclaration fd = (FieldDeclaration) d;
-
-				for(VariableDeclarator vd : fd.getVariables()) {
-					if(vd.getName().asString().equalsIgnoreCase(baseName)
-						|| vd.getName().asString().equalsIgnoreCase("m_" + baseName)
-						)
-						return fd;
-				}
-			}
-		}
-		return null;
-	}
-
 	static String calculatePropertyNameFromColumnName(String columnName) {
 		String s = AbstractGenerator.camelCase(columnName);
 		s = AbstractGenerator.fixCamelCase(s);
 		return s;
-	}
-
-	private String calculateMethodName(String get, String name) {
-		List<String> strings = AbstractGenerator.splitName(name);
-		StringBuilder sb = new StringBuilder();
-		sb.append(get);
-		strings.forEach(a -> sb.append(AbstractGenerator.capitalize(a)));
-		return sb.toString();
 	}
 
 	/**
@@ -879,7 +800,6 @@ class ClassWrapper {
 		}
 	}
 
-
 	static private boolean isGetOrSet(String name) {
 		return name.startsWith("get") || name.startsWith("set") || name.startsWith("is") || name.startsWith("has") || name.startsWith("can");
 	}
@@ -913,7 +833,7 @@ class ClassWrapper {
 					FieldDeclaration fb = (FieldDeclaration) b;
 					return compareName(fa.getVariables().get(0).getName().asString(), fb.getVariables().get(0).getName().asString());
 				} else {
-					return -1;			// field < method
+					return -1;            // field < method
 				}
 			} else if(b instanceof FieldDeclaration) {
 				return 1;
@@ -950,7 +870,7 @@ class ClassWrapper {
 		if(backupFile.exists())
 			return;
 
-		if(! outputFile.exists()) {
+		if(!outputFile.exists()) {
 			backupFile.createNewFile();
 		} else if(!outputFile.renameTo(backupFile)) {
 			throw new RuntimeException("cannot rename " + outputFile + " to " + backupFile);
@@ -978,7 +898,6 @@ class ClassWrapper {
 		}
 
 		importIf(fullAnnotationName);
-		String pkg = AbstractGenerator.packageName(fullAnnotationName);
 		NodeList<MemberValuePair> nodes = NodeList.nodeList();
 		//Name nm = new Name(new Name(pkg), name);
 		NormalAnnotationExpr ax = new NormalAnnotationExpr(new Name(name), nodes);
@@ -1003,7 +922,6 @@ class ClassWrapper {
 	protected MarkerAnnotationExpr createOrFindMarkerAnnotation(BodyDeclaration<?> getter, String fullAnnotationName) {
 		String name = AbstractGenerator.finalName(fullAnnotationName);
 		importIf(fullAnnotationName);
-		//getUnit().addImport(fullAnnotationName);
 
 		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
 			String annName = annotationExpr.getName().asString();
@@ -1012,9 +930,6 @@ class ClassWrapper {
 			}
 		}
 
-		String pkg = AbstractGenerator.packageName(fullAnnotationName);
-		NodeList<MemberValuePair> nodes = NodeList.nodeList();
-		//Name nm = new Name(new Name(pkg), name);
 		MarkerAnnotationExpr ax = new MarkerAnnotationExpr(new Name(name));
 		getter.addAnnotation(ax);
 		return ax;
@@ -1029,13 +944,7 @@ class ClassWrapper {
 		}
 	}
 
-	private void addPairIfMissing(NormalAnnotationExpr ca, String name, String value) {
-		MemberValuePair pair = findAnnotationPair(ca, name);
-		if(null != pair)
-			return;
-		ca.addPair(name, value);
-	}
-
+	@SuppressWarnings("squid:S3655") // Bad positive: isPresent is called on the optional
 	protected Type importIf(Type type) {
 		String name;
 		if(type instanceof ClassOrInterfaceType) {
@@ -1052,16 +961,13 @@ class ClassWrapper {
 			return type;
 		}
 
-		//System.out.println(name);
 		getUnit().addImport(name);
 
 		ClassOrInterfaceType nw = new ClassOrInterfaceType(AbstractGenerator.finalName(name));
-		if(type instanceof ClassOrInterfaceType) {
-			ClassOrInterfaceType ct = (ClassOrInterfaceType) type;
-			if(ct.getTypeArguments().isPresent()) {
-				nw.setTypeArguments(ct.getTypeArguments().get());
-			}
+		if(type instanceof ClassOrInterfaceType ct && ct.getTypeArguments().isPresent()) {
+			nw.setTypeArguments(ct.getTypeArguments().get());
 		}
+
 		return nw;
 	}
 
@@ -1078,7 +984,6 @@ class ClassWrapper {
 
 	/**
 	 * For all columns that are "new", calculate a column type.
-	 * @param dbc
 	 */
 	public void calculateColumnTypes(Connection dbc) throws Exception {
 		for(ColumnWrapper cw : m_allColumnWrappers) {
@@ -1100,7 +1005,8 @@ class ClassWrapper {
 		return m_isNew;
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getSimpleName());
 		DbTable table = m_table;
@@ -1125,10 +1031,6 @@ class ClassWrapper {
 	 * Walk all (new) relations, and try to assign a more reasonable property name than the column name.
 	 */
 	public void calculateRelationNames() {
-		if(getSimpleName().equalsIgnoreCase("Definitionnumberlist")) {
-			System.out.println("GOTCHA");
-		}
-
 		Map<String, List<ColumnWrapper>> dupList = m_allColumnWrappers
 			.stream()
 			.filter(cw -> cw.isNew() && cw.getRelationType() == RelationType.manyToOne)
@@ -1159,10 +1061,6 @@ class ClassWrapper {
 	 * relations will have gotten the same property name. Fix that here.
 	 */
 	public void resolveDuplicateOneToManyProperties() {
-		if(getSimpleName().equalsIgnoreCase("Definitionnumberlist")) {
-			System.out.println("GOTCHA");
-		}
-
 		Map<String, List<ColumnWrapper>> dupList = m_allColumnWrappers
 			.stream()
 			.filter(cw -> cw.getRelationType() == RelationType.oneToMany)
@@ -1175,7 +1073,6 @@ class ClassWrapper {
 			}
 		});
 	}
-
 
 	public void renamePrimaryKeys(String pkName) {
 		for(ColumnWrapper cw : m_allColumnWrappers) {
@@ -1215,8 +1112,6 @@ class ClassWrapper {
 
 	/**
 	 * Find the OneToMany property that refers back (mappedBy) to the target column.
-	 * @param target
-	 * @return
 	 */
 	@Nullable
 	public ColumnWrapper findPropertyByChildProperty(ColumnWrapper target) {
@@ -1230,7 +1125,6 @@ class ClassWrapper {
 		return null;
 	}
 
-
 	public ColumnWrapper createColumnWrapper() {
 		ColumnWrapper cw = new ColumnWrapper(this);
 		m_allColumnWrappers.add(cw);
@@ -1238,13 +1132,6 @@ class ClassWrapper {
 	}
 
 	public ColumnWrapper createListProperty(ColumnWrapper childsParentProperty) {
-		//if(getSimpleName().equalsIgnoreCase("EAttribute")) {
-		//	if(childsParentProperty.getClassWrapper().getSimpleName().equalsIgnoreCase("ConfDatamartFact")) {
-		//		System.out.println("GOTCHA");
-		//	}
-		//
-		//	System.out.println("GOTCHA");
-		//}
 		ColumnWrapper cw = createColumnWrapper();
 
 		//-- Type is List<T> where T is this-property's type.
@@ -1292,10 +1179,8 @@ class ClassWrapper {
 		for(ImportDeclaration id : getUnit().getImports()) {
 			String name = id.getName().asString();
 			int pos = name.lastIndexOf('.');
-			if(pos > 0) {
-				if(className.equals(name.substring(pos + 1))) {
-					return name;
-				}
+			if(pos > 0 && className.equals(name.substring(pos + 1))) {
+				return name;
 			}
 		}
 		return className;
@@ -1317,7 +1202,7 @@ class ClassWrapper {
 		if(null == file)
 			throw new IllegalStateException();
 		String baseName = file.getName();
-		baseName = baseName.substring(0, baseName.lastIndexOf('.'));		// Strip extension
+		baseName = baseName.substring(0, baseName.lastIndexOf('.'));        // Strip extension
 		File basePath = calculatePropertiesBasePath(file.getParentFile());
 
 		loadPropertyFile(basePath, baseName, "");
@@ -1330,7 +1215,7 @@ class ClassWrapper {
 		String fullPath = path.getAbsolutePath();
 		if(fullPath.contains("/src/main/java/")) {
 			//-- Maven structure: resources are separate because it's made by idiots.
-			return new File(fullPath.replace("/src/main/java/",  "/src/main/resources/"));
+			return new File(fullPath.replace("/src/main/java/", "/src/main/resources/"));
 		}
 		return path;
 	}
@@ -1340,13 +1225,13 @@ class ClassWrapper {
 
 		int dot = baseName.lastIndexOf('.');
 		if(dot != -1)
-			baseName = baseName.substring(0, dot);		// Strip extension
+			baseName = baseName.substring(0, dot);        // Strip extension
 		File propertyFile = new File(basePath, baseName + extra + ".properties");
-		if(! propertyFile.exists() || ! propertyFile.isFile())
+		if(!propertyFile.exists() || !propertyFile.isFile())
 			return;
 
 		SortedProperties sp = new SortedProperties();
-		try(Reader r = new InputStreamReader(new FileInputStream(propertyFile), "utf-8")) {
+		try(Reader r = new InputStreamReader(new FileInputStream(propertyFile), StandardCharsets.UTF_8)) {
 			sp.load(r);
 		}
 
@@ -1373,7 +1258,7 @@ class ClassWrapper {
 	public void writeNlsPropertyFiles() throws Exception {
 		File file = getOutputFile();
 		String baseName = file.getName();
-		baseName = baseName.substring(0, baseName.lastIndexOf('.'));		// Strip extension
+		baseName = baseName.substring(0, baseName.lastIndexOf('.'));        // Strip extension
 
 		File basePath = calculatePropertiesBasePath(file.getParentFile());
 		for(Entry<String, SortedProperties> e : m_propertyByKeyMap.entrySet()) {
@@ -1411,15 +1296,11 @@ class ClassWrapper {
 	/*	CODING:	Base class handling											*/
 	/*----------------------------------------------------------------------*/
 
-
 	/**
 	 * See if this base class matches the columns and properties of the other class. If all
 	 * properties of this base class can be found in the other class then we return
 	 * true. The properties are matched on column name and property type, not on
 	 * property name as those can differ.
-	 *
-	 * @param other
-	 * @return
 	 */
 	public boolean baseClassMatchesTable(ClassWrapper other) {
 		if(m_type != ClassWrapperType.baseClass)
@@ -1430,27 +1311,25 @@ class ClassWrapper {
 				continue;
 			String columnName = cw.getJavaColumnName();
 			if(null == columnName) {
-				columnName = cw.getPropertyName();			// If there is no column name the name of the column is, by definition, the property name
+				columnName = cw.getPropertyName();            // If there is no column name the name of the column is, by definition, the property name
 			}
 
 			ColumnWrapper otherColumn = other.findColumnByColumnName(columnName);
 			if(null == otherColumn)
 				return false;
-			if(! g().isMatchBaseClassesOnColumnNameOnly()) {
-				if(! Objects.equals(cw.getPropertyType(), otherColumn.getPropertyType())) {
-					//-- Try classname resolution
-					String myQN = tryResolveFullName(cw.getPropertyType().asString());
-					String otherQN = other.tryResolveFullName(otherColumn.getPropertyType().asString());
-					if(! myQN.equals(otherQN)) {
-						if(g().isVerbose()) {
-							System.out.println("baseClassMatch: " + other.getSimpleName()
-								+  " does not match base class " + getSimpleName()
-								+ " because column " + columnName
-								+ " has different types: " + myQN + " and " + otherQN
-							);
-						}
-						return false;
+			if(!g().isMatchBaseClassesOnColumnNameOnly() && !Objects.equals(cw.getPropertyType(), otherColumn.getPropertyType())) {
+				//-- Try classname resolution
+				String myQN = tryResolveFullName(cw.getPropertyType().asString());
+				String otherQN = other.tryResolveFullName(otherColumn.getPropertyType().asString());
+				if(!myQN.equals(otherQN)) {
+					if(g().isVerbose()) {
+						System.out.println("baseClassMatch: " + other.getSimpleName()
+							+ " does not match base class " + getSimpleName()
+							+ " because column " + columnName
+							+ " has different types: " + myQN + " and " + otherQN
+						);
 					}
+					return false;
 				}
 			}
 		}
@@ -1467,7 +1346,7 @@ class ClassWrapper {
 			return false;
 		String columnName = cw.getJavaColumnName();
 		if(null == columnName) {
-			columnName = cw.getPropertyName();			// If there is no column name the name of the column is, by definition, the property name
+			columnName = cw.getPropertyName();            // If there is no column name the name of the column is, by definition, the property name
 		}
 		return useBaseClass.findColumnByColumnName(columnName) != null;
 	}
@@ -1483,7 +1362,7 @@ class ClassWrapper {
 			ClassOrInterfaceType baseClass = new ClassOrInterfaceType(useBaseClass.getClassName());
 			baseClass = (ClassOrInterfaceType) importIf(baseClass);
 
-			if(! rootType.getExtendedTypes().contains(baseClass)) {
+			if(!rootType.getExtendedTypes().contains(baseClass)) {
 				rootType.getExtendedTypes().add(baseClass);
 			}
 		}
@@ -1494,7 +1373,7 @@ class ClassWrapper {
 			iident.setTypeArguments(NodeList.nodeList(primaryKey.getPropertyType()));
 
 			iident = (ClassOrInterfaceType) importIf(iident);
-			if(! rootType.getImplementedTypes().contains(iident)) {
+			if(!rootType.getImplementedTypes().contains(iident)) {
 				rootType.getImplementedTypes().add(iident);
 			}
 		}
@@ -1512,27 +1391,21 @@ class ClassWrapper {
 		list.forEach(w -> deleteColumn(w));
 	}
 
-
 	/**
 	 * If the PK for this class is a primitive then fix its type to become a wrapper.
 	 */
 	public void fixPkNullity() {
-		if(getSimpleName().equalsIgnoreCase("DefinitionSubscriptionindicator")) {
-			System.out.println("GOTCHA");
-		}
-
-
 		ColumnWrapper primaryKey = getPrimaryKey();
 		if(null == primaryKey)
 			return;
 
 		Type type = primaryKey.getPropertyType();
-		if(! (type instanceof PrimitiveType)) {
+		if(!(type instanceof PrimitiveType)) {
 			return;
 		}
 
 		//-- If the PK was coming from existing Java code, report an error.
-		if(! primaryKey.isNew())
+		if(!primaryKey.isNew())
 			error("primary key is primitive type, this is not allowed. Changing it to become a wrapper type.");
 		PrimitiveType ptype = (PrimitiveType) type;
 
@@ -1556,14 +1429,14 @@ class ClassWrapper {
 		List<ConstructorDeclaration> list = new ArrayList<>();
 
 		getRootType().accept(new VoidVisitorAdapter<Void>() {
-			@Override public void visit(ConstructorDeclaration n, Void arg) {
+			@Override
+			public void visit(ConstructorDeclaration n, Void arg) {
 				list.add(n);
 			}
 		}, null);
 		list.forEach(n -> n.remove());
 
 	}
-
 
 	/**
 	 * Returns TRUE if the column passed is part of a relation in which it is
@@ -1575,10 +1448,8 @@ class ClassWrapper {
 			DbPrimaryKey primaryKey = rel.getParent().getPrimaryKey();
 			if(null != primaryKey) {
 				for(FieldPair fieldPair : rel.getPairList()) {
-					if(fieldPair.getChildColumn() == col) {
-						if(primaryKey.getColumnList().contains(fieldPair.getParentColumn()))
-							return true;
-					}
+					if(fieldPair.getChildColumn() == col && primaryKey.getColumnList().contains(fieldPair.getParentColumn()))
+						return true;
 				}
 			}
 		}
@@ -1591,10 +1462,6 @@ class ClassWrapper {
 	public void checkAssignComplexPK() {
 		if(m_primaryKeyRecalculated)
 			return;
-		if("Salesperson".equalsIgnoreCase(getSimpleName())) {
-			System.out.println("GOTCHA");
-		}
-
 		DbTable table = m_table;
 		if(null == table)
 			return;
@@ -1611,7 +1478,7 @@ class ClassWrapper {
 		} else {
 			if(primaryKey.getColumnList().size() == 1) {
 				DbColumn dbColumn = primaryKey.getColumnList().get(0);
-				if(! isIdentifyingColumn(dbColumn)) {
+				if(!isIdentifyingColumn(dbColumn)) {
 					String fieldName = dbColumn.getName();
 					ColumnWrapper column = findColumnByColumnName(fieldName);
 					if(null == column) {
@@ -1684,11 +1551,11 @@ class ClassWrapper {
 		pkWrapper.markUsed();
 
 		if(pkWrapper.getType() != ClassWrapperType.embeddableClass) {
-			throw new IllegalStateException(this+ ": compound pk class " + pkWrapper + " is not embeddable");
+			throw new IllegalStateException(this + ": compound pk class " + pkWrapper + " is not embeddable");
 		}
 
 		//-- Handle column assignments for the complex typething
-		if(null != list) {										// Only if an actual PK was found
+		if(null != list) {                                        // Only if an actual PK was found
 			pkWrapper.assignPkColumnProperties(list);
 			m_allColumnWrappers.removeAll(list);
 		}
@@ -1698,7 +1565,6 @@ class ClassWrapper {
 
 	/**
 	 * For an embedded class, merge the properties passed as the properties for the ID class.
-	 * @param list
 	 */
 	private void assignPkColumnProperties(List<ColumnWrapper> list) {
 		Set<ColumnWrapper> deleteSet = new HashSet<>(m_allColumnWrappers);
@@ -1866,7 +1732,6 @@ class ClassWrapper {
 	}
 
 	public void generateConfig() {
-		String simpleName = getSimpleName();
 		setTableConfigProperty("className", getSimpleName());
 
 		//-- Per column
@@ -1897,7 +1762,7 @@ class ClassWrapper {
 
 				//-- For search list ignore numeric fields.
 				//System.out.println(">>> " + c.propname + ", t=" + c.type + ", fk=" + c.isfk);
-				if(cw.getRelationType() == RelationType.manyToOne || ! cw.isNumeric()) {
+				if(cw.getRelationType() == RelationType.manyToOne || !cw.isNumeric()) {
 					searchlist.add(cw);
 				}
 			}
@@ -1941,18 +1806,15 @@ class ClassWrapper {
 		getRootType().addAnnotation(annotationExpr);
 	}
 
-	static private final Comparator<ColumnWrapper> C_DOMUI_ORDER = new Comparator<ColumnWrapper>() {
-		@Override
-		public int compare(ColumnWrapper ac, ColumnWrapper bc) {
-			String an = ac.getPropertyName();
-			String bn = bc.getPropertyName();
+	static private final Comparator<ColumnWrapper> C_DOMUI_ORDER = (ac, bc) -> {
+		String an = ac.getPropertyName();
+		String bn = bc.getPropertyName();
 
-			int ao = classifyDomUIName(an);
-			int bo = classifyDomUIName(bn);
-			if(ao != bo)
-				return ao - bo;
-			return an.compareToIgnoreCase(bn);
-		}
+		int ao = classifyDomUIName(an);
+		int bo = classifyDomUIName(bn);
+		if(ao != bo)
+			return ao - bo;
+		return an.compareToIgnoreCase(bn);
 	};
 
 	static private int classifyDomUIName(String n) {

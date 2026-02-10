@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
@@ -156,7 +157,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	}
 
 	private Workbook openWorkbook() throws IOException {
-		switch(m_format){
+		switch(m_format) {
 			default:
 				throw new IllegalStateException("Unhandled Excel format " + m_format);
 			case XLS:
@@ -178,7 +179,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	@Override
 	public void setSetIndex(int setIndex) {
 		if(m_setIndex != setIndex) {
-			Sheet sheet = m_currentSheet = m_workbook.getSheetAt(setIndex);
+			m_currentSheet = m_workbook.getSheetAt(setIndex);
 			m_setIndex = setIndex;
 			m_progressIndicator = 0;
 		}
@@ -231,7 +232,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 
 	@Override
 	public long getSetSizeIndicator() {
-		return getSheet().getLastRowNum() - getSheet().getFirstRowNum();
+		return (long) getSheet().getLastRowNum() - getSheet().getFirstRowNum();
 	}
 
 	@Override
@@ -264,12 +265,16 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	private class RowIterator implements Iterator<IImportRow> {
 		private final Sheet m_sheet;
 
-		/** The next row to read */
+		/**
+		 * The next row to read
+		 */
 		private int m_nextRow;
 
 		private final List<String> m_headerNames;
 
-		/** The last row we're expecting (inclusive) */
+		/**
+		 * The last row we're expecting (inclusive)
+		 */
 		private int m_lastRow;
 
 		public RowIterator(Sheet sheet, int firstRowNum, List<String> headerNames) {
@@ -292,7 +297,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		@Override
 		public IImportRow next() {
 			if(!hasNext())
-				throw new IllegalStateException("Calling next() after hasNext() returned false");
+				throw new NoSuchElementException("Calling next() after hasNext() returned false");
 			Row row = m_sheet.getRow(m_nextRow++);
 			m_progressIndicator++;
 			if(null == row)
