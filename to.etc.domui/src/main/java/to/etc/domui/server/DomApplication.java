@@ -282,7 +282,7 @@ public abstract class DomApplication {
 
 	static private int m_nextPageTag = (int) (System.nanoTime() & 0x7fffffff);
 
-	private final boolean m_logOutput = DeveloperOptions.getBool("domui.log", false);
+	private final boolean m_logOutput = DeveloperOptions.getBool("domui.log", false) || System.getProperty("domui.log") != null;
 
 	@NonNull
 	private List<IRequestInterceptor> m_interceptorList = new ArrayList<>();

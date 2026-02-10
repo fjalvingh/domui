@@ -44,11 +44,9 @@ import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.upload.UploadItem;
-import to.etc.util.FileTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.crawlers.Crawlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -454,11 +452,11 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		if(m_sw != null) {
 			if(getApplication().logOutput()) {
 				String res = m_sw.getBuffer().toString();
-				File tgt = new File("/tmp/last-domui-output.xml");
-				try {
-					FileTool.writeFileFromString(tgt, res, "utf-8");
-				} catch(Exception x) {
-				}
+				//File tgt = new File("/tmp/last-domui-output.xml");
+				//try {
+				//	FileTool.writeFileFromString(tgt, res, "utf-8");
+				//} catch(Exception x) {
+				//}
 
 				System.out.println("---- rendered output:");
 				System.out.println(res);
