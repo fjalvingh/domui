@@ -41,7 +41,6 @@ public class ProblemReporter {
 
 	/**
 	 * Get all error fences.
-	 * @return
 	 */
 	@NonNull
 	private Set<IErrorFence> getAllFences() throws Exception {
@@ -71,8 +70,6 @@ public class ProblemReporter {
 
 	/**
 	 * Get all errors reported on my fences.
-	 * @param fenceList
-	 * @return
 	 */
 	@NonNull
 	private Set<UIMessage> getAllErrorSet(@NonNull Collection<IErrorFence> fenceList) {
@@ -230,9 +227,6 @@ public class ProblemReporter {
 	/**
 	 * Check if this message is already in the reported set. If so remove it from the
 	 * pending set and return true.
-	 *
-	 * @param pi
-	 * @return
 	 */
 	private boolean inExistingSet(Set<UIMessage> existingErrorSet, @Nullable NodeBase node, ProblemInstance pi) {
 		for(UIMessage m : existingErrorSet) {
@@ -246,9 +240,6 @@ public class ProblemReporter {
 
 	/**
 	 * Get all errors reported on the (instance, property) this binding is bound to.
-	 * @param all
-	 * @param n
-	 * @param binding
 	 */
 	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @NonNull List<ProblemInstance> all, @NonNull NodeBase n, @NonNull ComponentPropertyBindingBidi<?, ?, ?, ?> binding) {
 		Object instance = binding.getInstance();
