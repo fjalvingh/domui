@@ -46,7 +46,7 @@ public final class DbLockKeeper {
 	private static final String TABLENAME = "SYS_SERVER_LOCKS";
 
 	//@GuardedBy("this")
-	private static final Map<LockThreadKey, Lock> M_MAINTAINED_LOCKS = new HashMap<LockThreadKey, Lock>();
+	private static final Map<LockThreadKey, Lock> M_MAINTAINED_LOCKS = new HashMap<>();
 
 	public synchronized static DbLockKeeper getInstance() {
 		if(M_INSTANCE.m_dataSource == null) {
@@ -70,7 +70,7 @@ public final class DbLockKeeper {
 		M_INSTANCE.m_dataSource = ds;
 		try(Connection dbc = ds.getConnection()) {
 			dbc.setAutoCommit(false);
-			try(PreparedStatement ps = dbc.prepareStatement("create table " + TABLENAME + " ( LOCK_NAME varchar(60) not null primary key)")) {
+			try(PreparedStatement ps = dbc.prepareStatement("create table " + TABLENAME + " ( lock_name varchar(60) not null primary key)")) {
 				ps.executeUpdate();
 				dbc.commit();
 			}
@@ -106,18 +106,20 @@ public final class DbLockKeeper {
 			dbc.setAutoCommit(false);
 			insertLock(lockName, dbc);
 
-			try(PreparedStatement ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update");
-				ResultSet rs = ps.executeQuery()) {
-				if(!rs.next()) {
-					throw new Exception("Lock with name: " + lockName + " not acquired");
+			try(PreparedStatement ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = ? for update")) {
+				ps.setString(1, lockName);
+				try(ResultSet rs = ps.executeQuery()) {
+					if(!rs.next()) {
+						throw new Exception("Lock with name: " + lockName + " not acquired");
+					}
+					lock = new Lock(this, lockName, dbc);
+					LockHandle lh = new LockHandle(lock);
+					synchronized(this) {
+						M_MAINTAINED_LOCKS.put(key, lock);
+					}
+					dbc = null; // Release ownership.
+					return lh;
 				}
-				lock = new Lock(this, lockName, dbc);
-				LockHandle lh = new LockHandle(lock);
-				synchronized(this) {
-					M_MAINTAINED_LOCKS.put(key, lock);
-				}
-				dbc = null; // Release ownership.
-				return lh;
 			}
 		} finally {
 			try {
@@ -154,18 +156,20 @@ public final class DbLockKeeper {
 			PoolManager.setLongLiving(dbc);
 			insertLock(lockName, dbc);
 
-			try(PreparedStatement ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update nowait");
-				ResultSet rs = ps.executeQuery()) {
-				if(!rs.next()) {
-					return null;
+			try(PreparedStatement ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = ? for update nowait")) {
+				ps.setString(1, lockName);
+				try(ResultSet rs = ps.executeQuery()) {
+					if(!rs.next()) {
+						return null;
+					}
+					lock = new Lock(this, lockName, dbc);
+					LockHandle lh = new LockHandle(lock);
+					synchronized(this) {
+						M_MAINTAINED_LOCKS.put(key, lock);
+					}
+					dbc = null; // Release ownership.
+					return lh;
 				}
-				lock = new Lock(this, lockName, dbc);
-				LockHandle lh = new LockHandle(lock);
-				synchronized(this) {
-					M_MAINTAINED_LOCKS.put(key, lock);
-				}
-				dbc = null; // Release ownership.
-				return lh;
 			}
 		} catch(SQLException sx) {
 //			System.out.println("Errcode=" + sx.getErrorCode() + ", state=" + sx.getSQLState());
@@ -199,7 +203,8 @@ public final class DbLockKeeper {
 	 */
 	private void insertLock(final String lockName, final Connection dbc) {
 		DbPoolUtil.sqlCheckNameOnly(lockName);
-		try(PreparedStatement ps = dbc.prepareStatement("insert into " + TABLENAME + " (lock_name) values('" + lockName + "')")) {
+		try(PreparedStatement ps = dbc.prepareStatement("insert into " + TABLENAME + " (lock_name) values(?)")) {
+			ps.setString(1, lockName);
 			ps.executeUpdate();
 			dbc.commit();
 		} catch(Exception e) {
