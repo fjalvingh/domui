@@ -66,7 +66,7 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 		if(value == null)
 			statement.setLong(position, 0L);
 		else
-			statement.setLong(index, ((Boolean) value).booleanValue() ? 1 : 0);
+			statement.setLong(position, ((Boolean) value).booleanValue() ? 1 : 0);
 	}
 
 	@Override
