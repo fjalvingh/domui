@@ -23,7 +23,6 @@ public class ServerClientRegistry {
 	@NonNull
 	static final private ServerClientRegistry m_instance = new ServerClientRegistry();
 
-
 	/**
 	 * A page that was used by a specified client.
 	 *
@@ -66,7 +65,7 @@ public class ServerClientRegistry {
 
 		private String m_remoteUser;
 
-		private List<Use> m_lastUseList = new ArrayList<Use>();
+		private List<Use> m_lastUseList = new ArrayList<>();
 
 		private long m_tsSessionStart;
 
@@ -74,7 +73,8 @@ public class ServerClientRegistry {
 
 		private int m_nRequests;
 
-		Client() {}
+		Client() {
+		}
 
 		Client(final String addr, final String hn, final String user, final long ts) {
 			m_remoteAddress = addr;
@@ -118,7 +118,8 @@ public class ServerClientRegistry {
 		}
 
 		@Override
-		public void valueBound(final HttpSessionBindingEvent arg0) {}
+		public void valueBound(final HttpSessionBindingEvent arg0) {
+		}
 
 		@Override
 		public void valueUnbound(final HttpSessionBindingEvent arg0) {
@@ -127,7 +128,7 @@ public class ServerClientRegistry {
 	}
 
 	@NonNull
-	final private Map<String, List<Client>> m_userMap = new HashMap<String, List<Client>>();
+	final private Map<String, List<Client>> m_userMap = new HashMap<>();
 
 	public ServerClientRegistry() {
 	}
@@ -139,13 +140,13 @@ public class ServerClientRegistry {
 
 	/**
 	 * Called from the filter to register all requests.
-	 * @param req
 	 */
+	@SuppressWarnings("squid:S2441")
 	void registerRequest(@NonNull final HttpServletRequest req, @NonNull String remoteUser) {
 		try {
 			if(req == null)
 				throw new IllegalStateException("??");
-			HttpSession ses = req.getSession(false);			// Has session?
+			HttpSession ses = req.getSession(false);            // Has session?
 			if(ses == null)
 				return;
 			String rt = req.getParameter("webuia");
@@ -157,7 +158,7 @@ public class ServerClientRegistry {
 			synchronized(m_userMap) {
 				List<Client> list = m_userMap.get(remoteUser);
 				if(list == null) {
-					list = new ArrayList<Client>(4);
+					list = new ArrayList<>(4);
 					m_userMap.put(remoteUser, list);
 				}
 				Client c = findClient(list, req.getRemoteAddr());
@@ -196,7 +197,6 @@ public class ServerClientRegistry {
 
 	/**
 	 * Discards a client's data when it's session is destroyed.
-	 * @param c
 	 */
 	void unregisterUser(@NonNull final Client c) {
 		synchronized(m_userMap) {
@@ -217,7 +217,7 @@ public class ServerClientRegistry {
 		c.m_tsLastRequest = in.m_tsLastRequest;
 		c.m_tsSessionStart = in.m_tsSessionStart;
 
-		List<Use> nul = new ArrayList<Use>(in.getLastUseList().size());
+		List<Use> nul = new ArrayList<>(in.getLastUseList().size());
 		for(Use u : in.getLastUseList()) {
 			Use nu = new Use();
 			nu.m_timeStamp = u.m_timeStamp;
@@ -231,11 +231,10 @@ public class ServerClientRegistry {
 	/**
 	 * Returns (a duplicate of) the list of clients that are currently connected (for whom a
 	 * session exists).
-	 * @return
 	 */
 	@NonNull
 	public List<Client> getActiveClients() {
-		List<Client> res = new ArrayList<Client>();
+		List<Client> res = new ArrayList<>();
 		synchronized(m_userMap) {
 			for(List<Client> list : m_userMap.values()) {
 				for(Client c : list) {
@@ -249,11 +248,10 @@ public class ServerClientRegistry {
 	/**
 	 * Returns a list of login names for users that currently own a session. To get full client
 	 * information call {@link ServerRuntime#getActiveClients()}.
-	 * @return
 	 */
 	@NonNull
 	public Set<String> getActiveLogins() {
-		Set<String> idmap = new TreeSet<String>();
+		Set<String> idmap = new TreeSet<>();
 		synchronized(m_userMap) {
 			for(List<Client> list : m_userMap.values()) {
 				for(Client c : list) {

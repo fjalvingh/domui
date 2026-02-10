@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.header.GoogleIdentificationContributor;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.IRequestContext;
 import to.etc.function.ConsumerEx;
@@ -88,6 +87,10 @@ final public class GoogleIdentityLoginHandler {
 		m_onAuthentication = onAuthentication;
 	}
 
+	public UrlPage getPage() {
+		return m_page;
+	}
+
 	/**
 	 * Connect the authenticator to a login page.
 	 */
@@ -110,7 +113,8 @@ final public class GoogleIdentityLoginHandler {
 		return gg;
 	}
 
-	public boolean onWebAction(IRequestContext context) {
+	@SuppressWarnings("squid:S3516") // Dumb warning, this is an interface method.
+	public void onWebAction(IRequestContext context) {
 		String token = context.getPageParameters().getString("token");
 
 		//-- Validate the token.
@@ -122,7 +126,7 @@ final public class GoogleIdentityLoginHandler {
 			GoogleIdToken idToken = verifier.verify(token);
 			if(idToken == null) {
 				LOG.info("Missing  Google authentication token");
-				return true;
+				return;
 			}
 			GoogleIdToken.Payload payload = idToken.getPayload();
 			String userId = payload.getSubject();
@@ -130,7 +134,7 @@ final public class GoogleIdentityLoginHandler {
 
 			// Get profile information from payload
 			String email = payload.getEmail();
-			boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+			boolean emailVerified = payload.getEmailVerified();
 			String name = (String) payload.get("name");
 			String pictureUrl = (String) payload.get("picture");
 			String locale = (String) payload.get("locale");
@@ -145,11 +149,7 @@ final public class GoogleIdentityLoginHandler {
 		} catch(Exception x) {
 			LOG.error("Authentication exception: " + x, x);
 		}
-		return true;
 	}
 
-	public static void logout(NodeContainer node, String key) {
-
-	}
 
 }

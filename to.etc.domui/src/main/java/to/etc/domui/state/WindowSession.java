@@ -78,17 +78,17 @@ final public class WindowSession {
 	/**
 	 * Map of all active conversations, indexed by conversation ID.
 	 */
-	final private Map<String, ConversationContext> m_conversationMap = new HashMap<String, ConversationContext>();
+	final private Map<String, ConversationContext> m_conversationMap = new HashMap<>();
 
 	/**
 	 * Recently removed conversations.
 	 */
-	final private Map<String, Long> m_destroyedConversationMap = new HashMap<String, Long>();
+	final private Map<String, Long> m_destroyedConversationMap = new HashMap<>();
 
 	/**
 	 * The stack of shelved pages; pages that can be returned to easily.
 	 */
-	private final List<IShelvedEntry> m_shelvedPageStack = new ArrayList<IShelvedEntry>();
+	private final List<IShelvedEntry> m_shelvedPageStack = new ArrayList<>();
 
 	private int m_nextCid;
 
@@ -136,7 +136,7 @@ final public class WindowSession {
 	/**
 	 * The map of all attribute objects added to this window session.
 	 */
-	private Map<String, Object> m_map = Collections.EMPTY_MAP;
+	private Map<String, Object> m_map = Collections.emptyMap();
 
 	public WindowSession(@NonNull final AppSession session) {
 		m_appSession = session;
@@ -269,11 +269,8 @@ final public class WindowSession {
 		//-- Discard all pages used by this from the shelve stack
 		for(int i = m_shelvedPageStack.size(); --i >= 0; ) {
 			IShelvedEntry she = m_shelvedPageStack.get(i);
-			if(she instanceof ShelvedDomUIPage) {
-				ShelvedDomUIPage sdp = (ShelvedDomUIPage) she;
-				if(sdp.getPage().internalGetConversation() == cc) {
-					m_shelvedPageStack.remove(i);
-				}
+			if(she instanceof ShelvedDomUIPage sdp && sdp.getPage().internalGetConversation() == cc) {
+				m_shelvedPageStack.remove(i);
 			}
 		}
 
@@ -346,7 +343,7 @@ final public class WindowSession {
 	 */
 	@NonNull
 	public List<IShelvedEntry> getShelvedPageStack() {
-		return new ArrayList<IShelvedEntry>(m_shelvedPageStack);
+		return new ArrayList<>(m_shelvedPageStack);
 	}
 
 	/**
@@ -361,10 +358,7 @@ final public class WindowSession {
 			default:
 				throw new IllegalStateException("UIGoto." + targetMode + " is invalid when calling UIGoto from an exception listener");
 
-			case REPLACE:
-			case REDIRECT:
-			case NEW:
-			case SUB:
+			case NEW, SUB, REDIRECT, REPLACE:
 				break;
 		}
 		return handleGoto(ctx, currentpg, ajax);
@@ -404,10 +398,8 @@ final public class WindowSession {
 			return false;
 		}
 
-		if(checkNavigation) {
-			if(!currentpg.internalCanLeaveCurrentPageByDomui(gotoCtx)) {
-				return false;
-			}
+		if(checkNavigation && !currentpg.internalCanLeaveCurrentPageByDomui(gotoCtx)) {
+			return false;
 		}
 		if(getTargetMode() == MoveMode.BACK) {
 			// Back requested-> move back, then.
@@ -564,6 +556,7 @@ final public class WindowSession {
 	 * Returns TRUE if the target page is a page which can only be on top of the shelve. For now
 	 * it checks if the page == the index page.
 	 */
+	@SuppressWarnings("squid:S1872")    // We cannot use instanceof because classloaders can differ
 	private boolean mustResetShelve(@NonNull final Class<? extends UrlPage> clz) {
 		Class<?> ac = m_appSession.getApplication().getRootPage();
 		if(ac == null)
@@ -747,12 +740,9 @@ final public class WindowSession {
 		ConversationContext conversation = pg.internalGetConversation();
 		for(int i = m_shelvedPageStack.size(); --i >= 0; ) {
 			IShelvedEntry se = m_shelvedPageStack.get(i);
-			if(se instanceof ShelvedDomUIPage) {
-				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
-				if(sdp.getPage().internalGetConversation() == conversation) {
-					destroyc = false;
-					break;
-				}
+			if(se instanceof ShelvedDomUIPage sdp && sdp.getPage().internalGetConversation() == conversation) {
+				destroyc = false;
+				break;
 			}
 		}
 
@@ -857,13 +847,13 @@ final public class WindowSession {
 	/**
 	 * Check to see if we can use a page stack entry.
 	 */
+	@SuppressWarnings("squid:S1872")    // We cannot use instanceof because classloaders can differ
 	private int findInPageStack(@Nullable final ConversationContext cc, @NonNull final Class<? extends UrlPage> clz, @Nullable final IPageParameters papa) throws Exception {
 		//		if(cc == null) FIXME jal 20090824 Revisit: this is questionable; why can it be null? Has code path from UIGoto-> handleGoto.
 		//			throw new IllegalStateException("The conversation cannot be empty here.");
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0; ) {
 			IShelvedEntry se = m_shelvedPageStack.get(ix);
-			if(se instanceof ShelvedDomUIPage) {
-				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
+			if(se instanceof ShelvedDomUIPage sdp) {
 
 				if(!sdp.getPage().getBody().getClass().getName().equals(clz.getName()))    // Of the appropriate type?
 					continue;                                    // No -> not acceptable
@@ -880,11 +870,11 @@ final public class WindowSession {
 		return -1;                                                // Nothing acceptable
 	}
 
+	@SuppressWarnings("squid:S1872")    // We cannot use instanceof because classloaders can differ
 	public boolean isPageOnStack(@NonNull final Class<? extends UrlPage> clz, @NonNull final IPageParameters papa) throws Exception {
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0; ) {
 			IShelvedEntry se = m_shelvedPageStack.get(ix);
-			if(se instanceof ShelvedDomUIPage) {
-				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
+			if(se instanceof ShelvedDomUIPage sdp) {
 				if(!sdp.getPage().getBody().getClass().getName().equals(clz.getName())) // Of the appropriate type?
 					continue;                                    // No -> not acceptable
 
@@ -938,8 +928,8 @@ final public class WindowSession {
 	 * Set a window attribute.
 	 */
 	public void setAttribute(@NonNull final String name, @Nullable final Object val) {
-		if(m_map == Collections.EMPTY_MAP)
-			m_map = new HashMap<String, Object>();
+		if(m_map.isEmpty())
+			m_map = new HashMap<>();
 		if(val == null)
 			m_map.remove(name);
 		else {
@@ -1052,8 +1042,7 @@ final public class WindowSession {
 	List<SavedPage> getSavedPageList() {
 		List<SavedPage> res = new ArrayList<>(m_shelvedPageStack.size());
 		for(IShelvedEntry se : m_shelvedPageStack) {
-			if(se instanceof ShelvedDomUIPage) {
-				ShelvedDomUIPage dp = (ShelvedDomUIPage) se;
+			if(se instanceof ShelvedDomUIPage dp) {
 				res.add(new SavedPage(dp.getPage().getBody().getClass().getName(), dp.getPage().getPageParameters()));
 			}
 		}
@@ -1149,7 +1138,8 @@ final public class WindowSession {
 		if(!m_developerMode)
 			return;
 		File sf = getStateFile(getWindowID());
-		if(sf.exists())
-			sf.delete();
+		if(sf.exists()) {
+			FileTool.delete(sf);
+		}
 	}
 }

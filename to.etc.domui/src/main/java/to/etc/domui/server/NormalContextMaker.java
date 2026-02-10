@@ -70,6 +70,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 	 * Create a normal context.
 	 * @see to.etc.domui.server.IContextMaker#createContext(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
+	@SuppressWarnings("squid:S2441")
 	@Override
 	public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception {
 		//-- Get session,

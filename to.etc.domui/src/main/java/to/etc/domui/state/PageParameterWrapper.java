@@ -1,7 +1,6 @@
 package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +9,8 @@ import to.etc.domui.trouble.MissingParameterException;
 import to.etc.domui.trouble.UnusableParameterException;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
-import to.etc.util.WrappedException;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -26,11 +24,13 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 25-10-19.
  */
-@NonNullByDefault
 public class PageParameterWrapper implements IPageParameters {
 	static private final Logger LOG = LoggerFactory.getLogger(PageParameterWrapper.class);
 
 	private IBasicParameterContainer m_container;
+
+	public PageParameterWrapper() {
+	}
 
 	public PageParameterWrapper(IBasicParameterContainer container) {
 		m_container = container;
@@ -128,8 +128,8 @@ public class PageParameterWrapper implements IPageParameters {
 		try {
 			return Integer.parseInt(v);
 		} catch(Exception x) {
+			throw new UnusableParameterException(name, "int", v);
 		}
-		throw new UnusableParameterException(name, "int", v);
 	}
 
 	@Override
@@ -151,8 +151,8 @@ public class PageParameterWrapper implements IPageParameters {
 		try {
 			return Long.parseLong(v);
 		} catch(Exception x) {
+			throw new UnusableParameterException(name, "long", v);
 		}
-		throw new UnusableParameterException(name, "long", v);
 	}
 
 	@Override
@@ -173,8 +173,9 @@ public class PageParameterWrapper implements IPageParameters {
 		String v = getOneNotNull(name);
 		try {
 			return Boolean.parseBoolean(v);
-		} catch(Exception x) {}
-		throw new UnusableParameterException(name, "boolean", v);
+		} catch(Exception x) {
+			throw new UnusableParameterException(name, "boolean", v);
+		}
 	}
 
 	@Override
@@ -202,8 +203,8 @@ public class PageParameterWrapper implements IPageParameters {
 		try {
 			return Long.decode(v);
 		} catch(Exception x) {
+			throw new UnusableParameterException(name, "long", v);
 		}
-		throw new UnusableParameterException(name, "long", v);
 	}
 
 	@NonNull
@@ -252,10 +253,8 @@ public class PageParameterWrapper implements IPageParameters {
 	@Nullable
 	public String[] getStringArray(@NonNull String name, @Nullable String[] deflt) {
 		String[] ar = getParameterValues(name);
-		if(null != ar) {
-			if(ar.length >= 0)
-				return ar;
-		}
+		if(null != ar && ar.length > 0)
+			return ar;
 		return deflt;
 	}
 
@@ -263,10 +262,8 @@ public class PageParameterWrapper implements IPageParameters {
 	@Nullable
 	public String[] getRawUnsafeStringArray(@NonNull String name) {
 		String[] ar = m_container.getRawUnsafeParameterValues(name);
-		if(null != ar) {
-			if(ar.length >= 0)
-				return ar;
-		}
+		if(null != ar && ar.length > 0)
+			return ar;
 		return null;
 	}
 
@@ -281,25 +278,21 @@ public class PageParameterWrapper implements IPageParameters {
 		}
 
 		//-- Sort all names.
-		try {
-			List<String> names = new ArrayList<String>(m_container.getParameterNames());		// Dup all keys
-			Collections.sort(names);										// Sort alphabetically
-			for(String name : names) {
-				String[] ar = m_container.getParameterValues(name);
-				if(null != ar) {
-					Arrays.sort(ar);									// Sort all values alphabetically.
-					for(String s : ar) {
-						md.update(s.getBytes("utf-8"));
-						md.update((byte) 0xa);
-					}
+		List<String> names = new ArrayList<>(m_container.getParameterNames());		// Dup all keys
+		Collections.sort(names);										// Sort alphabetically
+		for(String name : names) {
+			String[] ar = m_container.getParameterValues(name);
+			if(null != ar) {
+				Arrays.sort(ar);									// Sort all values alphabetically.
+				for(String s : ar) {
+					md.update(s.getBytes(StandardCharsets.UTF_8));
+					md.update((byte) 0xa);
 				}
 			}
-			String cxs = getUrlContextString();
-			if(null != cxs)
-				md.update(cxs.getBytes("utf-8"));
-		} catch(UnsupportedEncodingException x) {
-			throw WrappedException.wrap(x);									// Cannot happen.
 		}
+		String cxs = getUrlContextString();
+		if(null != cxs)
+			md.update(cxs.getBytes(StandardCharsets.UTF_8));
 		return StringTool.toHex(md.digest());
 	}
 
@@ -335,7 +328,7 @@ public class PageParameterWrapper implements IPageParameters {
 		for(String parameterName : getParameterNames()) {
 			String[] value = getParameterValues(parameterName);
 			if(null != value) {
-				for(String s : (String[]) value) {
+				for(String s : value) {
 					if(sb.length() > 0)
 						sb.append("&");
 					sb.append(parameterName).append('=').append(s);
@@ -344,36 +337,6 @@ public class PageParameterWrapper implements IPageParameters {
 		}
 		return "Parameters: " + sb.toString();
 	}
-
-	///**
-	// * Convert the parameters to a properly escaped URL string.
-	// */
-	//public String toEscapedURL() {
-	//	StringBuilder sb = new StringBuilder();
-	//	for(String name : getParameterNames()) {
-	//		String[] value = getParameterValues(name);
-	//		if(value instanceof List) {
-	//			List<String> list = (List<String>) value;
-	//			for(String s : list) {
-	//				if(sb.length() > 0)
-	//					sb.append('&');
-	//				sb.append(StringTool.encodeURLEncoded(name));
-	//				sb.append('=');
-	//				if(null != s)
-	//					sb.append(StringTool.encodeURLEncoded((String) s));
-	//			}
-	//		} else {
-	//			if(sb.length() > 0)
-	//				sb.append('&');
-	//			sb.append(StringTool.encodeURLEncoded(name));
-	//			sb.append('=');
-	//			if(null != value)
-	//				sb.append(StringTool.encodeURLEncoded((String) value));
-	//		}
-	//	}
-	//	return sb.toString();
-	//}
-
 
 	@Override
 	public int hashCode() {

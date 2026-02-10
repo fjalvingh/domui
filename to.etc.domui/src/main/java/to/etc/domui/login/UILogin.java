@@ -28,7 +28,7 @@ import java.util.TimeZone;
 final public class UILogin {
 	static private final Logger LOG = LoggerFactory.getLogger(UILogin.class);
 
-	static private volatile ILoginHandler	m_loginHandler = new DefaultLoginHandler();
+	static private final ILoginHandler m_loginHandler = new DefaultLoginHandler();
 
 	/**
 	 * Contains, for the current request, the user that is to be considered the
@@ -48,7 +48,6 @@ final public class UILogin {
 	/**
 	 * Return the currently-known logged in user, or null if unknown/not logged in.
 	 * FIXME Should be named findCurrentUser().
-	 * @return
 	 */
 	@Nullable
 	static public IUser getCurrentUser() {
@@ -90,6 +89,7 @@ final public class UILogin {
 	 *
 	 * @return The actual IUser if logged in (not the impersonated one) - or null if not logged in.
 	 */
+	@SuppressWarnings("squid:S2441")
 	@Nullable
 	static private IUser internalGetLoggedInUser(final IRequestContext rx) throws Exception {
 		if(!(rx instanceof RequestContextImpl))
@@ -97,8 +97,8 @@ final public class UILogin {
 
 		RequestContextImpl rci = (RequestContextImpl) rx;
 		HttpServerRequestResponse srr = null;
-		if(rci.getRequestResponse() instanceof HttpServerRequestResponse) {
-			srr = (HttpServerRequestResponse) rci.getRequestResponse();
+		if(rci.getRequestResponse() instanceof HttpServerRequestResponse sr) {
+			srr = sr;
 		}
 
 		if(srr != null) {
@@ -120,11 +120,9 @@ final public class UILogin {
 				}
 
 				Object sval = hs.getAttribute(LOGIN_KEY); // Try to find the key,
-				if(sval != null) {
-					if(sval instanceof IUser) {
-						//-- Proper IUser structure- return it.
-						return (IUser) sval;
-					}
+				if(sval instanceof IUser iu) {
+					//-- Proper IUser structure- return it.
+					return iu;
 				}
 
 				/*
@@ -181,7 +179,7 @@ final public class UILogin {
 	 * Returns the real user, i.e. the impersonator if impersonating.
 	 */
 	@Nullable
-	static public IUser	getRealUser() {
+	static public IUser getRealUser() {
 		IUser impersonator = getImpersonator();
 		if(null != impersonator)
 			return impersonator;
@@ -222,7 +220,6 @@ final public class UILogin {
 	 * For this use case we do not require that API user has impersonation rights.
 	 *
 	 * @param userId user email.
-	 * @throws Exception
 	 */
 	static public void impersonateApiUserAsLoginId(@NonNull String userId) throws Exception {
 		//-- For api users we do not check for impersonation permission
@@ -234,7 +231,7 @@ final public class UILogin {
 		IUser realUser = getRealUser();
 		if(null == realUser)
 			throw new IllegalStateException("There is no currently logged in user");
-		if(checkImpersonationRight && ! realUser.canImpersonate()) {
+		if(checkImpersonationRight && !realUser.canImpersonate()) {
 			throw new ImpersonationFailedException("You have no rights to impersonate");
 		}
 
@@ -244,7 +241,7 @@ final public class UILogin {
 		if(null == la)
 			throw new IllegalStateException("No login authenticator is set in DomApplication");
 
-		IUser user = la.authenticateUser(userId, null);				// Passwordless authentication
+		IUser user = la.authenticateUser(userId, null);                // Passwordless authentication
 		if(user == null)
 			throw new ImpersonationFailedException("Could not log in as user '" + userId + "'");
 		impersonate(user);
@@ -265,10 +262,8 @@ final public class UILogin {
 		return UILogin.getLoginHandler().login(userid);
 	}
 
-
 	/**
 	 * Logs out a user.
-	 * @throws Exception
 	 */
 	static public void logout() throws Exception {
 		System.out.println("Logout method called in the test!!!");
@@ -327,6 +322,7 @@ final public class UILogin {
 		String value = user.getLoginID() + ":" + l + ":" + auth;
 		Cookie k = new Cookie("domuiLogin", value);
 		k.setSecure(true);
+		k.setHttpOnly(true);
 		k.setMaxAge((int) ((l - System.currentTimeMillis()) / 1000)); // #seconds before expiry
 		k.setPath(ci.getRequestResponse().getWebappContext());
 		//ci.getRequestResponse().addCookie(k);
@@ -348,7 +344,6 @@ final public class UILogin {
 
 		DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 		df.setTimeZone(TimeZone.getTimeZone("GMT"));
-		long exp = System.currentTimeMillis() + l;
 		sb.append(df.format(new Date(l)));
 
 		LOG.debug("LoginCookie: " + sb.toString());
@@ -364,15 +359,16 @@ final public class UILogin {
 		if(car != null) {
 			for(Cookie c : car) {
 				if(c.getName().equals("domuiLogin")) {
-					String[] var = c.getValue().split(":");
-					if(var.length == 3) {
+					String[] splt = c.getValue().split(":");
+					if(splt.length == 3) {
 						//-- Make sure the same hash value is not used for login again. This prevents "relogin" when the browser sends some requests with the "old" cookie value (obituaries)
-						UILogin.getLoginHandler().registerIgnoredHash(var[2]);
+						UILogin.getLoginHandler().registerIgnoredHash(splt[2]);
 					}
 
 					//-- Create a new cookie value containing a delete.
 					Cookie k = new Cookie("domuiLogin", "logout");
 					k.setSecure(true);
+					k.setHttpOnly(true);
 					k.setMaxAge(60);
 					k.setPath(rci.getRequestResponse().getWebappContext());
 					rci.getRequestResponse().addCookie(k);
@@ -395,11 +391,10 @@ final public class UILogin {
 		IServerSession hs = rc.getServerSession(false);
 		if(hs != null) {
 			Object o = hs.getAttribute(IMPERSONATION_KEY);
-			if(o instanceof IUser) {
+			if(o instanceof IUser iu) {
 				//-- Impersonation is active.
-				m_impersonator.set(user);						// The actual login
-				user = (IUser) o;								// And the one we're impersonating is the "current user"
-
+				m_impersonator.set(user);                        // The actual login
+				user = iu;                                // And the one we're impersonating is the "current user"
 			}
 		}
 
