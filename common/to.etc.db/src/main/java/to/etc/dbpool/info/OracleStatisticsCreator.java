@@ -18,8 +18,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2/2/16.
  */
-@NonNullByDefault
-final public class OracleStatisticsCreator {
+@NonNullByDefault final public class OracleStatisticsCreator {
 	static final private String KEY = "OraStatCtx";
 
 	/**
@@ -41,35 +40,41 @@ final public class OracleStatisticsCreator {
 
 	public void enableConnectionStatistics(ConnectionProxy px, String sessionID) throws Exception {
 		DbPoolUtil.sqlCheckNameOnly(sessionID);
-		try(Statement statement = px.createStatement()) {
-			statement.execute("begin dbms_session.set_identifier('" + sessionID + "'); end;");            // Set session ID
+		executeSql(px, sessionID, "begin dbms_session.set_identifier(?); end;");            // Set session ID
+		try {
 			try {
-				try {
-					statement.execute("begin dbms_monitor.client_id_stat_enable('" + sessionID + "'); end;");    // Enable statistics gathering
-				} catch(Exception x) {
-					if(!x.getMessage().contains("ORA-13861")) {            // Statistics collection already enabled -> stale, so remove and retry...
-						throw x;
-					}
-
-					//-- Disable them, cleaning out the old statistics
-					statement.execute("begin dbms_monitor.client_id_stat_disable('" + sessionID + "'); end;");    // Disable and remove stats
-
-					//-- Then try again
-					statement.execute("begin dbms_monitor.client_id_stat_enable('" + sessionID + "'); end;");    // Enable statistics gathering
-				}
-
-				if(m_allStatistics) {
-					Map<MetricsDefinition, DbMetric> map = loadExtendedStatistics(px);
-					synchronized(m_storeMap) {
-						m_storeMap.put(px, map);
-					}
-				}
-
-				if(m_enableSessionTrace)
-					statement.execute("begin dbms_monitor.client_id_trace_enable(client_id => '" + sessionID + "', waits => true, binds => false); end;");
+				executeSql(px, sessionID, "begin dbms_monitor.client_id_stat_enable(?); end;");    // Enable statistics gathering
 			} catch(Exception x) {
-				System.err.println("dbpool: " + x);
+				if(!x.getMessage().contains("ORA-13861")) {            // Statistics collection already enabled -> stale, so remove and retry...
+					throw x;
+				}
+
+				//-- Disable them, cleaning out the old statistics
+				executeSql(px, sessionID, "begin dbms_monitor.client_id_stat_disable(?); end;");    // Disable and remove stats
+
+				//-- Then try again
+				executeSql(px, sessionID, "begin dbms_monitor.client_id_stat_enable(?); end;");    // Enable statistics gathering
 			}
+
+			if(m_allStatistics) {
+				Map<MetricsDefinition, DbMetric> map = loadExtendedStatistics(px);
+				synchronized(m_storeMap) {
+					m_storeMap.put(px, map);
+				}
+			}
+
+			if(m_enableSessionTrace) {
+				executeSql(px, sessionID, "begin dbms_monitor.client_id_trace_enable(client_id => ?, waits => true, binds => false); end;");
+			}
+		} catch(Exception x) {
+			System.err.println("dbpool: " + x);
+		}
+	}
+
+	private void executeSql(ConnectionProxy px, String sessionId, String sql) throws Exception {
+		try(PreparedStatement ps = px.prepareStatement(sql)) {
+			ps.setString(1, sessionId);
+			ps.execute();
 		}
 	}
 
@@ -86,14 +91,12 @@ final public class OracleStatisticsCreator {
 			}
 		}
 
-		try(Statement st = px.createStatement()) {
-			try {
-				st.execute("begin dbms_monitor.client_id_stat_disable('" + sessionID + "'); end;");    // Disable and remove stats
-				if(m_enableSessionTrace)
-					st.execute("begin dbms_monitor.client_id_trace_disable(client_id => '" + sessionID + "'); end;");
-			} catch(Exception x) {
-				System.err.println("dbpool: " + x);
-			}
+		try {
+			executeSql(px, sessionID, "begin dbms_monitor.client_id_stat_disable(?); end;");    // Disable and remove stats
+			if(m_enableSessionTrace)
+				executeSql(px, sessionID, "begin dbms_monitor.client_id_trace_disable(client_id => ?); end;");
+		} catch(Exception x) {
+			System.err.println("dbpool: " + x);
 		}
 
 		if(m_allStatistics) {
