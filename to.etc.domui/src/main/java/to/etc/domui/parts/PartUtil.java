@@ -39,7 +39,9 @@ import to.etc.domui.util.resources.IResourceRef;
 import to.etc.sjit.ImaTool;
 import to.etc.util.StringInputStream;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -49,7 +51,8 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 public class PartUtil {
-	private PartUtil() {}
+	private PartUtil() {
+	}
 
 	static private boolean isa(String name, String ext) {
 		int pos = name.lastIndexOf('.');
@@ -65,21 +68,14 @@ public class PartUtil {
 	static public Properties loadProperties(DomApplication da, String src, IResourceDependencyList rdl) throws Exception {
 		String svg = da.internalGetThemeManager().getThemeReplacedString(rdl, src);
 
-		InputStream is = new StringInputStream(svg, "utf-8");
-		try {
+		try(InputStream is = new StringInputStream(svg, "utf-8")) {
 			Properties p = new Properties();
 			p.load(is);
 			return p;
-		} finally {
-			try {
-				is.close();
-			} catch(Exception x) {}
 		}
 	}
 
-	static public String getURI(String in) {
-		if(in == null)
-			return null;
+	static private String getURI(@NonNull String in) {
 		int pos = in.indexOf('?');
 		if(pos == -1)
 			return in;
@@ -136,7 +132,9 @@ public class PartUtil {
 		} finally {
 			try {
 				is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- Ignore
+			}
 		}
 	}
 
@@ -163,11 +161,12 @@ public class PartUtil {
 		private BufferedImage m_bi;
 
 		public BufferedImageTranscoder() {
-		//			hints.put(ImageTranscoder.KEY_BACKGROUND_COLOR, Color.white);
+			//			hints.put(ImageTranscoder.KEY_BACKGROUND_COLOR, Color.white);
 		}
 
 		/**
 		 * Creates a new ARGB image with the specified dimension.
+		 *
 		 * @param w the image width in pixels
 		 * @param h the image height in pixels
 		 */
@@ -180,7 +179,8 @@ public class PartUtil {
 
 		/**
 		 * Writes the specified image to the specified output.
-		 * @param img the image to write
+		 *
+		 * @param img    the image to write
 		 * @param output the output where to store the image
 		 */
 		@Override
@@ -192,7 +192,6 @@ public class PartUtil {
 			return m_bi;
 		}
 	}
-
 
 	static public Color makeColor(String col) {
 		if(col == null)
@@ -213,9 +212,6 @@ public class PartUtil {
 
 	/**
 	 * Locates the optimal font in a font string.
-	 * @param family
-	 * @param styles
-	 * @return
 	 */
 	static public Font getFont(String family, String styles, int size) {
 		int style = 0;
@@ -241,7 +237,7 @@ public class PartUtil {
 		return f.deriveFont(style, size);
 	}
 
-	private static final Map<String, Color> m_colors = new HashMap<String, Color>();
+	private static final Map<String, Color> m_colors = new HashMap<>();
 
 	static {
 		m_colors.put("white", Color.WHITE);

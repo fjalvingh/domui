@@ -47,7 +47,7 @@ public class BundleStack extends BundleBase implements IBundle {
 		m_bundleStack = bundleStack;
 	}
 
-	public BundleStack(@NonNull List< ? extends NlsMessageProvider> reflist) {
+	public BundleStack(@NonNull List<? extends NlsMessageProvider> reflist) {
 		m_bundleStack = reflist.toArray(new NlsMessageProvider[reflist.size()]);
 	}
 
@@ -61,18 +61,15 @@ public class BundleStack extends BundleBase implements IBundle {
 	 * <p>If no bundles are located at all this returns null.</p>
 	 * <p>This makes message bundles follow the same hierarchy as the classes itself, and allows
 	 * classes that extend other classes to also "extend" the messages for the base class.</p>
-	 *
-	 * @param clz
-	 * @return
 	 */
 	@Nullable
-	static public BundleStack createStack(Class< ? > clz) {
+	static public BundleStack createStack(Class<?> clz) {
 		if(null == clz || clz.isInterface())
-			throw new IllegalArgumentException(clz+" invalid - cannot be null or interface");
+			throw new IllegalArgumentException(clz + " invalid - cannot be null or interface");
 
-		Class<?>	cur = clz;
-		List<BundleRef>		res = new ArrayList<BundleRef>();
-		for(;;) {
+		Class<?> cur = clz;
+		List<BundleRef> res = new ArrayList<>();
+		for(; ; ) {
 			if(cur == null)
 				break;
 			String pn = cur.getPackage().getName();
@@ -93,19 +90,17 @@ public class BundleStack extends BundleBase implements IBundle {
 				res.add(br);
 
 			//-- Walk the package hierarchy upward
-			String pkg = clz.getPackage().getName().replace('.', '/');		// Class's package
-			for(;;) {
+			String pkg = clz.getPackage().getName().replace('.', '/');        // Class's package
+			do {
 				pos = pkg.lastIndexOf('/');
 				if(pos < 0)
 					pos = 0;
-				pkg = pkg.substring(0, pos);			// Remove last package name
+				pkg = pkg.substring(0, pos);            // Remove last package name
 
 				br = BundleRef.create(clz, "/" + pkg + "/messages");
 				if(br.exists())
 					res.add(br);
-				if(pos == 0)
-					break;
-			}
+			} while(pos > 0);
 
 			cur = cur.getSuperclass();
 		}

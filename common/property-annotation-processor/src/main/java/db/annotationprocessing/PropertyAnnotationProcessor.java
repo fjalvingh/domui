@@ -196,16 +196,13 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 
 			TypeElement asType = (TypeElement) ce;
 			for(TypeMirror ifa : asType.getInterfaces()) {
-				if(ifa instanceof DeclaredType) {
-					DeclaredType dty = (DeclaredType) ifa;
-
+				if(ifa instanceof DeclaredType dty) {
 					scanProperties(map, dty.asElement());
 				}
 			}
 
 			TypeMirror superclass = asType.getSuperclass();
-			if(superclass instanceof DeclaredType) {
-				DeclaredType sup = (DeclaredType) superclass;
+			if(superclass instanceof DeclaredType sup) {
 				ce = sup.asElement();
 			} else {
 				break;
@@ -234,6 +231,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 
 
 
+	@SuppressWarnings("squid:S3740") // Keep it raw
 	private final class PropertyVisitor extends ElementScanner6 {
 		private final List<Property> m_result = new ArrayList<>();
 

@@ -45,18 +45,20 @@ import to.etc.domui.util.IValueTransformer;
  * Created on Jun 18, 2008
  */
 final public class SimpleColumnDef<T> {
-	static public final String NOWRAP = "-NOWRAP";
-
-	static public final String WRAP = "-WRAP";
+	//static public final String NOWRAP = "-NOWRAP";
+	//
+	//static public final String WRAP = "-WRAP";
 
 	static public final String DEFAULTSORT = "-DSORT";
 
-	/** The label text, if needed, to use as the column heading */
+	/**
+	 * The label text, if needed, to use as the column heading
+	 */
 	@Nullable
 	private String m_columnLabel;
 
 	@NonNull
-	final private ColumnDefList< ? > m_defList;
+	final private ColumnDefList<?> m_defList;
 
 	@NonNull
 	final private Class<T> m_columnType;
@@ -65,7 +67,7 @@ final public class SimpleColumnDef<T> {
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
 	/**
- 	 * If this column is sortable with help from outside code: this defines that helper
+	 * If this column is sortable with help from outside code: this defines that helper
 	 * which will sort the main model for the table for this column. Watch out: the type
 	 * passed to the sort helper is the ROW TYPE, not this-column's type!
 	 */
@@ -87,11 +89,15 @@ final public class SimpleColumnDef<T> {
 	@Deprecated
 	private int m_displayLength;
 
-	/** When set, specifically define wrap or nowrap. When unset use the default. */
+	/**
+	 * When set, specifically define wrap or nowrap. When unset use the default.
+	 */
 	@Nullable
 	private Boolean m_nowrap;
 
-	/** The thingy which obtains the column's value (as an object) */
+	/**
+	 * The thingy which obtains the column's value (as an object)
+	 */
 	@Nullable
 	private IValueTransformer<T> m_valueTransformer;
 
@@ -113,20 +119,19 @@ final public class SimpleColumnDef<T> {
 	@Nullable
 	private String m_renderHint;
 
-	public <X> SimpleColumnDef(@NonNull ColumnDefList< ? > cdl, @NonNull Class<T> valueClass) {
+	public <X> SimpleColumnDef(@NonNull ColumnDefList<?> cdl, @NonNull Class<T> valueClass) {
 		m_columnType = valueClass;
 		m_defList = cdl;
 	}
 
 	/**
 	 * Create a column definition using metadata for the column.
-	 * @param pmm
 	 */
-	public SimpleColumnDef(@NonNull ColumnDefList< ? > cdl, @NonNull PropertyMetaModel<T> pmm) {
+	public SimpleColumnDef(@NonNull ColumnDefList<?> cdl, @NonNull PropertyMetaModel<T> pmm) {
 		m_defList = cdl;
 		m_columnType = pmm.getActualType();
 		setColumnLabel(pmm.getDefaultLabel());
-		setValueTransformer(pmm); 								// Thing which can obtain the value from the property
+		setValueTransformer(pmm);                                // Thing which can obtain the value from the property
 		setPresentationConverter(ConverterRegistry.findBestConverter(pmm));
 		setSortable(pmm.getSortable());
 		setPropertyName(pmm.getName());
@@ -135,17 +140,15 @@ final public class SimpleColumnDef<T> {
 			setNowrap(Boolean.TRUE);
 	}
 
-	public SimpleColumnDef(@NonNull ColumnDefList< ? > cdl, @NonNull ExpandedDisplayProperty<T> m) {
+	public SimpleColumnDef(@NonNull ColumnDefList<?> cdl, @NonNull ExpandedDisplayProperty<T> m) {
 		m_defList = cdl;
 		m_columnType = m.getActualType();
 		setColumnLabel(m.getDefaultLabel());
-		setValueTransformer(m); 								// Thing which can obtain the value from the property
+		setValueTransformer(m);                                // Thing which can obtain the value from the property
 		setPresentationConverter(m.getBestConverter());
-		setSortable(SortableType.UNSORTABLE); 					// FIXME From meta pls
+		setSortable(SortableType.UNSORTABLE);                    // FIXME From meta pls
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
-		if(m.getName() == null)
-			throw new IllegalStateException("All columns MUST have some name");
 		setNumericPresentation(m.getNumericPresentation());
 		setRenderHint(m.getRenderHint());
 		if(m.getDisplayLength() > 0)
@@ -182,7 +185,7 @@ final public class SimpleColumnDef<T> {
 	}
 
 	public void setSortable(@NonNull SortableType sortable) {
-		m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
+		m_sortable = sortable;
 	}
 
 	@Nullable
@@ -205,7 +208,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Returns the optional converter to use to convert raw object values to some presentation string value.
-	 * @return
 	 */
 	@Nullable
 	public IObjectToStringConverter<T> getPresentationConverter() {
@@ -237,7 +239,6 @@ final public class SimpleColumnDef<T> {
 	/**
 	 * When set this defines the css class to set on each value cell for this column. Setting this
 	 * does NOT set a css class for the header!!
-	 * @return
 	 */
 	@Nullable
 	public String getCssClass() {
@@ -247,7 +248,6 @@ final public class SimpleColumnDef<T> {
 	/**
 	 * When set this defines the css class to set on each value cell for this column. Setting this
 	 * does NOT set a css class for the header!!
-	 * @param cssClass
 	 */
 	public void setCssClass(@Nullable String cssClass) {
 		m_cssClass = cssClass;
@@ -255,7 +255,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * When set this defines the css class to set on the header of this column.
-	 * @return
 	 */
 	@Nullable
 	public String getHeaderCssClass() {
@@ -264,8 +263,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * When set this defines the css class to set on the header of this column.
-	 *
-	 * @param headerCssClass
 	 */
 	public void setHeaderCssClass(@Nullable String headerCssClass) {
 		m_headerCssClass = headerCssClass;
@@ -273,7 +270,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Seems nonsense, use width instead.
-	 * @return
 	 */
 	@Deprecated
 	public int getDisplayLength() {
@@ -282,8 +278,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Seems nonsense, use width instead.
-	 * @param displayLength
-	 * @return
 	 */
 	@Deprecated
 	public void setDisplayLength(int displayLength) {
@@ -339,7 +333,6 @@ final public class SimpleColumnDef<T> {
 	 * If this column is sortable with help from outside code: this defines that helper
 	 * which will sort the main model for the table for this column. Watch out: the type
 	 * passed to the sort helper is the ROW TYPE, not this-column's type!
-	 * @return
 	 */
 	@Nullable
 	public ISortHelper<?> getSortHelper() {
@@ -362,8 +355,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set the column header's label.
-	 * @param columnLabel
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> label(@Nullable String columnLabel) {
@@ -373,8 +364,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set the text align for this column. Defaults depend on the numeric type of the column, if known.
-	 * @param align
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> align(@NonNull TextAlign align) {
@@ -384,8 +373,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set the cell click handler.
-	 * @param ck
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> cellClicked(@NonNull ICellClicked<T> ck) {
@@ -395,8 +382,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set the node content renderer.
-	 * @param cr
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> renderer(@NonNull IRenderInto<T> cr) {
@@ -406,8 +391,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set the css class of this column's values.
-	 * @param css
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> css(@NonNull String css) {
@@ -417,8 +400,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set the css class of this column's header.
-	 * @param css
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> cssHeader(@NonNull String css) {
@@ -428,7 +409,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Make sure this column's contents are wrapped (by default columns added by {@link RowRenderer} are marked as not wrappable.
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> wrap() {
@@ -438,7 +418,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set the column to nowrap.
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> nowrap() {
@@ -448,8 +427,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set the numeric presentation for this column.
-	 * @param np
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> numeric(@NonNull NumericPresentation np) {
@@ -459,8 +436,6 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set a column value-to-string converter to be used.
-	 * @param c
-	 * @return
 	 */
 	@NonNull
 	public SimpleColumnDef<T> converter(@NonNull IObjectToStringConverter<T> c) {
@@ -470,52 +445,45 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set the hint for a column.
-	 * @param hint
-	 * @return
 	 */
 	@NonNull
-	public SimpleColumnDef<T>	hint(@NonNull String hint) {
+	public SimpleColumnDef<T> hint(@NonNull String hint) {
 		m_renderHint = hint;
 		return this;
 	}
 
 	/**
 	 * Set the default sort order to ascending first.
-	 * @return
 	 */
 	@NonNull
-	public SimpleColumnDef<T>	ascending() {
+	public SimpleColumnDef<T> ascending() {
 		setSortable(SortableType.SORTABLE_ASC);
 		return this;
 	}
 
 	/**
 	 * Set the default sort order to descending first.
-	 * @return
 	 */
 	@NonNull
-	public SimpleColumnDef<T>	descending() {
+	public SimpleColumnDef<T> descending() {
 		setSortable(SortableType.SORTABLE_DESC);
 		return this;
 	}
 
 	/**
 	 * Set this column as the default column to sort on.
-	 * @return
 	 */
 	@NonNull
-	public SimpleColumnDef<T>	sortdefault() {
+	public SimpleColumnDef<T> sortdefault() {
 		m_defList.setSortColumn(this);
 		return this;
 	}
 
 	/**
 	 * Set a sort helper to be used for this column.
-	 * @param sh
-	 * @return
 	 */
 	@NonNull
-	public SimpleColumnDef<T>	sort(@NonNull ISortHelper<T> sh) {
+	public SimpleColumnDef<T> sort(@NonNull ISortHelper<T> sh) {
 		m_sortHelper = sh;
 		if(m_sortable == SortableType.UNKNOWN)
 			m_sortable = SortableType.SORTABLE_ASC;
@@ -524,11 +492,9 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Set a value transformer to convert this column value into something else.
-	 * @param vt
-	 * @return
 	 */
 	@NonNull
-	public SimpleColumnDef<T>	transform(@NonNull IValueTransformer<T> vt) {
+	public SimpleColumnDef<T> transform(@NonNull IValueTransformer<T> vt) {
 		m_valueTransformer = vt;
 		return this;
 	}

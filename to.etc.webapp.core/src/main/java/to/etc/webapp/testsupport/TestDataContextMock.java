@@ -20,9 +20,9 @@ import java.util.Map;
  * Special mock data context that should be used for tests that never hit the database.
  * Use register methods to mock query results.m
  * Get inserted instances during logic run in case you need to check for inserted data.
- *
+ * <p>
  * JENKINSTODO move class to test resource location once Jenkins maven build is fixed. This is not production code.
- *
+ * <p>
  * Created by vmijic on 11.6.15..
  */
 @NonNullByDefault
@@ -31,36 +31,36 @@ public class TestDataContextMock extends TestDataContextStub {
 	/**
 	 * Adds custom data decoration for objects that are being 'saved' inside mock context.
 	 */
-	public interface ISavedObjectDecorator{
+	public interface ISavedObjectDecorator {
 		void decorate(Object savedObject);
 	}
 
-	private Map<String, List<Object[]>> m_querySelectionMap = new HashMap<String, List<Object[]>>();
+	private Map<String, List<Object[]>> m_querySelectionMap = new HashMap<>();
 
-	private Map<String, List< ? >> m_queryCriteriaMap = new HashMap<String, List< ? >>();
+	private Map<String, List<?>> m_queryCriteriaMap = new HashMap<>();
 
-	private Map<String, Object> m_queryOneCriteriaMap = new HashMap<String, Object>();
+	private Map<String, Object> m_queryOneCriteriaMap = new HashMap<>();
 
-	private Map<String, Object> m_queryOneSelectionMap = new HashMap<String, Object>();
+	private Map<String, Object> m_queryOneSelectionMap = new HashMap<>();
 
 	public static final String NULL = "[null]";
 
 	private static long m_genericMockInsertId = Long.MAX_VALUE;
 
-	private Long getUniqueId(){
+	private static Long getUniqueId() {
 		return m_genericMockInsertId--;
 	}
 
-	private HashMap<Long, IIdentifyable<Long>> m_insertedByLongId = new HashMap<Long, IIdentifyable<Long>>();
+	private HashMap<Long, IIdentifyable<Long>> m_insertedByLongId = new HashMap<>();
 
-	private List<Object> m_inserted = new ArrayList<Object>();
+	private List<Object> m_inserted = new ArrayList<>();
 
-	private List<Object> m_deleted = new ArrayList<Object>();
+	private List<Object> m_deleted = new ArrayList<>();
 
 	@Nullable
 	private final ISavedObjectDecorator m_onSaveCallback;
 
-	public TestDataContextMock(@Nullable ISavedObjectDecorator onSaveCallback){
+	public TestDataContextMock(@Nullable ISavedObjectDecorator onSaveCallback) {
 		m_onSaveCallback = onSaveCallback;
 	}
 
@@ -150,7 +150,7 @@ public class TestDataContextMock extends TestDataContextStub {
 		Object pk = idProp.getValue(o);
 		if(null == pk) {
 			//-- We need to assign one.
-			pk = Long.valueOf(getUniqueId());
+			pk = getUniqueId();
 			assignPk(o, idProp, pk);
 		}
 
@@ -158,12 +158,12 @@ public class TestDataContextMock extends TestDataContextStub {
 			registerInstance(o, pk);
 		}
 
-		if (!m_inserted.contains(o)){
+		if(!m_inserted.contains(o)) {
 			m_inserted.add(o);
 
 			//-- If there is a ros_id: make sure it has a value
 			ISavedObjectDecorator decorator = m_onSaveCallback;
-			if (null != decorator) {
+			if(null != decorator) {
 				decorator.decorate(o);
 			}
 
@@ -179,7 +179,7 @@ public class TestDataContextMock extends TestDataContextStub {
 			instance.setInserted(true);
 		} else {
 			if(instance.getEntity() != o) {
-				throw new IllegalStateException("mockdb: trying to save different instances with the same primary key " + pk +" (class " + o.getClass() +")");
+				throw new IllegalStateException("mockdb: trying to save different instances with the same primary key " + pk + " (class " + o.getClass() + ")");
 			}
 		}
 	}
@@ -195,8 +195,8 @@ public class TestDataContextMock extends TestDataContextStub {
 			}
 
 			setter.invoke(o, id);
-			if(id instanceof Long) {
-				m_insertedByLongId.put((Long) id, (IIdentifyable<Long>) o);
+			if(id instanceof Long l) {
+				m_insertedByLongId.put(l, (IIdentifyable<Long>) o);
 			}
 			m_inserted.add(o);
 		}
@@ -206,7 +206,7 @@ public class TestDataContextMock extends TestDataContextStub {
 	public void delete(final Object o) throws Exception {
 		m_deleted.add(o);
 		m_inserted.remove(o);
-		if (m_insertedByLongId.values().contains(o)){
+		if(m_insertedByLongId.values().contains(o)) {
 			IIdentifyable<Long> longIdentifiable = (IIdentifyable<Long>) o;
 			m_insertedByLongId.remove(longIdentifiable.getId());
 		}
@@ -216,7 +216,7 @@ public class TestDataContextMock extends TestDataContextStub {
 	@Override
 	public <T> T get(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		T item = find(clz, pk);
-		if (null == item) {
+		if(null == item) {
 			throw new IllegalStateException("Not located object of class " + clz + " with ID: " + pk);
 		}
 		return item;
@@ -246,7 +246,7 @@ public class TestDataContextMock extends TestDataContextStub {
 		EntityInstance instance = m_entityByIdMap.get(key);
 		if(null != instance) {
 			Object entity = instance.getEntity();
-			if(! clz.isAssignableFrom(entity.getClass()))
+			if(!clz.isAssignableFrom(entity.getClass()))
 				throw new IllegalStateException("The returned class " + entity.getClass() + " is not assignable to the requested class type " + clz);
 			return (T) entity;
 		}
@@ -280,28 +280,28 @@ public class TestDataContextMock extends TestDataContextStub {
 	}
 
 	protected <T> List<T> processQueryTestId(String testId) {
-		List< ? > res = m_queryCriteriaMap.get(testId);
-		if (null == res){
+		List<?> res = m_queryCriteriaMap.get(testId);
+		if(null == res) {
 			throw new IllegalStateException("Not defined criteria query result for testId: " + testId);
 		}
-		return ((List<T>)res);
+		return ((List<T>) res);
 	}
 
 	@Nullable
 	protected <T> T processQueryOneTestId(String testId) {
 		Object res = m_queryOneCriteriaMap.get(testId);
-		if (null == res){
+		if(null == res) {
 			throw new IllegalStateException("Not defined criteria query one result for testId: " + testId);
-		}else if (NULL.equals(res)){
+		} else if(NULL.equals(res)) {
 			return null;
-		}else{
-			return (T)res;
+		} else {
+			return (T) res;
 		}
 	}
 
 	protected List<Object[]> processSelectionTestId(String testId) {
 		List<Object[]> res = m_querySelectionMap.get(testId);
-		if (null == res){
+		if(null == res) {
 			throw new IllegalStateException("Not defined selection query result for testId: " + testId);
 		}
 		return res;
@@ -310,104 +310,101 @@ public class TestDataContextMock extends TestDataContextStub {
 	@Nullable
 	protected Object[] processSelectionOneTestId(String testId) {
 		Object res = m_queryOneSelectionMap.get(testId);
-		if (null == res){
+		if(null == res) {
 			throw new IllegalStateException("Not defined selection query one result for testId: " + testId);
-		}else if (NULL.equals(res)){
+		} else if(NULL.equals(res)) {
 			return null;
-		}else{
-			return (Object[])res;
+		} else {
+			return (Object[]) res;
 		}
 	}
 
-	public void registerQuery(String testId, List<?> criteriaResult){
+	public void registerQuery(String testId, List<?> criteriaResult) {
 		m_queryCriteriaMap.put(testId, criteriaResult);
 	}
 
 	/**
 	 * Enables specifying fallback testId mocks, only in case when previously it is not defined.
+	 *
 	 * @param override when T - overrides already existing mocks, otherwise keep existing value.
-	 * @param testId
-	 * @param criteriaResult
 	 */
-	public void registerQuery(boolean override, String testId, List<?> criteriaResult){
-		if (!override && null != m_queryCriteriaMap.get(testId)){
+	public void registerQuery(boolean override, String testId, List<?> criteriaResult) {
+		if(!override && null != m_queryCriteriaMap.get(testId)) {
 			return;
 		}
 		registerQuery(testId, criteriaResult);
 	}
 
-	public void registerSelection(String testId, List<Object[]> selectionResult){
+	public void registerSelection(String testId, List<Object[]> selectionResult) {
 		m_querySelectionMap.put(testId, selectionResult);
 	}
 
 	/**
 	 * Enables specifying fallback testId mocks, only in case when previously it is not defined.
+	 *
 	 * @param override when T - overrides already existing mocks, otherwise keep existing value.
-	 * @param testId
-	 * @param selectionResult
 	 */
-	public void registerSelection(boolean override, String testId, List<Object[]> selectionResult){
-		if (!override && null != m_querySelectionMap.get(testId)){
+	public void registerSelection(boolean override, String testId, List<Object[]> selectionResult) {
+		if(!override && null != m_querySelectionMap.get(testId)) {
 			return;
 		}
 		registerSelection(testId, selectionResult);
 	}
 
-	public void registerQueryOne(String testId, @Nullable Object queryOneResult){
+	public void registerQueryOne(String testId, @Nullable Object queryOneResult) {
 		m_queryOneCriteriaMap.put(testId, null == queryOneResult ? NULL : queryOneResult);
 	}
 
 	/**
 	 * Enables specifying fallback testId mocks, only in case when previously it is not defined.
+	 *
 	 * @param override when T - overrides already existing mocks, otherwise keep existing value.
-	 * @param testId
-	 * @param queryOneResult
 	 */
-	public void registerQueryOne(boolean override, String testId, @Nullable Object queryOneResult){
-		if (!override && null != m_queryOneCriteriaMap.get(testId)){
+	public void registerQueryOne(boolean override, String testId, @Nullable Object queryOneResult) {
+		if(!override && null != m_queryOneCriteriaMap.get(testId)) {
 			return;
 		}
 		registerQueryOne(testId, queryOneResult);
 	}
 
-	public void registerSelectionOne(String testId, @Nullable Object... selectionResult){
+	public void registerSelectionOne(String testId, @Nullable Object... selectionResult) {
 		m_queryOneSelectionMap.put(testId, null == selectionResult ? NULL : selectionResult);
 	}
 
 	/**
 	 * Enables specifying fallback testId mocks, only in case when previously it is not defined.
+	 *
 	 * @param override when T - overrides already existing mocks, otherwise keep existing value.
-	 * @param testId
-	 * @param selectionResult
 	 */
-	public void registerSelectionOne(boolean override, String testId, @Nullable Object... selectionResult){
-		if (!override && null != m_queryOneSelectionMap.get(testId)){
+	public void registerSelectionOne(boolean override, String testId, @Nullable Object... selectionResult) {
+		if(!override && null != m_queryOneSelectionMap.get(testId)) {
 			return;
 		}
 		registerSelectionOne(testId, selectionResult);
 	}
+
 	private String checkTestsId(QCriteriaQueryBase<?, ?> cqb) {
 		String testId = cqb.getTestId();
-		if (null == testId){
+		if(null == testId) {
 			throw new IllegalStateException("No testId defined for: " + cqb);
 		}
 		return testId;
 	}
 
-	public <T> List<T> getInserted(Class<T> type){
-		List<T> inserted = new ArrayList<T>();
-		for (Object value : m_inserted){
-			if (value.getClass().isAssignableFrom(type)){
+	public <T> List<T> getInserted(Class<T> type) {
+		List<T> inserted = new ArrayList<>();
+		for(Object value : m_inserted) {
+			if(value.getClass().isAssignableFrom(type)) {
 				inserted.add((T) value);
 			}
 		}
 		return inserted;
 	}
 
-	public <T> List<T> getDeleted(Class<T> type){
-		List<T> deleted = new ArrayList<T>();
-		for (Object value : m_deleted){
-			if (value.getClass().isAssignableFrom(type)){
+	public <T> List<T> getDeleted(Class<T> type) {
+		List<T> deleted = new ArrayList<>();
+		for(Object value : m_deleted) {
+			if(value.getClass().isAssignableFrom(type)) {
 				deleted.add((T) value);
 			}
 		}
@@ -418,7 +415,7 @@ public class TestDataContextMock extends TestDataContextStub {
 	 * Clears accumulated list of inserted/deleted objects. Use between test methods when context is shared between methods.
 	 * jal: why is is needed? Why not create a new one- that is way less prone to errors.
 	 */
-	public void clear(){
+	public void clear() {
 		m_insertedByLongId.clear();
 		m_inserted.clear();
 		m_deleted.clear();

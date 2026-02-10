@@ -42,7 +42,9 @@ import to.etc.util.StringTool;
  * Created on Jul 18, 2011
  */
 public class FloatingDiv extends Div {
-	/** Close reason {@link IWindowClosed#closed(String)}: the dialog was closed by the close button or by pressing the hider. */
+	/**
+	 * Close reason {@link IWindowClosed#closed(String)}: the dialog was closed by the close button or by pressing the hider.
+	 */
 	static public final String RSN_CLOSE = "closed";
 
 	static protected final int DEFWIDTH = 640;
@@ -57,18 +59,25 @@ public class FloatingDiv extends Div {
 
 	private boolean m_resizable;
 
-	/** When set, clicking outside the dialog will close it. */
+	/**
+	 * When set, clicking outside the dialog will close it.
+	 */
 	private boolean m_autoClose = true;
 
-	/** A handler to call when the floating (window) is closed. This is only called if the window is closed by a user action, not when the window is closed by code (by calling {@link #close()}). */
+	/**
+	 * A handler to call when the floating (window) is closed. This is only called if the window is closed by a user action, not when the window is closed by code (by calling {@link #close()}).
+	 */
 	@Nullable
 	private IWindowClosed m_onClose;
 
-	/** If this is a modal window it will have a "hider" div to make it modal, and that div will be placed in here by the Page when the div is shown. */
+	/**
+	 * If this is a modal window it will have a "hider" div to make it modal, and that div will be placed in here by the Page when the div is shown.
+	 */
 	@Nullable
 	private Div m_hider;
 
-	public FloatingDiv() {}
+	public FloatingDiv() {
+	}
 
 	public FloatingDiv(boolean modal) {
 		this(modal, false, -1, -1);
@@ -159,6 +168,7 @@ public class FloatingDiv extends Div {
 	/**
 	 * Overridden to tell the floating thing handler to remove this floater from
 	 * the stack.
+	 *
 	 * @see to.etc.domui.dom.html.NodeBase#onRemoveFromPage(to.etc.domui.dom.html.Page)
 	 */
 	@Override
@@ -192,7 +202,7 @@ public class FloatingDiv extends Div {
 		}
 		setPosition(PositionType.FIXED); //floaters always use FIXED position, this should not be changed
 
-        if(getWidth() != null && getWidth().endsWith("%")) {
+		if(getWidth() != null && getWidth().endsWith("%")) {
 			//when relative size is in use we don't center window horizontally, otherwise we need to center it
 			int widthPerc = DomUtil.percentSize(getWidth());
 			if(widthPerc != -1) {
@@ -226,7 +236,7 @@ public class FloatingDiv extends Div {
 		//-- If this is resizable add the resizable() thing to the create javascript. This relies on jquery built in support for ui-resizeable.
 		if(isResizable())
 			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: " + MINHEIGHT + ", minWidth: " + MINWIDTH
-				 + ", resize: WebUI.floatingDivResize, stop: WebUI.notifySizePositionChanged});");
+				+ ", resize: WebUI.floatingDivResize, stop: WebUI.notifySizePositionChanged});");
 	}
 
 	public boolean isAutoClose() {
@@ -235,7 +245,6 @@ public class FloatingDiv extends Div {
 
 	/**
 	 * When set (which is the default), clicking outside the dialog will automatically close (cancel) it.
-	 * @param autoClose
 	 */
 	public void setAutoClose(boolean autoClose) {
 		m_autoClose = autoClose;
@@ -244,11 +253,11 @@ public class FloatingDiv extends Div {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Close control and floater close event handling.		*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Get the current "onClose" handler: a handler to call when the window is closed. This is
 	 * only called if the window is closed by a user action, not when the window is closed by
 	 * code (by calling {@link #close()}).
-	 * @return
 	 */
 	@Nullable
 	final public IWindowClosed getOnClose() {
@@ -259,8 +268,6 @@ public class FloatingDiv extends Div {
 	 * Set the current "onClose" handler: a handler to call when the window is closed. This is
 	 * only called if the window is closed by a user action, not when the window is closed by
 	 * code (by calling {@link #close()}).
-	 *
-	 * @param onClose
 	 */
 	final public void setOnClose(@Nullable IWindowClosed onClose) {
 		m_onClose = onClose;
@@ -269,12 +276,8 @@ public class FloatingDiv extends Div {
 	/**
 	 * Internal use: call the registered "close" handler with the close reason. For this base class the only
 	 * reason passed will be RSN_CLOSED. Derived classes can add other string constants to use.
-	 * @param reasonCode
-	 * @throws Exception
 	 */
 	final protected void callCloseHandler(@NonNull String closeReason) throws Exception {
-		if(null == closeReason)
-			throw new IllegalArgumentException("Close reason cannot be null");
 		onClosed(closeReason);
 		if(null != m_onClose)
 			m_onClose.closed(closeReason);
@@ -283,17 +286,14 @@ public class FloatingDiv extends Div {
 	/**
 	 * Can be overridden to handle close events inside a subclass. This gets called when the
 	 * close event fires, before the onClose property handler is called.
-	 * @param closeReason
-	 * @throws Exception
 	 */
-	protected void onClosed(@NonNull String closeReason) throws Exception {}
+	protected void onClosed(@NonNull String closeReason) throws Exception {
+	}
 
 	/**
 	 * Close the window !AND CALL THE CLOSE HANDLER!. To close the window without calling
 	 * the close handler use {@link #close()}. This code represents the "cancel" action
 	 * for dialogs.
-	 *
-	 * @throws Exception
 	 */
 	public void closePressed() throws Exception {
 		close();
@@ -313,12 +313,9 @@ public class FloatingDiv extends Div {
 	/**
 	 * Can be called from panels that know they are inside a FloatingDiv/Window/Dialog to close
 	 * the surrounding dialog.
-	 * @param node
 	 */
 	public static void close(@NonNull NodeBase node) {
-		while(! (node instanceof FloatingDiv)) {
-			if(node == null)
-				return;
+		while(!(node instanceof FloatingDiv)) {
 			node = node.getParent();
 		}
 		((FloatingDiv) node).close();
@@ -341,6 +338,7 @@ public class FloatingDiv extends Div {
 	/**
 	 * Disables all button access keys which are not part of active floating window.
 	 * They will be enabled again on window close
+	 *
 	 * @see FloatingDiv#reactivateHiddenAccessKeys()
 	 */
 	private void deactivateHiddenAccessKeys() {
@@ -349,6 +347,7 @@ public class FloatingDiv extends Div {
 
 	/**
 	 * Enables all button access keys, disabled during the floating window presence.
+	 *
 	 * @see FloatingDiv#deactivateHiddenAccessKeys()
 	 */
 	private void reactivateHiddenAccessKeys() {
@@ -357,6 +356,7 @@ public class FloatingDiv extends Div {
 
 	/**
 	 * Exposed client bounds. This gets set internally in case that floating div is dragged or resized in client (browser).
+	 *
 	 * @see to.etc.domui.dom.html.NodeContainer#getClientBounds()
 	 */
 	@Override
@@ -366,15 +366,18 @@ public class FloatingDiv extends Div {
 
 	/**
 	 * Exposed call to get browser window size. This gets set internally in case that floating div is dragged or resized in client (browser).
+	 *
 	 * @see to.etc.domui.dom.html.NodeContainer#getClientBounds()
 	 */
 	@Override
 	public Dimension getBrowserWindowSize() {
 		return super.getBrowserWindowSize();
 	}
+
 	/**
 	 * Exposed listener setter for notification on size and/or position change. This gets changed in case that floating div is dragged or resized in client (browser).
 	 * Call {@link FloatingDiv#getClientBounds()} in order to read size and position after change.
+	 *
 	 * @see to.etc.domui.dom.html.NodeBase#setOnSizeAndPositionChange()
 	 */
 	@Override

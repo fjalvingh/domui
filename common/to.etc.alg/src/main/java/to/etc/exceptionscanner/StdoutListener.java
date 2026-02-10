@@ -6,7 +6,6 @@ import to.etc.function.ConsumerEx;
 
 import java.io.PrintStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -40,9 +39,8 @@ public class StdoutListener {
 
 	private List<ConsumerEx<String>> m_stderrListenerList = new CopyOnWriteArrayList<>();
 
-	private Charset m_consoleCharset = StandardCharsets.UTF_8;
-
-	private StdoutListener() {}
+	private StdoutListener() {
+	}
 
 	/**
 	 * Take over stdout and stderr, assign our own output stream from them, and start the thread that scans the output for exceptions.
@@ -61,7 +59,6 @@ public class StdoutListener {
 	private synchronized void start(Charset consoleCharset) {
 		if(m_started)
 			return;
-		m_consoleCharset = consoleCharset;
 
 		PrintStream stdout = System.out;
 		PrintStream stderr = System.err;
@@ -134,6 +131,7 @@ public class StdoutListener {
 	public void removeStdoutListener(ConsumerEx<String> l) {
 		m_stdoutListenerList.remove(l);
 	}
+
 	public void removeStderrListener(ConsumerEx<String> l) {
 		m_stderrListenerList.remove(l);
 	}

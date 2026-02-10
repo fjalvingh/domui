@@ -25,9 +25,7 @@ final public class BooleanPrimitiveTrueFalseType implements UserType {
 
 	@Override
 	public Object deepCopy(Object value) throws HibernateException {
-		if(value == null)
-			return value;
-		return Boolean.valueOf(((Boolean) value).booleanValue());
+		return value;
 	}
 
 	@Override

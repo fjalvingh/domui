@@ -15,14 +15,13 @@ import java.util.Set;
 /**
  * Example implementation of a simple selection model, retaining only the instances key.
  *
- * @param <T>	The instance type
- * @param <K>	The key type
- *
+ * @param <T> The instance type
+ * @param <K> The key type
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2011
  */
 public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
-	final private Map<K, T> m_selectedSet = new HashMap<K, T>();
+	final private Map<K, T> m_selectedSet = new HashMap<>();
 
 	final private boolean m_multiSelect;
 
@@ -39,7 +38,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 		this(multiSelect, retainInstances, rowinstance -> {
 			if(rowinstance instanceof IIdentifyable<?>) {
 				return ((IIdentifyable<K>) rowinstance).getId();
-			} else if(null == rowinstance) 							// Should not happen.
+			} else if(null == rowinstance)                            // Should not happen.
 				throw new IllegalArgumentException("null row");
 			throw new IllegalStateException("The instance needs to implement IIdentifyable<K>, or you need to set a KeyExtractor");
 		});
@@ -66,8 +65,6 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 
 	@Override
 	public boolean isSelected(@NonNull T rowinstance) {
-		if(null == rowinstance) // Should not happen.
-			throw new IllegalArgumentException("null row");
 		return m_selectedSet.containsKey(getKey(rowinstance));
 	}
 
@@ -80,7 +77,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 		try {
 			return m_keyExtractor.apply(rowinstance);
 		} catch(Exception x) {
-			throw WrappedException.wrap(x);						// 8-(
+			throw WrappedException.wrap(x);                        // 8-(
 		}
 	}
 
@@ -91,9 +88,6 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 
 	@Override
 	public void setInstanceSelected(@NonNull T rowinstance, boolean on) throws Exception {
-		if(null == rowinstance) // Should not happen.
-			throw new IllegalArgumentException("null row");
-
 		K key = getKey(rowinstance);
 		if(on) {
 			if(!m_multiSelect && !m_selectedSet.isEmpty()) {
@@ -146,7 +140,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 		if(!m_retainInstances) {
 			throw new IllegalStateException("Selection model is not set to retain instances!");
 		}
-		return new ArrayList<T>(m_selectedSet.values());
+		return new ArrayList<>(m_selectedSet.values());
 	}
 
 	@Override
@@ -185,6 +179,6 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 	}
 
 	public Set<K> getSelectedKeys() {
-		return new HashSet<K>(m_selectedSet.keySet());
+		return new HashSet<>(m_selectedSet.keySet());
 	}
 }

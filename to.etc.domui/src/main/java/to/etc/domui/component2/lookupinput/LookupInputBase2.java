@@ -139,7 +139,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		@Nullable ClassMetaModel outputMetaModel) {
 		this(null, modelFactory, queryClass, resultClass, queryMetaModel, outputMetaModel);
 		m_modelFactory = modelFactory;
-		setQueryHandler(new PageQueryHandler<QT>(this));
+		setQueryHandler(new PageQueryHandler<>(this));
 	}
 
 	public LookupInputBase2(@Nullable QCriteria<QT> rootCriteria, @NonNull ITableModelFactory<QT, OT> modelFactory, @NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass,
@@ -147,7 +147,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		@Nullable ClassMetaModel outputMetaModel) {
 		super(rootCriteria, queryClass, resultClass, queryMetaModel, outputMetaModel);
 		m_modelFactory = modelFactory;
-		setQueryHandler(new PageQueryHandler<QT>(this));
+		setQueryHandler(new PageQueryHandler<>(this));
 	}
 
 	/*--------------------------------------------------------------*/
@@ -187,7 +187,10 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		//	addCssClass(m_keyWordSearchCssClass);
 		//}
 		String hint = getKeySearchHint();
-		ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (hint != null) ? hint : getDefaultKeySearchHint()));
+		if(null == hint)
+			hint = getDefaultKeySearchHint();
+		if(null != hint)
+			ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, hint));
 	}
 
 	private void handleSelection(@NonNull SearchInput2 node) throws Exception {
@@ -269,13 +272,13 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		openPopup(initialModel);
 	}
 
-	private void closePopup() {
-		Dialog floater = m_floater;
-		if(floater == null)
-			return;
-		floater.close();
-		m_floater = null;
-	}
+	//private void closePopup() {
+	//	Dialog floater = m_floater;
+	//	if(floater == null)
+	//		return;
+	//	floater.close();
+	//	m_floater = null;
+	//}
 
 	private void openPopup(@Nullable ITableModel<OT> initialModel) throws Exception {
 		if(m_floater != null) {
@@ -359,10 +362,8 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 			handleSetValue(model.getItems(0, 1).get(0));
 		} else if(size > 100) {
 			String count = Integer.toString(size);
-			if(model instanceof ITruncateableDataModel) {
-				if(((ITruncateableDataModel) model).isTruncated())
-					count = "> " + count;
-			}
+			if(model instanceof ITruncateableDataModel tdm && tdm.isTruncated())
+				count = "> " + count;
 			openMessagePanel("ui-lui-result-count", Msgs.UI_KEYWORD_SEARCH_COUNT, count);
 		} else {
 			openResultsPopup(model);
@@ -377,10 +378,10 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		List<OT> list = model.getItems(0, model.getRows());
 		IRenderInto<OT> renderer = m_keywordSearchResultsDropDownRenderer;
 		if(null == renderer) {
-			renderer = new DefaultPopupRowRenderer<OT>(getOutputMetaModel());
+			renderer = new DefaultPopupRowRenderer<>(getOutputMetaModel());
 		}
 
-		SelectOnePanel<OT> pnl = m_selectPanel = new SelectOnePanel<OT>(list, renderer);
+		SelectOnePanel<OT> pnl = m_selectPanel = new SelectOnePanel<>(list, renderer);
 		if(getKeyWordSearchPopupMaxHeight() != null) {
 			pnl.setMaxHeight(getKeyWordSearchPopupMaxHeight());
 		}
@@ -465,7 +466,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	public IStringQueryFactory<QT> getStringQueryFactory() {
 		IStringQueryFactory<QT> factory = m_stringQueryFactory;
 		if(null == factory) {
-			m_stringQueryFactory = factory = new DefaultStringQueryFactory<QT>(getQueryMetaModel());
+			m_stringQueryFactory = factory = new DefaultStringQueryFactory<>(getQueryMetaModel());
 		}
 		return factory;
 	}
@@ -506,7 +507,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 * content renderer (a {@link SimpleLookupInputRenderer}) to render the fields.
 	 */
 	public void setValueColumns(String... columns) {
-		setValueRenderer(new SimpleLookupInputRenderer<OT>(getOutputClass(), columns));
+		setValueRenderer(new SimpleLookupInputRenderer<>(getOutputClass(), columns));
 	}
 
 	@Override

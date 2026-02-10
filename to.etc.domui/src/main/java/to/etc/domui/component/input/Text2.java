@@ -87,8 +87,17 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			String oldValue = getRawValue();                                    // Retain previous value,
 			super.acceptRequestParameter(values);                                // Set the new one;
 
-			oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.strip();
-			String newValue = getRawValue() == null ? "" : m_untrimmed ? getRawValue() : getRawValue().strip();
+			if(oldValue == null) {
+				oldValue = "";
+			} else {
+				oldValue = m_untrimmed ? oldValue : oldValue.strip();
+			}
+			String newValue;
+			if(getRawValue() == null) {
+				newValue = "";
+			} else {
+				newValue = m_untrimmed ? getRawValue() : getRawValue().strip();
+			}
 			if(oldValue.equals(newValue)) {
 				return false;
 			}
@@ -152,8 +161,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 * it's being returned.
 	 */
 	private boolean m_untrimmed;
-
-	private boolean m_immediate;
 
 	@Nullable
 	private String m_emptyMarker;
@@ -307,14 +314,12 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		}
 
 		//-- If a pattern validation is present apply it to the raw string value.
-		if(getValidationRegexp() != null) {
-			if(!Pattern.matches(getValidationRegexp(), raw)) {
-				//-- We have a validation error.
-				if(getRegexpUserString() != null)
-					throw new ValidationException(Msgs.vNoReMatch, getRegexpUserString());        // Input format must be {0}
-				else
-					throw new ValidationException(Msgs.vInvalid);
-			}
+		if(getValidationRegexp() != null && !Pattern.matches(getValidationRegexp(), raw)) {
+			//-- We have a validation error.
+			if(getRegexpUserString() != null)
+				throw new ValidationException(Msgs.vNoReMatch, getRegexpUserString());        // Input format must be {0}
+			else
+				throw new ValidationException(Msgs.vInvalid);
 		}
 
 		//-- Handle conversion and validation.
@@ -337,7 +342,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		} catch(RuntimeConversionException x) {
 			throw new ValidationException(Msgs.notValid, raw);
 		} catch(Exception x) {
-			LOG.error("Unexpected: " + x, x);
 			throw new ValidationException(Msgs.unexpectedException, x);
 		}
 	}
@@ -588,7 +592,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		m_untrimmed = untrimmed;
 	}
 
-	private void setEmptyMarker(String emptyMarker) {
+	public void setEmptyMarker(String emptyMarker) {
 		if(DomUtil.isBlank(emptyMarker)) {
 			setSpecialAttribute("marker", null);
 		} else {
@@ -803,9 +807,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	@NonNull
 	static public Text2<BigDecimal> createBDMoneyInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
-		if(pmm == null)
-			throw new NullPointerException("Null property model not allowed");
-		Text2<BigDecimal> txt = new Text2<BigDecimal>(BigDecimal.class);
+		Text2<BigDecimal> txt = new Text2<>(BigDecimal.class);
 		Text2.configureNumericInput(txt, pmm, editable);
 		MoneyUtil.assignMonetaryConverter(pmm, editable, txt);
 		return txt;
@@ -813,9 +815,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	@NonNull
 	static public Text2<Double> createDoubleMoneyInput(@NonNull PropertyMetaModel<Double> pmm, boolean editable) {
-		if(pmm == null)
-			throw new NullPointerException("Null property model not allowed");
-		Text2<Double> txt = new Text2<Double>(Double.class);
+		Text2<Double> txt = new Text2<>(Double.class);
 		Text2.configureNumericInput(txt, pmm, editable);
 		MoneyUtil.assignMonetaryConverter(pmm, editable, txt);
 		return txt;
@@ -853,11 +853,9 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	@NonNull
 	static public <T extends Number> Text2<T> createNumericInput(PropertyMetaModel<T> pmm, boolean editable) {
-		if(pmm == null)
-			throw new NullPointerException("Null property model not allowed");
-		Text2<T> txt = new Text2<T>(pmm.getActualType());
+		Text2<T> txt = new Text2<>(pmm.getActualType());
 		Text2.configureNumericInput(txt, pmm, editable);
-		NumericUtil.assignNumericConverter(pmm, editable, txt, pmm.getActualType());
+		NumericUtil.assignNumericConverter(pmm, txt, pmm.getActualType());
 		return txt;
 	}
 
@@ -904,7 +902,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		Class<?> aclz = pmm.getActualType();
 		if(!iclz.isAssignableFrom(aclz))
 			throw new IllegalStateException("Invalid class type=" + iclz + " for property " + pmm);
-		Text2<T> txt = new Text2<T>(iclz);
+		Text2<T> txt = new Text2<>(iclz);
 
 		//-- Get simple things to do out of the way.
 		if(!editable)
@@ -981,13 +979,12 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		if(pmm.getDisplayLength() > 0)
 			calcsz = pmm.getDisplayLength();
 
-		if(pmm.getLength() > 0 && pmm.getLength() != 255) { // Handle non-jpa-blundered lengths, if present
-			//-- A length is present. It only defines the max. input size if no converter is present...
-			if(pmm.getConverter() == null) {
-				calcmaxsz = pmm.getLength(); // Defined max length always overrides anything else
-				if(calcsz <= 0 && calcmaxsz < 40)
-					calcsz = calcmaxsz; // Set the display size provided it is reasonable
-			}
+		// Handle non-jpa-blundered lengths, if present
+		//-- A length is present. It only defines the max. input size if no converter is present...
+		if(pmm.getLength() > 0 && pmm.getLength() != 255 && pmm.getConverter() == null) {
+			calcmaxsz = pmm.getLength(); // Defined max length always overrides anything else
+			if(calcsz <= 0 && calcmaxsz < 40)
+				calcsz = calcmaxsz; // Set the display size provided it is reasonable
 		}
 
 		//-- Wrap it up...

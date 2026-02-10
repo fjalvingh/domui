@@ -31,8 +31,6 @@ public class ObservableEvent<V, E extends IChangeEvent<V, E, L>, L extends IChan
 	final private IObservable<V, E, L> m_source;
 
 	public ObservableEvent(@NonNull IObservable<V, E, L> source) {
-		if(null == source)
-			throw new IllegalArgumentException("Source cannot be null");
 		m_source = source;
 	}
 

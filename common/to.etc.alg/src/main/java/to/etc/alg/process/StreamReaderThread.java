@@ -22,7 +22,7 @@ public class StreamReaderThread extends Thread {
 	/**
 	 * The stream to read,
 	 */
-	private Reader m_reader;
+	final private Reader m_reader;
 
 	/**
 	 * The output writer thing.
@@ -84,6 +84,7 @@ public class StreamReaderThread extends Thread {
 	 * Read data from the stream until it closes line by line; add each line to
 	 * the output channel.
 	 */
+	@SuppressWarnings("squid:S1181")
 	@Override
 	public void run() {
 		try {
@@ -91,10 +92,8 @@ public class StreamReaderThread extends Thread {
 			IFollow follow = m_follow;
 			while(0 <= (szrd = m_reader.read(m_buf))) {
 				m_w.write(m_buf, 0, szrd);
-				if(m_flush) {
-					if(szrd > 512 || needsFlush(m_buf, szrd))
-						m_w.flush();
-				}
+				if(m_flush && (szrd > 512 || needsFlush(m_buf, szrd)))
+					m_w.flush();
 				if(null != follow) {
 					try {
 						m_follow.newData(false, m_buf, szrd);
@@ -109,9 +108,9 @@ public class StreamReaderThread extends Thread {
 				x.printStackTrace();
 		} finally {
 			try {
-				if(m_reader != null)
-					m_reader.close();
+				m_reader.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			Writer w = m_w;
 			if(null != w) {

@@ -51,9 +51,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class TUtilDomUI {
+	@SuppressWarnings("squid:S3077")
 	static private volatile AppSession m_session;
 
 	static private DomApplication m_application;
+
+	private TUtilDomUI() {
+		// No instances
+	}
 
 	static public synchronized void setApplication(DomApplication application) throws Exception {
 		ConfigParameters cp = new ConfigParameters() {
@@ -163,8 +168,6 @@ public class TUtilDomUI {
 	/**
 	 * Create a page structure valid for testing pps. Do not make public: using UrlPage is unsafe before this
 	 * is called, so a page must be fully created using one of these methods here.
-	 * @param pg
-	 * @return
 	 */
 	static private Page initPage(UrlPage pg, PageParameters pp) throws Exception {
 		getApplication();
@@ -193,8 +196,6 @@ public class TUtilDomUI {
 
 	/**
 	 * Create an empty, parameterless UrlPage page to use to add nodes to.
-	 * @return
-	 * @throws Exception
 	 */
 	static public UrlPage createBody() throws Exception {
 		return createPage(UrlPage.class).getBody();
@@ -202,9 +203,6 @@ public class TUtilDomUI {
 
 	/**
 	 * Create an empty UrlPage with page parameters.
-	 * @param pp
-	 * @return
-	 * @throws Exception
 	 */
 	static public UrlPage createBody(PageParameters pp) throws Exception {
 		return createPage(UrlPage.class, pp).getBody();
@@ -212,11 +210,6 @@ public class TUtilDomUI {
 
 	/**
 	 * Create a page body from the specified class.
-	 * @param <T>
-	 * @param clz
-	 * @param pp
-	 * @return
-	 * @throws Exception
 	 */
 	static public <T extends UrlPage> T createBody(Class<T> clz, PageParameters pp) throws Exception {
 		return (T) createPage(clz, pp).getBody();
@@ -224,10 +217,6 @@ public class TUtilDomUI {
 
 	/**
 	 * Create a page body from the specified class.
-	 * @param <T>
-	 * @param clz
-	 * @return
-	 * @throws Exception
 	 */
 	static public <T extends UrlPage> T createBody(Class<T> clz) throws Exception {
 		return (T) createPage(clz, null).getBody();
@@ -246,6 +235,7 @@ public class TUtilDomUI {
 		return getFullRenderText(getBrowserVersion(), nd.getPage());
 	}
 
+	@SuppressWarnings("squid:S1172")	// Interface
 	static public String getFullRenderText(BrowserVersion bv, Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
 		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);

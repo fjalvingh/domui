@@ -39,7 +39,7 @@ public class MiniScanner {
 	/**
 	 * Cached copy of the instance
 	 */
-	static private ThreadLocal<MiniScanner> m_current = new ThreadLocal<MiniScanner>();
+	static private ThreadLocal<MiniScanner> m_current = new ThreadLocal<>();
 
 	private String m_in;
 
@@ -80,7 +80,7 @@ public class MiniScanner {
 	/**
 	 * Return the character at the current location, or -1 if at end of the string.
 	 */
-	public int LA() {
+	public int la() {
 		if(m_ix >= m_len)
 			return -1;
 		return (0xffff & m_in.charAt(m_ix));
@@ -89,7 +89,7 @@ public class MiniScanner {
 	/**
 	 * Return the nth char after the current location, or -1 if that is past the end of the string.
 	 */
-	public int LA(int ix) {
+	public int la(int ix) {
 		if(m_ix + ix >= m_len)
 			return -1;
 		return (0xffff & m_in.charAt(m_ix + ix));
@@ -124,7 +124,7 @@ public class MiniScanner {
 	 * do nothing and return false.
 	 */
 	public boolean skip(char c) {
-		if(LA() == (c & 0xffff)) {
+		if(la() == (c & 0xffff)) {
 			accept();
 			return true;
 		}
@@ -242,7 +242,7 @@ public class MiniScanner {
 		int ndigits = 0;
 
 		while(!eof()) {
-			char c = (char) LA(); // Cannot have eof here, so there.
+			char c = (char) la(); // Cannot have eof here, so there.
 			if(c == ',') {
 				commact++;
 				if(commact > 1) {
@@ -392,9 +392,9 @@ public class MiniScanner {
 		return true;
 	}
 
-	private void badnumber() throws ValidationException {
-		throw new ValidationException(Msgs.vInvalid, m_in);
-	}
+	//private void badnumber() throws ValidationException {
+	//	throw new ValidationException(Msgs.vInvalid, m_in);
+	//}
 
 	private void badamount(boolean monetary) {
 		throw new ValidationException(monetary ? Msgs.vBadAmount : Msgs.vInvalid, m_in);
@@ -414,13 +414,12 @@ public class MiniScanner {
 
 		//-- Scan the number
 		m_val = 0;
-		char c = ' ';
+		char c;
 		while(m_ix < m_len) {
 			c = m_in.charAt(m_ix);
 			if(!Character.isDigit(c))
 				break;
 			m_val = m_val * 10 + (c - '0'); // Implement in #
-			c = ' ';
 			m_ix++;
 		}
 		skipWs();
@@ -450,23 +449,22 @@ public class MiniScanner {
 			char c = nextNumberDelimiter();
 			if(c == 1) {
 				//-- Lone #: is time in minutes,
-				return val() * 60;
+				return val() * 60L;
 			}
 			if(c == 'D' || c == 'd') {
-				res += (long) val() * 24 * 60 * 60l;
-				c = nextNumberDelimiter();
+				res += (long) val() * 24 * 60 * 60L;
+				nextNumberDelimiter();
 			} else if(c == 'H' || c == 'h' || c == 'U' || c == 'u') {
-				res += (long) val() * 60 * 60l;
-				c = nextNumberDelimiter();
+				res += (long) val() * 60 * 60L;
+				nextNumberDelimiter();
 			} else if(c == 's' || c == 'S') {
 				res += val();
-				c = nextNumberDelimiter();
+				nextNumberDelimiter();
 			} else if(c == 0) {
 				return res;
 			} else if(c == ':') {
-				res += val() * 60 * 60l;
-				c = nextNumberDelimiter();
-				c = 'S';
+				res += val() * 60 * 60L;
+				nextNumberDelimiter();
 			} else {
 				throw new ValidationException(Msgs.vInvalidDate, "(Voorbeeld: 5d 8h)");
 			}
@@ -493,7 +491,7 @@ public class MiniScanner {
 		if(s.length() > m_len - m_ix)
 			return false;
 		for(int i = 0; i < s.length(); i++) {
-			if((s.charAt(i) & 0xffff) != LA(i))
+			if((s.charAt(i) & 0xffff) != la(i))
 				return false;
 		}
 		copy(s.length());

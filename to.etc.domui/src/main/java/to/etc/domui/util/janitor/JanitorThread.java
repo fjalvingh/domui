@@ -24,6 +24,9 @@
  */
 package to.etc.domui.util.janitor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 /**
@@ -53,7 +56,7 @@ public class JanitorThread implements Runnable {
 	protected JanitorTask m_jt;
 
 	/** The time the current task was assigned/ started. */
-	private long m_t_start;
+	private long m_startTs;
 
 	/** The slot number for this Janitor Thread  */
 	protected int m_slot;
@@ -80,14 +83,14 @@ public class JanitorThread implements Runnable {
 
 	public synchronized void assignTask(JanitorTask jt) {
 		m_jt = jt;
-		m_t_start = System.currentTimeMillis();
+		m_startTs = System.currentTimeMillis();
 		m_state = jtfASSIGN; // Assigned but not running
 		jt.m_run_slot = m_slot; // Set runslot,
-		jt.m_t_lastrun = m_t_start; // Task last run,
+		jt.m_t_lastrun = m_startTs; // Task last run,
 	}
 
 	private synchronized long getStartTS() {
-		return m_t_start;
+		return m_startTs;
 	}
 
 	/**
@@ -115,5 +118,9 @@ public class JanitorThread implements Runnable {
 		setState(jtfTERM);
 	}
 
+	static private final Logger LOG = LoggerFactory.getLogger(JanitorThread.class);
 
+	public synchronized void log(String msg) {
+		LOG.debug("T" + m_slot + ":" + m_jt.m_taskname + "- " + msg);
+	}
 }

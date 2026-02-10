@@ -87,6 +87,7 @@ public class ExporterButtons {
 		});
 	}
 
+	@SuppressWarnings("squid:S2095")	// exporterTask is a thread.
 	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<? extends IExportColumn<?>> columns, String fileName) throws Exception {
 		ListExporterTask<T> exporterTask = new ListExporterTask<>(xf, baseClass, list, columns);
 
@@ -446,21 +447,19 @@ public class ExporterButtons {
 
 		private String calculateFileName(@Nullable Class<?> baseClass) {
 			String fileName = m_fileName;
-			if(null == fileName) {
-				//-- Get table name
-				if(null != baseClass) {
-					ClassMetaModel classMeta = MetaManager.findClassMeta(baseClass);
-					String tableName = classMeta.getTableName();
-					if(null != tableName) {
-						int pos = tableName.lastIndexOf('.');
-						if(pos >= 0) {
-							tableName = tableName.substring(pos + 1);
-						}
-
-						fileName = tableName.toLowerCase();
-					} else {
-						fileName = baseClass.getSimpleName().toLowerCase();
+			//-- Get table name
+			if(null == fileName && null != baseClass) {
+				ClassMetaModel classMeta = MetaManager.findClassMeta(baseClass);
+				String tableName = classMeta.getTableName();
+				if(null != tableName) {
+					int pos = tableName.lastIndexOf('.');
+					if(pos >= 0) {
+						tableName = tableName.substring(pos + 1);
 					}
+
+					fileName = tableName.toLowerCase();
+				} else {
+					fileName = baseClass.getSimpleName().toLowerCase();
 				}
 			}
 			return fileName;

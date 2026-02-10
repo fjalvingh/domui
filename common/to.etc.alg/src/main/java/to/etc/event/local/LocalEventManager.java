@@ -10,35 +10,30 @@ import java.util.Map;
 /**
  * Manager can be used to fire events that will be handled on the same server that fires them.
  *
- *
  * @author <a href="mailto:menno.van.eijk@itris.nl">Menno van Eijk</a>
  * Created on Feb 6, 2013
  */
 public class LocalEventManager {
 
-	private static final LocalEventManager					m_instance	= new LocalEventManager();
+	private static final LocalEventManager m_instance = new LocalEventManager();
 
 	//@GuardedBy("this")
 	@NonNull
-	private final Map<Class< ? >, List<ILocalEventListener< ? >>>	m_listeners	= new HashMap<Class< ? >, List<ILocalEventListener< ? >>>();
-
-
+	private final Map<Class<?>, List<ILocalEventListener<?>>> m_listeners = new HashMap<>();
 
 	/**
 	 * Method will add an listener, listening for the given event.
-	 * @param eventObject
-	 * @param l
 	 */
-	public <T> void addListenerForEvent(@NonNull ILocalEventListener<T> l, @NonNull Class< ? extends T> eventClass) {
-		List<ILocalEventListener< ? >> existingListeners;
+	public <T> void addListenerForEvent(@NonNull ILocalEventListener<T> l, @NonNull Class<? extends T> eventClass) {
+		List<ILocalEventListener<?>> existingListeners;
 		synchronized(this) {
 			existingListeners = m_listeners.get(eventClass);
 		}
-		List<ILocalEventListener< ? >> newListeners;
+		List<ILocalEventListener<?>> newListeners;
 		if(existingListeners == null) {
-			newListeners = new ArrayList<ILocalEventListener< ? >>();
+			newListeners = new ArrayList<>();
 		} else {
-			newListeners = new ArrayList<ILocalEventListener< ? >>(existingListeners);
+			newListeners = new ArrayList<>(existingListeners);
 		}
 
 		newListeners.add(l);
@@ -49,18 +44,16 @@ public class LocalEventManager {
 
 	/**
 	 * fire an event. All the registered listeners will be informed of the fired event.
-	 * @param firedEvent
-	 * @throws Exception
 	 */
 	public <T> void eventFired(@NonNull T firedEvent) throws Exception {
-		List<ILocalEventListener< ? >> listeners;
+		List<ILocalEventListener<?>> listeners;
 		synchronized(this) {
 			listeners = m_listeners.get(firedEvent.getClass());
 		}
 		if(listeners == null) {
 			return;
 		}
-		for(ILocalEventListener< ? > listener : listeners) {
+		for(ILocalEventListener<?> listener : listeners) {
 			((ILocalEventListener<T>) listener).eventFired(firedEvent);
 		}
 	}
@@ -68,6 +61,5 @@ public class LocalEventManager {
 	public static LocalEventManager getInstance() {
 		return m_instance;
 	}
-
 
 }

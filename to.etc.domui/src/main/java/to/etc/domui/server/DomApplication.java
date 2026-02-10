@@ -184,6 +184,8 @@ public abstract class DomApplication {
 
 	public static final String RESOURCEHEADER_PREFIX = "resourceheader-";
 
+	public static final String STATE_LISTENER_FAILED = "State listener failed: ";
+
 	@NonNull
 	private final PartService m_partService = new PartService(this);
 
@@ -191,7 +193,7 @@ public abstract class DomApplication {
 	private final PartRequestHandler m_partHandler = new PartRequestHandler(m_partService);
 
 	@NonNull
-	private Set<IAppSessionListener> m_appSessionListeners = new HashSet<IAppSessionListener>();
+	private Set<IAppSessionListener> m_appSessionListeners = new HashSet<>();
 
 	@Nullable
 	private File m_webFilePath;
@@ -206,6 +208,7 @@ public abstract class DomApplication {
 	/**
 	 * The default XSS checker.
 	 */
+	@SuppressWarnings("squid:S3077")
 	private volatile XssChecker m_xssChecker = new XssChecker();
 
 	/**
@@ -282,16 +285,16 @@ public abstract class DomApplication {
 	private final boolean m_logOutput = DeveloperOptions.getBool("domui.log", false);
 
 	@NonNull
-	private List<IRequestInterceptor> m_interceptorList = new ArrayList<IRequestInterceptor>();
+	private List<IRequestInterceptor> m_interceptorList = new ArrayList<>();
 
 	/**
 	 * Contains the header contributors in the order that they were added.
 	 */
 	@NonNull
-	private List<HeaderContributorEntry> m_orderedContributorList = Collections.EMPTY_LIST;
+	private List<HeaderContributorEntry> m_orderedContributorList = Collections.emptyList();
 
 	@NonNull
-	private List<INewPageInstantiated> m_newPageInstListeners = Collections.EMPTY_LIST;
+	private List<INewPageInstantiated> m_newPageInstListeners = Collections.emptyList();
 
 	/**
 	 * Timeout for a window session, in minutes.
@@ -308,7 +311,7 @@ public abstract class DomApplication {
 	private ILoginDialogFactory m_loginDialogFactory;
 
 	@NonNull
-	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
+	private List<ILoginListener> m_loginListenerList = Collections.emptyList();
 
 	@NonNull
 	private IPageInjector m_injector = new DefaultPageInjector();
@@ -353,6 +356,7 @@ public abstract class DomApplication {
 
 	private boolean m_scanClosed;
 
+	@SuppressWarnings("squid:S3077")
 	private volatile Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
 
 	private boolean m_dieOnUncheckedInjectors;
@@ -419,10 +423,10 @@ public abstract class DomApplication {
 	 * Render factories for different browser versions.
 	 */
 	@NonNull
-	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
+	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<>();
 
 	@NonNull
-	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
+	private List<IResourceFactory> m_resourceFactoryList = Collections.emptyList();
 
 	@NonNull
 	private List<FilterRef> m_requestHandlerList = Collections.emptyList();
@@ -435,6 +439,7 @@ public abstract class DomApplication {
 	 * overridden by setting the same page header a second time.
 	 */
 	@NonNull
+	@SuppressWarnings("squid:S3077")
 	private volatile Map<String, String> m_defaultSiteHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	@NonNull
@@ -477,12 +482,7 @@ public abstract class DomApplication {
 	 */
 	static private volatile int m_platformVarcharByteLimit;
 
-	private static final Comparator<FilterRef> C_HANDLER_DESCPRIO = new Comparator<FilterRef>() {
-		@Override
-		public int compare(FilterRef a, FilterRef b) {
-			return b.getPriority() - a.getPriority();
-		}
-	};
+	private static final Comparator<FilterRef> C_HANDLER_DESCPRIO = (a, b) -> b.getPriority() - a.getPriority();
 
 	@NonNull
 	private List<IAsyncListener<?>> m_asyncListenerList = Collections.emptyList();
@@ -571,7 +571,7 @@ public abstract class DomApplication {
 			throw new IllegalStateException("jQuery version '" + jqversion + "' not supported");
 		m_jQueryVersion = jqversion;
 		m_jQueryPath = jqdata[1];
-		List<String> jqp = new ArrayList<String>(jqdata.length - 2);
+		List<String> jqp = new ArrayList<>(jqdata.length - 2);
 		for(int i = 2; i < jqdata.length; i++)
 			jqp.add(jqdata[i]);
 		m_jQueryScripts = jqp;
@@ -650,10 +650,8 @@ public abstract class DomApplication {
 		for(Page page : toRemove) {
 			try {
 				ConversationContext conversation = page.internalGetConversation();
-				if(null != conversation) {
-					if(cids.add(conversation.getFullId())) {
-						conversation.destroy();
-					}
+				if(null != conversation && cids.add(conversation.getFullId())) {
+					conversation.destroy();
 				}
 			} catch(Exception x) {
 				System.out.println("Failed to destroy page: " + x);
@@ -711,12 +709,12 @@ public abstract class DomApplication {
 	}
 
 	public synchronized void addSessionListener(final IAppSessionListener l) {
-		m_appSessionListeners = new HashSet<IAppSessionListener>(m_appSessionListeners);
+		m_appSessionListeners = new HashSet<>(m_appSessionListeners);
 		m_appSessionListeners.add(l);
 	}
 
 	public synchronized void removeSessionListener(final IAppSessionListener l) {
-		m_appSessionListeners = new HashSet<IAppSessionListener>(m_appSessionListeners);
+		m_appSessionListeners = new HashSet<>(m_appSessionListeners);
 		m_appSessionListeners.remove(l);
 	}
 
@@ -875,6 +873,7 @@ public abstract class DomApplication {
 
 	}
 
+	@SuppressWarnings("squid:S1181")
 	final void internalDestroy() {
 		LOG.info("Destroying application " + this);
 		try {
@@ -981,10 +980,8 @@ public abstract class DomApplication {
 	private void checkIconPackInitialization() {
 		boolean test = false;                            // FIXME Horrible
 		for(HeaderContributorEntry hce : getHeaderContributorList()) {
-			if(hce.getContributor().toString().contains("font-awesome") || hce.getContributor().toString().contains("fontawesome")) {
-				if(hce.getContributor().toString().contains("font-awesome-test"))
-					test = true;
-			}
+			if((hce.getContributor().toString().contains("font-awesome") || hce.getContributor().toString().contains("fontawesome")) && hce.getContributor().toString().contains("font-awesome-test"))
+				test = true;
 		}
 
 		if(!isIconPackInitialized()) {
@@ -1275,7 +1272,7 @@ public abstract class DomApplication {
 	public synchronized void addRenderFactory(IHtmlRenderFactory f) {
 		if(m_renderFactoryList.contains(f))
 			throw new IllegalStateException("Don't be silly, this one is already added");
-		m_renderFactoryList = new ArrayList<IHtmlRenderFactory>(m_renderFactoryList);
+		m_renderFactoryList = new ArrayList<>(m_renderFactoryList);
 		m_renderFactoryList.add(0, f);
 	}
 
@@ -1295,7 +1292,7 @@ public abstract class DomApplication {
 		return m_uiTestMode;
 	}
 
-	public void setAutoRefreshPollInterval(int autoRefreshPollInterval) {
+	public synchronized void setAutoRefreshPollInterval(int autoRefreshPollInterval) {
 		m_autoRefreshPollInterval = autoRefreshPollInterval;
 	}
 
@@ -1326,15 +1323,11 @@ public abstract class DomApplication {
 		if(!m_underSeleniumTest) {
 			if(m_keepAliveInterval > 0)
 				pollinterval = m_keepAliveInterval;
-			if(m_autoRefreshPollInterval > 0) {
-				if(m_autoRefreshPollInterval < pollinterval)
-					pollinterval = m_autoRefreshPollInterval;
-			}
+			if(m_autoRefreshPollInterval > 0 && m_autoRefreshPollInterval < pollinterval)
+				pollinterval = m_autoRefreshPollInterval;
 		}
-		if(pollCallbackRequired) {
-			if(m_defaultPollInterval < pollinterval)
-				pollinterval = m_defaultPollInterval;
-		}
+		if(pollCallbackRequired && m_defaultPollInterval < pollinterval)
+			pollinterval = m_defaultPollInterval;
 		if(pollinterval == Integer.MAX_VALUE)
 			return 0;
 		return pollinterval;
@@ -1478,7 +1471,7 @@ public abstract class DomApplication {
 				throw new IllegalArgumentException("The header contributor " + hc + " has already been added.");
 		}
 
-		m_orderedContributorList = new ArrayList<HeaderContributorEntry>(m_orderedContributorList); // Dup the original list,
+		m_orderedContributorList = new ArrayList<>(m_orderedContributorList); // Dup the original list,
 		m_orderedContributorList.add(new HeaderContributorEntry(hc, order)); // And add the new'un
 	}
 
@@ -1565,12 +1558,10 @@ public abstract class DomApplication {
 	/**
 	 * FIXME Needs a proper, injected implementation instead of a quicky.
 	 */
-	public <T> T createInstance(final Class<T> clz, final Object... args) {
+	public <T> T createInstance(final Class<T> clz) {
 		try {
 			return clz.newInstance();
-		} catch(IllegalAccessException x) {
-			throw new WrappedException(x);
-		} catch(InstantiationException x) {
+		} catch(IllegalAccessException | InstantiationException x) {
 			throw new WrappedException(x);
 		}
 	}
@@ -1619,7 +1610,7 @@ public abstract class DomApplication {
 	}
 
 	public synchronized void registerResourceFactory(@NonNull IResourceFactory f) {
-		m_resourceFactoryList = new ArrayList<IResourceFactory>(m_resourceFactoryList);
+		m_resourceFactoryList = new ArrayList<>(m_resourceFactoryList);
 		m_resourceFactoryList.add(f);
 	}
 
@@ -1662,7 +1653,7 @@ public abstract class DomApplication {
 	//	/** Cache for application resources containing all resources we have checked existence for */
 	//	private final Map<String, IResourceRef> m_resourceSet = new HashMap<String, IResourceRef>();
 
-	private final Map<String, Boolean> m_knownResourceSet = new HashMap<String, Boolean>();
+	private final Map<String, Boolean> m_knownResourceSet = new HashMap<>();
 
 	/**
 	 * Create a resource ref to a class based resource. If we are running in DEBUG mode this will
@@ -1697,10 +1688,8 @@ public abstract class DomApplication {
 		 * The code below was needed because the original code caused a 404 exception on web resources which were
 		 * checked every time. All other resource types like class resources were not checked for existence.
 		 */
-		if(ref instanceof WebappResourceRef) {
-			if(!ref.exists())
-				throw new ThingyNotFoundException(name);
-		}
+		if(ref instanceof WebappResourceRef && !ref.exists())
+			throw new ThingyNotFoundException(name);
 		return ref;
 	}
 
@@ -1816,7 +1805,7 @@ public abstract class DomApplication {
 	/*	CODING:	Code table cache.									*/
 	/*--------------------------------------------------------------*/
 
-	private final Map<String, ListRef<?>> m_listCacheMap = new HashMap<String, ListRef<?>>();
+	private final Map<String, ListRef<?>> m_listCacheMap = new HashMap<>();
 
 	static private final class ListRef<T> {
 		private List<T> m_list;
@@ -1845,13 +1834,9 @@ public abstract class DomApplication {
 		ListRef<T> ref;
 		String key = cm.getCacheKey();
 		synchronized(m_listCacheMap) {
-			ref = (ListRef<T>) m_listCacheMap.get(key);
-			if(ref == null) {
-				ref = new ListRef<T>(cm);
-				m_listCacheMap.put(key, ref);
-			}
+			ref = (ListRef<T>) m_listCacheMap.computeIfAbsent(key, a -> new ListRef<>(cm));
 		}
-		return new ArrayList<T>(ref.initialize());
+		return new ArrayList<>(ref.initialize());
 	}
 
 	/**
@@ -1876,7 +1861,7 @@ public abstract class DomApplication {
 	}
 
 	public synchronized void addInterceptor(final IRequestInterceptor r) {
-		List<IRequestInterceptor> l = new ArrayList<IRequestInterceptor>(m_interceptorList);
+		List<IRequestInterceptor> l = new ArrayList<>(m_interceptorList);
 		l.add(r);
 		m_interceptorList = l;
 	}
@@ -1923,7 +1908,7 @@ public abstract class DomApplication {
 	 * subclass (this prevents the handler for the superclass from being called all the time).
 	 * Any given exception type may occur in this list only once or an exception occurs.
 	 */
-	public synchronized <E extends Throwable, T extends Class<E>> void addExceptionListener(final T xclass, final IExceptionListener<E> l) {
+	public synchronized <E extends Throwable> void addExceptionListener(final Class<E> xclass, final IExceptionListener<E> l) {
 		m_exceptionListeners = new ArrayList<>(m_exceptionListeners);
 
 		//-- Do a sortish insert.
@@ -2165,7 +2150,8 @@ public abstract class DomApplication {
 	 */
 	private String calculateValueFor(String ref) {
 		int pos = ref.indexOf(':');
-		String varName, defaultValue;
+		String varName;
+		String defaultValue;
 
 		if(pos == -1) {
 			varName = ref;
@@ -2257,7 +2243,6 @@ public abstract class DomApplication {
 	 */
 	@NonNull
 	private File getRawPropertyFile(String developerKey) throws IOException {
-		File homeDir = new File(System.getProperty("user.home"));
 		String name = System.getProperty("config");
 		if(null != name) {
 			File f = new File(name);
@@ -2295,7 +2280,7 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Rights registry.									*/
 	/*--------------------------------------------------------------*/
-	private final Map<String, BundleRef> m_rightsBundleMap = new HashMap<String, BundleRef>();
+	private final Map<String, BundleRef> m_rightsBundleMap = new HashMap<>();
 
 	/**
 	 * Registers a set of possible rights and their names/translation bundle.
@@ -2303,8 +2288,7 @@ public abstract class DomApplication {
 	public void registerRight(final BundleRef bundle, final String... rights) {
 		synchronized(m_rightsBundleMap) {
 			for(String r : rights) {
-				if(!m_rightsBundleMap.containsKey(r))
-					m_rightsBundleMap.put(r, bundle);
+				m_rightsBundleMap.computeIfAbsent(r, a -> bundle);
 			}
 		}
 	}
@@ -2325,10 +2309,7 @@ public abstract class DomApplication {
 						try {
 							String s = (String) f.get(null);
 							if(s != null) {
-								if(!m_rightsBundleMap.containsKey(s)) {
-									m_rightsBundleMap.put(s, bundle);
-									//									System.out.println("app: registering right="+s);
-								}
+								m_rightsBundleMap.computeIfAbsent(s, a -> bundle);
 							}
 						} catch(Exception x) {
 							// Ignore all exceptions due to accessing the field using Introspection
@@ -2344,7 +2325,7 @@ public abstract class DomApplication {
 	 */
 	public List<String> getRegisteredRights() {
 		synchronized(m_rightsBundleMap) {
-			return new ArrayList<String>(m_rightsBundleMap.keySet());
+			return new ArrayList<>(m_rightsBundleMap.keySet());
 		}
 	}
 
@@ -2522,13 +2503,13 @@ public abstract class DomApplication {
 		}
 	}
 
-	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
+	private List<IDomUIStateListener> m_uiStateListeners = Collections.emptyList();
 
 	/**
 	 * Register a listener for internal DomUI events.
 	 */
 	public synchronized void addUIStateListener(IDomUIStateListener sl) {
-		m_uiStateListeners = new ArrayList<IDomUIStateListener>(m_uiStateListeners); // Dup list;
+		m_uiStateListeners = new ArrayList<>(m_uiStateListeners); // Dup list;
 		m_uiStateListeners.add(sl);
 	}
 
@@ -2536,7 +2517,7 @@ public abstract class DomApplication {
 	 * Remove a registered UI state listener.
 	 */
 	public synchronized void removeUIStateListener(IDomUIStateListener sl) {
-		m_uiStateListeners = new ArrayList<IDomUIStateListener>(m_uiStateListeners); // Dup list;
+		m_uiStateListeners = new ArrayList<>(m_uiStateListeners); // Dup list;
 		m_uiStateListeners.remove(sl);
 	}
 
@@ -2549,7 +2530,7 @@ public abstract class DomApplication {
 			try {
 				sl.windowSessionCreated(ws);
 			} catch(Exception x) {
-				LOG.error("State listener failed: " + x, x);
+				LOG.error(STATE_LISTENER_FAILED + x, x);
 			}
 		}
 	}
@@ -2559,7 +2540,7 @@ public abstract class DomApplication {
 			try {
 				sl.windowSessionDestroyed(ws);
 			} catch(Exception x) {
-				LOG.error("State listener failed: " + x, x);
+				LOG.error(STATE_LISTENER_FAILED + x, x);
 			}
 		}
 	}
@@ -2569,7 +2550,7 @@ public abstract class DomApplication {
 			try {
 				sl.conversationCreated(ws);
 			} catch(Exception x) {
-				LOG.error("State listener failed: " + x, x);
+				LOG.error(STATE_LISTENER_FAILED + x, x);
 			}
 		}
 	}
@@ -2579,7 +2560,7 @@ public abstract class DomApplication {
 			try {
 				sl.conversationDestroyed(ws);
 			} catch(Exception x) {
-				LOG.error("State listener failed: " + x, x);
+				LOG.error(STATE_LISTENER_FAILED + x, x);
 			}
 		}
 	}
@@ -2589,7 +2570,7 @@ public abstract class DomApplication {
 			try {
 				sl.onBeforeFullRender(ctx, ws);
 			} catch(Exception x) {
-				LOG.error("State listener failed: " + x, x);
+				LOG.error(STATE_LISTENER_FAILED + x, x);
 			}
 		}
 	}
@@ -2599,7 +2580,7 @@ public abstract class DomApplication {
 			try {
 				sl.onBeforePageAction(ctx, ws);
 			} catch(Exception x) {
-				LOG.error("State listener failed: " + x, x);
+				LOG.error(STATE_LISTENER_FAILED + x, x);
 			}
 		}
 	}
@@ -2609,7 +2590,7 @@ public abstract class DomApplication {
 			try {
 				sl.onAfterPage(ctx, ws);
 			} catch(Exception x) {
-				LOG.error("State listener failed: " + x, x);
+				LOG.error(STATE_LISTENER_FAILED + x, x);
 			}
 		}
 	}
@@ -2619,7 +2600,7 @@ public abstract class DomApplication {
 			try {
 				it.accept(sl);
 			} catch(Exception x) {
-				LOG.error("State listener failed: " + x, x);
+				LOG.error(STATE_LISTENER_FAILED + x, x);
 			}
 		}
 	}

@@ -38,12 +38,12 @@ public class SecondDurationConverter implements IConverter<Long> {
 		if(in.longValue() < 0)
 			return "";
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
-		long dlt = in.longValue();			// Seconds
+		long dlt = in.longValue();            // Seconds
 
-		final long DAYS = 24 * 60 * 60;
-		final long HOURS = 60 * 60;
+		final long DAYS = 24L * 60 * 60;
+		final long HOURS = 60L * 60;
 
 		boolean sp = false;
 		if(dlt >= DAYS) {
@@ -82,13 +82,14 @@ public class SecondDurationConverter implements IConverter<Long> {
 			sp = true;
 		}
 
-		if(! sp)
+		if(!sp)
 			return "0 s";
 		return sb.toString();
 	}
 
 	/**
 	 * Convert a duration in the format: [xD] hh:mm[:ss] into a duration in seconds.
+	 *
 	 * @see to.etc.domui.converter.IConverter#convertStringToObject(java.util.Locale, java.lang.String)
 	 */
 	@Override

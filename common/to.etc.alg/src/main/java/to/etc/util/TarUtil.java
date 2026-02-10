@@ -25,10 +25,13 @@ import java.nio.file.attribute.UserPrincipalLookupService;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class TarUtil {
-
 	private static final Logger LOG = LoggerFactory.getLogger(TarUtil.class);
 
 	private static final int BUFFER_SIZE = 1024 * 1024;
+
+	private TarUtil() {
+		// util class
+	}
 
 	public static void createTarArchive(TarArchiveOutputStream tarOs, File rootLocation, String... entriesPaths) throws IOException {
 		if(!rootLocation.exists() || !rootLocation.isDirectory()) {
@@ -43,7 +46,7 @@ public class TarUtil {
 				throw new IllegalArgumentException("entryPath can't start with /");
 			}
 			File entry = new File(rootLocation, entryPath);
-			if(! entry.exists()) {
+			if(!entry.exists()) {
 				LOG.debug("TarUtil, file not found for " + entryPath + ", relative to " + rootLocationPath);
 				continue;
 			}
@@ -82,6 +85,7 @@ public class TarUtil {
 		}
 	}
 
+	@SuppressWarnings("squid:S6096")
 	public static void extractTarArchive(TarArchiveInputStream tarIs, File rootLocation) throws IOException {
 		TarArchiveEntry entry;
 		boolean withFileAttributes = SystemUtils.IS_OS_UNIX;
@@ -91,30 +95,30 @@ public class TarUtil {
 			: null;
 		while((entry = tarIs.getNextTarEntry()) != null) {
 			String name = entry.getName();
-			if(! StringTool.isValidRelativePath(name))
+			if(!StringTool.isValidRelativePath(name))
 				throw new IOException("Invalid zip file path entry: " + name);
 			final File file = new File(rootLocation, name);
 			final File parent = file.getParentFile();
-			if(! parent.exists()) {
+			if(!parent.exists()) {
 				parent.mkdirs();
 			}
-			if(! entry.isDirectory()) {
+			if(!entry.isDirectory()) {
 				try(FileOutputStream fos = new FileOutputStream(file)) {
-					IOUtils.copy(tarIs, fos, BUFFER_SIZE);
+					FileTool.copyFile(fos, tarIs, 1024L * 1024L * 1024L);		// Max 1GB
 				}
-			}else {
+			} else {
 				file.mkdir();
 			}
 			if(withFileAttributes) {
 				final Path path = file.toPath();
 				String userName = entry.getUserName();
-				if(! isBlank(userName)) {
+				if(!isBlank(userName)) {
 					UserPrincipal owner = service.lookupPrincipalByName(userName);
 					Files.setOwner(path, owner);
 				}
 
 				String groupName = entry.getGroupName();
-				if(! isBlank(groupName)) {
+				if(!isBlank(groupName)) {
 					GroupPrincipal group = service.lookupPrincipalByGroupName(groupName);
 					Files.getFileAttributeView(path, PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS).setGroup(group);
 				}

@@ -6,7 +6,7 @@
 	left: 0px;
 	right: 0px;
 	overflow: auto;
-	font-family: 'Fira Mono';
+	font-family: 'Fira Mono', sans-serif;
 	font-size: 12px;
 }
 
@@ -27,8 +27,6 @@ pre.code {
 	font-size: small;
 	height: 500px;
 	overflow: scroll;
-
-	/*	margin-top: 0px; */
 }
 
 .s-line {
@@ -57,6 +55,7 @@ pre.code {
 }
 
 .s-diffnone {
+	//ignore
 }
 
 .s-comment1 {

@@ -1,28 +1,30 @@
 package to.etc.log;
 
-import java.util.*;
+import org.slf4j.IMarkerFactory;
+import org.slf4j.Marker;
 
-import org.slf4j.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * CODING - Markers are still not supported.
  * Continue this in case that markers are needed.
- * Current minimal implementation is need just to support slf4j interface, but use of Markers is ignored.  
- * 
+ * Current minimal implementation is need just to support slf4j interface, but use of Markers is ignored.
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Oct 31, 2012
  */
 public class EtcMarkerFactory implements IMarkerFactory {
-	final Map<String, Marker>	markers		= new HashMap<String, Marker>();
+	final Map<String, Marker> m_markerMap = new HashMap<>();
 
-	final Map<String, Marker>	deatached	= new HashMap<String, Marker>();
+	final Map<String, Marker> m_detachedMap = new HashMap<>();
 
-	/** 
-	 * CODING - just basic implementation - has only support for name so far 
+	/**
+	 * CODING - just basic implementation - has only support for name so far
 	 */
 	private static class MyMarker implements Marker {
-		final String	m_name;
+		final String m_name;
 
 		MyMarker(String name) {
 			m_name = name;
@@ -78,10 +80,10 @@ public class EtcMarkerFactory implements IMarkerFactory {
 
 	@Override
 	public boolean detachMarker(String arg0) {
-		synchronized(markers) {
-			Marker m = markers.remove(arg0);
+		synchronized(m_markerMap) {
+			Marker m = m_markerMap.remove(arg0);
 			if(m != null) {
-				deatached.put(arg0, m);
+				m_detachedMap.put(arg0, m);
 			}
 			return true;
 		}
@@ -89,44 +91,41 @@ public class EtcMarkerFactory implements IMarkerFactory {
 
 	@Override
 	public boolean exists(String arg0) {
-		synchronized(markers) {
-			return markers.containsKey(arg0);
+		synchronized(m_markerMap) {
+			return m_markerMap.containsKey(arg0);
 		}
 	}
 
 	@Override
 	public Marker getDetachedMarker(String arg0) {
-		synchronized(deatached) {
-			Marker deatachedm = deatached.get(arg0);
+		synchronized(m_detachedMap) {
+			Marker deatachedm = m_detachedMap.get(arg0);
 			return deatachedm;
 		}
 	}
 
 	@Override
 	public Marker getMarker(final String arg0) {
-		synchronized(markers) {
-			Marker m = markers.get(arg0);
+		synchronized(m_markerMap) {
+			Marker m = m_markerMap.get(arg0);
 			if(m != null) {
 				return m;
 			}
 		}
-		Marker dm = null;
-		synchronized(deatached) {
-			dm = deatached.get(arg0);
-			if(dm != null) {
-				deatached.remove(dm);
-			}
+		Marker dm;
+		synchronized(m_detachedMap) {
+			dm = m_detachedMap.remove(arg0);
 		}
 
 		if(dm != null) {
-			synchronized(markers) {
-				markers.put(arg0, dm);
+			synchronized(m_markerMap) {
+				m_markerMap.put(arg0, dm);
 				return dm;
 			}
 		} else {
 			Marker nm = new MyMarker(arg0);
-			synchronized(markers) {
-				markers.put(arg0, nm);
+			synchronized(m_markerMap) {
+				m_markerMap.put(arg0, nm);
 				return nm;
 			}
 		}

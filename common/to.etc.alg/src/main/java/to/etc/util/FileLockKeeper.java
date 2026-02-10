@@ -13,9 +13,12 @@ import java.util.concurrent.TimeoutException;
  * Util that enables simple locking via file system locks.
  * Used in environments when multiple processes are competing over shared resources, like database initialization when running db tests in parallel module executions.
  */
-public class FileLockKeeper {
-
+final public class FileLockKeeper {
 	private static final Logger LOG = LoggerFactory.getLogger(FileLockKeeper.class);
+
+	private FileLockKeeper() {
+		// util class
+	}
 
 	/**
 	 *  Tries to lock by created a new temp file. If file is already present, we loop in delay periods until file disappears or until specified timeout expires.
@@ -44,12 +47,9 @@ public class FileLockKeeper {
 			}
 			LOG.warn("Added file lock " + name + ", as " + tmpFile.getAbsolutePath());
 			return guardedBlock.get();
-		}finally {
+		} finally {
 			if(lockMade) {
-				if(!tmpFile.delete()) {
-					throw new IllegalStateException("Unable to delete file lock??? " + tmpFile.getAbsolutePath());
-				}
-				LOG.warn("Removed file lock " + name + ", as " + tmpFile.getAbsolutePath());
+				FileTool.delete(tmpFile);
 			}
 		}
 	}

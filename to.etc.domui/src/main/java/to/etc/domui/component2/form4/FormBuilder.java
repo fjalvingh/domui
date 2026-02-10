@@ -140,8 +140,6 @@ final public class FormBuilder {
 	}
 
 	static private <I, V> BindReference<I, V> createRef(@NonNull I instance, @NonNull String property, @NonNull Class<V> type) {
-		if(null == instance)
-			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(instance.getClass(), property);
 		if(DomUtil.getBoxedForPrimitive(pmm.getActualType()) != DomUtil.getBoxedForPrimitive(type)) {
 			throw new ProgrammerErrorException(pmm + " must be of type " + type.getName());
@@ -151,8 +149,6 @@ final public class FormBuilder {
 	}
 
 	static private <I, V> BindReference<I, V> createRef(@NonNull I instance, @NonNull QField<I, V> property) {
-		if(null == instance)
-			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		PropertyMetaModel<V> pmm = MetaManager.getPropertyMeta(instance.getClass(), property);
 		//if(DomUtil.getBoxedForPrimitive(pmm.getActualType()) != DomUtil.getBoxedForPrimitive(property.)) {
 		//	throw new ProgrammerErrorException(pmm + " must be of type " + type.getName());
@@ -228,8 +224,6 @@ final public class FormBuilder {
 
 	@NonNull
 	public <T> UntypedControlBuilder<T> property(@NonNull T instance, String property) {
-		if(null == instance)
-			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		check();
 		UntypedControlBuilder<T> currentBuilder = new UntypedControlBuilder<>(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 		m_currentBuilder = currentBuilder;
@@ -243,8 +237,6 @@ final public class FormBuilder {
 
 	@NonNull
 	public <T, V> TypedControlBuilder<T, V> property(@NonNull T instance, QField<?, V> property) {
-		if(null == instance)
-			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		check();
 		TypedControlBuilder<T, V> builder = new TypedControlBuilderWithInstance<>(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 		m_currentBuilder = builder;
@@ -275,8 +267,6 @@ final public class FormBuilder {
 	 */
 	@NonNull
 	public <T, V> TypedControlBuilder<T, V> property(@NonNull T instance, @NonNull KProperty1<T, V> propertyRef) {
-		if(null == instance)
-			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		check();
 
 		TypedControlBuilder<T, V> builder = new TypedControlBuilderWithInstance<>(instance, MetaManager.getPropertyMeta(instance.getClass(), propertyRef));
@@ -342,12 +332,11 @@ final public class FormBuilder {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * @param <I>  The record instance type.
 	 * @param <MV> The property (model) value.
 	 * @param <UI> The control's type, as a construct of all of the above.
 	 */
 	@NonNull
-	private <I, MV, CV, UI extends IControl<CV>> UI controlMain(BuilderData<MV> cb, @Nullable Class<UI> controlClass) throws Exception {
+	private <MV, CV, UI extends IControl<CV>> UI controlMain(BuilderData<MV> cb, @Nullable Class<UI> controlClass) throws Exception {
 		ControlCreatorRegistry builder = DomApplication.get().getControlCreatorRegistry();
 		PropertyMetaModel<MV> pmm = cb.m_propertyMetaModel;
 		PropertyMetaModel<CV> cpmm = null;
@@ -356,28 +345,25 @@ final public class FormBuilder {
 			//-- Determine the control type from the converter instance.
 			Type[] giAr = converter.getClass().getGenericInterfaces();
 			for(Type iface : giAr) {
-				if(iface instanceof ParameterizedType) {
-					ParameterizedType pt = (ParameterizedType) iface;
-					if(pt.getRawType().getTypeName().equals(IBidiBindingConverter.class.getName())) {
-						Type[] tp = pt.getActualTypeArguments();
-						if(tp != null && tp.length >= 1) {
-							Class<?> controlType = (Class<?>) tp[0];
+				if(iface instanceof ParameterizedType pt && pt.getRawType().getTypeName().equals(IBidiBindingConverter.class.getName())) {
+					Type[] tp = pt.getActualTypeArguments();
+					if(tp != null && tp.length >= 1) {
+						Class<?> controlType = (Class<?>) tp[0];
 
-							//-- Now: create a wrapper around the meta model to alter the type
-							cpmm = new PropertyMetaModelWrapper<CV>((PropertyMetaModel<CV>) pmm) {
-								@NonNull
-								@Override
-								public ClassMetaModel getClassModel() {
-									return getWrappedModel().getClassModel();
-								}
+						//-- Now: create a wrapper around the meta model to alter the type
+						cpmm = new PropertyMetaModelWrapper<CV>((PropertyMetaModel<CV>) pmm) {
+							@NonNull
+							@Override
+							public ClassMetaModel getClassModel() {
+								return getWrappedModel().getClassModel();
+							}
 
-								@NonNull
-								@Override
-								public Class<CV> getActualType() {
-									return (Class<CV>) controlType;
-								}
-							};
-						}
+							@NonNull
+							@Override
+							public Class<CV> getActualType() {
+								return (Class<CV>) controlType;
+							}
+						};
 					}
 				}
 			}
@@ -391,7 +377,7 @@ final public class FormBuilder {
 		return control;
 	}
 
-	private <I, V> void addControl(BuilderData<V> builder, @NonNull NodeBase control, @Nullable IBidiBindingConverter<?, ?> conv) throws Exception {
+	private <V> void addControl(BuilderData<V> builder, @NonNull NodeBase control, @Nullable IBidiBindingConverter<?, ?> conv) throws Exception {
 		PropertyMetaModel<?> pmm = builder.m_propertyMetaModel;
 
 		if(control.getClass().getSimpleName().contains("TextArea")
@@ -416,10 +402,8 @@ final public class FormBuilder {
 		String testid = builder.m_testid;
 		if(null != testid)
 			control.setTestID(testid);
-		else if(control.getTestID() == null) {
-			if(pmm != null)
-				control.setTestID(pmm.getName());
-		}
+		else if(control.getTestID() == null && pmm != null)
+			control.setTestID(pmm.getName());
 
 		if(control instanceof IControl) {
 			IControl<?> ctl = (IControl<?>) control;
@@ -427,21 +411,18 @@ final public class FormBuilder {
 			if(!hintAsIcon) {
 				ctl.setHint(hintText);
 			}
-			if(null != pmm) {
-				if(builder instanceof IHasInstance) {
-					Object instance = ((IHasInstance<?>) builder).getInstance();
-					if(null != instance) {
-						//IBidiBindingConverter<Object, Object> conv = (IBidiBindingConverter<Object, Object>) builder.m_converter;
-						if(null == conv) {
-							control.bind().to(instance, pmm);
-						} else {
-							BindingBuilderBidi<?> bind = control.bind();
-							((BindingBuilderBidi<Object>) bind).to(instance, (PropertyMetaModel<Object>) pmm, (IBidiBindingConverter<Object, Object>) conv);
-						}
+			//FIXME Handle Kotlin KProperty0
+			if(null != pmm && builder instanceof IHasInstance) {
+				Object instance = ((IHasInstance<?>) builder).getInstance();
+				if(null != instance) {
+					//IBidiBindingConverter<Object, Object> conv = (IBidiBindingConverter<Object, Object>) builder.m_converter;
+					if(null == conv) {
+						control.bind().to(instance, pmm);
+					} else {
+						BindingBuilderBidi<?> bind = control.bind();
+						((BindingBuilderBidi<Object>) bind).to(instance, (PropertyMetaModel<Object>) pmm, (IBidiBindingConverter<Object, Object>) conv);
 					}
 				}
-
-				//FIXME Handle Kotlin KProperty0
 			}
 
 			//-- Do all the readOnly chores
@@ -642,7 +623,7 @@ final public class FormBuilder {
 					PropertyMetaModel<?> pmm = m_propertyMetaModel;
 					if(null != pmm) {
 						txt = pmm.getDefaultLabel();
-						if(txt != null && !txt.isEmpty())
+						if(!txt.isEmpty())
 							return txt;
 					}
 				}
@@ -1255,7 +1236,7 @@ final public class FormBuilder {
 			resetBuilder();
 		}
 
-		public <CV> void control(@NonNull IControl<?> control, IBidiBindingConverter<?, ?> converter) throws Exception {
+		public void control(@NonNull IControl<?> control, IBidiBindingConverter<?, ?> converter) throws Exception {
 			if(control.isMandatory()) {
 				m_mandatory = Boolean.TRUE;
 			}

@@ -76,7 +76,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	/** All undotted properties, set at initialization time, */
 	@NonNull
-	private Map<String, PropertyMetaModel<?>> m_simplePropertyMap = Collections.EMPTY_MAP;
+	private Map<String, PropertyMetaModel<?>> m_simplePropertyMap = Collections.emptyMap();
 
 	@NonNull
 	final private Map<String, PropertyMetaModel<?>> m_dottedPropertyMap = new HashMap<>();
@@ -116,16 +116,16 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 //	private ComboOptionalType m_comboOptional;
 
 	@NonNull
-	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.emptyList();
 
 	@NonNull
-	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.emptyList();
 
 	@NonNull
-	private List<SearchPropertyMetaModel> m_searchProperties = Collections.EMPTY_LIST;
+	private List<SearchPropertyMetaModel> m_searchProperties = Collections.emptyList();
 
 	@NonNull
-	private List<SearchPropertyMetaModel> m_keyWordSearchProperties = Collections.EMPTY_LIST;
+	private List<SearchPropertyMetaModel> m_keyWordSearchProperties = Collections.emptyList();
 
 	/**
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
@@ -137,7 +137,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * The default properties to show in a {@link LookupInput} field's instance display.
 	 */
 	@NonNull
-	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.emptyList();
 
 	private String m_defaultSortProperty;
 
@@ -222,6 +222,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * This resolves a property path, starting at this class. If any part of the path does
 	 * not exist this returns null.
 	 */
+	@SuppressWarnings("squid:S3824") // we cannot use computeIfAbsent because this is not atomic, and can be null.
 	@Override
 	@Nullable
 	public PropertyMetaModel<?> findProperty(@NonNull final String name) {
@@ -248,7 +249,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			synchronized(this) {
 				PropertyMetaModel<?> racePmm = m_dottedPropertyMap.get(name);        // Was a path stored in the meanwhile?
 				if(null != racePmm)
-					return racePmm;                                                    // Yes-> the earlier thread won, use it's result
+					return racePmm;                                                    // Yes-> the earlier thread won, use its result
 				m_dottedPropertyMap.put(name, pmm);                // We won ;)
 			}
 		}
@@ -341,7 +342,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	public void setSearchProperties(@NonNull List<SearchPropertyMetaModel> searchProperties) {
-		m_searchProperties = searchProperties.isEmpty() ? Collections.EMPTY_LIST : searchProperties;
+		m_searchProperties = searchProperties.isEmpty() ? Collections.emptyList() : searchProperties;
 	}
 
 	/**
@@ -354,7 +355,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	public void setKeyWordSearchProperties(@NonNull List<SearchPropertyMetaModel> keyWordSearchProperties) {
-		m_keyWordSearchProperties = keyWordSearchProperties.isEmpty() ? Collections.EMPTY_LIST : keyWordSearchProperties;
+		m_keyWordSearchProperties = keyWordSearchProperties.isEmpty() ? Collections.emptyList() : keyWordSearchProperties;
 	}
 
 	@Override
@@ -487,10 +488,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 				String s = getClassBundle().findMessage(loc, ((Enum<?>) value).name() + ".label");
 				return s; // jal 20090806 Must return null; let caller decide what the default should be.
 			} catch(Exception x) {
+				// Ignore
 			}
 		}
-		if(value instanceof Boolean)
-			return (((Boolean) value).booleanValue() ? Msgs.uiBoolTrue : Msgs.uiBoolFalse).getString();
+		if(value instanceof Boolean b)
+			return (b.booleanValue() ? Msgs.uiBoolTrue : Msgs.uiBoolFalse).getString();
 
 		return null;
 	}

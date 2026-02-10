@@ -247,8 +247,8 @@ public class SshKeyUtils {
 				System.out.println(sb.toString());
 
 				String cipherName = bs.readIntString(StandardCharsets.US_ASCII);
-				String kdfName = bs.readIntString(StandardCharsets.US_ASCII);
-				String kdfOptions = bs.readIntString(StandardCharsets.US_ASCII);
+				bs.readIntString(StandardCharsets.US_ASCII);		// kdfName
+				bs.readIntString(StandardCharsets.US_ASCII);	// kdfOptions
 				int nrKeys = bs.readInt();
 				if(nrKeys != 1)
 					throw new KeyFormatException("Unsupported OpenSSH format: only one key per file supported (keys=" + nrKeys + ")");
@@ -262,7 +262,7 @@ public class SshKeyUtils {
 				dump(privKeyPart);
 
 				if("none".equals(cipherName)) {
-					openSshReadUnencrypted(privKeyPart, pubkeypart);
+					openSshReadUnencrypted(privKeyPart);
 				}
 
 				return null;
@@ -272,38 +272,39 @@ public class SshKeyUtils {
 		throw new KeyFormatException("OpenSSH key format error");
 	}
 
-	private static void openSshReadUnencrypted(byte[] privKeyPart, byte[] mainPubkeyPart) throws Exception {
+	private static void openSshReadUnencrypted(byte[] privKeyPart) throws Exception {
 		if(privKeyPart.length % 8 != 0)
 			throw new KeyFormatException("OpenSSH format private key size incorrect");
-		ByteStream pvs = new ByteStream(privKeyPart);
-		int checkInt1 = pvs.readInt();
-		int checkInt2 = pvs.readInt();
-		if(checkInt1 != checkInt2)
-			throw new KeyFormatException("OpenSSH format private key check values incorrect");
-		String keyType = pvs.readIntString(StandardCharsets.US_ASCII);
+		try(ByteStream pvs = new ByteStream(privKeyPart)) {
+			int checkInt1 = pvs.readInt();
+			int checkInt2 = pvs.readInt();
+			if(checkInt1 != checkInt2)
+				throw new KeyFormatException("OpenSSH format private key check values incorrect");
+			String keyType = pvs.readIntString(StandardCharsets.US_ASCII);
 
-		if("ssh-rsa".equals(keyType)) {
+			if(SSH_RSA.equals(keyType)) {
+				// Skip over unused data
+				pvs.readIntBytes();
+				pvs.readInt();                                // Skip a number
+				pvs.read();
+				pvs.read();
+				pvs.read();
+				pvs.readIntBytes();
+				pvs.readIntBytes();
+				pvs.readIntBytes();
+				pvs.readIntBytes();
 
-			byte[] pubKey = pvs.readIntBytes();
-			int unused = pvs.readInt();                                // Skip a number
-			int unusedbyte1 = pvs.read();
-			int unusedbyte2 = pvs.read();
-			int unusedbyte3 = pvs.read();
-			byte[] string1 = pvs.readIntBytes();
-			byte[] string2 = pvs.readIntBytes();
-			byte[] string3 = pvs.readIntBytes();
-			byte[] string4 = pvs.readIntBytes();
+				pvs.readIntString(StandardCharsets.US_ASCII);
 
-			String comment = pvs.readIntString(StandardCharsets.US_ASCII);
+			} else {
+				throw new KeyFormatException("OpenSSH Unrecognized key type: " + keyType);
+			}
+			byte[] padding = pvs.readBytes(pvs.available());
 
-		} else {
-			throw new KeyFormatException("OpenSSH Unrecognized key type: " + keyType);
-		}
-		byte[] padding = pvs.readBytes(pvs.available());
-
-		for(int i = 0; i < padding.length; i++) {
-			if((int) padding[i] != i + 1) {
-				throw new IOException("Padding of key format contained wrong byte at position: " + i);
+			for(int i = 0; i < padding.length; i++) {
+				if(padding[i] != i + 1) {
+					throw new IOException("Padding of key format contained wrong byte at position: " + i);
+				}
 			}
 		}
 	}
@@ -329,7 +330,8 @@ public class SshKeyUtils {
 		System.arraycopy(prefix, 0, newder, 0, prefix.length);
 		System.arraycopy(oldder, 0, newder, prefix.length, oldder.length);
 		// and patch the (variable) lengths to be correct
-		int len = oldder.length, loc = prefix.length - 2;
+		int len = oldder.length;
+		int loc = prefix.length - 2;
 		newder[loc] = (byte) (len >> 8);
 		newder[loc + 1] = (byte) len;
 		len = newder.length - 4;
@@ -340,7 +342,7 @@ public class SshKeyUtils {
 		return newder;
 	}
 
-	static private final byte[] readPemFormat(String in) {
+	static private byte[] readPemFormat(String in) {
 		StringBuilder sb = new StringBuilder();
 		for(String line : new LineIterator(in)) {
 			if(!line.startsWith("--") && !line.isEmpty()) {
@@ -351,7 +353,7 @@ public class SshKeyUtils {
 		return StringTool.decodeBase64(sb.toString());
 	}
 
-	/**
+	/*
 	 * See
 	 * http://techxperiment.blogspot.com/2016/10/create-and-read-pkcs-8-format-private.html
 	 */
@@ -389,23 +391,21 @@ public class SshKeyUtils {
 
 			JcaPEMKeyConverter converter = new JcaPEMKeyConverter(); //.setProvider("BC");
 
-			if(pem instanceof PEMEncryptedKeyPair) {
+			if(pem instanceof PEMEncryptedKeyPair pekp) {
 				if(null == passPhrase)
 					throw new KeyFormatPasswordException("Missing password for private key");
-				PEMEncryptedKeyPair pekp = (PEMEncryptedKeyPair) pem;
 				PEMDecryptorProvider decryptor = new JcePEMDecryptorProviderBuilder().build(passPhrase.toCharArray());
 				PEMKeyPair pair = pekp.decryptKeyPair(decryptor);
 				return converter.getKeyPair(pair);
 			}
 
-			if(pem instanceof PKCS8EncryptedPrivateKeyInfo) {
+			if(pem instanceof PKCS8EncryptedPrivateKeyInfo info) {
 				if(null == passPhrase)
 					throw new KeyFormatPasswordException("Missing password for private key");
 				try {
 					/*
 					 * Decode this trainwreck, and assume this is an RSA type key 8-(
 					 */
-					PKCS8EncryptedPrivateKeyInfo info = (PKCS8EncryptedPrivateKeyInfo) pem;
 					InputDecryptorProvider decryptor = new JceOpenSSLPKCS8DecryptorProviderBuilder().build(passPhrase.toCharArray());
 					PrivateKeyInfo pki = info.decryptPrivateKeyInfo(decryptor);
 
@@ -417,15 +417,13 @@ public class SshKeyUtils {
 				}
 			}
 
-			if(pem instanceof PrivateKeyInfo) {
-				PrivateKeyInfo info = (PrivateKeyInfo) pem;
+			if(pem instanceof PrivateKeyInfo info) {
 				PublicKey pubKey = calculateRsaPublicKeyFromPrivate(info);
 				return new KeyPair(pubKey, converter.getPrivateKey(info));
 			}
 
-			if(pem instanceof PEMKeyPair) {
-				KeyPair keyPair = converter.getKeyPair((PEMKeyPair) pem);
-				return keyPair;
+			if(pem instanceof PEMKeyPair pkp) {
+				return converter.getKeyPair(pkp);
 			}
 		}
 

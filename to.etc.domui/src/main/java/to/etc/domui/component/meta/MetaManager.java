@@ -64,6 +64,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -104,8 +105,6 @@ final public class MetaManager {
 
 	@NonNull
 	static public ClassMetaModel findClassMeta(@NonNull Class<?> clz) {
-		if(clz == null)
-			throw new IllegalArgumentException("Class<?> parameter cannot be null");
 		return MetaInitializer.findAndInitialize(DomUtil.getUnproxiedClass(clz));
 	}
 
@@ -115,10 +114,8 @@ final public class MetaManager {
 	@NonNull
 	static public ClassMetaModel findClassMeta(@NonNull IMetaClass mc) {
 		//-- If the IMetaClass itself is a model- just use it, without caching.
-		if(mc instanceof ClassMetaModel)
-			return (ClassMetaModel) mc;
-		if(mc == null)
-			throw new IllegalArgumentException("IMetaClass parameter cannot be null");
+		if(mc instanceof ClassMetaModel cmm)
+			return cmm;
 		return MetaInitializer.findAndInitialize(mc);
 	}
 
@@ -169,9 +166,8 @@ final public class MetaManager {
 	 * Find metadata for a property-only Kotlin property. These are properties that represent an actual instance
 	 * value inside them, and that instance cannot be obtained, sigh.
 	 */
+	@SuppressWarnings("squid:S1172")
 	public static <V> PropertyMetaModel<V> getPropertyMeta(KProperty0<V> propertyRef) {
-
-
 		return null;
 	}
 
@@ -204,19 +200,18 @@ final public class MetaManager {
 		return list != null && !list.isEmpty();
 	}
 
-	static private IRenderInto<?> TOSTRING_RENDERER = (IRenderInto<Object>) (node, object) -> {
-		if(object != null)
-			node.add(object.toString());
+	static private final IRenderInto<?> TOSTRING_RENDERER = (IRenderInto<Object>) (node, object) -> {
+		node.add(object.toString());
 	};
-
 
 	/**
 	 * This creates a default combo option value renderer using whatever metadata is available.
-	 * @param pmm    If not-null this takes precedence. This then <b>must</b> be the property that
-	 * 				is to be filled from the list-of-values in the combo. The property is used
-	 * 				to override the presentation only. Formally speaking, pmm.getActualType() must
-	 * 				be equal to the combo's list item type, and the renderer expects items of that
-	 * 				type.
+	 *
+	 * @param pmm If not-null this takes precedence. This then <b>must</b> be the property that
+	 *            is to be filled from the list-of-values in the combo. The property is used
+	 *            to override the presentation only. Formally speaking, pmm.getActualType() must
+	 *            be equal to the combo's list item type, and the renderer expects items of that
+	 *            type.
 	 *
 	 */
 	@NonNull
@@ -350,13 +345,12 @@ final public class MetaManager {
 		return cmm.getDomainLabel(NlsContext.getLocale(), val);
 	}
 
-
 	/**
 	 * Creates a List of Pair's for each domain value in a class which represents a domain (like an enum or Boolean). The
 	 * list is ready to be used by ComboFixed.
 	 */
 	static public <T extends Enum<?>> List<ValueLabelPair<T>> createEnumList(Class<T> clz) {
-		List<ValueLabelPair<T>> res = new ArrayList<ValueLabelPair<T>>();
+		List<ValueLabelPair<T>> res = new ArrayList<>();
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		Object[] values = cmm.getDomainValues();
 		if(values == null)
@@ -365,7 +359,7 @@ final public class MetaManager {
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), value);
 			if(label == null)
 				label = value == null ? "" : value.toString();
-			res.add(new ValueLabelPair<T>((T) value, label));
+			res.add(new ValueLabelPair<>((T) value, label));
 		}
 		return res;
 	}
@@ -377,7 +371,7 @@ final public class MetaManager {
 	static public List<PropertyMetaModel<?>> parsePropertyPath(@NonNull ClassMetaModel m, String compoundName) {
 		int ix = 0;
 		int len = compoundName.length();
-		List<PropertyMetaModel<?>> res = new ArrayList<PropertyMetaModel<?>>();
+		List<PropertyMetaModel<?>> res = new ArrayList<>();
 		ClassMetaModel cmm = m;
 		while(ix < len) {
 			int pos = compoundName.indexOf('.', ix);
@@ -427,24 +421,17 @@ final public class MetaManager {
 	 */
 	@Nullable
 	static public Class<?> findCollectionType(Type genericType) {
-		if(genericType instanceof Class<?>) {
-			Class<?> cl = (Class<?>) genericType;
-			if(cl.isArray()) {
-				return cl.getComponentType();
-			}
+		if(genericType instanceof Class<?> cl && cl.isArray()) {
+			return cl.getComponentType();
 		}
-		if(genericType instanceof ParameterizedType) {
-			ParameterizedType pt = (ParameterizedType) genericType;
+		if(genericType instanceof ParameterizedType pt) {
 			Type raw = pt.getRawType();
 
 			//-- This must be a collection type of class.
-			if(raw instanceof Class<?>) {
-				Class<?> cl = (Class<?>) raw;
-				if(Collection.class.isAssignableFrom(cl)) {
-					Type[] tar = pt.getActualTypeArguments();
-					if(tar != null && tar.length == 1) { // Collection<T> required
-						return (Class<?>) tar[0];
-					}
+			if(raw instanceof Class<?> cl && Collection.class.isAssignableFrom(cl)) {
+				Type[] tar = pt.getActualTypeArguments();
+				if(tar.length == 1) { // Collection<T> required
+					return (Class<?>) tar[0];
 				}
 			}
 		}
@@ -462,9 +449,11 @@ final public class MetaManager {
 		for(T v : items) {
 			if(areObjectsEqual(instance, v, cmm))
 				continue;
-			Object vl = pmm.getValue(v);
-			if(areObjectsEqual(vi, vl, vcmm)) {
-				return true;
+			if(null != v) {
+				Object vl = pmm.getValue(v);
+				if(areObjectsEqual(vi, vl, vcmm)) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -484,6 +473,7 @@ final public class MetaManager {
 				Object k = pkmm.getValue(t);
 				return t.getClass().getName() + "#" + k + " @" + System.identityHashCode(t);
 			} catch(Exception x) {
+				//--
 			}
 		}
 		return t.toString() + " @" + System.identityHashCode(t);
@@ -522,12 +512,12 @@ final public class MetaManager {
 	public static List<SearchPropertyMetaModel> calculateSearchProperties(ClassMetaModel cm) {
 		if(!DeveloperOptions.getBool("domui.generatemeta", false))
 			return Collections.emptyList();
-		if(cm.getSearchProperties() != null && !cm.getSearchProperties().isEmpty())
+		if(!cm.getSearchProperties().isEmpty())
 			return cm.getSearchProperties();
 
 		//-- Make a selection of reasonable properties to search on. Skip any compounds.
 		int order = 0;
-		List<SearchPropertyMetaModel> res = new ArrayList<SearchPropertyMetaModel>();
+		List<SearchPropertyMetaModel> res = new ArrayList<>();
 		for(PropertyMetaModel<?> pmm : cm.getProperties()) {
 			if(DomUtil.isBasicType(pmm.getActualType())) {
 				//-- Very basic. Only support small sizes;
@@ -557,7 +547,7 @@ final public class MetaManager {
 		if(!DeveloperOptions.getBool("domui.generatemeta", false))
 			return Collections.emptyList();
 
-		List<DisplayPropertyMetaModel> res = new ArrayList<DisplayPropertyMetaModel>();
+		List<DisplayPropertyMetaModel> res = new ArrayList<>();
 		int totlen = 0;
 		for(PropertyMetaModel<?> pmm : cm.getProperties()) {
 			if(totlen > 512 || res.size() > 20)
@@ -647,12 +637,10 @@ final public class MetaManager {
 	 * properties. Since properties are copied by name the objects can be of different types.
 	 */
 	public static void copyValuesExcept(Object to, Object from, Object... except) throws Exception {
-		Set<Object> exceptSet = new HashSet<Object>();
-		for(Object xc : except)
-			exceptSet.add(xc);
+		Set<Object> exceptSet = new HashSet<>(Arrays.asList(except));
 
 		List<PropertyMetaModel<?>> tolist = MetaManager.findClassMeta(to.getClass()).getProperties();
-		Map<String, PropertyMetaModel<?>> tomap = new HashMap<String, PropertyMetaModel<?>>();
+		Map<String, PropertyMetaModel<?>> tomap = new HashMap<>();
 		for(PropertyMetaModel<?> pmm : tolist)
 			tomap.put(pmm.getName(), pmm);
 
@@ -677,7 +665,7 @@ final public class MetaManager {
 	private static boolean isExcepted(@NonNull Set<Object> exceptSet, @NonNull PropertyMetaModel<?> frpmm) {
 		if(exceptSet.contains(frpmm.getName()))
 			return true;
-		if(Collection.class.isAssignableFrom(frpmm.getActualType()))		// !! NEVER COPY LISTS
+		if(Collection.class.isAssignableFrom(frpmm.getActualType()))        // !! NEVER COPY LISTS
 			return true;
 		for(Object t : exceptSet) {
 			if(t == Class.class) {
@@ -685,10 +673,8 @@ final public class MetaManager {
 
 				if(rc.isAssignableFrom(frpmm.getActualType()))
 					return true;
-			}else if(t instanceof QField) {
-				if(((QField<?, ?>)t).getName().equals(frpmm.getName())) {
-					return true;
-				}
+			} else if(t instanceof QField && ((QField<?, ?>) t).getName().equals(frpmm.getName())) {
+				return true;
 			}
 		}
 		return false;
@@ -712,20 +698,14 @@ final public class MetaManager {
 	/**
 	 * Comparator to sort by ascending sortIndex.
 	 */
-	static public final Comparator<DisplayPropertyMetaModel> C_BY_SORT_INDEX = new Comparator<DisplayPropertyMetaModel>() {
-		@Override
-		public int compare(DisplayPropertyMetaModel a, DisplayPropertyMetaModel b) {
-			return a.getSortIndex() - b.getSortIndex();
-		}
-	};
-
+	static public final Comparator<DisplayPropertyMetaModel> C_BY_SORT_INDEX = (a, b) -> a.getSortIndex() - b.getSortIndex();
 
 	/**
 	 * Walk the list of properties, and defines the list that should be added as sort properties
 	 * to the QCriteria.
 	 */
 	static public void applyPropertySort(@NonNull QCriteria<?> q, @NonNull List<DisplayPropertyMetaModel> properties) {
-		List<DisplayPropertyMetaModel> sl = new ArrayList<DisplayPropertyMetaModel>();
+		List<DisplayPropertyMetaModel> sl = new ArrayList<>();
 		boolean hasindex = false;
 		for(DisplayPropertyMetaModel p : properties) {
 			if(p.getSortable() == SortableType.SORTABLE_ASC || p.getSortable() == SortableType.SORTABLE_DESC)
@@ -738,7 +718,7 @@ final public class MetaManager {
 		if(hasindex)
 			Collections.sort(sl, C_BY_SORT_INDEX);
 		for(DisplayPropertyMetaModel p : sl) {
-			switch(p.getSortable()){
+			switch(p.getSortable()) {
 				default:
 					throw new IllegalStateException("Unexpected sort type: " + p.getSortable());
 				case SORTABLE_ASC:
@@ -768,18 +748,14 @@ final public class MetaManager {
 	/**
 	 * Fill target instance with same values as found in source instance.
 	 *
-	 * @param copyPK If T, it also copies PK value(s)
-	 * @param copyTCN If T, it also copies TCN value(s)
-	 * @param copyTransient If T, it also copies transient values
+	 * @param copyPK         If T, it also copies PK value(s)
+	 * @param copyTCN        If T, it also copies TCN value(s)
+	 * @param copyTransient  If T, it also copies transient values
 	 * @param ignoredColumns Specified optional columns that would not be filled with data from source
-	 * @throws Exception
 	 */
 	static public <T> void fillCopy(@NonNull T source, @NonNull T target, boolean copyPK, boolean copyTCN, boolean copyTransient, String... ignoredColumns) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(source.getClass());
-		List<String> ignoreList = new ArrayList<String>(ignoredColumns.length);
-		for(String ignore : ignoredColumns) {
-			ignoreList.add(ignore);
-		}
+		List<String> ignoreList = new ArrayList<>(Arrays.asList(ignoredColumns));
 		for(PropertyMetaModel<?> pmm : cmm.getProperties()) {
 			PropertyMetaModel<Object> opmm = (PropertyMetaModel<Object>) pmm;
 			if((!opmm.isPrimaryKey() || copyPK) && //
@@ -851,6 +827,7 @@ final public class MetaManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	QCriteria queries on lists and instances.			*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return a new list which contains only the items in the input list that are obeying
 	 * the specified criteria.
@@ -864,7 +841,7 @@ final public class MetaManager {
 		ClassMetaModel cmm = null;
 		List<X> res = new ArrayList<>();
 		for(X item : in) {
-			if(item == null)								// Null items in the list do not match by definition.
+			if(item == null)                                // Null items in the list do not match by definition.
 				continue;
 			if(v == null) {
 				cmm = findClassMeta(item.getClass());
@@ -886,7 +863,7 @@ final public class MetaManager {
 
 	/**
 	 * Please use {#link {@link #query(Collection, QCriteria)}} instead.
-	 *
+	 * <p>
 	 * Return a new list which contains only the items in the input list that are obeying
 	 * the specified criteria.
 	 * FIXME This code should probably move to QCriteria itself, or at least close to to.etc.webapp.core. But because the
@@ -896,7 +873,7 @@ final public class MetaManager {
 	@Deprecated
 	@NonNull
 	static public <X, T extends Collection<X>> List<X> filter(@NonNull T in, @NonNull QCriteria<X> query) throws Exception {
-		return filter(in, query);
+		return query(in, query);
 	}
 
 	/**
@@ -906,14 +883,12 @@ final public class MetaManager {
 		List<Comparator<X>> all = order.stream()
 			.map(item -> (Comparator<X>) PropertyComparator.create(cmm, item.getProperty(), item.getDirection() == QSortOrderDirection.DESC ? SortableType.SORTABLE_DESC : SortableType.SORTABLE_ASC))
 			.collect(Collectors.toList());
-		CompoundComparator<X> comparator = new CompoundComparator<X>(all, false);
+		CompoundComparator<X> comparator = new CompoundComparator<>(all, false);
 		list.sort(comparator);
 	}
 
 	/**
 	 * Calculate the size of some text entity from metadata.
-	 * @param pmm
-	 * @return
 	 */
 	static public int calculateTextSize(PropertyMetaModel<?> pmm) {
 		if(pmm.getDisplayLength() > 0)
@@ -923,11 +898,11 @@ final public class MetaManager {
 			int size = pmm.getPrecision();
 			int d = size;
 			if(pmm.getScale() > 0) {
-				size++;									// Inc size to allow for decimal point or comma
-				d -= pmm.getScale();					// Reduce integer part,
-				if(d >= 4) {							// Can we get > 999? Then we can have thousand-separators
-					int nd = (d - 1) / 3;				// How many thousand separators could there be?
-					size += nd; 						// Increment input size with that
+				size++;                                    // Inc size to allow for decimal point or comma
+				d -= pmm.getScale();                    // Reduce integer part,
+				if(d >= 4) {                            // Can we get > 999? Then we can have thousand-separators
+					int nd = (d - 1) / 3;                // How many thousand separators could there be?
+					size += nd;                        // Increment input size with that
 				}
 			}
 			return size;
@@ -943,7 +918,7 @@ final public class MetaManager {
 	 * This adds a validator for the maximal and minimal value for an input, gotten from the property metamodel.
 	 */
 	@Nullable
-	public static IValueValidator<?> calculatePrecisionValidator(@NonNull PropertyMetaModel< ? > pmm) {
+	public static IValueValidator<?> calculatePrecisionValidator(@NonNull PropertyMetaModel<?> pmm) {
 		return calculatePrecisionValidator(pmm.getPrecision(), pmm.getScale());
 	}
 
@@ -964,9 +939,9 @@ final public class MetaManager {
 			return null;
 
 		BigDecimal bd = BigDecimal.valueOf(10);
-		bd = bd.pow(d); 										// 10^n, this is the EXCLUSIVE max/min value.
+		bd = bd.pow(d);                                        // 10^n, this is the EXCLUSIVE max/min value.
 
-		BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(scale));	// BigDecimal.pow() does not support -ve exponents, sigh.
+		BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(scale));    // BigDecimal.pow() does not support -ve exponents, sigh.
 		bd = bd.subtract(fraction);
 		return new MaxMinValidator(bd.negate(), bd);
 	}

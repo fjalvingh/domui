@@ -48,7 +48,8 @@ import java.util.List;
  * Created on Dec 16, 2010
  */
 public class ComboLookup2<T> extends ComboComponentBase2<T, T> implements IComboBox<T> {
-	public ComboLookup2() {}
+	public ComboLookup2() {
+	}
 
 	/**
 	 * Use the specified cached list maker to fill the combobox.
@@ -61,7 +62,7 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> implements ICombo
 		super(in);
 	}
 
-	public ComboLookup2(Class< ? extends IComboDataSet<T>> set, IRenderInto<T> r) {
+	public ComboLookup2(Class<? extends IComboDataSet<T>> set, IRenderInto<T> r) {
 		super(set, r);
 	}
 
@@ -128,56 +129,55 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> implements ICombo
 		IRenderInto<T> r = (IRenderInto<T>) MetaManager.createDefaultComboRenderer(pmm, null);
 
 		//-- Decide on the combobox' data source to use depending on metadata.
-		ComboLookup2<T> co = null;
+		ComboLookup2<T> co;
 
 		//-- Do we have a DataSet provider
-		Class< ? extends IComboDataSet<T>> set = (Class< ? extends IComboDataSet<T>>) pmm.getComboDataSet();
+		Class<? extends IComboDataSet<T>> set = (Class<? extends IComboDataSet<T>>) pmm.getComboDataSet();
 		if(set == null) {
-			set = (Class< ? extends IComboDataSet<T>>) pmm.getClassModel().getComboDataSet();
+			set = (Class<? extends IComboDataSet<T>>) pmm.getClassModel().getComboDataSet();
 		}
 		if(set != null)
-			co = new ComboLookup2<T>(set, r);
+			co = new ComboLookup2<>(set, r);
 		else {
 			//-- No dataset. Create one from a direct Criteria and any query manipulator.
 			ClassMetaModel valueModel = pmm.getValueModel();
 			if(null == valueModel)
 				throw new IllegalStateException(pmm + ": has no valueModel");
 			QCriteria<T> q = (QCriteria<T>) valueModel.createCriteria();
-			if(null != q) {
-				IQueryManipulator<T> qm = pmm.getQueryManipulator();
-				if(null == qm)
-					qm = (IQueryManipulator<T>) valueModel.getQueryManipulator();
+			IQueryManipulator<T> qm = pmm.getQueryManipulator();
+			if(null == qm)
+				qm = (IQueryManipulator<T>) valueModel.getQueryManipulator();
 
-				if(null != qm) {
-					q = qm.adjustQuery(q); // Adjust query if needed
-					if(q == null)
-						throw new IllegalStateException("The query manipulator " + qm + " returned null");
-				}
-
-				//-- Handle sorting if applicable
-				List<DisplayPropertyMetaModel> dpl = MetaManager.getComboProperties(pmm);
-				MetaManager.applyPropertySort(q, dpl);
-				co = new ComboLookup2<T>(q, r);
+			if(null != qm) {
+				q = qm.adjustQuery(q); // Adjust query if needed
+				if(q == null)
+					throw new IllegalStateException("The query manipulator " + qm + " returned null");
 			}
+
+			//-- Handle sorting if applicable
+			List<DisplayPropertyMetaModel> dpl = MetaManager.getComboProperties(pmm);
+			MetaManager.applyPropertySort(q, dpl);
+			co = new ComboLookup2<>(q, r);
 		}
-		if(co == null)
-			throw new IllegalStateException("I do not have enough information to create the data set for the combobox from the property meta data=" + pmm);
 
 		UIControlUtil.configure(co, pmm);
 		return co;
 	}
 
-	@Override public ComboLookup2<T> data(List<T> list) {
+	@Override
+	public ComboLookup2<T> data(List<T> list) {
 		setData(list);
 		return this;
 	}
 
-	@Override public ComboLookup2<T> query(QCriteria<T> criteria) {
+	@Override
+	public ComboLookup2<T> query(QCriteria<T> criteria) {
 		setQuery(criteria);
 		return this;
 	}
 
-	@Override public ComboLookup2<T> renderer(IRenderInto<T> renderer) {
+	@Override
+	public ComboLookup2<T> renderer(IRenderInto<T> renderer) {
 		setRenderer(renderer);
 		return this;
 	}

@@ -24,9 +24,7 @@ final public class BooleanPrimitiveYNType implements UserType {
 
 	@Override
 	public Object deepCopy(Object value) throws HibernateException {
-		if(value == null)
-			return value;
-		return Boolean.valueOf(((Boolean) value).booleanValue());
+		return value;
 	}
 
 	@Override
@@ -64,7 +62,11 @@ final public class BooleanPrimitiveYNType implements UserType {
 
 	@Override
 	public void nullSafeSet(PreparedStatement statement, Object value, int index, WrapperOptions options) throws SQLException {
-		statement.setString(index, value == null ? "N" : ((Boolean) value).booleanValue() ? "Y" : "N");
+		if(value == null)
+			statement.setString(index, "N");
+		else {
+			statement.setString(index, ((Boolean) value).booleanValue() ? "Y" : "N");
+		}
 	}
 
 	//@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {

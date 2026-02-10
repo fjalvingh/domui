@@ -38,7 +38,6 @@ import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Struct;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -53,7 +52,7 @@ import java.util.concurrent.Executor;
  * <p>This also contains all of the data associated with a connection,
  * for debugging, logging and statistics gathering. Most of the
  * data herein is locked by this.
- *
+ * <p>
  * FIXME Must implement java.sql.PooledConnection.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -62,13 +61,19 @@ import java.util.concurrent.Executor;
 final public class ConnectionProxy implements Connection {
 	static private final int MAX_TRACEDEPTH = 20;
 
-	/** The Pool Entry for this connection; it can NEVER be NULL!!! */
+	/**
+	 * The Pool Entry for this connection; it can NEVER be NULL!!!
+	 */
 	final private PoolEntry m_pe;
 
-	/** The ID for this proxy */
+	/**
+	 * The ID for this proxy
+	 */
 	final private int m_id;
 
-	/** The thread who owns this connection. Always filled-in */
+	/**
+	 * The thread who owns this connection. Always filled-in
+	 */
 	final private Thread m_ownerThread;
 
 	final private boolean m_unpooled;
@@ -79,50 +84,70 @@ final public class ConnectionProxy implements Connection {
 	 */
 	final private boolean m_saveTracePoints;
 
-	/** This connection's state. Only connections in state OPEN are usable; all others abort immediately on use. In addition, only in state OPEN will this be the PoolEntry's proxy. */
+	/**
+	 * This connection's state. Only connections in state OPEN are usable; all others abort immediately on use. In addition, only in state OPEN will this be the PoolEntry's proxy.
+	 */
 	private ConnState m_state = ConnState.OPEN;
 
 	private Tracepoint m_closeLocation;
 
 	/*--------------- Debug and trace info ----------------*/
-	/** The location etc denoting the allocation point for this connection. */
+
+	/**
+	 * The location etc denoting the allocation point for this connection.
+	 */
 	private Tracepoint m_allocationPoint;
 
-	/** The time that the connection was allocated in CONNTIME is true, empty otherwise */
+	/**
+	 * The time that the connection was allocated in CONNTIME is true, empty otherwise
+	 */
 	final private long m_allocationTS;
 
-	/** The list of tracepoints, if usage tracing is enabled. */
+	/**
+	 * The list of tracepoints, if usage tracing is enabled.
+	 */
 	@Nullable
 	private List<Tracepoint> m_tracePointList;
 
-	/** The last time the connection was used (proxyCheck). */
+	/**
+	 * The last time the connection was used (proxyCheck).
+	 */
 	private long m_lastUsedTS;
 
-	/** The #of times a warning has been sent that this connection is old. */
+	/**
+	 * The #of times a warning has been sent that this connection is old.
+	 */
 	private int m_expiryWarningCount;
 
 	/*--------------- Non-pool related stuff ----------------*/
-	/** T if this connection is in AutoCommit mode. */
-	private boolean m_autocommit;
+	///** T if this connection is in AutoCommit mode. */
+	//private boolean m_autocommit;
 
-	/** If set this connection will ignore close requests. To close the connection one MUST call closeThreadConnections() on the PoolManager, or call closeForced(). */
+	/**
+	 * If set this connection will ignore close requests. To close the connection one MUST call closeThreadConnections() on the PoolManager, or call closeForced().
+	 */
 	private boolean m_unclosable;
 
-	/** A list of objects containing extra info on ownership and use. */
-	private List<Object> m_infoObjects = Collections.EMPTY_LIST;
+	/**
+	 * A list of objects containing extra info on ownership and use.
+	 */
+	private List<Object> m_infoObjects = new ArrayList<>(2);
 
-	/** All commit event listeners. */
-	private List<IDatabaseEventListener> m_commitListenerList = Collections.EMPTY_LIST;
+	/**
+	 * All commit event listeners.
+	 */
+	private List<IDatabaseEventListener> m_commitListenerList = new ArrayList<>(2);
 
-	/** If set this connection is marked long living and will be excluded from hanging connection checks. */
+	/**
+	 * If set this connection is marked long living and will be excluded from hanging connection checks.
+	 */
 	private boolean m_longliving;
 
 	/**
-	 *	Creates new connection. This is the only way to attach one to the PoolEntry.
+	 * Creates new connection. This is the only way to attach one to the PoolEntry.
 	 */
 	ConnectionProxy(final PoolEntry pe, final int id, final Thread ownerThread, boolean tracepoints, boolean isunpooled) {
 		m_pe = pe;
-		m_autocommit = true;
 		m_id = id;
 		m_ownerThread = ownerThread;
 		m_saveTracePoints = tracepoints;
@@ -134,7 +159,6 @@ final public class ConnectionProxy implements Connection {
 
 	/**
 	 * Return the immutable allocation time.
-	 * @return
 	 */
 	public long getAllocationTime() {
 		return m_allocationTS;
@@ -167,7 +191,6 @@ final public class ConnectionProxy implements Connection {
 
 	/**
 	 * THIS MAY ONLY LOCK THIS AND MUST BE IMMUTABLE.
-	 * @return
 	 */
 	public final boolean isUnpooled() {
 		return m_unpooled;
@@ -190,11 +213,8 @@ final public class ConnectionProxy implements Connection {
 
 	/**
 	 * Adds owner info objects to the connection. These will be rendered at debug time, when needed.
-	 * @param oo
 	 */
 	public synchronized void addOwnerInfo(Object oo) {
-		if(m_infoObjects == Collections.EMPTY_LIST)
-			m_infoObjects = new ArrayList<Object>();
 		m_infoObjects.add(oo);
 	}
 
@@ -205,10 +225,10 @@ final public class ConnectionProxy implements Connection {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Accessing pool related state.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns the REAL database connection (the one obtained from the JDBC driver)
 	 * for this proxy. LOCKS THIS.
-	 * @return	the connection
 	 */
 	public Connection getRealConnection() {
 		return check();
@@ -241,9 +261,10 @@ final public class ConnectionProxy implements Connection {
 			if(null != closeLocation) {
 				sb.append("\n- it was closed at:\n");
 				DbPoolUtil.strStacktraceFiltered(sb, closeLocation.getElements(), new String[0], new String[0], 999, 2);
+				throw new InvalidProxyException(closeLocation.getException(), sb.toString());
 			}
 
-			throw new InvalidProxyException(closeLocation.getException(), sb.toString());
+			throw new InvalidProxyException(sb.toString());
 		}
 	}
 
@@ -273,13 +294,11 @@ final public class ConnectionProxy implements Connection {
 	 * reason and location. This can be called from pool code.
 	 * Can be called for connections that ignore the normal close operation to
 	 * force the proxy closed. The connection is returned to the pool proper.
-	 *
-	 * @throws SQLException
 	 */
 	public void forceClosed() throws SQLException {
 		m_pe.getPool().logAction(this, "close()");
 		synchronized(this) {
-			if(m_state != ConnState.OPEN)			// 20121025 jal must check here to prevent double close from calling all listeners again.
+			if(m_state != ConnState.OPEN)            // 20121025 jal must check here to prevent double close from calling all listeners again.
 				return;
 		}
 
@@ -291,7 +310,7 @@ final public class ConnectionProxy implements Connection {
 				PoolManager.getInstance().logUnexpected(x, "Ignoring Exception in onBeforeRelease");
 			}
 		}
-		m_commitListenerList = Collections.EMPTY_LIST;
+		m_commitListenerList = new ArrayList<>();
 
 		statsHandler().connectionClosed(this);
 
@@ -302,12 +321,12 @@ final public class ConnectionProxy implements Connection {
 		long duration;
 		synchronized(this) {
 			if(m_state != ConnState.OPEN)
-				return;										// Already invalidated or closed.
+				return;                                        // Already invalidated or closed.
 			m_state = ConnState.CLOSED;
 			m_closeLocation = tp;
 
 			//-- Handle "long connection usage" stuff.
-			duration = tp.getTimestamp() - m_allocationTS;	// Get #of ms used.
+			duration = tp.getTimestamp() - m_allocationTS;    // Get #of ms used.
 		}
 
 		/*
@@ -315,15 +334,13 @@ final public class ConnectionProxy implements Connection {
 		 * is fully invalidated. Now release the poolentry outside locks.
 		 */
 		m_pe.release(this);
-		getPool().handleConnectionUsageTime(this, duration);
+		getPool().handleConnectionUsageTime(duration);
 	}
 
 	/**
 	 * Called to invalidate a PoolEntry. This gets called from the expired connection
 	 * scanner when this was found to be too old. Before it actually invalidates
 	 * it makes sure no other process has closed this in the meantime. LOCKS THIS.
-	 *
-	 * @throws SQLException
 	 */
 	void forceInvalid() throws SQLException {
 		//-- Handle local chores locking THIS
@@ -347,8 +364,6 @@ final public class ConnectionProxy implements Connection {
 	 * Commit proxies to the real connection, but also handles the "disable commits" per-thread option
 	 * that can be set by {@link ConnectionPool#setCommitDisabled(boolean)} and the commit-time listeners
 	 * that can be added by {@link #addCommitListener(IDatabaseEventListener)}.
-	 *
-	 * @throws java.sql.SQLException
 	 */
 	@Override
 	public void commit() throws java.sql.SQLException {
@@ -369,12 +384,13 @@ final public class ConnectionProxy implements Connection {
 				PoolManager.getInstance().logUnexpected(x, "Ignoring Exception in onAfterCommit");
 			}
 		}
-		m_commitListenerList = Collections.EMPTY_LIST;
+		m_commitListenerList = new ArrayList<>();
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tracepointing.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Sets the last-used timestamp and saves a tracepoint in the stack, if needed. Locks this.
 	 */
@@ -384,7 +400,7 @@ final public class ConnectionProxy implements Connection {
 		m_lastUsedTS = System.currentTimeMillis();
 
 		if(null == m_tracePointList)
-			m_tracePointList = new ArrayList<Tracepoint>(MAX_TRACEDEPTH);
+			m_tracePointList = new ArrayList<>(MAX_TRACEDEPTH);
 
 		//ORDERED: remove before adding to prevent maxsize overflow.
 		if(m_tracePointList.size() >= MAX_TRACEDEPTH)
@@ -393,14 +409,13 @@ final public class ConnectionProxy implements Connection {
 	}
 
 	/**
-	 * Return the list of tracepoints, from old to new. The first entry is <b>always</i> the allocation
+	 * Return the list of tracepoints, from old to new. The first entry is <b>always</b> the allocation
 	 * point. If stacktracing is disabled this returns the allocation point only (and the close point
 	 * if known). This is valid even when the connection is closed/invalidated or whatnot.
 	 * LOCKS THIS.
-	 * @return
 	 */
 	public List<Tracepoint> getTraceList() {
-		List<Tracepoint> res = new ArrayList<Tracepoint>();
+		List<Tracepoint> res = new ArrayList<>();
 		if(null != m_allocationPoint)
 			res.add(m_allocationPoint);
 		synchronized(this) {
@@ -419,7 +434,6 @@ final public class ConnectionProxy implements Connection {
 
 	/**
 	 * Return the time this was last used.
-	 * @return
 	 */
 	public synchronized long getLastUsedTime() {
 		return m_lastUsedTS;
@@ -453,13 +467,12 @@ final public class ConnectionProxy implements Connection {
 	/**
 	 * List of times that warnings for old pool entries need to be given.
 	 */
-	static private long[] WARNINT = {5 * 60 * 1000, // 5 minutes
+	static private final long[] WARNINT = {5 * 60 * 1000, // 5 minutes
 		15 * 60 * 1000, // 15 minutes
 		60 * 60 * 1000, // 1 hour
 		2 * 60 * 60 * 1000, // 2 hours
 		8 * 60 * 60 * 1000 // 8 hours
 	};
-
 
 	/**
 	 * Called without any locks to see if this connection is a "hanging" connection. This
@@ -474,8 +487,6 @@ final public class ConnectionProxy implements Connection {
 	 *
 	 * <p>Longliving connections are not checked using staggered time interval. They
 	 * are never cleared unless we are in "urgent" mode.
-	 *
-	 * @param hs
 	 */
 	public void checkHangState(HangCheckState hs) {
 		LongRunState lrs;
@@ -566,7 +577,6 @@ final public class ConnectionProxy implements Connection {
 
 	/**
 	 * Check if this connection is running too long wrt the timestamp passed. LOCKS THIS.
-	 * @return
 	 */
 	private synchronized LongRunState calcLongRunState(long ets) {
 		if(m_state != ConnState.OPEN)
@@ -581,9 +591,9 @@ final public class ConnectionProxy implements Connection {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Stuff called from statement etc proxies.			*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Proxy to add resource.
-	 * @param thing
 	 */
 	void addResource(Object thing) {
 		m_pe.addResource(thing);
@@ -591,7 +601,8 @@ final public class ConnectionProxy implements Connection {
 
 	/**
 	 * This removes the resource from the resource list because it was normally closed.
-	 * @param o		the resource to remove.
+	 *
+	 * @param o the resource to remove.
 	 */
 	protected void removeResource(final Object o) {
 		try {
@@ -623,26 +634,23 @@ final public class ConnectionProxy implements Connection {
 	 * Add a commit-time listener to this connection. The listener is
 	 * called after the 1st commit; the list is cleared at that time
 	 * (provided the commit works).
+	 *
 	 * @since 2011/08/12
-	 * @param c
 	 */
 	public void addCommitListener(@NonNull IDatabaseEventListener c) {
-		if(m_commitListenerList == Collections.EMPTY_LIST)
-			m_commitListenerList = new ArrayList<IDatabaseEventListener>();
 		m_commitListenerList.add(c);
 	}
 
 	/**
 	 * Remove an earlier registered commit listener - silly usage, questionable interface.
+	 *
 	 * @since 2011/08/12
-	 * @param c
 	 */
 	public void removeCommitListener(@NonNull IDatabaseEventListener c) {
 		if(m_commitListenerList.isEmpty())
 			return;
 		m_commitListenerList.remove(c);
 	}
-
 
 	int getWarningCount() {
 		return m_expiryWarningCount;
@@ -751,11 +759,10 @@ final public class ConnectionProxy implements Connection {
 				PoolManager.getInstance().logUnexpected(x, "Ignoring Exception in onAfterRollback");
 			}
 		}
-		m_commitListenerList = Collections.EMPTY_LIST;
+		m_commitListenerList = new ArrayList<>();
 
 		getPool().writeSpecial(this, StatementProxy.ST_ROLLBACK);
 	}
-
 
 	public void clearWarnings() throws java.sql.SQLException {
 		check().clearWarnings();
@@ -780,7 +787,6 @@ final public class ConnectionProxy implements Connection {
 
 	public void setAutoCommit(final boolean p1) throws java.sql.SQLException {
 		checkNoSave().setAutoCommit(p1);
-		m_autocommit = p1;
 	}
 
 	public java.lang.String getCatalog() throws java.sql.SQLException {
@@ -791,16 +797,13 @@ final public class ConnectionProxy implements Connection {
 		return check().isReadOnly();
 	}
 
-
 	public java.sql.DatabaseMetaData getMetaData() throws java.sql.SQLException {
 		return check().getMetaData();
 	}
 
-
 	public void setReadOnly(final boolean p1) throws java.sql.SQLException {
 		check().setReadOnly(p1);
 	}
-
 
 	public boolean getAutoCommit() throws java.sql.SQLException {
 		return check().getAutoCommit();
@@ -814,7 +817,6 @@ final public class ConnectionProxy implements Connection {
 	public void setTypeMap(@SuppressWarnings("rawtypes") final Map p1) throws java.sql.SQLException {
 		check().setTypeMap(p1);
 	}
-
 
 	public java.sql.SQLWarning getWarnings() throws java.sql.SQLException {
 		return check().getWarnings();
@@ -883,7 +885,7 @@ final public class ConnectionProxy implements Connection {
 		return check().isValid(arg0);
 	}
 
-	public boolean isWrapperFor(Class< ? > iface) throws SQLException {
+	public boolean isWrapperFor(Class<?> iface) throws SQLException {
 		if(iface.isAssignableFrom(getClass()))
 			return true;
 		return m_pe.getConnection().isWrapperFor(iface);

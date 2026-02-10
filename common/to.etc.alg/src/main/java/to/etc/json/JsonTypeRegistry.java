@@ -7,7 +7,6 @@ import to.etc.util.PropertyInfo;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,16 +37,13 @@ public class JsonTypeRegistry {
 		}
 	}
 
-	private Map<Class< ? >, ITypeMapping> m_classMap = new HashMap<Class< ? >, ITypeMapping>();
+	private Map<Class<?>, ITypeMapping> m_classMap = new HashMap<>();
 
-	private Set<Entry> m_list = new TreeSet<Entry>(new Comparator<Entry>() {
-		@Override
-		public int compare(Entry a, Entry b) {
-			int ct = a.getOrder() - b.getOrder();
-			if(ct != 0)
-				return ct;
-			return a.hashCode() - b.hashCode();
-		}
+	private Set<Entry> m_list = new TreeSet<>((a, b) -> {
+		int ct = a.getOrder() - b.getOrder();
+		if(ct != 0)
+			return ct;
+		return a.hashCode() - b.hashCode();
 	});
 
 	public JsonTypeRegistry() {
@@ -68,8 +64,8 @@ public class JsonTypeRegistry {
 	}
 
 	@Nullable
-	public synchronized ITypeMapping findFactory(@NonNull Class< ? > typeClass, @Nullable Type type) {
-		for(Entry e: m_list) {
+	public synchronized ITypeMapping findFactory(@NonNull Class<?> typeClass, @Nullable Type type) {
+		for(Entry e : m_list) {
 			ITypeMapping mapper = e.getFactory().createMapper(this, typeClass, type);
 			if(null != mapper)
 				return mapper;
@@ -77,7 +73,7 @@ public class JsonTypeRegistry {
 		return null;
 	}
 
-	static private Set<String> IGNORESET = new HashSet<String>(Arrays.asList("class"));
+	static private final Set<String> IGNORESET = new HashSet<>(Arrays.asList("class"));
 
 	@Nullable
 	public synchronized <T> ITypeMapping createMapping(@NonNull Class<T> clz, @Nullable Type type) {
@@ -93,11 +89,11 @@ public class JsonTypeRegistry {
 			throw new IllegalStateException("No renderer for " + clz);
 
 		//-- Create/get a class type mapper.
-		JsonClassType<T> ct = new JsonClassType<T>(clz);
+		JsonClassType<T> ct = new JsonClassType<>(clz);
 		m_classMap.put(clz, ct);
 
 		List<PropertyInfo> props = ClassUtil.calculateProperties(clz);
-		Map<String, PropertyMapping> res = new TreeMap<String, PropertyMapping>();
+		Map<String, PropertyMapping> res = new TreeMap<>();
 		for(PropertyInfo pi : props) {
 			if(IGNORESET.contains(pi.getName()))
 				continue;

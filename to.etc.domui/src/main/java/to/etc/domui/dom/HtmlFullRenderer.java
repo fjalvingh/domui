@@ -51,6 +51,7 @@ import to.etc.util.StringTool;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,7 +67,9 @@ import java.util.Map;
 public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRenderer {
 	//	private BrowserVersion m_browserVersion;
 
-	/** The thingy responsible for rendering the tags, */
+	/**
+	 * The thingy responsible for rendering the tags,
+	 */
 	private HtmlTagRenderer m_tagRenderer;
 
 	@NonNull
@@ -81,11 +84,15 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	@NonNull
 	private StringBuilder m_createJS = new StringBuilder();
 
-	/** Javascript state change calls. */
+	/**
+	 * Javascript state change calls.
+	 */
 	@NonNull
 	private StringBuilder m_stateJS = new StringBuilder();
 
-	/** Builder wrapping the above. */
+	/**
+	 * Builder wrapping the above.
+	 */
 	@NonNull
 	private JavascriptStmt m_stateBuilder = new JavascriptStmt(m_stateJS);
 
@@ -108,7 +115,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		m_application = DomApplication.get();
 		page.internalSetPhase(PagePhase.FULLRENDER);
 
-		page.setDefaultFocusSource(null);							// Full page's do not use the default focus calculation from a start point.
+		page.setDefaultFocusSource(null);                            // Full page's do not use the default focus calculation from a start point.
 
 		if(page.isRenderAsXHTML()) {
 			setXml(true);
@@ -127,7 +134,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		RhinoTemplate template;
 		try(InputStream is = rt.getInputStream()) {
 			RhinoTemplateCompiler compiler = new RhinoTemplateCompiler();
-			template = compiler.compile(new InputStreamReader(is, "utf-8"), rt.toString());
+			template = compiler.compile(new InputStreamReader(is, StandardCharsets.UTF_8), rt.toString());
 		}
 
 		Appendable a = new Appendable() {
@@ -263,8 +270,6 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 		genVar("DomUIpageTag", Integer.toString(m_page.getPageTag()));
 		String pb = m_page.getBody().getThemedResourceRURL("THEME/progressbar.gif");
-		if(null == pb)
-			throw new IllegalStateException("Required resource missing");
 		genVar("DomUIProgressURL", StringTool.strToJavascriptString(m_ctx.getRelativePath(pb), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(m_page.getConversation().getFullId(), true));
 		genVar("DomUIDevel", m_ctx.getApplication().inDevelopmentMode() ? "true" : "false");
@@ -275,11 +280,9 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		o().writeRaw("\n</script>\n");
 
 		// EXPERIMENTAL SVG/VML support
-		if(m_page.isAllowVectorGraphics()) {
-			if(m_ctx.getPageParameters().getBrowserVersion().isIE()) {
-				o().writeRaw("<style>v\\: * { behavior:url(#default#VML); display:inline-block;} </style>\n"); // Puke....
-				o().writeRaw("<xml:namespace ns=\"urn:schemas-microsoft-com:vml\" prefix=\"v\">\n");
-			}
+		if(m_page.isAllowVectorGraphics() && m_ctx.getPageParameters().getBrowserVersion().isIE()) {
+			o().writeRaw("<style>v\\: * { behavior:url(#default#VML); display:inline-block;} </style>\n"); // Puke....
+			o().writeRaw("<xml:namespace ns=\"urn:schemas-microsoft-com:vml\" prefix=\"v\">\n");
 		}
 		// END EXPERIMENTAL
 
@@ -334,7 +337,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 				throw new IllegalStateException("Node " + n + " unbuilt in render?");
 			}
 		} else
-			n.build();												// FIXME Should be removed once we prove change is stable
+			n.build();                                                // FIXME Should be removed once we prove change is stable
 
 		n.onBeforeFullRender(); // Do pre-node stuff,
 		n.renderJavascriptState(m_createJS);
@@ -348,7 +351,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 					getTagRenderer().renderEndTag(n);
 				}
 			} else
-				m_o.dec();										// 20080626 img et al does not dec()...
+				m_o.dec();                                        // 20080626 img et al does not dec()...
 		}
 		n.internalClearDelta();
 		checkForFocus(n);
@@ -356,6 +359,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Overridden because this is a NodeBase node which MUST be terminated with a /div, always.
+	 *
 	 * @see to.etc.domui.dom.html.NodeVisitorBase#visitLiteralXhtml(to.etc.domui.component.misc.LiteralXhtml)
 	 */
 	@Override
@@ -395,32 +399,30 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 				throw new IllegalStateException("Node " + n + " unbuilt in render?");
 			}
 		} else
-			n.build();												// FIXME Should be removed once we prove change is stable
+			n.build();                                                // FIXME Should be removed once we prove change is stable
 
 		n.onBeforeFullRender(); // Do pre-node stuff,
 		n.renderJavascriptState(m_createJS);
 
-		boolean indena = o().isIndentEnabled();				// jal 20090903 Save indenting request....
-		n.visit(getTagRenderer());							// Ask base renderer to render tag
+		boolean indena = o().isIndentEnabled();                // jal 20090903 Save indenting request....
+		n.visit(getTagRenderer());                            // Ask base renderer to render tag
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
-		n.internalRenderJavascriptState(m_stateBuilder);	// Append Javascript state to state buffer
+		n.internalRenderJavascriptState(m_stateBuilder);    // Append Javascript state to state buffer
 		visitChildren(n);
 		getTagRenderer().renderEndTag(n);
-		o().setIndentEnabled(indena);						// And restore indenting if tag handler caused it to be cleared.
+		o().setIndentEnabled(indena);                        // And restore indenting if tag handler caused it to be cleared.
 		n.internalClearDelta();
 		checkForFocus(n);
 	}
 
 	@Override
 	public void visitChildren(NodeContainer c) throws Exception {
-		if(c instanceof IRenderNBSPIfEmpty) {
-			if(c.getChildCount() == 0) {
-				//-- jal 20091223 If the TD is fully-empty add a nbsp to prevent IE from misrendering the cell.
-				//-- vmijic 20100528 In case of null DisplayValue value render &nbsp; so that height of display value can be correct.
-				o().text("\u00a0"); // Render a nbsp. DO NOT USE THE ENTITY - IT DOES NOT EXIST IN XML.
-				return;
-			}
+		if(c instanceof IRenderNBSPIfEmpty && c.getChildCount() == 0) {
+			//-- jal 20091223 If the TD is fully-empty add a nbsp to prevent IE from misrendering the cell.
+			//-- vmijic 20100528 In case of null DisplayValue value render &nbsp; so that height of display value can be correct.
+			o().text("\u00a0"); // Render a nbsp. DO NOT USE THE ENTITY - IT DOES NOT EXIST IN XML.
+			return;
 		}
 		super.visitChildren(c);
 	}
@@ -442,17 +444,26 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	 */
 	protected void renderHtmlDoctype() throws Exception {
 		if(isXml()) {
-			o().writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/xhtml1-transitional.dtd\">\n" //
-				+ "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" //
-				+ "<head>\n" //
-				+ "<meta http-equiv=\"Content-Type\" content=\"application/xhtml+xml; charset=UTF-8\"/>\n" //
+			//
+			//
+			//
+			o().writeRaw("""
+				<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/xhtml1-transitional.dtd">
+				<html xmlns="http://www.w3.org/1999/xhtml">
+				<head>
+				<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/>
+				""" //
 			);
 		} else {
+			//
+			//
 			o().writeRaw(
-				"<!DOCTYPE html>\n"
-			+ 	"<html>\n"					//
-			+ "<head>\n"					//
-			+ 	"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n"	//
+				"""
+					<!DOCTYPE html>
+					<html>
+					<head>
+					<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+					"""    //
 			);
 		}
 	}
@@ -478,10 +489,9 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
-	 * @throws Exception
 	 */
 	public void renderHeadContributors() throws Exception {
-		List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(page().getApplication().getHeaderContributorList());
+		List<HeaderContributorEntry> full = new ArrayList<>(page().getApplication().getHeaderContributorList());
 		page().internalAddContributors(full);
 		Collections.sort(full, HeaderContributor.C_ENTRY);
 		for(HeaderContributorEntry hce : full)
@@ -508,7 +518,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 			o().endAndCloseXmltag();
 		else
 			o().endtag();
-		o().dec();					// do not close
+		o().dec();                    // do not close
 		//o().closetag("link");
 	}
 
@@ -536,11 +546,10 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Return all of the Javascript code to create/recreate this page.
-	 * @return
 	 */
 	public StringBuilder getCreateJS() {
-		if(m_stateJS.length() > 0) { 							// Stuff present in state buffer too?
-			m_createJS.append(';');								// Always add after all create stuff
+		if(m_stateJS.length() > 0) {                            // Stuff present in state buffer too?
+			m_createJS.append(';');                                // Always add after all create stuff
 			m_createJS.append(m_stateJS);
 			m_stateJS.setLength(0);
 		}

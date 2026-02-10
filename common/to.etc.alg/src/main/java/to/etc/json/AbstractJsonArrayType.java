@@ -15,7 +15,7 @@ abstract public class AbstractJsonArrayType implements ITypeMapping {
 	abstract protected Iterator<Object> getIterator(@NonNull Object instance);
 
 	@NonNull
-	abstract protected Collection< ? > createInstance() throws Exception;
+	abstract protected Collection<?> createInstance() throws Exception;
 
 	protected AbstractJsonArrayType(@NonNull ITypeMapping memberMapping) {
 		m_memberMapping = memberMapping;
@@ -23,24 +23,21 @@ abstract public class AbstractJsonArrayType implements ITypeMapping {
 
 	/**
 	 * Create the best holding type for an input type for basic Collection types.
-	 * @param typeClass
-	 * @return
 	 */
 	@NonNull
-	static public Class< ? extends Collection< ? >> getImplementationClass(@NonNull Class< ? > typeClass, @NonNull Class< ? > defaultImplementation) {
+	static public Class<? extends Collection<?>> getImplementationClass(@NonNull Class<?> typeClass, @NonNull Class<?> defaultImplementation) {
 		int mod = typeClass.getModifiers();
 		if(!Modifier.isAbstract(mod) && Modifier.isPublic(mod) && !Modifier.isInterface(mod))
-			return (Class< ? extends Collection< ? >>) typeClass;
-		return (Class< ? extends Collection< ? >>) defaultImplementation;
+			return (Class<? extends Collection<?>>) typeClass;
+		return (Class<? extends Collection<?>>) defaultImplementation;
 	}
 
 	@Override
 	public void render(@NonNull JsonWriter w, @NonNull Object instance) throws Exception {
-		Collection<Object> coll = (Collection<Object>) instance;
 		w.write('[');
 		w.inc();
 		int ct = 0;
-		for(Iterator<Object> it = getIterator(instance); it.hasNext();) {
+		for(Iterator<Object> it = getIterator(instance); it.hasNext(); ) {
 			Object o = it.next();
 
 			if(ct++ > 0) {
@@ -76,7 +73,7 @@ abstract public class AbstractJsonArrayType implements ITypeMapping {
 	private Object parseList(@NonNull JsonReader reader) throws Exception {
 		//-- 1. Instantiate the data thing.
 		Collection<Object> collection = (Collection<Object>) createInstance();
-		for(;;) {
+		for(; ; ) {
 			int token = reader.getLastToken();
 			if(token == ']')
 				break;
@@ -94,7 +91,7 @@ abstract public class AbstractJsonArrayType implements ITypeMapping {
 			else
 				throw new JsonParseException(reader, this, "Expecting either ] or , but got " + reader.getTokenString());
 		}
-		reader.nextToken();										// Skip ]
+		reader.nextToken();                                        // Skip ]
 		return convertResult(collection);
 	}
 

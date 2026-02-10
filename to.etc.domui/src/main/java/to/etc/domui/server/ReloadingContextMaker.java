@@ -57,15 +57,16 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 	private int m_nestCount;
 
-	private Set<IReloadedClassesListener> m_listenerSet = new HashSet<IReloadedClassesListener>();
+	private Set<IReloadedClassesListener> m_listenerSet = new HashSet<>();
 
 	static private ReloadingContextMaker m_instance;
 
 	@NonNull
-	static public List<IReloadListener> m_reloadListener = new ArrayList<>();
+	static private List<IReloadListener> m_reloadListener = new ArrayList<>();
 
 	static private long m_lastReloadTime;
 
+	@SuppressWarnings("squid:S3010")
 	public ReloadingContextMaker(@NonNull String applicationClassName, @NonNull ConfigParameters pp, @Nullable String patterns, @Nullable String patternsWatchOnly) throws Exception {
 		super(pp);
 		m_instance = this;
@@ -105,6 +106,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		return m_lastReloadTime;
 	}
 
+	@SuppressWarnings("squid:S2441")
 	@Override
 	public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception {
 		synchronized(this) {
@@ -238,12 +240,12 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	}
 
 	public synchronized void addListener(IReloadedClassesListener l) {
-		m_listenerSet = new HashSet<IReloadedClassesListener>(m_listenerSet);
+		m_listenerSet = new HashSet<>(m_listenerSet);
 		m_listenerSet.add(l);
 	}
 
 	public synchronized void removeListener(IReloadedClassesListener l) {
-		m_listenerSet = new HashSet<IReloadedClassesListener>(m_listenerSet);
+		m_listenerSet = new HashSet<>(m_listenerSet);
 		m_listenerSet.remove(l);
 	}
 

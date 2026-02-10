@@ -27,6 +27,14 @@ final class ExceptionRecognizer {
 
 	private List<SupplierEx<String>> m_contextProviders;
 
+	private synchronized IState getState() {
+		return m_state;
+	}
+
+	private synchronized void setState(IState state) {
+		m_state = state;
+	}
+
 	private interface IState {
 		void handleLine(String segment) throws Exception;
 	}
@@ -62,7 +70,7 @@ final class ExceptionRecognizer {
 	 */
 	public void lineAdded(String line) {
 		try {
-			m_state.handleLine(line);
+			getState().handleLine(line);
 		} catch(Exception x) {
 			x.printStackTrace(StdoutListener.out());
 		}
@@ -71,6 +79,7 @@ final class ExceptionRecognizer {
 	/**
 	 * Append the line as context to the context collection buffer.
 	 */
+	@SuppressWarnings("squid:S3398")
 	private void appendContext(String line) {
 		synchronized(this) {
 			m_contextBuffer.add(line);
@@ -80,6 +89,7 @@ final class ExceptionRecognizer {
 		}
 	}
 
+	@SuppressWarnings("squid:S1172")
 	private void d(String msg) {
 //		StdoutScanner.out().println("d" + this + ": " + msg);
 	}
@@ -98,7 +108,7 @@ final class ExceptionRecognizer {
 	 * If these rules hold we enter EXCEPTION mode and start collecting lines. If not we add this line as CONTEXT.
 	 *
 	 */
-	private final IState S_INITIAL = new IState() {
+	private final IState m_stateInitial = new IState() {
 		@Override
 		public void handleLine(String line) throws Exception {
 			if(!isExceptionStart(line)) {
@@ -115,7 +125,7 @@ final class ExceptionRecognizer {
 	 * We are part of an exception's lead-in. We are looking for "      at xx.yyy.xxx(nnn)" lines that
 	 * define the stack trace. All lines before that are still part of the exception message.
 	 */
-	private final IState S_INEXCEPTION = new IState() {
+	private final IState m_stateInException = new IState() {
 		@Override
 		public void handleLine(String line) throws Exception {
 			if(isExceptionLocation(line)) {
@@ -141,7 +151,7 @@ final class ExceptionRecognizer {
 	 * If neither of those then the exception is finished -> flush it to the
 	 * handler thread.
 	 */
-	private final IState S_PARSELOCATION = new IState() {
+	private final IState m_stateParseLocation = new IState() {
 		@Override
 		public void handleLine(String line) throws Exception {
 			if(isExceptionLocation(line)) {
@@ -205,7 +215,7 @@ final class ExceptionRecognizer {
 		synchronized(this) {
 			m_exceptionThread = Thread.currentThread();
 			m_startDate = new Date();
-			m_state = S_INEXCEPTION;
+			setState(m_stateInException);
 			addExceptionText(line);
 
 			//-- Add stdout context text
@@ -223,49 +233,36 @@ final class ExceptionRecognizer {
 				}
 			}
 		}
-
-		//try {
-		//	StringBuilder sb = new StringBuilder();
-		//	IRequestContext rc = UIContext.getRequestContext();
-		//	if(null != rc) {
-		//		RequestContextImpl r = (RequestContextImpl) rc;
-		//		String s = r.getInputPath();
-		//		sb.append("Request path: ").append(s).append("\n");
-		//
-		//
-		//
-		//	}
-		//
-		//	m_contextBuilder.append(sb);
-		//} catch(Exception x) {
-		//}
 	}
 
+	@SuppressWarnings("squid:S3398")
 	private void startCausedBy(String line) {
-		m_state = S_INEXCEPTION;						// After a caused by we have another exception message
+		setState(m_stateInException);						// After a caused by we have another exception message
 		addExceptionText(line);
 	}
 
 	private synchronized void addExceptionText(String line) {
 		if(m_exceptionBuilder.length() > 32768) {
 			//-- Too much crap in one exception. Just clear and reset,
-			m_state = S_INITIAL;
+			setState(m_stateInitial);
 			clearException();
 			return;
 		}
-		m_exceptionBuilder.append(line.toString()).append('\n');
+		m_exceptionBuilder.append(line).append('\n');
 	}
 
+	@SuppressWarnings("squid:S3398")
 	private void startInitial(String line) throws Exception {
-		m_state = S_INITIAL;
-		m_state.handleLine(line);
+		setState(m_stateInitial);
+		getState().handleLine(line);
 	}
 
 	/**
 	 * Got an exception location.
 	 */
+	@SuppressWarnings("squid:S3398")
 	private void startExceptionLocation(String line) {
-		m_state = S_PARSELOCATION;
+		setState(m_stateParseLocation);
 		addExceptionText(line);
 	}
 
@@ -311,10 +308,7 @@ final class ExceptionRecognizer {
 		int fl = i;
 		if(fl < B_EXCEPTION.length())
 			return false;
-		if(compare(line, i - B_EXCEPTION.length(), B_EXCEPTION) || compare(line, i - B_ERROR.length(), B_ERROR)) {
-			return true;
-		}
-		return false;
+		return compare(line, i - B_EXCEPTION.length(), B_EXCEPTION) || compare(line, i - B_ERROR.length(), B_ERROR);
 	}
 
 	/**
@@ -379,7 +373,7 @@ final class ExceptionRecognizer {
 		//-- Dotted-name
 		int ndots = 0;
 		while(i < end) {
-			char c = (char) line.charAt(i);
+			char c = line.charAt(i);
 			if(c == '.')
 				ndots++;
 			else if(!Character.isLetterOrDigit(c) && c != '$' && c != '_' && c != '/')		// Yes, lambda's contain slashes in the stacktrace. Sigh.
@@ -429,9 +423,7 @@ final class ExceptionRecognizer {
 		if(c != 'C' && c != 'c')
 			return false;
 		i++;
-		if(!compare(line, i, B_AUSEDBY))
-			return false;
-		return true;
+		return compare(line, i, B_AUSEDBY);
 	}
 
 
@@ -453,7 +445,5 @@ final class ExceptionRecognizer {
 			System.err.println("FAILED");
 	}
 
-
-
-	private volatile IState m_state = S_INITIAL;
+	private IState m_state = m_stateInitial;
 }

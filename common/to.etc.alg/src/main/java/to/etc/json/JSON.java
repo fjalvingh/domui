@@ -40,7 +40,7 @@ final public class JSON {
 	}
 
 	static public <T> void render(@NonNull Writer writer, @Nullable T instance, @Nullable Type fullType) throws Exception {
-		JsonWriter w = (writer instanceof JsonWriter ? (JsonWriter) writer : new JsonWriter(writer, m_registry));
+		JsonWriter w = (writer instanceof JsonWriter jw ? jw : new JsonWriter(writer, m_registry));
 		w.render(instance, fullType);
 	}
 

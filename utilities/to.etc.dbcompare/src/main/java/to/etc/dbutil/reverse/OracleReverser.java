@@ -78,10 +78,8 @@ public class OracleReverser extends JDBCReverser {
 			if(!rs.next())
 				throw new SQLException("No result");
 			String schma = rs.getString(1);
-			if(schma != null) {
-				if(IGNORE_SCHEMAS.contains(schma.toUpperCase())) {
-					return null;
-				}
+			if(schma != null && IGNORE_SCHEMAS.contains(schma.toUpperCase())) {
+				return null;
 			}
 			return schma;
 		} finally {
@@ -92,14 +90,15 @@ public class OracleReverser extends JDBCReverser {
 	/**
 	 * Use the name of the user as the default schema name.
 	 */
-	@Override public String getDefaultSchemaName() throws Exception {
+	@Override
+	public String getDefaultSchemaName() throws Exception {
 		Connection dbc = getDataSource().getConnection();
 		try(PreparedStatement ps = dbc.prepareStatement("select user from dual");
 			ResultSet rs = ps.executeQuery()) {
 			if(rs.next())
 				return rs.getString(1);
 			return "SYSTEM";
-		}finally {
+		} finally {
 			if(!isKeepConnectionsOpen()) {
 				FileTool.closeAll(dbc);
 			}
@@ -114,11 +113,12 @@ public class OracleReverser extends JDBCReverser {
 		columnScanner(dbc, schema, null);
 	}
 
+	@SuppressWarnings("squid:S2695") // The preparedStatement does have parameters
 	private void columnScanner(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet, @Nullable String tablename) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		List<DbColumn> columnList = new ArrayList<DbColumn>();
-		Map<String, DbColumn> columnMap = new HashMap<String, DbColumn>();
+		List<DbColumn> columnList = new ArrayList<>();
+		Map<String, DbColumn> columnMap = new HashMap<>();
 
 		Set<DbTable> unusedTableSet = new HashSet<>();
 		for(DbSchema schema : schemaSet) {
@@ -131,7 +131,7 @@ public class OracleReverser extends JDBCReverser {
 				"select c.owner, c.table_name,c.column_name,c.data_type,c.data_precision,c.data_scale,c.nullable,c.column_id,c.char_length,c.char_used, r.comments"
 					+ " from all_tab_columns c left outer join all_col_comments r"
 					+ " on c.owner=r.owner and c.table_name=r.table_name and c.column_name=r.column_name"
-					+ " where 1=1 "+extrawhere+" order by c.table_name, c.column_id"
+					+ " where 1=1 " + extrawhere + " order by c.table_name, c.column_id"
 			);
 			if(null != tablename)
 				ps.setString(1, tablename);
@@ -171,8 +171,8 @@ public class OracleReverser extends JDBCReverser {
 					last = tn;
 					if(t != null) {
 						unusedTableSet.remove(t);
-						columnList = new ArrayList<DbColumn>();
-						columnMap = new HashMap<String, DbColumn>();
+						columnList = new ArrayList<>();
+						columnMap = new HashMap<>();
 						t.initializeColumns(columnList, columnMap);
 					}
 				}
@@ -194,7 +194,9 @@ public class OracleReverser extends JDBCReverser {
 					ct = ColumnType.UNKNOWN;
 				}
 
-				switch(daty){
+				switch(daty) {
+					default:
+						break;
 					case Types.VARCHAR:
 					case Types.CHAR:
 						precision = charlen;
@@ -212,7 +214,7 @@ public class OracleReverser extends JDBCReverser {
 
 			//-- Always initialize all remaining tables
 			for(DbTable tbl : unusedTableSet) {
-				tbl.initializeColumns(new ArrayList<>(), new HashMap<>());			// Empty column set
+				tbl.initializeColumns(new ArrayList<>(), new HashMap<>());            // Empty column set
 			}
 
 			//msg("Loaded " + t.getName() + ": " + columnMap.size() + " columns");
@@ -220,11 +222,13 @@ public class OracleReverser extends JDBCReverser {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -236,7 +240,7 @@ public class OracleReverser extends JDBCReverser {
 		columnScanner(dbc, set, t.getName());
 	}
 
-	static private Map<String, Integer> m_typeMap = new HashMap<String, Integer>();
+	static private Map<String, Integer> m_typeMap = new HashMap<>();
 
 	static public void registerType(String t, int c) {
 		m_typeMap.put(t.toLowerCase(), Integer.valueOf(c));
@@ -248,7 +252,7 @@ public class OracleReverser extends JDBCReverser {
 		if(i == null) {
 			if(s.startsWith("timestamp"))
 				return Types.TIMESTAMP;
-			return Integer.MAX_VALUE;				// Indicate a problem
+			return Integer.MAX_VALUE;                // Indicate a problem
 			//throw new IllegalStateException("Unknown Oracle type '" + s + "'");
 		}
 		return i.intValue();
@@ -310,11 +314,13 @@ public class OracleReverser extends JDBCReverser {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -330,22 +336,22 @@ public class OracleReverser extends JDBCReverser {
 	 * Created on Nov 13, 2007
 	 */
 	private static class Cons {
-		public String name;
+		String m_name;
 
-		public String table;
+		String m_table;
 
-		public String owner;
+		String m_owner;
 
-		public String remoteOwner;
+		String m_remoteOwner;
 
-		public String remoteConstraint;
+		String m_remoteConstraint;
 
 		public Cons(String name, String owner, String table, String remoteOwner, String remoteConstraint) {
-			this.name = name;
-			this.owner = owner;
-			this.table = table;
-			this.remoteOwner = remoteOwner;
-			this.remoteConstraint = remoteConstraint;
+			m_name = name;
+			m_owner = owner;
+			m_table = table;
+			m_remoteOwner = remoteOwner;
+			m_remoteConstraint = remoteConstraint;
 		}
 	}
 
@@ -354,7 +360,7 @@ public class OracleReverser extends JDBCReverser {
 	 */
 	@NonNull
 	private List<Cons> getRelationConstraints(@NonNull Connection dbc, @NonNull DbTable table, boolean asparent) throws Exception {
-		List<Cons> list = new ArrayList<Cons>();
+		List<Cons> list = new ArrayList<>();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -375,7 +381,7 @@ public class OracleReverser extends JDBCReverser {
 				if(name.startsWith("BIN$"))
 					continue;
 				Cons c = new Cons(name, rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
-				String action = rs.getString(6);
+				//String action = rs.getString(6);
 				list.add(c);
 			}
 			return list;
@@ -388,7 +394,7 @@ public class OracleReverser extends JDBCReverser {
 	private List<DbColumn> getRelationColumns(@NonNull Connection dbc, @NonNull DbSchema schema, @NonNull String owner, @NonNull String constraintName) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		List<DbColumn> res = new ArrayList<DbColumn>();
+		List<DbColumn> res = new ArrayList<>();
 		try {
 			ps = dbc.prepareStatement("select column_name, table_name, position from all_cons_columns where owner=? and constraint_name=? order by position");
 			ps.setString(1, owner);
@@ -431,14 +437,14 @@ public class OracleReverser extends JDBCReverser {
 		if(list.isEmpty())
 			return;
 		for(Cons c : list) {
-			List<DbColumn> childColumns = getRelationColumns(dbc, table.getSchema(), c.owner, c.name);							// Get all columns in the FK part
-			List<DbColumn> parentColumns = getRelationColumns(dbc, table.getSchema(), c.remoteOwner, c.remoteConstraint);		// Get all columns in the PK part
+			List<DbColumn> childColumns = getRelationColumns(dbc, table.getSchema(), c.m_owner, c.m_name);                            // Get all columns in the FK part
+			List<DbColumn> parentColumns = getRelationColumns(dbc, table.getSchema(), c.m_remoteOwner, c.m_remoteConstraint);        // Get all columns in the PK part
 			if(null == childColumns || null == parentColumns) {
-				warning("Could not reverse relation " + c.owner + "." + c.name + " ");
+				warning("Could not reverse relation " + c.m_owner + "." + c.m_name + " ");
 				return;
 			}
 
-			DbRelation rel = createRelation(c.owner, c.name, parentColumns, childColumns);
+			DbRelation rel = createRelation(c.m_owner, c.m_name, parentColumns, childColumns);
 			if(!rel.getParent().internalGetParentRelationList().contains(rel)) {
 				rel.getParent().internalGetParentRelationList().add(rel);
 				rel.getChild().internalGetChildRelationList().add(rel);
@@ -454,7 +460,7 @@ public class OracleReverser extends JDBCReverser {
 			throw new IllegalStateException("No children in constraint " + owner + "." + name);
 		DbTable pt = parentColumns.get(0).getTable();
 		DbTable ct = childColumns.get(0).getTable();
-		DbRelation rel = new DbRelation(pt, ct, RelationUpdateAction.None, RelationUpdateAction.None);		// FIXME Need to find cascade rules
+		DbRelation rel = new DbRelation(pt, ct, RelationUpdateAction.None, RelationUpdateAction.None);        // FIXME Need to find cascade rules
 		rel.setName(name);
 
 		for(int i = 0; i < parentColumns.size(); i++) {
@@ -487,12 +493,12 @@ public class OracleReverser extends JDBCReverser {
 				DbRelation rel = null;
 				//-- Prepare FK part,
 				ps.setString(1, t.getSchema().getName());
-				ps.setString(2, sp.name);
+				ps.setString(2, sp.m_name);
 				rs = ps.executeQuery();
 
 				//-- Prepare PK part,
-				ps2.setString(1, sp.remoteOwner);
-				ps2.setString(2, sp.remoteConstraint); // Constraint name on the other side
+				ps2.setString(1, sp.m_remoteOwner);
+				ps2.setString(2, sp.m_remoteConstraint); // Constraint name on the other side
 				rs2 = ps2.executeQuery();
 				DbTable pt = null;
 
@@ -500,30 +506,30 @@ public class OracleReverser extends JDBCReverser {
 					String cn = rs.getString(1);
 					DbColumn fkc = t.findColumn(cn);
 					if(fkc == null) {
-						warning("Unknown column " + cn + " in table " + t + " for foreign key constraint " + sp.name);
+						warning("Unknown column " + cn + " in table " + t + " for foreign key constraint " + sp.m_name);
 					} else {
 
 						//-- We must have a matching column on the other (PK) side,
 						if(!rs2.next()) {
-							warning("Unmatched column " + cn + " in PK table for foreign key constraint " + sp.name);
+							warning("Unmatched column " + cn + " in PK table for foreign key constraint " + sp.m_name);
 						} else {
 							String pkcn = rs2.getString(1);
 							if(pt == null) {
 								String pktn = rs2.getString(2);
 								pt = t.getSchema().findTable(pktn);
 								if(pt == null) {
-									warning("Can't find table for PK " + pktn + " in PK table for foreign key constraint " + sp.name);
+									warning("Can't find table for PK " + pktn + " in PK table for foreign key constraint " + sp.m_name);
 								} else {
 									if(rel == null) {
 										//-- Create the relation too.
 										rel = new DbRelation(pt, t, RelationUpdateAction.None, RelationUpdateAction.None);        // FIXME Need to find cascade rule
-										rel.setName(sp.name);
+										rel.setName(sp.m_name);
 										pt.getParentRelationList().add(rel);
 										t.getChildRelationList().add(rel);
 									}
 									DbColumn pkc = pt.findColumn(pkcn);
 									if(pkc == null) {
-										warning("Unknown column " + pkcn + " in PK table " + pt + " for foreign key constraint " + sp.name);
+										warning("Unknown column " + pkcn + " in PK table " + pt + " for foreign key constraint " + sp.m_name);
 									} else if(null != rel) {
 										rel.addPair(pkc, fkc);
 									}
@@ -540,25 +546,30 @@ public class OracleReverser extends JDBCReverser {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(rs2 != null)
 					rs2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps2 != null)
 					ps2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Oracle Views reverser.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This uses the Oracle datadict plus the DBMS_METADATA package
 	 * to obtain the view definitions.
@@ -623,19 +634,23 @@ public class OracleReverser extends JDBCReverser {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(rs2 != null)
 					rs2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps2 != null)
 					ps2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -688,19 +703,23 @@ public class OracleReverser extends JDBCReverser {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(rs2 != null)
 					rs2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps2 != null)
 					ps2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -741,19 +760,23 @@ public class OracleReverser extends JDBCReverser {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(rs2 != null)
 					rs2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps2 != null)
 					ps2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -768,7 +791,7 @@ public class OracleReverser extends JDBCReverser {
 			while(rs.next()) {
 				int i = 1;
 
-				String owner= rs.getString(i++);
+				String owner = rs.getString(i++);
 				DbSchema schema = findSchema(schemaSet, owner);
 				if(null == schema)
 					continue;
@@ -820,11 +843,13 @@ public class OracleReverser extends JDBCReverser {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -840,7 +865,7 @@ public class OracleReverser extends JDBCReverser {
 		ResultSet rs3 = null;
 		PreparedStatement ps2 = null;
 		ResultSet rs2 = null;
-		Map<DbTable, Map<String, DbIndex>> indexMapMap = new HashMap<DbTable, Map<String, DbIndex>>();
+		Map<DbTable, Map<String, DbIndex>> indexMapMap = new HashMap<>();
 
 		try {
 			ps2 = dbc.prepareStatement("select dbms_metadata.get_ddl('INDEX', ?) from dual");
@@ -874,7 +899,7 @@ public class OracleReverser extends JDBCReverser {
 
 					Map<String, DbIndex> imap = indexMapMap.get(it);
 					if(null == imap) {
-						imap = new HashMap<String, DbIndex>();
+						imap = new HashMap<>();
 						indexMapMap.put(it, imap);
 						it.setIndexMap(imap);
 					}
@@ -926,27 +951,33 @@ public class OracleReverser extends JDBCReverser {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(rs2 != null)
 					rs2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps2 != null)
 					ps2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(rs3 != null)
 					rs3.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps3 != null)
 					ps3.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -963,7 +994,7 @@ public class OracleReverser extends JDBCReverser {
 		ResultSet rs3 = null;
 		PreparedStatement ps2 = null;
 		ResultSet rs2 = null;
-		Map<String, DbIndex> indexMap = new HashMap<String, DbIndex>();
+		Map<String, DbIndex> indexMap = new HashMap<>();
 
 		try {
 			ps2 = dbc.prepareStatement("select dbms_metadata.get_ddl('INDEX', ?) from dual");
@@ -1011,9 +1042,7 @@ public class OracleReverser extends JDBCReverser {
 							warning("Cannot obtain index DDL for index=" + name);
 							continue;
 						}
-						String ddl = rs2.getString(1);
-						SpecialIndex sx = new SpecialIndex(name, ddl);
-//					schema.addSpecialIndex(sx);
+						//String ddl = rs2.getString(1);
 						rs2.close();
 					} catch(Exception x) {
 						warning("Cannot obtain index DDL for index=" + name);
@@ -1026,30 +1055,35 @@ public class OracleReverser extends JDBCReverser {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(rs2 != null)
 					rs2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps2 != null)
 					ps2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(rs3 != null)
 					rs3.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps3 != null)
 					ps3.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
-
 
 	static {
 		registerType("varchar", Types.VARCHAR);

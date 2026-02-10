@@ -7,16 +7,23 @@ import java.lang.instrument.Instrumentation;
  * Created on 13-11-18.
  */
 public class InstrumentationAgent {
-	private static volatile Instrumentation globalInstrumentation;
+	@SuppressWarnings("squid:S3077") //-- Junk analysis. This is set by the premain method, and is not modified after that.
+	private static volatile Instrumentation m_globalInstrumentation;
 
+
+	private InstrumentationAgent() {
+		//--
+	}
+
+	@SuppressWarnings("squid:S1172") //-- Junk analysis. The method signature is defined by the JVM, and the parameters are used by the JVM.
 	public static void premain(final String agentArgs, final Instrumentation inst) {
-		globalInstrumentation = inst;
+		m_globalInstrumentation = inst;
 	}
 
 	public static long getObjectSize(final Object object) {
-		if (globalInstrumentation == null) {
+		if (m_globalInstrumentation == null) {
 			throw new IllegalStateException("Agent not initialized.");
 		}
-		return globalInstrumentation.getObjectSize(object);
+		return m_globalInstrumentation.getObjectSize(object);
 	}
 }

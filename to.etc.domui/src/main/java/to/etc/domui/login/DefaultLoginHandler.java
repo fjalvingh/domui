@@ -13,10 +13,12 @@ import java.util.concurrent.*;
  */
 @NonNullByDefault
 public class DefaultLoginHandler implements ILoginHandler {
-	/** After this amount of failed logins just pretend we're logging in */
+	/**
+	 * After this amount of failed logins just pretend we're logging in
+	 */
 	private volatile int m_maxFailLogins = 10;
 
-	private volatile long m_failLoginTimeout = 5*60*1000;
+	private volatile long m_failLoginTimeout = 5L * 60 * 1000;
 
 	static final private class IgnoredHash {
 		final private long m_ts;
@@ -37,8 +39,7 @@ public class DefaultLoginHandler implements ILoginHandler {
 		}
 	}
 
-	private List<IgnoredHash> m_ignoredHashList = new ArrayList<IgnoredHash>();
-
+	private List<IgnoredHash> m_ignoredHashList = new ArrayList<>();
 
 	static private final Map<String, LastLogin> m_lastLoginMap = new ConcurrentHashMap<>();
 
@@ -49,8 +50,6 @@ public class DefaultLoginHandler implements ILoginHandler {
 	 * </pre>
 	 * The userid, timestamp as an yyyymmdd string and the password are hashed as an MD5 string and
 	 * must be the same as the authhash for cookie auth to succeed.
-	 * @param rci
-	 * @param cookie
 	 */
 	@Override
 	@Nullable
@@ -73,14 +72,12 @@ public class DefaultLoginHandler implements ILoginHandler {
 
 			return la.authenticateByCookie(uid, ts, car[2]);// Authenticate by cookie
 		} catch(Exception x) {
-			return null;									// All cookie format exceptions mean no login
+			return null;                                    // All cookie format exceptions mean no login
 		}
 	}
 
-
 	/**
 	 * Register a hash value to ignore because it was logged out.
-	 * @param hash
 	 */
 	@Override
 	public synchronized void registerIgnoredHash(String hash) {
@@ -89,12 +86,10 @@ public class DefaultLoginHandler implements ILoginHandler {
 
 	/**
 	 * If the hash is an ignored hash then return false. In the process clean up "old" hashes.
-	 * @param hash
-	 * @return
 	 */
 	public synchronized boolean isIgnoredHash(String hash) {
 		long cts = System.currentTimeMillis() - 1000 * 60;
-		for(int i = m_ignoredHashList.size(); --i >= 0;) {
+		for(int i = m_ignoredHashList.size(); --i >= 0; ) {
 			IgnoredHash ih = m_ignoredHashList.get(i);
 			if(ih.getHash().equalsIgnoreCase(hash)) {
 				return true;
@@ -108,6 +103,7 @@ public class DefaultLoginHandler implements ILoginHandler {
 	/**
 	 * Logs in a user. If he was logged in before he is logged out.
 	 */
+	@SuppressWarnings("squid:S3824")
 	@Override
 	public LoginResult login(String userid, @Nullable String password) throws Exception {
 		IRequestContext rcx = UIContext.getRequestContext();
@@ -126,16 +122,12 @@ public class DefaultLoginHandler implements ILoginHandler {
 
 			//-- Am I still in failed login state?
 			long cts = System.currentTimeMillis();
-			if(ll != null) {
-				if(ll.getFirstAttempt() < cts - m_failLoginTimeout) {
-					ll = null;
-				}
+			if(ll != null && ll.getFirstAttempt() < cts - m_failLoginTimeout) {
+				ll = null;
 			}
-			if(ll != null) {
-				if(ll.getFailCount() >= m_maxFailLogins) {
-					//Thread.sleep(4000);				// Don't: this can allow a DDOS attack.
-					return LoginResult.IGNORED;
-				}
+			if(ll != null && ll.getFailCount() >= m_maxFailLogins) {
+				//Thread.sleep(4000);				// Don't: this can allow a DDOS attack.
+				return LoginResult.IGNORED;
 			}
 
 			//-- Check credentials,
@@ -161,7 +153,7 @@ public class DefaultLoginHandler implements ILoginHandler {
 	}
 
 	private void setLoggedInUser(IRequestContext rcx, IServerSession hs, IUser user) {
-		hs.setAttribute(UILogin.LOGIN_KEY, user); 					// This causes the user to be logged on.
+		hs.setAttribute(UILogin.LOGIN_KEY, user);                    // This causes the user to be logged on.
 		UIContext.setCurrentUser(user);
 
 		List<ILoginListener> li = rcx.getApplication().getLoginListenerList();

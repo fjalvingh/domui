@@ -58,7 +58,7 @@ public class ConfigPart extends Div {
 				node.add(new LinkButton("follow", clickednode -> ServerLogPage.moveSub(constructLogPath(handler.getFile()))));
 			}
 		});
-		m_table = new ExpandingEditTable<Handler>(Handler.class, m_model, rr);
+		m_table = new ExpandingEditTable<>(m_model, rr);
 		m_table.setNewAtStart(true);
 		m_table.setEnableDeleteButton(true);
 		m_table.setEnableExpandItems(true);

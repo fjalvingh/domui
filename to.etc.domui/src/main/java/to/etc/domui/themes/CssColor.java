@@ -30,7 +30,6 @@ import to.etc.util.StringTool;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * A color, with methods to create new colors from it.
@@ -47,11 +46,23 @@ final public class CssColor {
 
 	final private int m_b;
 
-	/** T if HSL values have been calculated. */
+	/**
+	 * T if HSL values have been calculated.
+	 */
 	private boolean m_hsl;
 
-	/** HSL when calculated */
-	private double m_h, m_hsl_s, m_hsl_l, m_hsv_v, m_hsv_s;
+	/**
+	 * HSL when calculated
+	 */
+	private double m_h;
+
+	private double m_hslS;
+
+	private double m_hslL;
+
+	private double m_hsvV;
+
+	private double m_hsvS;
 
 	public CssColor(float rin, float gin, float bin) {
 		this((int) (rin + 0.5), (int) (gin + 0.5), (int) (bin + 0.5));
@@ -151,12 +162,9 @@ final public class CssColor {
 		return createHSV(getHsvH(), s, getHsvV());
 	}
 
-
 	/**
 	 * See:
 	 * http://juicystudio.com/article/luminositycontrastratioalgorithm.php
-	 * @param other
-	 * @return
 	 */
 	public double luminanceContrast(CssColor other) {
 		return luminanceContrast(this, other);
@@ -218,79 +226,31 @@ final public class CssColor {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	HSL calculations.									*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * See http://www.had2know.com/technology/hsl-rgb-color-converter.html
-	 */
-	private void calcHSLOld() {
-		if(m_hsl)
-			return;
-
-		int um = m_r; // M = max(r, g, b)
-		if(m_g > um)
-			um = m_g;
-		if(m_b > um)
-			um = m_b;
-
-		int lm = m_r; // m = min(r, g, b)
-		if(m_g < lm)
-			lm = m_g;
-		if(m_b < lm)
-			lm = m_b;
-
-		//-- Luminance / "Value"
-		m_hsl_l = (lm + um) / 510.0;
-		m_hsv_v = um / 255.0;
-		if(um - lm == 0) {
-			//-- Achromatic
-			m_hsv_s = m_hsl_s = 0;
-			m_h = 0.0;
-		} else {
-			//-- Saturation
-			double d = (um - lm) / 255.0;
-			if(m_hsl_l > 0.0)
-				m_hsl_s = d / (1.0 - Math.abs(2 * m_hsl_l - 1));
-			else
-				m_hsl_s = 0.0;
-
-			if(um - lm == 0)
-				m_hsv_s = 0.0;
-			else
-				m_hsv_s = d / m_hsv_v;
-
-			//-- Hue (chroma).
-			m_h = Math.acos((m_r - 0.5 * m_g - 0.5 * m_b) / Math.sqrt(m_r * m_r + m_b * m_b + m_g * m_g - m_r * m_g - m_r * m_b - m_g * m_b)) / Math.PI * 180;
-			if(m_b > m_g)
-				m_h = 360 - m_h;
-		}
-		m_hsl = true;
-	}
 
 	/**
 	 * Lightness L (HSL)
-	 * @return
 	 */
 	public double getHslL() {
 		calcHSL();
-		return m_hsl_l;
+		return m_hslL;
 	}
 
 	public double getHsvV() {
 		calcHSL();
-		return m_hsv_v;
+		return m_hsvV;
 	}
 
 	/**
 	 * Saturation S (HSL)
-	 * @return
 	 */
 	public double getHslS() {
 		calcHSL();
-		return m_hsl_s;
+		return m_hslS;
 	}
 
 	public double getHsvS() {
 		calcHSL();
-		return m_hsv_s;
+		return m_hsvS;
 	}
 
 	public double getHslH() {
@@ -316,9 +276,12 @@ final public class CssColor {
 
 		double x = d * (1 - Math.abs(mod2 - 1));
 
-		int r, g, b;
+		int r;
+		int g;
+		int b;
+		h = h % 360;
 		int sextant = (int) (h / 60);
-		switch(sextant){
+		switch(sextant) {
 			default:
 				throw new IllegalArgumentException("Bad h=" + h);
 			case 0:
@@ -380,23 +343,23 @@ final public class CssColor {
 			max = g;
 		if(b > max)
 			max = b;
-		m_hsl_l = (max + min) / 2.0;
-		m_hsv_v = max;
+		m_hslL = (max + min) / 2.0;
+		m_hsvV = max;
 
 		double d = max - min;
 
 		//-- hsl saturation
 		if(max == min) {
-			m_hsl_s = 0;
+			m_hslS = 0;
 		} else {
-			if(m_hsl_l > 0.5)
-				m_hsl_s = d / (2.0 - max - min);
+			if(m_hslL > 0.5)
+				m_hslS = d / (2.0 - max - min);
 			else
-				m_hsl_s = d / (max + min);
+				m_hslS = d / (max + min);
 		}
 
 		//-- hsv saturation
-		m_hsv_s = max == 0.0 ? 0.0 : d / max;
+		m_hsvS = max == 0.0 ? 0.0 : d / max;
 
 		//-- Hue
 		if(max == min) {
@@ -419,9 +382,11 @@ final public class CssColor {
 	 * HSV calculation with h = [0..360], s and v in 0..1
 	 */
 	public static CssColor createHSV(double h, double s, double v) {
-		double r, g, b;
+		double r;
+		double g;
+		double b;
 
-		h	/= 360.0;			// Get hue 0..1
+		h /= 360.0;            // Get hue 0..1
 
 		double i = Math.floor(h * 6); // Sextant
 		double f = h * 6 - i; // Mod
@@ -429,11 +394,15 @@ final public class CssColor {
 		double q = v * (1 - f * s);
 		double t = v * (1 - (1 - f) * s);
 
-		switch((int)i % 6) {		// Per sextant
+		switch((int) i % 6) {        // Per sextant
 			default:
 				throw new IllegalStateException();
 
-			case 0: r = v; g = t; b = p; break;
+			case 0:
+				r = v;
+				g = t;
+				b = p;
+				break;
 			case 1:
 				r = q;
 				g = v;
@@ -463,42 +432,8 @@ final public class CssColor {
 		return new CssColor(255 * r, 255 * g, 255 * b);
 	}
 
-	public static void main(String[] args) {
-		CssColor c = new CssColor(0xce, 0xce, 0xfa);
-		System.out.println("HSL=" + c.getHslH() + ", " + c.getHslS() + ", " + c.getHslL());
-		System.out.println("HSV=" + c.getHsvH() + ", " + c.getHsvS() + ", " + c.getHsvV());
-
-		//-- Create a thing with higher saturation
-		CssColor nw = CssColor.createHSV(c.getHsvH(), 1.0, c.getHsvV());
-		System.out.println("new = " + nw);
-		System.out.println("HSL=" + nw.getHslH() + ", " + nw.getHslS() + ", " + nw.getHslL());
-		System.out.println("HSV=" + nw.getHsvH() + ", " + nw.getHsvS() + ", " + nw.getHsvV());
-
-
-		//		System.out.println("a=" + new CssColor("#006611").lighter(0.2));
-	}
-
-//	/**
-//	 * Return n relatively light colors.
-//	 */
-//	static public List<CssColor> calculateColors() {
-//		double golden_ratio_conjugate = 0.618033988749895;
-//		double hue = 0.198765;
-//		List<CssColor> list = new ArrayList<>();
-//		for(int i = 0; i < 32; i++) {
-//
-//			CssColor cssc = CssColor.createHSL(hue * 360, 0.55, 0.85);
-//			list.add(cssc);
-////			System.out.println(" css " + cssc.toString());
-//
-//			hue = hue += golden_ratio_conjugate;
-//			hue %= 1;
-//		}
-//		return list;
-//	}
-
 	static public List<CssColor> calculateColors(int count) {
-		double golden_ratio_conjugate = 1.0 / count;
+		double goldenRatioConjugate = 1.0 / count;
 		double hue = 0.198765;
 		List<CssColor> list = new ArrayList<>(count);
 		for(int i = 0; i < count; i++) {
@@ -507,168 +442,60 @@ final public class CssColor {
 			list.add(cssc);
 //			System.out.println(" css " + cssc.toString());
 
-			hue = hue += golden_ratio_conjugate;
+			hue += goldenRatioConjugate;
 			hue %= 1;
 		}
 		return list;
 	}
 
+	//private final static float U_OFF = .436f;
+	//
+	//private final static float V_OFF = .615f;
 
-	private final static float
-		U_OFF = .436f,
-		V_OFF = .615f;
+	//private static final long RAND_SEED = 0;
 
-	private static final long RAND_SEED = 0;
-
-	private static Random rand = new Random(RAND_SEED);
-
-	/*
-	 * Returns an array of ncolors RGB triplets such that each is as unique from the rest as possible
-	 * and each color has at least one component greater than minComponent and one less than maxComponent.
-	 * Use min == 1 and max == 0 to include the full RGB color range.
-	 *
-	 * Warning: O N^2 algorithm blows up fast for more than 100 colors.
-	 */
-	public static List<CssColor> generateVisuallyDistinctColors(int ncolors, float minComponent, float maxComponent) {
-		if(ncolors > 100)
-			throw new IllegalStateException("Too many colors requested");
-
-		rand.setSeed(RAND_SEED); 						// So that we get consistent results for each combination of inputs
-
-		float[][] yuv = new float[ncolors][3];
-
-		// initialize array with random colors
-		for(int got = 0; got < ncolors; ) {
-			System.arraycopy(randYUVinRGBRange(minComponent, maxComponent), 0, yuv[got++], 0, 3);
-		}
-
-		// continually break up the worst-fit color pair until we get tired of searching
-		for(int c = 0; c < ncolors * 1000; c++) {
-			float worst = 8888;
-			int worstID = 0;
-			for(int i = 1; i < yuv.length; i++) {
-				for(int j = 0; j < i; j++) {
-					float dist = sqrdist(yuv[i], yuv[j]);
-					if(dist < worst) {
-						worst = dist;
-						worstID = i;
-					}
-				}
-			}
-			float[] best = randYUVBetterThan(worst, minComponent, maxComponent, yuv);
-			if(best == null)
-				break;
-			else
-				yuv[worstID] = best;
-		}
-
-		List<CssColor> res = new ArrayList<>(ncolors);
-		for(int i = 0; i < ncolors; i++) {
-			float[] rgb = new float[3];
-			yuv2rgb(yuv[i][0], yuv[i][1], yuv[i][2], rgb);
-			res.add(new CssColor(rgb[0]*255, rgb[1]*255, rgb[2]*255));
-		}
-
-		return res;
-	}
-
-	public static void hsv2rgb(float h, float s, float v, float[] rgb) {
-		// H is given on [0->6] or -1. S and V are given on [0->1].
-		// RGB are each returned on [0->1].
-		float m, n, f;
-		int i;
-
-		float[] hsv = new float[3];
-
-		hsv[0] = h;
-		hsv[1] = s;
-		hsv[2] = v;
-		System.out.println("H: " + h + " S: " + s + " V:" + v);
-		if(hsv[0] == -1) {
-			rgb[0] = rgb[1] = rgb[2] = hsv[2];
-			return;
-		}
-		i = (int) (Math.floor(hsv[0]));
-		f = hsv[0] - i;
-		if(i % 2 == 0)
-			f = 1 - f; // if i is even
-		m = hsv[2] * (1 - hsv[1]);
-		n = hsv[2] * (1 - hsv[1] * f);
-		switch(i){
-			case 6:
-			case 0:
-				rgb[0] = hsv[2];
-				rgb[1] = n;
-				rgb[2] = m;
-				break;
-			case 1:
-				rgb[0] = n;
-				rgb[1] = hsv[2];
-				rgb[2] = m;
-				break;
-			case 2:
-				rgb[0] = m;
-				rgb[1] = hsv[2];
-				rgb[2] = n;
-				break;
-			case 3:
-				rgb[0] = m;
-				rgb[1] = n;
-				rgb[2] = hsv[2];
-				break;
-			case 4:
-				rgb[0] = n;
-				rgb[1] = m;
-				rgb[2] = hsv[2];
-				break;
-			case 5:
-				rgb[0] = hsv[2];
-				rgb[1] = m;
-				rgb[2] = n;
-				break;
-		}
-	}
-
+	//@SuppressWarnings("squid:S2245")			// random is safe here.
+	//private static Random m_rand = new Random(RAND_SEED);
 
 	// From http://en.wikipedia.org/wiki/YUV#Mathematical_derivations_and_formulas
-	public static void yuv2rgb(float y, float u, float v, float[] rgb) {
-		rgb[0] = 1 * y + 0 * u + 1.13983f * v;
-		rgb[1] = 1 * y + -.39465f * u + -.58060f * v;
-		rgb[2] = 1 * y + 2.03211f * u + 0 * v;
-	}
+	//public static void yuv2rgb(float y, float u, float v, float[] rgb) {
+	//	rgb[0] = 1 * y + 0 * u + 1.13983f * v;
+	//	rgb[1] = 1 * y + -.39465f * u + -.58060f * v;
+	//	rgb[2] = 1 * y + 2.03211f * u + 0 * v;
+	//}
 
-	public static void rgb2yuv(float r, float g, float b, float[] yuv) {
-		yuv[0] = .299f * r + .587f * g + .114f * b;
-		yuv[1] = -.14713f * r + -.28886f * g + .436f * b;
-		yuv[2] = .615f * r + -.51499f * g + -.10001f * b;
-	}
+	//public static void rgb2yuv(float r, float g, float b, float[] yuv) {
+	//	yuv[0] = .299f * r + .587f * g + .114f * b;
+	//	yuv[1] = -.14713f * r + -.28886f * g + .436f * b;
+	//	yuv[2] = .615f * r + -.51499f * g + -.10001f * b;
+	//}
 
-	private static float[] randYUVinRGBRange(float minComponent, float maxComponent) {
-		while(true) {
-			float y = rand.nextFloat(); // * YFRAC + 1-YFRAC);
-			float u = rand.nextFloat() * 2 * U_OFF - U_OFF;
-			float v = rand.nextFloat() * 2 * V_OFF - V_OFF;
-			float[] rgb = new float[3];
-			yuv2rgb(y, u, v, rgb);
-			float r = rgb[0], g = rgb[1], b = rgb[2];
-			if(0 <= r && r <= 1 &&
-				0 <= g && g <= 1 &&
-				0 <= b && b <= 1 &&
-				(r > minComponent || g > minComponent || b > minComponent) && // don't want all dark components
-				(r < maxComponent || g < maxComponent || b < maxComponent)) // don't want all light components
+	//private static float[] randYUVinRGBRange(float minComponent, float maxComponent) {
+	//	while(true) {
+	//		float y = rand.nextFloat(); // * YFRAC + 1-YFRAC);
+	//		float u = rand.nextFloat() * 2 * U_OFF - U_OFF;
+	//		float v = rand.nextFloat() * 2 * V_OFF - V_OFF;
+	//		float[] rgb = new float[3];
+	//		yuv2rgb(y, u, v, rgb);
+	//		float r = rgb[0], g = rgb[1], b = rgb[2];
+	//		if(0 <= r && r <= 1 &&
+	//			0 <= g && g <= 1 &&
+	//			0 <= b && b <= 1 &&
+	//			(r > minComponent || g > minComponent || b > minComponent) && // don't want all dark components
+	//			(r < maxComponent || g < maxComponent || b < maxComponent)) // don't want all light components
+	//
+	//			return new float[]{y, u, v};
+	//	}
+	//}
 
-				return new float[]{y, u, v};
-		}
-	}
-
-	private static float sqrdist(float[] a, float[] b) {
-		float sum = 0;
-		for(int i = 0; i < a.length; i++) {
-			float diff = a[i] - b[i];
-			sum += diff * diff;
-		}
-		return sum;
-	}
+	//private static float sqrdist(float[] a, float[] b) {
+	//	float sum = 0;
+	//	for(int i = 0; i < a.length; i++) {
+	//		float diff = a[i] - b[i];
+	//		sum += diff * diff;
+	//	}
+	//	return sum;
+	//}
 	//
 	//private static double worstFit(Color[] colors) {
 	//	float worst = 8888;
@@ -686,18 +513,18 @@ final public class CssColor {
 	//	return Math.sqrt(worst);
 	//}
 
-	private static float[] randYUVBetterThan(float bestDistSqrd, float minComponent, float maxComponent, float[][] in) {
-		for(int attempt = 1; attempt < 100 * in.length; attempt++) {
-			float[] candidate = randYUVinRGBRange(minComponent, maxComponent);
-			boolean good = true;
-			for(int i = 0; i < in.length; i++)
-				if(sqrdist(candidate, in[i]) < bestDistSqrd)
-					good = false;
-			if(good)
-				return candidate;
-		}
-		return null; // after a bunch of passes, couldn't find a candidate that beat the best.
-	}
+	//private static float[] randYUVBetterThan(float bestDistSqrd, float minComponent, float maxComponent, float[][] in) {
+	//	for(int attempt = 1; attempt < 100 * in.length; attempt++) {
+	//		float[] candidate = randYUVinRGBRange(minComponent, maxComponent);
+	//		boolean good = true;
+	//		for(int i = 0; i < in.length; i++)
+	//			if(sqrdist(candidate, in[i]) < bestDistSqrd)
+	//				good = false;
+	//		if(good)
+	//			return candidate;
+	//	}
+	//	return null; // after a bunch of passes, couldn't find a candidate that beat the best.
+	//}
 
 	///**
 	// * Simple example program.
@@ -710,7 +537,5 @@ final public class CssColor {
 	//	}
 	//	//System.out.println("Worst fit color = " + worstFit(colors));
 	//}
-
-
 
 }

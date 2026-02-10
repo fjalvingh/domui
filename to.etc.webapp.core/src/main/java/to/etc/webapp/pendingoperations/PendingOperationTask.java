@@ -54,7 +54,6 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 
 	private final List<PendingOperation> m_list;
 
-
 	public PendingOperationTask(final PendingOperationTaskProvider provider, final List<PendingOperation> list) {
 		m_provider = provider;
 		m_list = list;
@@ -62,6 +61,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 
 	/**
 	 * Loop through all pendingOperations and execute them one by one. Aborts as soon as an operation fails.
+	 *
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
@@ -69,21 +69,21 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 		int lsz = m_list.size() + 1;
 		try {
 			while(!m_list.isEmpty()) {
-				Set<PendingOperation> upset = new HashSet<PendingOperation>();
+				Set<PendingOperation> upset = new HashSet<>();
 
 				if(lsz == m_list.size())
 					throw new IllegalStateException("LOOP DETECT");
 				lsz = m_list.size();
-				PendingOperation op = m_list.remove(0);			// Get the 1st thing to do, and remove it from the worklist.
+				PendingOperation op = m_list.remove(0);            // Get the 1st thing to do, and remove it from the worklist.
 				upset.add(op);
-				runOperation(op); 								// Run this thing and mark it's state after execution.
+				runOperation(op);                                // Run this thing and mark it's state after execution.
 
 				//-- Check some things and update the finished operation
 				if(op.getState() == PendingOperationState.EXEC)
 					throw new IllegalStateException("Still in state EXEC after run");
 				if(op.getLastExecutionEnd() == null)
 					op.setLastExecutionEnd(new java.util.Date());
-				op.setExecutesOnServerID(null);					// Finished execution
+				op.setExecutesOnServerID(null);                    // Finished execution
 
 				if(op.getErrorLog() != null) {
 					op.setErrorLog(op.getErrorLog() + "\n" + m_logWriter.getBuffer().toString());
@@ -92,20 +92,17 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 
 				//-- If the last operation failed we cannot continue with the rest of the group either, unless it is specifically allowed by the provider...
 				PendingOperation deleteme = null;
-				if(op.getState() != PendingOperationState.DONE) {				// Op failed?
+				if(op.getState() != PendingOperationState.DONE) {                // Op failed?
 					boolean fail = true;
 
 					//-- Ask the provider if we may continue regardless of this.
 					try {
 						IPendingOperationExecutor pox = m_provider.findExecutor(op);
-						if(null != pox) {										// We should find one, but do not abort at this level
-							if(pox instanceof IPendingOperationExecutor2) {		// No way to know if skipping the failed one is allowed?
-								IPendingOperationExecutor2 px2 = (IPendingOperationExecutor2) pox;
-								if(px2.isSkipFailedAllowed(op)) {				// We're not allowed to run this group -> skip it.
-									fail = false;
-									deleteme = op;
-								}
-							}
+						// We should find one, but do not abort at this level
+						// No way to know if skipping the failed one is allowed?
+						if(null != pox && pox instanceof IPendingOperationExecutor2 px2 && px2.isSkipFailedAllowed(op)) {                // We're not allowed to run this group -> skip it.
+							fail = false;
+							deleteme = op;
 						}
 					} catch(Exception x) {
 						//-- Ignore: treat any exception here as fail.
@@ -122,7 +119,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 						}
 
 						//-- Update the DB
-						handleDatabaseUpdate(upset, null);						// Update everything
+						handleDatabaseUpdate(upset, null);                        // Update everything
 						return;
 					}
 				}
@@ -133,16 +130,16 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 					nextop = m_list.get(0);
 
 					//-- Mark the next operation as executing.
-					nextop.setLastExecutionStart(new java.util.Date());			// Will start now,
-					nextop.setLastExecutionEnd(null);							// Has not terminated yet
-					nextop.setState(PendingOperationState.EXEC);				// Is executing
-					nextop.setLastError(null);									// No error message when re-executing
+					nextop.setLastExecutionStart(new java.util.Date());            // Will start now,
+					nextop.setLastExecutionEnd(null);                            // Has not terminated yet
+					nextop.setState(PendingOperationState.EXEC);                // Is executing
+					nextop.setLastError(null);                                    // No error message when re-executing
 					if(!m_provider.getServerID().equals(nextop.getExecutesOnServerID()))
 						throw new IllegalStateException("Next pendingOp not allocated to run on THIS server!?");
 					upset.add(nextop);
 				}
 
-				handleDatabaseUpdate(upset, deleteme); 							// Handle database chores,
+				handleDatabaseUpdate(upset, deleteme);                            // Handle database chores,
 			}
 		} catch(Exception x) {
 			x.printStackTrace(); // UNEXPECTED EXCEPTION!?
@@ -152,9 +149,6 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	/**
 	 * Atomically updates the database status for the last job that executed AND, if present, the next job in the group
 	 * to execute.
-	 * @param finishedop
-	 * @param nextop
-	 * @throws Exception
 	 */
 	private void handleDatabaseUpdate(@NonNull Set<PendingOperation> updateset, @Nullable PendingOperation deleteme) throws Exception {
 		if(updateset.isEmpty())
@@ -190,21 +184,31 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 		}
 	}
 
-	/** This will contain the written log from the task. */
+	/**
+	 * This will contain the written log from the task.
+	 */
 	private StringWriter m_logWriter;
 
-	/** This is the wrapper for easy output to the logging writer. */
+	/**
+	 * This is the wrapper for easy output to the logging writer.
+	 */
 	private PrintWriter m_errorWriter;
 
 	@Override
@@ -221,7 +225,6 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 
 	/**
 	 * Fully executes the specified operation using it's assigned factory.
-	 * @param po
 	 */
 	private void runOperation(final PendingOperation po) {
 		//-- 1. Allocate an output channel for logging and errors,
@@ -243,7 +246,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 				String msg = "Internal error: cannot find an executor for operation=" + po.getId() + ", type=" + po.getType() + ", arg1=" + po.getArg1();
 				m_errorWriter.println(msg);
 				po.setLastError(StringTool.strTrunc(msg, 250));
-				po.setState(PendingOperationState.BOOT); 		// Missing factory only retryable after system restart
+				po.setState(PendingOperationState.BOOT);        // Missing factory only retryable after system restart
 				po.setExecutesOnServerID(null);
 				return;
 			}
@@ -257,15 +260,13 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 			pox.executePendingOperation(po, this);
 
 			//-- Handle the result, if needed.
+			//-- Retry needed: is a valid retry date set?
 			if(po.getState() == PendingOperationState.EXEC) {
 				//-- State not changed.... Assume DONE in this case.
 				m_errorWriter.println("*warning: the pending operation did not clear the run state - assuming the execution was succesful");
 				po.setState(PendingOperationState.DONE);
-			} else if(po.getState() == PendingOperationState.RTRY) {
-				//-- Retry needed: is a valid retry date set?
-				if(po.getNextTryTime() == null) {
-					po.setNextTryTime(new java.util.Date(System.currentTimeMillis() + waitTimeFor(po.getRetries())));
-				}
+			} else if(po.getState() == PendingOperationState.RTRY && po.getNextTryTime() == null) {
+				po.setNextTryTime(new java.util.Date(System.currentTimeMillis() + waitTimeFor(po.getRetries())));
 			}
 
 		} catch(Exception inx) {
@@ -273,7 +274,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 			errx = x;
 
 			//-- All exceptions here are unexpected..
-			if(po.getState() == PendingOperationState.EXEC) 		// By default exceptions are fatal, unless the task itself set an alternative.
+			if(po.getState() == PendingOperationState.EXEC)        // By default exceptions are fatal, unless the task itself set an alternative.
 				po.setState(PendingOperationState.FATL);
 			if(po.getState() == PendingOperationState.RTRY)
 				po.setNextTryTime(new java.util.Date(System.currentTimeMillis() + waitTimeFor(po.getRetries())));
@@ -300,11 +301,11 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 		if(runtimes < 4)
 			return 60000; // Retry every minute
 		if(runtimes < 8)
-			return 10 * 60 * 1000; // 4..7 retries: every 10 minutes
+			return 10L * 60 * 1000; // 4..7 retries: every 10 minutes
 		if(runtimes < 12)
-			return 60 * 60 * 1000; // 8..11 retries every hour
+			return 60L * 60 * 1000; // 8..11 retries every hour
 		if(runtimes < 20)
-			return 24l * 60 * 60 * 1000l; // once a day.
+			return 24L * 60 * 60 * 1000L; // once a day.
 		return Long.MAX_VALUE; // Never again.
 	}
 

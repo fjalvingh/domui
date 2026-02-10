@@ -13,12 +13,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -225,11 +223,15 @@ public class DbTable implements Serializable {
 				try {
 					if(rs != null)
 						rs.close();
-				} catch(Exception x) {}
+				} catch(Exception x) {
+					// ignore
+				}
 				try {
 					if(ps != null)
 						ps.close();
-				} catch(Exception x) {}
+				} catch(Exception x) {
+					// ignore
+				}
 			}
 		}
 		return m_recordCount;
@@ -248,8 +250,6 @@ public class DbTable implements Serializable {
 						PreparedStatement ps = null;
 						ResultSet rs = null;
 						try {
-							String name = getSchema().getName() + "." + m_name;
-
 							ps = dbc.prepareStatement("select count(*) from " + getFullName());
 							rs = ps.executeQuery();
 							if(!rs.next())
@@ -274,11 +274,9 @@ public class DbTable implements Serializable {
 		if(null == dbColumn) {
 			//-- Try with lowercase
 			dbColumn = Objects.requireNonNull(m_lcColumnMap).get(name.toLowerCase());
-			if(null != dbColumn) {
-				if(!m_colLookupWarned) {
-					System.out.println("reverser: column '" + name + "' could only be found by lowercasing all names (" + dbColumn.getName() + ")");
-					m_colLookupWarned = true;
-				}
+			if(null != dbColumn && !m_colLookupWarned) {
+				System.out.println("reverser: column '" + name + "' could only be found by lowercasing all names (" + dbColumn.getName() + ")");
+				m_colLookupWarned = true;
 			}
 		}
 		return dbColumn;
@@ -303,13 +301,8 @@ public class DbTable implements Serializable {
 	public synchronized List<DbColumn> getColumnListSorted() {
 		List<DbColumn> sc = m_sortedColumns;
 		if(sc == null) {
-			List<DbColumn> all = new ArrayList<DbColumn>(getColumnList());
-			Collections.sort(all, new Comparator<DbColumn>() {
-				@Override
-				public int compare(DbColumn a, DbColumn b) {
-					return a.getName().compareTo(b.getName());
-				}
-			});
+			List<DbColumn> all = new ArrayList<>(getColumnList());
+			Collections.sort(all, (a, b) -> a.getName().compareTo(b.getName()));
 			sc = m_sortedColumns = Collections.unmodifiableList(all);
 		}
 		return sc;
@@ -382,7 +375,7 @@ public class DbTable implements Serializable {
 	 * are foreign.
 	 */
 	public String getColumnPrefix() {
-		Set<String> fkcolset = new HashSet<String>();
+		Set<String> fkcolset = new HashSet<>();
 		for(DbRelation rel : getChildRelationList()) {			// Relations that I am a child of
 			if(rel.getChild() != this)
 				throw new IllegalStateException("Bad rel list");
@@ -390,13 +383,13 @@ public class DbTable implements Serializable {
 				fkcolset.add(col.getChildColumn().getName());
 			}
 		}
-		Set<DbColumn> pkcolset = new HashSet<DbColumn>();
+		Set<String> pkcolset = new HashSet<>();
 		DbPrimaryKey primaryKey = getPrimaryKey();
 		if(primaryKey != null)
-			pkcolset.addAll(primaryKey.getColumnList());
+			pkcolset.addAll(primaryKey.getColumnList().stream().map(DbColumn::getName).collect(Collectors.toSet()));
 
 		//-- Prefix occurrence score per prefix
-		Map<String, Integer> occmap = new HashMap<String, Integer>();
+		Map<String, Integer> occmap = new HashMap<>();
 		for(DbColumn c : getColumnList()) {
 			String name = c.getName();
 			int pos = name.indexOf('_');
@@ -420,17 +413,13 @@ public class DbTable implements Serializable {
 		}
 		if(occmap.isEmpty())
 			return "";
-		List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(occmap.entrySet());
+		List<Map.Entry<String, Integer>> list = new ArrayList<>(occmap.entrySet());
 		if(list.size() == 1) {
 			return list.get(0).getKey();
 		}
 
-		Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {			// Sort highest first
-			@Override
-				public int compare(Entry<String, Integer> a, Entry<String, Integer> b) {
-					return -(a.getValue().intValue() - b.getValue().intValue());
-			}
-		});
+		// Sort highest first
+		Collections.sort(list, (a, b) -> -(a.getValue().intValue() - b.getValue().intValue()));
 		Map.Entry<String, Integer> top = list.get(0);
 		Map.Entry<String, Integer> next = list.get(1);
 		int dt = top.getValue().intValue() - next.getValue().intValue();

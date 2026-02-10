@@ -23,7 +23,9 @@ public class OracleGenerator extends AbstractGenerator {
 		m_connectorUrl = url;
 	}
 
-	@Override protected Connection createConnection() throws Exception {
+	@SuppressWarnings({"squid:S2095", "squid:S4925"})		// Connection is closed by caller
+	@Override
+	protected Connection createConnection() throws Exception {
 		DbConnectionInfo parameters = m_connectorUrl;
 		Class.forName("oracle.jdbc.driver.OracleDriver");
 		int port = parameters.getPort();
@@ -39,7 +41,8 @@ public class OracleGenerator extends AbstractGenerator {
 		return connection;
 	}
 
-	@Override protected Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception {
+	@Override
+	protected Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception {
 		Reverser reverser = ReverserRegistry.findReverser(getFakeDatasource(), new HashSet<>());
 		return reverser.getSchemasByName(false, schemaSet);
 	}

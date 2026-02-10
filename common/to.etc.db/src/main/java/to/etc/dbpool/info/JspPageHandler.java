@@ -138,6 +138,8 @@ final public class JspPageHandler {
 	 * Locate the specified method name inside this class, then call it.
 	 */
 	private void executeHandler(String name) throws Exception {
+		if(!name.startsWith("action") && !name.startsWith("show"))
+			throw new IllegalStateException("Invalid handler method name: " + name);
 		Method m;
 		try {
 			m = getClass().getMethod(name);
@@ -148,8 +150,8 @@ final public class JspPageHandler {
 		try {
 			m.invoke(this);
 		} catch(InvocationTargetException x) {
-			if(x.getCause() instanceof Exception)
-				throw (Exception) x.getCause();
+			if(x.getCause() instanceof Exception xx)
+				throw xx;
 			throw x;
 		}
 	}
@@ -173,10 +175,6 @@ final public class JspPageHandler {
 		String s = getRequest().getParameter("pool");
 		if(null != s) {
 			m_pool = PoolManager.getInstance().getPool(s);
-			if(null == m_pool) {
-				addError("The database pool " + s + " is not found.");
-				return;
-			}
 		}
 		m_url = m_jspname;
 
@@ -617,7 +615,7 @@ final public class JspPageHandler {
 		PoolStats ps = pool.getPoolStatistics();
 
 		//-- Get a new list of still hanging conns
-		List<ConnectionProxy> res = new ArrayList<ConnectionProxy>();
+		List<ConnectionProxy> res = new ArrayList<>();
 		for(ConnectionProxy px : ps.getCurrentlyHangingConnections()) {
 			if(px.getState() != ConnState.OPEN)
 				continue;
@@ -643,7 +641,7 @@ final public class JspPageHandler {
 		PoolStats ps = pool.getPoolStatistics();
 
 		//-- Get a new list of still hanging conns
-		List<ConnectionProxy> res = new ArrayList<ConnectionProxy>();
+		List<ConnectionProxy> res = new ArrayList<>();
 		for(ConnectionProxy px : pool.getUsedConnections()) {
 			if(px.getState() != ConnState.OPEN)
 				continue;

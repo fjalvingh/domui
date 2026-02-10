@@ -143,7 +143,7 @@ public class ExcelImportRow implements IImportRow {
 			if(CellType.FORMULA == cellType) {
 				cellType = cell.getCachedFormulaResultType();
 			}
-			switch(cellType){
+			switch(cellType) {
 				default:
 					return StringTool.trimAllWS(cell.toString());
 
@@ -269,19 +269,18 @@ public class ExcelImportRow implements IImportRow {
 				if(CellType.FORMULA == cellType) {
 					cellType = m_cell.getCachedFormulaResultType();
 				}
-				switch(cellType){
+				switch(cellType) {
 					default:
 						throw new IllegalStateException("Unknown cell type: " + cellType);
 
-					case _NONE:
-					case BLANK:
+					case _NONE, BLANK:
 						return null;
 
 					case BOOLEAN:
 						return BigDecimal.ONE;
 
 					case NUMERIC:
-						return new BigDecimal(m_cell.getNumericCellValue());
+						return BigDecimal.valueOf(m_cell.getNumericCellValue());
 
 					case STRING:
 						String value = m_cell.getStringCellValue();

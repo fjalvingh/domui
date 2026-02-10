@@ -28,13 +28,11 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.Normalizer;
 import java.text.NumberFormat;
@@ -83,9 +81,9 @@ public class StringTool {
 	/**
 	 * JRE version as a packed integer: 1.4.2.1
 	 */
-	static private int m_jre_version;
+	static private int m_jreVersion;
 
-	static private boolean m_jre_checked;
+	static private boolean m_jreChecked;
 
 	static private int m_guidSeed;
 
@@ -196,9 +194,7 @@ public class StringTool {
 		path = path.replace("\\", "/");                            // Accept both / and \ as dir separators
 		if(path.startsWith("/"))
 			return false;
-		if(path.contains("/..") || path.contains("../"))
-			return false;
-		return true;
+		return !path.contains("/..") && !path.contains("../");
 	}
 
 	/**
@@ -206,9 +202,7 @@ public class StringTool {
 	 */
 	static public boolean isValidPath(@NonNull String path) {
 		path = path.replace("\\", "/");                            // Accept both / and \ as dir separators
-		if(path.contains("/..") || path.contains("../"))
-			return false;
-		return true;
+		return !path.contains("/..") && !path.contains("../");
 	}
 
 	/**
@@ -273,7 +267,7 @@ public class StringTool {
 	 * Field name must start with ascii letter, then letters, digits or _.
 	 */
 	static public boolean isValidDbFieldName(@NonNull String s) {
-		if(s == null || s.isEmpty())
+		if(s.isEmpty())
 			return false;
 		if(s.length() > 30)
 			return false;
@@ -284,10 +278,9 @@ public class StringTool {
 
 		for(int i = s.length(); --i > 0; ) {
 			c = s.charAt(i);
-			if((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')
-				;
-			else
+			if((c < 'a' || c > 'z') && (c < '0' || c > '9') && c != '_') {
 				return false;
+			}
 		}
 		return true;
 	}
@@ -326,6 +319,7 @@ public class StringTool {
 		return a.equals(b);
 	}
 
+	@SuppressWarnings("squid:S4973")
 	static public final boolean isEqualIgnoreCase(@Nullable String a, @Nullable String b) {
 		if(a == b)
 			return true;
@@ -334,7 +328,7 @@ public class StringTool {
 		return a.equalsIgnoreCase(b);
 	}
 
-	public static void stringize(@NonNull final StringBuffer sb, @NonNull final String s) {
+	public static void stringize(@NonNull final StringBuilder sb, @NonNull final String s) {
 		for(int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i); // Get the char to put,
 			switch(c) {
@@ -370,8 +364,8 @@ public class StringTool {
 	 * Converts a string into a java-compilable version of a string, i.e.
 	 * surrounded by quotes, and with escape sequences escaped..
 	 */
-	public static StringBuffer stringize(@NonNull final String s) {
-		StringBuffer sb = new StringBuffer(s.length() + 20);
+	public static StringBuilder stringize(@NonNull final String s) {
+		StringBuilder sb = new StringBuilder(s.length() + 20);
 
 		sb.append("\""); // Write a quote,
 		stringize(sb, s);
@@ -379,8 +373,8 @@ public class StringTool {
 		return sb;
 	}
 
-	public static StringBuffer stringizeNQ(@NonNull final String s) {
-		StringBuffer sb = new StringBuffer(s.length() + 20);
+	public static StringBuilder stringizeNQ(@NonNull final String s) {
+		StringBuilder sb = new StringBuilder(s.length() + 20);
 		stringize(sb, s);
 		return sb;
 	}
@@ -390,11 +384,10 @@ public class StringTool {
 	 * a forward slash.
 	 */
 	public static String strBackslashToSlash(@NonNull final String s) {
-		StringBuffer sb = new StringBuffer(s.length());
+		StringBuilder sb = new StringBuilder(s.length());
 
-		int six, ix;
-
-		six = 0;
+		int six = 0;
+		int ix;
 		while(true) {
 			ix = s.indexOf('\\', six);
 			if(ix == -1) {
@@ -434,7 +427,7 @@ public class StringTool {
 		}
 
 		//-- Now do something,
-		StringBuffer sb = new StringBuffer(15);
+		StringBuilder sb = new StringBuilder(15);
 
 		if(div == 1) {
 			return sz + " bytes";
@@ -450,60 +443,6 @@ public class StringTool {
 		sb.append(" ");
 		sb.append(sf);
 		return sb.toString();
-	}
-
-	/**
-	 * Takes a java string, without quotes, and replaces all escape sequences
-	 * in there with their actual character representation.
-	 */
-	public static void parseString(@NonNull final StringBuilder sb, @NonNull final String s) {
-		int i = 0;
-
-		while(i < s.length()) {
-			char c = s.charAt(i++);
-
-			if(c != '\\')
-				sb.append(c);
-			else {
-				if(i >= s.length()) {
-					sb.append(c);
-					return;
-				}
-				c = s.charAt(i++);
-				switch(c) {
-					case '"':
-						sb.append('"');
-						break;
-					case '\'':
-						sb.append('\'');
-						break;
-					case 'b':
-						sb.append('\b');
-						break;
-					case 'f':
-						sb.append('\f');
-						break;
-					case 'n':
-						sb.append('\n');
-						break;
-					case 'r':
-						sb.append('\r');
-						break;
-					case 't':
-						sb.append('\t');
-						break;
-					case 'u':
-						//** Is UNICODE-
-						sb.append("\\u");
-						break;
-
-					default:
-						sb.append("\\");
-						sb.append(c);
-						break;
-				}
-			}
-		}
 	}
 
 	/**
@@ -537,30 +476,18 @@ public class StringTool {
 	 * Returns a string with the specified length. If the string is too long
 	 * it is truncated; if it is too short it is filled with spaces.
 	 */
-//	@Contract("null -> null; !null -> !null")
 	public static String strToFixedLength(String s, final int l) {
 		if(s == null)
 			s = "null";
-		String t = "                                          ";
-
-		if(s.length() == l)
-			return s; // Length already OK,
-		if(s.length() > l)
-			return s.substring(0, l); // Truncate,
-
-		//** Need to add spaces.. Can we do that quickly?
-		int dl = l - s.length(); // Get difference in lengths,
-
-		while(true) {
-			if(dl > t.length()) // Very big?
-			{
-				s = s + t; // Append whole space buffer,
-				dl -= t.length();
-			} else {
-				s = s + t.substring(0, dl); // Just add a small part,
-				return s;
+		StringBuilder sb = new StringBuilder(s);
+		if(s.length() > l) {
+			sb.setLength(l);
+		} else {
+			while(sb.length() < l) {
+				sb.append(' ');
 			}
 		}
+		return sb.toString();
 	}
 
 	/**
@@ -575,7 +502,7 @@ public class StringTool {
 
 		//** Need to add spaces.. Can we do that quickly?
 		int dl = l - s.length(); // Get difference in lengths,
-		StringBuffer sb = new StringBuffer(l);
+		StringBuilder sb = new StringBuilder(l);
 		sb.append(s);
 		while(dl-- > 0)
 			sb.append(c);
@@ -590,10 +517,6 @@ public class StringTool {
 		return "(" + x + "," + y + ")";
 	}
 
-	/********************************************************************/
-	/*	CODING:	Fuzzy String comparisons..								*/
-	/********************************************************************/
-
 	/**
 	 * This returns the Levenshtein distance between two strings, which is the number of <i>changes</i> (adds, removes)
 	 * that are needed to convert source into target. The number of changes is an indication of the difference between
@@ -604,8 +527,6 @@ public class StringTool {
 	}
 
 	public static int getLevenshteinDistance(@NonNull String s, @NonNull String t, boolean ignorecase, int substitutionCost) {
-		if(s == null || t == null)
-			throw new IllegalArgumentException("Strings must not be null");
 		if(ignorecase) {
 			s = s.trim().toLowerCase();
 			t = t.trim().toLowerCase();
@@ -615,22 +536,21 @@ public class StringTool {
 
 		if(n == 0) {
 			return m;
-		} else if(m == 0) {
-			return n;
-		} else if(m == n) {
-			if(s.equals(t)) // Optimization for when strings are equal.
+		} else // Optimization for when strings are equal.
+			if(m == 0) {
+				return n;
+			} else if(m == n && s.equals(t))
 				return 0;
-		}
 
-		int p[] = new int[n + 1]; // 'previous' cost array, horizontally
-		int d[] = new int[n + 1]; // cost array, horizontally
-		int _d[]; //placeholder to assist in swapping p and d
+		int[] p = new int[n + 1]; // 'previous' cost array, horizontally
+		int[] d = new int[n + 1]; // cost array, horizontally
+		int[] altd; //placeholder to assist in swapping p and d
 
 		// indexes into strings s and t
 		int i; // iterates through s
 		int j; // iterates through t
 
-		char t_j; // jth character of t
+		char tjth; // jth character of t
 
 		int cost; // cost
 
@@ -639,19 +559,19 @@ public class StringTool {
 		}
 
 		for(j = 1; j <= m; j++) {
-			t_j = t.charAt(j - 1);
+			tjth = t.charAt(j - 1);
 			d[0] = j;
 
 			for(i = 1; i <= n; i++) {
-				cost = s.charAt(i - 1) == t_j ? 0 : substitutionCost;
+				cost = s.charAt(i - 1) == tjth ? 0 : substitutionCost;
 				//-- minimum of cell to the left+1, to the top+1, diagonally left and up +cost
 				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
 			}
 
 			//-- copy current distance counts to 'previous row' distance counts
-			_d = p;
+			altd = p;
 			p = d;
-			d = _d;
+			d = altd;
 		}
 
 		//-- our last action in the above loop was to switch d and p, so p now
@@ -766,7 +686,7 @@ public class StringTool {
 	@NonNull
 	static public String strCommad(final long val) {
 		String v = Long.toString(val);
-		StringBuffer sb = new StringBuffer(30);
+		StringBuilder sb = new StringBuilder(30);
 		int pos = (v.length() % 3) + 1;
 		if(pos == 0)
 			pos = 3;
@@ -784,7 +704,7 @@ public class StringTool {
 
 	@NonNull
 	static public String strDuration(long dlt) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		if(dlt >= DAYS) {
 			sb.append(Long.toString(dlt / DAYS));
@@ -808,7 +728,7 @@ public class StringTool {
 
 	@NonNull
 	static public String strDurationMillis(long dlt) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		int millis = (int) (dlt % 1000); // Get milliseconds,
 		dlt /= 1000; // Now in seconds,
@@ -883,10 +803,8 @@ public class StringTool {
 	 * Returns a string of hex bytes for a given thing.
 	 */
 	static public void arrayToHexStr(@NonNull Appendable sb, @NonNull byte[] ar, int bufferIndex, int bytesPerLine, int bufferSize, boolean fillout) throws IOException {
-		int i, ei;
-
-		ei = bytesPerLine + bufferIndex;
-		for(i = bufferIndex; i < ei; i++) {
+		int ei = bytesPerLine + bufferIndex;
+		for(int i = bufferIndex; i < ei; i++) {
 			if(i >= ar.length || i >= bufferSize) {                // Past end of array?
 				if(!fillout)                                    // No need to add spaces?
 					return;                                        // Then return the result
@@ -902,10 +820,8 @@ public class StringTool {
 	 * Returns a string containing only printable chars for the given bytes.
 	 */
 	static public void arrayToAsciiStr(@NonNull final Appendable sb, @NonNull final byte[] ar, final int bi, final int nc) throws IOException {
-		int i, ei;
-
-		ei = nc + bi;
-		for(i = bi; i < ei && i < ar.length; i++) {
+		int ei = nc + bi;
+		for(int i = bi; i < ei && i < ar.length; i++) {
 			byte c = ar[i];
 			if(c >= 32 && c < 255)
 				sb.append((char) c);
@@ -1050,6 +966,7 @@ public class StringTool {
 	 * @return the decoded array
 	 * @throws Exception if the array is malformed.
 	 */
+	@NonNull
 	static public byte[] fromHex(final String s) throws Exception {
 		int l = s.length();
 		if(l % 2 == 1)
@@ -1067,62 +984,11 @@ public class StringTool {
 		return ar;
 	}
 
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Finding files and constructing search paths.		*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * Returns the complete filename of the first file that is found along the
-	 * path specified.
-	 */
-	static public File findFileOnPath(final String fname, final String path) {
-		int six;
-		StringBuffer sb = new StringBuffer(64);
-
-		//		System.out.println("findFileOnPath: find "+fname+" on "+path);
-
-		six = 0;
-		while(six < path.length()) {
-			sb.setLength(0);
-			int eix = path.indexOf(File.pathSeparatorChar, six);
-			if(eix == -1)
-				eix = path.length();
-			String rp = path.substring(six, eix); // Get segment,
-			sb.append(rp);
-			if(!rp.endsWith(File.separator))
-				sb.append(File.separator);
-			sb.append(fname);
-			File f = new File(sb.toString());
-
-			//			System.out.println("Trying "+f.toString());
-
-			if(f.exists())
-				return f;
-
-			//** Nonexistent- retry,
-			six = eix + 1;
-		}
-		return null;
-	}
-
-	/**
-	 * Finds a filename along the classpath..
-	 */
-	static public File findFileOnEnv(final String pname, final String env) {
-		String ev = System.getProperty(env);
-		if(ev == null)
-			return null;
-		return findFileOnPath(pname, ev);
-	}
-
 	/**
 	 * Deprecated: use {@link FileTool#getFileExtension(String)}.
 	 * <p>
 	 * Returns the extension of a file. The extension includes the . If no
 	 * extension is present then the empty string is returned ("").
-	 *
-	 * @deprecated
 	 */
 	@Deprecated
 	static public String getFileExtension(final String fn) {
@@ -1139,179 +1005,13 @@ public class StringTool {
 		return fn.substring(p);
 	}
 
-	/**
-	 * Adds a path to the vector specified, if the path is an existing file
-	 * or directory, and it doesn't already exist in the vector.
-	 */
-	static public void addPathToVector(final List<String> v, String p) {
-		p = p.trim();
-		File f = new File(p);
-		//		System.out.print("CP: Consider "+f.toString()+" - ");
-		if((f.isDirectory() || f.isFile()) && f.exists()) {
-			//-- No duplicates?
-			for(int i = 0; i < v.size(); i++) {
-				String e = v.get(i);
-				if(e.equals(p)) {
-					return;
-				}
-			}
-			v.add(p);
-			return;
-		}
-	}
-
-	/**
-	 * Takes a search path, i.e. a list of directory/file names separated by the
-	 * system path separator and adds all files/directories specified to the
-	 * vector v, only if the pathname exists and if it is not already
-	 */
-	static public void addSearchPathToVector(final List<String> v, final String searchpath) {
-		int six = 0;
-		while(six < searchpath.length()) {
-			int eix = searchpath.indexOf(File.pathSeparatorChar, six);
-			if(eix == -1)
-				eix = searchpath.length();
-			String ss = searchpath.substring(six, eix);
-			addPathToVector(v, ss);
-			six = eix + 1;
-		}
-	}
-
-	/**
-	 * Adds the value of a "search path environment variable" to the vector.
-	 *
-	 * @see addSearchPathToVector()
-	 */
-	static public void addSearchEnvToVector(final List<String> v, final String envvar) {
-		String ev = System.getProperty(envvar);
-		if(ev == null)
-			return;
-		addSearchPathToVector(v, ev);
-	}
-
-	/**
-	 * Returns a string buffer containing a search path variable from the
-	 * vector passed.
-	 */
-	static public void makeSearchPath(final StringBuilder sb, final List<String> v) {
-		for(int i = 0; i < v.size(); i++) {
-			if(i > 0)
-				sb.append(File.pathSeparator);
-			sb.append(v.get(i));
-		}
-	}
-
-	/**
-	 * Returns a string buffer containing a search path variable from the
-	 * vector passed.
-	 */
-	static public String makeSearchPath(final List<String> v) {
-		StringBuilder sb = new StringBuilder(128);
-		makeSearchPath(sb, v);
-		return sb.toString();
-	}
-
-	/**
-	 * Returns a string buffer containing a search path variable from the
-	 * vector passed.
-	 */
-	static public void makeSearchPath(final StringBuffer sb, final String[] v) {
-		for(int i = 0; i < v.length; i++) {
-			if(i > 0)
-				sb.append(File.pathSeparator);
-			sb.append(v[i]);
-		}
-	}
-
-	/**
-	 * Returns a string buffer containing a search path variable from the
-	 * vector passed.
-	 */
-	static public String makeSearchPath(final String v[]) {
-		StringBuffer sb = new StringBuffer(128);
-		makeSearchPath(sb, v);
-		return sb.toString();
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Get a constant's name from a CLASS by introspection	*/
-	/*--------------------------------------------------------------*/
-	static public String getFinalFrom(final Class<?> cl, final long sval) {
-		return getFinalFrom(cl, sval, null);
-	}
-
-	/**
-	 * Traverses a given class and tries to find a public
-	 */
-	static public String getFinalFrom(final Class<?> cl, final long sval, final String part) {
-		return getFinalFrom(cl, sval, part, null);
-	}
-
-	/**
-	 * Traverses a given class and tries to find a public
-	 */
-	static public String getFinalFrom(final Class<?> cl, final long sval, final String part, final String ign) {
-		java.lang.reflect.Field[] far = cl.getFields();
-		java.lang.reflect.Field f;
-
-		for(int i = 0; i < far.length; i++) {
-			f = far[i];
-			int mod = f.getModifiers();
-			if((mod & Modifier.FINAL) != 0 && (mod & Modifier.STATIC) != 0 && (mod & Modifier.PUBLIC) != 0) {
-				//-- A whatever thing field. Is it a primitive?
-				try {
-					long val = 0;
-					boolean valid = true;
-					Class<?> ty = f.getType();
-					if(ty == Integer.TYPE)
-						val = f.getInt(null);
-					else if(ty == Long.TYPE)
-						val = f.getLong(null);
-					else if(ty == Byte.TYPE)
-						val = f.getByte(null);
-					else if(ty == Short.TYPE)
-						val = f.getShort(null);
-					else
-						valid = false;
-
-					if(valid) {
-						if(val == sval) {
-							if(ign != null && f.getName().startsWith(ign))
-								continue;
-
-							if(part == null)
-								return f.getName();
-							if(f.getName().toUpperCase().startsWith(part.toUpperCase()))
-								return f.getName();
-						}
-					}
-				} catch(Exception x) {
-					//Ignore
-				}
-			}
-		}
-
-		return "[? " + sval + "]";
-	}
-
-	/**
-	 * Returns the last element (document name?) from the url passed.
-	 */
-	static public String urlLastPart(final String url) {
-		int sp = url.lastIndexOf('/'); // Find last slash,
-		if(sp == -1)
-			return url; // No slashes -> entire URL,
-		return url.substring(sp + 1);
-	}
-
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Unhtmlize											*/
 	/*--------------------------------------------------------------*/
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
 	static public String htmlStringize(final String is) {
@@ -1322,7 +1022,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
 	static public void htmlStringize(final StringBuilder sb, final String is) {
@@ -1331,7 +1031,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 * Linefeeds are not removed.
 	 */
@@ -1341,7 +1041,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 * when linefeeds leave linefeeds in body
 	 */
@@ -1373,11 +1073,11 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
 	static public void htmlStringize(final Appendable o, final String is) throws Exception {
-		StringBuffer sb = new StringBuffer(256);
+		StringBuilder sb = new StringBuilder(256);
 		int len = is.length();
 		for(int i = 0; i < len; i++) {
 			char c = is.charAt(i);
@@ -1422,13 +1122,13 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
 	static public String xmlStringize(final String is) {
 		if(is == null)
 			return "null";
-		StringBuffer sb = new StringBuffer(is.length() + 20);
+		StringBuilder sb = new StringBuilder(is.length() + 20);
 		xmlStringize(sb, is);
 		return sb.toString();
 	}
@@ -1441,17 +1141,17 @@ public class StringTool {
 	static public String xmlStringizeForDomApi(final String is) {
 		if(is == null)
 			return "null";
-		StringBuffer sb = new StringBuffer(is.length() + 20);
+		StringBuilder sb = new StringBuilder(is.length() + 20);
 		xmlStringizeForDomApi(sb, is);
 		return sb.toString();
 	}
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
-	static public void xmlStringize(final StringBuffer sb, final String is) {
+	static public void xmlStringize(final StringBuilder sb, final String is) {
 		if(is == null) {
 			sb.append("null");
 			return;
@@ -1498,7 +1198,7 @@ public class StringTool {
 	 * DOM API 5.2 Character Escaping
 	 * http://www.w3.org/TR/2000/WD-xml-c14n-20000119.html#charescaping
 	 */
-	static public void xmlStringizeForDomApi(final StringBuffer sb, final String is) {
+	static public void xmlStringizeForDomApi(final StringBuilder sb, final String is) {
 		if(is == null) {
 			sb.append("null");
 			return;
@@ -1557,8 +1257,7 @@ public class StringTool {
 			ix = epos + 1;
 
 			epos = str.indexOf(';', epos + 1); // Find terminating ';'
-			if(epos == -1) // Missing ; means 'no entity'
-			{
+			if(epos == -1) { // Missing ; means 'no entity'
 				sb.append('&');
 			} else {
 				String es = str.substring(ix, epos); // Get complete entity name
@@ -1587,7 +1286,7 @@ public class StringTool {
 	/**
 	 * Replaces all non-ascii stuff with their entities. Also replaces &lt;, &gt; and &amp;.
 	 */
-	static public void unicodeToEntities(final StringBuffer sb, final String str) {
+	static public void unicodeToEntities(final StringBuilder sb, final String str) {
 		int se = str.length();
 		for(int i = 0; i < se; i++) {
 			char c = str.charAt(i);
@@ -1609,8 +1308,7 @@ public class StringTool {
 	 * Translates an entity name to unicode. The entity can also be a numeral.
 	 */
 	static public int entityToUnicode(final String ename) {
-		if(ename.startsWith("#")) // Decimal code?
-		{
+		if(ename.startsWith("#")) { // Decimal code?
 			try {
 				return Integer.parseInt(ename.substring(1));
 			} catch(Exception x) {
@@ -1702,38 +1400,10 @@ public class StringTool {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Database field translation...						*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * Returns a boolean value from some database field. This returns T if
-	 * the string contains T, Y, 1.
-	 */
-	static public boolean dbGetBool(final String fv) {
-		if(fv == null)
-			return false;
-		if(fv.isEmpty())
-			return false;
-		char c = Character.toUpperCase(fv.charAt(0));
-		if(c == 'Y' || c == 'T')
-			return true;
-		if(c == '0')
-			return false;
-		return Character.isDigit(c);
-	}
-
-	/**
-	 * Returns a char(1) value to store in a database for booleans.
-	 */
-	static public String dbSetBool(final boolean v) {
-		return v ? "T" : "F";
-	}
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	Base 64 encoding/decoding (rfc2045)					*/
 	/*--------------------------------------------------------------*/
 
-	static public final byte[] getBase64Map() {
+	static public byte[] getBase64Map() {
 		return BASE64MAP;
 	}
 
@@ -1745,7 +1415,7 @@ public class StringTool {
 	 * @param str the string
 	 * @return the base64-encoded <var>str</var>
 	 */
-	public final static String encodeBase64(final String str) {
+	public static String encodeBase64(final String str) {
 		if(str == null)
 			return null;
 		//		byte data[] = new byte[str.length()];
@@ -1763,11 +1433,11 @@ public class StringTool {
 	 * @param data the data
 	 * @return the base64-encoded <var>data</var>
 	 */
-	public final static byte[] encodeBase64(final byte[] data) {
-		if(data == null)
-			return null;
-		int sidx, didx;
-		byte dest[] = new byte[((data.length + 2) / 3) * 4];
+	@NonNull
+	public static byte[] encodeBase64(@NonNull final byte[] data) {
+		int sidx;
+		int didx;
+		byte[] dest = new byte[((data.length + 2) / 3) * 4];
 
 		// 3-byte to 4-byte conversion + 0-63 to ascii printable conversion
 		for(sidx = 0, didx = 0; sidx < data.length - 2; sidx += 3) {
@@ -1797,7 +1467,7 @@ public class StringTool {
 	 * @param str the base64-encoded string.
 	 * @return the decoded <var>str</var>.
 	 */
-	public final static String decodeBase64ToString(final String str) {
+	public static String decodeBase64ToString(final String str) {
 		if(str == null)
 			return null;
 		//		byte data[] = new byte[str.length()];
@@ -1813,7 +1483,8 @@ public class StringTool {
 	 * @param str the base64-encoded string.
 	 * @return the decoded <var>str</var>.
 	 */
-	public final static byte[] decodeBase64(final String str) {
+	@Nullable
+	public static byte[] decodeBase64(final String str) {
 		if(str == null)
 			return null;
 		//		byte data[] = new byte[str.length()];
@@ -1829,20 +1500,22 @@ public class StringTool {
 	 * @param data the base64-encoded data.
 	 * @return the decoded <var>data</var>.
 	 */
-	public final static byte[] decodeBase64(final byte[] data) {
-		if(data == null || data.length == 0)
-			return null;
+	@NonNull
+	public static byte[] decodeBase64(final byte[] data) {
+		if(data.length == 0)
+			return new byte[0];
 		int tail = data.length;
 		while(data[tail - 1] == '=')
 			tail--;
-		byte dest[] = new byte[tail - data.length / 4];
+		byte[] dest = new byte[tail - data.length / 4];
 
 		// ascii printable to 0-63 conversion
 		for(int idx = 0; idx < data.length; idx++)
 			data[idx] = BASE64DECMAP[data[idx]];
 
 		// 4-byte to 3-byte conversion
-		int sidx, didx;
+		int sidx;
+		int didx;
 		for(sidx = 0, didx = 0; didx < dest.length - 2; sidx += 4, didx += 3) {
 			dest[didx] = (byte) (((data[sidx] << 2) & 255) | ((data[sidx + 1] >>> 4) & 003));
 			dest[didx + 1] = (byte) (((data[sidx + 1] << 4) & 255) | ((data[sidx + 2] >>> 2) & 017));
@@ -1855,14 +1528,8 @@ public class StringTool {
 		return dest;
 	}
 
-	static public final String encodeBase64ToString(final byte[] data) {
-		try {
-			return new String(StringTool.encodeBase64(data), "utf8");
-		} catch(Exception x) {
-			//-- cannot happen.
-			x.printStackTrace();
-			throw new RuntimeException("bad encoding!?", x);
-		}
+	static public String encodeBase64ToString(final byte[] data) {
+		return new String(StringTool.encodeBase64(data), StandardCharsets.UTF_8);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1879,8 +1546,7 @@ public class StringTool {
 	static public void strStacktrace(final Appendable sb, final Throwable t) {
 		try {
 			sb.append(strStacktrace(t));
-		} catch(IOException x) // Sillyness of sillynesses
-		{
+		} catch(IOException x) {
 			x.printStackTrace();
 		}
 	}
@@ -1917,10 +1583,8 @@ public class StringTool {
 			ix++;
 		}
 		int ex = ix; // End bound, exclusive
-		if(linelimit > 0) {
-			if(ex - sx > linelimit)
-				ex = sx + linelimit;
-		}
+		if(linelimit > 0 && ex - sx > linelimit)
+			ex = sx + linelimit;
 		for(int i = sx; i < ex; i++) {
 			try {
 				sb.append("    " + se[i].toString() + "\n");
@@ -1930,138 +1594,11 @@ public class StringTool {
 		}
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	URL normalization and concatenation.				*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * <p>Called when generate() is called with a string. This must decode the
-	 * string into a key object that can be used by the decodeInputURL key to
-	 * determine a resource provider and a provider-relative key.</p>
-	 * <p>This default implementation assumes that the key is to be a normal
-	 * URL string, and uses path semantics to create the actual key from the
-	 * string passed: if it contains a host name it is stripped; if it is
-	 * relative then the complete path is appended.</p>
-	 */
-	static public final String normalizeURL(final String current, final String tpl) throws Exception {
-		return normalizeUndot(normalizeConcat(current, tpl));
-	}
-
-	/**
-	 * <p>Called when generate() is called with a string. This must decode the
-	 * string into a key object that can be used by the decodeInputURL key to
-	 * determine a resource provider and a provider-relative key.</p>
-	 * <p>This default implementation assumes that the key is to be a normal
-	 * URL string, and uses path semantics to create the actual key from the
-	 * string passed: if it contains a host name it is stripped; if it is
-	 * relative then the complete path is appended.</p>
-	 */
-	static public final String normalizeConcat(final String current, final String tpl) throws Exception {
-		if(tpl == null || tpl.isEmpty())
-			return tpl;
-
-		if(tpl.charAt(0) == '/') // Is absolute site-relative?
-			return tpl; // Yes-> use as-is
-		if(tpl.length() > 5) {
-			if(tpl.substring(0, 5).toLowerCase().equals("http:")) {
-				int pos = tpl.indexOf('/', 7);
-				if(pos == -1)
-					throw new Exception("Cannot decode URL '" + tpl + "': missing / after host part");
-
-				return tpl.substring(pos);
-			}
-		}
-
-		//-- This path is relative to the "current" url... So - get that,
-		int lix = current.lastIndexOf('/'); // Find last /
-		if(lix == -1)
-			return "/" + tpl; // Use root-based document,
-
-		return current.substring(0, lix + 1) + tpl; // Make relative to old URL.
-	}
-
 	/**
 	 * Do a case-insensitive replace.
 	 */
 	static public String strReplaceCI(String input, String old, String nw) {
 		return input.replaceAll("(?i)" + Pattern.quote(old), nw);
-	}
-
-	/**
-	 * Takes an input URL and handles all '.' and '..' replacements. Any '.'
-	 * sublevel is replaced by nothing (removed completely); any '..' is
-	 * replaced by removing the 'upper' level and replacing that with the rest
-	 * of the string.
-	 *
-	 * @param ins the input URL
-	 * @return the output URL.
-	 */
-	static public final String normalizeUndot(final String ins) {
-		//-- Get all chars in the source.
-		int len = ins.length();
-		char[] car = new char[len];
-		ins.getChars(0, ins.length(), car, 0);
-
-		//-- Traverse: find all /./, /../, or /..
-		int six = 0;
-		int dix = 0;
-
-		while(six < len) {
-			char c = car[six];
-			if(c == '/') // Possible new level?
-			{
-				int dotlevel = 0;
-				int tix = six + 1;
-				if(tix < len) // Fits 1le dot?
-				{
-					if(car[tix] == '.') {
-						dotlevel = 1; // Can be level 1
-						tix++;
-						if(tix < len) // There's more,
-						{
-							char tc = car[tix];
-							if(tc == '/')
-								; // Was /./ -> dotlevel 1
-							else if(tc == '.') {
-								dotlevel = 2;
-								tix++;
-								if(tix < len) {
-									//-- To match we MUST have a / now!
-									if(car[tix] != '/')
-										dotlevel = 0;
-								}
-							} else {
-								//-- It was .xxx
-								dotlevel = 0;
-							}
-						}
-					}
-				}
-
-				//-- handle depending on dotlevel,
-				if(dotlevel == 0) {
-					car[dix++] = car[six++]; // Copy /, rest follows,
-				} else if(dotlevel == 1) // Was /. -> remove,
-				{
-					six += 2; // Get past /. without copy.
-				} else if(dotlevel == 2) {
-					//-- Move UPWARD by scanning for last /...
-					while(dix > 0 && car[dix - 1] != '/')
-						dix--; // Scan past last / or to start of $
-					six += 3; // Scan to 1st
-					if(dix > 0)
-						dix--; // Copy over slash, if applicable
-					else
-						six++; // At start, and start didn't begin with /
-				} else
-					throw new IllegalStateException("?? Dotlevel bad!?");
-			} else
-				car[dix++] = car[six++]; // Just copy src to dest
-		}
-
-		if(dix == six)
-			return ins;
-		return new String(car, 0, dix);
 	}
 
 	static public int strToInt(final String v, final int defval) {
@@ -2093,48 +1630,6 @@ public class StringTool {
 			val = val * 10 + (c - '0');
 		}
 		return val;
-	}
-
-	/**
-	 * Find the 1st part of the path passed, i.e. the part before the first /.
-	 * If the path contains no / it returns the full path.
-	 */
-	static public String getNextPathComponent(final int ix, final String s, final boolean includeslash) {
-		int pos = s.indexOf('/', ix);
-		if(pos == -1)
-			return s.substring(ix);
-		if(includeslash)
-			pos++;
-		return s.substring(ix, pos);
-	}
-
-	static public String getNextPathComponent(final String s, final boolean includeslash) {
-		return getNextPathComponent(0, s, includeslash);
-	}
-
-	static public boolean equalStringList(final List<String> inl, final List<String> al, final boolean caseindependent) {
-		if(inl == al) // Same reference->equal
-			return true;
-		if((al == null && inl != null) || (inl == null && al != null))
-			return false; // One is null the other isn't
-
-		//-- Actual arrays exist..
-		if(al.size() != inl.size()) // Size differs-> not equal
-			return false;
-
-		//-- Compare all strings, in order.
-		for(int i = al.size(); --i >= 0; ) {
-			String a = al.get(i);
-			String b = inl.get(i);
-			if(caseindependent) {
-				if(!a.equalsIgnoreCase(b))
-					return false;
-			} else {
-				if(!a.equals(b))
-					return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -2192,11 +1687,9 @@ public class StringTool {
 	}
 
 	static public String getAllExceptionTexts(Exception x) {
-		if(x instanceof SQLException) {
-			SQLException sx = (SQLException) x;
-
+		if(x instanceof SQLException sx) {
 			StringBuilder sb = new StringBuilder();
-			sb.append(sx.toString());
+			sb.append(sx);
 
 			List<ExceptionDup> dups = new ArrayList<>();
 
@@ -2232,68 +1725,12 @@ public class StringTool {
 	}
 
 	/**
-	 * Workaround for Java bug delivering file:// instead of file:/// for
-	 * file.toURL().toString().
-	 */
-	static public String makeURL(final File f) {
-		String s = f.getAbsolutePath();
-		if(s.startsWith("/"))
-			return "file://" + s;
-		else
-			return "file:///" + s;
-	}
-
-	static public String fixFileURL(final String fileurl) {
-		if(fileurl.length() < 8)
-			return fileurl;
-		String s = fileurl.substring(0, 5);
-		if(!s.equalsIgnoreCase("file:"))
-			return fileurl;
-
-		//-- File URL MUST start with file://, followed by c:/ or so for Windows or /xxx for linux
-		char c1 = fileurl.charAt(5);
-		char c2 = fileurl.charAt(6);
-		char c3 = fileurl.charAt(7);
-		if(c1 == '/' && c2 == '/' && c3 == '/')
-			return fileurl;
-		if(c1 == '/' && c2 == '/') {
-			if(fileurl.length() > 8 && fileurl.charAt(8) == ':') // Is c: format
-				return fileurl;
-		}
-
-		//-- Format is bad- fix.
-		StringBuffer sb = new StringBuffer(fileurl.length() + 5);
-		sb.append("file://");
-		int ix = 5; // To possible 1st slash
-		while(ix < fileurl.length() && fileurl.charAt(ix) == '/')
-			ix++; // Skip all slashes
-
-		//-- Drive letter or root slash?
-		if(ix + 1 < fileurl.length()) {
-			if(fileurl.charAt(ix + 1) == ':') // Drive letter?
-			{
-				sb.append(fileurl.substring(ix));
-				return sb.toString();
-			}
-			sb.append('/');
-			sb.append(fileurl.substring(ix));
-			return sb.toString();
-		}
-
-		//-- There's 0 or 1  char past the slashes.
-		if(ix >= fileurl.length())
-			return fileurl;
-		sb.append(fileurl.charAt(ix));
-		return sb.toString();
-	}
-
-	/**
 	 * Encode the string passed to URLEncoded format. See strDecodeURLEncoded
 	 * for description of the format.
 	 */
 	static public void encodeURLEncoded(final Appendable sb, final String str) {
 		try {
-			byte[] data = str.getBytes("utf-8");
+			byte[] data = str.getBytes(StandardCharsets.UTF_8);
 			int len = data.length;
 			for(int i = 0; i < len; i++) {
 				byte da = data[i];
@@ -2316,33 +1753,10 @@ public class StringTool {
 	static private boolean isSpecialUrlChar(byte da) {
 		if(da <= 32) // Everything including -1..-128 (0x80..0xff) is special
 			return true;
-		switch(da) {
-			case '!':
-			case '*':
-			case '\'':
-			case '(':
-			case ')':
-			case ';':
-			case ':':
-			case '@':
-			case '&':
-			case '=':
-			case '+':
-				//			case '$':
-				//			case ',':
-			case '/':
-			case '?':
-			case '%':
-			case '#':
-			case '[':
-			case ']':
-			case '<':
-			case '>':
-			case '{':
-			case '}':
-				return true;
-		}
-		return false;
+		return switch(da) {
+			default -> false;
+			case '!', '*', '\'', '(', ')', ';', ':', '@', '&', '=', '+', '/', '?', '%', '#', '[', ']', '<', '>', '{', '}' -> true;
+		};
 	}
 
 	static public String encodeURLEncoded(final String str) {
@@ -2388,20 +1802,16 @@ public class StringTool {
 				}
 			}
 		}
-		try {
-			return new String(data, 0, oix, "utf-8");
-		} catch(Exception x) {
-			return encoded;
-		}
+		return new String(data, 0, oix, StandardCharsets.UTF_8);
 	}
 
-	static public final String getLocation() {
-		StringBuffer sb = new StringBuffer(512);
+	static public String getLocation() {
+		StringBuilder sb = new StringBuilder(512);
 		getLocation(sb);
 		return sb.toString();
 	}
 
-	static public final void getLocation(final StringBuffer sb) {
+	static public void getLocation(final StringBuilder sb) {
 		sb.append("At ");
 		sb.append(new Date().toString());
 		sb.append(" in thread ");
@@ -2421,7 +1831,7 @@ public class StringTool {
 	 * Kept in api since it was useful for some debugs while coding, use just for debug purposes only, do not use in produciton code.
 	 * In case that dumping stack is required for production code for remote sessions on client side, please use sumbLEVELLocation methods that are using regular logger.
 	 */
-	static public final void dumpLocation(final String msg) {
+	static public void dumpLocation(final String msg) {
 		try {
 			throw new IllegalStateException("duh");
 		} catch(IllegalStateException x) {
@@ -2430,7 +1840,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpDebugLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpDebugLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at debug level for source location...");
 		} catch(IllegalStateException x) {
@@ -2438,7 +1848,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpTraceLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpTraceLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at trace level for source location...");
 		} catch(IllegalStateException x) {
@@ -2446,7 +1856,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpInfoLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpInfoLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at info level for source location...");
 		} catch(IllegalStateException x) {
@@ -2454,7 +1864,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpWarnLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpWarnLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at warn level for source location...");
 		} catch(IllegalStateException x) {
@@ -2462,7 +1872,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpErrorLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpErrorLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at error level for source location...");
 		} catch(IllegalStateException x) {
@@ -2488,7 +1898,7 @@ public class StringTool {
 	static public String strUnspace(final String s) {
 		if(s == null)
 			return null;
-		StringBuffer sb = new StringBuffer(s.length());
+		StringBuilder sb = new StringBuilder(s.length());
 		int len = s.length();
 		for(int i = 0; i < len; i++) {
 			char c = s.charAt(i);
@@ -2496,46 +1906,6 @@ public class StringTool {
 				sb.append(c);
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * Handles Oracle truncation rules:
-	 * <ul>
-	 * 	<li>If the string is > nchars truncate to nchars</li>
-	 * 	<li>Convert the string to bytes in UTF-8 encoding</li>
-	 * 	<li>If the string length, in bytes, is > 4000 bytes (the max stupid size of Oracle's stupid varchar2 column, stupid) remove characters until
-	 * 		the string fits the stupidly limited Oracle column</li>
-	 * </ul>
-	 */
-	static public String oldStrOracleTruncate(String in, int nchars) {
-		if(in == null)
-			return null;
-		if(nchars > 4000) {
-			nchars = 4000; //can't set more than 4000 bytes in it anyways
-		}
-		int len = in.length();
-		if(len > nchars) {
-			in = in.substring(0, nchars); // truncate to max size in characters.
-		} else {
-			nchars = len;
-		}
-		try {
-			byte[] data = in.getBytes("UTF-8");
-			if(data.length <= 4000)
-				return in;
-
-			//-- Sh*t, exceeded length. Slowly determine the max. size;
-			len = nchars - (data.length - 4000);
-			for(; ; ) {
-				in = in.substring(0, len);
-				data = in.getBytes("UTF-8");
-				if(data.length <= 4000)
-					return in;
-				len--;
-			}
-		} catch(UnsupportedEncodingException x) {
-			throw new RuntimeException(x); // Should not ever happen. Nice shiny checked exception crap.
-		}
 	}
 
 	@Nullable
@@ -2658,7 +2028,8 @@ public class StringTool {
 			return ns + " ns";
 
 		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < TIMESET.length; i++) {
+		int i = 0;
+		while(i < TIMESET.length) {
 			if(ns >= TIMESET[i]) {
 				long u = ns / TIMESET[i];
 				sb.append(Long.toString(u));
@@ -2671,37 +2042,10 @@ public class StringTool {
 				sb.append(SUFFIXES[i]);
 				return sb.toString();
 			}
+			i++;
 		}
 		return ns + "ns";
 	}
-
-	///**
-	// * Case-sensitive replace of all occurrences of [old] with [new].
-	// */
-	//static public String strReplace(final String src, final String old, final String nw) {
-	//	if(src == null || old == null || nw == null || src.length() < old.length() || old.length() == 0)
-	//		return src;
-	//	int pos = src.indexOf(old); // Try to find quickly,
-	//	if(pos == -1)
-	//		return src; // Not found -> return original
-	//	int len = src.length();
-	//	StringBuilder sb = new StringBuilder(len + 20);
-	//	int ix = 0;
-	//	while(ix < len) {
-	//		if(pos > ix) {
-	//			sb.append(src, ix, pos); // Copy up to pos
-	//			ix = pos;
-	//		}
-	//		sb.append(nw); // Replace occurence,
-	//		ix += old.length(); // Past source occurence
-	//		pos = src.indexOf(old, ix);
-	//		if(pos == -1) {
-	//			sb.append(src, ix, len);
-	//			break;
-	//		}
-	//	}
-	//	return sb.toString();
-	//}
 
 	/**
 	 * If the throwable passed as a message then return it verbatim, else
@@ -2715,8 +2059,8 @@ public class StringTool {
 	}
 
 	static public int getJreVersion() {
-		if(m_jre_checked)
-			return m_jre_version;
+		if(m_jreChecked)
+			return m_jreVersion;
 		String jre = System.getProperty("java.version");
 		//		System.out.println("Running on JDK="+jre);
 		int ver = 0;
@@ -2734,8 +2078,8 @@ public class StringTool {
 			}
 			ver = (ver << 8) + (lev & 0xff);
 		}
-		m_jre_checked = true;
-		m_jre_version = ver;
+		m_jreChecked = true;
+		m_jreVersion = ver;
 		return ver;
 	}
 
@@ -2753,16 +2097,12 @@ public class StringTool {
 		int count = 0;
 		for(int i = 0; i < len; i++) {
 			char c = in.charAt(i);
-			if(Character.isDigit(c)) {
+			if(Character.isDigit(c) || c != lc) {
 				addRepeatingCharacterOnce(sb, lc, count);
 				lc = c;
 				count = 1;
-			} else if(c == lc) {
-				count++;
 			} else {
-				addRepeatingCharacterOnce(sb, lc, count);
-				lc = c;
-				count = 1;
+				count++;
 			}
 		}
 		addRepeatingCharacterOnce(sb, lc, count);
@@ -2850,44 +2190,6 @@ public class StringTool {
 		return true;
 	}
 
-	static public void createInsertStatement(final StringBuilder sb, final String table, final String pkname, final String pkexpr, final String[] fields) {
-		sb.append("insert into ");
-		sb.append(table);
-		sb.append('(');
-		int fc = 0;
-		for(String s : fields) {
-			if(fc++ > 0)
-				sb.append(',');
-			sb.append(s);
-		}
-		sb.append(',');
-		sb.append(pkname);
-		sb.append(") values (");
-		for(int i = 0; i < fields.length; i++) {
-			if(i > 0)
-				sb.append(',');
-			sb.append('?');
-		}
-		sb.append(',');
-		sb.append(pkexpr);
-		sb.append(')');
-	}
-
-	static public void createUpdateStatement(final StringBuilder sb, final String table, final String pkname, final String[] fields) {
-		sb.append("update ");
-		sb.append(table);
-		sb.append(" set ");
-		for(int i = 0; i < fields.length; i++) {
-			if(i > 0)
-				sb.append(',');
-			sb.append(fields[i]);
-			sb.append("=?");
-		}
-		sb.append(" where ");
-		sb.append(pkname);
-		sb.append("=?");
-	}
-
 	static public String fill(final int count, final char character) {
 		char[] fill = new char[count];
 		Arrays.fill(fill, character);
@@ -2899,8 +2201,6 @@ public class StringTool {
 	 */
 	@NonNull
 	static public String removeAccents(@NonNull String str) {
-		if(str == null)
-			return null;
 		String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
 		return NORMALIZE_PATTERN.matcher(nfdNormalizedString).replaceAll("");
 	}
@@ -2946,12 +2246,7 @@ public class StringTool {
 	}
 
 	private static int getUtf8LengthInBytes(@NonNull String text) {
-
-		try {
-			return text.getBytes("utf8").length;
-		} catch(UnsupportedEncodingException e) {
-			throw new WrappedException(e);
-		}
+		return text.getBytes(StandardCharsets.UTF_8).length;
 	}
 
 	@NonNull
@@ -3287,12 +2582,9 @@ public class StringTool {
 		if(lc.endsWith("iel"))
 			return word + enSuffix;
 
-		if(word.length() > 3) {
-			//if(lc.charAt(word.length() - 2) == lc.charAt(word.length() - 3) && isVowel(word.charAt(word.length() - 2))) {
-			if(lc.endsWith("el") || lc.endsWith("en") || lc.endsWith("er") || lc.endsWith("em") || lc.endsWith("ie"))
-				return word + sSuffix;
-			//}
-		}
+		//}
+		if(word.length() > 3 && (lc.endsWith("el") || lc.endsWith("en") || lc.endsWith("er") || lc.endsWith("em") || lc.endsWith("ie")))
+			return word + sSuffix;
 
 		if(lc.endsWith("i") || lc.endsWith("a") || lc.endsWith("o") || lc.endsWith("u"))
 			return word + (isUC ? "'S" : "'s");
@@ -3309,20 +2601,14 @@ public class StringTool {
 
 		//-- We will want to use "en"...
 		//-- Ends in 2 same vowels and consonant -> remove one of the vowels (afspraak -> afspraken)
-		if(word.length() >= 3) {
-			if(lc.charAt(word.length() - 2) == lc.charAt(word.length() - 3) && isVowel(word.charAt(word.length() - 2))) {
-				if(!isVowel(word.charAt(word.length() - 1))) {
-					word = word.substring(0, word.length() - 3) + word.substring(word.length() - 2) + enSuffix;
-					return word;
-				}
-			}
+		if(word.length() >= 3 && lc.charAt(word.length() - 2) == lc.charAt(word.length() - 3) && isVowel(word.charAt(word.length() - 2)) && !isVowel(word.charAt(word.length() - 1))) {
+			word = word.substring(0, word.length() - 3) + word.substring(word.length() - 2) + enSuffix;
+			return word;
 		}
 
 		//-- Does the word end in a single vowel + consonant? Then repeat the final consonant (adres -> adressen).
-		if(word.length() >= 2) {
-			if(isVowel(word.charAt(word.length() - 2)) && !isVowel(word.charAt(word.length() - 1)) && !isVowel(word, -3)) {
-				return word + word.charAt(word.length() - 1) + enSuffix;
-			}
+		if(word.length() >= 2 && isVowel(word.charAt(word.length() - 2)) && !isVowel(word.charAt(word.length() - 1)) && !isVowel(word, -3)) {
+			return word + word.charAt(word.length() - 1) + enSuffix;
 		}
 
 		//-- If the word ends in "f" we need to change it to a "v"
@@ -3381,21 +2667,21 @@ public class StringTool {
 	}
 
 	public static class Chunk {
-		private int nextStartIndex;
+		private final int m_nextStartIndex;
 
-		private String content;
+		private final String m_content;
 
 		public Chunk(int startIndex, String content) {
-			this.nextStartIndex = startIndex;
-			this.content = content;
+			this.m_nextStartIndex = startIndex;
+			this.m_content = content;
 		}
 
 		public int getNextStartIndex() {
-			return nextStartIndex;
+			return m_nextStartIndex;
 		}
 
 		public String getContent() {
-			return content;
+			return m_content;
 		}
 	}
 
@@ -3433,7 +2719,7 @@ public class StringTool {
 	private static final boolean[] WSARRAY = new boolean[65536];
 
 	static public boolean isUnicodeWhitespace(char ch) {
-		return WSARRAY[(int) ch & 0xffff];
+		return WSARRAY[ch & 0xffff];
 	}
 
 	static private void registerWhiteSpace(int... chars) {

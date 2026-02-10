@@ -12,7 +12,7 @@ import java.sql.Types;
 
 /**
  * A UserType implementation to map a boolean primitive object to a numeric value.<br /> A true
- * value maps to 1 and a false value maps to 0. This type does not recognise
+ * value maps to 1 and a false value maps to 0. This type does not recognize
  * nullity; it gets interpreted as a false.
  *
  * @author jal
@@ -25,9 +25,7 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 
 	@Override
 	public Object deepCopy(Object value) throws HibernateException {
-		if(value == null)
-			return value;
-		return Boolean.valueOf(((Boolean) value).booleanValue());
+		return value;
 	}
 
 	@Override
@@ -65,7 +63,10 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 
 	@Override
 	public void nullSafeSet(PreparedStatement statement, Object value, int position, WrapperOptions options) throws SQLException {
-		statement.setLong(position, value == null ? 0 : ((Boolean) value).booleanValue() ? 1 : 0);
+		if(value == null)
+			statement.setLong(position, 0L);
+		else
+			statement.setLong(index, ((Boolean) value).booleanValue() ? 1 : 0);
 	}
 
 	@Override

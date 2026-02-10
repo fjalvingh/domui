@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -112,7 +113,9 @@ public class PendingOperation {
 
 	private DataSource m_dataSource;
 
-	static private String m_updateSQL, m_insertSQL;
+	static private String m_updateSQL;
+
+	static private String m_insertSQL;
 
 	private String m_progressPath;
 
@@ -282,7 +285,6 @@ public class PendingOperation {
 
 	/**
 	 * The UserID to be used to execute this command. This determines the ROS_ID during execution of the call.
-	 * @return
 	 */
 	public String getUserID() {
 		return m_userID;
@@ -294,7 +296,6 @@ public class PendingOperation {
 
 	/**
 	 * A short user-readable description of the call.
-	 * @return
 	 */
 	public String getDescription() {
 		return m_description;
@@ -306,7 +307,6 @@ public class PendingOperation {
 
 	/**
 	 * The dotted path describing the module and location that issued this call.
-	 * @return
 	 */
 	public String getSubmitsource() {
 		return m_submitsource;
@@ -318,7 +318,6 @@ public class PendingOperation {
 
 	/**
 	 * The path of actions accounted for in progress of operation execution.
-	 * @return
 	 */
 	public String getProgressPath() {
 		return m_progressPath;
@@ -330,7 +329,6 @@ public class PendingOperation {
 
 	/**
 	 * Current percentage of task progress.
-	 * @return
 	 */
 	public int getProgressPercentage() {
 		return m_progressPercentage;
@@ -342,13 +340,9 @@ public class PendingOperation {
 
 	public Object getSerializedObject() throws SQLException {
 		if(m_serializedObject == null) {
-			Connection dbc = getDS().getConnection();
-			try {
+
+			try(Connection dbc = getDS().getConnection()) {
 				loadSerialized(dbc);
-			} finally {
-				try {
-					dbc.close();
-				} catch(Exception x) {}
 			}
 		}
 		return m_serializedObject;
@@ -360,54 +354,44 @@ public class PendingOperation {
 
 	/**
 	 * Returns a lazily-loaded inputstream from the serialized blob.
-	 * @return
-	 * @throws SQLException
 	 */
 	public InputStream getSerializedStream() throws SQLException {
 		//-- Get a stream representing the LOB data
 		Connection dbc = getDS().getConnection();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
 		InputStream is = null;
-		try {
-			ps = dbc.prepareStatement("select spo_serialized from sys_pending_operations where spo_id=?");
+		try(PreparedStatement ps = dbc.prepareStatement("select spo_serialized from sys_pending_operations where spo_id=?")) {
 			ps.setLong(1, m_id);
-			rs = ps.executeQuery();
-			if(!rs.next())
-				throw new SQLException("sys_pending_operations.id=" + m_id + " is not found");
-			Blob b = rs.getBlob(1);
-			if(b == null)
-				return null;
-			try {
-				is = b.getBinaryStream();
-				if(is == null)
+			try(ResultSet rs = ps.executeQuery()) {
+				if(!rs.next())
+					throw new SQLException("sys_pending_operations.id=" + m_id + " is not found");
+				Blob b = rs.getBlob(1);
+				if(b == null)
 					return null;
-				InputStream res = new WrappedDatabaseInputStream(dbc, ps, rs, is);
-				dbc = null;
-				ps = null;
-				rs = null;
-				is = null;
-				return res;
-			} catch(Exception x) {
-				throw new PendingOperationSerializationException("Failed to deserialize object from pendingOperation=" + m_id + ": " + x, x);
+				try {
+					is = b.getBinaryStream();
+					if(is == null)
+						return null;
+					InputStream res = new WrappedDatabaseInputStream(dbc, ps, rs, is);
+					dbc = null;
+					is = null;
+					return res;
+				} catch(Exception x) {
+					throw new PendingOperationSerializationException("Failed to deserialize object from pendingOperation=" + m_id + ": " + x, x);
+				}
 			}
 		} finally {
 			try {
 				if(is != null)
 					is.close();
-			} catch(Exception x) {}
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(dbc != null)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- ignore
+			}
 		}
 	}
 
@@ -435,7 +419,7 @@ public class PendingOperation {
 		else {
 			m_properties = new Properties(); // Loop thru hoops to load from a string...
 			try {
-				ByteArrayInputStream baos = new ByteArrayInputStream(pro.getBytes("iso-8859-1"));
+				ByteArrayInputStream baos = new ByteArrayInputStream(pro.getBytes(StandardCharsets.ISO_8859_1));
 				m_properties.load(baos);
 			} catch(IOException x) {
 				x.printStackTrace();
@@ -446,38 +430,22 @@ public class PendingOperation {
 		m_errorLog = rs.getString(f++);
 		m_userID = rs.getString(f++);
 		m_description = rs.getString(f++);
-		m_submitsource = rs.getString(f++);
+		m_submitsource = rs.getString(f);
 	}
 
 	public void delete(@NonNull Connection dbc) throws SQLException {
-		PreparedStatement ps = null;
-		try {
-			ps = dbc.prepareStatement("delete from sys_pending_operations where spo_id=?");
+		try(PreparedStatement ps = dbc.prepareStatement("delete from sys_pending_operations where spo_id=?")) {
 			ps.setLong(1, getId());
 			ps.executeUpdate();
 			setId(-1);
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
 		}
 	}
 
 	/**
 	 * Saves the content of the record. Does not save the serialized LOB.
-	 * @param dbc
-	 * @throws SQLException
 	 */
 	public void save(final Connection dbc) throws SQLException {
-		PreparedStatement ps = null;
-		try {
-			if(m_id == -1) {
-				CallableStatement cs = dbc.prepareCall(m_insertSQL);
-				ps = cs;
-			} else
-				ps = dbc.prepareStatement(m_updateSQL);
-
+		try(PreparedStatement ps = m_id == -1 ? dbc.prepareCall(m_insertSQL) : dbc.prepareStatement(m_updateSQL)) {
 			//-- For any state other than EXEC make sure "executing_on" is empty !IMPORTANT
 			if(m_state != PendingOperationState.EXEC)
 				m_executesOnServerID = null;
@@ -507,7 +475,7 @@ public class PendingOperation {
 					m_properties.store(baos, "-");
 
 					//-- Convert bytes back to a $ (what an ass-backward interface 8-/)
-					pro = new String(baos.toByteArray(), "iso-8859-1");
+					pro = new String(baos.toByteArray(), StandardCharsets.ISO_8859_1);
 				} catch(IOException x) {
 					x.printStackTrace(); // Impossible: should never happen.
 				}
@@ -539,11 +507,6 @@ public class PendingOperation {
 				CallableStatement cs = (CallableStatement) ps;
 				m_id = cs.getLong(f); // Get assigned ID
 			}
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -564,42 +527,25 @@ public class PendingOperation {
 			throw new IllegalStateException("Cannot load a LOB from a record that is not stored");
 
 		//-- Get a stream representing the LOB data
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		InputStream is = null;
-		try {
-			ps = dbc.prepareStatement("select spo_serialized from sys_pending_operations where spo_id=?");
+		try(PreparedStatement ps = dbc.prepareStatement("select spo_serialized from sys_pending_operations where spo_id=?")) {
 			ps.setLong(1, m_id);
-			rs = ps.executeQuery();
-			if(!rs.next())
-				throw new SQLException("sys_pending_operations.id=" + m_id + " is not found");
-			Blob b = rs.getBlob(1);
-			if(b == null)
-				return null;
-			try {
-				is = b.getBinaryStream();
-				if(is == null)
+			try(ResultSet rs = ps.executeQuery()) {
+				if(!rs.next())
+					throw new SQLException("sys_pending_operations.id=" + m_id + " is not found");
+				Blob b = rs.getBlob(1);
+				if(b == null)
 					return null;
-
-				//-- Deserialize
-				ObjectInputStream ois = new ObjectInputStream(is);
-				return m_serializedObject = ois.readObject();
-			} catch(Exception x) {
-				throw new PendingOperationSerializationException("Failed to deserialize object from pendingOperation=" + m_id + ": " + x, x);
+				try {
+					InputStream is = b.getBinaryStream();
+					if(is == null)
+						return null;
+					try(ObjectInputStream ois = new ObjectInputStream(is)) {
+						return m_serializedObject = ois.readObject();
+					}
+				} catch(Exception x) {
+					throw new PendingOperationSerializationException("Failed to deserialize object from pendingOperation=" + m_id + ": " + x, x);
+				}
 			}
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {}
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -627,7 +573,7 @@ public class PendingOperation {
 			if(!rs.next())
 				throw new SQLException("Cannot re-find sys_pending_operations.id=" + m_id);
 			Blob tb = rs.getBlob(1);
-			os = (OutputStream) ClassUtil.callObjectMethod(tb, "getBinaryOutputStream", new Class< ? >[0]);
+			os = (OutputStream) ClassUtil.callObjectMethod(tb, "getBinaryOutputStream", new Class<?>[0]);
 			if(null == os)
 				throw new PendingOperationSerializationException("Failed to serialize object from pendingOperation=" + m_id + ": cannot get blob output stream");
 
@@ -641,15 +587,21 @@ public class PendingOperation {
 			try {
 				if(os != null)
 					os.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 		}
 	}
 
@@ -677,7 +629,7 @@ public class PendingOperation {
 			if(!rs.next())
 				throw new SQLException("Cannot re-find sys_pending_operations.id=" + m_id);
 			Blob tb = rs.getBlob(1);
-			os = (OutputStream) ClassUtil.callObjectMethod(tb, "getBinaryOutputStream", new Class< ? >[0]);
+			os = (OutputStream) ClassUtil.callObjectMethod(tb, "getBinaryOutputStream", new Class<?>[0]);
 			try {
 				ObjectOutputStream oos = new ObjectOutputStream(os);
 				oos.writeObject(m_serializedObject);
@@ -689,28 +641,72 @@ public class PendingOperation {
 			try {
 				if(os != null)
 					os.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 		}
 	}
 
 	static {
 		StringBuilder sb = new StringBuilder(512);
 		sb.append("begin ");
-		StringTool.createInsertStatement(sb, "sys_pending_operations", "spo_id", "sys_spo_seq.nextval", FLDAR);
+		createInsertStatement(sb, "sys_pending_operations", "spo_id", "sys_spo_seq.nextval", FLDAR);
 		sb.append(" returning spo_id into ?; end;");
 		m_insertSQL = sb.toString();
 
 		sb.setLength(0);
-		StringTool.createUpdateStatement(sb, "sys_pending_operations", "spo_id", FLDAR);
+		createUpdateStatement(sb, "sys_pending_operations", "spo_id", FLDAR);
 		m_updateSQL = sb.toString();
+	}
+
+	static public void createInsertStatement(final StringBuilder sb, final String table, final String pkname, final String pkexpr, final String[] fields) {
+		sb.append("insert into ");
+		sb.append(table);
+		sb.append('(');
+		int fc = 0;
+		for(String s : fields) {
+			if(fc++ > 0)
+				sb.append(',');
+			sb.append(s);
+		}
+		sb.append(',');
+		sb.append(pkname);
+		sb.append(") values (");
+		for(int i = 0; i < fields.length; i++) {
+			if(i > 0)
+				sb.append(',');
+			sb.append('?');
+		}
+		sb.append(',');
+		sb.append(pkexpr);
+		sb.append(')');
+	}
+
+	static public void createUpdateStatement(final StringBuilder sb, final String table, final String pkname, final String[] fields) {
+		sb.append("update ");
+		sb.append(table);
+		sb.append(" set ");
+		for(int i = 0; i < fields.length; i++) {
+			if(i > 0)
+				sb.append(',');
+			sb.append(fields[i]);
+			sb.append("=?");
+		}
+		sb.append(" where ");
+		sb.append(pkname);
+		sb.append("=?");
 	}
 
 	public void setError(final PendingOperationState rtry, final String string) {

@@ -18,6 +18,7 @@ public class JsonParseException extends RuntimeException {
 		super(cause);
 	}
 
+	@SuppressWarnings("squid:S1172")	// Future expansion
 	public JsonParseException(JsonReader reader, ITypeMapping jsonClassType, String string) {
 		super(string);
 	}

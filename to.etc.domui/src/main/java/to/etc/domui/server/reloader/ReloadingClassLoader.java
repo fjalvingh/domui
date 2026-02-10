@@ -67,7 +67,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 	/**
 	 * The list of files used in constructing these classes.
 	 */
-	private final List<ResourceTimestamp> m_dependList = new ArrayList<ResourceTimestamp>();
+	private final List<ResourceTimestamp> m_dependList = new ArrayList<>();
 
 	static private final synchronized int nextID() {
 		return m_nextid++;
@@ -123,6 +123,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 	/**
 	 * Main workhorse for loading.
 	 */
+	@SuppressWarnings("squid:S1872")
 	@Override
 	synchronized public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 		if(Reloader.DEBUG) {
@@ -180,7 +181,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 	 * This adds watches for resources in the same directory as the onlywatch class. Those will not be loaded by this classloader.
 	 */
 	@NonNull
-	private final Set<String> m_scannedPackages = new HashSet<String>();
+	private final Set<String> m_scannedPackages = new HashSet<>();
 
 	private void scanForForResourceWatches(@NonNull Class<?> loadClass) throws Exception {
 		synchronized(m_scannedPackages) {
@@ -213,12 +214,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 	public void addResourceWatch(@NonNull final File file) {
 		if(file.getName().endsWith(".properties")) {
 			synchronized(m_reloader) {
-				m_dependList.add(new ResourceTimestamp(new IModifyableResource() {
-					@Override
-					public long getLastModified() {
-						return file.lastModified();
-					}
-				}, file.lastModified()));
+				m_dependList.add(new ResourceTimestamp(() -> file.lastModified(), file.lastModified()));
 			}
 		}
 	}

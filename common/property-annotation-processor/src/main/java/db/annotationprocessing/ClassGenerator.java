@@ -14,7 +14,6 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,10 +37,6 @@ abstract class ClassGenerator {
 	final private String m_className;
 
 	final private String m_targetClassName;
-
-	private final List<String> m_fieldList = new ArrayList<>();
-
-	private final List<String> m_methodList = new ArrayList<>();
 
 	protected ClassGenerator(PropertyAnnotationProcessor propertyAnnotationProcessor, Writer w, String packageName, String className, List<Property> properties, String targetClassName) {
 		m_processor = propertyAnnotationProcessor;
@@ -119,11 +114,9 @@ abstract class ClassGenerator {
 			/*
 			 * The element type will be null for something like Object[], so do not check for annotations on that.
 			 */
-			if(null != mtype) {
-				if(!hasAnnotation(mtype, PropertyAnnotationProcessor.GENERATED_PROPERTIES_ANNOTATION)
-					&& !hasAnnotation(mtype, PropertyAnnotationProcessor.PERSISTENCE_ANNOTATION))
-					return;
-			}
+			if(!hasAnnotation(mtype, PropertyAnnotationProcessor.GENERATED_PROPERTIES_ANNOTATION)
+				&& !hasAnnotation(mtype, PropertyAnnotationProcessor.PERSISTENCE_ANNOTATION))
+				return;
 			generateParentProperty(type, property.getName());
 		}
 	}
@@ -201,9 +194,7 @@ abstract class ClassGenerator {
 		if(typeUtils().isSubtype(type, typeUtils().getDeclaredType(enumElement)))
 			return true;
 		enumElement = elementUtils().getTypeElement("java.util.Map");
-		if(typeUtils().isSubtype(type, typeUtils().getDeclaredType(enumElement)))
-			return true;
-		return false;
+		return typeUtils().isSubtype(type, typeUtils().getDeclaredType(enumElement));
 	}
 
 	protected String packName(String frtypeArgName) {
@@ -276,7 +267,7 @@ abstract class ClassGenerator {
 	}
 
 
-	static final Set<String> m_reserved = new HashSet<String>();
+	static final Set<String> m_reserved = new HashSet<>();
 
 	static {
 		m_reserved.add("abstract");

@@ -35,9 +35,9 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Driver;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -136,10 +136,8 @@ public class DbPoolUtil {
 			ix++;
 		}
 		int ex = ix; // End bound, exclusive
-		if(linelimit > 0) {
-			if(ex - sx > linelimit)
-				ex = sx + linelimit;
-		}
+		if(linelimit > 0 && ex - sx > linelimit)
+			ex = sx + linelimit;
 		for(int i = sx; i < ex; i++) {
 			try {
 				for(int j = indent; --j >= 0; )
@@ -220,12 +218,12 @@ public class DbPoolUtil {
 		}
 	}
 
-	static private final long DAYS = 24 * 60 * 60;
+	static private final long DAYS = 24L * 60 * 60;
 
-	static private final long HOURS = 60 * 60;
+	static private final long HOURS = 60L * 60;
 
 	static public String strMillisOLD(long dlt) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		int millis = (int) (dlt % 1000); // Get milliseconds,
 		dlt /= 1000; // Now in seconds,
@@ -275,21 +273,21 @@ public class DbPoolUtil {
 		return sb.toString();
 	}
 
-	static private final long MICROS = 1000;
+	static private final long MICROS = 1000L;
 
-	static private final long MILLIS = 1000 * 1000;
+	static private final long MILLIS = 1000L * 1000;
 
-	static private final long SECONDS = 1000 * 1000 * 1000;
+	static private final long SECONDS = 1000L * 1000 * 1000;
 
-	static private final long MINUTES = 60 * SECONDS;
+	static private final long MINUTES = 60L * SECONDS;
 
-	static private final long NSHOURS = 60 * MINUTES;
+	static private final long NSHOURS = 60L * MINUTES;
 
 	static private final long[] TIMESET = {NSHOURS, MINUTES, SECONDS, MILLIS, MICROS, 1};
 
 	static private final String[] SUFFIXES = {"H", "m", "s", "ms", "us", "ns"};
 
-	static private final long[] MSTIMESET = {60 * 60 * 1000, 60 * 1000, 1000, 1};
+	static private final long[] MSTIMESET = {60L * 60 * 1000, 60 * 1000, 1000, 1};
 
 	static private final String[] MSSUFFIXES = {"H", "m", "s", "ms"};
 
@@ -301,7 +299,8 @@ public class DbPoolUtil {
 			return ns + " ns";
 
 		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < TIMESET.length; i++) {
+		int i = 0;
+		while(i < TIMESET.length) {
 			if(ns >= TIMESET[i]) {
 				long u = ns / TIMESET[i];
 				sb.append(Long.toString(u));
@@ -314,6 +313,7 @@ public class DbPoolUtil {
 				sb.append(SUFFIXES[i]);
 				return sb.toString();
 			}
+			i++;
 		}
 		return ns + "ns";
 	}
@@ -342,7 +342,8 @@ public class DbPoolUtil {
 			return ns + " ms";
 
 		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < MSTIMESET.length; i++) {
+		int i = 0;
+		while(i < MSTIMESET.length) {
 			if(ns >= MSTIMESET[i]) {
 				long u = ns / MSTIMESET[i];
 				sb.append(Long.toString(u));
@@ -355,6 +356,7 @@ public class DbPoolUtil {
 				sb.append(MSSUFFIXES[i]);
 				return sb.toString();
 			}
+			i++;
 		}
 		return ns + "ms";
 	}
@@ -410,8 +412,8 @@ public class DbPoolUtil {
 			}
 		} else {
 			//-- Load the driver off the classloader.
-			URLClassLoader loader = new NoLoader(new URL[]{driverPath.toURI().toURL()}); // Sun people are idiots.
-			try {
+
+			try(URLClassLoader loader = new NoLoader(new URL[]{driverPath.toURI().toURL()})) {
 				cl = loader.loadClass(driverClassName);
 			} catch(Exception x) {
 				throw new SQLException("The driver class '" + driverClassName + "' could not be loaded from " + driverPath + ": " + x);
@@ -506,7 +508,7 @@ public class DbPoolUtil {
 		return df.format(dt);
 	}
 
-	static private ThreadLocal<DateFormat> m_timedf = new ThreadLocal<DateFormat>();
+	static private ThreadLocal<DateFormat> m_timedf = new ThreadLocal<>();
 
 	static public String strTimeOnly(Date dt) {
 		DateFormat df = m_timedf.get();
@@ -522,7 +524,7 @@ public class DbPoolUtil {
 	 */
 	static public String strCommad(final long val) {
 		String v = Long.toString(val);
-		StringBuffer sb = new StringBuffer(30);
+		StringBuilder sb = new StringBuilder(30);
 		int pos = (v.length() % 3) + 1;
 		if(pos == 0)
 			pos = 3;
@@ -606,7 +608,7 @@ public class DbPoolUtil {
 		}
 
 		//-- Now do something,
-		StringBuffer sb = new StringBuffer(15);
+		StringBuilder sb = new StringBuilder(15);
 
 		if(div == 1) {
 			return sz + " bytes";
@@ -667,8 +669,11 @@ public class DbPoolUtil {
 	 * Executes dbms_debug_jdwp.connect_tcp(host, port) on specified connection. That enables remote debug.
 	 */
 	public static void enableRemoteDebug(@NonNull Connection con, @NonNull HostAndPort hostAndPort) throws SQLException {
-		final String cmd = "begin dbms_debug_jdwp.connect_tcp('" + hostAndPort.getHost() + "'," + hostAndPort.getPort() + ");end;";
-		try(PreparedStatement st = con.prepareStatement(cmd)) {
+		//final String cmd = "begin dbms_debug_jdwp.connect_tcp('" + hostAndPort.getHost() + "'," + hostAndPort.getPort() + ");end;";
+		final String cmd = "begin dbms_debug_jdwp.connect_tcp(?, ?);end;";
+		try(CallableStatement st = con.prepareCall(cmd)) {
+			st.setString(1, hostAndPort.getHost());
+			st.setInt(2, hostAndPort.getPort());
 			st.execute();
 		} catch(Exception x) {
 			//-- Ignore any error.

@@ -112,7 +112,9 @@ final public class DomUtil {
 
 	static private int m_guidSeed;
 
-	/** Map value types of primitive type to their boxed (wrapped) types. */
+	/**
+	 * Map value types of primitive type to their boxed (wrapped) types.
+	 */
 	final static private Map<Class<?>, Class<?>> BOXINGDISASTER = new HashMap<>();
 
 	static {
@@ -143,7 +145,7 @@ final public class DomUtil {
 
 	/**
 	 * Use Objects.requireNonNull.
-	 *
+	 * <p>
 	 * NULL CHECKING BELONGS IN THE LANGUAGE, NOT IN ANNOTATIONS, damnit! This fine idiocy is needed to
 	 * handle null checking because the pathetic losers that make up the Java JSR board are so incredible
 	 * stupid it boggles the mind. Java == cobol 8-(
@@ -278,8 +280,8 @@ final public class DomUtil {
 
 	static public final Class<?> getUnproxiedClass(@NonNull Class<?> clz) {
 		String name = clz.getName();
-		if(name.contains("$$") || name.contains("$HibernateProxy"))	// Sigh
-			clz = clz.getSuperclass();									// Enhanced class (Hibernate). Get base class instead
+		if(name.contains("$$") || name.contains("$HibernateProxy"))    // Sigh
+			clz = clz.getSuperclass();                                    // Enhanced class (Hibernate). Get base class instead
 		return clz;
 	}
 
@@ -389,7 +391,7 @@ final public class DomUtil {
 		if(actualType == boolean.class)
 			return (T) Boolean.FALSE;
 		if(actualType == byte.class)
-			return (T) Byte.valueOf((byte)0);
+			return (T) Byte.valueOf((byte) 0);
 		throw new IllegalStateException("Unsupported primitive " + actualType);
 	}
 
@@ -446,7 +448,6 @@ final public class DomUtil {
 		}
 		return null;
 	}
-
 
 	/**
 	 * Returns T if the topclass or one of its base classes (above the base class) has overridden
@@ -584,7 +585,7 @@ final public class DomUtil {
 	 * WARNING: this also copies any $CID or other parameters if present in the pageparameters!!
 	 */
 	static public void addUrlParameters(@NonNull final StringBuilder sb, @NonNull final IPageParameters ctx, boolean first) {
-		addUrlParameters(sb, ctx, first, Collections.EMPTY_SET);
+		addUrlParameters(sb, ctx, first, Collections.emptySet());
 	}
 
 	/**
@@ -709,7 +710,7 @@ final public class DomUtil {
 	/**
 	 * Generate an URL to some page with parameters.
 	 *
-	 * @param rurl    The absolute or relative URL to whatever resource.
+	 * @param rurl The absolute or relative URL to whatever resource.
 	 */
 	public static String createPageURL(String rurl, IPageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
@@ -774,8 +775,8 @@ final public class DomUtil {
 	 * if it starts with slash (host-relative path absolute) it is returned verbatim; in all other
 	 * cases it is returned with the webapp context appended. Examples:
 	 * <ul>
-	 *	<li>img/text.gif becomes /Itris_VO02/img/text.gif</li>
-	 *	<li>/ui/generic.gif remains the same</li>
+	 * 	<li>img/text.gif becomes /Itris_VO02/img/text.gif</li>
+	 * 	<li>/ui/generic.gif remains the same</li>
 	 * </ul>
 	 */
 	static public String calculateURL(IRequestContext ci, String rurl) {
@@ -893,7 +894,6 @@ final public class DomUtil {
 		}
 	}
 
-
 	/**
 	 * This balances tables to ensure that all rows have an equal number of rows and
 	 * columns, taking rowspans and colspans into effect.
@@ -901,7 +901,7 @@ final public class DomUtil {
 	 */
 	@SuppressWarnings("unused")
 	public static void balanceTable(Table t) {
-		List<List<TD>> matrix = new ArrayList<List<TD>>(40);
+		List<List<TD>> matrix = new ArrayList<>(40);
 
 		//-- Phase 1: start marking extends in the matrix.
 		int rowindex = 0;
@@ -929,7 +929,6 @@ final public class DomUtil {
 							colspan = 1;
 						if(rowspan < 1)
 							rowspan = 1;
-
 
 					}
 					rowindex += minrowspan;
@@ -1023,7 +1022,6 @@ final public class DomUtil {
 		}
 	}
 
-
 	static public void dumpException(@NonNull StringBuilder sb, final Throwable x) {
 		StringTool.strStacktrace(sb, x);
 
@@ -1042,7 +1040,6 @@ final public class DomUtil {
 			}
 		}
 	}
-
 
 	static public void dumpRequest(HttpServletRequest req) {
 		System.out.println("---- request parameter dump ----");
@@ -1270,8 +1267,8 @@ final public class DomUtil {
 	 * Locates the default page bundle for a page. The lookup of the bundle
 	 * is as follows (first match returns):
 	 * <ul>
-	 *	<li>If the page has an @UIMenu annotation use it's bundleBase and bundleName to find the page bundle. It is an error to specify a nonexistent bundle here.</li>
-	 *	<li>Try a bundle with the same name as the page class</li>
+	 * 	<li>If the page has an @UIMenu annotation use it's bundleBase and bundleName to find the page bundle. It is an error to specify a nonexistent bundle here.</li>
+	 * 	<li>Try a bundle with the same name as the page class</li>
 	 * </ul>
 	 * If this fails return null.
 	 */
@@ -1320,7 +1317,7 @@ final public class DomUtil {
 		if(text == null || text.isEmpty())
 			return;
 		StringBuilder sb = new StringBuilder(text.length()); // rll string segment buffer
-		List<NodeContainer> nodestack = Collections.EMPTY_LIST; // generated html stack (embedding)
+		List<NodeContainer> nodestack = Collections.emptyList(); // generated html stack (embedding)
 
 		/*
 		 * Enter a scan loop. The scan loop has two sections; the first one scans the TEXT between tags and adds it
@@ -1427,7 +1424,7 @@ final public class DomUtil {
 		if(text == null)
 			return;
 		text = text.trim();
-		if(text == null || text.isEmpty())					// Extra nullity test is because ecj is nuts
+		if(text == null || text.isEmpty())                    // Extra nullity test is because ecj is nuts
 			return;
 		for(String line : new LineIterator(text)) {
 			Div d = new Div("ui-nl-line");
@@ -1438,7 +1435,7 @@ final public class DomUtil {
 		}
 	}
 
- 	/**
+	/**
 	 * This scans the input, and only copies "safe" html, which is HTML with only
 	 * simple constructs. It checks to make sure the resulting document is xml-safe (well-formed),
 	 * if the input is not well-formed it will add or remove tags until the result is valid.
@@ -1471,16 +1468,15 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
-
 	static public List<NodeContainer> appendContainer(List<NodeContainer> stack, NodeContainer it) {
-		if(stack == Collections.EMPTY_LIST)
-			stack = new ArrayList<NodeContainer>();
+		if(stack.isEmpty())
+			stack = new ArrayList<>();
 		stack.add(it);
 		return stack;
 	}
 
 	static private void appendOptionalText(NodeContainer nc, StringBuilder sb) {
-		if(sb.length() == 0)
+		if(sb.isEmpty())
 			return;
 		nc.add(sb.toString());
 		sb.setLength(0);
@@ -1569,6 +1565,7 @@ final public class DomUtil {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle cookies.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Find a cookie if it exists, return null otherwise.
 	 */
@@ -1616,10 +1613,10 @@ final public class DomUtil {
 		int len = in.length();
 		String lc = in.toLowerCase();
 		while(ix < len) {
-			int pos = lc.indexOf("http", ix);						// Find lead.
+			int pos = lc.indexOf("http", ix);                        // Find lead.
 			if(pos == -1) {
 				//-- We're done
-				sb.append(in, ix, len);									// Append remainder
+				sb.append(in, ix, len);                                    // Append remainder
 				return sb.toString();
 			}
 
@@ -1657,7 +1654,9 @@ final public class DomUtil {
 	 * Created on Nov 3, 2009
 	 */
 	public interface IPerNode {
-		/** When this object instance is returned by the before(NodeBase) method we SKIP the downwards traversal. */
+		/**
+		 * When this object instance is returned by the before(NodeBase) method we SKIP the downwards traversal.
+		 */
 		Object SKIP = new Object();
 
 		/**
@@ -1667,13 +1666,15 @@ final public class DomUtil {
 		 * will not be called for this node. Returning any other value will stop the node traversal process
 		 * and return that value to the caller of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
 		 */
-		@Nullable Object before(@NonNull NodeBase n) throws Exception;
+		@Nullable
+		Object before(@NonNull NodeBase n) throws Exception;
 
 		/**
 		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
 		 * value this will terminate the tree walk and return that value to the called of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
 		 */
-		@Nullable Object after(@NonNull NodeBase n) throws Exception;
+		@Nullable
+		Object after(@NonNull NodeBase n) throws Exception;
 	}
 
 	/**
@@ -1726,7 +1727,8 @@ final public class DomUtil {
 
 	/**
 	 * This clears the 'modified' flag for all nodes in the subtree that implement {@link IHasModifiedIndication}.
-	 * @param root        The subtree to traverse
+	 *
+	 * @param root The subtree to traverse
 	 */
 	static public void clearModifiedFlag(NodeBase root) {
 		try {
@@ -1791,7 +1793,7 @@ final public class DomUtil {
 			}
 			if(n instanceof IUserInputModifiedFence) {
 				IUserInputModifiedFence fenceNode = (IUserInputModifiedFence) n;
-				if(! wasModifiedBefore || fenceNode.receiveNewModifications()) {
+				if(!wasModifiedBefore || fenceNode.receiveNewModifications()) {
 					fenceNode.onModifyFlagRaised();
 				}
 				if(fenceNode.isFinalUserInputModifiedFence()) {
@@ -1807,6 +1809,7 @@ final public class DomUtil {
 	 * <pre>
 	 * Checks if string is blank.
 	 * </pre>
+	 *
 	 * @param s String to be validated.
 	 * @return true if it is blank, false otherwise.
 	 *
@@ -2038,7 +2041,6 @@ final public class DomUtil {
 		}
 	}
 
-
 	static private String m_lorem;
 
 	/**
@@ -2076,6 +2078,7 @@ final public class DomUtil {
 
 	/**
 	 * Util that returns index of member in specified list that has same Long Id as specified <I>member</I>.
+	 *
 	 * @return -1 if <I>member</I> object Long Id is not found in specified <I>list</I>, otherwise returns found index.
 	 */
 	public static <V, T extends IIdentifyable<V>> int indexOfLongIdentifyable(@NonNull List<T> list, @NonNull T lookingFor) {
@@ -2095,13 +2098,14 @@ final public class DomUtil {
 
 	/**
 	 * Add item to mergeSource if it is not already contained.
+	 *
 	 * @return (not)appended mergeSource
 	 */
 	@NonNull
 	public static <V, T extends IIdentifyable<V>> List<T> merge(@NonNull List<T> mergeSource, @NonNull T item) {
 		if(!containsLongIdentifyable(mergeSource, item)) {
-			if(mergeSource == Collections.EMPTY_LIST) {
-				mergeSource = new ArrayList<T>();
+			if(mergeSource.isEmpty()) {
+				mergeSource = new ArrayList<>();
 			}
 			mergeSource.add(item);
 		}
@@ -2111,6 +2115,7 @@ final public class DomUtil {
 	/**
 	 * Appends non contained items from toJoinItems into mergeSource.
 	 * Uses linear search, not suitable for large lists.
+	 *
 	 * @return (not)appended mergeSource
 	 */
 	public static <V, T extends IIdentifyable<V>> List<T> merge(@NonNull List<T> mergeSource, @NonNull List<T> toJoinItems) {
@@ -2129,6 +2134,7 @@ final public class DomUtil {
 
 	/**
 	 * Util that returns index of <I>lookingFor</I> object inside specified <I>array</I>
+	 *
 	 * @return -1 if <I>lookingFor</I> object is not found in specified <I>array</I>, otherwise returns its index
 	 */
 	public static <T> int indexOf(T[] array, T lookingFor) {
@@ -2326,22 +2332,21 @@ final public class DomUtil {
 	/**
 	 * From a "normal" image URL, calculate a site absolute URL.
 	 */
-	static public String calculateImageURL(String relativeURL, boolean disabled) {
+	static public String calculateImageURL(@NonNull String relativeURL, boolean disabled) {
 		String src = relativeURL;
 
-		if(! DomUtil.isAbsoluteURL(src))
+		if(!DomUtil.isAbsoluteURL(src))
 			src = DomApplication.get().internalGetThemeManager().getThemedResourceRURL(UIContext.getRequestContext(), src);
 
-		if(disabled && !src.startsWith("http")) { 			// For now we're not supporting grey scaling of servlet images
+		if(disabled && !src.startsWith("http")) {            // For now we're not supporting grey scaling of servlet images
 			src = GrayscalerPart.getURL(src);
 		}
 
 		//-- Make absolute
-		if(! src.startsWith("/")) {
-			src = UIContext.getRequestContext().getRelativePath(src);	// FIXME Must become easier
+		if(!src.startsWith("/")) {
+			src = UIContext.getRequestContext().getRelativePath(src);    // FIXME Must become easier
 		}
 		return src;
 	}
-
 
 }

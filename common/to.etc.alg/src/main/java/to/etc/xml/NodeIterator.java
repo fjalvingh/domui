@@ -1,8 +1,9 @@
 package to.etc.xml;
 
-import java.util.*;
+import org.w3c.dom.Node;
 
-import org.w3c.dom.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -17,21 +18,25 @@ final public class NodeIterator implements Iterable<Node>, Iterator<Node> {
 		m_node = node;
 	}
 
-	@Override public Iterator<Node> iterator() {
-		return this;
+	@Override
+	public Iterator<Node> iterator() {
+		return new NodeIterator(m_node);
 	}
 
-	@Override public boolean hasNext() {
+	@Override
+	public boolean hasNext() {
 		return m_index < m_node.getChildNodes().getLength();
 	}
 
-	@Override public Node next() {
-		if(! hasNext())
-			return null;
+	@Override
+	public Node next() {
+		if(!hasNext())
+			throw new NoSuchElementException();
 		return m_node.getChildNodes().item(m_index++);
 	}
 
-	@Override public void remove() {
+	@Override
+	public void remove() {
 		throw new UnsupportedOperationException();
 	}
 }

@@ -44,6 +44,7 @@ import to.etc.util.WrappedException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +60,7 @@ import java.util.Map;
 final public class ThemeManager {
 	static private final Logger LOG = LoggerFactory.getLogger(ThemeManager.class);
 
-	static private final long OLD_THEME_TIME = 5 * 60 * 1000;
+	static private final long OLD_THEME_TIME = 5L * 60 * 1000;
 
 	final private DomApplication m_application;
 
@@ -127,14 +128,12 @@ final public class ThemeManager {
 			}
 
 			ThemeRef tr = m_themeMap.get(key);
-			if(tr != null) {
-				//-- Developer mode: is the theme still valid?
-				if(tr.getDependencies() == null || !tr.getDependencies().isModified()) {
-					if(rdl != null && tr.getDependencies() != null)
-						rdl.add(tr.getDependencies());
-					tr.setLastuse(System.currentTimeMillis());
-					return tr.getTheme();
-				}
+			//-- Developer mode: is the theme still valid?
+			if(tr != null && (tr.getDependencies() == null || !tr.getDependencies().isModified())) {
+				if(rdl != null && tr.getDependencies() != null)
+					rdl.add(tr.getDependencies());
+				tr.setLastuse(System.currentTimeMillis());
+				return tr.getTheme();
 			}
 
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
@@ -221,8 +220,7 @@ final public class ThemeManager {
 			LOG.error(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
 			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + resourceURL + ", ref=" + ires);
 		}
-		try {
-			Reader r = new InputStreamReader(is, "utf-8");
+		try(Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
 			StringBuilder sb = new StringBuilder(65536);
 
 			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
@@ -233,12 +231,6 @@ final public class ThemeManager {
 			else
 				LOG.debug("theme-replace: " + resourceURL + " for all browsers took " + StringTool.strNanoTime(ts));
 			return sb.toString();
-		} finally {
-			try {
-				is.close();
-			} catch(Exception x) {
-				// Ignore close exception.
-			}
 		}
 	}
 

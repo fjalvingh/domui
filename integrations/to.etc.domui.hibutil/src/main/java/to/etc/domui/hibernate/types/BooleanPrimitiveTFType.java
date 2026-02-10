@@ -25,9 +25,7 @@ final public class BooleanPrimitiveTFType implements UserType<Boolean> {
 
 	@Override
 	public Boolean deepCopy(Boolean value) throws HibernateException {
-		if(value == null)
-			return value;
-		return Boolean.valueOf(((Boolean) value).booleanValue());
+		return value;
 	}
 
 	@Override

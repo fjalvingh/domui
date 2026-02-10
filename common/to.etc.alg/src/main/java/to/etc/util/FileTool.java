@@ -48,7 +48,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -68,7 +67,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -96,7 +94,7 @@ public class FileTool {
 	/**
 	 * The seed TS to use as base of names.
 	 */
-	static private long m_seed_ts;
+	static private long m_seedTs;
 
 	/**
 	 * The sequence number.
@@ -147,7 +145,7 @@ public class FileTool {
 
 	@Nullable
 	private static File checkLogDir(@NonNull String s, @NonNull String source) {
-		if(null != s && !s.trim().isEmpty()) {
+		if(!s.trim().isEmpty()) {
 			File f = new File(s);
 			if(!f.exists()) {
 				if(!f.mkdirs())
@@ -226,7 +224,7 @@ public class FileTool {
 	}
 
 	static {
-		m_seed_ts = System.currentTimeMillis();
+		m_seedTs = System.currentTimeMillis();
 	}
 
 	/**
@@ -253,9 +251,9 @@ public class FileTool {
 			if(!of.exists()) {
 				try {
 					ignore(of.createNewFile());
+				} catch(RuntimeException rx) {
+					throw rx;
 				} catch(Exception x) {
-					if(x instanceof RuntimeException)
-						throw (RuntimeException) x;
 					throw new WrappedException(x);
 				}
 				return of;
@@ -264,15 +262,15 @@ public class FileTool {
 	}
 
 	static private String makeName(final String type) {
-		StringBuffer sb = new StringBuffer(32);
+		StringBuilder sb = new StringBuilder(32);
 		sb.append(type);
-		add36(sb, m_seed_ts);
+		add36(sb, m_seedTs);
 		sb.append('-');
 		add36(sb, m_index++);
 		return sb.toString();
 	}
 
-	static private void add36(final StringBuffer sb, long v) {
+	static private void add36(final StringBuilder sb, long v) {
 		if(v > 36)
 			add36(sb, v / 36);
 		v = v % 36;
@@ -325,7 +323,7 @@ public class FileTool {
 	 * there.
 	 */
 	@Deprecated
-	static public boolean dirEmpty(@NonNull File dirf, final Vector<Object> elogb) {
+	static public boolean dirEmpty(@NonNull File dirf, final List<Object> elogb) {
 		boolean hase = false;
 
 		File[] ar = dirf.listFiles();
@@ -338,8 +336,7 @@ public class FileTool {
 				try {
 					if(ar[i].isDirectory())
 						dirEmpty(ar[i], elogb);
-					if(!ar[i].delete())
-						throw new IOException("Delete failed?");
+					Files.delete(ar[i].toPath());
 				} catch(IOException x) {
 					if(elogb != null) {
 						elogb.add(dirf);
@@ -382,16 +379,16 @@ public class FileTool {
 	 * Returns the start position of the filename extension in the string. If
 	 * the string has no extension then this returns -1.
 	 */
-	static public int findFilenameExtension(@NonNull  String fn) {
+	static public int findFilenameExtension(@NonNull String fn) {
 		int slp = fn.lastIndexOf('/');
 		int t = fn.lastIndexOf('\\');
 		if(t > slp)
 			slp = t; // Find last directory separator,
 
 		//-- Now find last dot,
-		int dp = fn.lastIndexOf('.');
-		if(dp < t) // Before dir separator: dot is in directory part,
-			return -1;
+		int dp = fn.lastIndexOf('.', slp);
+		//if(dp < t) // Before dir separator: dot is in directory part,
+		//	return -1;
 		return dp;
 	}
 
@@ -403,9 +400,15 @@ public class FileTool {
 	static public String fileNameSansExtension(@NonNull String fn) {
 		int slp = fn.lastIndexOf('/');
 		int t = fn.lastIndexOf('\\');
-		int start = slp == -1
-			? t == -1 ? 0 : t
-			: slp;
+		int start;
+		if(slp == -1) {
+			if(t == -1)
+				start = 0;
+			else
+				start = t;
+		} else {
+			start = slp;
+		}
 
 		//-- Now find last dot,
 		int dp = fn.lastIndexOf('.');
@@ -470,7 +473,7 @@ public class FileTool {
 			return;
 		}
 		if(destd.exists() && destd.isFile())
-			destd.delete();
+			delete(destd);
 		destd.mkdirs();
 
 		//-- Right: on with the copy then
@@ -564,17 +567,13 @@ public class FileTool {
 	 * Read a file's contents as byte[].
 	 */
 	public static byte[] readFileAsByteArray(@NonNull File file) throws IOException {
-		FileInputStream in = null;
-		try {
-			in = new FileInputStream(file);
+		try(FileInputStream in = new FileInputStream(file)) {
 			int intSize = FileTool.getIntSizeOfFile(file);
 			byte[] data = new byte[intSize];
 			int read = in.read(data);
 			if(read != intSize)
 				throw new IOException("Tried to read " + intSize + " bytes but only got " + read);
 			return data;
-		} finally {
-			FileTool.closeAll(in);
 		}
 	}
 
@@ -594,10 +593,8 @@ public class FileTool {
 		InputStream is = clz.getResourceAsStream(name);
 		if(null == is)
 			return null;
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			copyFile(baos, is);
-			baos.close();
 			return baos.toByteArray();
 		} finally {
 			closeAll(is);
@@ -635,17 +632,17 @@ public class FileTool {
 
 	/**
 	 * mbp, moved here from old DaemonBase with some adaptions. Reads the head
-	 * and tail lines of a text file into the stringbuffer.
+	 * and tail lines of a text file into the StringBuilder.
 	 * The number of lines in the head is at most "headsize". If this
 	 * count is exceeded the read lines will be placed in a circular string buffer
-	 * of size "tailsize", and appended to the stringbuffer when the whole file
+	 * of size "tailsize", and appended to the StringBuilder when the whole file
 	 * has been processed.
 	 * Note that if headsize plus tailsize exceeds the actual number of lines,
-	 * this means that the whole file will be placed in the stringbuffer.
+	 * this means that the whole file will be placed in the StringBuilder.
 	 * <p>
 	 * Intended use is to mail (excerpts from) logfiles from Daemon processes.
 	 */
-	static public void readHeadAndTail(final StringBuffer sb, final File f, final int headsize, final int tailsize) throws Exception {
+	static public void readHeadAndTail(final StringBuilder sb, final File f, final int headsize, final int tailsize) throws Exception {
 		String[] ring = null; // ring buffer for lines if more than N
 		int ringix = 0; // index into ringbuffer
 		int linecount = 0; // lines processed so far.
@@ -660,7 +657,7 @@ public class FileTool {
 						ringix = 0; // rollover back to zero if needed
 					ring[ringix++] = line; // put line in ringbuffer
 				} else {
-					// Copy line to output stringbuffer
+					// Copy line to output StringBuilder
 					sb.append(line); // Add the line,
 					sb.append('\n'); // And a newline,
 					if(linecount > headsize) // Reached requested nr of lines in head ?
@@ -711,21 +708,8 @@ public class FileTool {
 	}
 
 	public static File copyStreamToFile(final InputStream is, File file) throws IOException {
-		OutputStream os = null;
-		try {
-			os = new FileOutputStream(file);
+		try(OutputStream os = new FileOutputStream(file)) {
 			copyFile(os, is);
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {
-			}
 		}
 		return file;
 	}
@@ -994,6 +978,7 @@ public class FileTool {
 	/**
 	 * Opens the jar file and tries to load the plugin.properties file from it.
 	 */
+	@Nullable
 	static public Properties loadPropertiesFromZip(final InputStream is, final String name) throws Exception {
 		try(ZipInputStream zis = new ZipInputStream(is)) {
 			for(; ; ) {
@@ -1073,13 +1058,14 @@ public class FileTool {
 		return uc;
 	}
 
+	@SuppressWarnings("squid:S2093") // You cannot have a null resource, and we need a proper message
 	static public void copyResource(final Writer w, final Class<?> cl, final String rid) throws Exception {
 		Reader r = null;
 		try {
 			InputStream is = cl.getResourceAsStream(rid);
 			if(is == null)
 				throw new IllegalStateException("Missing resource '" + rid + "' at class=" + cl.getName());
-			r = new InputStreamReader(is, "utf-8");
+			r = new InputStreamReader(is, StandardCharsets.UTF_8);
 			copyFile(w, r);
 		} finally {
 			if(r != null)
@@ -1097,31 +1083,16 @@ public class FileTool {
 	 * is deleted before the new contents are added to it.
 	 */
 	public static void zip(final File zipfile, final File dir) throws Exception {
-		if(zipfile.exists())
-			if(!zipfile.delete())
-				throw new IOException("Unable to delete zipfile: " + zipfile);
+		if(zipfile.exists()) {
+			Files.delete(zipfile.toPath());
+		}
 
-		ZipOutputStream zos = null;
-		InputStream is = null;
 		byte[] buf = new byte[8192]; // Copy buffer
-		try {
-			//-- Create the output stream
-			zos = new ZipOutputStream(new FileOutputStream(zipfile));
+		try(ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipfile))) {
 			if(dir.isFile())
 				zipFile(zos, "", dir, buf);
 			else
 				zipDir(zos, "", dir, buf); // Zip the entry passed
-		} finally {
-			if(zos != null)
-				try {
-					zos.close();
-				} catch(Exception x) {
-				}
-			if(is != null)
-				try {
-					is.close();
-				} catch(Exception x) {
-				}
 		}
 	}
 
@@ -1228,7 +1199,6 @@ public class FileTool {
 
 	public static void unzipSingleFile(File dest, InputStream is, long maxFileSize) throws Exception {
 		dest.getParentFile().mkdirs();
-		byte[] buf = new byte[8192];
 		try(ZipInputStream zis = new ZipInputStream(is)) {
 			ZipEntry ze = zis.getNextEntry();
 			if(null == ze) {
@@ -1279,6 +1249,7 @@ public class FileTool {
 		}
 	}
 
+	@SuppressWarnings("squid:S2093") // SonarQube complains about not closing the ZipInputStream, but we return an InputStream that wraps it and will close it when closed, so it's ok.
 	@Nullable
 	static public InputStream getZipContent(final File src, final String name) throws IOException {
 		boolean ok = false;
@@ -1297,6 +1268,7 @@ public class FileTool {
 	 * Returns a stream which is the uncompressed data stream for a zip file
 	 * component.
 	 */
+	@SuppressWarnings("squid:S2093")
 	@Nullable
 	static public InputStream getZipContent(@NonNull final InputStream zipis, @NonNull final String name) throws IOException {
 		ZipInputStream zis = null;
@@ -1359,6 +1331,7 @@ public class FileTool {
 				if(zis != null)
 					zis.close();
 			} catch(Exception x) {
+				// Ignore
 			}
 		}
 	}
@@ -1373,7 +1346,7 @@ public class FileTool {
 	 */
 	@NonNull
 	static public byte[][] loadByteBuffers(@NonNull final InputStream is) throws IOException {
-		ArrayList<byte[]> al = new ArrayList<byte[]>();
+		ArrayList<byte[]> al = new ArrayList<>();
 		byte[] buf = new byte[8192];
 		int off = 0;
 		for(; ; ) {
@@ -1403,14 +1376,8 @@ public class FileTool {
 	 * Load an entire file in a byte buffer set.
 	 */
 	static public byte[][] loadByteBuffers(final File in) throws IOException {
-		InputStream is = new FileInputStream(in);
-		try {
+		try(InputStream is = new FileInputStream(in)) {
 			return loadByteBuffers(is);
-		} finally {
-			try {
-				is.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -1418,14 +1385,8 @@ public class FileTool {
 	 * Save the data in byte buffers to a file.
 	 */
 	static public void save(final File of, final byte[][] data) throws IOException {
-		OutputStream os = new FileOutputStream(of);
-		try {
+		try(OutputStream os = new FileOutputStream(of)) {
 			save(os, data);
-		} finally {
-			try {
-				os.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -1458,14 +1419,8 @@ public class FileTool {
 	 * Save the data in byte array to a file.
 	 */
 	static public void save(final File of, final byte[] data) throws IOException {
-		OutputStream os = new FileOutputStream(of);
-		try {
+		try(OutputStream os = new FileOutputStream(of)) {
 			os.write(data);
-		} finally {
-			try {
-				os.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -1494,7 +1449,7 @@ public class FileTool {
 	static public void writeString(final OutputStream os, String s) throws IOException {
 		if(s == null)
 			s = "";
-		byte[] data = s.getBytes("UTF-8");
+		byte[] data = s.getBytes(StandardCharsets.UTF_8);
 		//        msg("hex of '"+s+"' is "+StringTool.toHex(data)+" ("+data.length+" bytes)");
 		writeInt(os, data.length);
 		os.write(data);
@@ -1524,7 +1479,7 @@ public class FileTool {
 		byte[] data = new byte[sl];
 		if(is.read(data) != sl)
 			throw new IOException("String could not be fully read");
-		return new String(data, "UTF-8");
+		return new String(data, StandardCharsets.UTF_8);
 	}
 
 
@@ -1532,115 +1487,115 @@ public class FileTool {
 	/*	CODING:	Logging helpers.									*/
 	/*--------------------------------------------------------------*/
 
-	static public InputStream wrapInputStream(final InputStream rawStream, final ILogSink s, final int maxinmemory) throws Exception {
-		//-- Read the input stream and copy to memory or file.
-		File tempfile = null;
-		byte[] buf = new byte[maxinmemory];
-		InputStream is = rawStream;
-		int off = 0;
+	//static public InputStream wrapInputStream(final InputStream rawStream, final ILogSink s, final int maxinmemory) throws Exception {
+	//	//-- Read the input stream and copy to memory or file.
+	//	File tempfile = null;
+	//	byte[] buf = new byte[maxinmemory];
+	//	InputStream is = rawStream;
+	//	int off = 0;
+	//
+	//	//-- Initial read of a buffer. Exit if the buffer is full AND more data is available(!)
+	//	for(; ; ) {
+	//		int szleft = buf.length - off; // #bytes left in buffert
+	//		if(szleft == 0) // Buffer overflow: need big file.
+	//			break;
+	//
+	//		int szread = is.read(buf, off, szleft); // Read fully,
+	//		if(szread == -1) {
+	//			//-- Got EOF within single buffer: no need to read further, use memory stream. Off now contains the length read totally. Start to dump the data,
+	//			StringBuilder sb = new StringBuilder(off * 4);
+	//			sb.append("Raw INPUT dump of the input stream:\n");
+	//			for(int doff = 0; doff < off; doff += 32) {
+	//				StringTool.arrayToDumpLine(sb, buf, doff, 32, buf.length);
+	//				sb.append("\n");
+	//			}
+	//			sb.append("Total size of the input stream is " + off + " bytes\n");
+	//			s.log(sb.toString());
+	//			return new ByteArrayInputStream(buf, 0, off); // Return the memory based copy.
+	//		}
+	//
+	//		//-- Read completed, but room to spare: try again,
+	//		off += szread;
+	//	}
+	//
+	//	//-- Ok: the buffer overflowed. We allocate a tempfile and dump the data in there.
+	//	tempfile = File.createTempFile("soapin", ".bin");
+	//	try {
+	//		StringBuilder sb = new StringBuilder(off * 4);
+	//		try(OutputStream os = new FileOutputStream(tempfile)) {
+	//			os.write(buf); // Copy what's already read.
+	//
+	//			//-- Dump what's already read into a string thing
+	//			sb.append("Raw INPUT dump of the input stream:\n");
+	//			int doff = 0;
+	//			for(; doff < buf.length; doff += 32) {
+	//				StringTool.arrayToDumpLine(sb, buf, doff, 32, buf.length);
+	//				sb.append("\n");
+	//			}
+	//
+	//			//-- Now continue reading buffers, dumping 'm and adding them to the file.
+	//			for(; ; ) {
+	//				int szread = is.read(buf);
+	//				if(szread <= 0)
+	//					break;
+	//
+	//				//-- Push data read to the overflow file
+	//				os.write(buf, 0, szread);
+	//
+	//				//-- Log whatever's read,
+	//				for(int rlen = 0; rlen < szread; rlen += 32) {
+	//					StringTool.arrayToDumpLine(sb, buf, rlen, 32, buf.length);
+	//					sb.append("\n");
+	//					doff += 32;
+	//				}
+	//				off += szread;
+	//			}
+	//			os.close();
+	//		}
+	//
+	//		//-- Log the data,
+	//		sb.append("Total size of the input stream is ").append(off).append(" bytes\n");
+	//		s.log(sb.toString());
+	//		final InputStream tis = new FileInputStream(tempfile);
+	//		final File del = tempfile;
+	//		tempfile = null;
+	//
+	//		return new InputStream() {
+	//			@Override
+	//			public int read() throws IOException {
+	//				return tis.read();
+	//			}
+	//
+	//			@Override
+	//			public int read(final byte[] b, final int xoff, final int len) throws IOException {
+	//				return tis.read(b, xoff, len);
+	//			}
+	//
+	//			@Override
+	//			public void close() throws IOException {
+	//				tis.close();
+	//				delete(del);
+	//			}
+	//		};
+	//	} finally {
+	//		try {
+	//			if(tempfile != null)
+	//				delete(tempfile);
+	//		} catch(Exception x) {
+	//			// Ignore
+	//		}
+	//	}
+	//}
 
-		//-- Initial read of a buffer. Exit if the buffer is full AND more data is available(!)
-		for(; ; ) {
-			int szleft = buf.length - off; // #bytes left in buffert
-			if(szleft == 0) // Buffer overflow: need big file.
-				break;
-
-			int szread = is.read(buf, off, szleft); // Read fully,
-			if(szread == -1) {
-				//-- Got EOF within single buffer: no need to read further, use memory stream. Off now contains the length read totally. Start to dump the data,
-				StringBuilder sb = new StringBuilder(off * 4);
-				sb.append("Raw INPUT dump of the input stream:\n");
-				for(int doff = 0; doff < off; doff += 32) {
-					StringTool.arrayToDumpLine(sb, buf, doff, 32, buf.length);
-					sb.append("\n");
-				}
-				sb.append("Total size of the input stream is " + off + " bytes\n");
-				s.log(sb.toString());
-				return new ByteArrayInputStream(buf, 0, off); // Return the memory based copy.
-			}
-
-			//-- Read completed, but room to spare: try again,
-			off += szread;
-		}
-
-		//-- Ok: the buffer overflowed. We allocate a tempfile and dump the data in there.
-		tempfile = File.createTempFile("soapin", ".bin");
-		try {
-			StringBuilder sb = new StringBuilder(off * 4);
-			try(OutputStream os = new FileOutputStream(tempfile)) {
-				os.write(buf); // Copy what's already read.
-
-				//-- Dump what's already read into a string thing
-				sb.append("Raw INPUT dump of the input stream:\n");
-				int doff = 0;
-				for(; doff < buf.length; doff += 32) {
-					StringTool.arrayToDumpLine(sb, buf, doff, 32, buf.length);
-					sb.append("\n");
-				}
-
-				//-- Now continue reading buffers, dumping 'm and adding them to the file.
-				for(; ; ) {
-					int szread = is.read(buf);
-					if(szread <= 0)
-						break;
-
-					//-- Push data read to the overflow file
-					os.write(buf, 0, szread);
-
-					//-- Log whatever's read,
-					for(int rlen = 0; rlen < szread; rlen += 32) {
-						StringTool.arrayToDumpLine(sb, buf, rlen, 32, buf.length);
-						sb.append("\n");
-						doff += 32;
-					}
-					off += szread;
-				}
-				os.close();
-			}
-
-			//-- Log the data,
-			sb.append("Total size of the input stream is ").append(off).append(" bytes\n");
-			s.log(sb.toString());
-			final InputStream tis = new FileInputStream(tempfile);
-			final File del = tempfile;
-			tempfile = null;
-
-			return new InputStream() {
-				@Override
-				public int read() throws IOException {
-					return tis.read();
-				}
-
-				@Override
-				public int read(final byte[] b, final int xoff, final int len) throws IOException {
-					return tis.read(b, xoff, len);
-				}
-
-				@Override
-				public void close() throws IOException {
-					tis.close();
-					delete(del);
-				}
-			};
-		} finally {
-			try {
-				if(tempfile != null)
-					delete(tempfile);
-			} catch(Exception x) {
-				// Ignore
-			}
-		}
-	}
-
-	static public InputStream copyAndDumpStream(StringBuilder tgt, InputStream in, String encoding) throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(8192);
-		copyFile(bos, in);
-		bos.close();
-
-		byte[] data = bos.toByteArray(); // Data read from stream;
-		tgt.append(new String(data, encoding));
-		return new ByteArrayInputStream(data);
-	}
+	//static public InputStream copyAndDumpStream(StringBuilder tgt, InputStream in, String encoding) throws IOException {
+	//	ByteArrayOutputStream bos = new ByteArrayOutputStream(8192);
+	//	copyFile(bos, in);
+	//	bos.close();
+	//
+	//	byte[] data = bos.toByteArray(); // Data read from stream;
+	//	tgt.append(new String(data, encoding));
+	//	return new ByteArrayInputStream(data);
+	//}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Serialization helpers.								*/
@@ -1731,10 +1686,9 @@ public class FileTool {
 	}
 
 	static private void tryClose(Object v) throws Exception {
-		if(v instanceof AutoCloseable) {
-			((AutoCloseable) v).close();
-		} else if(v instanceof File) {
-			File f = (File) v;
+		if(v instanceof AutoCloseable ac) {
+			ac.close();
+		} else if(v instanceof File f) {
 			if(f.isFile())
 				delete(f);
 			else
@@ -1836,7 +1790,7 @@ public class FileTool {
 	static private void compareDirectories(IDirectoryDelta delta, StringBuilder sb, File a, File b) throws Exception {
 		File[] aar = a.listFiles();
 		File[] bar = b.listFiles();
-		Set<String> bset = new HashSet<String>(); // Set containing all 'b' files.
+		Set<String> bset = new HashSet<>(); // Set containing all 'b' files.
 		for(File bf : bar)
 			bset.add(bf.getName());
 
@@ -1907,24 +1861,10 @@ public class FileTool {
 	 * Saves blob into specified file.
 	 */
 	static public void saveBlob(@NonNull File out, @NonNull Blob in) throws Exception {
-		InputStream is = null;
-		OutputStream os = null;
-		try {
-			is = in.getBinaryStream();
-			os = new FileOutputStream(out);
+		try(InputStream is = in.getBinaryStream();
+			OutputStream os = new FileOutputStream(out)
+		) {
 			copyFile(os, is);
-			os.close();
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -1950,16 +1890,13 @@ public class FileTool {
 	/**
 	 * Returns number of lines in a specified file.
 	 */
+	@SuppressWarnings("squid:S2677")
 	public static int getNumberOfLines(@NonNull File file) throws IOException {
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(file));
+		try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
 			int lines = 0;
 			while(reader.readLine() != null)
 				lines++;
 			return lines;
-		} finally {
-			FileTool.closeAll(reader);
 		}
 	}
 
@@ -1988,11 +1925,7 @@ public class FileTool {
 		InputStream is = root.getResourceAsStream(name);
 		if(null == is)
 			throw new IllegalStateException("JUnit test: missing test resource with base=" + root + " and name " + name);
-		try {
-			return new InputStreamReader(is, "utf-8");
-		} catch(UnsupportedEncodingException x) {
-			throw WrappedException.wrap(x);
-		}
+		return new InputStreamReader(is, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -2041,7 +1974,6 @@ public class FileTool {
 		byte[][] buffers;
 		try(ByteBufferOutputStream bbos = new ByteBufferOutputStream()) {
 			FileTool.copyFile(bbos, is);
-			bbos.close();
 			buffers = bbos.getBuffers();
 		}
 		try(FileOutputStream fos = new FileOutputStream(target)) {

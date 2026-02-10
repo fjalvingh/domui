@@ -37,11 +37,11 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionBindingEvent;
 import jakarta.servlet.http.HttpSessionBindingListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Generic session implementation. The session is specific for the application, and the
@@ -67,7 +67,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	final private DomApplication m_application;
 
 	@NonNull
-	final private Map<String, Object> m_objCache = new HashMap<String, Object>();
+	final private Map<String, Object> m_objCache = new HashMap<>();
 
 	/**
 	 * Not-null if some other request is executing for this session. Prevent multi-user access
@@ -79,15 +79,16 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	private int m_exceptionRetryCount;
 
 	@NonNull
-	private Map<String, WindowSession> m_windowMap = new HashMap<String, WindowSession>();
+	private Map<String, WindowSession> m_windowMap = new HashMap<>();
 
 	@NonNull
-	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
+	private Map<String, Object> m_attributeMap = new HashMap<>();
 
 	public AppSession(@NonNull DomApplication da) {
 		m_application = da;
 	}
 
+	@SuppressWarnings("squid:S1181")
 	final public void internalDestroy() {
 		LOG.debug("Destroying AppSession " + this);
 		destroyWindowSessions();
@@ -110,19 +111,23 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	/**
 	 * Override to get control when this user's session is destroyed.
 	 */
-	public void destroy() {}
+	public void destroy() {
+	}
 
 	/**
 	 * Unused, needed for interface.
+	 *
 	 * @see jakarta.servlet.http.HttpSessionBindingListener#valueBound(jakarta.servlet.http.HttpSessionBindingEvent)
 	 */
 	@Override
-	final public void valueBound(final HttpSessionBindingEvent arg0) {}
+	final public void valueBound(final HttpSessionBindingEvent arg0) {
+	}
 
 	/**
 	 * Called for non-debug sessions, where this is directly bound to a
 	 * HttpSession. When that session closes this causes the destroy() methods
 	 * to be called.
+	 *
 	 * @see jakarta.servlet.http.HttpSessionBindingListener#valueUnbound(jakarta.servlet.http.HttpSessionBindingEvent)
 	 */
 	@Override
@@ -141,6 +146,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Session locking.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * INTERNAL USE ONLY.
 	 * Enter the session-controlled monitor: only one thread at-a-time may
@@ -152,7 +158,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		Thread t = Thread.currentThread();
 
 		synchronized(this) {
-			for(;;) {
+			for(; ; ) {
 				if(m_lockingThread == null) { // Not claimed at this point?
 					m_lockingThread = t; // Claimed by me.
 					return;
@@ -189,6 +195,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	/*--------------------------------------------------------------*/
 	/*	CODING:	WindowSession management							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Discards all of the WindowSessions, and force them to destroy themselves.
 	 */
@@ -196,7 +203,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		Map<String, WindowSession> map;
 		synchronized(this) {
 			map = m_windowMap;
-			m_windowMap = new HashMap<String, WindowSession>();
+			m_windowMap = new HashMap<>();
 		}
 
 		for(WindowSession cm : map.values()) {
@@ -212,12 +219,12 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 */
 	final public void internalCheckExpiredWindowSessions() {
 		List<WindowSession> droplist = null;
-		long ets = System.currentTimeMillis() - (long) m_application.getWindowSessionTimeout() * 1000 * 60l;
+		long ets = System.currentTimeMillis() - (long) m_application.getWindowSessionTimeout() * 1000 * 60L;
 		synchronized(this) {
 			for(WindowSession cm : m_windowMap.values()) {
 				if(cm.getLastUsed() < ets) {
 					if(droplist == null)
-						droplist = new ArrayList<WindowSession>(10);
+						droplist = new ArrayList<>(10);
 					droplist.add(cm);
 				}
 			}
@@ -275,8 +282,8 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 */
 	private synchronized boolean resurrectWindowSession(@NonNull final WindowSession cm) {
 		cm.internalTouched();
-		int tm = cm.getObituaryTimer();							// Obituary timer has started?
-		if(tm == -1)											// Nope, nothing wrong
+		int tm = cm.getObituaryTimer();                            // Obituary timer has started?
+		if(tm == -1)                                            // Nope, nothing wrong
 			return true;
 		cm.setObituaryTimer(-1);
 		boolean res = Janitor.getJanitor().cancelJob(tm);
@@ -300,8 +307,8 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * are always close together in time. For now we do not mark a WindowSession as possibly deleted
 	 * if it's previous request is before but close to the obituary's request.</p>
 	 *
-	 * @param cid			The WindowSession for which the obituary was received.
-	 * @param obitPageTag	The page tag of the page that has died.
+	 * @param cid         The WindowSession for which the obituary was received.
+	 * @param obitPageTag The page tag of the page that has died.
 	 */
 	public synchronized void internalObituaryReceived(final String cid, final int obitPageTag) throws Exception {
 		final WindowSession cm = m_windowMap.get(cid);
@@ -316,7 +323,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			LOG.info("Obituary ignored: the kill timer has already been started");
 			return;
 		}
-		if(obitPageTag != cm.internalGetLastPageTag()) {		// Some other page is already present?
+		if(obitPageTag != cm.internalGetLastPageTag()) {        // Some other page is already present?
 			LOG.info("Obituary ignored: the last page has a different page tag (the corpse arrived too late)");
 			logUser(cid, "Obituary ignored: the last page has a different page tag (the corpse arrived too late)");
 			return;
@@ -353,11 +360,11 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			LOG.info("session: destroying WindowSession=" + cm.getWindowID() + " because it's obituary was received.");
 		logUser(cm.getWindowID(), "session: destroying WindowSession=" + cm.getWindowID() + " because it's obituary was received.");
 		synchronized(this) {
-			if(cm.getObituaryTimer() == -1) 					// Was cancelled?
-				return; 										// Do not drop it then.
-			m_windowMap.remove(cm.getWindowID()); 				// Atomically remove the thingy.
+			if(cm.getObituaryTimer() == -1)                    // Was cancelled?
+				return;                                        // Do not drop it then.
+			m_windowMap.remove(cm.getWindowID());                // Atomically remove the thingy.
 		}
-		cm.destroyWindow(false);								// Discard all of it's contents.
+		cm.destroyWindow(false);                                // Discard all of it's contents.
 		m_application.internalCallWindowSessionDestroyed(cm);
 	}
 
@@ -376,6 +383,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IAttributeContainer implementation.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
@@ -388,27 +396,25 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	@Override
 	public void setAttribute(@NonNull String name, @Nullable Object value) {
-		if(m_attributeMap == Collections.EMPTY_MAP)
-			m_attributeMap = new HashMap<String, Object>();
 		if(value == null) {
 			Object item = m_attributeMap.remove(name);
-			if(item instanceof IAppSessionBindingListener)
-				((IAppSessionBindingListener) item).unboundFromSession(this, name);
+			if(item instanceof IAppSessionBindingListener bl)
+				bl.unboundFromSession(this, name);
 		} else {
 			m_attributeMap.put(name, value);
-			if(value instanceof IAppSessionBindingListener)
-				((IAppSessionBindingListener) value).boundToSession(this, name);
+			if(value instanceof IAppSessionBindingListener bl)
+				bl.boundToSession(this, name);
 		}
 	}
 
-	private void	unbindAll() {
+	private void unbindAll() {
 		if(m_attributeMap.isEmpty())
 			return;
-		for(String name: m_attributeMap.keySet()) {
-			Object value = m_attributeMap.get(name);
-			if(value instanceof IAppSessionBindingListener) {
+		for(Entry<String, Object> en : m_attributeMap.entrySet()) {
+			Object value = en.getValue();
+			if(value instanceof IAppSessionBindingListener bl) {
 				try {
-					((IAppSessionBindingListener) value).unboundFromSession(this, name);
+					bl.unboundFromSession(this, en.getKey());
 				} catch(Exception x) {
 					LOG.error("Failure in unbind: " + x);
 				}
@@ -420,6 +426,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Saves this session's windows and their shelve stacks into the HttpSession allowing
 	 * a session to be "resurrected" after a development mode reload.
 	 */
+	@SuppressWarnings("squid:S2441")
 	synchronized void saveOldState(@NonNull HttpSession httpSession) {
 		for(WindowSession ws : m_windowMap.values()) {
 			List<SavedPage> wl = ws.getSavedPageList();

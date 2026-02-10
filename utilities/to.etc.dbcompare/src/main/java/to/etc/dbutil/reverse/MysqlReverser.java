@@ -33,6 +33,7 @@ public class MysqlReverser extends JDBCReverser {
 	 * they are... So return the databases and treat them as schema's.
 	 */
 	@Override
+	@SuppressWarnings("squid:S2095")		// Connection is optionally closed
 	protected Set<DbSchema> getSchemasOnly(boolean lazily) throws Exception {
 		Connection dbc = getDataSource().getConnection();
 		try {

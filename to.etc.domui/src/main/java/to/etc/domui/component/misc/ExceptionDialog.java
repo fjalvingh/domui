@@ -67,6 +67,7 @@ final public class ExceptionDialog {
 		return null;
 	}
 
+	@SuppressWarnings("squid:S1872") // We really want the generic class name for this, to avoid a dependency on JPA/Hibernate or anything else
 	@Nullable
 	static private ExceptionPresentation translateOptimisticLock(Exception x) {
 		if(x.getClass().getSimpleName().equals("OptimisticLockException"))
@@ -92,8 +93,8 @@ final public class ExceptionDialog {
 
 	@Nullable
 	private static BetterSQLException tryUnwrapBetterSQLException(Throwable x, int level) {
-		if (x instanceof BetterSQLException) {
-			return (BetterSQLException) x;
+		if(x instanceof BetterSQLException bsx) {
+			return bsx;
 		}
 		Throwable cause = x.getCause();
 		if(level > 5 || null == cause) {
@@ -121,14 +122,14 @@ final public class ExceptionDialog {
 	 */
 	@Nullable
 	private static SQLException extractSQLException(Throwable x) {
-		if(x instanceof SQLException)
-			return (SQLException) x;
-		if(x instanceof WrappedException)
-			return extractSQLException(((WrappedException) x).getCause());
-		if(x instanceof BetterSQLException)
-			return extractSQLException(((BetterSQLException) x).getCause());
-		if(x instanceof InvocationTargetException)
-			return extractSQLException(((InvocationTargetException) x).getCause());
+		if(x instanceof BetterSQLException bsx)
+			return extractSQLException(bsx.getCause());
+		if(x instanceof SQLException sx)
+			return sx;
+		if(x instanceof WrappedException wx)
+			return extractSQLException(wx.getCause());
+		if(x instanceof InvocationTargetException itx)
+			return extractSQLException(itx.getCause());
 		return null;
 	}
 
@@ -163,7 +164,7 @@ final public class ExceptionDialog {
 				//.text(message + "\n" + x.toString() + "\n\n" + sb)
 				.modal()
 				.resizable()
-				//.size(700, 500)
+			//.size(700, 500)
 			;
 			return;
 		}
@@ -176,7 +177,7 @@ final public class ExceptionDialog {
 			.text(presentation.getMessage())
 			.modal()
 			.resizable()
-			//.size(700, 500)
+		//.size(700, 500)
 		;
 	}
 

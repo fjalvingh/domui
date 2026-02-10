@@ -35,14 +35,14 @@ final public class HtmlUtil {
 
 	private HtmlUtil() {}
 
-	private static final Set<String> VALID_ELEMENT_NAMES = new HashSet<String>(Arrays.asList(HTMLElementName.BR, HTMLElementName.P, HTMLElementName.B, HTMLElementName.I, HTMLElementName.U,
+	private static final Set<String> VALID_ELEMENT_NAMES = new HashSet<>(Arrays.asList(HTMLElementName.BR, HTMLElementName.P, HTMLElementName.B, HTMLElementName.I, HTMLElementName.U,
 		HTMLElementName.OL, HTMLElementName.UL, HTMLElementName.LI, HTMLElementName.A, HTMLElementName.CODE, HTMLElementName.DIV, HTMLElementName.STRIKE, HTMLElementName.STRONG,
 		HTMLElementName.BLOCKQUOTE, HTMLElementName.SUP, HTMLElementName.SUB, HTMLElementName.HR
 		//, HTMLElementName.H1, HTMLElementName.H2, HTMLElementName.H3, HTMLElementName.H4, HTMLElementName.H5, HTMLElementName.H6, HTMLElementName.EM
 		//, HTMLElementName.DD, HTMLElementName.DL, HTMLElementName.DT, HTMLElementName.FONT, HTMLElementName.PRE
 	));
 
-	private static final Set<String> VALID_ATTRIBUTE_NAMES = new HashSet<String>(Arrays.asList("id", "class", "href", "target", "title", "color", "face", "size", "style"));
+	private static final Set<String> VALID_ATTRIBUTE_NAMES = new HashSet<>(Arrays.asList("id", "class", "href", "target", "title", "color", "face", "size", "style"));
 
 	private static final Object VALID_MARKER = new Object();
 
@@ -87,7 +87,6 @@ final public class HtmlUtil {
 		sb.setLength(0);
 		try {
 			StringTool.entitiesToUnicode(sb, outputDocument.toString(), true);	// jal 20131221 Do NOT convert quoted < and >!!
-			pseudoHTML = sb.toString();
 		} catch(IOException x) {
 			//-- Sigh.
 		}
@@ -121,22 +120,21 @@ final public class HtmlUtil {
 
 		if(!VALID_ELEMENT_NAMES.contains(elementName))
 			return false;
-		if(tag.getTagType() == StartTagType.NORMAL) {
+		if(StartTagType.NORMAL.equals(tag.getTagType())) {
 			Element element = tag.getElement();
 			if(isParentInCodeTag(tag)) {
 				//-- Content inside <code> tag - replace all divs and br's with crlf
-				if(elementName == HTMLElementName.DIV) {
+				if(HTMLElementName.DIV.equals(elementName)) {
 					return false;
-				} else if(elementName == HTMLElementName.BR) {
+				} else if(HTMLElementName.BR.equals(elementName)) {
 					outputDocument.replace(tag, "\n");
 					return true;
 				}
-			} else if(HTMLElementName.CODE == elementName) {
+			} else if(HTMLElementName.CODE.equals(elementName)) {
 				//-- If this is </code><code> (we're at the start element) remove both.
 				Tag prev = tag.getPreviousTag();
-				if(prev != null && prev.getTagType() == EndTagType.NORMAL && prev.getName() == HTMLElementName.CODE) {
+				if(prev != null && EndTagType.NORMAL.equals(prev.getTagType()) && HTMLElementName.CODE.equals(prev.getName())) {
 					outputDocument.remove(prev);
-//					outputDocument.remove(tag);
 					outputDocument.replace(tag, "\n");
 				}
 				return true;
@@ -144,7 +142,7 @@ final public class HtmlUtil {
 				if(element.getEndTag() == null)
 					return false; 										// reject start tag if its required end tag is missing
 			} else if(HTMLElements.getEndTagOptionalElementNames().contains(elementName)) {
-				if(elementName == HTMLElementName.LI && !isValidLITag(tag))
+				if(HTMLElementName.LI.equals(elementName) && !isValidLITag(tag))
 					return false; 										// reject invalid LI tags
 				if(element.getEndTag() == null)
 					outputDocument.insert(element.getEnd(), getEndTagHTML(elementName)); // insert optional end tag if it is missing
@@ -156,13 +154,11 @@ final public class HtmlUtil {
 		} else if(tag.getTagType() == EndTagType.NORMAL) {
 			if(tag.getElement() == null)
 				return false;											// reject end tags that aren't associated with a start tag
-			if(elementName == HTMLElementName.LI && !isValidLITag(tag))
+			if(HTMLElementName.LI.equals(elementName) && !isValidLITag(tag))
 				return false;											// reject invalid LI tags
-			if(isParentInCodeTag(tag)) {
-				if(elementName == HTMLElementName.DIV) {
-					outputDocument.replace(tag, "\n");
-					return false;
-				}
+			if(isParentInCodeTag(tag) && HTMLElementName.DIV.equals(elementName)) {
+				outputDocument.replace(tag, "\n");
+				return false;
 			}
 			CharSequence text = getEndTagHTML(elementName);
 			String tagtext = tag.toString();
@@ -180,7 +176,7 @@ final public class HtmlUtil {
 			dad = dad.getParentElement();
 			if(dad == null)
 				return false;
-			if(dad.getName() == HTMLElementName.CODE) {
+			if(HTMLElementName.CODE.equals(dad.getName())) {
 				return true;
 			}
 		}
@@ -193,7 +189,7 @@ final public class HtmlUtil {
 			return false; // ignore LI elements without a parent
 		if(parentElement.getStartTag().getUserData() != VALID_MARKER)
 			return false; // ignore LI elements who's parent is not valid
-		return parentElement.getName() == HTMLElementName.UL || parentElement.getName() == HTMLElementName.OL; // only accept LI tags who's immediate parent is UL or OL.
+		return HTMLElementName.UL.equals(parentElement.getName()) || HTMLElementName.OL.equals(parentElement.getName()); // only accept LI tags who's immediate parent is UL or OL.
 	}
 
 	private static void reencodeTextSegment(Source source, OutputDocument outputDocument, int begin, int end, boolean formatWhiteSpace) {

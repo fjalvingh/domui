@@ -38,19 +38,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FileImageRetriever implements IImageRetriever {
-	static private final long MIN_LIVE_TIME = 5 * 60 * 1000;
+	static private final long MIN_LIVE_TIME = 5L * 60 * 1000;
 
 	static private final String KEY = "RqTf";
 
 	static private class FileRef {
-		public File m_file;
+		File m_file;
 
-		public String m_mime;
-		//		public String m_hash;
+		String m_mime;
 
-		public String m_key;
+		String m_key;
 
-		public long m_validTill;
+		long m_validTill;
 
 		public FileRef() {
 		}
@@ -58,14 +57,12 @@ public class FileImageRetriever implements IImageRetriever {
 
 	/**
 	 * Creates a safe file reference. The key is stored in the session.
-	 * @param what
-	 * @return
 	 */
 	static public String createFileURL(File what, String mime, String... convs) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		Map<String, FileRef> map = (Map<String, FileRef>) ctx.getSession().getAttribute(KEY);
 		if(map == null) {
-			map = new HashMap<String, FileRef>();
+			map = new HashMap<>();
 			ctx.getSession().setAttribute(KEY, map);
 		}
 
@@ -91,10 +88,8 @@ public class FileImageRetriever implements IImageRetriever {
 		long ets = ts + MIN_LIVE_TIME;
 		FileRef match = null;
 		for(FileRef fr : new ArrayList<FileRef>(map.values())) {
-			if(fr.m_file.equals(what)) {
-				if(fr.m_validTill > ets)
-					match = fr;
-			}
+			if(fr.m_file.equals(what) && fr.m_validTill > ets)
+				match = fr;
 			if(fr.m_validTill < ts) {
 				map.remove(fr.m_key);
 			}

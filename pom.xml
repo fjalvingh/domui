@@ -85,7 +85,7 @@
         <jetty.skip>${maven.failsafe.test.skip}</jetty.skip>
 
         <!-- SONAR -->
-        <sonar.organization>fjalvingh</sonar.organization>
+        <sonar.organization>fjalvingh-github</sonar.organization>
 <!--        <sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
         <sonar.projectKey>fjalvingh_domui</sonar.projectKey>
 
@@ -1033,7 +1033,7 @@
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>5.2.0.4988</version>
+				<version>5.5.0.6356</version>
             </plugin>
 
             <!-- (jal) generate jars for test classes. -->

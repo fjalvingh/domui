@@ -30,7 +30,6 @@ import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.component.misc.ExceptionDialog;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
-import to.etc.domui.dom.css.CssBase;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.VisibilityType;
 import to.etc.domui.dom.errors.ErrorFenceHandler;
@@ -400,7 +399,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			//-- This *must* be added to the BODY node, and this node must be attached for that to work.. Is it?
 			if(!isAttached())
 				throw new ProgrammerErrorException("The component " + nd.getClass() + " is defined as 'must be added to the body' but the node it is added to " + this + " is not yet added to the page.");
-			getPage().internalAddFloater(this, (FloatingDiv) nd);
+			getPage().internalAddFloater((FloatingDiv) nd);
 			return nd;
 		}
 
@@ -422,7 +421,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			if(!isAttached())
 				throw new ProgrammerErrorException("The component " + nd.getClass() + " is defined as 'must be added to the body' but the node it is added to " + this
 					+ " is not yet added to the page.");
-			getPage().internalAddFloater(this, (FloatingDiv) nd);
+			getPage().internalAddFloater((FloatingDiv) nd);
 			return;
 		}
 		internalAdd(index, nd);

@@ -87,19 +87,18 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * for the values to show. This is a default for all relations in which
 	 * this class is the parent; it can be overridden in individual relations.
 	 */
-	private Class< ? extends IComboDataSet< ? >> m_comboDataSet;
+	private Class<? extends IComboDataSet<?>> m_comboDataSet;
 
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
 	 * that field as a string.
-	 * @return
 	 */
-	private Class< ? extends ILabelStringRenderer< ? >> m_comboLabelRenderer;
+	private Class<? extends ILabelStringRenderer<?>> m_comboLabelRenderer;
 
-	private Class< ? extends IRenderInto<T>> m_comboNodeRenderer;
+	private Class<? extends IRenderInto<T>> m_comboNodeRenderer;
 
 	@NonNull
-	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.emptyList();
 
 	private IQueryManipulator<T> m_queryManipulator;
 
@@ -109,35 +108,33 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
 	 * data pertaining to the looked-up item as a single element on the "edit" screen.
 	 */
-	private Class< ? extends IRenderInto<T>> m_lookupFieldRenderer;
+	private Class<? extends IRenderInto<T>> m_lookupFieldRenderer;
 
 	/**
 	 * The default properties to show in a lookup field's instance display.
 	 */
 	@NonNull
-	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.emptyList();
 
 	/**
 	 * The default properties to show in a {@link LookupInput} field's lookup data table.
 	 */
 	@NonNull
-	private List<DisplayPropertyMetaModel> m_lookupFieldTableProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel> m_lookupFieldTableProperties = Collections.emptyList();
 
 	/**
 	 * The search properties to use in a {@link LookupInput} field.
 	 */
 	@NonNull
-	private List<SearchPropertyMetaModel> m_lookupFieldSearchProperties = Collections.EMPTY_LIST;
+	private List<SearchPropertyMetaModel> m_lookupFieldSearchProperties = Collections.emptyList();
 
 	/**
 	 * The keyword search properties to use in a {@link LookupInput} field.
 	 */
 	@NonNull
-	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
+	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.emptyList();
 
 	public DefaultPropertyMetaModel(@NonNull DefaultClassMetaModel classModel, PropertyInfo descriptor, ClassMetaModel valueModel) {
-		if(classModel == null)
-			throw new IllegalStateException("Cannot be null dude");
 		m_accessor = new JavaPropertyAccessor<>(descriptor);
 		m_valueModel = valueModel;
 		m_classModel = classModel;
@@ -185,10 +182,10 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
 //			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
-			if(c instanceof Exception) {
-				throw (Exception) c;
-			} else if(c instanceof Error)
-				throw (Error) c;
+			if(c instanceof Exception ex) {
+				throw ex;
+			} else if(c instanceof Error err)
+				throw err;
 			else
 				throw itx;
 		} catch(IllegalArgumentException x) {
@@ -210,21 +207,24 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		} catch(InvocationTargetException itx) {
 //			System.err.println(itx + " (in calling " + m_descriptor.getGetter() + " with input object " + in + ")");
 			Throwable c = itx.getCause();
-			if(c instanceof Exception)
-				throw (Exception) c;
-			else if(c instanceof Error)
-				throw (Error) c;
+			if(c instanceof Exception ex)
+				throw ex;
+			else if(c instanceof Error err)
+				throw err;
 			else
 				throw itx;
 		} catch(Exception x) {
 			try {
 				LOG.error(x + " in calling getter for property " + m_name + " with input object " + targetInstance + "(" + m_accessor + ")");
-			} catch(Exception xx) {}
+			} catch(Exception xx) {
+				//-- Ignore logging errors, we want to throw the original exception, not a logging error.
+			}
 			throw x;
 		}
 	}
 
-	@Override public boolean isReadOnly() {
+	@Override
+	public boolean isReadOnly() {
 		return !m_accessor.isMutable() || getReadOnly() == YesNoType.YES;
 	}
 
@@ -252,7 +252,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			return BOOLS;
 		}
 		if(Enum.class.isAssignableFrom(getActualType())) {
-			Class< ? > ec = getActualType();
+			Class<?> ec = getActualType();
 			return ec.getEnumConstants();
 		}
 		return null;
@@ -269,14 +269,10 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		StringBuilder sb = new StringBuilder();
 		sb.append(getName());
 		sb.append(".");
-		if(val == Boolean.TRUE)
-			sb.append(Msgs.uiBoolTrue.getString());
-		else if(val == Boolean.FALSE)
-			sb.append(Msgs.uiBoolFalse.getString());
-		else if(val instanceof Enum< ? >)
-			sb.append(((Enum< ? >) val).name());
-		else if(val instanceof Boolean) {
-			sb.append(((Boolean)val).booleanValue() ? Msgs.uiBoolTrue.getString() : Msgs.uiBoolFalse.getString());
+		if(val instanceof Boolean boo) {
+			sb.append((boo.booleanValue() ? Msgs.uiBoolTrue.getString() : Msgs.uiBoolFalse.getString()));
+		} else if(val instanceof Enum<?>) {
+			sb.append(((Enum<?>) val).name());
 		} else
 			throw new IllegalStateException("Property value " + val + " for property " + this + " is not an enumerable or boolean domain (class=" + val.getClass() + ")");
 		sb.append(".label");
@@ -303,20 +299,20 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	}
 
 	@Override
-	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
+	public Class<? extends IComboDataSet<?>> getComboDataSet() {
 		return m_comboDataSet;
 	}
 
-	public void setComboDataSet(final Class< ? extends IComboDataSet< ? >> comboDataSet) {
+	public void setComboDataSet(final Class<? extends IComboDataSet<?>> comboDataSet) {
 		m_comboDataSet = comboDataSet;
 	}
 
 	@Override
-	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
+	public Class<? extends ILabelStringRenderer<?>> getComboLabelRenderer() {
 		return m_comboLabelRenderer;
 	}
 
-	public void setComboLabelRenderer(final Class< ? extends ILabelStringRenderer< ? >> comboLabelRenderer) {
+	public void setComboLabelRenderer(final Class<? extends ILabelStringRenderer<?>> comboLabelRenderer) {
 		m_comboLabelRenderer = comboLabelRenderer;
 	}
 
@@ -348,11 +344,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	@Nullable
 	@Override
-	public Class< ? extends IRenderInto<T>> getComboNodeRenderer() {
+	public Class<? extends IRenderInto<T>> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
 
-	public void setComboNodeRenderer(@Nullable final Class< ? extends IRenderInto<T>> comboNodeRenderer) {
+	public void setComboNodeRenderer(@Nullable final Class<? extends IRenderInto<T>> comboNodeRenderer) {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
@@ -362,11 +358,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	}
 
 	@Override
-	public Class< ? extends IRenderInto<T>> getLookupSelectedRenderer() {
+	public Class<? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupSelectedRenderer(final Class< ? extends IRenderInto<T>> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class<? extends IRenderInto<T>> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 

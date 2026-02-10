@@ -10,20 +10,18 @@ import java.nio.charset.Charset;
  * This listens for data to be appended to an InputStream,
  * and as soon as data appears it will read it and call a listener
  * with that data. This can be used to tail a file.
- *
+ * <p>
  * Because this tails a stream it never exits by itself! Only
  * when close() gets called will it try to exit by reading all
  * that remains and then exiting the reader thread.
  */
 @NonNullByDefault
-final public class CharacterStreamListenerThread implements AutoCloseable{
+final public class CharacterStreamListenerThread implements AutoCloseable {
 	private final InputStream m_inputStream;
 
 	private final InputStreamReader m_reader;
 
 	private final IReadListener m_listener;
-
-	private final Charset m_encoding;
 
 	private final Thread m_readerThread;
 
@@ -41,7 +39,6 @@ final public class CharacterStreamListenerThread implements AutoCloseable{
 		m_inputStream = inputStream;
 		m_reader = new InputStreamReader(m_inputStream, encoding);
 		m_listener = listener;
-		m_encoding = encoding;
 
 		m_readerThread = new Thread(this::readerLoop);
 		m_readerThread.setName("CharacterStreamListenerThread");
@@ -72,7 +69,7 @@ final public class CharacterStreamListenerThread implements AutoCloseable{
 				} else if(m_terminate) {
 					break;
 				} else {
-					Thread.sleep(500);					// No other real thing to do, sadly enough
+					Thread.sleep(500);                    // No other real thing to do, sadly enough
 				}
 			}
 		} catch(Exception x) {
@@ -82,12 +79,12 @@ final public class CharacterStreamListenerThread implements AutoCloseable{
 
 	@Override
 	public void close() throws Exception {
-		if(m_terminate)								// Already closed
+		if(m_terminate)                                // Already closed
 			return;
 
 		m_terminate = true;
 		try {
-			m_readerThread.join(20_000);		// Wait 20 seconds to make the reader stop
+			m_readerThread.join(20_000);        // Wait 20 seconds to make the reader stop
 			if(m_readerThread.isAlive()) {
 				m_readerThread.interrupt();
 			}

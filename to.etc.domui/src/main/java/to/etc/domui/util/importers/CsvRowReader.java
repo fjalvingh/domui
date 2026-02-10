@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * This reads CSV files in multiple different formats. It can
@@ -63,7 +64,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	private boolean m_closed;
 
-	private boolean m_ignoreQuotes;
+	//private boolean m_ignoreQuotes;
 
 	private boolean m_hasHeaderRow;
 
@@ -163,10 +164,9 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	private int la() throws IOException {
 		if(m_eof) {
 			return -1;							// Eof
-		} else if(m_ix >= m_bufferLen) {
-			if(!readBlock(false))
+		} else if(m_ix >= m_bufferLen && !readBlock(false))
 				return -1;						// Eof, again
-		}
+
 		return m_buffer[m_ix] & 0xffff;			// Char at current pos
 	}
 
@@ -195,10 +195,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	}
 
 	boolean readRecordWithoutErrorCheck() throws IOException {
-		if(m_hasHeaderRow && !m_headerRead) {
-			if(!readHeader())
-				return false;
-		}
+		if(m_hasHeaderRow && !m_headerRead && !readHeader())
+			return false;
 		return readRecordPrimitive();
 	}
 
@@ -442,6 +440,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 				m_r.close();
 			}
 		} catch(Exception x) {
+			//-- ignore
 		}
 	}
 
@@ -475,10 +474,10 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		return this;
 	}
 
-	public CsvRowReader ignoreQuotes() {
-		m_ignoreQuotes = true;
-		return this;
-	}
+	//public CsvRowReader ignoreQuotes() {
+	//	m_ignoreQuotes = true;
+	//	return this;
+	//}
 
 	public CsvRowReader fieldSeparator(int sepa) {
 		m_fieldSeparator = sepa;
@@ -611,7 +610,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			CsvImportRow row = m_row;
 			checkForErrors();
 			if(!m_nextAvailable || row == null)
-				throw new IllegalStateException("Calling next() after hasNext() returned false / missing call to hasNext()");
+				throw new NoSuchElementException("Calling next() after hasNext() returned false / missing call to hasNext()");
 			m_nextRead = false;
 			return row;
 		}

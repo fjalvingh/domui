@@ -31,25 +31,39 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 class DOMNodeIterator implements Iterator<DOMDecoder>, Iterable<DOMDecoder> {
+	private final DOMDecoderBase m_base;
+
+	private final Node m_root;
+
 	//	private Node				m_rootNode;
-	private NodeList	m_list;
+	private NodeList m_list;
 
-	private int			m_listIndex	= 0;
+	private int m_listIndex = 0;
 
-	/** The namespace that was used to encode the types herein. */
-	private String		m_encodingNamespace;
+	/**
+	 * The namespace that was used to encode the types herein.
+	 */
+	private String m_encodingNamespace;
 
-	/** When not null, this is the namespace to look for values. If the empty string it requires a namespaceless lookup. */
-	private String		m_defaultNamespace;
+	/**
+	 * When not null, this is the namespace to look for values. If the empty string it requires a namespaceless lookup.
+	 */
+	private String m_defaultNamespace;
 
-	private String		m_filterTag, m_filterTagNamespace;
+	private String m_filterTag;
 
-	private boolean		m_skipText	= true;
+	private String m_filterTagNamespace;
+
+	private boolean m_skipText = true;
 
 	DOMNodeIterator() {
+		m_base = null;
+		m_root = null;
 	}
 
 	DOMNodeIterator(DOMDecoderBase base, Node root, String tagName, String tagNS, boolean skipText) {
+		m_base = base;
+		m_root = root;
 		m_defaultNamespace = base.getDefaultNamespace();
 		m_encodingNamespace = base.getEncodingNamespace();
 		//		m_rootNode = root;
@@ -62,6 +76,10 @@ class DOMNodeIterator implements Iterator<DOMDecoder>, Iterable<DOMDecoder> {
 
 	DOMNodeIterator(DOMDecoderBase base, Node root) {
 		this(base, root, null, null, true);
+	}
+
+	public Iterator<DOMDecoder> iterator() {
+		return new DOMNodeIterator(m_base, m_root, m_filterTag, m_filterTagNamespace, m_skipText);
 	}
 
 	private int findNextAfter(int ix) {
@@ -86,17 +104,11 @@ class DOMNodeIterator implements Iterator<DOMDecoder>, Iterable<DOMDecoder> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Iterable<T> implementation.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @see java.lang.Iterable#iterator()
-	 */
-	public Iterator<DOMDecoder> iterator() {
-		return this;
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Iterator<T> implementation.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 * @see java.util.Iterator#hasNext()
@@ -113,6 +125,7 @@ class DOMNodeIterator implements Iterator<DOMDecoder>, Iterable<DOMDecoder> {
 		return sli;
 	}
 
+	@Override
 	public void remove() {
 		throw new RuntimeException("Remove not allowed");
 	}

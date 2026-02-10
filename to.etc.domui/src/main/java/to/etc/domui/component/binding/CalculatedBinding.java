@@ -20,10 +20,10 @@ import to.etc.function.SupplierEx;
  * Created on 7-11-18.
  */
 @NonNullByDefault
-public class CalculatedBinding<CV> implements IBinding {
+public class CalculatedBinding<C> implements IBinding {
 	private final NodeBase m_control;
 
-	private final PropertyMetaModel<CV> m_controlProperty;
+	private final PropertyMetaModel<C> m_controlProperty;
 
 	private final SupplierEx<Object> m_acceptor;
 
@@ -32,14 +32,14 @@ public class CalculatedBinding<CV> implements IBinding {
 	@Nullable
 	private Object m_lastValueFromControlAsModelValue;
 
-	public CalculatedBinding(NodeBase control, PropertyMetaModel<CV> controlProperty, SupplierEx<Object> acceptor) {
+	public CalculatedBinding(NodeBase control, PropertyMetaModel<C> controlProperty, SupplierEx<Object> acceptor) {
 		m_control = control;
 		m_controlProperty = controlProperty;
 		m_acceptor = acceptor;
 		m_updateAlways = false;
 	}
 
-	public CalculatedBinding(NodeBase control, PropertyMetaModel<CV> controlProperty, SupplierEx<Object> acceptor, boolean updateAlways) {
+	public CalculatedBinding(NodeBase control, PropertyMetaModel<C> controlProperty, SupplierEx<Object> acceptor, boolean updateAlways) {
 		m_control = control;
 		m_controlProperty = controlProperty;
 		m_acceptor = acceptor;
@@ -54,7 +54,7 @@ public class CalculatedBinding<CV> implements IBinding {
 
 	@Override
 	public void moveModelToControl() throws Exception {
-		CV modelValue = (CV) m_acceptor.get();
+		C modelValue = (C) m_acceptor.get();
 
 		if(m_updateAlways) {
 			IRequestContext fakeValue = UIContext.getRequestContext();
@@ -70,9 +70,6 @@ public class CalculatedBinding<CV> implements IBinding {
 			m_lastValueFromControlAsModelValue = modelValue;
 			if(m_controlProperty.getReadOnly() != YesNoType.YES) {
 				m_controlProperty.setValue(m_control, modelValue);
-				if(m_updateAlways) {
-					m_control.forceRebuild();
-				}
 			}
 		}
 	}
@@ -88,7 +85,7 @@ public class CalculatedBinding<CV> implements IBinding {
 		//-- Data is never moved back to the model.
 	}
 
-	public static <C extends NodeBase & IControl<X>, X, T> void bind(C control, SupplierEx<Object> acceptor) throws Exception {
+	public static <C extends NodeBase & IControl<X>, X> void bind(C control, SupplierEx<Object> acceptor) throws Exception {
 		PropertyMetaModel<?> cpmm = MetaManager.findPropertyMeta(control.getClass(), "bindValue");
 		if(null == cpmm) {
 			cpmm = MetaManager.findPropertyMeta(control.getClass(), "value");
@@ -99,7 +96,7 @@ public class CalculatedBinding<CV> implements IBinding {
 		control.addBinding(cb);
 	}
 
-	public static <C extends NodeBase & IControl<X>, X, T> void bindForced(C control, SupplierEx<Object> acceptor) throws Exception {
+	public static <C extends NodeBase & IControl<X>, X> void bindForced(C control, SupplierEx<Object> acceptor) throws Exception {
 		PropertyMetaModel<?> cpmm = MetaManager.findPropertyMeta(control.getClass(), "bindValue");
 		if(null == cpmm) {
 			cpmm = MetaManager.findPropertyMeta(control.getClass(), "value");

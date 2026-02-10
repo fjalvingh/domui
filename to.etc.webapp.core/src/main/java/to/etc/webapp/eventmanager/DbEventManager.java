@@ -159,14 +159,14 @@ import java.util.concurrent.TimeoutException;
 public class DbEventManager implements Runnable {
 	static private final Logger LOG = LoggerFactory.getLogger(DbEventManager.class);
 
-	static private final long DELETEINTERVAL = 10 * 60 * 1000;
+	static private final long DELETEINTERVAL = 10L * 60 * 1000;
 
-	static private final long POLLINTERVAL = 1 * 1000;
+	static private final long POLLINTERVAL = 1L * 1000;
 
 	static private class Item {
-		public Object m_obj;
+		Object m_obj;
 
-		public ListenerType m_type;
+		ListenerType m_type;
 
 		public Item(final ListenerType t, final Object o) {
 			m_type = t;
@@ -177,7 +177,9 @@ public class DbEventManager implements Runnable {
 	@Nullable
 	static private DbEventManager m_instance;
 
-	/** If initialized in test mode this contains the per-thread instances of this singleton. */
+	/**
+	 * If initialized in test mode this contains the per-thread instances of this singleton.
+	 */
 	@Nullable
 	static private ThreadLocal<DbEventManager> m_testInstances;
 
@@ -190,33 +192,46 @@ public class DbEventManager implements Runnable {
 	@NonNull
 	private IEventMarshaller m_eventMarshaller;
 
-	/** The last update ID that was encountered while scanning the set. */
+	/**
+	 * The last update ID that was encountered while scanning the set.
+	 */
 	private long m_upid = -1;
 
-	/** The cached local DNS name for this server, info pps */
+	/**
+	 * The cached local DNS name for this server, info pps
+	 */
 	private String m_serverName;
 
-	/** The time that we need to delete stuff again, */
-	private long m_ts_nextdelete;
+	/**
+	 * The time that we need to delete stuff again,
+	 */
+	private long m_tsNextDelete;
 
-	/** The upid to delete up to */
-	private long m_delete_upid;
+	/**
+	 * The upid to delete up to
+	 */
+	private long m_deleteUpid;
 
-	/** When set the event manager will stop. */
+	/**
+	 * When set the event manager will stop.
+	 */
 	private boolean m_stop;
 
-	/** The thread executing the event handler's main loop. */
+	/**
+	 * The thread executing the event handler's main loop.
+	 */
 	private Thread m_handlerThread;
 
-	private final TreeSet<Long> m_localEvents = new TreeSet<Long>();
+	private final TreeSet<Long> m_localEvents = new TreeSet<>();
 
 	/**
 	 * The listeners to events, indexed by their event name.
 	 */
-	private final Map<String, List<Item>> m_listenerList = new HashMap<String, List<Item>>();
+	private final Map<String, List<Item>> m_listenerList = new HashMap<>();
 
 	enum DbType {
-		ORACLE, POSTGRES
+		ORACLE,
+		POSTGRES
 	}
 
 	private DbType m_dbtype;
@@ -293,7 +308,7 @@ public class DbEventManager implements Runnable {
 			throw new IllegalStateException("The DbEventManager has already been initialized for PRODUCTION mode");
 		ThreadLocal<DbEventManager> tl = m_testInstances;
 		if(null == tl) {
-			m_testInstances = tl = new ThreadLocal<DbEventManager>();
+			m_testInstances = new ThreadLocal<>();
 		}
 	}
 
@@ -332,7 +347,9 @@ public class DbEventManager implements Runnable {
 		}
 		try {
 			ht.join(10000);
-		} catch(InterruptedException x) {}
+		} catch(InterruptedException x) {
+			//-- ignore
+		}
 		if(ht.isAlive())
 			log("The event manager's thread failed to die!?");
 	}
@@ -341,7 +358,6 @@ public class DbEventManager implements Runnable {
 	 * Tries to create the table if it doesn't exist. Ignores all errors.
 	 */
 	private void createTable(final Connection dbc) {
-		PreparedStatement ps = null;
 		try {
 			//-- Determine the database type
 			String name = dbc.getMetaData().getDatabaseProductName().toLowerCase();
@@ -352,8 +368,9 @@ public class DbEventManager implements Runnable {
 			else
 				throw new IllegalStateException("Unsupported database type: " + name);
 
-			String tbl, seq;
-			switch(m_dbtype){
+			String tbl;
+			String seq;
+			switch(m_dbtype) {
 				default:
 					throw new IllegalStateException("Unhandled DBTYPE: " + m_dbtype);
 				case ORACLE:
@@ -369,20 +386,18 @@ public class DbEventManager implements Runnable {
 					break;
 			}
 
-			ps = dbc.prepareStatement(tbl);
-			ps.executeUpdate();
-			ps.close();
+			try(PreparedStatement ps = dbc.prepareStatement(tbl)) {
+				ps.executeUpdate();
+			}
 			dbc.commit();
 
 			//-- Create the sequence,
-			try {
-				ps = dbc.prepareStatement(seq);
+			try(PreparedStatement ps = dbc.prepareStatement(seq)) {
 				ps.executeUpdate();
-				ps.close();
-				dbc.commit();
 			} catch(Exception x) {
 				//-- ignore
 			}
+			dbc.commit();
 		} catch(Exception x) {
 			String msg = x.toString().toLowerCase();
 
@@ -394,12 +409,10 @@ public class DbEventManager implements Runnable {
 			System.out.println("SystemEventManager: table creation exception " + x + ", if this is just because the table already exists there is no problem.");
 		} finally {
 			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-			try {
 				dbc.rollback();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- ignore
+			}
 		}
 	}
 
@@ -423,8 +436,8 @@ public class DbEventManager implements Runnable {
 			if(!rs.next())
 				throw new IllegalStateException("?? Cannot get max update number");
 			m_upid = rs.getLong(1);
-			m_delete_upid = 0;
-			m_ts_nextdelete = System.currentTimeMillis() + DELETEINTERVAL;
+			m_deleteUpid = 0;
+			m_tsNextDelete = System.currentTimeMillis() + DELETEINTERVAL;
 			checkPendingDeletes(dbc);
 		} finally {
 			FileTool.closeAll(rs, ps, dbc);
@@ -456,33 +469,26 @@ public class DbEventManager implements Runnable {
 	private void checkPendingDeletes(final Connection dbc) throws Exception {
 		long deleteupid = 0;
 		synchronized(this) {
-			if(m_delete_upid >= m_upid)			// Do nothing if nothing happened.
+			if(m_deleteUpid >= m_upid)            // Do nothing if nothing happened.
 				return;
 			long ts = System.currentTimeMillis();
-			if(ts < m_ts_nextdelete) // Timeout not expired
+			if(ts < m_tsNextDelete) // Timeout not expired
 				return;
-			m_ts_nextdelete = ts + DELETEINTERVAL; // Set new timeout
-			deleteupid = m_delete_upid;
-			m_delete_upid = m_upid;
+			m_tsNextDelete = ts + DELETEINTERVAL; // Set new timeout
+			deleteupid = m_deleteUpid;
+			m_deleteUpid = m_upid;
 		}
 
 		//-- We must delete...
-		PreparedStatement ps = null;
-		try {
-			String sql = "delete from " + m_tableName + " where upid < ? or utime < ?";
-			ps = dbc.prepareStatement(sql);
+		String sql = "delete from " + m_tableName + " where upid < ? or utime < ?";
+		try(PreparedStatement ps = dbc.prepareStatement(sql)) {
 			ps.setLong(1, deleteupid);
 			Date offsetDate = new Date(System.currentTimeMillis() - 10 * 60 * 1000);
-			ps.setDate(2, offsetDate);			// Everything older than this
+			ps.setDate(2, offsetDate);            // Everything older than this
 			LOG.debug(sql + " | " + deleteupid + ", " + offsetDate);
 			ps.executeUpdate();
-			dbc.commit();
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
 		}
+		dbc.commit();
 	}
 
 	/**
@@ -490,30 +496,22 @@ public class DbEventManager implements Runnable {
 	 * multiple threads from handling updates this locks the instance.
 	 */
 	private void scanNewEvents(final List<AppEventBase> al, final Set<Long> localeventset) throws Exception {
-		Connection dbc = m_ds.getConnection();
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		long upid;
-		synchronized(this) {
-			upid = m_upid;
-		}
-		try {
+		try(Connection dbc = m_ds.getConnection()) {
+			long upid;
+			synchronized(this) {
+				upid = m_upid;
+			}
 			String sql = "select upid,evname,utime,server,obj from " + m_tableName + " where upid > ? order by upid";
 			LOG.debug(sql);
-			ps = dbc.prepareStatement(sql);
-			ps.setLong(1, upid);
-			rs = ps.executeQuery();
-			while(rs.next()) {
-				readEventObject(rs, al);
+			try(PreparedStatement ps = dbc.prepareStatement(sql)) {
+				ps.setLong(1, upid);
+				try(ResultSet rs = ps.executeQuery()) {
+					while(rs.next()) {
+						readEventObject(rs, al);
+					}
+				}
 			}
 			if(!al.isEmpty()) {
-//				StringBuilder sb = new StringBuilder();
-//				sb.append("EV: read ");
-//				for(AppEventBase ae : al) {
-//					sb.append(ae.getUpid()).append("/");
-//				}
-//				System.out.println(sb.toString());
-
 				//-- Remove all saved "locally generated" events up to the event we've just read,
 				synchronized(this) {
 					Iterator<Long> it = m_localEvents.iterator();
@@ -529,19 +527,6 @@ public class DbEventManager implements Runnable {
 			}
 
 			checkPendingDeletes(dbc);
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-			try {
-				if(dbc != null)
-					dbc.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -555,7 +540,7 @@ public class DbEventManager implements Runnable {
 			if(upid > m_upid)
 				m_upid = upid;
 		}
-		String  evname  = rs.getString(2);
+		String evname = rs.getString(2);
 		Timestamp ts = rs.getTimestamp(3);
 		String server = rs.getString(4);
 		String objectString = rs.getString(5);
@@ -567,7 +552,6 @@ public class DbEventManager implements Runnable {
 				log("Event " + upid + " skipped: the embedded object is null");
 				return;
 			}
-
 
 			//-- Update the AppEvent with the data read (should not be necessary)
 			AppEventBase e = act;
@@ -597,8 +581,8 @@ public class DbEventManager implements Runnable {
 	 */
 	private void scanOnce() {
 		try {
-			List<AppEventBase> list = new ArrayList<AppEventBase>();
-			Set<Long> localeventset = new HashSet<Long>();
+			List<AppEventBase> list = new ArrayList<>();
+			Set<Long> localeventset = new HashSet<>();
 			scanNewEvents(list, localeventset);
 			if(list.isEmpty())
 				return;
@@ -615,9 +599,10 @@ public class DbEventManager implements Runnable {
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
+	@SuppressWarnings("squid:S1181")
 	public void run() {
 		try {
-			for(;;) {
+			for(; ; ) {
 				synchronized(this) {
 					if(m_stop) {
 						log("event manager terminates due to STOP request");
@@ -657,8 +642,6 @@ public class DbEventManager implements Runnable {
 	 * handler will be called immediately).
 	 */
 	public long sendEventMain(@NonNull final Connection dbc, @NonNull final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
-		ResultSet rs = null;
-		PreparedStatement ps = null;
 		boolean ac = dbc.getAutoCommit(); // Do not autocommit when storing a blub
 		boolean ok = false;
 		try {
@@ -666,13 +649,13 @@ public class DbEventManager implements Runnable {
 				dbc.setAutoCommit(false);
 
 			//-- Get a new upid
-			ps = dbc.prepareStatement(nextId());
-			rs = ps.executeQuery();
-			if(!rs.next())
-				throw new SQLException("No result from select-from-sequence!?");
-			long id = rs.getLong(1);
-			rs.close();
-			ps.close();
+			long id;
+			try(PreparedStatement ps = dbc.prepareStatement(nextId());
+				ResultSet rs = ps.executeQuery()) {
+				if(!rs.next())
+					throw new SQLException("No result from select-from-sequence!?");
+				id = rs.getLong(1);
+			}
 
 			//-- Update the event with it's info
 			ae.setUpid(id); // Update the UPID,
@@ -686,17 +669,15 @@ public class DbEventManager implements Runnable {
 			}
 
 			//-- Store the record,
-			ps = dbc.prepareStatement("insert into " + m_tableName + "(upid,evname,utime,server,obj) values(?,?,?,?,?)");
-			ps.setLong(1, id);
-			ps.setString(2, ae.getClass().getCanonicalName());
-			ps.setTimestamp(3, (Timestamp) ae.getTimestamp());
-			ps.setString(4, ae.getServer());
-			ps.setString(5, m_eventMarshaller.marshalEvent(ae));
-			ps.executeUpdate();
-			ps.close();
+			try(PreparedStatement ps = dbc.prepareStatement("insert into " + m_tableName + "(upid,evname,utime,server,obj) values(?,?,?,?,?)")) {
+				ps.setLong(1, id);
+				ps.setString(2, ae.getClass().getCanonicalName());
+				ps.setTimestamp(3, (Timestamp) ae.getTimestamp());
+				ps.setString(4, ae.getServer());
+				ps.setString(5, m_eventMarshaller.marshalEvent(ae));
+				ps.executeUpdate();
+			}
 
-			rs.close();
-			ps.close();
 			if(commit) {
 				dbc.commit();
 			}
@@ -706,12 +687,15 @@ public class DbEventManager implements Runnable {
 			try {
 				if(!ok)
 					dbc.rollback();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// -- ignore
+			}
 			try {
 				if(ac && commit)
 					dbc.setAutoCommit(true);
-			} catch(Exception x) {}
-			FileTool.closeAll(rs, ps);
+			} catch(Exception x) {
+				//--Ignore
+			}
 		}
 	}
 
@@ -732,18 +716,17 @@ public class DbEventManager implements Runnable {
 	/*	CODING:	Listener caller                                  	*/
 	/*--------------------------------------------------------------*/
 
-	private synchronized void addListener(@NonNull final Class< ? > cl, @NonNull final ListenerType lt, @NonNull final AppEventListener< ? > listener, final boolean weak) {
-		List<Item> l = m_listenerList.get(cl.getName());
+	private synchronized void addListener(@NonNull final Class<?> cl, @NonNull final ListenerType lt, @NonNull final AppEventListener<?> listener, final boolean weak) {
+		List<DbEventManager.Item> l = m_listenerList.get(cl.getName());
 		if(l == null) {
-			l = new ArrayList<Item>(5);
+			l = new ArrayList<>(5);
 			m_listenerList.put(cl.getName(), l);
 		}
 
 		//-- Already registered?
-		for(int i = l.size(); --i >= 0;) {
-			Item it = l.get(i);
-			if(it.m_obj instanceof Reference< ? >) {
-				Reference< ? > r = (Reference< ? >) it.m_obj;
+		for(int i = l.size(); --i >= 0; ) {
+			DbEventManager.Item it = l.get(i);
+			if(it.m_obj instanceof Reference<?> r) {
 				if(r.get() == listener) // Already registered as WEAK listener
 					return;
 				if(r.get() == null) {
@@ -755,7 +738,7 @@ public class DbEventManager implements Runnable {
 			}
 		}
 		if(weak)
-			l.add(new Item(lt, new WeakReference<Object>(listener)));
+			l.add(new DbEventManager.Item(lt, new WeakReference<Object>(listener)));
 		else
 			l.add(new Item(lt, listener));
 	}
@@ -763,14 +746,13 @@ public class DbEventManager implements Runnable {
 	/**
 	 * Remove a weak or normal listener from a map.
 	 */
-	public synchronized void removeListener(@NonNull final Class< ? > cl, @NonNull final AppEventListener< ? > listener) {
+	public synchronized void removeListener(@NonNull final Class<?> cl, @NonNull final AppEventListener<?> listener) {
 		List<Item> l = m_listenerList.get(cl.getName());
 		if(l == null)
 			return;
-		for(int i = l.size(); --i >= 0;) {
+		for(int i = l.size(); --i >= 0; ) {
 			Item it = l.get(i);
-			if(it.m_obj instanceof Reference< ? >) {
-				Reference< ? > r = (Reference< ? >) it.m_obj;
+			if(it.m_obj instanceof Reference<?> r) {
 				if(r.get() == listener) {
 					l.remove(i);
 					return;
@@ -787,11 +769,11 @@ public class DbEventManager implements Runnable {
 	}
 
 	private synchronized void getListeners(@NonNull final List<AppEventListener<AppEventBase>> list, @NonNull final AppEventBase ae, final boolean ateventtime, final boolean islocalevent) {
-		Class< ? > cl = ae.getClass();
-		for(;;) {
+		Class<?> cl = ae.getClass();
+		for(; ; ) {
 			List<Item> l = m_listenerList.get(cl.getName()); // List of registrations for the current type
 			if(l != null) {
-				for(int i = l.size(); --i >= 0;) {
+				for(int i = l.size(); --i >= 0; ) {
 					Item it = l.get(i); // Get listener desc
 					if(ateventtime) {
 						/*
@@ -808,8 +790,7 @@ public class DbEventManager implements Runnable {
 					}
 
 					Object o = it.m_obj;
-					if(o instanceof Reference< ? >) {
-						Reference< ? > r = (Reference< ? >) o;
+					if(o instanceof Reference<?> r) {
 						Object lsnr = r.get();
 						if(lsnr == null) {
 							l.remove(i);
@@ -830,13 +811,14 @@ public class DbEventManager implements Runnable {
 
 	/**
 	 * Call all registered listeners for an event.
+	 *
 	 * @param ae        The event that occured
 	 * @param immediate When T call all events that need to be called immediately.
 	 */
 	private void callListeners(@NonNull final AppEventBase ae, final boolean immediate, final boolean islocalevent) {
-		List<AppEventListener<AppEventBase>> list = new ArrayList<AppEventListener<AppEventBase>>();
+		List<AppEventListener<AppEventBase>> list = new ArrayList<>();
 		getListeners(list, ae, immediate, islocalevent);
-		for(int i = list.size(); --i >= 0;) {
+		for(int i = list.size(); --i >= 0; ) {
 			AppEventListener<AppEventBase> l = list.get(i);
 			try {
 				l.handleEvent(ae);
@@ -867,10 +849,6 @@ public class DbEventManager implements Runnable {
 	 * may only call this version if all data pertaining to the event has been commited to the database or will
 	 * be commited as a result of this call! If you do not the event may fire in other servers/listeners with stale
 	 * data in the database; this will cause wrong results.
-	 *
-	 * @param dbc
-	 * @param ae
-	 * @throws Exception
 	 */
 	public void postEvent(@NonNull final Connection dbc, @NonNull final AppEventBase ae) throws Exception {
 		if(!inJUnitTestMode())
@@ -882,10 +860,6 @@ public class DbEventManager implements Runnable {
 	 * Post an event asynchronously. The event gets added to the database but not commited, and no local listeners
 	 * get called at this time. When the event gets commited the scanner will see it and call the local handlers. This
 	 * call is typically done when an event needs to be commited lazily.
-	 *
-	 * @param dbc
-	 * @param ae
-	 * @throws Exception
 	 */
 	public void postDelayedEvent(@NonNull final Connection dbc, @NonNull final AppEventBase ae) throws Exception {
 		if(!inJUnitTestMode())
@@ -905,16 +879,13 @@ public class DbEventManager implements Runnable {
 	 * Post a list of events asynchronously. The event gets added to the database but not committed, and no local listeners
 	 * get called at this time. When the event gets commited the scanner will see it and call the local handlers. This
 	 * call is typically done when an event needs to be commited lazily.
-	 * @param dbc
-	 * @param ae
-	 * @throws Exception
 	 */
-	public void postDelayedEvent(@NonNull final Connection dbc, @NonNull final List< ? extends AppEventBase> ae) throws Exception {
+	public void postDelayedEvent(@NonNull final Connection dbc, @NonNull final List<? extends AppEventBase> ae) throws Exception {
 		for(AppEventBase a : ae) {
 			if(inJUnitTestMode()) {
-				callListeners(a, true, true); 			// Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
+				callListeners(a, true, true);            // Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
 			} else {
-				sendEventMain(dbc, a, false, false);	// First save the thingy everywhere, ORDER IMPORTANT!!
+				sendEventMain(dbc, a, false, false);    // First save the thingy everywhere, ORDER IMPORTANT!!
 			}
 		}
 	}
@@ -924,12 +895,8 @@ public class DbEventManager implements Runnable {
 	 * may only call this version if all data pertaining to the events have been commited to the database or will
 	 * be commited as a result of this call! If you do not the events may fire in other servers/listeners with stale
 	 * data in the database; this will cause wrong results.
-	 *
-	 * @param dbc
-	 * @param aelist
-	 * @throws Exception
 	 */
-	public void postEvent(@NonNull final Connection dbc, @NonNull final List< ? extends AppEventBase> aelist) throws Exception {
+	public void postEvent(@NonNull final Connection dbc, @NonNull final List<? extends AppEventBase> aelist) throws Exception {
 		if(!inJUnitTestMode()) {
 			for(AppEventBase ae : aelist) {
 				sendEventMain(dbc, ae, false, true); // First save the thingy everywhere, ORDER IMPORTANT!!
@@ -949,13 +916,12 @@ public class DbEventManager implements Runnable {
 
 	/**
 	 * Sleep until the specified event has been handled. This waits for max. one minute.
-	 * @param value
 	 */
 	public void waitUntilHandled(long value) throws Exception {
 		if(getLastHandled() >= value)
 			return;
 		long ets = System.currentTimeMillis() + 60 * 1000;
-		for(;;) {
+		for(; ; ) {
 			synchronized(this) {
 				if(m_lastHandled >= value)
 					return;

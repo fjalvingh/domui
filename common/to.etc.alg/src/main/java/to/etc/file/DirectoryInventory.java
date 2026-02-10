@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,8 +112,6 @@ final public class DirectoryInventory implements Serializable {
 
 	private int m_numDirectories;
 
-	private long m_totalBytes;
-
 	private InvEntry m_root;
 
 	private long m_creationTime;
@@ -137,22 +136,16 @@ final public class DirectoryInventory implements Serializable {
 			throw new IOException(src + ": directory does not exist");
 		if(!src.isDirectory())
 			throw new IOException(src + ": is not a directory");
-		long ts = System.nanoTime();
 		DirectoryInventory de = new DirectoryInventory(System.currentTimeMillis());
 		de.m_root = de.scanDirectory(src);
-		ts = System.nanoTime() - ts;
-//		System.out.println(".. inventory of " + src + " took " + StringTool.strNanoTime(ts) + " for " + de.m_numFiles + " files in " + de.m_numDirectories + " dirs");
 		return de;
 	}
 
-	private static final Comparator<InvEntry> C_ORDER = new Comparator<InvEntry>() {
-		@Override
-		public int compare(InvEntry a, InvEntry b) {
-			int res = a.getName().compareTo(b.getName());
-			if(res != 0)
-				return res;
-			return compareArrays(a.getMd5hash(), b.getMd5hash());
-		}
+	private static final Comparator<InvEntry> C_ORDER = (a, b) -> {
+		int res = a.getName().compareTo(b.getName());
+		if(res != 0)
+			return res;
+		return compareArrays(a.getMd5hash(), b.getMd5hash());
 	};
 
 	static public int compareArrays(@NonNull byte[] aa, @NonNull byte[] ba) {
@@ -170,7 +163,7 @@ final public class DirectoryInventory implements Serializable {
 		File[] far = src.listFiles();
 		if(null == far)
 			throw new IllegalStateException("No results from " + src);
-		List<InvEntry> list = new ArrayList<InvEntry>(far.length);
+		List<InvEntry> list = new ArrayList<>(far.length);
 		for(File f : far) {
 			//-- Construct the relative path into sb
 			if(f.isDirectory()) {
@@ -190,7 +183,7 @@ final public class DirectoryInventory implements Serializable {
 		MessageDigest dig = MessageDigest.getInstance("md5");
 		for(int i = 0; i < ar.length; i++) {
 			InvEntry ie = ar[i];
-			dig.update(ie.getName().getBytes("UTF-8"));
+			dig.update(ie.getName().getBytes(StandardCharsets.UTF_8));
 			dig.update(ie.getMd5hash());
 		}
 		byte[] dirhash = dig.digest();
@@ -207,12 +200,8 @@ final public class DirectoryInventory implements Serializable {
 	static public DirectoryInventory load(@NonNull File src) throws Exception {
 		if(!src.exists())
 			throw new FileNotFoundException(src + ": not found");
-		ObjectInputStream ois = null;
-		try {
-			ois = new ObjectInputStream(new FileInputStream(src));
+		try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(src))) {
 			return (DirectoryInventory) ois.readObject();
-		} finally {
-			FileTool.closeAll(ois);
 		}
 	}
 
@@ -222,23 +211,15 @@ final public class DirectoryInventory implements Serializable {
 	 */
 	public void save(@NonNull File src) {
 		boolean ok = false;
-		ObjectOutputStream oos = null;
-		try {
-			oos = new ObjectOutputStream(new FileOutputStream(src));
+		try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(src))) {
 			oos.writeObject(this);
-			oos.close();
-			oos = null;
 			ok = true;
 		} catch(Exception x) {
 			x.printStackTrace();
 		} finally {
 			try {
-				if(oos != null)
-					oos.close();
-			} catch(Exception x) {}
-			try {
 				if(!ok)
-					src.delete();
+					FileTool.delete(src);
 			} catch(Exception x) {}
 		}
 	}
@@ -364,7 +345,7 @@ final public class DirectoryInventory implements Serializable {
 			len++;
 		}
 
-		Map<String, InvEntry> dstmap = new HashMap<String, InvEntry>();
+		Map<String, InvEntry> dstmap = new HashMap<>();
 		for(InvEntry de : dst.getChildren())
 			dstmap.put(de.getName(), de);
 		for(InvEntry se : src.getChildren()) {

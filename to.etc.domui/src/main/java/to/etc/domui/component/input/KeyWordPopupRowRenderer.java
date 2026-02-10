@@ -57,7 +57,9 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 	@Nullable
 	private ICellClicked<T> m_rowClicked;
 
-	/** When the definition has completed (the object is used) this is TRUE; it disables all calls that change the definition */
+	/**
+	 * When the definition has completed (the object is used) this is TRUE; it disables all calls that change the definition
+	 */
 	private boolean m_completed;
 
 	@NonNull
@@ -66,6 +68,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple renderer initialization && parameterization	*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
 	 */
@@ -83,7 +86,6 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 
 	/**
 	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
-	 * @return
 	 */
 	@Override
 	@Nullable
@@ -99,7 +101,8 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 		m_rowClicked = rowClicked;
 	}
 
-	@Override public void setCellClicked(int col, @Nullable ICellClicked<T> cellClicked) {
+	@Override
+	public void setCellClicked(int col, @Nullable ICellClicked<T> cellClicked) {
 		throw new IllegalStateException("Not supported");
 	}
 
@@ -126,18 +129,19 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Actual rendering: a row.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
 	public void renderRow(final @NonNull TableModelTableBase<T> tbl, final @NonNull ColumnContainer<T> cc, final int index, final @NonNull T instance) throws Exception {
-		final ICellClicked< ? > rowClicked = m_rowClicked;
+		final ICellClicked<?> rowClicked = m_rowClicked;
 		if(rowClicked != null) {
 			cc.getTR().setClicked(new IClicked<TR>() {
 				@Override
 				public void clicked(final @NonNull TR b) throws Exception {
-					ICellClicked< ? > rowClicked = getRowClicked();
+					ICellClicked<?> rowClicked = getRowClicked();
 					if(null != rowClicked)
 						((ICellClicked<T>) rowClicked).cellClicked(instance);
 				}
@@ -152,24 +156,18 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 			((Table) tblBase).setOverflow(Overflow.HIDDEN);
 		}
 
-		for(final SimpleColumnDef< ? > cd : m_columnList) {
+		for(final SimpleColumnDef<?> cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
 		}
 	}
 
 	/**
 	 * Render a single column fully.
-	 * @param tbl
-	 * @param cc
-	 * @param index
-	 * @param instance
-	 * @param cd
-	 * @throws Exception
 	 */
 	private <X> void renderColumn(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance, final SimpleColumnDef<X> cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
-		IValueTransformer< ? > vtr = cd.getValueTransformer();
+		IValueTransformer<?> vtr = cd.getValueTransformer();
 		if(vtr == null)
 			colval = (X) instance;
 		else
@@ -182,7 +180,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 		cell = cc.add((NodeBase) null); // Add the new row
 		cell.add(wrapDiv); // Add no-wrap div
 
-		IRenderInto< ? > contentRenderer = cd.getContentRenderer();
+		IRenderInto<?> contentRenderer = cd.getContentRenderer();
 		if(null != contentRenderer) {
 			((IRenderInto<Object>) contentRenderer).renderOpt(wrapDiv, colval);
 			//((IRenderInto<Object>) contentRenderer).render(tbl, wrapDiv, colval, instance);
@@ -212,19 +210,20 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 		}
 	}
 
-	public void add(SimpleColumnDef< ? > cd) {
+	public void add(SimpleColumnDef<?> cd) {
 		check();
 		m_columnList.add(cd);
 	}
 
 	public void addColumn(String name) {
-		m_columnList.addColumns(name);
+		m_columnList.addColumn(name);
 	}
 
-	public <R> void addColumns(Object... cols) {
+	public void addColumns(String... cols) {
 		check();
-		if(cols.length != 0)
-			m_columnList.addColumns(cols);
+		for(String col : cols) {
+			m_columnList.addColumn(col);
+		}
 	}
 
 	public void addDefaultColumns() {

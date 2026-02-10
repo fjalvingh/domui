@@ -49,11 +49,15 @@ public class JdbcQuery<T> {
 
 	final private List<IQValueSetter> m_valList;
 
-	final private int m_start, m_limit;
+	final private int m_start;
+
+	private final int m_limit;
 
 	final private int m_timeout;
 
-	/** Enables logging of executed jdbc queries, specified by DeveloperOptions setting "domui.jdbc.sql". Defaults (if not specified in DeveloperOptions) to F. */
+	/**
+	 * Enables logging of executed jdbc queries, specified by DeveloperOptions setting "domui.jdbc.sql". Defaults (if not specified in DeveloperOptions) to F.
+	 */
 	static private boolean m_showSQL = DeveloperOptions.getBool("domui.jdbc.sql", false);
 
 	public JdbcQuery(String sql, List<IInstanceMaker> retrieverList, List<IQValueSetter> vl, int start, int limit, int timeout) {
@@ -65,7 +69,7 @@ public class JdbcQuery<T> {
 		m_timeout = timeout;
 	}
 
-	public List< ? > query(QDataContext dc) throws Exception {
+	public List<?> query(QDataContext dc) throws Exception {
 		if(m_showSQL) {
 			System.out.println("jdbc: " + m_sql);
 		}
@@ -79,7 +83,7 @@ public class JdbcQuery<T> {
 				vs.assign(ps);
 			if(m_timeout > 0)
 				ps.setQueryTimeout(m_timeout);
-			List<Object> res = new ArrayList<Object>();
+			List<Object> res = new ArrayList<>();
 			rs = ps.executeQuery();
 			int rownum = 0;
 			while(rs.next()) {
@@ -106,14 +110,17 @@ public class JdbcQuery<T> {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- ignore
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- ignore
+			}
 		}
 	}
-
 
 	public T readRecord(QDataContext dc, ResultSet rs) throws Exception {
 		if(m_rowMaker.size() == 1) {
@@ -127,7 +134,6 @@ public class JdbcQuery<T> {
 		}
 	}
 
-
 	static public <T> JdbcQuery<T> create(QCriteria<T> q) throws Exception {
 		JdbcSQLGenerator qg = new JdbcSQLGenerator();
 		qg.visitCriteria(q);
@@ -140,12 +146,11 @@ public class JdbcQuery<T> {
 		return (JdbcQuery<T>) qg.getQuery();
 	}
 
-
 	public void dump() {
 		System.out.println("SQL: " + m_sql);
 	}
 
-
+	@SuppressWarnings("squid:S2095")    // We return the stream which needs the statement to be opened.
 	public JdbcObjectStream<T> stream(QDataContext dc) throws Exception {
 		if(m_showSQL) {
 			System.out.println("jdbc: " + m_sql);
@@ -160,11 +165,8 @@ public class JdbcQuery<T> {
 				vs.assign(ps);
 			if(m_timeout > 0)
 				ps.setQueryTimeout(m_timeout);
-			List<Object> res = new ArrayList<Object>();
 			rs = ps.executeQuery();
-			int rownum = 0;
-
-			JdbcObjectStream<T> stream = new JdbcObjectStream<>(this, dc, ps, rs);
+			JdbcObjectStream<T> stream = new JdbcObjectStream<>(this, dc, rs);
 			rs = null;
 			ps = null;
 			return stream;
@@ -177,11 +179,15 @@ public class JdbcQuery<T> {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- ignore
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- ignore
+			}
 		}
 
 	}
@@ -190,13 +196,9 @@ public class JdbcQuery<T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Helper implementations for QDataContext's			*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
-	 * @param <T>
-	 * @param clz
-	 * @param pk
-	 * @return
-	 * @throws Exception
 	 */
 	static public <T> T find(QDataContext dc, Class<T> clz, Object pk) throws Exception {
 		//-- Ohh, the joys of generalization ;-)
@@ -213,6 +215,7 @@ public class JdbcQuery<T> {
 	/**
 	 * Get an instance; this will return an instance by first trying to load it; if that fails
 	 * it will create one but only fill the PK. Use is questionable though.
+	 *
 	 * @see to.etc.webapp.query.QDataContext#getInstance(java.lang.Class, java.lang.Object)
 	 */
 	static public <T> T getInstance(QDataContext dc, Class<T> clz, Object pk) throws Exception {
@@ -242,8 +245,8 @@ public class JdbcQuery<T> {
 		return (List<T>) query.query(dc);
 	}
 
-	static public List<Object[]> query(QDataContext dc, QSelection< ? > sel) throws Exception {
-		JdbcQuery< ? > query = JdbcQuery.create(sel); // Convert to JDBC query.
+	static public List<Object[]> query(QDataContext dc, QSelection<?> sel) throws Exception {
+		JdbcQuery<?> query = JdbcQuery.create(sel); // Convert to JDBC query.
 		return (List<Object[]>) query.query(dc);
 	}
 
@@ -261,7 +264,8 @@ public class JdbcQuery<T> {
 		throw new IllegalStateException("The criteria-query " + q + " returns " + res.size() + " results instead of one");
 	}
 
-	static public Object[] queryOne(QDataContext dc, QSelection< ? > q) throws Exception {
+	@SuppressWarnings("squid:S1168")	// We need null, not an empty array, because the array is a single record - not a list of them.
+	static public Object[] queryOne(QDataContext dc, QSelection<?> q) throws Exception {
 		List<Object[]> res = query(dc, q);
 		if(res.isEmpty())
 			return null;

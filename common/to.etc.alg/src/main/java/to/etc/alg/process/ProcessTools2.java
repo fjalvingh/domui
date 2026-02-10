@@ -173,12 +173,11 @@ final public class ProcessTools2 {
 		Thread outr;
 		Thread errr = null;
 		Thread inr = null;
-		if(null != stdoutWriter) {
-			outr = new StreamReaderThread(stdoutWriter, "stdout", pr.getInputStream(), null, m_follow, m_flush);
-		} else if(stdoutStream != null) {
+		if(null == stdoutWriter) {
 			outr = new StreamCopyThread(stdoutStream, "stdout", pr.getInputStream());
-		} else
-			throw new IllegalStateException();
+		} else {
+			outr = new StreamReaderThread(stdoutWriter, "stdout", pr.getInputStream(), null, m_follow, m_flush);
+		}
 
 		Writer stderrWriter = m_stderrWriter;
 		OutputStream stderrStream = m_stderrStream;
