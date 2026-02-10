@@ -14,19 +14,9 @@ import java.util.Comparator;
  */
 public final class ChartField {
 
-	public static final Comparator<ChartField> COMPARATOR_BY_VALUE = new Comparator<ChartField>() {
-		@Override
-		public int compare(ChartField o1, ChartField o2) {
-			return Double.compare(o1.getValue(), o2.getValue());
-		}
-	};
+	public static final Comparator<ChartField> COMPARATOR_BY_VALUE = (o1, o2) -> Double.compare(o1.getValue(), o2.getValue());
 
-	public static final Comparator<ChartField> COMPARATOR_BY_LABEL = new Comparator<ChartField>() {
-		@Override
-		public int compare(ChartField o1, ChartField o2) {
-			return o1.getLabel().compareTo(o2.getLabel());
-		}
-	};
+	public static final Comparator<ChartField> COMPARATOR_BY_LABEL = (o1, o2) -> o1.getLabel().compareTo(o2.getLabel());
 
 	private static final int VALUE_EXTRA_CHARACTERS = 3;
 
@@ -35,12 +25,9 @@ public final class ChartField {
 	private final double m_value;
 
 	private final String m_label;
-	
+
 	public ChartField(double value, @NonNull String label) {
 		super();
-		if(label == null) {
-			throw new IllegalArgumentException("ChartField.label cannot be null");
-		}
 		m_value = value;
 		m_label = label;
 	}

@@ -7,31 +7,37 @@ import java.util.function.Supplier;
 
 /**
  * EXPERIMENTAL.
- *
+ * <p>
  * See <a href="http://stackoverflow.com/questions/27644361/how-can-i-throw-checked-exceptions-from-inside-java-8-streams">Stackoverflow</a>
- *         Created on 13-1-17.
+ * Created on 13-1-17.
  */
 public class Lambda {
+	// CHECKSTYLE:OFF
 	@FunctionalInterface
+	@SuppressWarnings("squid:S114")
 	public interface Consumer_WithExceptions<T, E extends Exception> {
 		void accept(T t) throws E;
 	}
 
+	@SuppressWarnings("squid:S114")
 	@FunctionalInterface
 	public interface BiConsumer_WithExceptions<T, U, E extends Exception> {
 		void accept(T t, U u) throws E;
 	}
 
+	@SuppressWarnings("squid:S114")
 	@FunctionalInterface
 	public interface Function_WithExceptions<T, R, E extends Exception> {
 		R apply(T t) throws E;
 	}
 
+	@SuppressWarnings("squid:S114")
 	@FunctionalInterface
 	public interface Supplier_WithExceptions<T, E extends Exception> {
 		T get() throws E;
 	}
 
+	@SuppressWarnings("squid:S114")
 	@FunctionalInterface
 	public interface Runnable_WithExceptions<E extends Exception> {
 		void run() throws E;
@@ -91,7 +97,7 @@ public class Lambda {
 	/**
 	 * uncheck(() -> Class.forName("xxx"));
 	 */
-	public static void uncheck(Runnable_WithExceptions t) {
+	public static void uncheck(Runnable_WithExceptions<?> t) {
 		try {
 			t.run();
 		} catch(Exception exception) {

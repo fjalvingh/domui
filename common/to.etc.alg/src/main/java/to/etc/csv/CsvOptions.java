@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -72,6 +73,18 @@ final public class CsvOptions {
 		return m_dateFormat;
 	}
 
+	public String getDateFormatString() {
+		return m_dateFormatString;
+	}
+
+	public String getDateTimeFormatString() {
+		return m_dateTimeFormatString;
+	}
+
+	public NumberFormat getNumberFormat() {
+		return m_numberFormat;
+	}
+
 	public String getRecordSeparator() {
 		return m_recordSeparator;
 	}
@@ -109,9 +122,7 @@ final public class CsvOptions {
 	//}
 
 	public CsvOptions header(String... hdr) {
-		for(String s : hdr) {
-			m_header.add(s);
-		}
+		m_header.addAll(Arrays.asList(hdr));
 		return this;
 	}
 
@@ -223,7 +234,6 @@ final public class CsvOptions {
 	public boolean isExportForXml() {
 		return m_exportForXml;
 	}
-
 
 	public List<String> getHeader() {
 		return m_header;

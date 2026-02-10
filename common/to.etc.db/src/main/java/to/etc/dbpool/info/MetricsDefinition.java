@@ -1,6 +1,5 @@
 package to.etc.dbpool.info;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbpool.DbPoolUtil;
@@ -30,6 +29,7 @@ final public class MetricsDefinition {
 
 	final private IMetricValueTranslator m_translator;
 
+	@Nullable
 	final private String m_description;
 
 	final private boolean m_defined;
@@ -56,6 +56,7 @@ final public class MetricsDefinition {
 
 		private int m_order;
 
+		@Nullable
 		private int[] m_minmax;
 
 		public MetricBuilder(String key) {
@@ -95,7 +96,7 @@ final public class MetricsDefinition {
 		public void register() {
 			IMetricValueTranslator xlat = m_xlat;
 			if(xlat == null)
-				xlat = (a) -> String.valueOf(a);
+				xlat = a -> String.valueOf(a);
 
 			MetricsDefinition.register(new MetricsDefinition(m_id, m_key, m_label == null ? m_key : m_label, xlat, m_desc == null ? m_key : m_desc, true, m_order, m_minmax));
 		}
@@ -105,7 +106,7 @@ final public class MetricsDefinition {
 		this(id, key, label, translator, description, defined, 100, new int[0]);
 	}
 
-	public MetricsDefinition(int id, String key, String label, IMetricValueTranslator translator, String description, boolean defined, int order, int[] minmax) {
+	public MetricsDefinition(int id, String key, String label, IMetricValueTranslator translator, @Nullable String description, boolean defined, int order, int[] minmax) {
 		m_id = id;
 		m_key = key;
 		m_label = label;
@@ -123,9 +124,11 @@ final public class MetricsDefinition {
 	static public void register(String key, String label, String description, IMetricValueTranslator tx) {
 		register(new MetricsDefinition(0, key, label, tx, description, true));
 	}
+
 	static public void register(String key, String label, IMetricValueTranslator tx) {
 		register(new MetricsDefinition(0, key, label, tx, label, true));
 	}
+
 	static public void register(String key, IMetricValueTranslator tx) {
 		register(new MetricsDefinition(0, key, key, tx, key, true));
 	}
@@ -133,9 +136,11 @@ final public class MetricsDefinition {
 	static public void register(int id, String key, String label, String description, IMetricValueTranslator tx) {
 		register(new MetricsDefinition(id, key, label, tx, description, true));
 	}
+
 	static public void register(int id, String key, String label, IMetricValueTranslator tx) {
 		register(new MetricsDefinition(id, key, label, tx, label, true));
 	}
+
 	static public void register(int id, String key, IMetricValueTranslator tx) {
 		register(new MetricsDefinition(id, key, key, tx, key, true));
 	}
@@ -169,30 +174,17 @@ final public class MetricsDefinition {
 	//}
 
 	static {
-		IMetricValueTranslator time = new IMetricValueTranslator() {
-			@Override
-			public String translate(double value) {
-				return DbPoolUtil.strNanoTime((long) (value * 1000));
-			}
-		};
+		IMetricValueTranslator time = value -> DbPoolUtil.strNanoTime((long) (value * 1000));
 
-		IMetricValueTranslator num = new IMetricValueTranslator() {
-			@Override
-			public String translate(double value) {
-				return DbPoolUtil.strCommad((long) value);
-			}
-		};
+		IMetricValueTranslator num = value -> DbPoolUtil.strCommad((long) value);
 
-		IMetricValueTranslator bytes = (a) -> DbPoolUtil.strSize((long) a);
+		IMetricValueTranslator bytes = a -> DbPoolUtil.strSize((long) a);
 
-		IMetricValueTranslator tensofms = (a) -> DbPoolUtil.strNanoTime((long) a * 10 * 1000 * 1000);
+		IMetricValueTranslator tensofms = a -> DbPoolUtil.strNanoTime((long) a * 10 * 1000 * 1000);
 
-		IMetricValueTranslator buffers = new IMetricValueTranslator() {
-			@Override
-			public String translate(double value) {
-				long v = (long) value;
-				return DbPoolUtil.strCommad(v) + " (" + DbPoolUtil.strSize(v * 8192) + ")";
-			}
+		IMetricValueTranslator buffers = value -> {
+			long v = (long) value;
+			return DbPoolUtil.strCommad(v) + " (" + DbPoolUtil.strSize(v * 8192) + ")";
 		};
 
 		register("DB CPU", "Database CPU time", time);
@@ -428,10 +420,9 @@ final public class MetricsDefinition {
 		return new MetricBuilder(key);
 	}
 
-
 	public static List<String> metricNamesByID(int id) {
 		List<String> res = new ArrayList<>();
-		for(MetricsDefinition md: m_definitionMap.values()) {
+		for(MetricsDefinition md : m_definitionMap.values()) {
 			if(md.getId() == id) {
 				res.add(md.getKey());
 			}
@@ -439,12 +430,8 @@ final public class MetricsDefinition {
 		return res;
 	}
 
-	static public synchronized MetricsDefinition getOrCreate(@NonNull String name) {
-		MetricsDefinition md = m_definitionMap.get(name);
-		if(null == md) {
-			md = new MetricsDefinition(-1, name, name, a -> String.valueOf(a), null, false, 0, null);
-			m_definitionMap.put(name, md);
-		}
+	static public synchronized MetricsDefinition getOrCreate(String name) {
+		MetricsDefinition md = m_definitionMap.computeIfAbsent(name, z -> new MetricsDefinition(-1, name, name, a -> String.valueOf(a), null, false, 0, new int[0]));
 		return md;
 	}
 

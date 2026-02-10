@@ -63,17 +63,17 @@ import to.etc.webapp.query.QRestrictorImpl;
 import java.math.BigDecimal;
 import java.util.List;
 
-abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT, OT> implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication {
+abstract public class LookupInputBase<Q, O> extends AbstractLookupInputBase<Q, O> implements IControl<O>, ITypedControl<O>, IHasModifiedIndication {
 	public static final String MAGIC_ID_MARKER = "?id?";
 
 	@Nullable
-	private SearchPanel<QT> m_lookupForm;
+	private SearchPanel<Q> m_lookupForm;
 
 	@Nullable
 	private FloatingWindow m_floater;
 
 	@Nullable
-	private DataTable<OT> m_result;
+	private DataTable<O> m_result;
 
 	@Nullable
 	private String m_formTitle;
@@ -85,10 +85,10 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	private IActionAllowed m_isLookupAllowed;
 
 	@Nullable
-	private KeyWordSearchInput<OT> m_keySearch;
+	private KeyWordSearchInput<O> m_keySearch;
 
 	@Nullable
-	private IKeyWordSearchQueryFactory<QT> m_keyWordSearchHandler;
+	private IKeyWordSearchQueryFactory<Q> m_keyWordSearchHandler;
 
 	/**
 	 * When T (default) you can press search on an empty popup form. 20120511 jal Default set to true.
@@ -136,20 +136,20 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * If set, enables custom init code on SearchPanel that is in use for this component, triggers before SearchPanel is shown
 	 */
 	@Nullable
-	private ILookupFormModifier<QT> m_lookupFormInitialization;
+	private ILookupFormModifier<Q> m_lookupFormInitialization;
 
 	/**
 	 * Internal: the actual form row renderer used by the code. This will be set to a default renderer if the user
 	 * did not specify a row renderer.
 	 */
 	@Nullable
-	private IClickableRowRenderer<OT> m_actualFormRowRenderer;
+	private IClickableRowRenderer<O> m_actualFormRowRenderer;
 
 	/**
 	 * The row renderer used to render rows in the quick search dropdown box showing the results of the quick search.
 	 */
 	@Nullable
-	private KeyWordPopupRowRenderer<OT> m_dropdownRowRenderer;
+	private KeyWordPopupRowRenderer<O> m_dropdownRowRenderer;
 
 	/**
 	 * Interface provides assess to used lookup form initialization method.
@@ -179,13 +179,13 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * This must create the table model for the output type from the query on the input type.
 	 */
 	@NonNull
-	abstract protected ITableModel<OT> createTableModel(@NonNull QCriteria<QT> query) throws Exception;
+	abstract protected ITableModel<O> createTableModel(@NonNull QCriteria<Q> query) throws Exception;
 
 	/**
 	 * Create a lookup control that shows the specified column set in both quick lookup mode and form lookup
 	 * mode.
 	 */
-	public LookupInputBase(@NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass, @NonNull String... resultColumns) {
+	public LookupInputBase(@NonNull Class<Q> queryClass, @NonNull Class<O> resultClass, @NonNull String... resultColumns) {
 		this(null, queryClass, resultClass, null, null);
 		setResultColumns(resultColumns);
 	}
@@ -193,15 +193,15 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	/**
 	 * Lookup a POJO Java bean persistent class.
 	 */
-	public LookupInputBase(@NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass) {
+	public LookupInputBase(@NonNull Class<Q> queryClass, @NonNull Class<O> resultClass) {
 		this(null, queryClass, resultClass, null, null);
 	}
 
-	public LookupInputBase(@NonNull QCriteria<QT> rootCriteria, @NonNull Class<OT> resultClass) {
+	public LookupInputBase(@NonNull QCriteria<Q> rootCriteria, @NonNull Class<O> resultClass) {
 		this(rootCriteria, DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, null, null);
 	}
 
-	public LookupInputBase(@Nullable QCriteria<QT> rootCriteria, @NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel,
+	public LookupInputBase(@Nullable QCriteria<Q> rootCriteria, @NonNull Class<Q> queryClass, @NonNull Class<O> resultClass, @Nullable ClassMetaModel queryMetaModel,
 		@Nullable ClassMetaModel outputMetaModel) {
 		super(rootCriteria, queryClass, resultClass, queryMetaModel, outputMetaModel);
 	}
@@ -236,16 +236,16 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	}
 
 	private void addKeySearchField(NodeContainer parent) {
-		KeyWordSearchInput<OT> ks = new KeyWordSearchInput<>(getKeyWordSearchCssClass());
+		KeyWordSearchInput<O> ks = new KeyWordSearchInput<>(getKeyWordSearchCssClass());
 		setKeySearch(ks);
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 		//ks.setAbsolutePopupLayoutQuirkMode(m_absolutePopupLayoutQuirkMode);
-		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
+		KeyWordPopupRowRenderer<O> rr = getDropdownRowRenderer();
 		rr.setRowClicked(val -> handleSetValue(val));
 		ks.setResultsHintPopupRowRenderer(rr);
 
 		ks.setOnLookupTyping(component -> {
-			ITableModel<OT> keySearchModel = searchKeyWord(component.getKeySearchValue());
+			ITableModel<O> keySearchModel = searchKeyWord(component.getKeySearchValue());
 			component.showResultsHintPopup(null);
 			if(keySearchModel == null) {
 				//in case of insufficient searchString data cancel search and return.
@@ -266,7 +266,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		});
 
 		ks.setOnShowResults(component -> {
-			ITableModel<OT> keySearchModel = searchKeyWord(component.getKeySearchValue());
+			ITableModel<O> keySearchModel = searchKeyWord(component.getKeySearchValue());
 			component.showResultsHintPopup(null);
 			if(keySearchModel == null) {
 				//in case of insufficient searchString data cancel search and popup clean search dialog.
@@ -289,12 +289,15 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			addCssClass(kscss);
 		}
 		String hint = getKeySearchHint();
-		ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (hint != null) ? hint : getDefaultKeySearchHint()));
+		if(null == hint)
+			hint = getDefaultKeySearchHint();
+		if(null != hint)
+			ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, hint));
 	}
 
 	@Override
 	@Nullable
-	protected KeyWordSearchInput<OT> getKeySearch() {
+	protected KeyWordSearchInput<O> getKeySearch() {
 		return m_keySearch;
 	}
 
@@ -308,9 +311,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * dropdown below the quicksearch input box.
 	 */
 	@NonNull
-	private KeyWordPopupRowRenderer<OT> getDropdownRowRenderer() {
+	private KeyWordPopupRowRenderer<O> getDropdownRowRenderer() {
 		if(null == m_dropdownRowRenderer) {
-			m_dropdownRowRenderer = new KeyWordPopupRowRenderer<OT>(getOutputMetaModel());
+			m_dropdownRowRenderer = new KeyWordPopupRowRenderer<>(getOutputMetaModel());
 		}
 		return DomUtil.nullChecked(m_dropdownRowRenderer);
 	}
@@ -321,12 +324,12 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * @return Matching data or null in case that search is cancelled because of insufficient number of characters typed into keyword search field.
 	 */
 	@Nullable
-	private ITableModel<OT> searchKeyWord(@Nullable String searchString) throws Exception {
+	private ITableModel<O> searchKeyWord(@Nullable String searchString) throws Exception {
 		if(searchString == null || searchString.trim().isEmpty()) {
 			return null;
 		}
 		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
-		QCriteria<QT> searchQuery;
+		QCriteria<Q> searchQuery;
 
 		Long magicId = getMagicString(searchString);
 		if(magicId != null) {
@@ -370,9 +373,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * Used for speeding up tests
 	 */
 	@NonNull
-	private QCriteria<QT> createTestQuery(@NonNull Long magicId) throws Exception {
+	private QCriteria<Q> createTestQuery(@NonNull Long magicId) throws Exception {
 		if(IIdentifyable.class.isAssignableFrom(getQueryClass())) {
-			QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
+			QCriteria<Q> searchQuery = (QCriteria<Q>) getQueryMetaModel().createCriteria();
 			searchQuery.eq("id", magicId);
 			return searchQuery;
 		}
@@ -380,9 +383,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	}
 
 	@Nullable
-	private QCriteria<QT> createStandardQuery(String searchString) throws Exception {
-		QCriteria<QT> searchQuery;
-		IKeyWordSearchQueryFactory<QT> ksh = getKeyWordSearchHandler();
+	private QCriteria<Q> createStandardQuery(String searchString) throws Exception {
+		QCriteria<Q> searchQuery;
+		IKeyWordSearchQueryFactory<Q> ksh = getKeyWordSearchHandler();
 		if(ksh != null) {
 			searchQuery = ksh.createQuery(searchString);
 			if(searchQuery == null) {
@@ -391,17 +394,17 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			}
 		} else {
 			searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
-			if(searchString.startsWith("$$") && searchString.length() > 2) {
-				String idString = searchString.substring(2);
-
-			}
+			//if(searchString.startsWith("$$") && searchString.length() > 2) {
+			//	String idString = searchString.substring(2);
+			//
+			//}
 
 			//-- Has default meta?
 			List<SearchPropertyMetaModel> kwl = getKeywordLookupPropertyList();
 			List<SearchPropertyMetaModel> spml = kwl == null ? getQueryMetaModel().getKeyWordSearchProperties() : kwl;
-			searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
+			searchQuery = (QCriteria<Q>) getQueryMetaModel().createCriteria();
 
-			QRestrictorImpl<QT> r = searchQuery.or();
+			QRestrictorImpl<Q> r = searchQuery.or();
 			int ncond = 0;
 			if(!spml.isEmpty()) {
 				for(SearchPropertyMetaModel spm : spml) {
@@ -454,7 +457,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 */
 	@Override
 	protected void openPopupWithClick() throws Exception {
-		KeyWordSearchInput<OT> keySearch = getKeySearch();
+		KeyWordSearchInput<O> keySearch = getKeySearch();
 		if(keySearch != null) {
 			toggleFloater(searchKeyWord(keySearch.getKeySearchValue()));
 		} else {
@@ -466,7 +469,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * Show the full search window, and if a model is passed populate the search result list
 	 * with the contents of that model.
 	 */
-	private void toggleFloater(@Nullable ITableModel<OT> keySearchModel) throws Exception {
+	private void toggleFloater(@Nullable ITableModel<O> keySearchModel) throws Exception {
 		if(m_floater != null) {
 			m_floater.close();
 			m_floater = null;
@@ -499,14 +502,14 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 		//in case when external error message listener is set
 		IErrorMessageListener cerl = m_customErrorMessageListener;
-		if(cerl != null && cerl instanceof NodeBase) {
+		if(cerl instanceof NodeBase nb) {
 			f.setErrorFence();
-			f.add((NodeBase) cerl);
+			f.add(nb);
 			DomUtil.getMessageFence(f).addErrorListener(cerl);
 		}
-		SearchPanel<QT> lf = getSearchPanel();
+		SearchPanel<Q> lf = getSearchPanel();
 		if(lf == null) {
-			QCriteria<QT> rootCriteria = getRootCriteria();
+			QCriteria<Q> rootCriteria = getRootCriteria();
 			if(null != rootCriteria)
 				lf = new SearchPanel<>(rootCriteria);
 			else
@@ -531,7 +534,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			m_result = null;
 		});
 
-		lf.setClicked((IClicked<SearchPanel<QT>>) b -> search(b));
+		lf.setClicked((IClicked<SearchPanel<Q>>) b -> search(b));
 
 		lf.setOnCancel(b -> f.closePressed());
 
@@ -552,7 +555,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		}
 	}
 
-	protected void setKeySearch(@Nullable KeyWordSearchInput<OT> keySearch) {
+	protected void setKeySearch(@Nullable KeyWordSearchInput<O> keySearch) {
 		m_keySearch = keySearch;
 	}
 
@@ -575,8 +578,8 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		throw new IllegalStateException("Floating search window is not currently present");
 	}
 
-	private void search(SearchPanel<QT> lf) throws Exception {
-		QCriteria<QT> c = lf.getCriteria();
+	private void search(SearchPanel<Q> lf) throws Exception {
+		QCriteria<Q> c = lf.getCriteria();
 		if(c == null)                        // Some error has occured?
 			return;                            // Don't do anything (errors will have been registered)
 
@@ -595,16 +598,16 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		setTableQuery(c);
 	}
 
-	private void setTableQuery(@NonNull QCriteria<QT> qc) throws Exception {
-		ITableModel<OT> model = createTableModel(qc);                    // Ask derived to convert the query into my output model
+	private void setTableQuery(@NonNull QCriteria<Q> qc) throws Exception {
+		ITableModel<O> model = createTableModel(qc);                    // Ask derived to convert the query into my output model
 		setResultModel(model);
 	}
 
-	private void setResultModel(@NonNull ITableModel<OT> model) throws Exception {
-		DataTable<OT> dt = m_result;
+	private void setResultModel(@NonNull ITableModel<O> model) throws Exception {
+		DataTable<O> dt = m_result;
 		if(dt == null) {
 			//-- We do not yet have a result table -> create one.
-			dt = m_result = new DataTable<OT>(model, getActualFormRowRenderer());
+			dt = m_result = new DataTable<>(model, getActualFormRowRenderer());
 
 			getFloater().add(dt);
 			dt.setPageSize(20);
@@ -631,8 +634,8 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * Either use the user-specified popup form row renderer or create one using resultColumns or the default metadata.
 	 */
 	@NonNull
-	public IRowRenderer<OT> getActualFormRowRenderer() {
-		IClickableRowRenderer<OT> actualFormRowRenderer = m_actualFormRowRenderer;
+	public IRowRenderer<O> getActualFormRowRenderer() {
+		IClickableRowRenderer<O> actualFormRowRenderer = m_actualFormRowRenderer;
 		if(null == actualFormRowRenderer) {
 			//-- Is a form row renderer specified by the user - then use it, else create a default one.
 			actualFormRowRenderer = m_actualFormRowRenderer = getFormRowRenderer();
@@ -641,9 +644,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			}
 
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
-			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
+			actualFormRowRenderer.setRowClicked(new ICellClicked<O>() {
 				@Override
-				public void cellClicked(@NonNull OT val) throws Exception {
+				public void cellClicked(@NonNull O val) throws Exception {
 					getFloater().clearGlobalMessage(Msgs.vMissingSearch);
 					if(!getDataTable().isMultiSelectionVisible()) {
 						LookupInputBase.this.toggleFloater(null);
@@ -657,7 +660,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	@Override
 	protected String getKeySearchValue() {
-		KeyWordSearchInput<OT> ks = getKeySearch();
+		KeyWordSearchInput<O> ks = getKeySearch();
 		if(null == ks)
 			return null;
 		return ks.getKeySearchValue();
@@ -694,11 +697,11 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * a SearchPanel using metadata.
 	 */
 	@Nullable
-	public SearchPanel<QT> getSearchPanel() {
+	public SearchPanel<Q> getSearchPanel() {
 		return m_lookupForm;
 	}
 
-	public void setSearchPanel(@Nullable SearchPanel<QT> externalSearchPanel) {
+	public void setSearchPanel(@Nullable SearchPanel<Q> externalSearchPanel) {
 		m_lookupForm = externalSearchPanel;
 	}
 
@@ -721,11 +724,11 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	}
 
 	@Nullable
-	public IKeyWordSearchQueryFactory<QT> getKeyWordSearchHandler() {
+	public IKeyWordSearchQueryFactory<Q> getKeyWordSearchHandler() {
 		return m_keyWordSearchHandler;
 	}
 
-	public void setKeyWordSearchHandler(@Nullable IKeyWordSearchQueryFactory<QT> keyWordSearchManipulator) {
+	public void setKeyWordSearchHandler(@Nullable IKeyWordSearchQueryFactory<Q> keyWordSearchManipulator) {
 		m_keyWordSearchHandler = keyWordSearchManipulator;
 	}
 
@@ -735,7 +738,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	@Override
 	public void setKeySearchHint(@Nullable String keySearchHint) {
 		super.setKeySearchHint(keySearchHint);
-		KeyWordSearchInput<OT> keySearch = getKeySearch();
+		KeyWordSearchInput<O> keySearch = getKeySearch();
 		if(keySearch != null)
 			keySearch.setHint(keySearchHint); // Remove the hint on null.
 	}
@@ -784,11 +787,11 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		}
 	}
 
-	public ILookupFormModifier<QT> getSearchPanelInitialization() {
+	public ILookupFormModifier<Q> getSearchPanelInitialization() {
 		return m_lookupFormInitialization;
 	}
 
-	public void setSearchPanelInitialization(ILookupFormModifier<QT> lookupFormInitialization) {
+	public void setSearchPanelInitialization(ILookupFormModifier<Q> lookupFormInitialization) {
 		m_lookupFormInitialization = lookupFormInitialization;
 	}
 
@@ -797,16 +800,15 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * content renderer to render the fields.
 	 */
 	public void setValueColumns(String... columns) {
-		setValueRenderer(new LookupInputPropertyRenderer<OT>(getOutputClass(), columns));
+		setValueRenderer(new LookupInputPropertyRenderer<>(getOutputClass(), columns));
 	}
 
 	/**
 	 * Add column specs for the full query form's result list.
 	 */
 	public void addFormColumns(@NonNull Object... columns) {
-		IRowRenderer<OT> rr = getActualFormRowRenderer();
-		if(rr instanceof RowRenderer<?>) {
-			RowRenderer<?> r = (RowRenderer<?>) rr;
+		IRowRenderer<O> rr = getActualFormRowRenderer();
+		if(rr instanceof RowRenderer<?> r) {
 			for(Object column : columns)
 				r.column((String) column);
 		} else
@@ -817,7 +819,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * Define the full column spec in the format described for {@link RowRenderer} for the dropdown box
 	 * showing quick search results.
 	 */
-	public void addDropdownColumns(@NonNull Object... columns) {
+	public void addDropdownColumns(@NonNull String... columns) {
 		getDropdownRowRenderer().addColumns(columns);
 	}
 
@@ -827,7 +829,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 */
 	@Deprecated
 	public void setResultColumns(@NonNull String... resultColumns) {
-		addDropdownColumns((Object[]) resultColumns);
+		addDropdownColumns(resultColumns);
 		addFormColumns((Object[]) resultColumns);
 	}
 
@@ -844,7 +846,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			setAllowEmptyQuery(true);
 	}
 
-	protected DataTable<OT> getDataTable() {
+	protected DataTable<O> getDataTable() {
 		return m_result;
 	}
 

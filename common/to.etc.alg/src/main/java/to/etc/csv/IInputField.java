@@ -24,12 +24,7 @@
  */
 package to.etc.csv;
 
-/**
- *
- * Created on Oct 13, 2003
- * @author jal
- */
-public interface iInputField {
+public interface IInputField {
 	void setName(String s);
 
 	boolean isEmpty();

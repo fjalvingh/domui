@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,7 +39,6 @@ import static to.etc.log.LogUtil.createTransformerFactory;
 
 /**
  * Implements logger factory. Encapsulates definitions and configuration of loggers used.
- *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Oct 30, 2012
@@ -56,34 +56,41 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	private static final EtcLoggerFactory SINGLETON;
 
 	@NonNull
-	private static final ThreadLocal<SimpleDateFormat> DATEFORMATTER = new ThreadLocal<SimpleDateFormat>() {
-		@Override
-		protected SimpleDateFormat initialValue() {
-			return new SimpleDateFormat("yyMMdd");
-		}
-	};
+	private static final ThreadLocal<SimpleDateFormat> DATEFORMATTER = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyMMdd"));
 
-	/** Root config file for logger configuration. */
+	/**
+	 * Root config file for logger configuration.
+	 */
 	@Nullable
 	private File m_writableConfig = new File(LogUtil.getTmpDir(), DEFAULT_CONFIG_FILENAME);
 
-	/** Log dir where all logger are doing output. */
+	/**
+	 * Log dir where all logger are doing output.
+	 */
 	@NonNull
 	private File m_logDir = LogUtil.getTmpDir();
 
-	/** logLocation stored value inside config file. */
+	/**
+	 * logLocation stored value inside config file.
+	 */
 	@Nullable
 	private String m_logDirOriginalConfigured;
 
-	/** Contains loaded Logger instances. */
+	/**
+	 * Contains loaded Logger instances.
+	 */
 	@NonNull
-	private final Map<String, EtcLogger> LOGGERS = new HashMap<>();
+	private final Map<String, EtcLogger> m_loggerByIdMap = new HashMap<>();
 
-	/** Contains handler instances - logger instances behavior definition. */
+	/**
+	 * Contains handler instances - logger instances behavior definition.
+	 */
 	@NonNull
 	private List<ILogHandler> m_handlers = new CopyOnWriteArrayList<>();
 
-	/** Default general log level */
+	/**
+	 * Default general log level
+	 */
 	@NonNull
 	private static final Level DEFAULT_LEVEL = Level.ERROR;
 
@@ -102,7 +109,6 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	/**
 	 * Exception type used to notify errors during loading of logger configuration.
 	 *
-	 *
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
 	 * Created on Oct 30, 2012
 	 */
@@ -116,15 +122,9 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	@NonNull
 	public EtcLogger getLogger(@NonNull String key) {
 		initialize();
-		EtcLogger logger;
-		synchronized(LOGGERS) {
-			logger = LOGGERS.get(key);
-			if(logger == null) {
-				logger = EtcLogger.create(key, calcLevel(key));
-				LOGGERS.put(key, logger);
-			}
+		synchronized(m_loggerByIdMap) {
+			return m_loggerByIdMap.computeIfAbsent(key, a -> EtcLogger.create(key, calcLevel(key)));
 		}
-		return logger;
 	}
 
 	private synchronized void initialize() {
@@ -198,12 +198,12 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 					initializeFromFile(editableConfigPath);
 					return true;
 				} catch(Exception x) {
+					// Ignore
 				}
 			}
 		}
 		return false;
 	}
-
 
 	public synchronized void initializeFromFile(@NonNull File configFile, @Nullable File editableConfigPath) throws Exception {
 		if(initializeFromEditableFile(editableConfigPath))
@@ -215,7 +215,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	 * Initialize the logger config from the given file.
 	 */
 	public synchronized void initializeFromFile(@NonNull File configFile) throws Exception {
-		if(! configFile.exists())
+		if(!configFile.exists())
 			throw new IOException(configFile + ": file does not exist");
 
 		String configXml = LogUtil.readFileAsString(configFile, "utf-8");
@@ -232,15 +232,11 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	public synchronized void loadConfigFromXml(@NonNull String configXml) throws Exception {
-		StringReader sr = null;
-		try {
+		try(StringReader sr = new StringReader(configXml)) {
 			DocumentBuilderFactory dbf = createDocumentBuilderFactory();
 			DocumentBuilder db = dbf.newDocumentBuilder();
-			sr = new StringReader(configXml);
 			Document doc = db.parse(new InputSource(sr));
 			loadConfig(doc);
-		} finally {
-			sr.close();
 		}
 	}
 
@@ -255,16 +251,17 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		}
 	}
 
+	@SuppressWarnings("squid:S899")
 	public boolean canSave() {
 		File writableConfig = m_writableConfig;
-		try{
+		try {
 			if(null != writableConfig) {
 				writableConfig.getParentFile().mkdirs();
-				if(! writableConfig.canWrite()) {
+				if(!writableConfig.canWrite()) {
 					writableConfig.createNewFile();
 				}
 			}
-		}catch(Exception ex) {
+		} catch(Exception ex) {
 			//ignore
 		}
 		return null != writableConfig && writableConfig.canWrite();
@@ -275,7 +272,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	 */
 	public void saveConfig() throws Exception {
 		File writableConfig = m_writableConfig;
-		if(! canSave() || writableConfig == null) {
+		if(!canSave() || writableConfig == null) {
 			throw new IllegalStateException("The configuration cannot be saved: no output file or the output file is not writable");
 		}
 
@@ -285,7 +282,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		TransformerFactory transformerFactory = createTransformerFactory();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
-		try(Writer fw = new OutputStreamWriter(new FileOutputStream(writableConfig), "utf-8")) {
+		try(Writer fw = new OutputStreamWriter(new FileOutputStream(writableConfig), StandardCharsets.UTF_8)) {
 			StreamResult result = new StreamResult(fw);
 			transformer.transform(source, result);
 		}
@@ -293,7 +290,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	@NonNull
 	public Document toXml(boolean includeNonPerstistable) throws ParserConfigurationException {
-		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.newDocument();
 		Element rootElement = doc.createElement("config");
@@ -311,8 +308,8 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	private void recalculateLoggers() {
-		synchronized(LOGGERS) {
-			for(EtcLogger logger : LOGGERS.values()) {
+		synchronized(m_loggerByIdMap) {
+			for(EtcLogger logger : m_loggerByIdMap.values()) {
 				logger.setLevel(calcLevel(logger.getName()));
 			}
 		}
@@ -329,7 +326,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	public void loadConfig(@NonNull Document doc) throws LoggerConfigException {
-		List<ILogHandler> loadedHandlers = new ArrayList<ILogHandler>();
+		List<ILogHandler> loadedHandlers = new ArrayList<>();
 		doc.getDocumentElement().normalize();
 		NodeList configNodes = doc.getElementsByTagName("config");
 		if(configNodes.getLength() == 0) {

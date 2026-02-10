@@ -26,7 +26,6 @@ package to.etc.domui.component.upload;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
@@ -39,7 +38,6 @@ import to.etc.domui.dom.html.Form;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.Page;
 import to.etc.domui.parts.ComponentPartRenderer;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.ConversationContext;
@@ -118,24 +116,24 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		render();
 	}
 
-	private void renderSelected() {
-		Div valueD = new Div("ui-fup2-value");
-		add(valueD);
-
-		//-- render the selected filse as a name
-		for(UploadItem item : m_value) {
-			Div d = new Div();
-			valueD.add(d);
-			d.add(item.getRemoteFileName());
-		}
-
-		IIconRef clearButtonIcon = m_clearButtonIcon;
-		if(clearButtonIcon != null) {
-			add(new DefaultButton("", clearButtonIcon, b -> clear()));
-		} else {
-			add(new DefaultButton(m_clearButtonText, b -> clear()));
-		}
-	}
+	//private void renderSelected() {
+	//	Div valueD = new Div("ui-fup2-value");
+	//	add(valueD);
+	//
+	//	//-- render the selected filse as a name
+	//	for(UploadItem item : m_value) {
+	//		Div d = new Div();
+	//		valueD.add(d);
+	//		d.add(item.getRemoteFileName());
+	//	}
+	//
+	//	IIconRef clearButtonIcon = m_clearButtonIcon;
+	//	if(clearButtonIcon != null) {
+	//		add(new DefaultButton("", clearButtonIcon, b -> clear()));
+	//	} else {
+	//		add(new DefaultButton(m_clearButtonText, b -> clear()));
+	//	}
+	//}
 
 	private void render() {
 		Div valueD = new Div("ui-control ui-input");
@@ -233,8 +231,6 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 			validate();
 			setMessage(null);
 			List<UploadItem> value = m_value;
-			if(value == null)
-				return Collections.emptyList();
 			return Collections.unmodifiableList(value);
 		} catch(ValidationException vx) {
 			setMessage(UIMessage.error(vx));
@@ -243,7 +239,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	}
 
 	private void validate() {
-		if((m_value == null || m_value.isEmpty()) && isMandatory()) {
+		if((m_value.isEmpty()) && isMandatory()) {
 			throw new ValidationException(Msgs.mandatory);
 		}
 	}
@@ -360,7 +356,6 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		forceRebuild();
 		// We need this page reference since in onValueChanged() force rebuild might happen again
 		// and then we'll lose the page reference needed for renderOptimalDelta().
-		Page p = getPage();
 		if(m_onValueChanged != null)
 			((IValueChanged<FileUploadMultiple>) m_onValueChanged).onValueChanged(this);
 		return true;

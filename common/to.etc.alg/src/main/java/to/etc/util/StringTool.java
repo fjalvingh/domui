@@ -28,7 +28,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -447,60 +446,6 @@ public class StringTool {
 	}
 
 	/**
-	 * Takes a java string, without quotes, and replaces all escape sequences
-	 * in there with their actual character representation.
-	 */
-	public static void parseString(@NonNull final StringBuilder sb, @NonNull final String s) {
-		int i = 0;
-
-		while(i < s.length()) {
-			char c = s.charAt(i++);
-
-			if(c != '\\')
-				sb.append(c);
-			else {
-				if(i >= s.length()) {
-					sb.append(c);
-					return;
-				}
-				c = s.charAt(i++);
-				switch(c) {
-					case '"':
-						sb.append('"');
-						break;
-					case '\'':
-						sb.append('\'');
-						break;
-					case 'b':
-						sb.append('\b');
-						break;
-					case 'f':
-						sb.append('\f');
-						break;
-					case 'n':
-						sb.append('\n');
-						break;
-					case 'r':
-						sb.append('\r');
-						break;
-					case 't':
-						sb.append('\t');
-						break;
-					case 'u':
-						//** Is UNICODE-
-						sb.append("\\u");
-						break;
-
-					default:
-						sb.append("\\");
-						sb.append(c);
-						break;
-				}
-			}
-		}
-	}
-
-	/**
 	 * If the input string is too long, returns a substring containing at most
 	 * maxlen characters.
 	 */
@@ -572,10 +517,6 @@ public class StringTool {
 		return "(" + x + "," + y + ")";
 	}
 
-	/********************************************************************/
-	/*	CODING:	Fuzzy String comparisons..								*/
-	/********************************************************************/
-
 	/**
 	 * This returns the Levenshtein distance between two strings, which is the number of <i>changes</i> (adds, removes)
 	 * that are needed to convert source into target. The number of changes is an indication of the difference between
@@ -586,8 +527,6 @@ public class StringTool {
 	}
 
 	public static int getLevenshteinDistance(@NonNull String s, @NonNull String t, boolean ignorecase, int substitutionCost) {
-		if(s == null || t == null)
-			throw new IllegalArgumentException("Strings must not be null");
 		if(ignorecase) {
 			s = s.trim().toLowerCase();
 			t = t.trim().toLowerCase();
@@ -599,8 +538,8 @@ public class StringTool {
 			return m;
 		} else // Optimization for when strings are equal.
 			if(m == 0) {
-			return n;
-		} else if(m == n && s.equals(t))
+				return n;
+			} else if(m == n && s.equals(t))
 				return 0;
 
 		int[] p = new int[n + 1]; // 'previous' cost array, horizontally
@@ -1027,6 +966,7 @@ public class StringTool {
 	 * @return the decoded array
 	 * @throws Exception if the array is malformed.
 	 */
+	@NonNull
 	static public byte[] fromHex(final String s) throws Exception {
 		int l = s.length();
 		if(l % 2 == 1)
@@ -1044,62 +984,11 @@ public class StringTool {
 		return ar;
 	}
 
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Finding files and constructing search paths.		*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * Returns the complete filename of the first file that is found along the
-	 * path specified.
-	 */
-	static public File findFileOnPath(final String fname, final String path) {
-		int six;
-		StringBuilder sb = new StringBuilder(64);
-
-		//		System.out.println("findFileOnPath: find "+fname+" on "+path);
-
-		six = 0;
-		while(six < path.length()) {
-			sb.setLength(0);
-			int eix = path.indexOf(File.pathSeparatorChar, six);
-			if(eix == -1)
-				eix = path.length();
-			String rp = path.substring(six, eix); // Get segment,
-			sb.append(rp);
-			if(!rp.endsWith(File.separator))
-				sb.append(File.separator);
-			sb.append(fname);
-			File f = new File(sb.toString());
-
-			//			System.out.println("Trying "+f.toString());
-
-			if(f.exists())
-				return f;
-
-			//** Nonexistent- retry,
-			six = eix + 1;
-		}
-		return null;
-	}
-
-	/**
-	 * Finds a filename along the classpath..
-	 */
-	static public File findFileOnEnv(final String pname, final String env) {
-		String ev = System.getProperty(env);
-		if(ev == null)
-			return null;
-		return findFileOnPath(pname, ev);
-	}
-
 	/**
 	 * Deprecated: use {@link FileTool#getFileExtension(String)}.
 	 * <p>
 	 * Returns the extension of a file. The extension includes the . If no
 	 * extension is present then the empty string is returned ("").
-	 *
-	 * @deprecated
 	 */
 	@Deprecated
 	static public String getFileExtension(final String fn) {
@@ -1122,7 +1011,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
 	static public String htmlStringize(final String is) {
@@ -1133,7 +1022,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
 	static public void htmlStringize(final StringBuilder sb, final String is) {
@@ -1142,7 +1031,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 * Linefeeds are not removed.
 	 */
@@ -1152,7 +1041,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 * when linefeeds leave linefeeds in body
 	 */
@@ -1184,7 +1073,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
 	static public void htmlStringize(final Appendable o, final String is) throws Exception {
@@ -1233,7 +1122,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
 	static public String xmlStringize(final String is) {
@@ -1259,7 +1148,7 @@ public class StringTool {
 
 	/**
 	 * Enter with a string; it returns the same string but replaces HTML
-	 * recognised characters with their &..; equivalent. This allows parts of
+	 * recognized characters with their &..; equivalent. This allows parts of
 	 * HTML to be rendered neatly.
 	 */
 	static public void xmlStringize(final StringBuilder sb, final String is) {
@@ -1368,8 +1257,7 @@ public class StringTool {
 			ix = epos + 1;
 
 			epos = str.indexOf(';', epos + 1); // Find terminating ';'
-			if(epos == -1) // Missing ; means 'no entity'
-			{
+			if(epos == -1) { // Missing ; means 'no entity'
 				sb.append('&');
 			} else {
 				String es = str.substring(ix, epos); // Get complete entity name
@@ -1420,8 +1308,7 @@ public class StringTool {
 	 * Translates an entity name to unicode. The entity can also be a numeral.
 	 */
 	static public int entityToUnicode(final String ename) {
-		if(ename.startsWith("#")) // Decimal code?
-		{
+		if(ename.startsWith("#")) { // Decimal code?
 			try {
 				return Integer.parseInt(ename.substring(1));
 			} catch(Exception x) {
@@ -1513,38 +1400,10 @@ public class StringTool {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Database field translation...						*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * Returns a boolean value from some database field. This returns T if
-	 * the string contains T, Y, 1.
-	 */
-	static public boolean dbGetBool(final String fv) {
-		if(fv == null)
-			return false;
-		if(fv.isEmpty())
-			return false;
-		char c = Character.toUpperCase(fv.charAt(0));
-		if(c == 'Y' || c == 'T')
-			return true;
-		if(c == '0')
-			return false;
-		return Character.isDigit(c);
-	}
-
-	/**
-	 * Returns a char(1) value to store in a database for booleans.
-	 */
-	static public String dbSetBool(final boolean v) {
-		return v ? "T" : "F";
-	}
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	Base 64 encoding/decoding (rfc2045)					*/
 	/*--------------------------------------------------------------*/
 
-	static public final byte[] getBase64Map() {
+	static public byte[] getBase64Map() {
 		return BASE64MAP;
 	}
 
@@ -1574,6 +1433,7 @@ public class StringTool {
 	 * @param data the data
 	 * @return the base64-encoded <var>data</var>
 	 */
+	@NonNull
 	public static byte[] encodeBase64(@NonNull final byte[] data) {
 		int sidx;
 		int didx;
@@ -1640,10 +1500,10 @@ public class StringTool {
 	 * @param data the base64-encoded data.
 	 * @return the decoded <var>data</var>.
 	 */
-	@Nullable
+	@NonNull
 	public static byte[] decodeBase64(final byte[] data) {
-		if(data == null || data.length == 0)
-			return null;
+		if(data.length == 0)
+			return new byte[0];
 		int tail = data.length;
 		while(data[tail - 1] == '=')
 			tail--;
@@ -1686,8 +1546,7 @@ public class StringTool {
 	static public void strStacktrace(final Appendable sb, final Throwable t) {
 		try {
 			sb.append(strStacktrace(t));
-		} catch(IOException x) // Sillyness of sillynesses
-		{
+		} catch(IOException x) {
 			x.printStackTrace();
 		}
 	}
@@ -1894,34 +1753,10 @@ public class StringTool {
 	static private boolean isSpecialUrlChar(byte da) {
 		if(da <= 32) // Everything including -1..-128 (0x80..0xff) is special
 			return true;
-		switch(da) {
-			default:
-				return false;
-			case '!':
-			case '*':
-			case '\'':
-			case '(':
-			case ')':
-			case ';':
-			case ':':
-			case '@':
-			case '&':
-			case '=':
-			case '+':
-				//			case '$':
-				//			case ',':
-			case '/':
-			case '?':
-			case '%':
-			case '#':
-			case '[':
-			case ']':
-			case '<':
-			case '>':
-			case '{':
-			case '}':
-				return true;
-		}
+		return switch(da) {
+			default -> false;
+			case '!', '*', '\'', '(', ')', ';', ':', '@', '&', '=', '+', '/', '?', '%', '#', '[', ']', '<', '>', '{', '}' -> true;
+		};
 	}
 
 	static public String encodeURLEncoded(final String str) {
@@ -1970,13 +1805,13 @@ public class StringTool {
 		return new String(data, 0, oix, StandardCharsets.UTF_8);
 	}
 
-	static public final String getLocation() {
+	static public String getLocation() {
 		StringBuilder sb = new StringBuilder(512);
 		getLocation(sb);
 		return sb.toString();
 	}
 
-	static public final void getLocation(final StringBuilder sb) {
+	static public void getLocation(final StringBuilder sb) {
 		sb.append("At ");
 		sb.append(new Date().toString());
 		sb.append(" in thread ");
@@ -1996,7 +1831,7 @@ public class StringTool {
 	 * Kept in api since it was useful for some debugs while coding, use just for debug purposes only, do not use in produciton code.
 	 * In case that dumping stack is required for production code for remote sessions on client side, please use sumbLEVELLocation methods that are using regular logger.
 	 */
-	static public final void dumpLocation(final String msg) {
+	static public void dumpLocation(final String msg) {
 		try {
 			throw new IllegalStateException("duh");
 		} catch(IllegalStateException x) {
@@ -2005,7 +1840,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpDebugLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpDebugLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at debug level for source location...");
 		} catch(IllegalStateException x) {
@@ -2013,7 +1848,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpTraceLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpTraceLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at trace level for source location...");
 		} catch(IllegalStateException x) {
@@ -2021,7 +1856,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpInfoLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpInfoLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at info level for source location...");
 		} catch(IllegalStateException x) {
@@ -2029,7 +1864,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpWarnLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpWarnLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at warn level for source location...");
 		} catch(IllegalStateException x) {
@@ -2037,7 +1872,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpErrorLocation(@NonNull Logger log, final @NonNull String msg) {
+	static public void dumpErrorLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at error level for source location...");
 		} catch(IllegalStateException x) {
@@ -2071,42 +1906,6 @@ public class StringTool {
 				sb.append(c);
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * Handles Oracle truncation rules:
-	 * <ul>
-	 * 	<li>If the string is > nchars truncate to nchars</li>
-	 * 	<li>Convert the string to bytes in UTF-8 encoding</li>
-	 * 	<li>If the string length, in bytes, is > 4000 bytes (the max stupid size of Oracle's stupid varchar2 column, stupid) remove characters until
-	 * 		the string fits the stupidly limited Oracle column</li>
-	 * </ul>
-	 */
-	static public String oldStrOracleTruncate(String in, int nchars) {
-		if(in == null)
-			return null;
-		if(nchars > 4000) {
-			nchars = 4000; //can't set more than 4000 bytes in it anyways
-		}
-		int len = in.length();
-		if(len > nchars) {
-			in = in.substring(0, nchars); // truncate to max size in characters.
-		} else {
-			nchars = len;
-		}
-		byte[] data = in.getBytes(StandardCharsets.UTF_8);
-		if(data.length <= 4000)
-			return in;
-
-		//-- Sh*t, exceeded length. Slowly determine the max. size;
-		len = nchars - (data.length - 4000);
-		for(; ; ) {
-			in = in.substring(0, len);
-			data = in.getBytes(StandardCharsets.UTF_8);
-			if(data.length <= 4000)
-				return in;
-			len--;
-		}
 	}
 
 	@Nullable
@@ -2247,34 +2046,6 @@ public class StringTool {
 		}
 		return ns + "ns";
 	}
-
-	///**
-	// * Case-sensitive replace of all occurrences of [old] with [new].
-	// */
-	//static public String strReplace(final String src, final String old, final String nw) {
-	//	if(src == null || old == null || nw == null || src.length() < old.length() || old.length() == 0)
-	//		return src;
-	//	int pos = src.indexOf(old); // Try to find quickly,
-	//	if(pos == -1)
-	//		return src; // Not found -> return original
-	//	int len = src.length();
-	//	StringBuilder sb = new StringBuilder(len + 20);
-	//	int ix = 0;
-	//	while(ix < len) {
-	//		if(pos > ix) {
-	//			sb.append(src, ix, pos); // Copy up to pos
-	//			ix = pos;
-	//		}
-	//		sb.append(nw); // Replace occurence,
-	//		ix += old.length(); // Past source occurence
-	//		pos = src.indexOf(old, ix);
-	//		if(pos == -1) {
-	//			sb.append(src, ix, len);
-	//			break;
-	//		}
-	//	}
-	//	return sb.toString();
-	//}
 
 	/**
 	 * If the throwable passed as a message then return it verbatim, else
@@ -2417,44 +2188,6 @@ public class StringTool {
 				return false;
 		}
 		return true;
-	}
-
-	static public void createInsertStatement(final StringBuilder sb, final String table, final String pkname, final String pkexpr, final String[] fields) {
-		sb.append("insert into ");
-		sb.append(table);
-		sb.append('(');
-		int fc = 0;
-		for(String s : fields) {
-			if(fc++ > 0)
-				sb.append(',');
-			sb.append(s);
-		}
-		sb.append(',');
-		sb.append(pkname);
-		sb.append(") values (");
-		for(int i = 0; i < fields.length; i++) {
-			if(i > 0)
-				sb.append(',');
-			sb.append('?');
-		}
-		sb.append(',');
-		sb.append(pkexpr);
-		sb.append(')');
-	}
-
-	static public void createUpdateStatement(final StringBuilder sb, final String table, final String pkname, final String[] fields) {
-		sb.append("update ");
-		sb.append(table);
-		sb.append(" set ");
-		for(int i = 0; i < fields.length; i++) {
-			if(i > 0)
-				sb.append(',');
-			sb.append(fields[i]);
-			sb.append("=?");
-		}
-		sb.append(" where ");
-		sb.append(pkname);
-		sb.append("=?");
 	}
 
 	static public String fill(final int count, final char character) {

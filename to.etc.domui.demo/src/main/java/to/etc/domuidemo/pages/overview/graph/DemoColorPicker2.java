@@ -1,12 +1,13 @@
 package to.etc.domuidemo.pages.overview.graph;
 
-import java.util.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.graph.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.util.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.graph.ColorPickerButton;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.MsgDiv;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domuidemo.logic.MyRandom;
+import to.etc.util.StringTool;
 
 public class DemoColorPicker2 extends UrlPage {
 	@Override
@@ -20,7 +21,7 @@ public class DemoColorPicker2 extends UrlPage {
 			@Override
 			public void clicked(DefaultButton clickednode) throws Exception {
 				String old = cp.getValue();
-				int color = new Random().nextInt(0x1000000);
+				int color = MyRandom.getRandom().nextInt(0x1000000);
 				String nw = StringTool.intToStr(color, 16, 6);
 				cp.setValue(nw);
 				add(new MsgDiv("Old color=" + old + ", new color=" + nw));

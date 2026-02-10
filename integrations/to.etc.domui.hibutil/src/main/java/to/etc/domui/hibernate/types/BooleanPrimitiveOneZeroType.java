@@ -14,6 +14,7 @@ import java.sql.Types;
  * A UserType implementation to map a boolean primitive object to a numeric value.<br /> A true
  * value maps to 1 and a false value maps to 0. This type does not recognise
  * nullity; it gets interpreted as a false.
+ *
  * @author jal
  */
 final public class BooleanPrimitiveOneZeroType implements UserType {
@@ -24,9 +25,7 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 
 	@Override
 	public Object deepCopy(Object value) throws HibernateException {
-		if(value == null)
-			return value;
-		return Boolean.valueOf(((Boolean) value).booleanValue());
+		return value;
 	}
 
 	@Override
@@ -52,7 +51,8 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 		return true;
 	}
 
-	@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+	@Override
+	public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
 		if(resultSet == null)
 			return null;
 		long v = resultSet.getLong(names[0]);
@@ -61,8 +61,12 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 		return Boolean.valueOf(v != 0);
 	}
 
-	@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
-		statement.setLong(index, value == null ? 0 : ((Boolean) value).booleanValue() ? 1 : 0);
+	@Override
+	public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+		if(value == null)
+			statement.setLong(index, 0L);
+		else
+			statement.setLong(index, ((Boolean) value).booleanValue() ? 1 : 0);
 	}
 
 	@Override
@@ -71,7 +75,7 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 	}
 
 	@Override
-	public Class< ? > returnedClass() {
+	public Class<?> returnedClass() {
 		return Boolean.class;
 	}
 
@@ -83,9 +87,6 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 	/**
 	 * Parsing of a String yields the following results: TRUE: if src equals
 	 * y,yes,1 or 'true' (case insensitive) FALSE: in all other cases
-	 *
-	 * @param src
-	 * @return
 	 */
 	public static Boolean parse(String src) {
 		if("1".equals(src) || "true".equalsIgnoreCase(src) || "Y".equalsIgnoreCase(src) || "yes".equalsIgnoreCase(src)) {

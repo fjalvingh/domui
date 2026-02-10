@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,13 +42,13 @@ class FileLogHandler implements ILogHandler {
 	 * Defines filters on which handler applies. To apply on logger, all filters must be matched.
 	 */
 	@NonNull
-	private List<LogFilter> m_filters = Collections.EMPTY_LIST;
+	private List<LogFilter> m_filters = new ArrayList<>(2);
 
 	/**
 	 * Keeps list of loggers that are marked as handled by handler.
 	 */
 	@NonNull
-	private final Map<EtcLogger, Boolean[]> m_loggers = new HashMap<EtcLogger, Boolean[]>();
+	private final Map<EtcLogger, Boolean[]> m_loggers = new HashMap<>();
 
 	@NonNull
 	private final Object m_writeLock = new Object();
@@ -82,9 +81,6 @@ class FileLogHandler implements ILogHandler {
 	}
 
 	public void addFilter(@NonNull LogFilter filter) {
-		if(m_filters == Collections.EMPTY_LIST) {
-			m_filters = new ArrayList<LogFilter>();
-		}
 		m_filters.add(filter);
 	}
 
@@ -100,13 +96,12 @@ class FileLogHandler implements ILogHandler {
 			isApplicable = decideOnMatchers(event);
 			applicablePerLevels[event.getLevel().getCode()] = isApplicable;
 		}
-		if(isApplicable.booleanValue()) {
-			if(checkFilters(event)) {
-				log(event);
-			}
+		if(isApplicable.booleanValue() && checkFilters(event)) {
+			log(event);
 		}
 	}
 
+	@SuppressWarnings("squid:S899")
 	private void log(@NonNull EtcLogEvent event) {
 		String line = m_format.format(event, getLogPartFromFilters());
 
@@ -114,28 +109,20 @@ class FileLogHandler implements ILogHandler {
 			if(m_out == null) {
 				System.out.println(line);
 			} else {
-				BufferedWriter w = null;
 				String fileName = EtcLoggerFactory.getSingleton().composeFullLogFileName(m_logRoot.getAbsolutePath(), m_out);
 
 				File outFile = new File(fileName);
 				outFile.getParentFile().mkdirs();
 				try {
 					outFile.createNewFile();
-					w = new BufferedWriter(new FileWriter(outFile, true));
-					w.write(line);
-					w.newLine();
+
+					try(BufferedWriter w = new BufferedWriter(new FileWriter(outFile, true))) {
+						w.write(line);
+						w.newLine();
+					}
 				} catch(IOException e) {
 					e.printStackTrace();
 					throw new RuntimeException(e);
-				} finally {
-					if(w != null) {
-						try {
-							w.close();
-						} catch(IOException e) {
-							e.printStackTrace();
-							throw new RuntimeException(e);
-						}
-					}
 				}
 			}
 		}
@@ -157,10 +144,8 @@ class FileLogHandler implements ILogHandler {
 	private Boolean decideOnMatchers(@NonNull EtcLogEvent event) {
 		LogMatcher closest = null;
 		for(LogMatcher matcher : m_matchers) {
-			if(matcher.matches(event)) {
-				if(closest == null || matcher.isSubmatcherOf(closest)) {
-					closest = matcher;
-				}
+			if(matcher.matches(event) && (closest == null || matcher.isSubmatcherOf(closest))) {
+				closest = matcher;
 			}
 		}
 		if(closest != null && closest.getLevel().includes(event.getLevel())) {
@@ -188,10 +173,8 @@ class FileLogHandler implements ILogHandler {
 	public Level listenAt(@NonNull String key) {
 		LogMatcher closest = null;
 		for(LogMatcher matcher : m_matchers) {
-			if(matcher.matchesName(key)) {
-				if(closest == null || matcher.isSubmatcherOf(closest)) {
-					closest = matcher;
-				}
+			if(matcher.matchesName(key) && (closest == null || matcher.isSubmatcherOf(closest))) {
+				closest = matcher;
 			}
 		}
 		return closest != null ? closest.getLevel() : null;

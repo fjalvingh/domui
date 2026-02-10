@@ -23,19 +23,21 @@ import java.util.stream.Stream;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 3, 2014
  */
-public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
+public class ColumnList<T> implements Iterable<ColumnDef<T, ?>> {
 	@NonNull
 	final private ClassMetaModel m_metaModel;
 
 	@NonNull
-	final private List<ColumnDef< T, ? >> m_columnList = new ArrayList<ColumnDef< T, ? >>();
+	final private List<ColumnDef<T, ?>> m_columnList = new ArrayList<>();
 
 	@Nullable
-	private ColumnDef< T, ? > m_sortColumn;
+	private ColumnDef<T, ?> m_sortColumn;
 
 	private boolean m_sortDescending;
 
-	/** The factor to multiply the #of characters with to get the real em width of a column. */
+	/**
+	 * The factor to multiply the #of characters with to get the real em width of a column.
+	 */
 	private double m_emFactor = 0.65;
 
 	@NonNull
@@ -51,9 +53,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		return m_columnList.size();
 	}
 
-	public void add(@NonNull ColumnDef< T, ? > cd) {
-		if(null == cd)
-			throw new IllegalArgumentException("Cannot be null");
+	public void add(@NonNull ColumnDef<T, ?> cd) {
 		m_columnList.add(cd);
 	}
 
@@ -63,7 +63,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	}
 
 	@NonNull
-	public ColumnDef< T, ? > get(int ix) {
+	public ColumnDef<T, ?> get(int ix) {
 		if(ix < 0 || ix >= m_columnList.size())
 			throw new IndexOutOfBoundsException("Column " + ix + " does not exist");
 		return m_columnList.get(ix);
@@ -71,19 +71,17 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 
 	/**
 	 * Set the default sort column by property name. If it is null the default sort is undone.
-	 * @param sort
 	 */
 	public void setDefaultSortColumn(@Nullable String sort) {
 		if(null == sort) {
 			m_sortColumn = null;
 		} else {
-			for(final ColumnDef< T, ? > scd : m_columnList) {
+			for(final ColumnDef<T, ?> scd : m_columnList) {
 				if(DomUtil.isEqual(scd.getPropertyName(), sort)) {
 					SortableType sortable = scd.getSortable();
-					if(sortable == SortableType.SORTABLE_ASC) {				// Is the default?
-						if(m_metaModel.getDefaultSortDirection() == SortableType.SORTABLE_DESC)
-							sortable = SortableType.SORTABLE_DESC;
-					}
+					// Is the default?
+					if(sortable == SortableType.SORTABLE_ASC && m_metaModel.getDefaultSortDirection() == SortableType.SORTABLE_DESC)
+						sortable = SortableType.SORTABLE_DESC;
 					setSortColumn(scd, sortable);
 					break;
 				}
@@ -91,12 +89,12 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		}
 	}
 
-	public void setSortColumn(@Nullable ColumnDef< T, ? > cd, @Nullable SortableType type) {
+	public void setSortColumn(@Nullable ColumnDef<T, ?> cd, @Nullable SortableType type) {
 		m_sortColumn = cd;
 		m_sortDescending = type == SortableType.SORTABLE_DESC;
 	}
 
-	public void setSortColumn(@Nullable ColumnDef< T, ? > cd) {
+	public void setSortColumn(@Nullable ColumnDef<T, ?> cd) {
 		m_sortColumn = cd;
 	}
 
@@ -108,17 +106,17 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		if(dpl.isEmpty())
 			throw new IllegalStateException("The list-of-columns to show is empty, and the class " + m_metaModel.getActualClass()
 				+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
-		List<ExpandedDisplayProperty< ? >> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, m_metaModel, null);
+		List<ExpandedDisplayProperty<?>> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, m_metaModel, null);
 		xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
-		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
+		for(final ExpandedDisplayProperty<?> xdp : xdpl) {
 			addExpandedDisplayProp(xdp);
 		}
 	}
 
 	@NonNull
 	private <V> ColumnDef<T, V> addExpandedDisplayProp(@NonNull ExpandedDisplayProperty<V> xdp) {
-		ColumnDef<T, V> scd = new ColumnDef<T, V>(this, xdp);
-		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
+		ColumnDef<T, V> scd = new ColumnDef<>(this, xdp);
+		if(scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 			scd.css("ui-numeric");
 			scd.cssHeader("ui-numeric");
 		}
@@ -136,24 +134,25 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 
 	/**
 	 * Return the iterator for all elements.
+	 *
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
 	@NonNull
-	public Iterator<ColumnDef<T, ? >> iterator() {
+	public Iterator<ColumnDef<T, ?>> iterator() {
 		return m_columnList.iterator();
 	}
 
-	public int indexOf(@NonNull ColumnDef<T, ? > scd) {
+	public int indexOf(@NonNull ColumnDef<T, ?> scd) {
 		return m_columnList.indexOf(scd);
 	}
 
 	@Nullable
-	public ColumnDef<T, ? > getSortColumn() {
+	public ColumnDef<T, ?> getSortColumn() {
 		return m_sortColumn;
 	}
 
-	protected void updateDefaultSort(@NonNull ColumnDef<T, ? > scd) {
+	protected void updateDefaultSort(@NonNull ColumnDef<T, ?> scd) {
 		if(m_sortColumn == scd)
 			m_sortDescending = scd.getSortable() == SortableType.SORTABLE_DESC;
 	}
@@ -177,13 +176,11 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Typeful column definition code.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Add and return the column definition for a column on the specified property. Because Java still has no
 	 * first-class properties (sigh) you need to pass in the property's type to get a typeful column. If you
 	 * do not need a typeful column use {@link #column(String)}.
-	 * @param type
-	 * @param property
-	 * @return
 	 */
 	@NonNull
 	public <V> ColumnDef<T, V> column(@NonNull Class<V> type, @NonNull String property) {
@@ -193,7 +190,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 
 	@NonNull
 	private <V> ColumnDef<T, V> createColumnDef(@NonNull PropertyMetaModel<V> pmm) {
-		ColumnDef<T, V> scd = new ColumnDef<T, V>(this, pmm);
+		ColumnDef<T, V> scd = new ColumnDef<>(this, pmm);
 		scd.nowrap();
 		add(scd);
 		return scd;
@@ -202,17 +199,15 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	/**
 	 * This adds a column on the specified property, but has no idea about the real type. It can be used as long
 	 * as that type is not needed.
-	 * @param property
-	 * @return
 	 */
 	@NonNull
-	public ColumnDef<T, ? > column(@NonNull String property) {
-		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
+	public ColumnDef<T, ?> column(@NonNull String property) {
+		PropertyMetaModel<?> pmm = model().getProperty(property);            // Get the appropriate model
 		return createColumnDef(pmm);
 	}
 
 	public <V> ColumnDef<T, V> column(@NonNull QField<?, V> field) {
-		PropertyMetaModel<V> pmm = model().getProperty(field);			// Get the appropriate model
+		PropertyMetaModel<V> pmm = model().getProperty(field);            // Get the appropriate model
 		return createColumnDef(pmm);
 	}
 
@@ -234,14 +229,12 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		return createColumnDef(pmm);
 	}
 
-
 	/**
 	 * Add a column which gets referred the row element instead of a column element. This is normally used together with
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<T, T> column() {
-		ColumnDef<T, T> scd = new ColumnDef<T, T>(this, m_actualClass);
+		ColumnDef<T, T> scd = new ColumnDef<>(this, m_actualClass);
 		add(scd);
 		scd.nowrap();
 		return scd;
@@ -251,58 +244,4 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	Class<T> getActualClass() {
 		return m_actualClass;
 	}
-
-	//	/**
-//	 *
-//	 * @param clz
-//	 * @param property
-//	 * @return
-//	 */
-//	@NonNull
-//	public <V> ExpandedColumnDef<V> expand(@NonNull Class<V> clz, @NonNull String property) {
-//		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
-//		return createExpandedColumnDef(pmm);
-//	}
-//
-//	/**
-//	 * This adds an expanded column on the specified property, but has no idea about the real type. It can be used as long
-//	 * as that type is not needed.
-//	 * @param property
-//	 * @return
-//	 */
-//	@NonNull
-//	public ExpandedColumnDef< ? > expand(@NonNull String property) {
-//		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
-//		return createExpandedColumnDef(pmm);
-//	}
-//
-//	/**
-//	 * This gets called when the property is to be expanded.
-//	 * @param pmm
-//	 * @return
-//	 */
-//	@NonNull
-//	private <V> ExpandedColumnDef<V> createExpandedColumnDef(@NonNull PropertyMetaModel<V> pmm) {
-//		//-- Try to see what the column expands to
-//		final ExpandedDisplayProperty< ? > xdpt = ExpandedDisplayProperty.expandProperty(pmm);
-//		final List<ExpandedDisplayProperty< ? >> flat = new ArrayList<ExpandedDisplayProperty< ? >>();
-//		ExpandedDisplayProperty.flatten(flat, xdpt); 									// Expand any compounds;
-//		if(flat.size() == 0)
-//			throw new IllegalStateException("Expansion for property " + pmm + " resulted in 0 columns!?");
-//
-//		/*
-//		 * We have an expanded property, either one that exploded into > 1 columns or an expansion that changed the type
-//		 * of the column (which happens when the column is converted using a join string conversion). We will create a
-//		 * synthetic column which will "contain" all of the real generated columns. Lots of operations are not valid
-//		 * on synthetic column definitions because they cannot be "spread" over the individual columns.
-//		 */
-//		ExpandedColumnDef<V> xcd = new ExpandedColumnDef<V>(this, pmm.getActualType(), pmm.getName());
-//		for(final ExpandedDisplayProperty< ? > xdp : flat) {
-//			if(xdp.getName() == null)
-//				throw new IllegalStateException("All columns MUST have some name");
-//			ColumnDef< ? > ccd = addExpandedDisplayProp(xdp);
-//			xcd.addExpanded(ccd);
-//		}
-//		return xcd;
-//	}
 }

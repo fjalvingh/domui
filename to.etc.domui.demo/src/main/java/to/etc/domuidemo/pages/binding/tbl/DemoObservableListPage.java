@@ -7,7 +7,6 @@ import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
-import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.databinding.observables.IObservableList;
@@ -18,7 +17,6 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QCriteria;
-import to.etc.webapp.query.QDataContext;
 
 import java.util.List;
 import java.util.Random;
@@ -34,24 +32,18 @@ public class DemoObservableListPage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
-		QDataContext dc = getSharedContext();
 		QCriteria<Artist> q = QCriteria.create(Artist.class);
 
-		SimpleSearchModel<Artist> sm = new SimpleSearchModel<Artist>(this, q);
-		RowRenderer<Artist> rr = new RowRenderer<Artist>(Artist.class);
+		SimpleSearchModel<Artist> sm = new SimpleSearchModel<>(this, q);
+		RowRenderer<Artist> rr = new RowRenderer<>(Artist.class);
 		rr.column("name").label("Name");
 
-		DataTable<Artist> dt = new DataTable<Artist>(sm, rr);
+		DataTable<Artist> dt = new DataTable<>(sm, rr);
 		add(dt);
 		dt.setPageSize(10);
 		add(new DataPager(dt));
 
-		rr.setRowClicked(new ICellClicked<Artist>() {
-			@Override
-			public void cellClicked(Artist rowval) throws Exception {
-				clickedOne(rowval);
-			}
-		});
+		rr.setRowClicked(rowval -> clickedOne(rowval));
 		add(new VerticalSpacer(10));
 		add(m_lower);
 
@@ -66,34 +58,36 @@ public class DemoObservableListPage extends UrlPage {
 
 		final IObservableList<Album> ol = (IObservableList<Album>) res;
 
-		RowRenderer<Album> rr = new RowRenderer<Album>(Album.class);
+		RowRenderer<Album> rr = new RowRenderer<>(Album.class);
 		rr.column("title").label("Title");
 
-		DataTable<Album> dt = new DataTable<Album>(rr);
+		DataTable<Album> dt = new DataTable<>(rr);
 		m_lower.add(dt);
 		dt.setList(ol);
 
 		LinkButton lb = new LinkButton("Add album", Icon.of("THEME/btnAdd.png"), (IClicked<LinkButton>) clickednode -> addAlbum(a, ol));
 		m_lower.add(lb);
 
-		lb = new LinkButton("Delete album", Icon.of("THEME/btnDelete.png"), (IClicked<LinkButton>) clickednode -> deleteAlbum(a, ol));
+		lb = new LinkButton("Delete album", Icon.of("THEME/btnDelete.png"), (IClicked<LinkButton>) clickednode -> deleteAlbum(ol));
 		m_lower.add(lb);
 
 
 	}
 
-	private void deleteAlbum(@NonNull Artist a, @NonNull IObservableList<Album> ol) {
+	private void deleteAlbum(@NonNull IObservableList<Album> ol) {
 		if(ol.isEmpty())
 			return;
 		int ix = random(ol.size());
 		ol.remove(ix);
 	}
 
+	@SuppressWarnings("squid:S2245")
+	private final Random m_random = new Random();
+
 	private int random(int max) {
 		if(max <= 0)
 			return 0;
-		Random r = new Random();
-		return r.nextInt(max);
+		return m_random.nextInt(max);
 	}
 
 	private void addAlbum(@NonNull Artist a, @NonNull IObservableList<Album> ol) {

@@ -48,28 +48,27 @@ import java.util.List;
  * Created on Dec 8, 2009
  */
 class CacheChange {
-	/** Contains every CachedImageData that was used (and not deleted) in this task. Each of these will be marked as recently-used when the action returns to the cache. */
-	private List<CachedImageFragment> m_usedFragmentList = new ArrayList<CachedImageFragment>();
+	/**
+	 * Contains every CachedImageData that was used (and not deleted) in this task. Each of these will be marked as recently-used when the action returns to the cache.
+	 */
+	private List<CachedImageFragment> m_usedFragmentList = new ArrayList<>();
 
-	/** Contains invalidated image instances, for instance because the source image has changed. These need to be subtracted from the cache and it's use count needs to be decremented. */
-	private List<CachedImageFragment> m_deletedFragmentList = new ArrayList<CachedImageFragment>();
+	/**
+	 * Contains invalidated image instances, for instance because the source image has changed. These need to be subtracted from the cache and it's use count needs to be decremented.
+	 */
+	private List<CachedImageFragment> m_deletedFragmentList = new ArrayList<>();
 
 	/**
 	 * Register an image as recently-used. The cache will relink it as used. Cannot be
 	 * called for deleted images.
-	 * @param ii
 	 */
 	public void addUsedFragment(@NonNull CachedImageFragment ii) {
-		if(ii == null)
-			throw new IllegalArgumentException("Cannot pass null");
 		if(m_deletedFragmentList.contains(ii))
 			throw new IllegalStateException("Trying to use an image that is marked as deleted: " + ii);
 		m_usedFragmentList.add(ii);
 	}
 
 	public void addDeletedFragment(@NonNull CachedImageFragment ii) {
-		if(ii == null)
-			throw new IllegalArgumentException("Cannot pass null");
 		m_usedFragmentList.remove(ii); // If it was used earlier remove from there
 		m_deletedFragmentList.add(ii);
 	}

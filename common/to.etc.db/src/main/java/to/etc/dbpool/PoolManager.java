@@ -49,10 +49,10 @@ import java.util.Set;
 final public class PoolManager {
 	/** The table of pools (ConnectionPool), identified by ID */
 	//@GuardedBy("this")
-	private final Map<String, ConnectionPool> m_poolMap = new HashMap<String, ConnectionPool>();
+	private final Map<String, ConnectionPool> m_poolMap = new HashMap<>();
 
 	//@GuardedBy("this")
-	private List<IPoolMessageHandler> m_listenerList = new ArrayList<IPoolMessageHandler>();
+	private List<IPoolMessageHandler> m_listenerList = new ArrayList<>();
 
 	static final private Object m_connidlock = new Object();
 
@@ -61,8 +61,11 @@ final public class PoolManager {
 
 	private volatile boolean m_collectStatistics;
 
+	/** Currently unused */
+	private boolean m_shutdown;
+
 	/** Threadlocal containing the per-thread collected statistics, per request. */
-	private final ThreadLocal<IConnectionEventListener> m_connectionEventListener = new ThreadLocal<IConnectionEventListener>();
+	private final ThreadLocal<IConnectionEventListener> m_connectionEventListener = new ThreadLocal<>();
 
 	/** The shared global instance of a pool manager */
 	static final private PoolManager m_instance = new PoolManager();
@@ -90,12 +93,12 @@ final public class PoolManager {
 	}
 
 	synchronized public void addMessageListener(final IPoolMessageHandler pmh) {
-		m_listenerList = new ArrayList<IPoolMessageHandler>(m_listenerList);
+		m_listenerList = new ArrayList<>(m_listenerList);
 		m_listenerList.add(pmh);
 	}
 
 	synchronized public void removeMessageListener(final IPoolMessageHandler pmh) {
-		m_listenerList = new ArrayList<IPoolMessageHandler>(m_listenerList);
+		m_listenerList = new ArrayList<>(m_listenerList);
 		m_listenerList.remove(pmh);
 	}
 
@@ -140,8 +143,6 @@ final public class PoolManager {
 	 */
 	@NonNull
 	public ConnectionPool getPool(@NonNull final String id) throws SQLException {
-		if(id == null)
-			throw new IllegalArgumentException("The pool ID cannot be null");
 		synchronized(this) {
 			ConnectionPool pool = m_poolMap.get(id); // Find the pool
 			if(pool == null)
@@ -314,7 +315,7 @@ final public class PoolManager {
 	public void destroyAll() {
 		List<ConnectionPool> l;
 		synchronized(this) {
-			l = new ArrayList<ConnectionPool>(m_poolMap.values());
+			l = new ArrayList<>(m_poolMap.values());
 			m_poolMap.clear();
 		}
 		for(ConnectionPool p : l) {
@@ -351,25 +352,20 @@ final public class PoolManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Pool scanner.										*/
 	/*--------------------------------------------------------------*/
-	private final int m_scanInterval = 120;
+	private int m_scanInterval = 120;
 
 	private Thread m_scanThread;
 
 	/**
 	 * Starts the scanner if database locking security is requested.
 	 */
-	synchronized protected void startExpiredConnectionScanner() {
+	synchronized void startExpiredConnectionScanner() {
 		if(m_scanInterval == 0 || m_scanThread != null)
 			return;
 
 		//-- Start the task,
 		try {
-			m_scanThread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					expiredConnectionScannerLoop();
-				}
-			});
+			m_scanThread = new Thread(() -> expiredConnectionScannerLoop());
 			m_scanThread.setDaemon(true);
 			m_scanThread.setName("DbPoolScanner");
 			m_scanThread.start();
@@ -387,6 +383,10 @@ final public class PoolManager {
 		for(; ; ) {
 			try {
 				scanExpiredConnectionsOnce(m_scanInterval);
+				synchronized(this) {
+					if(m_shutdown)
+						break;
+				}
 				Thread.sleep(m_scanInterval * 1000 / 2);
 			} catch(Exception x) {
 				logUnexpected(x, "In scanning for expired connections");
@@ -449,7 +449,7 @@ final public class PoolManager {
 	 */
 	public IStatisticsListener stopCollecting(String key) {
 		IConnectionEventListener ih = m_connectionEventListener.get();
-		if(ih == null || !(ih instanceof CollectingConnectionEventListener))
+		if(!(ih instanceof CollectingConnectionEventListener))
 			return null;
 
 		CollectingConnectionEventListener cih = (CollectingConnectionEventListener) ih;
@@ -494,7 +494,7 @@ final public class PoolManager {
 
 	private boolean m_checkCloseConnections;
 
-	final private ThreadLocal<Set<ConnectionProxy>> m_threadConnections = new ThreadLocal<Set<ConnectionProxy>>();
+	final private ThreadLocal<Set<ConnectionProxy>> m_threadConnections = new ThreadLocal<>();
 
 	public synchronized boolean isCheckCloseConnections() {
 		return m_checkCloseConnections;
@@ -511,7 +511,7 @@ final public class PoolManager {
 			return;
 		Set<ConnectionProxy> cs = m_threadConnections.get();
 		if(null == cs) {
-			cs = new HashSet<ConnectionProxy>();
+			cs = new HashSet<>();
 			m_threadConnections.set(cs);
 		}
 		cs.add(cx);
@@ -532,17 +532,17 @@ final public class PoolManager {
 
 	public List<ConnectionProxy> getThreadConnections() {
 		if(!isCheckCloseConnections())
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		Set<ConnectionProxy> cs = m_threadConnections.get();
 		if(null == cs)
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 
 		/*
 		 * When a connection is closed by another thread (which is a bug, but which happens in special circumstances,
 		 * like when logging out with another thread still running using a connection). This prevents "false alarms"
 		 * when a connection is still in a thread's unclosed list but closed by another thread.
 		 */
-		List<ConnectionProxy> res = new ArrayList<ConnectionProxy>(cs.size());
+		List<ConnectionProxy> res = new ArrayList<>(cs.size());
 		for(ConnectionProxy cp : cs) {
 			if(cp.getState() == ConnState.OPEN)
 				res.add(cp);
@@ -570,11 +570,10 @@ final public class PoolManager {
 	@Nullable
 	static public ConnectionPool getPoolFrom(@NonNull DataSource ds) {
 		//-- Try to locate the unpooled data source for this database pool.
-		if(ds instanceof DataSourceImpl) {
-			return ((DataSourceImpl) ds).getPool();
-		} else if(ds instanceof UnpooledDataSourceImpl) {
-			UnpooledDataSourceImpl udi = (UnpooledDataSourceImpl) ds;
-			return udi.getPool();
+		if(ds instanceof DataSourceImpl dsi) {
+			return dsi.getPool();
+		} else if(ds instanceof UnpooledDataSourceImpl uds) {
+			return uds.getPool();
 		} else {
 			return null;
 		}
@@ -591,6 +590,5 @@ final public class PoolManager {
 			return ds;
 		return cp.getUnpooledDataSource();
 	}
-
 }
 

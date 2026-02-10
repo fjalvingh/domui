@@ -25,7 +25,6 @@
 package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
 
@@ -33,7 +32,9 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 	/** The current page #, starting at 0 */
 	private int m_currentPage;
 
-	protected int m_six, m_eix;
+	protected int m_six;
+
+	protected int m_eix;
 
 	abstract protected int getPageSize();
 
@@ -44,12 +45,6 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 	}
 
 	public PageableTabularComponentBase() {}
-
-	@Override
-	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nullable ITableModel<T> model) {
-		//m_currentPage = 0;									// jal See bugzilla 7383; ask me when you have issues with sorting/paging!
-		super.fireModelChanged(old, model);
-	}
 
 	@Override
 	protected void resetState() {
@@ -111,14 +106,14 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 
 	public boolean isTruncated() {
 		ITableModel<T> tm = getModel();
-		if(tm == null || !(tm instanceof ITruncateableDataModel))
-			return false;
-		ITruncateableDataModel t = (ITruncateableDataModel) tm;
-		return t.isTruncated();
+		if(tm instanceof ITruncateableDataModel t) {
+			return t.isTruncated();
+		}
+		return false;
 	}
 
 	public int getResultCount() throws Exception {
 		ITableModel<T> tm = getModel();
-		return tm == null ? 0 : tm.getRows();
+		return tm.getRows();
 	}
 }

@@ -124,7 +124,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 			rr.column(col);
 		}
 
-		m_tableMatchers = new ExpandingEditTable<>(Matcher.class, m_modelMatchers, rr);
+		m_tableMatchers = new ExpandingEditTable<>(m_modelMatchers, rr);
 		m_tableMatchers.setNewAtStart(true);
 		m_tableMatchers.setEnableDeleteButton(true);
 		m_tableMatchers.setEnableExpandItems(true);
@@ -151,7 +151,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 			rr.column(col);
 		}
 
-		m_tableFilters = new ExpandingEditTable<>(Filter.class, m_modelFilters, rr);
+		m_tableFilters = new ExpandingEditTable<>(m_modelFilters, rr);
 		m_tableFilters.setNewAtStart(true);
 		m_tableFilters.setEnableDeleteButton(true);
 		m_tableFilters.setEnableExpandItems(true);

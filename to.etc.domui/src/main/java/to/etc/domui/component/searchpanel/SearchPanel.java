@@ -71,27 +71,37 @@ import java.util.function.Supplier;
  * @author jal at 2017-12-13.
  */
 public class SearchPanel<T> extends Div implements IButtonContainer {
-	/** This factory defines the default form builder to use. */
+	/**
+	 * This factory defines the default form builder to use.
+	 */
 	@Nullable
-	private volatile static Supplier<ISearchFormBuilder> m_defaultFormBuilderFactory;
+	private static Supplier<ISearchFormBuilder> m_defaultFormBuilderFactory;
 
 	@Nullable
 	private QCriteria<T> m_rootCriteria;
 
-	/** The data class we're looking for */
+	/**
+	 * The data class we're looking for
+	 */
 	@NonNull
 	private Class<T> m_lookupClass;
 
-	/** The metamodel for the class. */
+	/**
+	 * The metamodel for the class.
+	 */
 	@NonNull
 	private ClassMetaModel m_metaModel;
 
-	/** The primary list of defined lookup items. */
+	/**
+	 * The primary list of defined lookup items.
+	 */
 	@NonNull
 	private final List<Object> m_itemList = new ArrayList<>(20);
 
-	/** The list of buttons to show on the button row. */
-	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
+	/**
+	 * The list of buttons to show on the button row.
+	 */
+	private List<ButtonRowItem> m_buttonItemList = new ArrayList<>(5);
 
 	@Nullable
 	private ISearchFormBuilder m_formBuilder;
@@ -114,17 +124,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	@Nullable
 	private DefaultButton m_filterButton;
-
-	//@NonNull
-	//private List<SavedFilter> m_savedFilters = Collections.EMPTY_LIST;
-
-	//private boolean m_searchFilterEnabled;
-
-	//@Nullable
-	//private static ILookupFilterHandler m_lookupFilterHandler;
-	//
-	//@Nullable
-	//private LookupFormSavedFilterFragment m_lookupFormSavedFilterFragment;
 
 	private Div m_content;
 
@@ -168,13 +167,19 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	private Boolean m_showHideButton;
 
 	public enum ButtonMode {
-		/** Show this button only when the lookup form is expanded */
+		/**
+		 * Show this button only when the lookup form is expanded
+		 */
 		NORMAL,
 
-		/** Show this button only when the lookup form is collapsed */
+		/**
+		 * Show this button only when the lookup form is collapsed
+		 */
 		COLLAPSED,
 
-		/** Always show this button. */
+		/**
+		 * Always show this button.
+		 */
 		BOTH
 	}
 
@@ -282,19 +287,11 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 			if(o instanceof SearchControlLine) {
 				SearchControlLine<T, ?> it = (SearchControlLine<T, ?>) o;
 				appendControlLine(formBuilder, it);
-			} else if(o instanceof IExecute) {
-				((IExecute) o).execute();
+			} else if(o instanceof IExecute ix) {
+				ix.execute();
 			}
 		}
 		formBuilder.finish();
-
-		////-- The saved filters are shown next
-		//if(isSearchFilterEnabled()) {
-		//	if(containsItemBreaks(m_itemList)) {
-		//		throw new IllegalStateException("Not implemented yet. It is not possible to show the saved searched filter in combination with a split lookupform");
-		//	}
-		//	addFilterFragment(searchContainer);
-		//}
 
 		//-- The button bar.
 		Div d = m_buttonRow = new Div();
@@ -516,7 +513,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * data we check if the data is suitable for searching (not too short for instance); if
 	 * it is we report errors. If the data is suitable <b>and</b> at least one field is filled
 	 * we create a Criteria containing the search criteria.
-	 *
+	 * <p>
 	 * If anything goes wrong (one of the above mentioned errors occurs) ths returns null.
 	 * If none of the input fields have data this will return a Criteria object, but the
 	 * restrictions count in it will be zero. This can be used to query but will return all
@@ -565,14 +562,11 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	private <D> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, SearchControlLine<T, D> it) {
 		IControl<D> control = it.getControl();
 		ILookupQueryBuilder<T, D> builder = it.getQueryBuilder();
-		if(null != control && null != builder) {
-			try {
-				return builder.appendCriteria(criteria, control.getValue());
-			} catch(ValidationException x) {
-				return LookupQueryBuilderResult.INVALID;
-			}
+		try {
+			return builder.appendCriteria(criteria, control.getValue());
+		} catch(ValidationException x) {
+			return LookupQueryBuilderResult.INVALID;
 		}
-		return LookupQueryBuilderResult.EMPTY;
 	}
 
 
@@ -618,7 +612,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_newBtn.setDisabledBecause(m_newBtnDisableReason);
 				addButtonItem(m_newBtn, 500, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
-				for(ButtonRowItem bri : m_buttonItemList) {
+				for(SearchPanel.ButtonRowItem bri : m_buttonItemList) {
 					if(bri.getThingy() == m_newBtn) {
 						m_buttonItemList.remove(bri);
 						break;
@@ -632,6 +626,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Set the handler to call when the "Search" button is clicked.
+	 *
 	 * @see NodeBase#setClicked(IClicked)
 	 */
 	@Override
@@ -649,7 +644,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Listener to call when the "clear" button is pressed.
-	 * @param onClear
 	 */
 	public void setOnClear(IClicked<? extends SearchPanel<T>> onClear) {
 		m_onClear = onClear;
@@ -657,7 +651,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * When set, this causes a "cancel" button to be added to the form. When that button is pressed this handler gets called.
-	 * @param onCancel
 	 */
 	public void setOnCancel(IClicked<SearchPanel<T>> onCancel) {
 		if(m_onCancel != onCancel) {
@@ -702,8 +695,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	/**
 	 * Add a button (or other item) to show on the button row. The item will
 	 * be visible always.
-	 * @param b
-	 * @param order
 	 */
 	public void addButtonItem(NodeBase b, int order) {
 		addButtonItem(b, order, ButtonMode.BOTH);
@@ -711,22 +702,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a button (or other item) to show on the button row.
-	 *
-	 * @param b
-	 * @param order
-	 * @param both
 	 */
 	public void addButtonItem(NodeBase b, int order, ButtonMode both) {
-		if(m_buttonItemList == Collections.EMPTY_LIST)
-			m_buttonItemList = new ArrayList<>(10);
 		m_buttonItemList.add(new ButtonRowItem(order, both, b));
 		forceRebuild();
 	}
 
 	/**
 	 * Add all buttons, both default and custom to buttom row.
-	 * @param c
-	 * @param iscollapsed
 	 */
 	private void createButtonRow(NodeContainer c, boolean iscollapsed) {
 		// Sort in ascending order,
@@ -743,7 +726,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * Method {@link SearchPanel#getCriteria} MUST BE EXECUTED BEFORE checking for this property value!
 	 * This is T when the user has actually entered something in one of the search components. Any restriction
 	 * that has been added by code that is not depending on user input is ignored.
-	 * @return
 	 */
 	public boolean hasUserDefinedCriteria() {
 		return m_hasUserDefinedCriteria;
@@ -751,8 +733,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Returns if LookupForm is collapsed.
-	 *
-	 * @return
 	 */
 	public boolean isCollapsed() {
 		return m_collapsed;
@@ -760,9 +740,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Use to collapse/restore LookupForm search panel.
-	 *
-	 * @param collapsed
-	 * @throws Exception
 	 */
 	public void setCollapsed(boolean collapsed) throws Exception {
 		if(m_collapsed == collapsed)
@@ -818,7 +795,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Returns custom query factory.
-	 * @return
 	 */
 	public IQueryFactory<T> getQueryFactory() {
 		return m_queryFactory;
@@ -826,7 +802,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Specifies custom query factory.
-	 * @param queryFactory
 	 */
 	public void setQueryFactory(IQueryFactory<T> queryFactory) {
 		m_queryFactory = queryFactory;
@@ -881,7 +856,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	public ISearchFormBuilder getFormBuilder() {
 		ISearchFormBuilder builder = m_formBuilder;
 		if(null == builder) {
-			Supplier<ISearchFormBuilder> factory = m_defaultFormBuilderFactory;
+			Supplier<ISearchFormBuilder> factory = getDefaultFormBuilderFactory();
 			if(null != factory) {
 				m_formBuilder = builder = factory.get();
 			} else {
@@ -899,8 +874,13 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * Set the default form factory to use when forms are generated. This is a global parameter
 	 * and should only be set from DomApplication.initialize.
 	 */
-	static public void setDefaultSearchFormBuilder(Supplier<ISearchFormBuilder> factory) {
+	static public synchronized void setDefaultSearchFormBuilder(Supplier<ISearchFormBuilder> factory) {
 		m_defaultFormBuilderFactory = factory;
+	}
+
+	@Nullable
+	public static synchronized Supplier<ISearchFormBuilder> getDefaultFormBuilderFactory() {
+		return m_defaultFormBuilderFactory;
 	}
 
 	/**
@@ -998,10 +978,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		String labelText = null;
 		if(null == labelNode) {
 			labelText = builder.getLabelText();
-			if(null == labelText) {
-				if(property != null) {
-					labelText = property.getDefaultLabel();
-				}
+			if(null == labelText && property != null) {
+				labelText = property.getDefaultLabel();
 			}
 			if(null != labelText) {
 				labelNode = new Label((NodeBase) control, labelText);
@@ -1045,10 +1023,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	@NonNull
 	private List<SearchPropertyMetaModel> getMetadataSearchPropertyList() {
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
-		if(list == null || list.isEmpty()) {
+		if(list.isEmpty()) {
 			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
-			if(list == null || list.isEmpty())
-				return Collections.emptyList();
 		}
 		return list;
 	}

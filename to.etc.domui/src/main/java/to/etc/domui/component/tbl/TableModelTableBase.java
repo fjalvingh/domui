@@ -55,7 +55,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	private ITableModel<T> m_model;
 
 	@NonNull
-	private List<IDataTableChangeListener> m_listeners = Collections.EMPTY_LIST;
+	private List<IDataTableChangeListener> m_listeners = Collections.emptyList();
 
 	private boolean m_disableClipboardSelection;
 
@@ -71,6 +71,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model/page changed listener code..					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Add a change listener to this model. Don't forget to remove it at destruction time.
 	 */
@@ -86,6 +87,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 
 	/**
 	 * Remove a change listener from the model.
+	 *
 	 * @see to.etc.domui.component.tbl.ITableModel#removeChangeListener(to.etc.domui.component.tbl.ITableModelListener)
 	 */
 	public void removeChangeListener(@NonNull IDataTableChangeListener l) {
@@ -132,6 +134,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model updates.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return the current model being used.
 	 */
@@ -147,18 +150,14 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	 * and causes a full build at render time.
 	 */
 	public void setModel(@NonNull ITableModel<T> model) {
-		if(model == null)
-			throw new IllegalArgumentException("Cannot set a table model to null");
-
-		ITableModel<T> itm = model; 				// Stupid Java Generics need cast here
-		if(m_model == itm) 							// If the model did not change at all begone
+		ITableModel<T> itm = model;                // Stupid Java Generics need cast here
+		if(m_model == itm)                            // If the model did not change at all begone
 			return;
 		ITableModel<T> old = m_model;
 		if(m_model != null)
-			m_model.removeChangeListener(this); 	// Remove myself from listening to my old model
+			m_model.removeChangeListener(this);    // Remove myself from listening to my old model
 		m_model = itm;
-		if(itm != null)
-			itm.addChangeListener(this); 			// Listen for changes on the new model
+		itm.addChangeListener(this);            // Listen for changes on the new model
 		forceRebuild();
 		resetState();
 		fireModelChanged(old, model);
@@ -186,16 +185,16 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	@Override
 	protected void onShelve() throws Exception {
 		super.onShelve();
-		if(m_model instanceof IShelvedListener) {
-			((IShelvedListener) m_model).onShelve();
+		if(m_model instanceof IShelvedListener sl) {
+			sl.onShelve();
 		}
 	}
 
 	@Override
 	protected void onUnshelve() throws Exception {
 		super.onUnshelve();
-		if(m_model instanceof IShelvedListener) {
-			((IShelvedListener) m_model).onUnshelve();
+		if(m_model instanceof IShelvedListener sl) {
+			sl.onUnshelve();
 			forceRebuild();
 			firePageChanged();
 		}
@@ -213,10 +212,10 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 
 	public void setList(@Nullable IObservableList<T> list) {
 		ITableModel<T> om = m_model;
-		if(om instanceof ObservableListModelAdapter< ? >) {
+		if(om instanceof ObservableListModelAdapter<?>) {
 			//-- Check if this is the same list, wrapped already.
 			ObservableListModelAdapter<T> oa = (ObservableListModelAdapter<T>) om;
-			if(oa.getSource() == list)							// Same list?
+			if(oa.getSource() == list)                            // Same list?
 				return;
 
 			//-- We're going to replace this, so remove me as a list change listener.
@@ -224,7 +223,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		} else if(om instanceof SortableObservableListModelAdapter<?>) {
 			//-- Check if this is the same list, wrapped already.
 			SortableObservableListModelAdapter<T> oa = (SortableObservableListModelAdapter<T>) om;
-			if(oa.getSource() == list)							// Same list?
+			if(oa.getSource() == list)                            // Same list?
 				return;
 
 			//-- We're going to replace this, so remove me as a list change listener.
@@ -236,7 +235,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 			setModel(ma);
 			list.addChangeListener(this);
 		} else if(list instanceof IObservableList<?>) {
-			ObservableListModelAdapter<T> ma = new ObservableListModelAdapter<T>(list);
+			ObservableListModelAdapter<T> ma = new ObservableListModelAdapter<>(list);
 			setModel(ma);
 			list.addChangeListener(this);
 		}
@@ -245,7 +244,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	@Nullable
 	public IObservableList<T> getList() {
 		ITableModel<T> om = getModel();
-		if(om instanceof ObservableListModelAdapter< ? >) {
+		if(om instanceof ObservableListModelAdapter<?>) {
 			ObservableListModelAdapter<T> oa = (ObservableListModelAdapter<T>) om;
 			return oa.getSource();
 		}
@@ -287,9 +286,6 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 
 	/**
 	 * IListChangeListener implementation: this handles ObservableList updates and updates the UI according to them.
-	 *
-	 * @param event
-	 * @throws Exception
 	 */
 	@Override
 	public void handleChange(@NonNull ListChangeEvent<T> event) throws Exception {

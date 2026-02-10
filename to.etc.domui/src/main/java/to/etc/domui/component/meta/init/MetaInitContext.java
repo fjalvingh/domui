@@ -21,13 +21,19 @@ import java.util.Map;
 final public class MetaInitContext {
 	private final Map<Object, ClassMetaModel> m_classMap;
 
-	/** The list of class objects under construction. */
+	/**
+	 * The list of class objects under construction.
+	 */
 	private Map<Object, ClassInfo> m_constructionMap = new HashMap<>();
 
-	/** The list of classes that need their metadata constructed. */
+	/**
+	 * The list of classes that need their metadata constructed.
+	 */
 	private List<ClassAction> m_todoProviderClassList = new ArrayList<>();
 
-	/** Indicator that something was done during a loop. */
+	/**
+	 * Indicator that something was done during a loop.
+	 */
 	private boolean m_worked;
 
 	private boolean m_markSortRequired;
@@ -69,11 +75,13 @@ final public class MetaInitContext {
 			return m_classInfo;
 		}
 
-		@Nullable public IPropertyMetaProvider<?, ?> getPropertyProvider() {
+		@Nullable
+		public IPropertyMetaProvider<?, ?> getPropertyProvider() {
 			return m_propertyProvider;
 		}
 
-		@Nullable public IClassMetaProvider<?> getClassProvider() {
+		@Nullable
+		public IClassMetaProvider<?> getClassProvider() {
 			return m_classProvider;
 		}
 	}
@@ -85,11 +93,15 @@ final public class MetaInitContext {
 
 		private int m_pendingActionCount;
 
-		/** The list of properties still to do for the current property provider */
+		/**
+		 * The list of properties still to do for the current property provider
+		 */
 		@Nullable
 		private List<PropertyMetaModel<?>> m_todoPropertyList;
 
-		/** When set the current property provider that needs to continue. */
+		/**
+		 * When set the current property provider that needs to continue.
+		 */
 		@Nullable
 		private IPropertyMetaProvider<?, ?> m_propertyProvider;
 
@@ -106,7 +118,8 @@ final public class MetaInitContext {
 			return m_model;
 		}
 
-		@Nullable public List<PropertyMetaModel<?>> getTodoPropertyList() {
+		@Nullable
+		public List<PropertyMetaModel<?>> getTodoPropertyList() {
 			return m_todoPropertyList;
 		}
 
@@ -114,7 +127,8 @@ final public class MetaInitContext {
 			m_todoPropertyList = todoPropertyList;
 		}
 
-		@Nullable public IPropertyMetaProvider<?, ?> getPropertyProvider() {
+		@Nullable
+		public IPropertyMetaProvider<?, ?> getPropertyProvider() {
 			return m_propertyProvider;
 		}
 
@@ -135,9 +149,6 @@ final public class MetaInitContext {
 	 * This method is the only one allowed during metamodel initialization. It will
 	 * throw {@link ClassModelNotInitializedException} if the class is not yet known.
 	 * The method will, however, return incomplete classes (the ones being initialized).
-	 *
-	 * @param type
-	 * @return
 	 */
 	public ClassMetaModel getModel(Object type) {
 		//-- Already known?
@@ -157,7 +168,7 @@ final public class MetaInitContext {
 		ci = new ClassInfo(type, cmm);
 
 		//-- Add all class actions
-		ClassInfo ci2 = ci;						// The java "architects" are morons with their final idiocy.
+		ClassInfo ci2 = ci;                        // The java "architects" are morons with their final idiocy.
 		List<ClassProviderRef> classProviderList = MetaInitializer.getClassProviderList();
 		classProviderList.forEach(cp -> m_todoProviderClassList.add(new ClassAction(ci2, cp.getOrder(), cp.getProvider())));
 
@@ -180,7 +191,7 @@ final public class MetaInitContext {
 		while(!m_todoProviderClassList.isEmpty()) {
 			int currentCount = m_todoProviderClassList.size();
 			handlePendingAction();
-			if(! m_worked && m_todoProviderClassList.size() == currentCount) {
+			if(!m_worked && m_todoProviderClassList.size() == currentCount) {
 				notWorkCount++;
 				if(notWorkCount > 1000)
 					throw new IllegalStateException("Metadata initialization is stuck during initialization: no work could be done");
@@ -193,7 +204,7 @@ final public class MetaInitContext {
 	private void handlePendingAction() throws Exception {
 		if(m_markSortRequired) {
 			m_markSortRequired = false;
-			m_todoProviderClassList.sort(Comparator.comparingInt(ClassAction::getOrder));	// Ascending order
+			m_todoProviderClassList.sort(Comparator.comparingInt(ClassAction::getOrder));    // Ascending order
 		}
 		ClassAction action = m_todoProviderClassList.get(0);
 		ClassInfo ci = action.getClassInfo();
@@ -211,9 +222,8 @@ final public class MetaInitContext {
 			m_todoProviderClassList.remove(action);
 			if(ci.decrementActionCount()) {
 				//-- All actions completed -> register class.
-				m_todoProviderClassList.remove(ci);			// Nothing to be done anymore
-				m_constructionMap.remove(ci.getType());		// No longer under construction.
-				m_classMap.put(ci.getType(), ci.getModel());// Store in final classmap
+				m_constructionMap.remove(ci.getType());        	// No longer under construction.
+				m_classMap.put(ci.getType(), ci.getModel());	// Store in final classmap
 			}
 		}
 	}
@@ -242,7 +252,7 @@ final public class MetaInitContext {
 			if(null == propList || propList.isEmpty() || currentProvider == null) {
 				//-- We're at the start of a new list.
 				currentProvider = newProvider;
-				if(! currentProvider.getClassModelClass().isAssignableFrom(ci.getModel().getClass())) {
+				if(!currentProvider.getClassModelClass().isAssignableFrom(ci.getModel().getClass())) {
 					//-- We cannot use this-> skip
 					m_worked = true;
 					return true;
@@ -250,7 +260,7 @@ final public class MetaInitContext {
 
 				propList = new ArrayList<>(cmm.getProperties());
 				ci.setTodoPropertyList(propList);
-				ci.setPropertyProvider(currentProvider);				// And store it for continuations
+				ci.setPropertyProvider(currentProvider);                // And store it for continuations
 				currentProvider.beforeProperties(this, ci.getModel());
 			} else if(newProvider != currentProvider)
 				throw new IllegalStateException("Continuation for property provider with new provider requested!?");
@@ -266,7 +276,7 @@ final public class MetaInitContext {
 			ci.setPropertyProvider(null);
 			ci.setTodoPropertyList(null);
 			currentProvider.afterPropertiesDone(this, ci.getModel());
-			m_worked = true;										// For the uncommon case of a class without properties.
+			m_worked = true;                                        // For the uncommon case of a class without properties.
 			return true;
 		} catch(ClassModelNotInitializedException cmx) {
 			return false;

@@ -39,7 +39,7 @@ public interface PredicateEx<T> {
 	 */
 	default PredicateEx<T> and(PredicateEx<? super T> other) throws Exception {
 		Objects.requireNonNull(other);
-		return (t) -> test(t) && other.test(t);
+		return t -> test(t) && other.test(t);
 	}
 
 	/**
@@ -50,7 +50,7 @@ public interface PredicateEx<T> {
 	 * predicate
 	 */
 	default PredicateEx<T> negate() throws Exception {
-		return (t) -> !test(t);
+		return t -> !test(t);
 	}
 
 	/**
@@ -71,16 +71,16 @@ public interface PredicateEx<T> {
 	 */
 	default PredicateEx<T> or(PredicateEx<? super T> other) throws Exception {
 		Objects.requireNonNull(other);
-		return (t) -> test(t) || other.test(t);
+		return t -> test(t) || other.test(t);
 	}
 
 	/**
 	 * Returns a predicate that tests if two arguments are equal according
 	 * to {@link Objects#equals(Object, Object)}.
 	 *
-	 * @param <T> the type of arguments to the predicate
+	 * @param <T>       the type of arguments to the predicate
 	 * @param targetRef the object reference with which to compare for equality,
-	 *               which may be {@code null}
+	 *                  which may be {@code null}
 	 * @return a predicate that tests if two arguments are equal according
 	 * to {@link Objects#equals(Object, Object)}
 	 */

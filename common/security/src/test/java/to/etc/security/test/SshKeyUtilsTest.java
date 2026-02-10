@@ -25,7 +25,7 @@ public class SshKeyUtilsTest {
 	@Test(expected = KeyFormatPasswordException.class)
 	public void readPKCS8EncryptedBadPass() throws Exception {
 		String key = FileTool.readResourceAsString(getClass(), "/sshkeys/pkcs8_encrypted_id", "utf-8");
-		KeyPair privateKey = SshKeyUtils.decodeSshPrivateKeyPair(key, "WXWtMbOH^ka2IKH*J0ipUiDLpUQkwotf   ");
+		SshKeyUtils.decodeSshPrivateKeyPair(key, "WXWtMbOH^ka2IKH*J0ipUiDLpUQkwotf   ");
 	}
 
 	@Test

@@ -15,18 +15,16 @@ import java.util.List;
  * Created on Jan 6, 2014
  */
 final public class DirWalker {
-	private DirWalker() {}
+	private DirWalker() {
+	}
 
 	public interface IEntry<T> {
-		@Nullable T onEntry(@NonNull File file, @NonNull String relativePath) throws Exception;
+		@Nullable
+		T onEntry(@NonNull File file, @NonNull String relativePath) throws Exception;
 	}
 
 	/**
 	 * Walk a directory recursively and call a function for every entry found.
-	 * @param srcdir
-	 * @param handler
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
 	static public <T> T scan(@NonNull File srcdir, @NonNull IEntry<T> handler) throws Exception {
@@ -52,6 +50,8 @@ final public class DirWalker {
 				return res;
 			if(f.isDirectory()) {
 				res = scanInternal(f, handler, sb);
+				if(null != res)
+					return res;
 			}
 		}
 		return null;
@@ -59,17 +59,16 @@ final public class DirWalker {
 
 	/**
 	 * Get a list of all files, directories under a given directory.
-	 * @param srcdir			The source dir
-	 * @param files				T if you want files to be included in the list
-	 * @param dirs				T if you want directories to be included in the list.
-	 * @return
-	 * @throws Exception
+	 *
+	 * @param srcdir The source dir
+	 * @param files  T if you want files to be included in the list
+	 * @param dirs   T if you want directories to be included in the list.
 	 */
 	@NonNull
 	static public List<File> dir(@NonNull File srcdir, boolean files, boolean dirs) throws Exception {
 		if(!files && !dirs)
 			throw new IllegalArgumentException("Looking for nothing is not useful");
-		List<File> res = new ArrayList<File>();
+		List<File> res = new ArrayList<>();
 		dir(res, srcdir, files, dirs);
 		return res;
 	}
@@ -79,11 +78,7 @@ final public class DirWalker {
 		if(null == ar)
 			return;
 		for(File f : ar) {
-			if(files && dirs)
-				res.add(f);
-			else if(files && f.isFile())
-				res.add(f);
-			else if(dirs && f.isDirectory())
+			if((files && dirs) || (files && f.isFile()) || (dirs && f.isDirectory()))
 				res.add(f);
 			if(f.isDirectory()) {
 				dir(res, f, files, dirs);

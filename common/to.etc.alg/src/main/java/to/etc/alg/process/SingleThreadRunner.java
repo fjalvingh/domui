@@ -15,6 +15,9 @@ import java.util.concurrent.Future;
  * Created on 05-02-2024.
  */
 final public class SingleThreadRunner {
+	private SingleThreadRunner() {
+	}
+
 	/**
 	 * Start the code in a separate thread and return a Future to receive the
 	 * result of the thing.
@@ -28,21 +31,19 @@ final public class SingleThreadRunner {
 		return async(true, threadName, code);
 	}
 
+	@SuppressWarnings("squid:S1181") // We want to catch Throwable here, because we want to pass it to the future and not let it kill the thread
 	static private <T> Future<T> async(boolean asDeamon, String threadName, SupplierEx<T> code) {
 		CompletableFuture<T> future = new CompletableFuture<>();			// This will contain the result
 
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
-				T result;
-				try {
-					result = code.get();
-				} catch(Throwable t) {
-					future.completeExceptionally(t);
-					return;
-				}
-				future.complete(result);
+		Runnable r = () -> {
+			T result;
+			try {
+				result = code.get();
+			} catch(Throwable t) {
+				future.completeExceptionally(t);
+				return;
 			}
+			future.complete(result);
 		};
 
 		Thread t = new Thread(r, threadName);

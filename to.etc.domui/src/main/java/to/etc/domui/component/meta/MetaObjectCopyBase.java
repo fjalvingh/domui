@@ -6,6 +6,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +19,11 @@ class MetaObjectCopyBase<T> {
 	final private T m_source;
 
 	public enum Mode {
-		DEEP, SHALLOW, COPY, IGNORE, ONLY
+		DEEP,
+		SHALLOW,
+		COPY,
+		IGNORE,
+		ONLY
 	}
 
 	private Set<String> m_onlySet = new HashSet<>();
@@ -44,8 +49,6 @@ class MetaObjectCopyBase<T> {
 
 	/**
 	 * Specify a (set of) properties that should be ignored when copying.
-	 * @param properties
-	 * @return
 	 */
 	public MetaObjectCopyBase<T> ignore(String... properties) {
 		if(!m_onlySet.isEmpty())
@@ -61,10 +64,8 @@ class MetaObjectCopyBase<T> {
 
 	protected void setOnly(String... properties) {
 		if(m_ignored > 0)
-			throw new IllegalArgumentException("Either use igore or only, not both!");
-		for(String p : properties) {
-			m_onlySet.add(p);
-		}
+			throw new IllegalArgumentException("Either use ignore or only, not both!");
+		m_onlySet.addAll(Arrays.asList(properties));
 	}
 
 	protected void setProperties(Mode mode, String... properties) {
@@ -85,8 +86,8 @@ class MetaObjectCopyBase<T> {
 	}
 
 	protected <I> void copyProperties(I copy, I source, StringBuilder sb, ClassMetaModel cmm) throws Exception {
-		for(PropertyMetaModel< ? > pmm : cmm.getProperties()) {
-			copyProperty(copy, m_source, pmm, sb);
+		for(PropertyMetaModel<?> pmm : cmm.getProperties()) {
+			copyProperty(copy, source, pmm, sb);
 		}
 	}
 
@@ -142,30 +143,32 @@ class MetaObjectCopyBase<T> {
 		}
 	}
 
-	private Class< ? >[] UNCOPYABLE = new Class< ? >[]{Date.class, String.class,};
+	private static final Class<?>[] UNCOPYABLE = new Class<?>[]{Date.class, String.class,};
 
-	private boolean isUncopyable(PropertyMetaModel< ? > pmm) {
-		Class< ? > clz = pmm.getActualType();
+	private boolean isUncopyable(PropertyMetaModel<?> pmm) {
+		Class<?> clz = pmm.getActualType();
 		if(clz.isPrimitive())
 			return true;
 		if(pmm.getRelationType() == PropertyRelationType.UP)
 			return false;
 		try {
-			Constructor< ? > cons = clz.getConstructor();
+			Constructor<?> cons = clz.getConstructor();
 			if(!Modifier.isPublic(cons.getModifiers()))
 				return true;
 		} catch(Exception x) {
-			return true;							// No default constructor -> uncopyable
+			return true;                            // No default constructor -> uncopyable
 		}
 
-		for(Class< ? > uc : UNCOPYABLE) {
+		for(Class<?> uc : UNCOPYABLE) {
 			if(uc.isAssignableFrom(clz))
 				return true;
 		}
 		return false;
 	}
 
+	@SuppressWarnings("squid:S1172")
 	private <I, V> void copyListProperty(I copy, I source, PropertyMetaModel<V> pmm, StringBuilder sb, Mode mode) {
+		throw new UnsupportedOperationException("list copying not implemented yet");
 
 	}
 

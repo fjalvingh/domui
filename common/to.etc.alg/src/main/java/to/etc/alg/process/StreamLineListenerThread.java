@@ -25,15 +25,9 @@ final public class StreamLineListenerThread extends Thread {
 
 	private StringBuilder m_lineBuffer = new StringBuilder();
 
-	/**
-	 * When T this flushes written output.
-	 */
-	private boolean m_flush;
-
 	public StreamLineListenerThread(Consumer<String> listener, String name, InputStream is, String encoding) {
 		m_lineListener = listener;
 		m_buf = new char[8192];
-		m_flush = true;
 		setName("StreamReader" + name);
 		if(null == encoding)
 			encoding = System.getProperty("file.encoding");
@@ -48,6 +42,7 @@ final public class StreamLineListenerThread extends Thread {
 	 * Read data from the stream until it closes line by line; add each line to
 	 * the output channel.
 	 */
+	@SuppressWarnings("squid:S1181")
 	@Override
 	public void run() {
 		try {
@@ -65,7 +60,7 @@ final public class StreamLineListenerThread extends Thread {
 			}
 
 			//-- EOF reached; write last part
-			if(m_lineBuffer.length() > 0) {
+			if(!m_lineBuffer.isEmpty()) {
 				m_lineListener.accept(m_lineBuffer.toString());
 				m_lineBuffer.setLength(0);
 			}
@@ -73,9 +68,9 @@ final public class StreamLineListenerThread extends Thread {
 			x.printStackTrace();
 		} finally {
 			try {
-				if(m_reader != null)
-					m_reader.close();
+				m_reader.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}

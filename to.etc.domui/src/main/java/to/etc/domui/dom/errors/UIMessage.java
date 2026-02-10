@@ -107,10 +107,6 @@ final public class UIMessage {
 
 	private UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull IBundleCode code, @Nullable Object[] parameters,
 		@Nullable String group) {
-		if(code == null)
-			throw new NullPointerException("Message code cannot be null");
-		if(type == null)
-			throw new NullPointerException("Message type cannot be null");
 		m_errorNode = errorNode;
 		m_code = code;
 		m_parameters = parameters == null ? NONE : parameters;

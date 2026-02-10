@@ -1,9 +1,12 @@
 package to.etc.dbreplay;
 
-import java.sql.*;
-import java.util.*;
+import to.etc.dbpool.StatementProxy;
 
-import to.etc.dbpool.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a worker thread class which handles commands sent to it. It has it's own
@@ -24,7 +27,7 @@ class ReplayExecutor extends Thread {
 
 	private Connection m_dbc;
 
-	private List<ReplayRecord> m_queueList = new ArrayList<ReplayRecord>();
+	private List<ReplayRecord> m_queueList = new ArrayList<>();
 
 	/** T if this executor is idling. Protected by IdleLock */
 	private boolean m_idle;
@@ -76,11 +79,15 @@ class ReplayExecutor extends Thread {
 			try {
 				if(m_dbc != null)
 					m_dbc.rollback();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignored
+			}
 			try {
 				if(m_dbc != null)
 					m_dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignored
+			}
 			m_r.executorStopped(this);
 			if(!isTerminating())
 				System.out.println(m_index + ": terminated");
@@ -96,7 +103,9 @@ class ReplayExecutor extends Thread {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignored
+			}
 		}
 	}
 
@@ -140,6 +149,7 @@ class ReplayExecutor extends Thread {
 		}
 	}
 
+	@SuppressWarnings("squid:S2177")
 	public boolean isTerminated() {
 		synchronized(m_r) {
 			return m_terminated;
@@ -200,11 +210,15 @@ class ReplayExecutor extends Thread {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignored
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignored
+			}
 			m_r.endExecution(1, 0, errs, rows);
 		}
 	}

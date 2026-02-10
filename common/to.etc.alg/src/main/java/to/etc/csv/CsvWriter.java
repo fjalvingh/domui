@@ -61,8 +61,8 @@ public class CsvWriter implements AutoCloseable {
 			case Types.SMALLINT:
 			case Types.TINYINT:
 				Object value = rs.getObject(column);
-				if(value instanceof Number) {
-					printNumber((Number) value);
+				if(value instanceof Number nr) {
+					printNumber(nr);
 				} else if(value == null) {
 					printNull();
 				} else {
@@ -173,9 +173,7 @@ public class CsvWriter implements AutoCloseable {
 	private boolean needsQuoting(String value) {
 		if(value.indexOf(m_options.getQuote()) != -1)
 			return true;
-		if(value.indexOf(m_options.getDelimiter()) != -1)
-			return true;
-		return false;
+		return value.indexOf(m_options.getDelimiter()) != -1;
 	}
 
 	private StringBuilder m_sb = new StringBuilder();
@@ -255,8 +253,8 @@ public class CsvWriter implements AutoCloseable {
 
 	@Override
 	public void close() throws Exception {
-		if(m_output instanceof AutoCloseable) {
-			((AutoCloseable) m_output).close();
+		if(m_output instanceof AutoCloseable ac) {
+			ac.close();
 		}
 	}
 

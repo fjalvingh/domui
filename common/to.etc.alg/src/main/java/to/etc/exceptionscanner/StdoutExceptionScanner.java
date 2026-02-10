@@ -30,7 +30,7 @@ public class StdoutExceptionScanner {
 	@Nullable
 	private Thread m_reporterThread;
 
-	private LinkedList<DiscoveredExceptionData> m_exceptionList = new LinkedList<DiscoveredExceptionData>();
+	private LinkedList<DiscoveredExceptionData> m_exceptionList = new LinkedList<>();
 
 	final private List<ConsumerEx<DiscoveredExceptionData>> m_listenerList = new CopyOnWriteArrayList<>();
 
@@ -63,7 +63,7 @@ public class StdoutExceptionScanner {
 
 	private void run() {
 		try {
-			LinkedList<DiscoveredExceptionData> todo = new LinkedList<DiscoveredExceptionData>();
+			LinkedList<DiscoveredExceptionData> todo = new LinkedList<>();
 			for(; ; ) {
 				synchronized(this) {
 					if(m_state != State.STARTED)

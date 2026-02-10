@@ -20,7 +20,7 @@ import java.util.Set;
  * Created on Feb 17, 2011
  */
 public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> implements Iterable<T>, IAcceptable<T> {
-	final private Set<T> m_selectedSet = new HashSet<T>();
+	final private Set<T> m_selectedSet = new HashSet<>();
 
 	final private boolean m_multiSelect;
 
@@ -65,15 +65,11 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 
 	@Override
 	public boolean isSelected(@NonNull T rowinstance) {
-		if(null == rowinstance) // Should not happen.
-			throw new IllegalArgumentException("null row");
 		return m_selectedSet.contains(rowinstance);
 	}
 
 	@Override
 	public void setInstanceSelected(@NonNull T rowinstance, boolean on) throws Exception {
-		if(null == rowinstance) // Should not happen.
-			throw new IllegalArgumentException("null row");
 		if(on) {
 			if(m_acceptable != null && !m_acceptable.acceptable(rowinstance))
 				return;
@@ -157,7 +153,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 
 	@NonNull
 	public Set<T> getSelectedSet() {
-		return new HashSet<T>(m_selectedSet);
+		return new HashSet<>(m_selectedSet);
 	}
 
 	/**
@@ -172,13 +168,13 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		return getSelectedSet().iterator().next();
 	}
 
-	public void setSelectedSet(@NonNull Collection<T> in) throws Exception {
+	public void setSelectedSet(@Nullable Collection<T> in) throws Exception {
 		if(null == in) {
 			clearSelection();
 			return;
 		}
 
-		Set<T> old = new HashSet<T>(m_selectedSet);
+		Set<T> old = new HashSet<>(m_selectedSet);
 		for(T data : in) {
 			if(old.remove(data)) {
 				//-- Already selected
@@ -196,9 +192,8 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		if(removable == null)
 			removable = a -> true;
 		for(T item : model.getItems(0, model.getRows())) {
-			if(removable.acceptable(item))
-				if(m_selectedSet.remove(item))
-					callChanged(item, false);
+			if(removable.acceptable(item) && m_selectedSet.remove(item))
+				callChanged(item, false);
 		}
 	}
 
@@ -208,10 +203,8 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		if(null == acceptable)
 			acceptable = a -> true;
 		for(T item : model.getItems(0, model.getRows())) {
-			if(acceptable.acceptable(item)) {
-				if(!m_selectedSet.contains(item))
-					return false;
-			}
+			if(acceptable.acceptable(item) && !m_selectedSet.contains(item))
+				return false;
 		}
 		return true;
 	}

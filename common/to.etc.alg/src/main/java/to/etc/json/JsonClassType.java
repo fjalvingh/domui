@@ -55,7 +55,7 @@ public class JsonClassType<T> implements ITypeMapping {
 		//-- Create the instance.
 		T instance = m_rootClass.newInstance();
 
-		for(;;) {
+		for(; ; ) {
 			//-- 1. Expect key mappable to a property of this class.
 			int token = reader.getLastToken();
 			if(token == ReaderScannerBase.T_EOF)
@@ -81,12 +81,12 @@ public class JsonClassType<T> implements ITypeMapping {
 			if(token != ':')
 				throw new JsonParseException(reader, this, "Missing ':' after property " + name);
 
-			reader.nextToken();										// Prepare for parser.
-			Object value = pm.getMapper().parse(reader);			// Parse property value
+			reader.nextToken();                                        // Prepare for parser.
+			Object value = pm.getMapper().parse(reader);            // Parse property value
 			Method setter = pm.getSetter();
 			if(null != setter) {
 				try {
-					value = setter.invoke(instance, value);
+					setter.invoke(instance, value);
 				} catch(Exception x) {
 					Exception nx = WrappedException.unwrap(x);
 					throw new RuntimeException("JSON decode failed for " + pm.getName() + " value " + value + ": " + nx, nx);

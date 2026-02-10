@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -33,7 +34,8 @@ public class MemoryDataContext implements QDataContext {
 		m_mdb = mdb;
 	}
 
-	@Override public <T> T find(Class<T> clz, Object pk) throws Exception {
+	@Override
+	public <T> T find(Class<T> clz, Object pk) throws Exception {
 		clz = MemoryDb.fixClass(clz);
 		Map<Object, Object> eptm = m_entityPerTypeMap.computeIfAbsent(clz, a -> new HashMap<>());
 		T o = (T) eptm.get(pk);
@@ -64,8 +66,9 @@ public class MemoryDataContext implements QDataContext {
 		return object instanceof HibernateProxy;
 	}
 
-	@Override public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
-		return find(clz, pk);
+	@Override
+	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
+		return Objects.requireNonNull(find(clz, pk));
 	}
 
 	/**
@@ -101,15 +104,15 @@ public class MemoryDataContext implements QDataContext {
 	 * Creates a proxy for any collection. The proxy will instantiate all entities
 	 * in the list in this context as soon as any list method gets called.
 	 */
-	private <T, V, M> void copyChildListValue(T de, T se, AttributeMeta attribute) throws Exception{
+	private <T, V, M> void copyChildListValue(T de, T se, AttributeMeta attribute) throws Exception {
 		V sourceValue = (V) attribute.getValue(se);
-		if(null == sourceValue) {							// Bail out quickly
+		if(null == sourceValue) {                            // Bail out quickly
 			attribute.setValue(de, null);
 			return;
 		}
 
 		//-- The return class MUST be List.
-		if(! (sourceValue instanceof List)) {
+		if(!(sourceValue instanceof List)) {
 			throw new IllegalStateException(attribute + " contains not a List but a " + sourceValue.getClass().getName());
 		}
 
@@ -127,7 +130,7 @@ public class MemoryDataContext implements QDataContext {
 	 */
 	private <T, V> void copyParentValue(T de, T se, AttributeMeta attribute) throws Exception {
 		V sourceValue = (V) attribute.getValue(se);
-		if(null == sourceValue) {							// Bail out quickly
+		if(null == sourceValue) {                            // Bail out quickly
 			attribute.setValue(de, null);
 			return;
 		}
@@ -154,7 +157,7 @@ public class MemoryDataContext implements QDataContext {
 	}
 
 	<T> T loadHere(EntityMeta em, T original) throws Exception {
-		Object pk = em.getId().getValue(original);			// Get the PK value
+		Object pk = em.getId().getValue(original);            // Get the PK value
 		if(null == pk)
 			throw new IllegalStateException("Instance " + original + " has a null primary key");
 		return (T) get(em.getEntityClass(), pk);
@@ -185,19 +188,17 @@ public class MemoryDataContext implements QDataContext {
 	 * Fakes the "save" operation. If the entity is already part of the cache then nothing really
 	 * happens. If not a PK is assigned and the thingy is added as an entity by PK.
 	 */
-	@Override public void save(Object o) throws Exception {
+	@Override
+	public void save(Object o) throws Exception {
 		Class<?> clz = MemoryDb.fixClass(o.getClass());
 		EntityMeta em = m_mdb.getMeta(clz);
 		Object pk = em.getIdValue(o);
 		Map<Object, Object> map = m_entityPerTypeMap.computeIfAbsent(clz, a -> new HashMap<>());
 		if(pk != null) {
-			Object stored = map.get(pk);
-			if(null == stored) {
+			Object stored = map.computeIfAbsent(pk, a -> {
 				System.out.println("mdb warning: " + o + " has pre-assigned PK but did not come from this session - possible mixup");
-				map.put(pk, o);
-				return;
-			}
-
+				return o;
+			});
 			if(stored != o) {
 				throw new IllegalStateException("Duplicate entity " + em + " id=" + pk);
 			}
@@ -221,7 +222,8 @@ public class MemoryDataContext implements QDataContext {
 		map.put(pk, o);
 	}
 
-	@Override public <T> T get(Class<T> clz, Object pk) throws Exception {
+	@Override
+	public <T> T get(Class<T> clz, Object pk) throws Exception {
 		T t = find(clz, pk);
 		if(null == t) {
 			throw new QNotFoundException(clz, pk);
@@ -229,93 +231,117 @@ public class MemoryDataContext implements QDataContext {
 		return t;
 	}
 
-	@Override public <T> List<T> query(QCriteria<T> q) throws Exception {
+	@Override
+	public <T> List<T> query(QCriteria<T> q) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public <T> T queryOne(QCriteria<T> q) throws Exception {
+	@Override
+	public <T> T queryOne(QCriteria<T> q) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public List<Object[]> query(QSelection<?> sel) throws Exception {
+	@Override
+	public List<Object[]> query(QSelection<?> sel) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public <R> List<R> query(Class<R> resultInterface, QSelection<?> sel) throws Exception {
+	@Override
+	public <R> List<R> query(Class<R> resultInterface, QSelection<?> sel) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public Object[] queryOne(QSelection<?> q) throws Exception {
+	@Override
+	public Object[] queryOne(QSelection<?> q) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public <R> R queryOne(Class<R> resultInterface, QSelection<?> sel) throws Exception {
+	@Override
+	public <R> R queryOne(Class<R> resultInterface, QSelection<?> sel) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public <T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+	@Override
+	public <T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public <T> T original(T copy) {
+	@Override
+	public <T> T original(T copy) {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public void setKeepOriginals() {
+	@Override
+	public void setKeepOriginals() {
 	}
 
-	@Override public <T> T getInstance(ICriteriaTableDef<T> clz, Object pk) throws Exception {
+	@Override
+	public <T> T getInstance(ICriteriaTableDef<T> clz, Object pk) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public void attach(Object o) throws Exception {
+	@Override
+	public void attach(Object o) throws Exception {
 	}
 
-	@Override public void refresh(Object o) throws Exception {
+	@Override
+	public void refresh(Object o) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public void delete(Object o) throws Exception {
+	@Override
+	public void delete(Object o) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public void startTransaction() throws Exception {
+	@Override
+	public void startTransaction() throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public void commit() throws Exception {
+	@Override
+	public void commit() throws Exception {
 	}
 
-	@Override public void rollback() throws Exception {
+	@Override
+	public void rollback() throws Exception {
 	}
 
-	@Override public boolean inTransaction() throws Exception {
+	@Override
+	public boolean inTransaction() throws Exception {
 		return true;
 	}
 
-	@Override public Connection getConnection() throws Exception {
+	@Override
+	public Connection getConnection() throws Exception {
 		throw new IllegalStateException("Direct connection access is not allowed for the in-memory test database");
 	}
 
-	@Override public void addCommitAction(IRunnable cx) {
+	@Override
+	public void addCommitAction(IRunnable cx) {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public void addListener(IQDataContextListener qDataContextListener) {
+	@Override
+	public void addListener(IQDataContextListener qDataContextListener) {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public <T> T reload(T source) throws Exception {
+	@Override
+	public <T> T reload(T source) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Override public void setIgnoreClose(boolean on) {
+	@Override
+	public void setIgnoreClose(boolean on) {
 	}
 
-	@Override public void close() {
+	@Override
+	public void close() {
 	}
 
-	@Override public QDataContextFactory getFactory() {
+	@Override
+	public QDataContextFactory getFactory() {
 		throw new IllegalStateException("Not implemented");
 	}
 

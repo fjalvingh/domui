@@ -205,8 +205,6 @@ public class BasicPropertyMetaModel<T> {
 	}
 
 	public void setColumnNames(@NonNull String[] columnNames) {
-		if(null == columnNames)
-			throw new IllegalArgumentException("Cannot accept null");
 		m_columnNames = columnNames;
 	}
 

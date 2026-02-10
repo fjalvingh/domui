@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.util.DeveloperOptions;
+import to.etc.util.FileTool;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 
@@ -23,13 +24,10 @@ final public class TestDB {
 	}
 
 	static public synchronized ConnectionPool getPool() throws Exception {
-		String path = "/tmp/demoDb";
-		//if(System.getProperty("maven.home") != null || System.getProperty("failsafe.test.class.path") != null) {
 		File tmp = File.createTempFile("testdb", ".domui");
-		tmp.delete();
+		FileTool.delete(tmp);
 		tmp.mkdirs();
-		path = tmp.getAbsolutePath();
-		//}
+		String path = tmp.getAbsolutePath();
 		System.out.println("Database path is " + path);
 
 		return getPool(path);
