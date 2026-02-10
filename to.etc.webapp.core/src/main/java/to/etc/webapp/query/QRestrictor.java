@@ -32,19 +32,27 @@ import java.util.HashSet;
 import java.util.Set;
 
 abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
-	/** The base class being queried in this selector. */
+	/**
+	 * The base class being queried in this selector.
+	 */
 	@Nullable
 	private final Class<T> m_baseClass;
 
-	/** The return data type; baseclass for class-based queries and metaTable.getDataClass() for metatable queries. */
+	/**
+	 * The return data type; baseclass for class-based queries and metaTable.getDataClass() for metatable queries.
+	 */
 	@NonNull
 	private final Class<T> m_returnClass;
 
-	/** If this is a selector on some metathing this represents the metathing. */
+	/**
+	 * If this is a selector on some metathing this represents the metathing.
+	 */
 	@Nullable
 	private final ICriteriaTableDef<T> m_metaTable;
 
-	/** Is either OR or AND, indicating how added items are to be combined. */
+	/**
+	 * Is either OR or AND, indicating how added items are to be combined.
+	 */
 	@NonNull
 	private QOperation m_combinator;
 
@@ -116,16 +124,16 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 		if(restrictions == null) {
 			setRestrictions(r);                        // Just set the single operation,
 		} else if(restrictions.getOperation() == QOperation.AND || restrictions.getOperation() == QOperation.OR) {
-			((QMultiNode)restrictions).add(r);
-		//} else if(restrictions.getOperation() == m_combinator) {
-		//	//-- Already the proper combinator - add the node to it.
-		//	((QMultiNode) restrictions).add(r);
-		//} else {
-		//	//-- We need to replace the current restriction with a higher combinator node and add the items there.
-		//	QMultiNode comb = new QMultiNode(m_combinator);
-		//	comb.add(restrictions);
-		//	comb.add(r);
-		//	setRestrictions(comb);
+			((QMultiNode) restrictions).add(r);
+			//} else if(restrictions.getOperation() == m_combinator) {
+			//	//-- Already the proper combinator - add the node to it.
+			//	((QMultiNode) restrictions).add(r);
+			//} else {
+			//	//-- We need to replace the current restriction with a higher combinator node and add the items there.
+			//	QMultiNode comb = new QMultiNode(m_combinator);
+			//	comb.add(restrictions);
+			//	comb.add(r);
+			//	setRestrictions(comb);
 		} else {
 			QMultiNode comb = new QMultiNode(m_combinator);
 			comb.add(restrictions);
@@ -143,7 +151,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 		//	return (R) this;
 		QMultiNode or = new QMultiNode(QOperation.OR);
 		add(or);
-		return new QRestrictorImpl<T>(this, or);
+		return new QRestrictorImpl<>(this, or);
 	}
 
 	@NonNull
@@ -152,7 +160,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 		//	return (R) this;
 		QMultiNode and = new QMultiNode(QOperation.AND);
 		add(and);
-		return new QRestrictorImpl<T>(this, and);
+		return new QRestrictorImpl<>(this, and);
 	}
 
 	/**
@@ -288,7 +296,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	}
 
 	@NonNull
-	public <V> R in(@NonNull String property, QSelection<?> selection) {
+	public <V> R in(@NonNull String property, QSelection<V> selection) {
 		add(QRestriction.in(property, selection));
 		return (R) this;
 	}
@@ -528,14 +536,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	 * (R) this relation cannot be checked at compile time because Java still lacks property references (Sun is still too utterly
 	 * stupid to define them). They will be checked at runtime when the query is executed.
 	 *
-	 * @param <U>			The type of the children.
-	 * @param childclass	The class type of the children, because Java Generics is too bloody stupid to find out itself.
-	 * @param childproperty	The name of the property <i>in</i> the parent class <T> that represents the List<U> of child records.
+	 * @param <U>           The type of the children.
+	 * @param childclass    The class type of the children, because Java Generics is too bloody stupid to find out itself.
+	 * @param childproperty The name of the property <i>in</i> the parent class <T> that represents the List<U> of child records.
 	 */
 	@NonNull
 	public <U> ExistsRestrictor<U> exists(@NonNull Class<U> childclass, @NonNull String childproperty) {
-		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
-		ExistsRestrictor<U> builder = new ExistsRestrictor<U>(childclass, QOperation.AND, sq);
+		final QExistsSubquery<U> sq = new QExistsSubquery<>(this, childclass, childproperty);
+		ExistsRestrictor<U> builder = new ExistsRestrictor<>(childclass, QOperation.AND, sq);
 		add(sq);
 		return builder;
 	}
@@ -543,7 +551,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	@NonNull
 	public <P, U> ExistsRestrictor<U> exists(@NonNull Class<U> childclass, @NonNull QField<T, P> childproperty) {
 		final QExistsSubquery<U> sq = new QExistsSubquery<>(this, childclass, childproperty.getName());
-		ExistsRestrictor<U> builder = new ExistsRestrictor<U>(childclass, QOperation.AND, sq);
+		ExistsRestrictor<U> builder = new ExistsRestrictor<>(childclass, QOperation.AND, sq);
 		add(sq);
 		return builder;
 	}

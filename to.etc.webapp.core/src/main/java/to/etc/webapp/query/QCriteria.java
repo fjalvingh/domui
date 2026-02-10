@@ -115,7 +115,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 
 	@NonNull
 	@Override
-	public <V> QCriteria<T> in(@NonNull String property, QSelection<?> selection) {
+	public <V> QCriteria<T> in(@NonNull String property, QSelection<V> selection) {
 		super.in(property, selection);
 		return this;
 	}
@@ -123,12 +123,12 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 	@Override
 	@NonNull
 	public String toString() {
-		QQueryRenderer	r	= new QQueryRenderer();
+		QQueryRenderer r = new QQueryRenderer();
 		try {
 			visit(r);
 		} catch(Exception x) {
 			x.printStackTrace();
-			return "Invalid query: "+x;
+			return "Invalid query: " + x;
 		}
 		return r.toString();
 	}
@@ -136,7 +136,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 	/**
 	 * Set a test ID on the query, so that JUnit tests can easily provide a substituted answer.
 	 */
-	public QCriteria<T> testId(@NonNull String testId){
+	public QCriteria<T> testId(@NonNull String testId) {
 		setTestId(testId);
 		return this;
 	}
