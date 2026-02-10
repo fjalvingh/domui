@@ -30,7 +30,6 @@ import to.etc.util.StringTool;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * A color, with methods to create new colors from it.
@@ -55,7 +54,15 @@ final public class CssColor {
 	/**
 	 * HSL when calculated
 	 */
-	private double m_h, m_hsl_s, m_hsl_l, m_hsv_v, m_hsv_s;
+	private double m_h;
+
+	private double m_hslS;
+
+	private double m_hslL;
+
+	private double m_hsvV;
+
+	private double m_hsvS;
 
 	public CssColor(float rin, float gin, float bin) {
 		this((int) (rin + 0.5), (int) (gin + 0.5), (int) (bin + 0.5));
@@ -219,17 +226,18 @@ final public class CssColor {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	HSL calculations.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Lightness L (HSL)
 	 */
 	public double getHslL() {
 		calcHSL();
-		return m_hsl_l;
+		return m_hslL;
 	}
 
 	public double getHsvV() {
 		calcHSL();
-		return m_hsv_v;
+		return m_hsvV;
 	}
 
 	/**
@@ -237,12 +245,12 @@ final public class CssColor {
 	 */
 	public double getHslS() {
 		calcHSL();
-		return m_hsl_s;
+		return m_hslS;
 	}
 
 	public double getHsvS() {
 		calcHSL();
-		return m_hsv_s;
+		return m_hsvS;
 	}
 
 	public double getHslH() {
@@ -268,7 +276,9 @@ final public class CssColor {
 
 		double x = d * (1 - Math.abs(mod2 - 1));
 
-		int r, g, b;
+		int r;
+		int g;
+		int b;
 		h = h % 360;
 		int sextant = (int) (h / 60);
 		switch(sextant) {
@@ -333,23 +343,23 @@ final public class CssColor {
 			max = g;
 		if(b > max)
 			max = b;
-		m_hsl_l = (max + min) / 2.0;
-		m_hsv_v = max;
+		m_hslL = (max + min) / 2.0;
+		m_hsvV = max;
 
 		double d = max - min;
 
 		//-- hsl saturation
 		if(max == min) {
-			m_hsl_s = 0;
+			m_hslS = 0;
 		} else {
-			if(m_hsl_l > 0.5)
-				m_hsl_s = d / (2.0 - max - min);
+			if(m_hslL > 0.5)
+				m_hslS = d / (2.0 - max - min);
 			else
-				m_hsl_s = d / (max + min);
+				m_hslS = d / (max + min);
 		}
 
 		//-- hsv saturation
-		m_hsv_s = max == 0.0 ? 0.0 : d / max;
+		m_hsvS = max == 0.0 ? 0.0 : d / max;
 
 		//-- Hue
 		if(max == min) {
@@ -372,7 +382,9 @@ final public class CssColor {
 	 * HSV calculation with h = [0..360], s and v in 0..1
 	 */
 	public static CssColor createHSV(double h, double s, double v) {
-		double r, g, b;
+		double r;
+		double g;
+		double b;
 
 		h /= 360.0;            // Get hue 0..1
 
@@ -436,13 +448,14 @@ final public class CssColor {
 		return list;
 	}
 
-	private final static float
-		U_OFF = .436f,
-		V_OFF = .615f;
+	//private final static float U_OFF = .436f;
+	//
+	//private final static float V_OFF = .615f;
 
-	private static final long RAND_SEED = 0;
+	//private static final long RAND_SEED = 0;
 
-	private static Random m_rand = new Random(RAND_SEED);
+	//@SuppressWarnings("squid:S2245")			// random is safe here.
+	//private static Random m_rand = new Random(RAND_SEED);
 
 	// From http://en.wikipedia.org/wiki/YUV#Mathematical_derivations_and_formulas
 	//public static void yuv2rgb(float y, float u, float v, float[] rgb) {
