@@ -4,23 +4,13 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.login.IUser;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.IPageParameters;
-import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UserLogItem;
-import to.etc.domui.util.DomUtil;
-import to.etc.smtp.Address;
-import to.etc.smtp.MailBuilder;
-import to.etc.smtp.Message;
 import to.etc.util.LineIterator;
 import to.etc.util.SecurityUtils;
 import to.etc.util.StringTool;
-import to.etc.webapp.mailer.BulkMailer;
 
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -88,95 +78,95 @@ final public class ExceptionUtil {
 	}
 
 	public void renderEmail(@NonNull Throwable x) {
-		String addr = DomApplication.get().getProblemMailAddress();
-		if(null == addr)
-			return;
-		String subj = DomApplication.get().getProblemMailSubject();
-		if(null == subj)
-			return;
-		String from = DomApplication.get().getProblemFromAddress();
-		if(null == from)
-			return;
-
-		try {
-			InetAddress host = InetAddress.getLocalHost();
-			subj += " (" + host.getCanonicalHostName() + ")";
-		} catch(Exception xxx) {}
-
-		//-- Print a text version of all information and cause it to be sent.
-		MailBuilder mb = new MailBuilder();
-		mb.initialize(subj);
-		mb.append("A problem occurred in this DomUI application: ").append(x.toString()).nl();
-		mb.nl();
-		try {
-			InetAddress host = InetAddress.getLocalHost();
-			mb.append("Server: ").append(host.getCanonicalHostName()).append(", ").append(host.getHostAddress()).nl();
-		} catch(Exception xxx) {}
-
-		try {
-			IUser user = UIContext.getCurrentUser();
-			if(null != user) {
-				mb.append("User name: ").append(user.getDisplayName()).append(", login id ").append(user.getLoginID()).nl();
-			}
-		} catch(Exception xxx) {}
-
-
-		mb.ttl("Exception stack trace");
-		StringBuilder sb = new StringBuilder();
-		DomUtil.dumpException(sb, x);
-		for(String s : new LineIterator(sb.toString())) {
-			mb.append(s).nl();
-		}
-
-		mb.nl();
-		mb.ttl("Page input parameters");
-
-		IPageParameters pp = m_ctx.getPageParameters();
-		Set<String> names = pp.getParameterNames();
-		for(String name : names) {
-			boolean first = true;
-			String[] values = pp.getStringArray(name, null);
-			if(values == null || values.length == 0) {
-				mb.b(name).append(": ");
-				mb.append("No value").nl();
-			} else {
-				for(String value : values) {
-					if(first)
-						mb.b(name).append(": ");
-					else
-						mb.append(StringTool.strToFixedLength("", name.length())).append(": ");
-					first = false;
-					mb.append(value).nl();
-				}
-			}
-		}
-
-		mb.nl();
-		mb.ttl("Click/event stream (new to old)");
-		AppSession session = m_ctx.getSession();
-		//                                     012345678901 012345678901234567890123456789 0123456789012345678901234
-		//                                     -13s 999ms   0MC0ZakN00016ddnzHC00FYG.c3    LocalEnvironmentsPage
-		mb.append(StringTool.strToFixedLength("Time", 12));
-		mb.append(StringTool.strToFixedLength("CID", 30));
-		mb.append(StringTool.strToFixedLength("Page", 24));
-		mb.append("Message").nl();
-		List<UserLogItem> logItems = new ArrayList<>(session.getLogItems());
-		Collections.reverse(logItems);
-		for(UserLogItem li : logItems) {
-			mb.append(StringTool.strToFixedLength(li.time(), 12));
-			mb.append(StringTool.strToFixedLength(li.getCid(), 30));
-			mb.append(StringTool.strToFixedLength(lastName(li.getPage()), 24));
-			mb.append(li.getText()).nl();
-		}
-
-		Message m = mb.createMessage();
-		m.addTo(new Address(addr));
-		m.setFrom(new Address(from, from));
-		try {
-			BulkMailer.getInstance().store(m);
-		} catch(Exception xxx) {
-			LOG.error("renderEmail failed: " + x, x);
-		}
+		//String addr = DomApplication.get().getProblemMailAddress();
+		//if(null == addr)
+		//	return;
+		//String subj = DomApplication.get().getProblemMailSubject();
+		//if(null == subj)
+		//	return;
+		//String from = DomApplication.get().getProblemFromAddress();
+		//if(null == from)
+		//	return;
+		//
+		//try {
+		//	InetAddress host = InetAddress.getLocalHost();
+		//	subj += " (" + host.getCanonicalHostName() + ")";
+		//} catch(Exception xxx) {}
+		//
+		////-- Print a text version of all information and cause it to be sent.
+		//MailBuilder mb = new MailBuilder();
+		//mb.initialize(subj);
+		//mb.append("A problem occurred in this DomUI application: ").append(x.toString()).nl();
+		//mb.nl();
+		//try {
+		//	InetAddress host = InetAddress.getLocalHost();
+		//	mb.append("Server: ").append(host.getCanonicalHostName()).append(", ").append(host.getHostAddress()).nl();
+		//} catch(Exception xxx) {}
+		//
+		//try {
+		//	IUser user = UIContext.getCurrentUser();
+		//	if(null != user) {
+		//		mb.append("User name: ").append(user.getDisplayName()).append(", login id ").append(user.getLoginID()).nl();
+		//	}
+		//} catch(Exception xxx) {}
+		//
+		//
+		//mb.ttl("Exception stack trace");
+		//StringBuilder sb = new StringBuilder();
+		//DomUtil.dumpException(sb, x);
+		//for(String s : new LineIterator(sb.toString())) {
+		//	mb.append(s).nl();
+		//}
+		//
+		//mb.nl();
+		//mb.ttl("Page input parameters");
+		//
+		//IPageParameters pp = m_ctx.getPageParameters();
+		//Set<String> names = pp.getParameterNames();
+		//for(String name : names) {
+		//	boolean first = true;
+		//	String[] values = pp.getStringArray(name, null);
+		//	if(values == null || values.length == 0) {
+		//		mb.b(name).append(": ");
+		//		mb.append("No value").nl();
+		//	} else {
+		//		for(String value : values) {
+		//			if(first)
+		//				mb.b(name).append(": ");
+		//			else
+		//				mb.append(StringTool.strToFixedLength("", name.length())).append(": ");
+		//			first = false;
+		//			mb.append(value).nl();
+		//		}
+		//	}
+		//}
+		//
+		//mb.nl();
+		//mb.ttl("Click/event stream (new to old)");
+		//AppSession session = m_ctx.getSession();
+		////                                     012345678901 012345678901234567890123456789 0123456789012345678901234
+		////                                     -13s 999ms   0MC0ZakN00016ddnzHC00FYG.c3    LocalEnvironmentsPage
+		//mb.append(StringTool.strToFixedLength("Time", 12));
+		//mb.append(StringTool.strToFixedLength("CID", 30));
+		//mb.append(StringTool.strToFixedLength("Page", 24));
+		//mb.append("Message").nl();
+		//List<UserLogItem> logItems = new ArrayList<>(session.getLogItems());
+		//Collections.reverse(logItems);
+		//for(UserLogItem li : logItems) {
+		//	mb.append(StringTool.strToFixedLength(li.time(), 12));
+		//	mb.append(StringTool.strToFixedLength(li.getCid(), 30));
+		//	mb.append(StringTool.strToFixedLength(lastName(li.getPage()), 24));
+		//	mb.append(li.getText()).nl();
+		//}
+		//
+		//Message m = mb.createMessage();
+		//m.addTo(new Address(addr));
+		//m.setFrom(new Address(from, from));
+		//try {
+		//	BulkMailer.getInstance().store(m);
+		//} catch(Exception xxx) {
+		//	LOG.error("renderEmail failed: " + x, x);
+		//}
 
 	}
 
