@@ -49,8 +49,7 @@ public class ProblemReporter {
 			@Override
 			@Nullable
 			public Object before(NodeBase n) throws Exception {
-				if(n instanceof NodeContainer) {
-					NodeContainer nc = (NodeContainer) n;
+				if(n instanceof NodeContainer nc) {
 					IErrorFence fence = nc.getErrorFence();
 					if(null != fence)
 						res.add(fence);
@@ -133,7 +132,7 @@ public class ProblemReporter {
 		//-- Now get rid of all that was no longer reported
 		for(UIMessage old : existingErrorSet) {
 			for(IErrorFence f : allFences) {
-				if(OldBindingHandler.BINDING_ERROR != old.getGroup())
+				if(OldBindingHandler.BINDING_ERROR.equals(old.getGroup()))
 					f.removeMessage(old);
 			}
 		}
@@ -142,16 +141,13 @@ public class ProblemReporter {
 	/**
 	 * Order problems by (severity desc, name asc)
 	 */
-	static private final Comparator<ProblemInstance> C_BYSEVERITY = new Comparator<ProblemInstance>() {
-		@Override
-		public int compare(@Nullable ProblemInstance a, @Nullable ProblemInstance b) {
-			if(a == null || b == null)
-				throw new IllegalStateException();
-			int rc = b.getProblem().getSeverity().getOrder() - a.getProblem().getSeverity().getOrder();
-			if(rc != 0)
-				return rc;
-			return a.getProblem().getMessageKey().compareTo(b.getProblem().getMessageKey());
-		}
+	static private final Comparator<ProblemInstance> C_BYSEVERITY = (a, b) -> {
+		if(a == null || b == null)
+			throw new IllegalStateException();
+		int rc = b.getProblem().getSeverity().getOrder() - a.getProblem().getSeverity().getOrder();
+		if(rc != 0)
+			return rc;
+		return a.getProblem().getMessageKey().compareTo(b.getProblem().getMessageKey());
 	};
 
 	/**
@@ -209,9 +205,9 @@ public class ProblemReporter {
 
 		List<UIMessage> bindingMessageList = new ArrayList<>();
 		for(IBinding binding : bindingList) {
-			if(binding instanceof ComponentPropertyBindingBidi) {
-				ComponentPropertyBindingBidi<?, ?, ?, ?> sib = (ComponentPropertyBindingBidi<?, ?, ?, ?>) binding;
-				getErrorsOnBoundProperty(newErrorSet, all, n, sib);
+			if(binding instanceof ComponentPropertyBindingBidi<?, ?, ?, ?> sib) {
+				//ComponentPropertyBindingBidi<?, ?, ?, ?> sib = (ComponentPropertyBindingBidi<?, ?, ?, ?>) binding;
+				getErrorsOnBoundProperty(newErrorSet, all, sib);
 				UIMessage be = binding.getBindError();
 				if(null != be)
 					bindingMessageList.add(be);
@@ -241,7 +237,7 @@ public class ProblemReporter {
 	/**
 	 * Get all errors reported on the (instance, property) this binding is bound to.
 	 */
-	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @NonNull List<ProblemInstance> all, @NonNull NodeBase n, @NonNull ComponentPropertyBindingBidi<?, ?, ?, ?> binding) {
+	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @NonNull List<ProblemInstance> all, @NonNull ComponentPropertyBindingBidi<?, ?, ?, ?> binding) {
 		Object instance = binding.getInstance();
 		if(null == instance)                                // Not an instance binding -> no errors here
 			return;
