@@ -20,7 +20,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "Artist", indexes = {@Index(name = "artist_name_idx", columnList = "name")})
-@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
+//@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
 @MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")}, defaultSortColumn = "name")
 public class Artist extends DbRecordBase<Long> {
 	private Long m_id;
