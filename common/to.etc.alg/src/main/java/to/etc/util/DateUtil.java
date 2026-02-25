@@ -795,6 +795,10 @@ final public class DateUtil {
 		return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
+	static public Date toDate(@NonNull LocalDate ldt) {
+		return Date.from(ldt.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	}
+
 	static public Date toDate(@NonNull ZonedDateTime ldt) {
 		return Date.from(ldt.toInstant());
 	}
