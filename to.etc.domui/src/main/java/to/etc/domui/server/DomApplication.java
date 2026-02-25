@@ -2689,7 +2689,7 @@ public abstract class DomApplication {
 			prefix = prefix.substring(1);
 		while(prefix.endsWith("/"))
 			prefix = prefix.substring(0, prefix.length() - 1);
-		prefix += "/";
+		//prefix += "/";
 		m_ignorePrefixList.add(prefix);
 	}
 
