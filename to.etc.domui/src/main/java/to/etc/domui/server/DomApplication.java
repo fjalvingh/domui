@@ -2272,8 +2272,23 @@ public abstract class DomApplication {
 		pf = new File(webInf, appName + "-app.properties");        // skarpliance-app.properties
 		if(pf.exists())
 			return pf;
+		if(appName.equals("ROOT")) {
+			//-- Pfff. Try parent dirs.
+			File current = root.getParentFile();
+			if(current != null && current.getName().equals("webapps")) {
+				current = current.getParentFile();
+			}
+			if(current == null)
+				throw new IllegalStateException("I cannot find a config file for appname=" + appName);
+			appName = current.getName();
 
-		throw new IllegalStateException("I cannot find a config file.");
+			//-- If the app is called ROOT, also try WEB-INF/app.properties
+			pf = new File(webInf, appName + "-app.properties");
+			if(pf.exists())
+				return pf;
+		}
+
+		throw new IllegalStateException("I cannot find a config file for appname=" + appName);
 	}
 
 
