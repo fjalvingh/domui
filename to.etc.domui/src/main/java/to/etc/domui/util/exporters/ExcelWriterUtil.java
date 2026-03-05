@@ -34,9 +34,11 @@ public class ExcelWriterUtil {
 		Strikeout("S");
 
 		private String m_code;
+
 		FontStyle(String code) {
 			m_code = code;
 		}
+
 		public String getCode() {
 			return m_code;
 		}
@@ -78,7 +80,6 @@ public class ExcelWriterUtil {
 
 	/**
 	 * Default style with default font.
-	 * @return
 	 */
 	public CellStyle defaultCs() {
 		String key = "default";
@@ -93,7 +94,6 @@ public class ExcelWriterUtil {
 
 	/**
 	 * Default style with bold font.
-	 * @return
 	 */
 	public CellStyle boldCs() {
 		String key = "bold";
@@ -118,7 +118,6 @@ public class ExcelWriterUtil {
 
 	/**
 	 * Custom color background.
-	 * @return
 	 */
 	public CellStyle colorBk(Color color, @Nullable IndexedColors alternative) {
 		return customCs(color, alternative, false);
@@ -127,11 +126,11 @@ public class ExcelWriterUtil {
 	/**
 	 * Custom style, enables setting the rich color (awt) in case of xssf model in use, or fallback to predefined indexed color in case of less rich hssf model.
 	 * Also enables standard font decoration and setting the wrap text option.
-	 * @param xssfColor java.awt.Color that is used as template for XSSFColor that is constructed in case that XSSF model is in use
-	 * @param hssfColor alternative hssfColor in case that less rich HSSF model is in use
-	 * @param wrapText wraps the text if T
+	 *
+	 * @param xssfColor  java.awt.Color that is used as template for XSSFColor that is constructed in case that XSSF model is in use
+	 * @param hssfColor  alternative hssfColor in case that less rich HSSF model is in use
+	 * @param wrapText   wraps the text if T
 	 * @param fontStyles set of font styles to be applied to this cell style
-	 * @return
 	 */
 	public CellStyle customCs(Color xssfColor, @Nullable IndexedColors hssfColor, boolean wrapText, FontStyle... fontStyles) {
 		String fontKey = fontKey(fontStyles);
@@ -143,14 +142,14 @@ public class ExcelWriterUtil {
 			if(cs instanceof XSSFCellStyle) {
 				XSSFCellStyle xssfcs = (XSSFCellStyle) cs;
 				cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-				xssfcs.setFillForegroundColor(new XSSFColor(xssfColor));
-				XSSFColor borderColor = new XSSFColor(Color.LIGHT_GRAY);
+				xssfcs.setFillForegroundColor(new XSSFColor(xssfColor, null));
+				XSSFColor borderColor = new XSSFColor(Color.LIGHT_GRAY, null);
 				xssfcs.setBottomBorderColor(borderColor);
 				xssfcs.setLeftBorderColor(borderColor);
 				xssfcs.setRightBorderColor(borderColor);
 				xssfcs.setTopBorderColor(borderColor);
 				hasBackgroundFill = true;
-			}else if(null != hssfColor) {
+			} else if(null != hssfColor) {
 				cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				cs.setFillForegroundColor(hssfColor.index);
 				cs.setBottomBorderColor(IndexedColors.GREY_25_PERCENT.index);
@@ -173,7 +172,6 @@ public class ExcelWriterUtil {
 		return cs;
 	}
 
-
 	@Nullable
 	public CellStyle style(String key) {
 		return m_styles.get(key);
@@ -188,12 +186,20 @@ public class ExcelWriterUtil {
 		Font font = font(key);
 		if(null == font) {
 			font = cloneFromDefault();
-			for (FontStyle fs: fontStyles) {
-				switch (fs) {
-					case BOLD: font.setBold(true); break;
-					case ITALIC: font.setItalic(true); break;
-					case UNDERLINE: font.setUnderline(Font.U_SINGLE); break;
-					case Strikeout: font.setStrikeout(true); break;
+			for(FontStyle fs : fontStyles) {
+				switch(fs) {
+					case BOLD:
+						font.setBold(true);
+						break;
+					case ITALIC:
+						font.setItalic(true);
+						break;
+					case UNDERLINE:
+						font.setUnderline(Font.U_SINGLE);
+						break;
+					case Strikeout:
+						font.setStrikeout(true);
+						break;
 				}
 			}
 			addFont(key, font);
@@ -244,7 +250,7 @@ public class ExcelWriterUtil {
 		}
 		String fontKey = "fs";
 		if(null != fontStyles) {
-			for (FontStyle fs: fontStyles) {
+			for(FontStyle fs : fontStyles) {
 				fontKey += fs.getCode();
 			}
 		}
@@ -265,7 +271,7 @@ public class ExcelWriterUtil {
 
 	public void autoSizeCols(int from, int to, @Nullable Integer maxWidthPx) {
 		Iterator<Sheet> sheetIterator = m_workbook.sheetIterator();
-		while (sheetIterator.hasNext()) {
+		while(sheetIterator.hasNext()) {
 			Sheet sheet = sheetIterator.next();
 			for(int index = from; index < to; index++) {
 				sheet.autoSizeColumn(index, true);
