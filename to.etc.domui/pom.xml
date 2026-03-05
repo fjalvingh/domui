@@ -125,10 +125,16 @@
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>com.monitorjbl</groupId>
-			<artifactId>xlsx-streamer</artifactId>
+			<groupId>com.github.pjfanning</groupId>
+			<artifactId>excel-streaming-reader</artifactId>
 		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>com.monitorjbl</groupId>-->
+<!--			<artifactId>xlsx-streamer</artifactId>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>

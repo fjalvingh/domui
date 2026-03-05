@@ -7,7 +7,6 @@ import org.apache.hc.client5.http.config.RequestConfig.Builder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
@@ -218,7 +217,10 @@ public class ApacheHttpClient implements IHttpClient {
 
 	private synchronized CloseableHttpClient defaultClient() {
 		if(m_clientList.isEmpty()) {
-			CloseableHttpClient hc = HttpClients.createDefault();
+			CloseableHttpClient hc = HttpClientBuilder.create()
+				.disableContentCompression()						// !Important: existing code does not expect automatic decompression.
+				.build();
+			//CloseableHttpClient hc = HttpClients.createDefault();
 			m_clientList.add(hc);
 		}
 		return m_clientList.get(0);
