@@ -114,6 +114,11 @@ final public class ColumnDef<I, T> {
 	private IRenderInto<ColumnDef<I, T>> m_headerRenderer;
 
 	/**
+	 * When set, this column will be excluded from exports.
+	 */
+	private boolean m_noExport;
+
+	/**
 	 * A property that contains a value hint, which will be shown
 	 * as the hover (title=) of the cell when present.
 	 */
@@ -601,5 +606,18 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	public IRenderInto<ColumnDef<I, T>> getHeaderRenderer() {
 		return m_headerRenderer;
+	}
+
+	/**
+	 * Mark this column as not exportable, so it will be skipped when exporting.
+	 */
+	@NonNull
+	public ColumnDef<I, T> noExport() {
+		m_noExport = true;
+		return this;
+	}
+
+	public boolean isNoExport() {
+		return m_noExport;
 	}
 }

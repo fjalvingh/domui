@@ -30,7 +30,7 @@ final public class RowRendererCellWrapper<V> implements IExportColumn<V> {
 
 	@Nullable
 	static public <I, X, V> RowRendererCellWrapper<V> create(ColumnDef<I, X> c) {
-		if(c.isEditable() || c.getControlFactory() != null) {
+		if(c.isEditable() || c.getControlFactory() != null || c.isNoExport()) {
 			return null;
 		}
 		PropertyMetaModel<Object> pmm = (PropertyMetaModel<Object>) c.getPropertyMetaModel();
