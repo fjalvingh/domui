@@ -105,14 +105,14 @@ final public class NetTools {
 		InetAddress remote = InetAddress.getByName(remoteHost);
 		if(remote.isSiteLocalAddress() || remote.isLinkLocalAddress() || remote.isLoopbackAddress()) {
 			//-- Proxied?
-			String hdr = req.getHeader("X-Forwarded-For");
-			if(null != hdr && isValidHostName(hdr))
+			String hdr = req.getHeader("X-real-ip");
+			if(null != hdr && StringTool.isValidIpAddress(hdr))
 				return hdr;
 			hdr = req.getHeader("X-Client-IP");
 			if(null != hdr && StringTool.isValidIpAddress(hdr))
 				return hdr;
-			hdr = req.getHeader("X-real-ip");
-			if(null != hdr && StringTool.isValidIpAddress(hdr))
+			hdr = req.getHeader("X-Forwarded-For");
+			if(null != hdr && isValidHostName(hdr))
 				return hdr;
 		}
 		return remoteHost;
