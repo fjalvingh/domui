@@ -56,7 +56,7 @@ final public class NetTools {
 	 * Takes the host= parameter in the header to construct the real
 	 * hostname.
 	 */
-	static public void getHostURL(StringBuffer sb, HttpServletRequest req) {
+	static public void getHostURL(StringBuilder sb, HttpServletRequest req) {
 		sb.append(isHttps(req) ? "https" : "http");
 		sb.append("://");
 		sb.append(getHostName(req));
@@ -69,7 +69,7 @@ final public class NetTools {
 	}
 
 	static public String getHostURL(HttpServletRequest req) {
-		StringBuffer sb = new StringBuffer(64);
+		StringBuilder sb = new StringBuilder(64);
 		getHostURL(sb, req);
 		return sb.toString();
 	}
@@ -151,6 +151,7 @@ final public class NetTools {
 				try {
 					return Integer.parseInt(hostname.substring(i + 1).trim());
 				} catch(Exception x) {
+					// Ignore
 				}
 			}
 		}
@@ -301,6 +302,7 @@ final public class NetTools {
 			try {
 				m_connection.disconnect();
 			} catch(Exception x) {
+				// Ignore
 			}
 		}
 
@@ -355,8 +357,6 @@ final public class NetTools {
 		if(!u.getProtocol().equals("http") && !u.getProtocol().equalsIgnoreCase("https"))
 			throw new IllegalStateException("This call can only accept http(s):// connections.");
 		HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-		InputStream is = null;
-		Reader r = null;
 		try {
 			huc.setReadTimeout(timeout);
 			huc.setAllowUserInteraction(false);
@@ -373,25 +373,17 @@ final public class NetTools {
 			String encoding = huc.getContentEncoding();
 			if(encoding == null || encoding.isEmpty())
 				encoding = "UTF-8";
-			is = huc.getInputStream();
-			r = new InputStreamReader(is, encoding);
-			Document doc = DomTools.getDocument(r, url, namespaceaware);
-			return doc;
+			try(InputStream is = huc.getInputStream()) {
+				try(Reader r = new InputStreamReader(is, encoding)) {
+					Document doc = DomTools.getDocument(r, url, namespaceaware);
+					return doc;
+				}
+			}
 		} finally {
 			try {
-				if(r != null)
-					r.close();
+				huc.disconnect();
 			} catch(Exception x) {
-			}
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(huc != null)
-					huc.disconnect();
-			} catch(Exception x) {
+				// Ignore
 			}
 		}
 	}
@@ -399,6 +391,7 @@ final public class NetTools {
 	/**
 	 * Calls an external server and returns the response as an inputstream.
 	 */
+	@SuppressWarnings("squid:S2093")	// Sonar is too stupid to understand resource allocation.
 	static public HttpInputStream httpGetStream(String url, int timeout) throws Exception {
 		URL u = new URL(url);
 		if(!u.getProtocol().equals("http") && !u.getProtocol().equalsIgnoreCase("https"))
@@ -425,6 +418,7 @@ final public class NetTools {
 				if(huc != null)
 					huc.disconnect();
 			} catch(Exception x) {
+				// Ignore
 			}
 		}
 	}
@@ -437,7 +431,6 @@ final public class NetTools {
 		if(!u.getProtocol().equals("http") && !u.getProtocol().equalsIgnoreCase("https"))
 			throw new IllegalStateException("This call can only accept http(s):// connections.");
 		HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-		Reader r = null;
 		try {
 			huc.setReadTimeout(timeout);
 			huc.setAllowUserInteraction(false);
@@ -452,19 +445,15 @@ final public class NetTools {
 			String encoding = huc.getContentEncoding();
 			if(encoding == null)
 				encoding = "UTF-8";
-			r = new InputStreamReader(huc.getInputStream(), encoding);
-			String res = FileTool.readStreamAsString(r);
-			return res;
+			try(Reader r = new InputStreamReader(huc.getInputStream(), encoding)) {
+				String res = FileTool.readStreamAsString(r);
+				return res;
+			}
 		} finally {
 			try {
-				if(r != null)
-					r.close();
+				huc.disconnect();
 			} catch(Exception x) {
-			}
-			try {
-				if(huc != null)
-					huc.disconnect();
-			} catch(Exception x) {
+				// Ignore
 			}
 		}
 	}
@@ -485,6 +474,7 @@ final public class NetTools {
 			if(addr.isReachable(2000))
 				return true;
 		} catch(Exception x) {
+			// Ignore
 		}
 		return false;
 	}
