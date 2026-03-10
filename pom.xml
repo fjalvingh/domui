@@ -84,11 +84,6 @@
         <maven.failsafe.test.skip>${maven.test.skip}</maven.failsafe.test.skip>
         <jetty.skip>${maven.failsafe.test.skip}</jetty.skip>
 
-        <!-- SONAR -->
-        <sonar.organization>fjalvingh-github</sonar.organization>
-<!--        <sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
-        <sonar.projectKey>fjalvingh_domui</sonar.projectKey>
-
         <!-- Sonar disabled by default, use sonar profile to activate it -->
         <sonar.skip>true</sonar.skip>
 
@@ -961,6 +956,16 @@
                 <sonar.skip>false</sonar.skip>
             </properties>
         </profile>
+
+		<profile>
+			<id>sonar_domui</id>
+			<properties>
+				<!-- SONAR -->
+				<sonar.organization>fjalvingh-github</sonar.organization>
+				<!--        <sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
+				<sonar.projectKey>fjalvingh_domui</sonar.projectKey>
+			</properties>
+		</profile>
 
         <profile>
             <id>release-sign-artifacts</id>
