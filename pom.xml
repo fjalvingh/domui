@@ -86,6 +86,9 @@
 
         <!-- Sonar disabled by default, use sonar profile to activate it -->
         <sonar.skip>true</sonar.skip>
+		<sonar.organization>fjalvingh-github</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.projectKey>fjalvingh_domui</sonar.projectKey>
 
         <!-- JDK properties -->
         <jdk.version>21</jdk.version>
@@ -958,12 +961,17 @@
         </profile>
 
 		<profile>
-			<id>sonar_domui</id>
+			<id>submodule-in-zig</id>
+			<activation>
+				<file>
+					<exists>${basedir}/../ui/mgmtweb/</exists>
+				</file>
+			</activation>
 			<properties>
 				<!-- SONAR -->
-				<sonar.organization>fjalvingh-github</sonar.organization>
-				<!--        <sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
-				<sonar.projectKey>fjalvingh_domui</sonar.projectKey>
+				<sonar.organization>zigwebsoftware</sonar.organization>
+				<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+				<sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
 			</properties>
 		</profile>
 
