@@ -71,6 +71,25 @@ final public class DataPager2 extends Div implements IDataTablePager {
 
 	private boolean m_showAlways;
 
+	/**
+	 * Sentinel value used in the slots array to represent an ellipsis.
+	 * Example: [0, -1, 6, 7, 8, 9, 10, 11, 12, -1, 47] renders as:
+	 * [ 1] [..] [ 7] [ 8] [ 9] [10] [11] [12] [13] [..] [48]
+	 */
+	private static final int ELLIPSIS = -1;
+
+	/**
+	 * Total number of fixed slots in the pager.
+	 */
+	private static final int TOTAL_SLOTS = 11;
+
+	/**
+	 * Number of pages to show on each side of the current page.
+	 * For example, if HALF=3 and the current page is 10, then pages
+	 * 7, 8, 9, 10, 11, 12, 13 must all be shown (3 left + current + 3 right).
+	 */
+	private static final int HALF = 3;
+
 	public DataPager2(final IPageableComponent tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
@@ -187,63 +206,18 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		bd.add(m_prevBtn);
 
 		/*
-		 * render page numbers. The basic group is: 3 at the start, 3 at the end, 5 in the middle, unless we have <= 10 pages
-		 * in which case we render all.
+		 * Render page numbers using a fixed-slot pager algorithm.
 		 *
-		 * 1 ... n-1 [n] n+1 ... np-1 np
+		 * We use TOTAL_SLOTS (11) fixed-size slots. Slot 1 always shows page 1,
+		 * slot 11 always shows the last page. The current page is centered when
+		 * possible with +/-HALF (3) pages visible on each side.
+		 *
+		 * An ellipsis is shown when there is a gap in page numbers.
+		 *
+		 * This keeps the Prev/Next buttons at a fixed position at all times.
 		 */
-		if(np <= 10) {
-			renderButtons(0, 0, 10);
-		} else {
-			int ci = renderButtons(0, 0, 1);
-
-			if(cp < 4) {
-				// [1] 2 3 4 ... 18 19 (Render 3 more pages: 2, 3, 4)
-
-				int from = 1;
-				int to = 4;
-
-				// (pages 2, 3, 4)
-				renderButtons(ci, from, to);
-
-				// Add Ellipsis (Gap between page 4 and the final two pages)
-				bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
-
-				// Render the last two pages  np-2 and  np-1
-				renderButtons(np - 2, np - 2, np);
-
-			} else if(cp <= np - 5) {
-				// --- ZONE Middle
-				// 1 ... 4 [5] 6 ... 19 (Render a 3-page cluster centered on cp)
-
-				bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
-
-				// --- Centered Cluster (3 pages: cp-1, cp, cp+1) ---
-				int from = cp - 1;
-				int to = cp + 2;
-				ci = renderButtons(from, from, to);
-
-				// --- Trailing Ellipsis ---
-				if(ci < np - 2) {
-					bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
-				}
-
-				//-- Last Page
-				// Render the last page  np-1
-				if(ci < np) {
-					renderButtons(np - 1, np - 1, np);
-				}
-
-			} else { // cp is np-5 or greater
-				// 1 ... 15 16 [17] 18 19 (Render the last 5 pages)
-
-				// --- Leading Ellipsis ---
-				bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
-
-				int from = np - 5; // Start index for the last 5 pages (np -5, np-4, np-3, np-2, np-1)
-				renderButtons(from, from, np);
-			}
-		}
+		int[] slots = computePagerSlots(cp, np);
+		renderButtons(bd, slots, cp);
 
 		bd.add(m_nextBtn);
 
@@ -266,53 +240,105 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		}
 	}
 
-	private int renderButtons(int ci, int from, int to) throws Exception {
-		int np = m_table.getPageCount();
-		for(int i = from; i < to; i++) {
-			Button b;
-			if(ci >= np)
-				break;
-			if(ci == m_table.getCurrentPage()) {
-				b = new Button("ui-dp2-btn ui-dp2-pn ui-dp2-cp");
-			} else {
-				b = new Button("ui-dp2-btn ui-dp2-pn");
+
+	/**
+	 * Compute the pager slots for the given current page and total page count.
+	 * All page indices are 0-based.
+	 * Returns an array of length TOTAL_SLOTS (or less if totalPages &lt; TOTAL_SLOTS),
+	 * where each element is either a 0-based page index or ELLIPSIS (-1).
+	 * The algorithm uses three regimes:
+	 * - Near start: consecutive pages from 0, ellipsis, then end pages.
+	 * - Middle: [0] [..] [cur-3]..[cur+3] [..] [last].
+	 * - Near end: start pages, ellipsis, consecutive pages to last (mirror of near start).
+	 */
+	private static int[] computePagerSlots(int currentPage, int totalPages) {
+		if(totalPages <= TOTAL_SLOTS) {
+			// Few enough pages: just show all of them, no ellipsis needed
+			int[] slots = new int[totalPages];
+			for(int i = 0; i < totalPages; i++) {
+				slots[i] = i;
 			}
-			b.add(Integer.toString(ci + 1));
-			final int morons = ci;
-			b.setClicked(clickednode -> m_table.setCurrentPage(morons));
-			m_buttonDiv.add(b);
-			ci++;
+			return slots;
 		}
-		return ci;
+
+		int[] slots = new int[TOTAL_SLOTS];
+		int last = totalPages - 1;
+
+		int coreStart = currentPage - HALF;
+		int coreEnd = currentPage + HALF;
+
+		// How many consecutive pages from the start must we show?
+		// At minimum current+HALF+1 (pages 0..current+HALF) to satisfy the +- 3 rule.
+		// But also at least (TOTAL_SLOTS-1)/2 to keep the pager symmetric when near the start.
+		int leftRun = Math.max(coreEnd + 1, (TOTAL_SLOTS - 1) / 2);
+
+		// How many consecutive pages from the end must we show? (mirror)
+		int rightRun = Math.max(last - coreStart + 1, (TOTAL_SLOTS - 1) / 2);
+
+		if(leftRun <= TOTAL_SLOTS - 2) {
+			// Near start: show pages 0..leftRun-1, ellipsis, then fill from end
+			int rightCount = TOTAL_SLOTS - leftRun - 1; // -1 for ellipsis
+			fillWithEllipsis(slots, leftRun, rightCount, last);
+		} else if(rightRun <= TOTAL_SLOTS - 2) {
+			// Near end: fill from start, ellipsis, then consecutive to last (mirror)
+			int leftCount = TOTAL_SLOTS - rightRun - 1; // -1 for ellipsis
+			fillWithEllipsis(slots, leftCount, rightRun, last);
+		} else {
+			// Middle: two ellipses, core centered on currentPage
+			int idx = 0;
+			slots[idx++] = 0;
+			slots[idx++] = ELLIPSIS;
+			for(int p = coreStart; p <= coreEnd; p++) {
+				slots[idx++] = p;
+			}
+			slots[idx++] = ELLIPSIS;
+			slots[idx] = last;
+		}
+
+		return slots;
 	}
 
-//	private void redrawSelectionButtons() throws Exception {
-//		//-- Show/hide the "show selection" button
-//		final ISelectableTableComponent<Object> dt = (ISelectableTableComponent<Object>) getSelectableTable();
-//		if(null == dt)
-//			throw new IllegalStateException("Null selectable table?");
-//
-//		if(isNeedSelectionButton()) {
-//			if(m_showSelectionBtn == null) {
-//				m_showSelectionBtn = new SmallImgButton(Icon.of("THEME/dpr-select-on.png"));
-//				m_buttonDiv.add(4, m_showSelectionBtn); // Always after last navigation button
-//				m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
-//					@Override
-//					public void clicked(@NonNull NodeBase clickednode) throws Exception {
-//						dt.setShowSelection(true);
-//						clickednode.remove();
-//						m_showSelectionBtn = null;
-//					}
-//				});
-//				m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
-//			}
-//		} else {
-//			if(m_showSelectionBtn != null) {
-//				m_showSelectionBtn.remove();
-//				m_showSelectionBtn = null;
-//			}
-//		}
-//	}
+	/**
+	 * Fill the slots array with leftCount consecutive pages from the start,
+	 * an ellipsis, and rightCount consecutive pages ending at last.
+	 */
+	private static void fillWithEllipsis(int[] slots, int leftCount, int rightCount, int last) {
+		int idx = 0;
+		for(int i = 0; i < leftCount; i++) {
+			slots[idx++] = i;
+		}
+		slots[idx++] = ELLIPSIS;
+		for(int i = last - rightCount + 1; i <= last; i++) {
+			slots[idx++] = i;
+		}
+	}
+
+
+	/**
+	 * Render the computed slots into the button div.
+	 *
+	 * @param bd the button div to add buttons/ellipsis to
+	 * @param slots the computed slot array (0-based page indices or ELLIPSIS)
+	 * @param currentPage the current page (0-based)
+	 */
+	private void renderButtons(Div bd, int[] slots, int currentPage) {
+		for(int slot : slots) {
+			if(slot == ELLIPSIS) {
+				bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
+			} else {
+				Button b;
+				if(slot == currentPage) {
+					b = new Button("ui-dp2-btn ui-dp2-pn ui-dp2-cp");
+				} else {
+					b = new Button("ui-dp2-btn ui-dp2-pn");
+				}
+				b.add(Integer.toString(slot + 1)); // display as 1-based
+				final int pageIndex = slot;
+				b.setClicked(clickednode -> m_table.setCurrentPage(pageIndex));
+				bd.add(b);
+			}
+		}
+	}
 
 	public Div getButtonDiv() {
 		return m_buttonDiv;
@@ -372,5 +398,61 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	@Override
 	public void setShowAlways(boolean showAlways) {
 		m_showAlways = showAlways;
+	}
+
+	/**
+	 * Main method to print all pager states for verification.
+	 * Usage: java DataPager2 [totalPages]
+	 * Defaults to 48 pages if no argument given.
+	 */
+	public static void main(String[] args) {
+		int totalPages = 48;
+		if(args.length > 0) {
+			totalPages = Integer.parseInt(args[0]);
+		}
+
+		System.out.println("DataPager2 - Pager states for " + totalPages + " pages, " + TOTAL_SLOTS + " slots, HALF=" + HALF);
+		System.out.println();
+
+		for(int page = 0; page < totalPages; page++) {
+			int[] slots = computePagerSlots(page, totalPages);
+			StringBuilder sb = new StringBuilder();
+			sb.append(String.format("Page %2d: ", page + 1));
+			for(int i = 0; i < slots.length; i++) {
+				if(i > 0)
+					sb.append(' ');
+				if(slots[i] == ELLIPSIS) {
+					sb.append("[..]");
+				} else if(slots[i] == page) {
+					sb.append(String.format("[*%d*]", slots[i] + 1));
+				} else {
+					sb.append(String.format("[%2d]", slots[i] + 1));
+				}
+			}
+
+			// Validate slot count
+			if(slots.length != TOTAL_SLOTS && totalPages > TOTAL_SLOTS) {
+				sb.append("  *** ERROR: ").append(slots.length).append(" slots ***");
+			}
+
+			// Validate +/-3 rule
+			for(int delta = -HALF; delta <= HALF; delta++) {
+				int target = page + delta;
+				if(target >= 0 && target < totalPages) {
+					boolean found = false;
+					for(int s : slots) {
+						if(s == target) {
+							found = true;
+							break;
+						}
+					}
+					if(!found) {
+						sb.append("  *** MISSING page ").append(target + 1).append(" ***");
+					}
+				}
+			}
+
+			System.out.println(sb);
+		}
 	}
 }
