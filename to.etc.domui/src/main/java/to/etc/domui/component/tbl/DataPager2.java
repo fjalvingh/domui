@@ -240,12 +240,12 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		}
 	}
 
-
 	/**
 	 * Compute the pager slots for the given current page and total page count.
-	 * All page indices are 0-based.
+	 * <p>
 	 * Returns an array of length TOTAL_SLOTS (or less if totalPages &lt; TOTAL_SLOTS),
 	 * where each element is either a 0-based page index or ELLIPSIS (-1).
+	 * <p>
 	 * The algorithm uses three regimes:
 	 * - Near start: consecutive pages from 0, ellipsis, then end pages.
 	 * - Middle: [0] [..] [cur-3]..[cur+3] [..] [last].
@@ -313,12 +313,11 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		}
 	}
 
-
 	/**
 	 * Render the computed slots into the button div.
 	 *
-	 * @param bd the button div to add buttons/ellipsis to
-	 * @param slots the computed slot array (0-based page indices or ELLIPSIS)
+	 * @param bd          the button div to add buttons/ellipsis to
+	 * @param slots       the computed slot array (0-based page indices or ELLIPSIS)
 	 * @param currentPage the current page (0-based)
 	 */
 	private void renderButtons(Div bd, int[] slots, int currentPage) {
@@ -332,7 +331,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 				} else {
 					b = new Button("ui-dp2-btn ui-dp2-pn");
 				}
-				b.add(Integer.toString(slot + 1)); // display as 1-based
+				b.add(Integer.toString(slot + 1));
 				final int pageIndex = slot;
 				b.setClicked(clickednode -> m_table.setCurrentPage(pageIndex));
 				bd.add(b);
@@ -400,11 +399,6 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		m_showAlways = showAlways;
 	}
 
-	/**
-	 * Main method to print all pager states for verification.
-	 * Usage: java DataPager2 [totalPages]
-	 * Defaults to 48 pages if no argument given.
-	 */
 	public static void main(String[] args) {
 		int totalPages = 48;
 		if(args.length > 0) {
