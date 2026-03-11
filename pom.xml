@@ -86,6 +86,10 @@
 
         <!-- Sonar disabled by default, use sonar profile to activate it -->
         <sonar.skip>true</sonar.skip>
+		<sonar.organization>fjalvingh-github</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.projectKey>fjalvingh_domui</sonar.projectKey>
+		<jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
 
         <!-- JDK properties -->
         <jdk.version>21</jdk.version>
@@ -958,13 +962,31 @@
         </profile>
 
 		<profile>
-			<id>sonar_domui</id>
+			<id>submodule-in-zig</id>
+			<activation>
+				<file>
+					<exists>${basedir}/../ui/mgmtweb/</exists>
+				</file>
+			</activation>
 			<properties>
 				<!-- SONAR -->
-				<sonar.organization>fjalvingh-github</sonar.organization>
-				<!--        <sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
-				<sonar.projectKey>fjalvingh_domui</sonar.projectKey>
+				<sonar.organization>zigwebsoftware</sonar.organization>
+				<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+				<sonar.projectKey>nl.skarp:top-tools</sonar.projectKey>
 			</properties>
+		</profile>
+
+		<profile>
+			<id>coverage</id>
+			<build>
+				<plugins>
+					<!-- Test coverage -->
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 
         <profile>
@@ -1352,6 +1374,26 @@
                     <artifactId>enunciate-maven-plugin</artifactId>
                     <version>${enunciate-maven-plugin.version}</version>
                 </plugin>
+				<!-- Test coverage -->
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco-maven-plugin.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>report</id>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
             </plugins>
         </pluginManagement>
 
