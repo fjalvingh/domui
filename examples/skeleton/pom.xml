@@ -59,8 +59,8 @@
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		<antlr.runtime.version>4.7</antlr.runtime.version>
 		<cxf.version>3.5.9</cxf.version>
-		<jackson.version>2.15.2</jackson.version>
-		<jackson.databind.version>2.15.2</jackson.databind.version>
+		<jackson.version>2.18.6</jackson.version>
+		<jackson.databind.version>2.18.6</jackson.databind.version>
 		<jackson.hibernate>2.12.1</jackson.hibernate>
 		<bouncy.version>1.79</bouncy.version>
 	</properties>
