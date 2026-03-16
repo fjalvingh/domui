@@ -189,7 +189,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 		};
 		renderer.visitSelectionColumns(qc);
 
-		sb.append(renderer.toString());
+		sb.append(renderer);
 
 		sb.append(" from ");
 
@@ -334,8 +334,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 		appendWhere(" in (");
 
 		QOperatorNode expr = n.getExpr();
-		if(expr instanceof QLiteral) {
-			QLiteral lit = (QLiteral) expr;
+		if(expr instanceof QLiteral lit) {
 			Object value = lit.getValue();
 			if(value instanceof List) {
 				List<Object> list = (List<Object>) value;
@@ -363,9 +362,8 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	 */
 	private void generateCompoundComparison(QPropertyComparison n, JdbcPropertyMeta pm) {
 		//-- Make sure the value instance passed is of the compound's type.
-		if(!(n.getExpr() instanceof QLiteral))
+		if(!(n.getExpr() instanceof QLiteral ql))
 			throw new QQuerySyntaxException("Unexpected argument to " + n + ": " + n.getExpr());
-		QLiteral ql = (QLiteral) n.getExpr();
 		Object inst = ql.getValue();
 		if(inst != null) {
 			if(!pm.getActualClass().isAssignableFrom(inst.getClass()))

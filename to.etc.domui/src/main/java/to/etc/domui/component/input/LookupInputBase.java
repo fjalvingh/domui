@@ -388,10 +388,7 @@ abstract public class LookupInputBase<Q, O> extends AbstractLookupInputBase<Q, O
 		IKeyWordSearchQueryFactory<Q> ksh = getKeyWordSearchHandler();
 		if(ksh != null) {
 			searchQuery = ksh.createQuery(searchString);
-			if(searchQuery == null) {
-				//in case of cancelled search return null
-				return null;
-			}
+			//in case of cancelled search return null
 		} else {
 			searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
 			//if(searchString.startsWith("$$") && searchString.length() > 2) {

@@ -14,6 +14,7 @@ import to.etc.webapp.query.QDataContext;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -131,8 +132,7 @@ public class ModelCopier {
 	@Nullable
 	public <T> T copy(@NonNull T src, Object... except) throws Exception {
 		Set<Object> exceptSet = new HashSet<Object>();
-		for(Object xc : except)
-			exceptSet.add(xc);
+		Collections.addAll(exceptSet, except);
 
 		return copyInstance(src);
 	}
@@ -401,8 +401,7 @@ public class ModelCopier {
 
 			Object kv = key.getValue(ix);
 
-			if(kv instanceof InstanceKey) {
-				InstanceKey<?> altk = (InstanceKey<?>) kv;
+			if(kv instanceof InstanceKey<?> altk) {
 				kv = destCreate(altk);
 				if(null == kv) {
 					throw new IllegalStateException("Cannot locate key entity for field '" + name + "': " + altk);

@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
@@ -308,7 +309,7 @@ public class TUtilTestProperties {
 	}
 
 	private static void tryOpenFile(File f) throws Exception {
-		m_logWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "utf-8"));
+		m_logWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
 		m_testLogFile = f;
 		m_logWriter.println("**** JUnit test log created at " + new Date());
 		System.out.println("test: log file created as " + f.getCanonicalPath());

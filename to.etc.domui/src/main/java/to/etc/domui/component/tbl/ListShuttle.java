@@ -260,9 +260,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	private void moveRight() throws Exception {
 		for(int ix = m_sourceBody.getChildCount(); --ix >= 0;) {
 			NodeBase tb = m_sourceBody.getChild(ix);
-			if(!(tb instanceof TR))
+			if(!(tb instanceof TR tr))
 				throw new IllegalStateException("?? Unexpected node: " + tb);
-			TR tr = (TR) tb;
 			TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 			if(td.hasCssClass("selected")) {
 				m_model.moveSourceToTarget(ix, 9999); // Since this changes both models
@@ -277,9 +276,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	private void moveLeft() throws Exception {
 		for(int ix = m_targetBody.getChildCount(); --ix >= 0;) {
 			NodeBase tb = m_targetBody.getChild(ix);
-			if(!(tb instanceof TR))
+			if(!(tb instanceof TR tr))
 				throw new IllegalStateException("?? Unexpected node: " + tb);
-			TR tr = (TR) tb;
 			TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 			if(td.hasCssClass("selected")) {
 				m_model.moveTargetToSource(ix); // Since this changes both models
@@ -293,9 +291,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	private void moveUp() throws Exception {
 		for(int ix = 0; ix < m_targetBody.getChildCount(); ix++) {
 			NodeBase tb = m_targetBody.getChild(ix);
-			if(!(tb instanceof TR))
+			if(!(tb instanceof TR tr))
 				throw new IllegalStateException("?? Unexpected node: " + tb);
-			TR tr = (TR) tb;
 			TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 			if(td.hasCssClass("selected")) {
 				//-- This must move up.. If we're at index 0 we cannot move up!
@@ -313,9 +310,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	private void moveDown() throws Exception {
 		for(int ix = m_targetBody.getChildCount(); --ix >= 0;) {
 			NodeBase tb = m_targetBody.getChild(ix);
-			if(!(tb instanceof TR))
+			if(!(tb instanceof TR tr))
 				throw new IllegalStateException("?? Unexpected node: " + tb);
-			TR tr = (TR) tb;
 			TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 			if(td.hasCssClass("selected")) {
 				if(ix >= m_targetBody.getChildCount() - 1) // At the end already?
@@ -330,9 +326,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		//		if(ix < 0 || ix >= m_targetBody.getChildCount())
 		//			return;
 		NodeBase tb = m_targetBody.getChild(ix);
-		if(!(tb instanceof TR))
+		if(!(tb instanceof TR tr))
 			throw new IllegalStateException("?? Unexpected node: " + tb);
-		TR tr = (TR) tb;
 		TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 		td.setCssClass("selected");
 	}

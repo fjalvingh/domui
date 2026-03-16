@@ -6,6 +6,8 @@ import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.IContributorRenderer;
 import to.etc.domui.dom.html.OptimalDeltaRenderer;
 
+import java.util.Objects;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 10-10-19.
@@ -64,7 +66,7 @@ public class LinkHeaderContributor extends HeaderContributor {
 			return false;
 		if(!m_href.equals(that.m_href))
 			return false;
-		return m_type != null ? m_type.equals(that.m_type) : that.m_type == null;
+		return Objects.equals(m_type, that.m_type);
 	}
 
 	@Override

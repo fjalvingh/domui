@@ -475,7 +475,7 @@ public class PendingOperation {
 					m_properties.store(baos, "-");
 
 					//-- Convert bytes back to a $ (what an ass-backward interface 8-/)
-					pro = new String(baos.toByteArray(), StandardCharsets.ISO_8859_1);
+					pro = baos.toString(StandardCharsets.ISO_8859_1);
 				} catch(IOException x) {
 					x.printStackTrace(); // Impossible: should never happen.
 				}

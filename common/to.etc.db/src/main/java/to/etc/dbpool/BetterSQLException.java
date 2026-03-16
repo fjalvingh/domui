@@ -91,7 +91,7 @@ public class BetterSQLException extends SQLException {
 				else {
 					sb.append(o.getClass().getName());
 					sb.append(":");
-					sb.append(o.toString());
+					sb.append(o);
 					sb.append("\n");
 				}
 				if(sb.length() > 8192) {
@@ -150,7 +150,7 @@ public class BetterSQLException extends SQLException {
 				} else if(nextToken == StreamTokenizer.TT_WORD) {
 					t = st.sval;
 				} else if(st.sval != null) {
-					t = "\'" + st.sval + "\'";
+					t = "'" + st.sval + "'";
 				} else {
 					t = String.valueOf((char) st.ttype);
 				}
@@ -273,7 +273,7 @@ public class BetterSQLException extends SQLException {
 				else {
 					sb.append(o.getClass().getName());
 					sb.append(":");
-					sb.append(o.toString());
+					sb.append(o);
 					sb.append("\n");
 				}
 				if(sb.length() > 8192) {

@@ -28,9 +28,8 @@ final public class FieldPair implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if(!(obj instanceof FieldPair))
+		if(!(obj instanceof FieldPair fp))
 			return false;
-		FieldPair fp = (FieldPair) obj;
 		return m_parentColumn == fp.m_parentColumn && m_childColumn == fp.m_childColumn;
 	}
 

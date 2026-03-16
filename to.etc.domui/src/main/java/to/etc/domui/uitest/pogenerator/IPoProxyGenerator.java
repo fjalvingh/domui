@@ -8,9 +8,9 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  */
 @NonNullByDefault
 public interface IPoProxyGenerator {
-	static public final String PROXYPACKAGE = "to.etc.domui.webdriver.poproxies";
+	String PROXYPACKAGE = "to.etc.domui.webdriver.poproxies";
 
-	static public final String WEBDRIVERPACKAGE = "to.etc.domui.webdriver.core";
+	String WEBDRIVERPACKAGE = "to.etc.domui.webdriver.core";
 
 	/**
 	 * This allows the generator to see if there is content inside it that

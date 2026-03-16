@@ -139,14 +139,13 @@ final class PoolEntry {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(64);
-		sb.append("Poolentry[");
-		sb.append(m_pool.toString());
-		sb.append(',');
-		sb.append(m_id);
-		sb.append(",type=");
-		sb.append(m_unpooled ? "unpooled" : "pooled");
-		sb.append("]");
+		String sb = "Poolentry["
+			+ m_pool.toString()
+			+ ','
+			+ m_id
+			+ ",type="
+			+ (m_unpooled ? "unpooled" : "pooled")
+			+ "]";
 		//		if(m_proxy == null)
 		//			sb.append(",without proxy.");
 		//		else {
@@ -158,7 +157,7 @@ final class PoolEntry {
 		//				sb.append(t.getName());
 		//			}
 		//		}
-		return sb.toString();
+		return sb;
 	}
 
 	public void appendDesc(StringBuilder sb) {
@@ -427,7 +426,7 @@ final class PoolEntry {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tracked resource allocation routines..				*/
 	/*--------------------------------------------------------------*/
-	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1) throws java.sql.SQLException {
+	java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -440,7 +439,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2, final int p3) throws java.sql.SQLException {
+	java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2, final int p3) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -453,7 +452,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int[] p2) throws java.sql.SQLException {
+	java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int[] p2) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -466,7 +465,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2, final int p3, final int p4) throws java.sql.SQLException {
+	java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2, final int p3, final int p4) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -479,7 +478,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2) throws java.sql.SQLException {
+	java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -492,7 +491,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final String[] ar) throws java.sql.SQLException {
+	java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final String[] ar) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -505,7 +504,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc) throws java.sql.SQLException {
+	java.sql.Statement proxyCreateStatement(final ConnectionProxy pc) throws java.sql.SQLException {
 		StatementProxy ps = new StatementProxy(pc, null);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -518,7 +517,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final int p1, final int p2) throws java.sql.SQLException {
+	java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final int p1, final int p2) throws java.sql.SQLException {
 		StatementProxy ps = new StatementProxy(pc, null);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -531,7 +530,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final String a, final String[] b) throws java.sql.SQLException {
+	private java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final String a, final String[] b) throws java.sql.SQLException {
 		StatementProxy ps = new StatementProxy(pc, a);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -544,7 +543,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final int p1, final int p2, final int p3) throws java.sql.SQLException {
+	java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final int p1, final int p2, final int p3) throws java.sql.SQLException {
 		StatementProxy ps = new StatementProxy(pc, null);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -557,7 +556,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3) throws java.sql.SQLException {
+	java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3) throws java.sql.SQLException {
 		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -570,7 +569,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3, final int p4) throws java.sql.SQLException {
+	java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3, final int p4) throws java.sql.SQLException {
 		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
 			pc.statsHandler().prepareStatement(ps);
@@ -583,7 +582,7 @@ final class PoolEntry {
 		return ps;
 	}
 
-	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1) throws java.sql.SQLException {
+	java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1) throws java.sql.SQLException {
 		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
 			pc.statsHandler().prepareStatement(ps);

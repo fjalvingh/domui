@@ -11,7 +11,7 @@ import java.util.Arrays;
 final public class FaIconGenerator {
 	private FaIconGenerator() {}
 
-	public static final void main(String[] args) {
+	public static void main(String[] args) {
 		Arrays.sort(FANAMES);
 		for(String faname : FANAMES) {
 			System.out.println(alterName(faname) + "(\"" + faname + "\"),");

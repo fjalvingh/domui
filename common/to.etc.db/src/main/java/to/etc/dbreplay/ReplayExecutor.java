@@ -178,7 +178,6 @@ class ReplayExecutor extends Thread {
 
 			case StatementProxy.ST_QUERY:
 				executeQueryStatement(rr);
-				return;
 		}
 	}
 

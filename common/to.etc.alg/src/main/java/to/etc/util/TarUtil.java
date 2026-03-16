@@ -72,7 +72,7 @@ public class TarUtil {
 		tarArchive.putArchiveEntry(archiveEntry);
 		if(entry.isFile()) {
 			try(
-				FileInputStream fis = new FileInputStream(entry);
+				FileInputStream fis = new FileInputStream(entry)
 			) {
 				IOUtils.copy(fis, tarArchive, BUFFER_SIZE);
 				tarArchive.closeArchiveEntry();

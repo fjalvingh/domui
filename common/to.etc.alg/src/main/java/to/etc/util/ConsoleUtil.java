@@ -161,7 +161,7 @@ public class ConsoleUtil {
 	}
 
 	static private void consoleLog(int type, String... segments) {
-		consoleLog(type, (Throwable) null, segments);
+		consoleLog(type, null, segments);
 	}
 
 	static private void consoleLog(int type, @Nullable Throwable exception, String... segments) {

@@ -74,22 +74,18 @@ final public class NormalContextMaker extends AbstractContextMaker {
 	@Override
 	public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception {
 		//-- Get session,
-		try {
-			HttpSession sess = request.getSession(true);
-			AppSession appSession;
-			synchronized(sess) {
-				appSession = (AppSession) sess.getAttribute(AppSession.class.getName());
-				if(appSession == null) {
-					appSession = m_application.createSession();
-					sess.setAttribute(AppSession.class.getName(), appSession);
-				}
+		HttpSession sess = request.getSession(true);
+		AppSession appSession;
+		synchronized(sess) {
+			appSession = (AppSession) sess.getAttribute(AppSession.class.getName());
+			if(appSession == null) {
+				appSession = m_application.createSession();
+				sess.setAttribute(AppSession.class.getName(), appSession);
 			}
-
-			HttpServerRequestResponse requestResponse = HttpServerRequestResponse.create(m_application, request, response);
-			RequestContextImpl ctx = new RequestContextImpl(requestResponse, m_application, appSession);
-			execute(requestResponse, ctx, chain);
-		} finally {
-			//			DomApplication.internalSetCurrent(null);
 		}
+
+		HttpServerRequestResponse requestResponse = HttpServerRequestResponse.create(m_application, request, response);
+		RequestContextImpl ctx = new RequestContextImpl(requestResponse, m_application, appSession);
+		execute(requestResponse, ctx, chain);
 	}
 }

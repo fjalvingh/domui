@@ -73,7 +73,7 @@ final public class QQueryUtils {
 						for(int i = 0; i < row.length; i++) {
 							if(i > 0)
 								sb.append(", ");
-							sb.append(String.valueOf(row[i]));
+							sb.append(row[i]);
 						}
 						return sb.toString();
 					}

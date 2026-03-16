@@ -111,7 +111,7 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 			pk = CompoundKeyConverter.INSTANCE.unmarshal(dc, m_pkMetaPmm.getActualType(), pkValue);
 		} catch(Exception x) {
 			throw new RuntimeException("URL parameter value='" + pkValue + "' cannot be converted to a PK for '" + m_entityClass + "'"
-				+ "\n- error: " + x.toString()
+				+ "\n- error: " + x
 				+ "\n- parameter " + m_name
 				+ "\n- page " + page.getClass());
 

@@ -211,9 +211,7 @@ abstract public class HiParser {
 	}
 
 	private boolean isCommentStarter() {
-		if(is("/*") || is("//"))
-			return true;
-		return false;
+		return is("/*") || is("//");
 	}
 
 	private boolean isPunctuation(int c) {

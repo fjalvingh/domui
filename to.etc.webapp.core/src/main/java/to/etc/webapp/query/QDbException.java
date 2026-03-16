@@ -76,9 +76,8 @@ public class QDbException extends CodeException {
 	 * </ul>
 	 */
 	static public QDbException findTranslation(Exception x) {
-		if(!(x instanceof SQLException))
+		if(!(x instanceof SQLException sx))
 			return null;
-		SQLException sx = (SQLException) x;
 		String state = calcSQLState(sx);
 		if(state == null || state.length() < 2)
 			return null;

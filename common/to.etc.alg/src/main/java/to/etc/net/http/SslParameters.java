@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -86,7 +87,7 @@ final public class SslParameters {
 			return false;
 		if(m_sslType != that.m_sslType)
 			return false;
-		return m_sslPasskey != null ? m_sslPasskey.equals(that.m_sslPasskey) : that.m_sslPasskey == null;
+		return Objects.equals(m_sslPasskey, that.m_sslPasskey);
 	}
 
 	@Override

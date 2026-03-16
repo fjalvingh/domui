@@ -110,10 +110,7 @@ abstract public class AbstractSassResolver<O> {
 				//-- Try for a "partial"
 				String newName = idPath + "_" + idPath;
 				res = tryRef(app, newName);
-				if(null != res) {
-					return res;
-				}
-				return null;
+				return res;
 			}
 
 			//-- If we have a path: prepare the absolute path

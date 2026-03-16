@@ -21,7 +21,7 @@ public class TestMemoryDb extends AbstractDbTest {
 			System.out.println("track = " + track);
 			Track originalTrack = mdb.getOriginal(track);
 			Assert.assertNotNull("There must be an original track loaded", originalTrack);
-			Assert.assertTrue("The original track and the loaded one cannot be the same", track != originalTrack);
+			Assert.assertNotSame("The original track and the loaded one cannot be the same", track, originalTrack);
 
 			//-- Check fields
 			Assert.assertTrue("The genre field must be a proxy", MemoryDb.isMdbProxy(track.getGenre()));
@@ -39,7 +39,7 @@ public class TestMemoryDb extends AbstractDbTest {
 			//-- Now the original album must have loaded
 			originalAlbum = mdb.getOriginal(album);
 			Assert.assertNotNull("The original album must now have been loaded", originalAlbum);
-			Assert.assertTrue("The original album must be different from the loaded one", originalAlbum != album);
+			Assert.assertNotSame("The original album must be different from the loaded one", originalAlbum, album);
 
 		}
 	}

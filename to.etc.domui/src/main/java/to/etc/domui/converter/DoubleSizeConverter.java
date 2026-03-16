@@ -76,9 +76,9 @@ public class DoubleSizeConverter implements IConverter<Double> {
 		else if("m".equals(f))
 			size *= 1024 * 1024;
 		else if("g".equals(f))
-			size *= 1024l * 1024l * 1024l;
+			size *= 1024L * 1024L * 1024L;
 		else if("t".equals(f))
-			size *= 1024l * 1024l * 1024l * 1024l;
+			size *= 1024L * 1024L * 1024L * 1024L;
 		else if(!f.isEmpty())
 			throw new ValidationException(Msgs.vInvalid);
 

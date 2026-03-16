@@ -160,7 +160,7 @@ public class Janitor implements Runnable {
 		jt.m_j = this; // Set janitor,
 		jt.m_taskname = name;
 		if(once) {
-			jt.m_t_next = System.currentTimeMillis() + interval * 1000;
+			jt.m_t_next = System.currentTimeMillis() + interval * 1000L;
 			jt.m_t_interval = -1;
 		} else {
 			jt.m_t_interval = interval; // Interval, in seconds.
@@ -183,7 +183,7 @@ public class Janitor implements Runnable {
 	public int addTask(int offset, int interval, String name, JanitorTask jt) throws Exception {
 		jt.m_j = this; // Set janitor,
 		jt.m_taskname = name;
-		jt.m_t_next = getTime() + offset * 1000;
+		jt.m_t_next = getTime() + offset * 1000L;
 		jt.m_t_interval = interval;
 
 		insertOrderedTask(jt);
@@ -317,7 +317,7 @@ public class Janitor implements Runnable {
 			} else
 				m_t_freeslot = getSchedTime();
 		} catch(Throwable x) {
-			LOG.error("Janitor exception caught: " + x.toString());
+			LOG.error("Janitor exception caught: " + x);
 		}
 	}
 

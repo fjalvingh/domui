@@ -7,6 +7,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * An actual occurrence of a {@link Problem} that was found to occur on some instance
@@ -93,7 +94,7 @@ final public class ProblemInstance {
 			sb.append(".").append(pmm.getName());
 		}
 		sb.append(' ');
-		sb.append(m_problem.toString());
+		sb.append(m_problem);
 		return sb.toString();
 	}
 
@@ -115,7 +116,7 @@ final public class ProblemInstance {
 			return false;
 		if(!m_instance.equals(that.m_instance))
 			return false;
-		if(m_property != null ? !m_property.equals(that.m_property) : that.m_property != null)
+		if(!Objects.equals(m_property, that.m_property))
 			return false;
 		// Probably incorrect - comparing Object[] arrays with Arrays.equals
 		return Arrays.equals(m_identifyingParameters, that.m_identifyingParameters);

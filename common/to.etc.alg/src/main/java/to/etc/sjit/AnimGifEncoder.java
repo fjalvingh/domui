@@ -432,15 +432,13 @@ public class AnimGifEncoder {
 	private boolean precodeByteIndexed(AnIma ai, BufferedImage bi) throws IOException {
 		//-- Get the colormodel, the raster, the databuffer and the samplemodel
 		ColorModel tcm = bi.getColorModel();
-		if(!(tcm instanceof IndexColorModel))
+		if(!(tcm instanceof IndexColorModel cm))
 			return false;
-		IndexColorModel cm = (IndexColorModel) tcm;
 
 		Raster ras = bi.getRaster();
 		SampleModel tsm = ras.getSampleModel();
-		if(!(tsm instanceof PixelInterleavedSampleModel))
+		if(!(tsm instanceof PixelInterleavedSampleModel sm))
 			return false;
-		PixelInterleavedSampleModel sm = (PixelInterleavedSampleModel) tsm;
 
 		DataBuffer dbt = ras.getDataBuffer();
 		if(dbt.getDataType() != DataBuffer.TYPE_BYTE)
@@ -540,9 +538,8 @@ public class AnimGifEncoder {
 		ColorModel cm = bi.getColorModel();
 		Raster ras = bi.getRaster();
 		SampleModel tsm = ras.getSampleModel();
-		if(!(tsm instanceof SinglePixelPackedSampleModel))
+		if(!(tsm instanceof SinglePixelPackedSampleModel sm))
 			return false;
-		SinglePixelPackedSampleModel sm = (SinglePixelPackedSampleModel) tsm;
 
 		DataBuffer dbt = ras.getDataBuffer();
 		if(dbt.getDataType() != DataBuffer.TYPE_INT)
@@ -626,9 +623,8 @@ public class AnimGifEncoder {
 		ColorModel cm = bi.getColorModel();
 		Raster ras = bi.getRaster();
 		SampleModel tsm = ras.getSampleModel();
-		if(!(tsm instanceof SinglePixelPackedSampleModel))
+		if(!(tsm instanceof SinglePixelPackedSampleModel sm))
 			return false;
-		SinglePixelPackedSampleModel sm = (SinglePixelPackedSampleModel) tsm;
 
 		DataBuffer dbt = ras.getDataBuffer();
 		if(dbt.getDataType() != DataBuffer.TYPE_SHORT)
@@ -1114,7 +1110,7 @@ public class AnimGifEncoder {
 
 	int			cur_bits	= 0;
 
-	static int	masks[]		= {0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF};
+	static int[] masks = {0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF};
 
 
 	void output(int code) throws IOException {

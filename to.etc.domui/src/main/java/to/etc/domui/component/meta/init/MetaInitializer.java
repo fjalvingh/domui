@@ -187,7 +187,7 @@ public final class MetaInitializer {
 			}
 			m_initStack.clear();
 
-			throw new IllegalStateException("Circular reference in " + msg + ": " + sb.toString());
+			throw new IllegalStateException("Circular reference in " + msg + ": " + sb);
 		}
 	}
 

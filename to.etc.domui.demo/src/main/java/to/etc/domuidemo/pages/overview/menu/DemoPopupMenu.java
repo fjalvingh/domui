@@ -12,7 +12,7 @@ public class DemoPopupMenu extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		add("Click ");
-		LinkButton lb = new LinkButton("here", (IClicked<LinkButton>) clickednode -> createPopup(clickednode));
+		LinkButton lb = new LinkButton("here", clickednode -> createPopup(clickednode));
 		add(lb);
 		add(" for the simple popup menu");
 
@@ -23,7 +23,7 @@ public class DemoPopupMenu extends UrlPage {
 		pm.addItem("Sad", Icon.of("img/btnSmileySad.gif"), null);
 
 		add("Click ");
-		lb = new LinkButton("here", (IClicked<LinkButton>) clickednode -> pm.show(clickednode, null));
+		lb = new LinkButton("here", clickednode -> pm.show(clickednode, null));
 		add(lb);
 		add(" for the auto popup menu");
 	}

@@ -21,13 +21,12 @@ public class TestRhino {
 		try {
 			Scriptable scope = cx.initStandardObjects();
 
-			String evl = "icon = new Object(); icon['btnOkay.png\'] = 'btnOkay.svg.png?w=10&h=10';";
+			String evl = "icon = new Object(); icon['btnOkay.png'] = 'btnOkay.svg.png?w=10&h=10';";
 			cx.evaluateString(scope, evl, "<cmd>", 1, null);
 
 			Object val = scope.get("icon", scope);
 			System.out.println("Icon = " + Context.toString(val));
-			if(val instanceof Scriptable) {
-				Scriptable icon = (Scriptable) val;
+			if(val instanceof Scriptable icon) {
 				Object mapped = icon.get("btnOkay.png", icon);
 				System.out.println("Mapped = " + mapped);
 			}

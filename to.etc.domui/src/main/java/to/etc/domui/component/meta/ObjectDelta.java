@@ -139,8 +139,7 @@ final public class ObjectDelta implements Iterable<Delta<?>> {
 	static private Set<String> getPropertyList(@NonNull Object... things) {
 		Set<String> res = new HashSet<String>();
 		for(Object v : things) {
-			if(v instanceof String) {
-				String s = (String) v;
+			if(v instanceof String s) {
 				if(s.startsWith("-")) {
 					res.remove(s.substring(1));
 				} else {

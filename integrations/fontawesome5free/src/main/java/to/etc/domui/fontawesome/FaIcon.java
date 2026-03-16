@@ -1949,7 +1949,6 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faYoutubeSquare, FaIcon.faYoutubeSquare);
 	}
 	///--- END MAP
-	;
 
 	private final String m_css;
 	private final String m_prefix;

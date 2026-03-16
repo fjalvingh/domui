@@ -167,7 +167,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 //		setWidth("100%");
 	}
 
-	protected void updateBodyClipboardSelection() {
+	private void updateBodyClipboardSelection() {
 		TBody dataBody = m_dataBody;
 		if(null == dataBody)
 			return;
@@ -502,7 +502,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * If the specified item is on-screen, this returns the row index inside TBody for that item.
 	 * It returns -1 if the thing is not found.
 	 */
-	protected int findRowIndex(T item) {
+	private int findRowIndex(T item) {
 		for(int i = m_visibleItemList.size(); --i >= 0; ) {
 			if(item == m_visibleItemList.get(i))
 				return i;
@@ -1065,7 +1065,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
 	 */
 	@NonNull
-	protected Table getTable() {
+	private Table getTable() {
 		if(null == m_table)
 			throw new IllegalStateException("Backing table is still null");
 		return m_table;

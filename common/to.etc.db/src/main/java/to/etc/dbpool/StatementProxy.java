@@ -306,7 +306,7 @@ public class StatementProxy implements Statement {
 		}
 	}
 
-	public boolean execute(final String sql, final String ar[]) throws SQLException {
+	public boolean execute(final String sql, final String[] ar) throws SQLException {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("execute: " + sql);
 		m_sql_str = sql;

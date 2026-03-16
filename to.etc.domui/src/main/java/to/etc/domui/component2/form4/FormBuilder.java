@@ -405,8 +405,7 @@ final public class FormBuilder {
 		else if(control.getTestID() == null && pmm != null)
 			control.setTestID(pmm.getName());
 
-		if(control instanceof IControl) {
-			IControl<?> ctl = (IControl<?>) control;
+		if(control instanceof IControl<?> ctl) {
 
 			if(!hintAsIcon) {
 				ctl.setHint(hintText);

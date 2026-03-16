@@ -36,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -270,7 +271,7 @@ public class UploadParser {
 
 				//-- Convert boundary to bytes
 				try {
-					return val.getBytes("ISO-8859-1");
+					return val.getBytes(StandardCharsets.ISO_8859_1);
 				} catch(Exception x) {
 					return val.getBytes();
 				}
@@ -283,9 +284,8 @@ public class UploadParser {
 
 	private String decodeHeaderItem(final Map<String, Object> headers, final String headername, final String keyname, final String h1, final String h2, final MiniParser mp) {
 		Object o = headers.get(headername.toLowerCase());
-		if(o == null || !(o instanceof String))
+		if(o == null || !(o instanceof String hdr))
 			return null;
-		String hdr = (String) o;
 		if(!hdr.startsWith(h1)) {
 			if(h2 == null || !hdr.startsWith(h2))
 				return null;
@@ -377,8 +377,7 @@ public class UploadParser {
 
 		//-- Decode worked, and data flushed either to bytearray or file...
 		if(bos != null) {
-			byte[] data = bos.toByteArray();
-			String val = new String(data, charset);
+			String val = bos.toString(charset);
 			ui.setValue(val);
 		} else {
 			ui.setValue(resf);

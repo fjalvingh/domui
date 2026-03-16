@@ -35,6 +35,7 @@ import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -428,7 +429,7 @@ public class SmtpTransport {
 	 * @param s
 	 */
 	static private void write(OutputStream os, String s) throws Exception {
-		byte[] b = s.getBytes("US-ASCII");
+		byte[] b = s.getBytes(StandardCharsets.US_ASCII);
 		os.write(b);
 		if(DEBUG)
 			System.out.println("[write] " + s);
@@ -443,7 +444,7 @@ public class SmtpTransport {
 			if(ch == '\n') {
 				if(lch == '\r')
 					ix--;
-				String s = new String(buf, 0, ix, "US-ASCII");
+				String s = new String(buf, 0, ix, StandardCharsets.US_ASCII);
 				if(DEBUG)
 					System.out.println("[read] " + s);
 				return s;

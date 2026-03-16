@@ -98,8 +98,8 @@ abstract public class PoolConfigSource {
 			extra = new Properties();
 		String name = f.getName().toLowerCase();
 		if(name.endsWith(".xml")) {
-			return new XmlSource(f, new File(f.toString() + ".local"), extra);
+			return new XmlSource(f, new File(f + ".local"), extra);
 		}
-		return new PropertiesFileSource(f, new File(f.toString() + ".local"), extra);
+		return new PropertiesFileSource(f, new File(f + ".local"), extra);
 	}
 }

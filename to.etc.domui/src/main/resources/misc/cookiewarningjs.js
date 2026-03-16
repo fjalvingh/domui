@@ -1,6 +1,6 @@
 $.cookieMessage({
 	mainMessage: ${msg},
-	acceptButton: ${acclabel},
-	expirationDays: 356,
+	${acclabel},
+	356,
 	cookieName: 'cookieMessage'
-});
+})

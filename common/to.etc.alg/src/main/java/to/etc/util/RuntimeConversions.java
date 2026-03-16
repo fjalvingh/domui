@@ -169,8 +169,7 @@ public class RuntimeConversions {
 			return (char) ((Number) o).intValue();
 		if(o instanceof Boolean)
 			return ((Boolean) o).booleanValue() ? 't' : 'f';
-		if(o instanceof String) {
-			String s = (String) o;
+		if(o instanceof String s) {
 			if(s.isEmpty())
 				return 0;
 			return s.charAt(0);
@@ -344,8 +343,7 @@ public class RuntimeConversions {
 			return (Character) in;
 		if(in instanceof Number)
 			return Character.valueOf((char) ((Number) in).intValue());
-		if(in instanceof String) {
-			String s = (String) in;
+		if(in instanceof String s) {
 			if(s.isEmpty())
 				return Character.valueOf((char) 0);
 			return Character.valueOf(s.charAt(0));
@@ -489,8 +487,7 @@ public class RuntimeConversions {
 			return (T) res;
 		}
 
-		if(src instanceof Collection<?>) {
-			Collection<?> c = (Collection<?>) src;
+		if(src instanceof Collection<?> c) {
 			Object res = Array.newInstance(ccl, c.size()); // Create new result
 			int i = 0;
 			for(Object o : c) {
@@ -598,8 +595,7 @@ public class RuntimeConversions {
 			return (IListable<?>) o;
 		if(o instanceof List<?>)
 			return new ListableListWrapper((List<?>) o);
-		if(o instanceof Collection<?>) {
-			Collection<?> col = (Collection<?>) o;
+		if(o instanceof Collection<?> col) {
 			return new ListableArrayWrapper(col.toArray());
 		}
 		if(o instanceof Map<?, ?>) {
@@ -764,8 +760,7 @@ public class RuntimeConversions {
 			return null;
 		if(o instanceof Enum<?>)
 			return (Enum<?>) o;
-		if(o instanceof String) {
-			String value = (String) o;
+		if(o instanceof String value) {
 			value = value.trim();
 			Enum<?>[] ar = cl.getEnumConstants();
 			if(ar == null)

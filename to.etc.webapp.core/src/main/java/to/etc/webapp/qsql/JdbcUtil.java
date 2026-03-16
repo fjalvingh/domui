@@ -480,13 +480,10 @@ final public class JdbcUtil {
 	public static boolean executeUpdatingCallableStatement(@NonNull Connection dbc, @NonNull String sql, @Nullable Object... args) throws SQLException {
 		sql = sql.trim();
 		if(!StringTool.strStartsWithIgnoreCase(sql, "begin") || !StringTool.strEndsWithIgnoreCase(sql, "end;")) {
-			StringBuilder response = new StringBuilder();
-			response.append("Expected sql that starts with \"begin\" and ends with \"end;\", for example : begin insert into table1(colA, colB, colC) values (?,?,?) returning colId into ? ; end;\n");
-			response.append("Found sql: ").append(sql).append("\n");
-			response
-				.append(
-					"In case that intention is to just execute CallableStatement that does not explicitly do updates (i.e. to execute stored procedure), please use {@link JdbcUtil#executeStatement} or {@link JdbcUtil#oracleSpCall} methods.");
-			throw new IllegalArgumentException(response.toString());
+			String response = "Expected sql that starts with \"begin\" and ends with \"end;\", for example : begin insert into table1(colA, colB, colC) values (?,?,?) returning colId into ? ; end;\n"
+				+ "Found sql: " + sql + "\n"
+				+ "In case that intention is to just execute CallableStatement that does not explicitly do updates (i.e. to execute stored procedure), please use {@link JdbcUtil#executeStatement} or {@link JdbcUtil#oracleSpCall} methods.";
+			throw new IllegalArgumentException(response);
 		}
 		CallableStatement cs = null;
 		try {

@@ -39,8 +39,7 @@ public class OopsFrameRenderer {
 
 	public void renderOopsFrame(RequestContextImpl ctx, Throwable x, boolean testMode) throws Exception {
 		m_testMode = testMode;
-		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
-			HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
+		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse srr) {
 			HttpServletResponse resp = srr.getResponse();
 			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);                // Fail with proper response code.
 		}
@@ -123,8 +122,7 @@ public class OopsFrameRenderer {
 		for(StackTraceElement ste : list) {
 			appendTraceLink(sb, ste);
 		}
-		if(x instanceof SQLException) {
-			SQLException sx = (SQLException) x;
+		if(x instanceof SQLException sx) {
 			while(sx.getNextException() != null) {
 				sx = sx.getNextException();
 				sb.append("SQL NextException: ");

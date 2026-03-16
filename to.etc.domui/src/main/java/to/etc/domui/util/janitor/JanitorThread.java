@@ -105,13 +105,10 @@ public class JanitorThread implements Runnable {
 			Date d = new Date();
 			m_jt.run(); // Run the task,
 			long dt = d.getTime() - getStartTS();
-			m_j.logTask(this, "Task completed in " + Long.toString(dt) + " ms");
+			m_j.logTask(this, "Task completed in " + dt + " ms");
 		} catch(Exception x) {
 			m_j.logTask(this, "Task EXCEPTION: " + x.getMessage());
 			//			Panicker.logUnexpected(x, "Janitor task " + m_jt.m_taskname);
-		} finally {
-			//-- Discard any connections used by this thread
-			//			PoolManager.getInstance().closeThreadConnections();
 		}
 
 		//-- Task terminated.

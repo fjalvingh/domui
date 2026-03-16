@@ -74,13 +74,11 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 		//-- Extract all operations I can do something with.
 		while(!convs.isEmpty()) {
 			IImageConversionSpecifier ics = convs.get(0);
-			if(ics instanceof ImagePageSelect) {
+			if(ics instanceof ImagePageSelect ips) {
 				convs.remove(0);
-				ImagePageSelect ips = (ImagePageSelect) ics;
 				sourcePage = ips.getPageNumber();
-			} else if(ics instanceof ImageConvert) {
+			} else if(ics instanceof ImageConvert c) {
 				convs.remove(0);
-				ImageConvert c = (ImageConvert) ics;
 				targetMime = c.getTargetMime();
 			} else if(ics instanceof ImageResize) {
 				convs.remove(0);

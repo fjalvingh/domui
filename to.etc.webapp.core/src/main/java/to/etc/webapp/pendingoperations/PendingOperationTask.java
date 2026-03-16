@@ -86,7 +86,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 				op.setExecutesOnServerID(null);                    // Finished execution
 
 				if(op.getErrorLog() != null) {
-					op.setErrorLog(op.getErrorLog() + "\n" + m_logWriter.getBuffer().toString());
+					op.setErrorLog(op.getErrorLog() + "\n" + m_logWriter.getBuffer());
 				} else
 					op.setErrorLog(m_logWriter.getBuffer().toString());
 

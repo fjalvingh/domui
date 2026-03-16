@@ -20,7 +20,9 @@ public class TestMinutesConverter {
 
 	private static final String[] GOOD_VALUES = {"0.02", "0.25", "1.12", "0,02", "0,25", "1,12", "2.01", "2,01", "2.09", "2,09"};
 
-	private static final Integer[] GOOD_VALUES_RAW = {new Integer(2), new Integer(25), new Integer(72), new Integer(2), new Integer(25), new Integer(72), new Integer(121), new Integer(121), new Integer(129),  new Integer(129)};
+	private static final Integer[] GOOD_VALUES_RAW = {Integer.valueOf(2), Integer.valueOf(25), Integer.valueOf(72), Integer.valueOf(2), Integer.valueOf(25), Integer.valueOf(72), Integer.valueOf(121), Integer.valueOf(121),
+		Integer.valueOf(129),
+		Integer.valueOf(129)};
 
 	@BeforeClass
 	static public void setUp() {

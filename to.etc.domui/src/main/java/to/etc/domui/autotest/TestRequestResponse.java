@@ -158,7 +158,7 @@ public class TestRequestResponse implements IRequestResponse {
 	@Override
 	@NonNull
 	public String[] getParameterNames() {
-		return m_parameterMap.keySet().toArray(new String[m_parameterMap.keySet().size()]);
+		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
 	@Override

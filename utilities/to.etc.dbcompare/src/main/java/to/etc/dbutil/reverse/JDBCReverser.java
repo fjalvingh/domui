@@ -828,10 +828,7 @@ public class JDBCReverser implements Reverser {
 			return columnType;
 
 		columnType = decodeColumnTypeByCodeTypeCodes(sqltype);
-		if(null != columnType)
-			return columnType;
-
-		return null;
+		return columnType;
 	}
 
 	@Nullable

@@ -96,7 +96,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 	}
 
 	private void scheduleTask(Task<T, SingleTaskExecutor<T>> tableTask) throws Exception {
-		m_executor.schedule("Run#" + tableTask.getItem().toString()
+		m_executor.schedule("Run#" + tableTask.getItem()
 			, tableTask
 			, (a, x) -> {}
 			, m_priorityCalculator.apply(tableTask.getItem()));

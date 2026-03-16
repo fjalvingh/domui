@@ -80,14 +80,12 @@ public class DefaultPageAccessChecker implements IPageAccessChecker {
 		}
 
 		if(null != rann) {
-			if(checkRightsAnnotation(body, rann, user)) {	// Check annotation rights
-				return true;
-			}
+			// Check annotation rights
+			return checkRightsAnnotation(body, rann, user);
 
 			//-- Just exit with a null failureReason - this indicates that a list of rights will be rendered.
 		} else
 			throw new CodeException(Msgs.rightsNotAllowed);	// Insufficient rights - details unknown.
-		return false;
 	}
 
 	private boolean checkRightsAnnotation(@NonNull UrlPage body, @NonNull UIRights rann, @NonNull IUser user) throws Exception {

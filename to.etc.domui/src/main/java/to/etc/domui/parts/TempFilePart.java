@@ -114,13 +114,12 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		FileInfo fi = new FileInfo(pw, target, mime, disp);
 		ctx.getSession().setAttribute("tempf-" + key, fi); // Store in session context
 
-		StringBuilder sb = new StringBuilder();
-		sb.append(TempFilePart.class.getName());
-		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
+		String sb = TempFilePart.class.getName()
+			+ ".part?key=" + key + "&passkey=" + pw;
 
 		ctx.getApplication().getTempFileManager().register(target.getName(), List.of(target));	// Register for deletion
 
-		return sb.toString();
+		return sb;
 	}
 
 	/**
@@ -155,13 +154,12 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		IRequestContext rc = UIContext.getRequestContext();
 		rc.getSession().setAttribute("tempf-" + key, fi); // Store in session context
 
-		StringBuilder sb = new StringBuilder();
-		sb.append(TempFilePart.class.getName());
-		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
+		String sb = TempFilePart.class.getName()
+			+ ".part?key=" + key + "&passkey=" + pw;
 
 		rc.getApplication().getTempFileManager().register(target.getName(), List.of(target));	// Register for deletion
 
-		return rc.getRelativePath(sb.toString());
+		return rc.getRelativePath(sb);
 	}
 
 	/**

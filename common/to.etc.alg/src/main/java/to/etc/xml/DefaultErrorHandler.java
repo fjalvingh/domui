@@ -43,9 +43,9 @@ public class DefaultErrorHandler implements ErrorHandler {
 			id = "unknown-source";
 		m_xmlerr_sb.append(id);
 		m_xmlerr_sb.append('(');
-		m_xmlerr_sb.append(Integer.toString(exception.getLineNumber()));
+		m_xmlerr_sb.append(exception.getLineNumber());
 		m_xmlerr_sb.append(':');
-		m_xmlerr_sb.append(Integer.toString(exception.getColumnNumber()));
+		m_xmlerr_sb.append(exception.getColumnNumber());
 		m_xmlerr_sb.append(") ");
 		m_xmlerr_sb.append(type);
 		m_xmlerr_sb.append(":");

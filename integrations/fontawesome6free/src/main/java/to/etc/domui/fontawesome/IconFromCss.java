@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -100,8 +101,8 @@ final public class IconFromCss {
 
 	private static void renderOutput(File src, List<Pair<String, Integer>> namesAndCodes, Properties props) throws Exception {
 		String outPath = "/tmp/FaIcon.java";
-		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(src), "utf-8"))) {
-			try(OutputStreamWriter of = new OutputStreamWriter(new FileOutputStream(outPath), "utf-8")) {
+		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(src), StandardCharsets.UTF_8))) {
+			try(OutputStreamWriter of = new OutputStreamWriter(new FileOutputStream(outPath), StandardCharsets.UTF_8)) {
 				String s;
 
 				InSection section = InSection.COPY;
@@ -232,7 +233,7 @@ final public class IconFromCss {
 	}
 
 	private static List<Pair<String, Integer>> loadNames(File file) throws Exception {
-		try(Reader r = new InputStreamReader(new FileInputStream(file), "utf-8") ) {
+		try(Reader r = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8) ) {
 			return new IconFromCss(r).render();
 		}
 	}

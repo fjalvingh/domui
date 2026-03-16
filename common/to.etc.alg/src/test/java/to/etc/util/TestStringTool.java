@@ -117,12 +117,12 @@ public class TestStringTool {
 		int textLength = StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
 		String textIn = makeText(textLength, "a");
 
-		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textIn.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textIn.getBytes(StandardCharsets.UTF_8).length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
 		Assert.assertNotNull("This can't be null!", textOut);
 
-		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes(StandardCharsets.UTF_8).length);
 	}
 
 	/**
@@ -138,11 +138,11 @@ public class TestStringTool {
 
 		int textLength = StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
 		String textIn = makeText(textLength, "éa");
-		Assert.assertEquals("Length of m_text should be 12000", 12000, textIn.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be 12000", 12000, textIn.getBytes(StandardCharsets.UTF_8).length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
 		Assert.assertNotNull("This can't be null!", textOut);
-		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes(StandardCharsets.UTF_8).length);
 	}
 
 	/**
@@ -158,11 +158,11 @@ public class TestStringTool {
 
 		int textLength = 300;
 		String textIn = makeText(textLength, "jkslgkj804839h3jotjng08ĺjgŕ´sś skjgs jkglsdśdfśdé");
-		Assert.assertEquals("Length of m_text should be 16800", 16800, textIn.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be 16800", 16800, textIn.getBytes(StandardCharsets.UTF_8).length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
 		Assert.assertNotNull("This can't be null!", textOut);
-		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes(StandardCharsets.UTF_8).length);
 	}
 
 
@@ -179,12 +179,12 @@ public class TestStringTool {
 
 		int textLength = 3000;
 		String textIn = makeText(textLength, "śéü");
-		Assert.assertEquals("Length of m_text should be 18000", 18000, textIn.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be 18000", 18000, textIn.getBytes(StandardCharsets.UTF_8).length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
 		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be " + (StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2 - 2), StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2 - 2,
-			textOut.getBytes("UTF8").length);
+			textOut.getBytes(StandardCharsets.UTF_8).length);
 	}
 
 	/**
@@ -277,12 +277,12 @@ public class TestStringTool {
 		int textLength = 60;
 		String textIn = makeText(textLength, "a");
 
-		Assert.assertEquals("Length of m_text should be 60", 60, textIn.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be 60", 60, textIn.getBytes(StandardCharsets.UTF_8).length);
 
 		// COLUMN SIZE is 50
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, 50);
 		Assert.assertNotNull("This can't be null!", textOut);
-		Assert.assertEquals("Length of m_text should be 50", 50, textOut.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be 50", 50, textOut.getBytes(StandardCharsets.UTF_8).length);
 	}
 
 	/**
@@ -299,12 +299,12 @@ public class TestStringTool {
 		int textLength = 3000;
 		String textIn = makeText(textLength, "éa");
 
-		Assert.assertEquals("Length of m_text should be 9000", 9000, textIn.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text should be 9000", 9000, textIn.getBytes(StandardCharsets.UTF_8).length);
 
 		// COLUMN SIZE is 3000
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, 3000);
 		Assert.assertNotNull("This can't be null!", textOut);
-		Assert.assertEquals("Length of m_text in bytes should be 4000", 4000, textOut.getBytes("UTF8").length);
+		Assert.assertEquals("Length of m_text in bytes should be 4000", 4000, textOut.getBytes(StandardCharsets.UTF_8).length);
 		// Because there are to much bytes used the max number of characters is 2667.
 		Assert.assertEquals("Length of m_text in characters should be 2667", 2667, textOut.length());
 	}
@@ -339,11 +339,9 @@ public class TestStringTool {
 		String textIn = "\"test string\"";
 		String testOut = StringTool.strToJavascriptString(textIn, true);
 
-		StringBuilder sb = new StringBuilder();
-		sb.append("\\\"");
-		sb.append("test string");
-		sb.append("\\\"");
-		String expectedStringSequence = sb.toString();
+		String expectedStringSequence = "\\\""
+			+ "test string"
+			+ "\\\"";
 
 		Assert.assertTrue(testOut.contains(expectedStringSequence));
 
@@ -372,7 +370,7 @@ public class TestStringTool {
 		String s = FileTool.readResourceAsString(getClass(), "longMsg.txt", "utf-8");
 		String lessStr = StringTool.strOracleTruncate(s, 3997);
 		Assert.assertEquals("we get cut to proper bytes limit", 3990, lessStr.length());
-		byte[] data = lessStr.getBytes("UTF-8");
+		byte[] data = lessStr.getBytes(StandardCharsets.UTF_8);
 		Assert.assertEquals("we get proper byte size", 4000, data.length);
 	}
 
@@ -382,7 +380,7 @@ public class TestStringTool {
 		String lessStr = StringTool.strOracleTruncate(s, 4000, "...");
 		Assert.assertEquals("we get cut to proper bytes limit", 3990, lessStr.length());
 		Assert.assertEquals("we have proper suffix", "...", lessStr.substring(lessStr.length() - 3));
-		byte[] data = lessStr.getBytes("UTF-8");
+		byte[] data = lessStr.getBytes(StandardCharsets.UTF_8);
 		Assert.assertEquals("we get proper byte size", 4000, data.length);
 	}
 

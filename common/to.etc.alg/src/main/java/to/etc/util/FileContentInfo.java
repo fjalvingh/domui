@@ -77,7 +77,7 @@ final public class FileContentInfo {
 		return fc;
 	}
 
-	protected void load() throws Exception {
+	private void load() throws Exception {
 		InputStream is = new FileInputStream(m_source);
 
 		byte utfleadin = 0;

@@ -73,7 +73,7 @@ final public class DefaultPageInjector implements IPageInjector {
 		m_defaultPageInjectorFactory.registerFactory(urgency, injector);
 	}
 
-	final public PageInjectionList calculateInjectors(Class<? extends UrlPage> page) {
+	public PageInjectionList calculateInjectors(Class<? extends UrlPage> page) {
 		Map<String, PropertyInjector> propInjectorMap = new HashMap<>();
 		for(IPageInjectorCalculator injector : getPageInjectorList()) {
 			injector.calculatePageInjectors(propInjectorMap, page);

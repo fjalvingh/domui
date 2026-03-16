@@ -118,13 +118,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> selectProperty(@NonNull final String property) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> selectProperty(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -136,13 +136,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> selectProperty(@NonNull final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> selectProperty(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -153,13 +153,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> max(@NonNull String property) {
 		addPropertySelection(QSelectionFunction.MAX, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> max(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.MAX, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -171,13 +171,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> max(@NonNull String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MAX, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> max(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MAX, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -187,13 +187,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> min(@NonNull final String property) {
 		addPropertySelection(QSelectionFunction.MIN, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> min(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.MIN, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -204,13 +204,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> min(@NonNull String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MIN, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> min(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MIN, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -220,13 +220,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> avg(@NonNull String property) {
 		addPropertySelection(QSelectionFunction.AVG, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> avg(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.AVG, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -237,13 +237,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> avg(@NonNull final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.AVG, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> avg(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.AVG, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -253,13 +253,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> sum(@NonNull String property) {
 		addPropertySelection(QSelectionFunction.SUM, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> sum(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.SUM, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -270,13 +270,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> sum(@NonNull String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.SUM, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> sum(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.SUM, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -286,13 +286,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> count(@NonNull String property) {
 		addPropertySelection(QSelectionFunction.COUNT, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> count(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.COUNT, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -303,13 +303,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> count(@NonNull String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> count(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -319,13 +319,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> countDistinct(@NonNull String property) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> countDistinct(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -336,13 +336,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> countDistinct(@NonNull final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> countDistinct(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -352,13 +352,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> distinct(@NonNull String property) {
 		addPropertySelection(QSelectionFunction.DISTINCT, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> distinct(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.DISTINCT, property, null);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	/**
@@ -368,13 +368,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	@NonNull
 	public QSelection<T> distinct(@NonNull final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.DISTINCT, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 	@NonNull
 	public <V> QSelection<T> distinct(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.DISTINCT, property, alias);
-		return (QSelection<T>) this;
+		return this;
 	}
 
 

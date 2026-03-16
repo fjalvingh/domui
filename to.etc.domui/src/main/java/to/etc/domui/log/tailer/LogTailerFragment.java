@@ -109,10 +109,10 @@ public class LogTailerFragment extends PollingDiv {
 		Div btn = new Div();
 		ttl.add(btn);
 		btn.setCssClass("ui-tlf-btn");
-		SmallImgButton ib = new SmallImgButton(Icon.faAngleDoubleLeft, (IClicked<SmallImgButton>) clickednode -> gotoLine(0));
+		SmallImgButton ib = new SmallImgButton(Icon.faAngleDoubleLeft, clickednode -> gotoLine(0));
 		btn.add(ib);
 
-		ib = new SmallImgButton(Icon.faAngleLeft, (IClicked<SmallImgButton>) clickednode -> {
+		ib = new SmallImgButton(Icon.faAngleLeft, clickednode -> {
 			int lnr = m_startLine - getLinesPerPage();
 			if(lnr < 0)
 				lnr = 0;
@@ -120,7 +120,7 @@ public class LogTailerFragment extends PollingDiv {
 		});
 		btn.add(ib);
 
-		ib = new SmallImgButton(Icon.faAngleRight, (IClicked<SmallImgButton>) clickednode -> {
+		ib = new SmallImgButton(Icon.faAngleRight, clickednode -> {
 			int last = m_task.getLastLine();
 			int lnr = m_startLine + getLinesPerPage();
 			if(lnr > last)
@@ -129,7 +129,7 @@ public class LogTailerFragment extends PollingDiv {
 		});
 		btn.add(ib);
 
-		ib = new SmallImgButton(Icon.faAngleDoubleRight, (IClicked<SmallImgButton>) clickednode -> gotoLine(m_task.getLastLine() - getLinesPerPage()));
+		ib = new SmallImgButton(Icon.faAngleDoubleRight, clickednode -> gotoLine(m_task.getLastLine() - getLinesPerPage()));
 		btn.add(ib);
 
 		btn.add(" Goto ");

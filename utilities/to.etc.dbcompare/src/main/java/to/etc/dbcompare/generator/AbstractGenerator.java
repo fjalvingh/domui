@@ -140,10 +140,10 @@ abstract public class AbstractGenerator {
 		//}
 		if(ct.isPrecision() && c.getPrecision() >= 0) {
 			sb.append("(");
-			sb.append(Integer.toString(c.getPrecision()));
+			sb.append(c.getPrecision());
 			if(ct.isScale() && c.getScale() >= 0) {
 				sb.append(',');
-				sb.append(Integer.toString(c.getScale()));
+				sb.append(c.getScale());
 			}
 			sb.append(')');
 		}
@@ -558,40 +558,36 @@ abstract public class AbstractGenerator {
 	/*--------------------------------------------------------------*/
 
 	public void renderCreateView(List<String> l, DbView v) {
-		StringBuilder a = new StringBuilder();
-		a.append("create or replace view ");
-		a.append(v.getName());
-		a.append(" as\n");
-		a.append(v.getSql());
-		a.append(";\n/");
-		l.add(a.toString());
+		String a = "create or replace view "
+			+ v.getName()
+			+ " as\n"
+			+ v.getSql()
+			+ ";\n/";
+		l.add(a);
 	}
 
 	public void renderDropView(List<String> l, DbView v) {
-		StringBuilder a = new StringBuilder();
-		a.append("drop view ");
-		a.append(v.getName());
-		l.add(a.toString());
+		String a = "drop view "
+			+ v.getName();
+		l.add(a);
 	}
 
 	public void renderCreatePackageDefinition(List<String> l, Package p) {
-		StringBuilder a = new StringBuilder();
-		a.append("create or replace package ");
-		a.append(p.getName());
-		a.append(" is\n");
-		a.append(p.getDefinition());
-		a.append("\n/");
-		l.add(a.toString());
+		String a = "create or replace package "
+			+ p.getName()
+			+ " is\n"
+			+ p.getDefinition()
+			+ "\n/";
+		l.add(a);
 	}
 
 	public void renderCreatePackageBody(List<String> l, Package p) {
-		StringBuilder a = new StringBuilder();
-		a.append("create or replace package body ");
-		a.append(p.getName());
-		a.append(" is\n");
-		a.append(p.getBody());
-		a.append("\n/");
-		l.add(a.toString());
+		String a = "create or replace package body "
+			+ p.getName()
+			+ " is\n"
+			+ p.getBody()
+			+ "\n/";
+		l.add(a);
 	}
 
 	public void renderDropPackage(List<String> l, Package p) {
@@ -606,29 +602,26 @@ abstract public class AbstractGenerator {
 	}
 
 	public void renderAddTrigger(List<String> l, Trigger t) {
-		StringBuilder a = new StringBuilder();
-		a.append("create or replace trigger ");
-		a.append(t.getName());
-		//    	a.append(" is\n");
-		a.append(t.getCode());
-		a.append("\n/");
-		l.add(a.toString());
+		String a = "create or replace trigger "
+			+ t.getName()
+			//    	a.append(" is\n");
+			+ t.getCode()
+			+ "\n/";
+		l.add(a);
 	}
 
 	public void renderDropTrigger(List<String> l, Trigger t) {
-		StringBuilder a = new StringBuilder();
-		a.append("drop trigger ");
-		a.append(t.getName());
-		a.append(";\n/");
-		l.add(a.toString());
+		String a = "drop trigger "
+			+ t.getName()
+			+ ";\n/";
+		l.add(a);
 	}
 
 	public void renderDropIndex(List<String> l, DbIndex ix) {
-		StringBuilder a = new StringBuilder();
-		a.append("drop index ");
-		a.append(ix.getName());
-		a.append(";\n/");
-		l.add(a.toString());
+		String a = "drop index "
+			+ ix.getName()
+			+ ";\n/";
+		l.add(a);
 	}
 
 	public void renderCreateIndex(List<String> l, DbIndex ix) {

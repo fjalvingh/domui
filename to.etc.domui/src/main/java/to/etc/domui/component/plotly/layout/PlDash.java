@@ -5,5 +5,5 @@ package to.etc.domui.component.plotly.layout;
  * Created on 01-12-21.
  */
 public enum PlDash {
-	Solid, Dot, Dash, LongDash, DashDot, LongDashDot;
+	Solid, Dot, Dash, LongDash, DashDot, LongDashDot
 }

@@ -206,7 +206,7 @@ public class TestDataContextMock extends TestDataContextStub {
 	public void delete(final Object o) throws Exception {
 		m_deleted.add(o);
 		m_inserted.remove(o);
-		if(m_insertedByLongId.values().contains(o)) {
+		if(m_insertedByLongId.containsValue(o)) {
 			IIdentifyable<Long> longIdentifiable = (IIdentifyable<Long>) o;
 			m_insertedByLongId.remove(longIdentifiable.getId());
 		}

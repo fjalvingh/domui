@@ -199,12 +199,10 @@ final public class BugItem {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb
-			.append(new SimpleDateFormat("MMdd HH:mm:ss").format(m_timestamp)).append(" ")
-			.append(getSeverity())
-			.append(": ").append(getMessage());
-		return sb.toString();
+		String sb = new SimpleDateFormat("MMdd HH:mm:ss").format(m_timestamp) + " "
+			+ getSeverity()
+			+ ": " + getMessage();
+		return sb;
 	}
 
 	public BugSeverity getSeverity() {

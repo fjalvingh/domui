@@ -111,8 +111,7 @@ public class PlotlyDataSet implements IPlotlyDataset {
 			trace.render(b);
 			b.objEnd();
 
-			if(trace instanceof PlPieTrace) {
-				PlPieTrace pt = (PlPieTrace) trace;
+			if(trace instanceof PlPieTrace pt) {
 				if(pt.getDomainX() > 0 && pt.getDomainX() >= m_gridColumns) {
 					m_gridColumns = pt.getDomainX() + 1;
 				}

@@ -75,7 +75,7 @@ final public class RowRendererCellWrapper<V> implements IExportColumn<V> {
 			actualType = String.class;
 			IConverter<Object> idiots = converter;
 			getter = a -> {
-				String s = idiots.convertObjectToString(NlsContext.getLocale(), (X) a);
+				String s = idiots.convertObjectToString(NlsContext.getLocale(), a);
 				return (V) s;
 			};
 		}

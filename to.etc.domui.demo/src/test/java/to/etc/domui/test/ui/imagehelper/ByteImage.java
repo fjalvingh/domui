@@ -259,8 +259,8 @@ public class ByteImage implements Image {
 
 	public int[] findFontBaselinesOld() {
 		int[][] histogram = getHistogram(20);
-		System.out.println("Most used color: " + Integer.toString(histogram[0][0]) + ", " + histogram[0][1] + " times");
-		System.out.println("Second used color: " + Integer.toString(histogram[1][0]) + ", " + histogram[1][1] + " times");
+		System.out.println("Most used color: " + histogram[0][0] + ", " + histogram[0][1] + " times");
+		System.out.println("Second used color: " + histogram[1][0] + ", " + histogram[1][1] + " times");
 
 		getHistogramBuckets(20);
 

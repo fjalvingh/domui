@@ -73,7 +73,7 @@ public class RotatingLogfile extends StandardLogfile {
 		Date d = new Date();
 		if(d.getTime() < m_check_ts)
 			return getOutWriter() != null ? d : null;
-		m_check_ts = d.getTime() + 1 * 60 * 1000; // New check time.
+		m_check_ts = d.getTime() + 60 * 1000; // New check time.
 
 		//-- Need to check. Get the current date/time...
 		GregorianCalendar cal = new GregorianCalendar();
@@ -134,16 +134,15 @@ public class RotatingLogfile extends StandardLogfile {
 		int mm = c.get(Calendar.MONTH) + 1; // Bloody assholes!
 		int yy = c.get(Calendar.YEAR);
 
-		StringBuffer sb = new StringBuffer(128);
-		sb.append(base);
-		sb.append(StringTool.intToStr(yy, 10, 4));
-		sb.append('-');
-		sb.append(StringTool.intToStr(mm, 10, 2));
-		sb.append('-');
-		sb.append(StringTool.intToStr(dd, 10, 2));
-		sb.append(ext);
+		String sb = base
+			+ StringTool.intToStr(yy, 10, 4)
+			+ '-'
+			+ StringTool.intToStr(mm, 10, 2)
+			+ '-'
+			+ StringTool.intToStr(dd, 10, 2)
+			+ ext;
 
-		return new File(sb.toString());
+		return new File(sb);
 	}
 
 	@Override

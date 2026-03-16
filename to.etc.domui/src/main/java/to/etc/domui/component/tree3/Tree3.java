@@ -462,10 +462,7 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 	@Nullable
 	public Tree3Node<T> locateRowIfExpanded(T node){
 		Tree3Node<T> vn = m_openMap.get(node);
-		if (null != vn){
-			return vn;
-		}
-		return null;
+		return vn;
 	}
 
 	protected boolean isSelected(T node) {

@@ -252,17 +252,16 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 	static public String renderDate(Date in) {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.setTime(in);
-		StringBuilder sb = new StringBuilder(32);
-		sb.append(cal.get(Calendar.YEAR));
-		sb.append(',');
-		sb.append(cal.get(Calendar.MONTH) + 1); // The idiot that defined this standard should be shot.
-		sb.append(',');
-		sb.append(cal.get(Calendar.DAY_OF_MONTH));
-		sb.append(',');
-		sb.append(cal.get(Calendar.HOUR_OF_DAY));
-		sb.append(',');
-		sb.append(cal.get(Calendar.MINUTE));
-		return sb.toString();
+		String sb = String.valueOf(cal.get(Calendar.YEAR))
+			+ ','
+			+ (cal.get(Calendar.MONTH) + 1) // The idiot that defined this standard should be shot.
+			+ ','
+			+ cal.get(Calendar.DAY_OF_MONTH)
+			+ ','
+			+ cal.get(Calendar.HOUR_OF_DAY)
+			+ ','
+			+ cal.get(Calendar.MINUTE);
+		return sb;
 	}
 
 	/**
@@ -542,7 +541,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Helper stuff for rendering.							*/
 	/*--------------------------------------------------------------*/
-	static private final long MINS = 1000l * 60;
+	static private final long MINS = 1000L * 60;
 
 	static private final long HOURS = MINS * 60;
 

@@ -476,7 +476,7 @@ final public class MetaManager {
 				//--
 			}
 		}
-		return t.toString() + " @" + System.identityHashCode(t);
+		return t + " @" + System.identityHashCode(t);
 	}
 
 	/**

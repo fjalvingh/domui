@@ -647,7 +647,7 @@ final public class ConnectionPool {
 				//dbc = m_driver.connect(c().getUrl(), p);
 			} catch(SQLException x) {
 				//x.printStackTrace();
-				MSG.log(Level.WARNING, "Failed to get connection for " + getID() + ": " + x.toString(), x);
+				MSG.log(Level.WARNING, "Failed to get connection for " + getID() + ": " + x, x);
 				lastx = x;
 			}
 
@@ -711,7 +711,7 @@ final public class ConnectionPool {
 			m_isPooled = true;
 			System.out.println(m_pooledAllocatedCount + " connections allocated, okay.");
 		} catch(SQLException x) {
-			System.out.println("FAILED " + x.toString());
+			System.out.println("FAILED " + x);
 			throw x;
 		}
 	}
@@ -1224,7 +1224,7 @@ final public class ConnectionPool {
 			}
 
 			//-- This entry is INVALID.. Loop!
-			MSG.info("Pool " + m_id + ": cached connection error, " + x.toString() + "; discarded.");
+			MSG.info("Pool " + m_id + ": cached connection error, " + x + "; discarded.");
 			discardEntry(pe); // Delete this soonest
 		}
 	}
@@ -1280,7 +1280,7 @@ final public class ConnectionPool {
 
 		//-- Discard all proxies that find themselves too old.
 		long ts = System.currentTimeMillis();
-		long ets = ts - scanIntervalInSeconds * 1000; // Earliest time that's still valid
+		long ets = ts - scanIntervalInSeconds * 1000L; // Earliest time that's still valid
 		HangCheckState hs = new HangCheckState(c().getScanMode(), ts, ets, forcedisconnects);
 
 		for(ConnectionProxy cpx : proxylist) {
@@ -1362,10 +1362,10 @@ final public class ConnectionPool {
 			sb.append(" perfhdr\">");
 			sb.append("&lt; ");
 			if(TIMES[i] >= 1000) {
-				sb.append(Integer.toString(TIMES[i] / 1000));
+				sb.append(TIMES[i] / 1000);
 				sb.append("s");
 			} else {
-				sb.append(Integer.toString(TIMES[i]));
+				sb.append(TIMES[i]);
 				sb.append("ms");
 			}
 			sb.append("</td>");
@@ -1476,7 +1476,7 @@ final public class ConnectionPool {
 					else {
 						sb.append(val.getClass().getName());
 						sb.append(":");
-						sb.append(val.toString());
+						sb.append(val);
 						sb.append("\n");
 					}
 
@@ -1487,21 +1487,20 @@ final public class ConnectionPool {
 				}
 			}
 		}
-		System.out.println(sb.toString());
+		System.out.println(sb);
 	}
 
 	void logAction(ConnectionProxy cp, String action) {
 		if(!c().isLogStatements())
 			return;
 
-		StringBuilder sb = new StringBuilder();
-		sb.append("   ");
-		sb.append(DbPoolUtil.strTimeOnly(new Date()));
-		sb.append(' ');
-		sb.append(action);
-		sb.append(", connection=");
-		sb.append(cp.toString());
-		System.out.println(sb.toString());
+		String sb = "   "
+			+ DbPoolUtil.strTimeOnly(new Date())
+			+ ' '
+			+ action
+			+ ", connection="
+			+ cp.toString();
+		System.out.println(sb);
 	}
 
 	void logBatch() {
@@ -1526,7 +1525,7 @@ final public class ConnectionPool {
 
 	private OutputStream m_fileLogStream;
 
-	static public final long STMT_START_MAGIC = 0xabbacafebabedeadl;
+	static public final long STMT_START_MAGIC = 0xabbacafebabedeadL;
 
 	public boolean isFileLogging() {
 		synchronized(m_logWriterLock) {
@@ -1743,7 +1742,7 @@ final public class ConnectionPool {
 	/**
 	 * Return the owner pool manager.
 	 */
-	public final PoolManager getManager() {
+	public PoolManager getManager() {
 		return m_manager;
 	}
 

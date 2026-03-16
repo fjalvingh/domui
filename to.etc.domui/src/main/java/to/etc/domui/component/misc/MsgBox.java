@@ -504,11 +504,10 @@ public class MsgBox extends Window {
 		int ix = 0;
 		while(ix < buttonresultpairs.length) {
 			Object o = buttonresultpairs[ix++];
-			if(o instanceof MsgBoxButton) {
-				MsgBoxButton b = (MsgBoxButton) o;
+			if(o instanceof MsgBoxButton b) {
 				box.addButton(b);
-			} else if(o instanceof String) {
-				String s = (String) o;                    // Button title
+			} else if(o instanceof String s) {
+				// Button title
 				if(ix >= buttonresultpairs.length)
 					throw new IllegalArgumentException("Illegal format: must be [button name string], [response object].");
 				box.addButton(s, buttonresultpairs[ix++]);

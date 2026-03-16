@@ -19,10 +19,10 @@ public class SimpleMapping implements TypeMapping {
 		ColumnType ct = c.getType();
 		if(ct.isPrecision()) {
 			sb.append("(");
-			sb.append(Integer.toString(c.getPrecision()));
+			sb.append(c.getPrecision());
 			if(ct.isScale()) {
 				sb.append(',');
-				sb.append(Integer.toString(c.getScale()));
+				sb.append(c.getScale());
 			}
 			sb.append(')');
 		}

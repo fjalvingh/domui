@@ -755,7 +755,6 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 				//-- If prop refers to some relation (dotted pair):
 				name = parseSubcriteria(name);
 				m_last = Restrictions.in(name, (Collection<Object>) litval);
-				return;
 			} else {
 				throw new QQuerySyntaxException("Unexpected value for 'in' operation: " + litval + ", should be Collection or subquery");
 			}
@@ -764,7 +763,6 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 			qsq.visit(this);                                        // Resolve subquery
 			String fullName = parseSubcriteria(n.getProperty());    // Handle dotted pair in name
 			m_last = Subqueries.propertyIn(fullName, (DetachedCriteria) m_lastSubqueryCriteria);
-			return;
 		} else
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 	}
@@ -783,9 +781,8 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		if(null == hibmd)
 			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm);
 
-		if(!(hibmd instanceof AbstractEntityPersister))
+		if(!(hibmd instanceof AbstractEntityPersister aep))
 			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm + ": expecting AbstractEntityPersister, got a " + hibmd.getClass());
-		AbstractEntityPersister aep = (AbstractEntityPersister) hibmd;
 		String[] colar = getPropertyColumnNamesFromLousyMetadata(aep, name);
 		if(colar.length != 1)
 			throw new IllegalStateException("Attempt to do a 'like' on a multi-column property: " + pmm);
@@ -944,8 +941,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 			case SQL:
-				if(n.getNode() instanceof QLiteral) {
-					QLiteral l = (QLiteral) n.getNode();
+				if(n.getNode() instanceof QLiteral l) {
 					String s = (String) l.getValue();
 					m_last = Restrictions.sqlRestriction(s);
 					return;
@@ -1203,8 +1199,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		 * to determine it's full path.
 		 */
 		Type idtype = fuckup.getIdentifierType();
-		if(idtype instanceof ComponentType) {
-			ComponentType ct = (ComponentType) idtype;
+		if(idtype instanceof ComponentType ct) {
 
 			//			for(int scp = 0; scp < fuckup.countSubclassProperties(); scp++) { There's no end to the incredible mess.
 			//				String scpn = fuckup.getSubclassPropertyName(scp);

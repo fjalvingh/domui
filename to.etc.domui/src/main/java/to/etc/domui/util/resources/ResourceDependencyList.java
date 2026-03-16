@@ -96,8 +96,7 @@ final public class ResourceDependencyList implements IResourceDependencyList {
 			m_deplist = new ArrayList<IIsModified>(5);
 		else {
 			for(IIsModified xm : m_deplist) {
-				if(xm instanceof ResourceTimestamp) {
-					ResourceTimestamp rx = (ResourceTimestamp) xm;
+				if(xm instanceof ResourceTimestamp rx) {
 					if(rx.getRef() == c)
 						return;
 				}

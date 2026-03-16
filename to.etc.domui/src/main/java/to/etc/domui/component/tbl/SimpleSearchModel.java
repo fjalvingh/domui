@@ -341,7 +341,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 				qc.descending(sort);
 			else
 				qc.ascending(sort);
-			return;
 		}
 
 		//-- We're not sorting.

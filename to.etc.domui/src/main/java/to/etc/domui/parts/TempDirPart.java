@@ -77,10 +77,9 @@ public class TempDirPart implements IUnbufferedPartFactory {
 
 		ctx.getSession().setAttribute("tmpdir-" + key, new TmpDir(target));				// Store in session context
 
-		StringBuilder sb = new StringBuilder();
-		sb.append(TempDirPart.class.getName());
-		sb.append(".part/").append(key).append("/");
-		return sb.toString();
+		String sb = TempDirPart.class.getName()
+			+ ".part/" + key + "/";
+		return sb;
 	}
 
 	/**

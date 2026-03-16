@@ -111,9 +111,8 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	@Override
 	public void requestDestroyed(ServletRequestEvent ev) {
 		ServletRequest sr = ev.getServletRequest();
-		if(!(sr instanceof HttpServletRequest))
+		if(!(sr instanceof HttpServletRequest r))
 			return;
-		HttpServletRequest r = (HttpServletRequest) sr;
 		PerThreadData threadData = m_perThreadData.get();
 
 		//-- Recursion control.
@@ -185,10 +184,9 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	@Override
 	public void requestInitialized(ServletRequestEvent ev) {
 		ServletRequest sr = ev.getServletRequest();
-		if(!(sr instanceof HttpServletRequest))
+		if(!(sr instanceof HttpServletRequest r))
 			return;
 
-		HttpServletRequest r = (HttpServletRequest) sr;
 		PerThreadData threadData = m_perThreadData.get();
 		if(DEBUG) {
 			System.out.println("SRL: " + Thread.currentThread().getName() + " depth=" + (threadData == null ? "null" : threadData.m_count) + " rq=" + r.getRequestURI());
@@ -288,7 +286,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	 * are the statistics <b>so far</b> of course.
 	 */
 	@Nullable
-	public static final StatisticsCollectorBase getThreadStatistics() {
+	public static StatisticsCollectorBase getThreadStatistics() {
 		PerThreadData perThreadData = m_perThreadData.get();
 		if(null == perThreadData)
 			return null;
@@ -305,7 +303,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	 * this request after it finished.
 	 */
 	@Nullable
-	public static final String getRequestID() {
+	public static String getRequestID() {
 		PerThreadData perThreadData = m_perThreadData.get();
 		if(null == perThreadData)
 			return null;

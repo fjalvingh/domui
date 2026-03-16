@@ -197,7 +197,7 @@ public class CompoundKeyConverter {
 		if(pvalue instanceof String)
 			sb.append(((String) pvalue).replace(",", "\\,").replace("\\", "\\\\"));
 		else
-			sb.append(String.valueOf(pvalue));
+			sb.append(pvalue);
 	}
 
 	private void renderAnything(StringBuilder sb, Object in, Object root) throws Exception {

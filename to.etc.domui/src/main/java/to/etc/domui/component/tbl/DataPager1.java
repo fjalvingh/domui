@@ -302,7 +302,7 @@ public class DataPager1 extends Div implements IDataTablePager {
 	}
 
 	public void addButton(IIconRef image, final IClicked<DataPager1> click, final BundleRef bundle, final String ttlkey) {
-		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager1.this));
+		SmallImgButton i = new SmallImgButton(image, b -> click.clicked(DataPager1.this));
 		if(bundle != null)
 			i.setTitle(bundle.getString(ttlkey));
 		else if(ttlkey != null)

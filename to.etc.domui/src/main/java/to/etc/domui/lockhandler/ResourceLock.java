@@ -104,7 +104,6 @@ final class ResourceLock {
 					//-- New shared lock request- grant.
 					addLockerList(l);
 					addUndoItem(undoList, null, l); // @undo just remove locker again
-					return;
 			}
 //			throw new IllegalStateException("Should not get here.");
 		}

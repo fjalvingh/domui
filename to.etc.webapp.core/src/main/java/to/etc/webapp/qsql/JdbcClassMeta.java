@@ -171,8 +171,7 @@ public class JdbcClassMeta {
 			//-- Create the full column list.
 			List<String>	cols = new ArrayList<String>();
 			for(JdbcPropertyMeta cpm: pcm.getPropertyList()) {
-				for(String s: cpm.getColumnNames())
-					cols.add(s);
+				Collections.addAll(cols, cpm.getColumnNames());
 			}
 			pm.setColumnNames(cols.toArray(new String[cols.size()]));
 

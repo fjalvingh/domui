@@ -272,8 +272,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	@NonNull
 	private PropertyMetaModel<?> parseSubCriteria(@NonNull String property) {
 		PropertyMetaModel<?> pmm = m_cmm.getProperty(property);
-		if(pmm instanceof PathPropertyMetaModel) {
-			PathPropertyMetaModel<?> m = (PathPropertyMetaModel<?>) pmm;
+		if(pmm instanceof PathPropertyMetaModel<?> m) {
 			for(PropertyMetaModel<?> pm : m.getAccessPath()) {
 				if(pm.getRelationType() == PropertyRelationType.DOWN)
 					throw new QQuerySyntaxException(property + ": contains reference to a child property - use an exists subquery instead.");

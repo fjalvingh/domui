@@ -44,7 +44,6 @@ public class Plotly1 extends UrlPage {
 			PlotlyDataSet ds = new PlotlyDataSet();
 			Map<Date, List<Invoice>> perMonth = dc.query(QCriteria.create(Invoice.class)).stream()
 				.collect(Collectors.groupingBy(this::getMonth, Collectors.toList()));
-			;
 
 			PlTimeSeriesTrace invoices = ds.addTimeSeries("Invoices")
 				.mode(TraceMode.MarkersAndLines)

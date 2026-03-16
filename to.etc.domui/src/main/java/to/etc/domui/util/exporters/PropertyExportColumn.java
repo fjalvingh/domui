@@ -62,7 +62,7 @@ public class PropertyExportColumn<T> implements IExportColumn<T> {
 		if(value instanceof Enum) {
 			ClassMetaModel ecmm = MetaManager.findClassMeta(value.getClass());
 			String v = ecmm.getDomainLabel(NlsContext.getLocale(), value);
-			return v == null ? ((T) value).toString() : v;
+			return v == null ? value.toString() : v;
 		}
 		return value;
 	}

@@ -197,8 +197,7 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 			return;
 		}
 
-		if(o instanceof String[]) {
-			String[] ar = (String[]) o;
+		if(o instanceof String[] ar) {
 			if(ar.length > 0)
 				setParameterValues(k, ar);
 			else
@@ -426,7 +425,7 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 				map.computeIfAbsent(name, k -> new ArrayList<>()).add(value);
 			}
 		}
-	
+
 		PageParameters pp = new PageParameters();
 		for(Map.Entry<String, List<String>> me : map.entrySet()) {
 			if(me.getValue().size() == 1) {
@@ -448,7 +447,7 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 		}
 
 		if(source instanceof IPageParameters) {
-			IPageParameters x = (IPageParameters) source;
+			IPageParameters x = source;
 			browserVersion(x.getBrowserVersion());
 			inputPath(x.getInputPath());
 			themeName(x.getThemeName());

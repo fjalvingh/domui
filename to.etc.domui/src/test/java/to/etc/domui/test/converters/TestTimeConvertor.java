@@ -22,9 +22,9 @@ public class TestTimeConvertor {
 
 	private static final String[] GOOD_TIMES_NO_COLON = {"944", "012", "1355"};
 
-	private static final Integer[] GOOD_TIMESRAW = {null, new Integer(32400), new Integer(72000), new Integer(82800), new Integer(600), new Integer(1200), new Integer(180), new Integer(44580)};
+	private static final Integer[] GOOD_TIMESRAW = {null, Integer.valueOf(32400), Integer.valueOf(72000), Integer.valueOf(82800), Integer.valueOf(600), Integer.valueOf(1200), Integer.valueOf(180), Integer.valueOf(44580)};
 
-	private static final Integer[] GOOD_TIMESRAW_NO_COLON = {new Integer(35040), new Integer(720), new Integer(50100)};
+	private static final Integer[] GOOD_TIMESRAW_NO_COLON = {Integer.valueOf(35040), Integer.valueOf(720), Integer.valueOf(50100)};
 
 	@BeforeClass
 	static public void setUp() {

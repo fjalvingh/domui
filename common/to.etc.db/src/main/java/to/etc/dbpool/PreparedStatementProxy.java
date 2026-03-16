@@ -196,7 +196,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	public void setByte(final int parameterIndex, final byte x) throws SQLException {
 		try {
-			_set(parameterIndex, new Byte(x));
+			_set(parameterIndex, Byte.valueOf(x));
 			getRealPreparedStatement().setByte(parameterIndex, x);
 		} catch(SQLException xx) {
 			throw wrap(xx);
@@ -205,7 +205,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	public void setShort(final int parameterIndex, final short x) throws SQLException {
 		try {
-			_set(parameterIndex, new Short(x));
+			_set(parameterIndex, Short.valueOf(x));
 			getRealPreparedStatement().setShort(parameterIndex, x);
 		} catch(SQLException xx) {
 			throw wrap(xx);
@@ -214,7 +214,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	public void setInt(final int parameterIndex, final int x) throws SQLException {
 		try {
-			_set(parameterIndex, new Integer(x));
+			_set(parameterIndex, Integer.valueOf(x));
 			getRealPreparedStatement().setInt(parameterIndex, x);
 		} catch(SQLException xx) {
 			throw wrap(xx);
@@ -223,7 +223,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	public void setLong(final int parameterIndex, final long x) throws SQLException {
 		try {
-			_set(parameterIndex, new Long(x));
+			_set(parameterIndex, Long.valueOf(x));
 			getRealPreparedStatement().setLong(parameterIndex, x);
 		} catch(SQLException xx) {
 			throw wrap(xx);

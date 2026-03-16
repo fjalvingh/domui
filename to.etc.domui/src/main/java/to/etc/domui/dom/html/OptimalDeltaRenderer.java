@@ -681,9 +681,8 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 				//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
 				if(on.internalHasChangedAttributes())
 					ni.addAttrChange(nn); // Add this node's changes to me (the node itself will not be rerendered IF I am not rerendered)
-				if(nn instanceof NodeContainer) {
+				if(nn instanceof NodeContainer nnc) {
 					//-- Node is a container -> handle children.
-					NodeContainer nnc = (NodeContainer) nn;
 					//					if(nnc.childHasUpdates() ) {					// jal 20081119 does not see it's children have been deleted??
 					if(nnc.childHasUpdates() || nnc.internalGetOldChildren() != null) {
 						if(DEBUG)
@@ -797,7 +796,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		}
 	}
 
-	static private final String ndid(NodeInfo ni) {
+	static private String ndid(NodeInfo ni) {
 		return ni.node == null ? "(ROOT)" : ni.node.getActualID();
 	}
 
@@ -812,7 +811,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		iw.close();
 		sw.close();
 		System.out.println("---- NodeInfo-render dump -----");
-		System.out.println(sw.getBuffer().toString());
+		System.out.println(sw.getBuffer());
 	}
 
 	private void dump(IndentWriter iw, NodeInfo ni) throws IOException {

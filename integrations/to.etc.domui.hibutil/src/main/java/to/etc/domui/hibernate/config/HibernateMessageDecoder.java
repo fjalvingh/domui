@@ -21,8 +21,7 @@ public class HibernateMessageDecoder {
 	 */
 	static public ExceptionPresentation translateHibernateException(Throwable x) {
 		//-- Ordered!!
-		if(x instanceof ConstraintViolationException) {
-			ConstraintViolationException cvx = (ConstraintViolationException) x;
+		if(x instanceof ConstraintViolationException cvx) {
 			String sqlState = cvx.getSQLState();
 			if(null == sqlState)
 				return null;
@@ -39,8 +38,7 @@ public class HibernateMessageDecoder {
 			}
 		}
 
-		if(x instanceof PersistenceException) {
-			PersistenceException px = (PersistenceException) x;
+		if(x instanceof PersistenceException px) {
 			return translateHibernateException(px.getCause());
 		}
 

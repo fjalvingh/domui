@@ -41,12 +41,12 @@ final public class QSelectionColumn extends QNodeBase {
 	@NonNull
 	final private QSelectionItem m_item;
 
-	protected QSelectionColumn(@NonNull QSelectionItem item) {
+	private QSelectionColumn(@NonNull QSelectionItem item) {
 		m_item = item;
 		m_alias = null;
 	}
 
-	protected QSelectionColumn(@NonNull QSelectionItem item, @Nullable String alias) {
+	QSelectionColumn(@NonNull QSelectionItem item, @Nullable String alias) {
 		m_item = item;
 		m_alias = alias;
 	}

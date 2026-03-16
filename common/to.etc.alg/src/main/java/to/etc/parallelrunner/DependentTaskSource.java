@@ -108,10 +108,9 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 	private void checkCircularDependencies(Task<T, X> task, Stack<T> stack) {
 		if(stack.contains(task.getItem())) {
 			//-- Circular dependency.
-			StringBuilder sb = new StringBuilder();
-			sb.append("Circular dependency in task " + task.getItem() + ": it has a circular dependency through ");
-			sb.append(stack.stream().map(a -> a.toString()).collect(Collectors.joining(" -> ")));
-			throw new IllegalStateException(sb.toString());
+			String sb = "Circular dependency in task " + task.getItem() + ": it has a circular dependency through "
+				+ stack.stream().map(a -> a.toString()).collect(Collectors.joining(" -> "));
+			throw new IllegalStateException(sb);
 		}
 		stack.add(task.getItem());
 		for(Task<T, X> child : task.getChildren()) {

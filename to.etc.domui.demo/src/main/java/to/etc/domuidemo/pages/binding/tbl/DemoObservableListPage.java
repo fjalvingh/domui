@@ -65,10 +65,10 @@ public class DemoObservableListPage extends UrlPage {
 		m_lower.add(dt);
 		dt.setList(ol);
 
-		LinkButton lb = new LinkButton("Add album", Icon.of("THEME/btnAdd.png"), (IClicked<LinkButton>) clickednode -> addAlbum(a, ol));
+		LinkButton lb = new LinkButton("Add album", Icon.of("THEME/btnAdd.png"), clickednode -> addAlbum(a, ol));
 		m_lower.add(lb);
 
-		lb = new LinkButton("Delete album", Icon.of("THEME/btnDelete.png"), (IClicked<LinkButton>) clickednode -> deleteAlbum(ol));
+		lb = new LinkButton("Delete album", Icon.of("THEME/btnDelete.png"), clickednode -> deleteAlbum(ol));
 		m_lower.add(lb);
 
 

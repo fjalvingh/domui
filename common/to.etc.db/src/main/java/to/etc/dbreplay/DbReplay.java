@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -111,7 +112,7 @@ public class DbReplay {
 
 	private void openLog() throws Exception {
 		File log = new File("dbreplay.log");
-		m_log = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(log), 65536), "utf-8"));
+		m_log = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(log), 65536), StandardCharsets.UTF_8));
 		m_log.println("Log file start @" + new Date());
 	}
 
@@ -359,12 +360,12 @@ public class DbReplay {
 		if(szrd != len)
 			throw new IOException("Unexpected EOF: got " + szrd + " bytes but needed " + len);
 		m_fileOffset += len;
-		return new String(data, "utf-8");
+		return new String(data, StandardCharsets.UTF_8);
 	}
 
 	public long readLong() throws Exception {
-		long a = (readInt() & 0xffffffffl);
-		long b = (readInt() & 0xffffffffl);
+		long a = (readInt() & 0xffffffffL);
+		long b = (readInt() & 0xffffffffL);
 		return (a << 32) | b;
 	}
 

@@ -168,6 +168,5 @@ final public class InternalResourcePart implements IBufferedPartFactory<ResKey> 
 				is.close();
 			} catch(Exception x) {}
 		}
-		return;
 	}
 }

@@ -150,12 +150,12 @@ final public class WindowSession {
 	}
 
 	@NonNull
-	final public DomApplication getApplication() {
+	public DomApplication getApplication() {
 		return m_appSession.getApplication();
 	}
 
 	@NonNull
-	final public String getWindowID() {
+	public String getWindowID() {
 		return m_windowID;
 	}
 

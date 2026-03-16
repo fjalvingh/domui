@@ -335,7 +335,7 @@ public class PageParameterWrapper implements IPageParameters {
 				}
 			}
 		}
-		return "Parameters: " + sb.toString();
+		return "Parameters: " + sb;
 	}
 
 	@Override
@@ -345,10 +345,9 @@ public class PageParameterWrapper implements IPageParameters {
 
 	@Override
 	public boolean equals(@Nullable Object obj) {
-		if(! (obj instanceof IPageParameters))
+		if(! (obj instanceof IPageParameters a))
 			return false;
 
-		IPageParameters a = (IPageParameters) obj;
 		if(a.size() != size())
 			return false;
 

@@ -37,9 +37,9 @@ import to.etc.webapp.query.QField;
  * Created on Dec 6, 2009
  */
 public interface IControl<T> extends IActionControl, IHasChangeListener, INodeErrorDelegate, IForTarget {
-	static public final QField<NodeBase, Boolean> READONLY = new QField<>(NodeBase.class, "readOnly");
+	QField<NodeBase, Boolean> READONLY = new QField<>(NodeBase.class, "readOnly");
 
-	static public final QField<NodeBase, Boolean> DISABLED = new QField<>(NodeBase.class, "disabled");
+	QField<NodeBase, Boolean> DISABLED = new QField<>(NodeBase.class, "disabled");
 
 	/**
 	 * Set a new value into this control. Setting a value to null means the control holds no value. This

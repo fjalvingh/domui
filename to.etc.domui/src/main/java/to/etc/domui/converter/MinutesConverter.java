@@ -40,9 +40,7 @@ public class MinutesConverter implements IConverter<Integer> {
 		value = hours + mins / 100;
 		df = new DecimalFormat("##0.00", dfs);
 
-		StringBuilder sb = new StringBuilder();
-		sb.append(df.format(value));
-		return sb.toString();
+		return df.format(value);
 	}
 
 	/**

@@ -42,9 +42,8 @@ final public class ImgToDataRenderer {
 		}
 		String mimeType = ServerTools.getExtMimeType(FileTool.getFileExtension(imageURL));
 
-		StringBuilder sb = new StringBuilder();
-		sb.append("data:").append(mimeType).append(";base64,");
-		sb.append(StringTool.encodeBase64ToString(data));
-		return sb.toString();
+		String sb = "data:" + mimeType + ";base64,"
+			+ StringTool.encodeBase64ToString(data);
+		return sb;
 	}
 }

@@ -83,12 +83,11 @@ public class DateInputTestPage extends UrlPage {
 	 * @return
 	 */
 	protected void preventAlertsFromOpening() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("var defaultAlert = alert;");
-		sb.append("alert = function(message){");
-		sb.append("		console.log('Alert blocked: ' + message);");
-		sb.append("}");
-		this.appendCreateJS(DomUtil.nullChecked(sb.toString()));
+		String sb = "var defaultAlert = alert;"
+			+ "alert = function(message){"
+			+ "		console.log('Alert blocked: ' + message);"
+			+ "}";
+		this.appendCreateJS(DomUtil.nullChecked(sb));
 	}
 
 }

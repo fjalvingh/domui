@@ -158,7 +158,7 @@ final class ImageRoot {
 	 * @return
 	 */
 	@NonNull
-	final ImageCache getCache() {
+	ImageCache getCache() {
 		return m_cache;
 	}
 

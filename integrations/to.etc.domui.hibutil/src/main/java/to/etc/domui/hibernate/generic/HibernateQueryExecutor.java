@@ -83,12 +83,12 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 
 	@Override
 	public <T> T find(BuggyHibernateBaseContext root, Class<T> clz, Object pk) throws Exception {
-		return (T) root.getSession().get(clz, (Serializable) pk);
+		return root.getSession().get(clz, (Serializable) pk);
 	}
 
 	@Override
 	public <T> T getInstance(BuggyHibernateBaseContext root, Class<T> clz, Object pk) throws Exception {
-		return (T) root.getSession().load(clz, (Serializable) pk); // Do not check if instance exists.
+		return root.getSession().load(clz, (Serializable) pk); // Do not check if instance exists.
 	}
 
 	@Override

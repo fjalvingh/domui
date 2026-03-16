@@ -48,10 +48,9 @@ public class UploadPart implements IUnbufferedPartFactory {
 		try {
 			ComponentPartRenderer r = new ComponentPartRenderer();
 			r.initialize(app, param, rurl);
-			if(!(r.getComponent() instanceof IUploadAcceptingComponent))
+			if(!(r.getComponent() instanceof IUploadAcceptingComponent fu))
 				throw new IllegalStateException("The targeted component " + r.getComponent() + " does not accept uploaded files.");
 
-			IUploadAcceptingComponent fu = (IUploadAcceptingComponent) r.getComponent();
 			boolean render = fu.handleUploadRequest(param, r.getConversation());
 
 			//-- Render an optimal delta as the response,

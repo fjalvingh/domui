@@ -139,8 +139,7 @@ public class ExcelWriterUtil {
 		if(null == cs) {
 			cs = createCellStyle();
 			boolean hasBackgroundFill = false;
-			if(cs instanceof XSSFCellStyle) {
-				XSSFCellStyle xssfcs = (XSSFCellStyle) cs;
+			if(cs instanceof XSSFCellStyle xssfcs) {
 				cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				xssfcs.setFillForegroundColor(new XSSFColor(xssfColor, null));
 				XSSFColor borderColor = new XSSFColor(Color.LIGHT_GRAY, null);

@@ -20,19 +20,19 @@ public final class Rect {
 
 	private final int m_bottom;
 
-	public final int getLeft() {
+	public int getLeft() {
 		return m_left;
 	}
 
-	public final int getTop() {
+	public int getTop() {
 		return m_top;
 	}
 
-	public final int getRight() {
+	public int getRight() {
 		return m_right;
 	}
 
-	public final int getBottom() {
+	public int getBottom() {
 		return m_bottom;
 	}
 
@@ -85,12 +85,12 @@ public final class Rect {
 	}
 
 	@NonNull
-	public final Point getPosition() {
+	public Point getPosition() {
 		return new Point(m_left, m_top);
 	}
 
 	@NonNull
-	public final Dimension getDimension() {
+	public Dimension getDimension() {
 		return new Dimension(getWidth(), getHeight());
 	}
 

@@ -37,7 +37,7 @@ public class DemoTableBinding1 extends WikiExplanationPage {
 	private void clickedOne(@NonNull final Artist a) {
 		//-- Change the artist's name field.
 		String name = a.getName();
-		name = name.substring(1) + name.substring(0, 1);
+		name = name.substring(1) + name.charAt(0);
 		a.setName(name);
 	}
 

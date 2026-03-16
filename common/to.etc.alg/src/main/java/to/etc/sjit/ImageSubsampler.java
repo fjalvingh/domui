@@ -218,9 +218,8 @@ public class ImageSubsampler {
 		//		ColorModel	cm	= srci.getColorModel();
 		Raster sras = srci.getRaster();
 		SampleModel stsm = sras.getSampleModel();
-		if(!(stsm instanceof SinglePixelPackedSampleModel))
+		if(!(stsm instanceof SinglePixelPackedSampleModel ssm))
 			throw new IllegalStateException("?? TYPE_INT_RGB doesn't have SinglePixelPackedSampleModel??");
-		SinglePixelPackedSampleModel ssm = (SinglePixelPackedSampleModel) stsm;
 
 		DataBuffer sdbt = sras.getDataBuffer();
 		if(sdbt.getDataType() != DataBuffer.TYPE_INT)
@@ -233,9 +232,8 @@ public class ImageSubsampler {
 		BufferedImage worki = new BufferedImage(ow, sh, BufferedImage.TYPE_INT_RGB);
 		Raster dras = worki.getRaster();
 		SampleModel dtsm = dras.getSampleModel();
-		if(!(dtsm instanceof SinglePixelPackedSampleModel))
+		if(!(dtsm instanceof SinglePixelPackedSampleModel dsm))
 			throw new IllegalStateException("?? TYPE_INT_RGB doesn't have SinglePixelPackedSampleModel??");
-		SinglePixelPackedSampleModel dsm = (SinglePixelPackedSampleModel) dtsm;
 
 		DataBuffer ddbt = dras.getDataBuffer();
 		if(ddbt.getDataType() != DataBuffer.TYPE_INT)
@@ -464,9 +462,8 @@ public class ImageSubsampler {
 		//		ColorModel	cm	= srci.getColorModel();
 		Raster sras = srci.getRaster();
 		SampleModel stsm = sras.getSampleModel();
-		if(!(stsm instanceof SinglePixelPackedSampleModel))
+		if(!(stsm instanceof SinglePixelPackedSampleModel ssm))
 			throw new IllegalStateException("?? TYPE_INT_RGB doesn't have SinglePixelPackedSampleModel??");
-		SinglePixelPackedSampleModel ssm = (SinglePixelPackedSampleModel) stsm;
 
 		DataBuffer sdbt = sras.getDataBuffer();
 		if(sdbt.getDataType() != DataBuffer.TYPE_INT)
@@ -479,9 +476,8 @@ public class ImageSubsampler {
 		BufferedImage worki = new BufferedImage(ow, oh, BufferedImage.TYPE_INT_RGB);
 		Raster dras = worki.getRaster();
 		SampleModel dtsm = dras.getSampleModel();
-		if(!(dtsm instanceof SinglePixelPackedSampleModel))
+		if(!(dtsm instanceof SinglePixelPackedSampleModel dsm))
 			throw new IllegalStateException("?? TYPE_INT_RGB doesn't have SinglePixelPackedSampleModel??");
-		SinglePixelPackedSampleModel dsm = (SinglePixelPackedSampleModel) dtsm;
 
 		DataBuffer ddbt = dras.getDataBuffer();
 		if(ddbt.getDataType() != DataBuffer.TYPE_INT)
@@ -692,7 +688,7 @@ public class ImageSubsampler {
 		BufferedImage obi = resample(bi, filter, p.x, p.y);
 		t = System.currentTimeMillis() - t;
 		System.out.print("save, ");
-		saveImage(obi, "s-" + Integer.toString(p.x) + "x" + Integer.toString(p.y) + "-" + fn + ".jpg");
+		saveImage(obi, "s-" + p.x + "x" + p.y + "-" + fn + ".jpg");
 		System.out.println("Done in " + t + " millis");
 	}
 
@@ -726,7 +722,7 @@ public class ImageSubsampler {
 
 	static private void pl(PrintWriter pw, String f, Point p) {
 		pw.println("<br><br>");
-		pw.println("<table><tr><td><img src=\"s-" + Integer.toString(p.x) + "x" + Integer.toString(p.y) + "-" + f + ".jpg\"></td></tr>");
+		pw.println("<table><tr><td><img src=\"s-" + p.x + "x" + p.y + "-" + f + ".jpg\"></td></tr>");
 		pw.println("<tr><td>The " + f + " filter.</td></tr></table>");
 	}
 
@@ -766,9 +762,9 @@ public class ImageSubsampler {
 				saveWithFilter(bi, "Triangle", p);
 
 				//-- Save an HTML outputfile..
-				PrintWriter pw = new PrintWriter(new FileWriter("s-" + Integer.toString(p.x) + "x" + Integer.toString(p.y) + ".html"));
+				PrintWriter pw = new PrintWriter(new FileWriter("s-" + p.x + "x" + p.y + ".html"));
 				pw.println("<html><head><title>Output of rescaling filter set</title></head>");
-				pw.println("<body><h1>Generated for output size " + Integer.toString(p.x) + "x" + Integer.toString(p.y) + "</h1>");
+				pw.println("<body><h1>Generated for output size " + p.x + "x" + p.y + "</h1>");
 
 				pl(pw, "Bell", p);
 				//				pl(pw, "Box", p);
@@ -785,7 +781,7 @@ public class ImageSubsampler {
 			}
 			System.out.println("Done");
 		} catch(Throwable t) {
-			System.out.println("FATAL: " + t.toString());
+			System.out.println("FATAL: " + t);
 			t.printStackTrace();
 		}
 		System.exit(10);

@@ -122,7 +122,7 @@ public class DomTools {
 				ins.setPublicId(ident);
 			return db.parse(ins);
 		} catch(IOException x) {
-			throw new IOException("XML Parser IO error on " + ident + ": " + x.toString());
+			throw new IOException("XML Parser IO error on " + ident + ": " + x);
 		}
 	}
 
@@ -147,7 +147,8 @@ public class DomTools {
 	 * message string; these are thrown as an exception when complete.
 	 */
 	static public Document getDocument(final Reader is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
+		createDocumentBuilderFactory();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Plain terrible
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
@@ -159,7 +160,7 @@ public class DomTools {
 				ins.setPublicId(ident);
 			return db.parse(ins);
 		} catch(IOException x) {
-			throw new IOException("XML Parser IO error on " + ident + ": " + x.toString());
+			throw new IOException("XML Parser IO error on " + ident + ": " + x);
 		}
 	}
 
@@ -173,7 +174,8 @@ public class DomTools {
 		if(!inf.exists() || !inf.isFile())
 			throw new IOException(inf + ": file not found.");
 		inf = inf.getAbsoluteFile();
-		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
+		createDocumentBuilderFactory();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(nsaware);
 		dbf.setValidating(false);
 		dbf.setFeature("http://xml.org/sax/features/namespaces", false);
@@ -187,7 +189,7 @@ public class DomTools {
 			db.setErrorHandler(eh);
 			return db.parse(inf);
 		} catch(IOException x) {
-			throw new IOException("XML Parser IO error on " + inf + ": " + x.toString());
+			throw new IOException("XML Parser IO error on " + inf + ": " + x);
 		}
 	}
 
@@ -803,25 +805,23 @@ public class DomTools {
 		c.setTime(dt);
 		TimeZone tz = TimeZone.getDefault();
 
-		StringBuffer sb = new StringBuffer(30);
-		sb.append(StringTool.intToStr(c.get(Calendar.YEAR), 10, 4));
-		sb.append('-');
-		sb.append(StringTool.intToStr(c.get(Calendar.MONTH) + 1, 10, 2));
-		sb.append('-');
-		sb.append(StringTool.intToStr(c.get(Calendar.DAY_OF_MONTH), 10, 2));
-		sb.append(' ');
-		sb.append(StringTool.intToStr(c.get(Calendar.HOUR_OF_DAY), 10, 2));
-		sb.append(':');
-		sb.append(StringTool.intToStr(c.get(Calendar.MINUTE), 10, 2));
-		sb.append(':');
-		sb.append(StringTool.intToStr(c.get(Calendar.SECOND), 10, 2));
-		sb.append('.');
-		sb.append(StringTool.intToStr(c.get(Calendar.MILLISECOND), 10, 4));
-
-		sb.append(' ');
-		sb.append(tz.getID());
+		String sb = StringTool.intToStr(c.get(Calendar.YEAR), 10, 4)
+			+ '-'
+			+ StringTool.intToStr(c.get(Calendar.MONTH) + 1, 10, 2)
+			+ '-'
+			+ StringTool.intToStr(c.get(Calendar.DAY_OF_MONTH), 10, 2)
+			+ ' '
+			+ StringTool.intToStr(c.get(Calendar.HOUR_OF_DAY), 10, 2)
+			+ ':'
+			+ StringTool.intToStr(c.get(Calendar.MINUTE), 10, 2)
+			+ ':'
+			+ StringTool.intToStr(c.get(Calendar.SECOND), 10, 2)
+			+ '.'
+			+ StringTool.intToStr(c.get(Calendar.MILLISECOND), 10, 4)
+			+ ' '
+			+ tz.getID();
 		//		System.out.println("dateEncode: out "+sb.toString());
-		return sb.toString();
+		return sb;
 	}
 
 	/**
@@ -1039,7 +1039,8 @@ public class DomTools {
 	 */
 	@NonNull
 	static public XMLInputFactory getStreamFactory() {
-		XMLInputFactory xmlif = createXMLInputFactory().newInstance();
+		createXMLInputFactory();
+		XMLInputFactory xmlif = XMLInputFactory.newInstance();
 		//		xmlif.setProperty("http://apache.org/xml/features/nonvalidating/load-external-dtd", Boolean.FALSE);
 		xmlif.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
 		xmlif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);

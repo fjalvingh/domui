@@ -92,7 +92,7 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 		Assert.assertTrue("One cannot have 'input' because it has no QuickSearch", one.findElements(By.tagName("input")).isEmpty());
 
 		//-- Two MUST have an input
-		Assert.assertTrue("Two must have 'input' because it HAS QuickSearch", two.findElements(By.tagName("input")).size() == 1);
+		Assert.assertEquals("Two must have 'input' because it HAS QuickSearch", 1, two.findElements(By.tagName("input")).size());
 
 		wd().cmd().type("aaaaaaaaa").on(By.cssSelector("#" + two.getAttribute("id") + " input"));
 

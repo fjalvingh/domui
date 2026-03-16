@@ -82,7 +82,6 @@ final public class GarbageLogger implements System.Logger {
 				return;
 
 			case OFF:
-				return;
 		}
 	}
 
@@ -101,7 +100,7 @@ final public class GarbageLogger implements System.Logger {
 				sb.append(format).append("\n");
 				for(Object param : params) {
 					if(param != null) {
-						sb.append(String.valueOf(param));
+						sb.append(param);
 						if(sb.charAt(sb.length() - 1) != '\n')
 							sb.append("\n");
 					}

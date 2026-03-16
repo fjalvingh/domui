@@ -153,10 +153,9 @@ public class HttpServerRequestResponse implements IRequestResponse {
 
 	@Override
 	public void releaseUploads() {
-		if(!(m_request instanceof UploadHttpRequestWrapper))
+		if(!(m_request instanceof UploadHttpRequestWrapper w))
 			return;
 
-		UploadHttpRequestWrapper w = (UploadHttpRequestWrapper) m_request;
 		w.releaseFiles();
 	}
 
@@ -227,7 +226,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Override
 	@NonNull
 	public String[] getParameterNames() {
-		return (String[]) m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
+		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
 	public List<String> getHeaderNames() {
@@ -254,18 +253,16 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Override
 	@NonNull
 	public String[] getFileParameters() throws Exception {
-		if(!(m_request instanceof UploadHttpRequestWrapper))
+		if(!(m_request instanceof UploadHttpRequestWrapper urw))
 			return new String[0];
-		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
 		return urw.getFileItemMap().keySet().toArray(new String[urw.getFileItemMap().size()]);
 	}
 
 	@Override
 	@NonNull
 	public UploadItem[] getFileParameter(@NonNull String name) throws Exception {
-		if(!(m_request instanceof UploadHttpRequestWrapper))
+		if(!(m_request instanceof UploadHttpRequestWrapper urw))
 			return new UploadItem[0];
-		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
 		return urw.getFileItems(name);
 	}
 

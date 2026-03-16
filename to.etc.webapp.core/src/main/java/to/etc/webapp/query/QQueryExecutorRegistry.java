@@ -40,7 +40,7 @@ final public class QQueryExecutorRegistry {
 
 	static private final QQueryExecutorRegistry m_instance = new QQueryExecutorRegistry();
 
-	static public final QQueryExecutorRegistry getInstance() {
+	static public QQueryExecutorRegistry getInstance() {
 		return m_instance;
 	}
 

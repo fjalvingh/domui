@@ -387,7 +387,7 @@ final public class PoolManager {
 					if(m_shutdown)
 						break;
 				}
-				Thread.sleep(m_scanInterval * 1000 / 2);
+				Thread.sleep(m_scanInterval * 1000L / 2);
 			} catch(Exception x) {
 				logUnexpected(x, "In scanning for expired connections");
 			}
@@ -449,10 +449,9 @@ final public class PoolManager {
 	 */
 	public IStatisticsListener stopCollecting(String key) {
 		IConnectionEventListener ih = m_connectionEventListener.get();
-		if(!(ih instanceof CollectingConnectionEventListener))
+		if(!(ih instanceof CollectingConnectionEventListener cih))
 			return null;
 
-		CollectingConnectionEventListener cih = (CollectingConnectionEventListener) ih;
 		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) cih.getListener();
 		IStatisticsListener ic = sink.removeCollector(key);    // Remove collector.
 		if(null != ic)

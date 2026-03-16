@@ -113,7 +113,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 
 		@Override
 		public K getKey() {
-			return (K) decodeKey(m_key);
+			return decodeKey(m_key);
 		}
 
 		@Override
@@ -130,15 +130,14 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 
 		@Override
 		public boolean equals(Object o) {
-			if(!(o instanceof Map.Entry))
+			if(!(o instanceof Entry<?, ?> e))
 				return false;
-			Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
 			Object k1 = getKey();
 			Object k2 = e.getKey();
-			if(k1 == k2 || (k1 != null && k1.equals(k2))) {
+			if(Objects.equals(k1, k2)) {
 				Object v1 = getValue();
 				Object v2 = e.getValue();
-				return v1 == v2 || (v1 != null && v1.equals(v2));
+				return Objects.equals(v1, v2);
 			}
 			return false;
 		}

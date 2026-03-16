@@ -22,8 +22,7 @@ import java.util.List;
  */
 public class MIDomuiClassAnnotations extends AbstractClassAnnotationProvider {
 	@Override protected void decodeClassAnnotation(MetaInitContext context, DefaultClassMetaModel cmm, Annotation an, String ana) throws Exception {
-		if(an instanceof MetaCombo) {
-			final MetaCombo c = (MetaCombo) an;
+		if(an instanceof MetaCombo c) {
 			if(c.dataSet() != UndefinedComboDataSet.class)
 				cmm.setComboDataSet(c.dataSet());
 			if(c.labelRenderer() != UndefinedLabelStringRenderer.class)
@@ -41,8 +40,7 @@ public class MIDomuiClassAnnotations extends AbstractClassAnnotationProvider {
 			}
 			if(c.preferred())
 				cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
-		} else if(an instanceof MetaObject) {
-			final MetaObject mo = (MetaObject) an;
+		} else if(an instanceof MetaObject mo) {
 
 			if(mo.defaultColumns().length > 0) {
 				cmm.setTableDisplayProperties(MetaInitializer.decode(cmm, mo.defaultColumns()));

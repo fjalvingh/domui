@@ -147,6 +147,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -304,7 +305,7 @@ public abstract class DomApplication {
 	/**
 	 * The default expiry time for resources, in seconds.
 	 */
-	private int m_defaultExpiryTime = 1 * 24 * 60 * 60;
+	private int m_defaultExpiryTime = 24 * 60 * 60;
 
 	private ILoginAuthenticator m_loginAuthenticator;
 
@@ -376,7 +377,7 @@ public abstract class DomApplication {
 			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
 			.button(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Integer.valueOf(1))
 			.button(Msgs.leave.getString(), Integer.valueOf(2))
-			.onAnswer2((IAnswer2) answer -> {
+			.onAnswer2(answer -> {
 				if(Integer.valueOf(2).equals(answer)) {
 					UIContext.getCurrentConversation().getWindowSession().handleGotoOnNavigationCheck((RequestContextImpl) UIContext.getRequestContext(), gotoCtx, page.getPage());
 				}
@@ -393,7 +394,7 @@ public abstract class DomApplication {
 			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
 			.button(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Integer.valueOf(1))
 			.button(Msgs.leave.getString(), Integer.valueOf(2))
-			.onAnswer2((IAnswer2) answer -> {
+			.onAnswer2(answer -> {
 				if(Integer.valueOf(2).equals(answer)) {
 					callback.run();
 				}
@@ -572,8 +573,7 @@ public abstract class DomApplication {
 		m_jQueryVersion = jqversion;
 		m_jQueryPath = jqdata[1];
 		List<String> jqp = new ArrayList<>(jqdata.length - 2);
-		for(int i = 2; i < jqdata.length; i++)
-			jqp.add(jqdata[i]);
+		jqp.addAll(Arrays.asList(jqdata).subList(2, jqdata.length));
 		m_jQueryScripts = jqp;
 
 		registerControlFactories();
@@ -1032,9 +1032,7 @@ public abstract class DomApplication {
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
 		String haso = DeveloperOptions.getString("domui.testui");
-		boolean uiTestMode = false;
-		if(m_developmentMode && haso == null)
-			uiTestMode = true;
+		boolean uiTestMode = m_developmentMode && haso == null;
 		if("true".equals(haso))
 			uiTestMode = true;
 		haso = System.getProperty("domui.testui");
@@ -1775,9 +1773,7 @@ public abstract class DomApplication {
 		if(s != null)
 			return s;
 		s = tryKey(sb, basename, suffix, null, null, null, null);
-		if(s != null)
-			return s;
-		return null;
+		return s;
 	}
 
 	private String tryKey(final StringBuilder sb, final String basename, final String suffix, final String lang, final String country, final String variant, final String dialect) throws Exception {

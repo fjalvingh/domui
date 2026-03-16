@@ -394,7 +394,7 @@ public class StringTool {
 				sb.append(s.substring(six)); // Append the last part,
 				return sb.toString(); // And be done!
 			}
-			sb.append(s.substring(six, ix)); // Copy all but slash
+			sb.append(s, six, ix); // Copy all but slash
 			sb.append('/');
 			six = ix + 1;
 		}
@@ -435,10 +435,10 @@ public class StringTool {
 
 		long v = (sz / div);
 		long r = (sz % div) / (div / 10);
-		sb.append(Long.toString(v));
+		sb.append(v);
 		if(r != 0) {
 			sb.append(".");
-			sb.append(Long.toString(r));
+			sb.append(r);
 		}
 		sb.append(" ");
 		sb.append(sf);
@@ -654,7 +654,7 @@ public class StringTool {
 	static public String intToStr(final int val, final int radix, final int npos) {
 		String v = "000000000000" + Integer.toString(val, radix);
 
-		return v.substring(v.length() - npos, v.length());
+		return v.substring(v.length() - npos);
 	}
 
 	/**
@@ -707,21 +707,21 @@ public class StringTool {
 		StringBuilder sb = new StringBuilder();
 
 		if(dlt >= DAYS) {
-			sb.append(Long.toString(dlt / DAYS));
+			sb.append(dlt / DAYS);
 			sb.append("D ");
 			dlt %= DAYS;
 		}
 		if(dlt >= HOURS) {
-			sb.append(Long.toString(dlt / HOURS));
+			sb.append(dlt / HOURS);
 			sb.append("u ");
 			dlt %= HOURS;
 		}
 		if(dlt >= 60) {
-			sb.append(Long.toString(dlt / 60));
+			sb.append(dlt / 60);
 			sb.append("min ");
 			dlt %= 60;
 		}
-		sb.append(Long.toString(dlt));
+		sb.append(dlt);
 		sb.append("sec");
 		return sb.toString();
 	}
@@ -892,7 +892,7 @@ public class StringTool {
 		for(int i = start; i < end; i++) {
 			pw.print(intToStr((arr[i]) & 0xff, 16, 2));
 		}
-		pw.println("");
+		pw.println();
 	}
 
 	/**
@@ -1248,7 +1248,7 @@ public class StringTool {
 		while(ix < str.length()) {
 			int epos = str.indexOf('&', ix); // Find next start for entity,
 			if(epos == -1) {
-				sb.append(str.substring(ix, str.length())); // Add last segment,
+				sb.append(str.substring(ix)); // Add last segment,
 				return;
 			}
 
@@ -1813,11 +1813,11 @@ public class StringTool {
 
 	static public void getLocation(final StringBuilder sb) {
 		sb.append("At ");
-		sb.append(new Date().toString());
+		sb.append(new Date());
 		sb.append(" in thread ");
 		sb.append(Thread.currentThread().getName());
 		sb.append(" (");
-		sb.append(Thread.currentThread().toString());
+		sb.append(Thread.currentThread());
 		sb.append("), stack:\n");
 
 		try {
@@ -1985,10 +1985,9 @@ public class StringTool {
 				if(nchars <= suffixLength)
 					return in.substring(0, nchars);                                // Don't add a suffix if input is silly.
 
-				StringBuilder sb = new StringBuilder(nchars);
-				sb.append(in, 0, nchars - suffixLength);
-				sb.append(suffix);
-				return sb.toString();
+				String sb = in.substring(0, nchars - suffixLength)
+					+ suffix;
+				return sb;
 			}
 			return in;
 		}
@@ -2000,10 +1999,9 @@ public class StringTool {
 		//-- We need to truncate..
 		int suffixBytes = utf8Length(suffix);
 		maxlength -= suffixBytes;                        // Remove this many chars as there are bytes
-		StringBuilder sb = new StringBuilder(nbytes);
-		sb.append(in, 0, maxlength);
-		sb.append(suffix);
-		return sb.toString();
+		String sb = in.substring(0, maxlength)
+			+ suffix;
+		return sb;
 	}
 
 	static private final long MICROS = 1000L;
@@ -2032,13 +2030,13 @@ public class StringTool {
 		while(i < TIMESET.length) {
 			if(ns >= TIMESET[i]) {
 				long u = ns / TIMESET[i];
-				sb.append(Long.toString(u));
+				sb.append(u);
 				sb.append(SUFFIXES[i]);
 				sb.append(' ');
 				u = ns % TIMESET[i];
 				i++;
 				u = u / TIMESET[i];
-				sb.append(Long.toString(u));
+				sb.append(u);
 				sb.append(SUFFIXES[i]);
 				return sb.toString();
 			}
@@ -2147,7 +2145,7 @@ public class StringTool {
 		byte[] bin = new byte[18];
 		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed
 		ByteArrayUtil.setShort(bin, 4, (short) (Math.random() * 65536));
-		long v = System.currentTimeMillis() / 1000 - (m_guidSeed * 60);
+		long v = System.currentTimeMillis() / 1000 - (m_guidSeed * 60L);
 		ByteArrayUtil.setInt(bin, 6, (int) v);
 		ByteArrayUtil.setLong(bin, 10, System.nanoTime());
 
@@ -2444,7 +2442,7 @@ public class StringTool {
 				}
 				if((nextChar == null || !isJavaIdentifierPart(nextChar)) && (prevChar == null || !isJavaIdentifierPart(prevChar))) {
 					replaceSb
-						.append(expression.substring(lastReplacedIndex, pos))
+						.append(expression, lastReplacedIndex, pos)
 						.append(newName);
 					lastReplacedIndex = pos + literalToFind.length();
 				}

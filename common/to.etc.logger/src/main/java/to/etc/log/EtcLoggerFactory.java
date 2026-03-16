@@ -102,7 +102,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	 * @return the MyLoggerFactory singleton
 	 */
 	@NonNull
-	public static final EtcLoggerFactory getSingleton() {
+	public static EtcLoggerFactory getSingleton() {
 		return SINGLETON;
 	}
 

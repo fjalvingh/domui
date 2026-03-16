@@ -342,7 +342,7 @@ final public class ClassUtil {
 		}
 	}
 
-	static public final Class< ? > loadClass(final ClassLoader cl, final String cname) {
+	static public Class< ? > loadClass(final ClassLoader cl, final String cname) {
 		try {
 			return cl.loadClass(cname);
 		} catch(Exception x) {}
@@ -350,7 +350,7 @@ final public class ClassUtil {
 	}
 
 	@NonNull
-	static public final <T> T loadInstance(@NonNull final ClassLoader cl, @NonNull Class<T> clz, @NonNull final String className) throws Exception {
+	static public <T> T loadInstance(@NonNull final ClassLoader cl, @NonNull Class<T> clz, @NonNull final String className) throws Exception {
 		Class< ? > acl;
 		try {
 			acl = cl.loadClass(className);
@@ -402,19 +402,16 @@ final public class ClassUtil {
 	 */
 	@Nullable
 	static public Class< ? > findCollectionType(@NonNull Type genericType) {
-		if(genericType instanceof Class< ? >) {
-			Class< ? > cl = (Class< ? >) genericType;
+		if(genericType instanceof Class<?> cl) {
 			if(cl.isArray()) {
 				return cl.getComponentType();
 			}
 		}
-		if(genericType instanceof ParameterizedType) {
-			ParameterizedType pt = (ParameterizedType) genericType;
+		if(genericType instanceof ParameterizedType pt) {
 			Type raw = pt.getRawType();
 
 			//-- This must be a collection type of class.
-			if(raw instanceof Class< ? >) {
-				Class< ? > cl = (Class< ? >) raw;
+			if(raw instanceof Class<?> cl) {
 				if(Collection.class.isAssignableFrom(cl)) {
 					Type[] tar = pt.getActualTypeArguments();
 					if(tar != null && tar.length == 1) { // Collection<T> required
@@ -478,11 +475,8 @@ final public class ClassUtil {
 		//		System.out.println(".. loader="+loader);
 		if(loader == null)
 			return;
-		if(loader instanceof URLClassLoader) {
-			URLClassLoader ucl = (URLClassLoader) loader;
-			for(URL u : ucl.getURLs()) {
-				result.add(u);
-			}
+		if(loader instanceof URLClassLoader ucl) {
+			Collections.addAll(result, ucl.getURLs());
 		}
 		ClassLoader parent = loader.getParent();
 		if(null != parent)
@@ -753,11 +747,10 @@ final public class ClassUtil {
 	 */
 	private static void extractTypeArguments(Map <Type, Type> typeMap, Class <?> clazz) {
 		Type genericSuperclass = clazz.getGenericSuperclass();
-		if(!(genericSuperclass instanceof ParameterizedType)) {
+		if(!(genericSuperclass instanceof ParameterizedType parameterizedType)) {
 			return;
 		}
 
-		ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
 		Type[] typeParameter = ((Class<?>) parameterizedType.getRawType()).getTypeParameters();
 		Type[] actualTypeArgument = parameterizedType.getActualTypeArguments();
 		for(int i = 0; i < typeParameter.length; i++) {

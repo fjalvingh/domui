@@ -482,7 +482,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/**
 	 * Render a single column fully.
 	 */
-	protected <X> TD renderColumn(@NonNull final TableModelTableBase<T> tbl, @NonNull final ColumnContainer<T> cc, final int index, @NonNull final T instance, @NonNull final ColumnDef<T, X> cd)
+	private <X> TD renderColumn(@NonNull final TableModelTableBase<T> tbl, @NonNull final ColumnContainer<T> cc, final int index, @NonNull final T instance, @NonNull final ColumnDef<T, X> cd)
 		throws Exception {
 		TD cell = cc.add((NodeBase) null);
 
@@ -705,7 +705,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * Returns the metamodel used.
 	 */
 	@NonNull
-	protected ClassMetaModel model() {
+	private ClassMetaModel model() {
 		return m_metaModel;
 	}
 
@@ -713,32 +713,32 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * Returns the record type being rendered.
 	 */
 	@NonNull
-	protected Class<?> getActualClass() {
+	private Class<?> getActualClass() {
 		return m_dataClass;
 	}
 
 	/**
 	 * Check if this object is used (completed) and thereby unmodifyable (internal).
 	 */
-	protected boolean isComplete() {
+	private boolean isComplete() {
 		return m_completed;
 	}
 
-	protected void setSortColumn(@Nullable ColumnDef<T, ?> cd, @Nullable SortableType type) {
+	private void setSortColumn(@Nullable ColumnDef<T, ?> cd, @Nullable SortableType type) {
 		m_columnList.setSortColumn(cd, type);
 	}
 
 	@Nullable
-	protected ColumnDef<T, ?> getSortColumn() {
+	private ColumnDef<T, ?> getSortColumn() {
 		ColumnDef<T, ?> sortColumn = m_columnList.getSortColumn();
 		return sortColumn == null ? null : isSortable(sortColumn) ? sortColumn : null;
 	}
 
-	protected boolean isSortDescending() {
+	private boolean isSortDescending() {
 		return m_columnList.isSortDescending();
 	}
 
-	protected void setSortDescending(boolean desc) {
+	private void setSortDescending(boolean desc) {
 		m_columnList.setSortDescending(desc);
 	}
 

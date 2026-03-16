@@ -136,7 +136,7 @@ public class TestDbCompound extends TestQsqlBase {
 	public void testCompoundSelect2() throws Exception {
 		DecadePaymentOrderPK pk = new DecadePaymentOrderPK();
 		pk.setAdministrationID("ADM1");
-		pk.setDocnr(Long.valueOf(4506000448l));
+		pk.setDocnr(Long.valueOf(4506000448L));
 
 		QCriteria<DecadePaymentOrder> qc = QCriteria.create(DecadePaymentOrder.class).eq("id", pk);
 		List<DecadePaymentOrder> res = exec(qc);

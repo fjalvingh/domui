@@ -190,17 +190,9 @@ final public class DataPager2 extends Div implements IDataTablePager {
 
 		setDisplay(DisplayType.BLOCK);
 
-		if(cp <= 0) {
-			m_prevBtn.setDisabled(true);
-		} else {
-			m_prevBtn.setDisabled(false);
-		}
+		m_prevBtn.setDisabled(cp <= 0);
 
-		if(cp + 1 >= np) {
-			m_nextBtn.setDisabled(true);
-		} else {
-			m_nextBtn.setDisabled(false);
-		}
+		m_nextBtn.setDisabled(cp + 1 >= np);
 
 		bd.removeAllChildren();
 		bd.add(m_prevBtn);
@@ -226,8 +218,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 			sib.addCssClass("ui-dp2-btn");
 		}
 
-		if(m_table instanceof PageableTabularComponentBase<?>) {
-			PageableTabularComponentBase<?> tbl = (PageableTabularComponentBase<?>) m_table;
+		if(m_table instanceof PageableTabularComponentBase<?> tbl) {
 			Span reco = new Span();
 			reco.addCssClass("ui-dp2-nurec");
 			reco.add(Msgs.uiPagerRecordCount.format(tbl.getResultCount()));
@@ -344,7 +335,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	}
 
 	public void addButton(IIconRef image, final IClicked<DataPager2> click, final BundleRef bundle, final String ttlkey) {
-		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager2.this));
+		SmallImgButton i = new SmallImgButton(image, b -> click.clicked(DataPager2.this));
 		if(bundle != null)
 			i.setTitle(bundle.getString(ttlkey));
 		else if(ttlkey != null)

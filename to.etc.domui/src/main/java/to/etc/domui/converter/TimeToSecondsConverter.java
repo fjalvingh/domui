@@ -38,10 +38,10 @@ public class TimeToSecondsConverter implements IConverter<Integer> {
 		int time = in.intValue();
 		if(time >= HOURS) {
 			int hours = Math.abs(time / HOURS);
-			Integer min = new Integer((time % HOURS) / 60);
+			Integer min = Integer.valueOf((time % HOURS) / 60);
 			return hours + ":" + String.format("%02d", min);
 		} else {
-			Integer min = new Integer(time / 60);
+			Integer min = Integer.valueOf(time / 60);
 			return "0:" + String.format("%02d", min);
 		}
 	}

@@ -41,7 +41,7 @@ import java.text.NumberFormat;
  */
 public class MaxMinValidator implements IParameterizedValidator<Number> {
 	@NonNull
-	private Number m_max = 0l, m_min = 0l;
+	private Number m_max = 0L, m_min = 0L;
 
 	@Nullable
 	private final UIMessage m_msg;

@@ -238,8 +238,7 @@ public class SessionStorageUtil {
 	}
 
 	private static boolean setIdentifiableValue(@NonNull QDataContext dc, @NonNull IControl< ? > control, @NonNull Class< ? > type, @NonNull Object id, @Nullable Object existingValue) throws Exception {
-		if(id instanceof Long) {
-			Long longId = (Long) id;
+		if(id instanceof Long longId) {
 			IIdentifyable<Long> val = (IIdentifyable<Long>) dc.find(type, longId);
 			if(!MetaManager.areObjectsEqual(val, existingValue)) {
 				((IControl<IIdentifyable<Long>>) control).setValue(val);

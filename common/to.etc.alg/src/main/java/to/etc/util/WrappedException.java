@@ -80,7 +80,7 @@ public class WrappedException extends RuntimeException {
 				Throwable t = x.getCause();
 				if(!(t instanceof Exception)) // Can we unwrap?
 					break; // No, keep wrapped
-				x = (Exception) x.getCause();
+				x = x.getCause();
 			} else
 				break;
 		}

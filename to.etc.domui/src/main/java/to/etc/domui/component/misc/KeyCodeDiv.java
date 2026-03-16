@@ -47,6 +47,6 @@ public class KeyCodeDiv extends Div {
 		sb.append("WebUI.clicked(this, '").append(getActualID()).append("');\n");
 		sb.append("}\n");
 		sb.append("});\n");
-		appendCreateJS(sb);;
+		appendCreateJS(sb);
 	}
 }

@@ -7,6 +7,7 @@ import to.etc.domui.server.BrowserVersion;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -120,10 +121,8 @@ public class MapParameterContainer implements IBasicParameterContainer {
 	public boolean equals(Object o) {
 		if(this == o)
 			return true;
-		if(! (o instanceof MapParameterContainer))
+		if(! (o instanceof MapParameterContainer that))
 			return false;
-
-		MapParameterContainer that = (MapParameterContainer) o;
 
 		if(m_dataLength != that.m_dataLength)
 			return false;
@@ -135,7 +134,7 @@ public class MapParameterContainer implements IBasicParameterContainer {
 			return false;
 		if(!m_browserVersion.equals(that.m_browserVersion))
 			return false;
-		return m_themeName != null ? m_themeName.equals(that.m_themeName) : that.m_themeName == null;
+		return Objects.equals(m_themeName, that.m_themeName);
 	}
 
 	@Override

@@ -244,7 +244,7 @@ public class SshKeyUtils {
 
 				StringBuilder sb = new StringBuilder();
 				StringTool.dumpData(sb, data, AUTH_MAGIC.length, data.length);
-				System.out.println(sb.toString());
+				System.out.println(sb);
 
 				String cipherName = bs.readIntString(StandardCharsets.US_ASCII);
 				bs.readIntString(StandardCharsets.US_ASCII);		// kdfName
@@ -312,7 +312,7 @@ public class SshKeyUtils {
 	static private void dump(byte[] data) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		StringTool.dumpData(sb, data, 0, data.length);
-		System.out.println(sb.toString());
+		System.out.println(sb);
 	}
 
 	/**

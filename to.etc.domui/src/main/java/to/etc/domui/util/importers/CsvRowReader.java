@@ -398,7 +398,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	private void checkForErrors() {
 		if(!getErrorList().isEmpty()) {
-			throw new ImportValueException("CSV File format error at " + getErrorList().get(0).toString());
+			throw new ImportValueException("CSV File format error at " + getErrorList().get(0));
 		}
 	}
 
@@ -552,7 +552,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	public boolean readRecord() throws IOException {
 		boolean res = readRecordWithoutErrorCheck();
 		if(!m_errorList.isEmpty())
-			throw new ImportValueException("CSV File format error at " + m_errorList.get(0).toString());
+			throw new ImportValueException("CSV File format error at " + m_errorList.get(0));
 
 		//checkForErrors();
 		return res;

@@ -615,8 +615,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	public String getTextContents() {
 		StringBuilder sb = new StringBuilder();
 		for(NodeBase nb: this) {
-			if(nb instanceof TextNode) {
-				TextNode tn = (TextNode) nb;
+			if(nb instanceof TextNode tn) {
 				sb.append(tn.getText());
 			} else
 				return null;

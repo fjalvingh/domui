@@ -417,7 +417,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		clearMessage();
 
 		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
-		if((converted == null || converted.strip().isEmpty()) && isMandatory())
+		if((converted == null || converted.isBlank()) && isMandatory())
 			m_validated = false;
 		else {
 			try {

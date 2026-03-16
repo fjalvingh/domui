@@ -55,7 +55,7 @@ public class TestLoggerPage extends UrlPage {
 			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				LOG.info("Info Log that uses format 1 part message, values: {}", "[value1]");
 				LOG.info("Info Log that uses format 2 parts message, values: {} {}", "[value1]", "[value2]");
-				LOG.info("Info Log that uses format 3 parts message, values: {} {} {}", new String[]{"[value1]", "[value2]", "[value3]"});
+				LOG.info("Info Log that uses format 3 parts message, values: {} {} {}", "[value1]", "[value2]", "[value3]");
 				add("Added formatted lines to log");
 				add(new BR());
 			}

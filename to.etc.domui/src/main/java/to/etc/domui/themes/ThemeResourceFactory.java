@@ -56,7 +56,7 @@ final public class ThemeResourceFactory implements IResourceFactory {
 	 * @param name
 	 * @return
 	 */
-	static public final String[] splitThemeResourceURL(String name) {
+	static public String[] splitThemeResourceURL(String name) {
 		if(!name.startsWith(PREFIX))
 			throw new IllegalArgumentException("Not a theme RURL: '" + name + "'");
 		String real = name.substring(PREFIX.length()); // Strip $THEME/

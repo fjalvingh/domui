@@ -70,7 +70,7 @@ public class JavaPropertyAccessor<V> implements IPropertyModelAccessor<V> {
 	public List<Object> getAnnotations() {
 		if(m_info != null && m_info.getGetter() != null) {
 			@NonNull
-			List<Object> res = Arrays.asList((Object[]) m_info.getGetter().getAnnotations());
+			List<Object> res = Arrays.asList(m_info.getGetter().getAnnotations());
 			return res;
 		}
 		return Collections.emptyList();

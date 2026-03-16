@@ -93,7 +93,7 @@ final public class ScreenInspector {
 	public BufferedImage elementScreenshot(String by) {
 		WebElement element = m_wd.findElement(by);
 		if(null == element)
-			throw new ElementNotFoundException(by.toString());
+			throw new ElementNotFoundException(by);
 		return elementScreenshot(element);
 	}
 

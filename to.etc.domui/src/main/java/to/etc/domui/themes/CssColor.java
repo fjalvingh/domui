@@ -218,7 +218,7 @@ final public class CssColor {
 	}
 
 	public String det() {
-		return toString() + " (lum=" + luminance() + ", bri=" + colorBrightness() + ")";
+		return this + " (lum=" + luminance() + ", bri=" + colorBrightness() + ")";
 	}
 
 

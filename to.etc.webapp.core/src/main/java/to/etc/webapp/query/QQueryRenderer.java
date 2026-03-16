@@ -165,8 +165,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 		m_curPrec = 0;
 
 		QOperatorNode expr = n.getExpr();
-		if(expr instanceof QLiteral) {
-			QLiteral lit = (QLiteral) expr;
+		if(expr instanceof QLiteral lit) {
 			Object value = lit.getValue();
 			if(value instanceof List) {
 				List<Object> list = (List<Object>) value;

@@ -93,8 +93,7 @@ public class ClasspathInventory {
 	static private void findUrlsFor(Set<File> result, ClassLoader loader) {
 		if(loader == null)
 			return;
-		if(loader instanceof URLClassLoader) {
-			URLClassLoader ucl = (URLClassLoader) loader;
+		if(loader instanceof URLClassLoader ucl) {
 			for(URL u : ucl.getURLs()) {
 				addUrl(result, u);
 			}

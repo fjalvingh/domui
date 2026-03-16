@@ -169,8 +169,7 @@ final public class HibernateConfiguratorInstance {
 	 */
 	public void addClasses(Class<?>... classes) {
 		requireUnconfigured();
-		for(Class<?> clz : classes)
-			m_annotatedClassList.add(clz);
+		Collections.addAll(m_annotatedClassList, classes);
 	}
 
 	/**

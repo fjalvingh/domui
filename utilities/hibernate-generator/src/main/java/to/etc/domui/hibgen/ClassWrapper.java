@@ -351,8 +351,7 @@ class ClassWrapper {
 		for(BodyDeclaration<?> d : m_rootType.getMembers()) {
 			if(d instanceof FieldDeclaration) {
 				handleFieldDeclaration((FieldDeclaration) d);
-			} else if(d instanceof MethodDeclaration) {
-				MethodDeclaration md = (MethodDeclaration) d;
+			} else if(d instanceof MethodDeclaration md) {
 				handleMethodDeclaration(md);
 			}
 		}
@@ -470,8 +469,7 @@ class ClassWrapper {
 			return;
 		}
 
-		if(ax instanceof NormalAnnotationExpr) {
-			NormalAnnotationExpr annotationExpr = (NormalAnnotationExpr) ax;
+		if(ax instanceof NormalAnnotationExpr annotationExpr) {
 
 			if(name.equals("Column")) {
 				String columnName = null;
@@ -524,11 +522,10 @@ class ClassWrapper {
 	}
 
 	private void handleTableAnnotation(AnnotationExpr tableAnn) {
-		if(!(tableAnn instanceof NormalAnnotationExpr)) {
+		if(!(tableAnn instanceof NormalAnnotationExpr nax)) {
 			return;
 		}
 
-		NormalAnnotationExpr nax = (NormalAnnotationExpr) tableAnn;
 		String tableName = null;
 		String schemaName = null;
 		for(MemberValuePair pair : nax.getPairs()) {
@@ -827,10 +824,8 @@ class ClassWrapper {
 	public void order() {
 		NodeList<BodyDeclaration<?>> members = m_rootType.getMembers();
 		members.sort((a, b) -> {
-			if(a instanceof FieldDeclaration) {
-				if(b instanceof FieldDeclaration) {
-					FieldDeclaration fa = (FieldDeclaration) a;
-					FieldDeclaration fb = (FieldDeclaration) b;
+			if(a instanceof FieldDeclaration fa) {
+				if(b instanceof FieldDeclaration fb) {
 					return compareName(fa.getVariables().get(0).getName().asString(), fb.getVariables().get(0).getName().asString());
 				} else {
 					return -1;            // field < method
@@ -839,10 +834,8 @@ class ClassWrapper {
 				return 1;
 			}
 
-			if(a instanceof MethodDeclaration) {
-				if(b instanceof MethodDeclaration) {
-					MethodDeclaration fa = (MethodDeclaration) a;
-					MethodDeclaration fb = (MethodDeclaration) b;
+			if(a instanceof MethodDeclaration fa) {
+				if(b instanceof MethodDeclaration fb) {
 					return compareName(fa.getName().asString(), fb.getName().asString());
 				} else
 					return 1;
@@ -947,8 +940,7 @@ class ClassWrapper {
 	@SuppressWarnings("squid:S3655") // Bad positive: isPresent is called on the optional
 	protected Type importIf(Type type) {
 		String name;
-		if(type instanceof ClassOrInterfaceType) {
-			ClassOrInterfaceType ct = (ClassOrInterfaceType) type;
+		if(type instanceof ClassOrInterfaceType ct) {
 			name = ct.getName().asString();
 		} else {
 			name = type.asString();
@@ -1400,14 +1392,13 @@ class ClassWrapper {
 			return;
 
 		Type type = primaryKey.getPropertyType();
-		if(!(type instanceof PrimitiveType)) {
+		if(!(type instanceof PrimitiveType ptype)) {
 			return;
 		}
 
 		//-- If the PK was coming from existing Java code, report an error.
 		if(!primaryKey.isNew())
 			error("primary key is primitive type, this is not allowed. Changing it to become a wrapper type.");
-		PrimitiveType ptype = (PrimitiveType) type;
 
 		ClassOrInterfaceType newType;
 		if(type.asString().equals("int") && g().isForcePkToLong()) {

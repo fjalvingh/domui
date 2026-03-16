@@ -16,6 +16,7 @@ import to.etc.util.StringTool;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This Web part accepts requests ending in .scss, and compiles them into a .css stylesheet on-the-fly.
@@ -53,7 +54,7 @@ public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
 
 		pr.setMime("text/css");
 		try(OutputStream outputStream = pr.getOutputStream()) {
-			OutputStreamWriter osw = new OutputStreamWriter(outputStream, "utf-8");
+			OutputStreamWriter osw = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
 			compiler.compiler(rurl, osw, params, rdl);
 			osw.close();
 		}

@@ -87,7 +87,7 @@ final public class PropertyValueConverter<T> implements IConverter<T> {
 			if(value != null) {
 				if(sb.length() > 0)
 					sb.append(" ");
-				sb.append(String.valueOf(value));
+				sb.append(value);
 			}
 		}
 		return sb.toString();

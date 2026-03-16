@@ -288,7 +288,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 				if(todo-- <= 0) {
 					//-- Could not allocate job- exit and try again in x minutes.
 					synchronized(this) {
-						m_tsNextCheck = System.currentTimeMillis() + 1 * 60 * 1000; // Every 5 minutes if queue is empty
+						m_tsNextCheck = System.currentTimeMillis() + 60 * 1000; // Every 5 minutes if queue is empty
 					}
 					dbc.commit();
 					return null;
@@ -410,9 +410,8 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 					IPendingOperationExecutor pox = findExecutor(op);
 					if(null == pox)                                            // We should find one, but do not abort at this level
 						return null;
-					if(!(pox instanceof IPendingOperationExecutor2))        // No way to know if skipping the failed one is allowed?
+					if(!(pox instanceof IPendingOperationExecutor2 px2))        // No way to know if skipping the failed one is allowed?
 						return null;
-					IPendingOperationExecutor2 px2 = (IPendingOperationExecutor2) pox;
 					if(!px2.isSkipFailedAllowed(op))                        // We're not allowed to run this group -> skip it.
 						return null;
 

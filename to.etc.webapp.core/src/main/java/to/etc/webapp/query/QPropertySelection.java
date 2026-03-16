@@ -40,7 +40,7 @@ final public class QPropertySelection extends QSelectionItem {
 	 * @param function
 	 * @param property
 	 */
-	protected QPropertySelection(QSelectionFunction function, String property) {
+	QPropertySelection(QSelectionFunction function, String property) {
 		super(function);
 		m_property = property;
 	}

@@ -48,7 +48,7 @@ public class TestDbBeforeImages {
 	@NonNull
 	private Album getTestableAlbum() throws Exception {
 		List<Album> list = m_dc.query(QCriteria.create(Album.class).isnotnull("artist").limit(1));
-		Assert.assertTrue(!list.isEmpty());
+		Assert.assertFalse(list.isEmpty());
 		return list.get(0);
 	}
 
@@ -59,7 +59,7 @@ public class TestDbBeforeImages {
 	@Test
 	public void testSimpleLoad() throws Exception {
 		List<Album> list = m_dc.query(QCriteria.create(Album.class).isnotnull("artist").limit(10));
-		Assert.assertTrue(!list.isEmpty());
+		Assert.assertFalse(list.isEmpty());
 
 		BuggyHibernateBaseContext dc = (BuggyHibernateBaseContext) m_dc;
 

@@ -114,7 +114,7 @@ final public class Bug {
 		} else if(!gll.isEmpty()) {
 			executor.execute(() -> report(gll, bi));
 		}
-		if(true || (gll.isEmpty() && threadListeners.isEmpty())) {
+		if(true) {
 			//-- No one listens -> report to console.
 			LOG.error(bi.toString());
 			Throwable x = bi.getException();
@@ -137,11 +137,9 @@ final public class Bug {
 
 		String hash = item.getHash();
 		BugOccurrence occ = m_occurrenceMap.computeIfAbsent(hash, a -> new BugOccurrence());
-		if(occ.m_count++ >= m_maxDuplicates)
-			return true;
+		return occ.m_count++ >= m_maxDuplicates;
 
 		//-- We're still below the rate-> allow this one.
-		return false;
 	}
 
 	private static void addContributions(BugItem bi) {
@@ -151,7 +149,7 @@ final public class Bug {
 			} catch(Exception x) {
 				LOG.error("=== Exception in BUG contributor ==="
 					+ "\nListener class   : " + contributor.getClass().getName()
-					+ "\nListener toString: " + contributor.toString()
+					+ "\nListener toString: " + contributor
 					, x);
 			}
 		}
@@ -164,7 +162,7 @@ final public class Bug {
 			} catch(Exception x) {
 				LOG.error("=== Exception in BUG listener ==="
 						+ "\nListener class   : " + listener.getClass().getName()
-						+ "\nListener toString: " + listener.toString()
+						+ "\nListener toString: " + listener
 					, x);
 			}
 		}
@@ -341,7 +339,7 @@ final public class Bug {
 					} catch(Exception x) {
 						LOG.error("=== Exception in BUG contributor ==="
 								+ "\nListener class   : " + listener.getClass().getName()
-								+ "\nListener toString: " + listener.toString()
+								+ "\nListener toString: " + listener
 							, x);
 					}
 				}

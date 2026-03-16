@@ -176,7 +176,7 @@ public class ExcelImportRow implements IImportRow {
 			}
 
 		} catch(Exception x) {
-			throw new ImportValueException(x, "@[" + cell.getSheet().getSheetName() + ":" + cell.getAddress() + "] " + x.toString());
+			throw new ImportValueException(x, "@[" + cell.getSheet().getSheetName() + ":" + cell.getAddress() + "] " + x);
 			//throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress().getRow()+ ", " + m_cell.getAddress().getColumn() + "] " + x.toString());
 		}
 
@@ -300,7 +300,7 @@ public class ExcelImportRow implements IImportRow {
 					base = null;
 				}
 
-				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress() + "], value '" + base + "': " + x.toString());
+				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress() + "], value '" + base + "': " + x);
 				//throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress().getRow()+ ", " + m_cell.getAddress().getColumn() + "] " + x.toString());
 			}
 		}

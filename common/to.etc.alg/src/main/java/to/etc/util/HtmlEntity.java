@@ -209,7 +209,7 @@ public class HtmlEntity {
 		}
 
 		//-- Ok: code point found. Add to tables.
-		Integer iv = new Integer(val);
+		Integer iv = Integer.valueOf(val);
 		m_name_mp.put(name, iv);
 		m_val_mp.put(iv, name);
 		m_desc_mp.put(iv, cmt);
@@ -530,7 +530,7 @@ public class HtmlEntity {
 	 *	Main.
 	 */
 	@SuppressWarnings("rawtypes")
-	static public void main(String args[]) {
+	static public void main(String[] args) {
 		try {
 			//-- 1. Scan all .ent files.
 			if(args.length != 2)
@@ -556,7 +556,7 @@ public class HtmlEntity {
 			File of = new File(args[1]);
 			write(of);
 		} catch(Exception ex) {
-			System.out.println("Exception: " + ex.toString());
+			System.out.println("Exception: " + ex);
 		}
 	}
 

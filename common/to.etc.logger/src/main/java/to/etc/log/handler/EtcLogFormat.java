@@ -190,8 +190,7 @@ final public class EtcLogFormat {
 		if(!checkNextExceptions) {
 			return;
 		}
-		if(t instanceof SQLException) {
-			SQLException sx = (SQLException) t;
+		if(t instanceof SQLException sx) {
 			int loggedNextExceptions = 0;
 			while(sx.getNextException() != null && sx != sx.getNextException()) {
 				sx = sx.getNextException();

@@ -50,7 +50,7 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 	public void testTwoMustHaveInput() throws Exception {
 		//-- Two MUST have an input
 		WebElement two = wd().getElement("two");
-		Assert.assertTrue("Two must have 'input' because it HAS QuickSearch", two.findElements(By.tagName("input")).size() == 1);
+		Assert.assertEquals("Two must have 'input' because it HAS QuickSearch", 1, two.findElements(By.tagName("input")).size());
 	}
 
 	@Test

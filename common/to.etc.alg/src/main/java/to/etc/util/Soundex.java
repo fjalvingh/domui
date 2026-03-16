@@ -31,7 +31,7 @@ package to.etc.util;
  */
 public class Soundex {
 	/** Length, */
-	public static final transient int	NO_MAX		= -1;
+	public static final int	NO_MAX		= -1;
 
 	/** T when final 's' of word is dropped */
 	private boolean						m_dropLastS	= false;

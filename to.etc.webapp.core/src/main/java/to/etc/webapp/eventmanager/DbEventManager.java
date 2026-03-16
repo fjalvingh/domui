@@ -161,7 +161,7 @@ public class DbEventManager implements Runnable {
 
 	static private final long DELETEINTERVAL = 10L * 60 * 1000;
 
-	static private final long POLLINTERVAL = 1L * 1000;
+	static private final long POLLINTERVAL = (long) 1000;
 
 	static private class Item {
 		Object m_obj;

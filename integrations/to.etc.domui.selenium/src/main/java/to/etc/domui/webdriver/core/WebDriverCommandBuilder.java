@@ -38,7 +38,7 @@ final public class WebDriverCommandBuilder {
 	}
 
 	@NonNull
-	protected WebDriver driver() {
+	private WebDriver driver() {
 		return m_wd.driver();
 	}
 

@@ -426,10 +426,10 @@ public class ConversationContext extends AbstractConversationContext implements 
 			if(pp == null)
 				sb.append("(no parameters)");
 			else {
-				sb.append(pp.toString());
+				sb.append(pp);
 			}
 
-			System.out.println(sb.toString());
+			System.out.println(sb);
 		}
 		super.dump();
 	}

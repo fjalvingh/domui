@@ -42,19 +42,15 @@ public class QCriteriaExporter<T> extends AbstractObjectExporter<T> {
 
 		List<T> list = m_dc.query(m_query);
 		m_exportWriter.startExport(m_columnList);
-		try {
-			int count = 0;
-			p.setTotalWork(list.size() + (list.size() / 100));
-			for(T t : list) {
-				if(++count >= rowLimit) {
-					break;
-				}
-				m_exportWriter.exportRow(t);
-				p.setCompleted(count);
+		int count = 0;
+		p.setTotalWork(list.size() + (list.size() / 100));
+		for(T t : list) {
+			if(++count >= rowLimit) {
+				break;
 			}
-			return list.size() >= rowLimit ? ExportResult.TRUNCATED : ExportResult.COMPLETED;
-		} finally {
-			//m_exportWriter.close();					// We do not own exportWriter, this leads to double close.
+			m_exportWriter.exportRow(t);
+			p.setCompleted(count);
 		}
+		return list.size() >= rowLimit ? ExportResult.TRUNCATED : ExportResult.COMPLETED;
 	}
 }

@@ -17,7 +17,7 @@ public class ArrayIterator<T> implements Iterator<T> {
 
 	private int			m_index	= 0;
 
-	public ArrayIterator(@NonNull T anArray[]) {
+	public ArrayIterator(@NonNull T[] anArray) {
 		m_array = anArray;
 	}
 

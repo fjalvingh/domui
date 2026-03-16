@@ -76,7 +76,7 @@ abstract public class JanitorTask {
 		if(m_t_interval == -1)
 			throw new RuntimeException("JanitorTask " + m_taskname + ": attempt to reschedule a run-once");
 		long dt = m_j.getTime(); // Get current time,
-		dt += 1000 * m_t_interval; // Add the interval, in millis
+		dt += 1000L * m_t_interval; // Add the interval, in millis
 		return dt;
 	}
 

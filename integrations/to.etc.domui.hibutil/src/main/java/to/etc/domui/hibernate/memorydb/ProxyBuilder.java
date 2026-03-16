@@ -41,9 +41,7 @@ class ProxyBuilder {
 			pf.setSuperclass(actualType);
 			pf.setFilter(new MethodFilter() {
 				@Override public boolean isHandled(Method m) {
-					if(IGNOREMETHODS.contains(m.getName()))
-						return false;
-					return true;
+					return !IGNOREMETHODS.contains(m.getName());
 				}
 			});
 			proxyClass = (Class<Proxy>) pf.createClass();
@@ -51,7 +49,7 @@ class ProxyBuilder {
 		}
 
 		//-- Now create the instance using the method handler for loading
-		Proxy proxy = (Proxy) proxyClass.newInstance();
+		Proxy proxy = proxyClass.newInstance();
 		proxy.setHandler(new MethodHandler() {
 			private T m_copy;
 
@@ -60,7 +58,7 @@ class ProxyBuilder {
 				T copy = m_copy;
 				if(null == copy) {
 					//-- We need to instantiate the copy.
-					m_copy = copy = (T) dc.loadCopyButDoNotRegister(attribute.getRelationEntity(), originalValue);
+					m_copy = copy = dc.loadCopyButDoNotRegister(attribute.getRelationEntity(), originalValue);
 				}
 				return thisMethod.invoke(copy, args);
 			}
@@ -78,14 +76,12 @@ class ProxyBuilder {
 			pf.setSuperclass(ArrayList.class);
 			pf.setFilter(new MethodFilter() {
 				@Override public boolean isHandled(Method m) {
-					if(IGNOREMETHODS.contains(m.getName()))
-						return false;
-					return true;
+					return !IGNOREMETHODS.contains(m.getName());
 				}
 			});
 			m_listProxyClass = listProxyClass = (Class<Proxy>) pf.createClass();
 		}
-		Proxy proxy = (Proxy) listProxyClass.newInstance();
+		Proxy proxy = listProxyClass.newInstance();
 		proxy.setHandler(new MethodHandler() {
 			@Nullable
 			private List<Object> m_copy;

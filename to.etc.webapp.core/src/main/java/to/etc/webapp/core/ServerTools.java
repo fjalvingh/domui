@@ -252,7 +252,7 @@ final public class ServerTools {
 		return m_mimemap_p;
 	}
 
-	static public final String makeTimeString() {
+	static public String makeTimeString() {
 		Calendar c = new GregorianCalendar();
 
 		//-- Format is 18!12:17:21

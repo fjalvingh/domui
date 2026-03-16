@@ -393,7 +393,7 @@ public class ConverterRegistry {
 
 	static public <T> Comparator<T> getComparator(@NonNull Class<T> dataClass, @NonNull String property, boolean descending) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
-		return (Comparator<T>) getComparator(cmm, property, descending);
+		return getComparator(cmm, property, descending);
 	}
 
 	/**

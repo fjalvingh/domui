@@ -165,7 +165,7 @@ public class Application extends DomApplication {
 			FileTool.delete(tmp);
 			tmp.mkdirs();
 			String dbPath = tmp.getAbsolutePath();
-			DbUtil.initialize(TestDB.getDataSource(dbPath.toString()));
+			DbUtil.initialize(TestDB.getDataSource(dbPath));
 		} else {
 			//-- Local machine normal run: use a well-known database to prevent reloading it every run.
 			File appFile = getAppFile(".").getAbsoluteFile();

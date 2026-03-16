@@ -52,7 +52,7 @@ final public class LockHandler {
 	 * ones and throw {@link ResourceLockedException}.
 	 */
 	@NonNull
-	final public synchronized Locker lock(@NonNull String who, @NonNull Lock... instances) {
+	public synchronized Locker lock(@NonNull String who, @NonNull Lock... instances) {
 		Locker locker = getLocker(who); 							// Locks get administered on this later on.
 		lock(locker, instances);
 		return locker;
@@ -65,7 +65,7 @@ final public class LockHandler {
 	 * ones and throw {@link ResourceLockedException}.
 	 */
 	@NonNull
-	final public synchronized Locker lock(@NonNull String who, @NonNull List<Lock> locks) {
+	public synchronized Locker lock(@NonNull String who, @NonNull List<Lock> locks) {
 		Locker locker = getLocker(who); 							// Locks get administered on this later on.
 		lock(locker, locks.toArray(new Lock[locks.size()]));
 		return locker;
@@ -75,7 +75,7 @@ final public class LockHandler {
 	/**
 	 * Called to extend a lock. This includes upgrading shared locks to exclusive.
 	 */
-	final synchronized void lock(@NonNull Locker locker, @NonNull Lock[] instances) {
+	synchronized void lock(@NonNull Locker locker, @NonNull Lock[] instances) {
 		if(instances.length == 0)
 			return;
 //			throw new IllegalStateException("Nothing passed to lock..");

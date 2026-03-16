@@ -51,8 +51,7 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 
 	@Override public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm, @NonNull DefaultPropertyMetaModel<?> pmm) throws Exception {
 		for(Object aobj : pmm.getAnnotations()) {
-			if(aobj instanceof Annotation) {
-				Annotation an = (Annotation) aobj;
+			if(aobj instanceof Annotation an) {
 				String ana = an.annotationType().getName();
 				decodePropertyAnnotation(cmm, pmm, an);
 			}

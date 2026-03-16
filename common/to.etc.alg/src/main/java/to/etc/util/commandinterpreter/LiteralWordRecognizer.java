@@ -17,9 +17,7 @@ final class LiteralWordRecognizer implements IWordRecognizer {
 
 	@Override
 	public boolean recognize(CommandContext ctx, String word) {
-		if(m_matcher.matcher(word).matches())
-			return true;
-		return false;
+		return m_matcher.matcher(word).matches();
 	}
 
 }

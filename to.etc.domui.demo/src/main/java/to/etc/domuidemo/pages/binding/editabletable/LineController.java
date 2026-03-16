@@ -6,6 +6,7 @@ import to.etc.domui.databinding.observables.ObservableList;
 import to.etc.util.DateUtil;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -82,7 +83,7 @@ public class LineController {
 				case Percentage:
 					BigDecimal percentage = line.getPercentage();
 					if(null != percentage) {
-						res = res.setScale(2, BigDecimal.ROUND_HALF_DOWN).add(getBudgeted().setScale(2, BigDecimal.ROUND_HALF_DOWN).multiply(percentage).setScale(2, BigDecimal.ROUND_HALF_DOWN).divide(new BigDecimal(100)));
+						res = res.setScale(2, RoundingMode.HALF_DOWN).add(getBudgeted().setScale(2, RoundingMode.HALF_DOWN).multiply(percentage).setScale(2, RoundingMode.HALF_DOWN).divide(new BigDecimal(100)));
 					}
 					break;
 			}

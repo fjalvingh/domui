@@ -90,11 +90,11 @@ public class JavascriptStmt {
 		} else if(object instanceof String) {
 			StringTool.strToJavascriptString(sb(), (String) object, false);
 		} else if(object instanceof Number) {
-			sb().append(object.toString());
+			sb().append(object);
 		} else if(object instanceof java.util.Date) {
 			sb().append(((java.util.Date) object).getTime());
 		} else if(object instanceof Boolean) {
-			sb().append(((Boolean) object).toString());
+			sb().append(object);
 		} else {
 			//-- Use JSON marshaller
 			sb().append(JSON.render(object));
@@ -131,7 +131,7 @@ public class JavascriptStmt {
 
 		st.select("_IZ").method("options").arg("hello").arg(Integer.valueOf(1)).arg(Boolean.TRUE).end().next();
 
-		System.out.println(sb.toString());
+		System.out.println(sb);
 
 		sb.setLength(0);
 

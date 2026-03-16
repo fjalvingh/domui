@@ -487,10 +487,9 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	public @NonNull String getRelativePath(@NonNull String rel) {
 		if(DomUtil.isAbsoluteURL(rel))
 			return rel;
-		StringBuilder sb = new StringBuilder(rel.length() + 128);
-		sb.append(m_requestResponse.getApplicationURL());
-		sb.append(rel);
-		return sb.toString();
+		String sb = m_requestResponse.getApplicationURL()
+			+ rel;
+		return sb;
 	}
 
 	/**

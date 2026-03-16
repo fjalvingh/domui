@@ -93,7 +93,7 @@ public class AnimGifDecoder {
 
 	private void dbg(String s) {
 		if(m_bc != 0) {
-			System.out.println("");
+			System.out.println();
 			m_bc = 0;
 		}
 		System.out.println("DBG: " + s);
@@ -177,11 +177,10 @@ public class AnimGifDecoder {
 		if(!(ar[0] == 'G' && ar[1] == 'I' && ar[2] == 'F' && ar[3] == '8' && (ar[4] == '7' || ar[4] == '9') && ar[5] == 'a'))
 			throw new IOException("File not recognised as a GIF image");
 		m_h_sig = ar;
-		StringBuffer sb = new StringBuffer(3);
-		sb.append((char) m_h_sig[3]);
-		sb.append((char) m_h_sig[4]);
-		sb.append((char) m_h_sig[5]);
-		m_h_version = sb.toString();
+		String sb = String.valueOf((char) m_h_sig[3])
+			+ (char) m_h_sig[4]
+			+ (char) m_h_sig[5];
+		m_h_version = sb;
 
 		//-- Followed by the Logical Screen Descriptor
 		m_h_lw = rdUShort();
@@ -396,7 +395,6 @@ public class AnimGifDecoder {
 				rdUByte(); // Read terminator
 
 			}
-				return;
 		}
 	}
 

@@ -103,14 +103,13 @@ final public class BindingBuilderUni<CV> {
 
 		//-- Check: are the types of the binding ok?
 		if(pmm instanceof PropertyMetaModel<?> && converter == null) {
-			PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;
+			PropertyMetaModel<?> p = pmm;
 			Class<?> actualType = DomUtil.getBoxedForPrimitive(p.getActualType());
 			Class<?> controlType = DomUtil.getBoxedForPrimitive(m_controlProperty.getActualType());
 
 			if(controlType == Object.class) {
 				//-- Type erasure, deep, deep sigh. Can the control tell us the actual type contained?
-				if(m_control instanceof ITypedControl) {
-					ITypedControl<?> typedControl = (ITypedControl<?>) m_control;
+				if(m_control instanceof ITypedControl<?> typedControl) {
 					controlType = DomUtil.getBoxedForPrimitive(typedControl.getActualType());
 				}
 			}

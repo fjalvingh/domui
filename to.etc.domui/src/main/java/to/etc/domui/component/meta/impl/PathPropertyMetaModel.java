@@ -76,7 +76,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	@NonNull
 	@Override
 	public String toString() {
-		return "PathProperty[" + m_dottedName + "@" + m_accessPath[0].getClassModel().toString() + "]";
+		return "PathProperty[" + m_dottedName + "@" + m_accessPath[0].getClassModel() + "]";
 	}
 
 	@NonNull
@@ -180,8 +180,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		BundleRef cb = m_original.getClassModel().getClassBundle();
 		if(null != cb) {
 			String s = cb.findMessage(loc, sb.toString());
-			if(s != null)
-				return s;
+			return s;
 		}
 		return null;
 	}

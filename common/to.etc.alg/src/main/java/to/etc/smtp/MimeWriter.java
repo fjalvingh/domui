@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Write MIME messages. Allows embedding MIME bodies.
@@ -88,7 +89,7 @@ public class MimeWriter {
 			m_boundaryString = "----bou-n-dar-y-=_" + StringTool.generateGUID() + "nr" + (root.m_boundaryCount++);
 			m_boundaryString = m_boundaryString.replace('$', 'X');		// $ not allowed in boundary string
 			try {
-				m_boundary = m_boundaryString.getBytes("iso-8859-1");
+				m_boundary = m_boundaryString.getBytes(StandardCharsets.ISO_8859_1);
 			} catch(Exception x) {}
 		}
 		return m_boundary;

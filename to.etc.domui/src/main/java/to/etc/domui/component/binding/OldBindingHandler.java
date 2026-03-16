@@ -131,8 +131,7 @@ final public class OldBindingHandler {
 		List<IBinding> list = nodeBase.getBindingList();
 		if(list != null) {
 			for(IBinding sb : list) {
-				if(sb instanceof ComponentPropertyBindingBidi) {
-					ComponentPropertyBindingBidi<?, ?, ?, ?> sib = (ComponentPropertyBindingBidi<?, ?, ?, ?>) sb;
+				if(sb instanceof ComponentPropertyBindingBidi<?, ?, ?, ?> sib) {
 					IValueAccessor<?> property = sib.getControlProperty();
 					if(property instanceof PropertyMetaModel) {
 						if(string.equals(((PropertyMetaModel<?>) property).getName()))

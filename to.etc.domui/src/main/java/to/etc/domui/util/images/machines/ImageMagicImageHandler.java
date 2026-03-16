@@ -197,86 +197,81 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	@Override
 	public ImageInfo identify(File input) throws Exception {
 		//		start();
-		try {
-			//-- Start with issuing a 'file' command, if available
-			StringBuilder sb = new StringBuilder(8192);
-			String typeDescription = null;
-			if(m_fileCommand != null) {
-				ProcessBuilder pb = new ProcessBuilder(m_fileCommand.getAbsolutePath(), "-b", input.getAbsolutePath());
-				int xc = ProcessTools.runProcess(pb, sb);
-				if(xc == 0) {
-					String txt = sb.toString().trim();
-					int len = txt.length();
-					int ix = 0;
-					while(ix < len) {
-						char c = txt.charAt(ix);
-						if(c != '\r' && c != '\n' && !Character.isWhitespace(c))
-							break;
-						ix++;
-					}
-					if(ix < len) {
-						int epos = txt.indexOf('\n', ix);
-						if(epos != -1)
-							txt = txt.substring(ix, epos).trim();
-						else
-							txt = txt.substring(ix).trim();
-					}
-					typeDescription = txt;
-				}
-			}
-
-			//-- Start 'identify' and capture the resulting data
-			ProcessBuilder pb = new ProcessBuilder(m_identify.toString(), "-ping", input.toString());
-			sb.setLength(0);
+		//-- Start with issuing a 'file' command, if available
+		StringBuilder sb = new StringBuilder(8192);
+		String typeDescription = null;
+		if(m_fileCommand != null) {
+			ProcessBuilder pb = new ProcessBuilder(m_fileCommand.getAbsolutePath(), "-b", input.getAbsolutePath());
 			int xc = ProcessTools.runProcess(pb, sb);
-			if(xc != 0) {
-				handleIdentifyError(input, xc, sb);
+			if(xc == 0) {
+				String txt = sb.toString().trim();
+				int len = txt.length();
+				int ix = 0;
+				while(ix < len) {
+					char c = txt.charAt(ix);
+					if(c != '\r' && c != '\n' && !Character.isWhitespace(c))
+						break;
+					ix++;
+				}
+				if(ix < len) {
+					int epos = txt.indexOf('\n', ix);
+					if(epos != -1)
+						txt = txt.substring(ix, epos).trim();
+					else
+						txt = txt.substring(ix).trim();
+				}
+				typeDescription = txt;
 			}
+		}
 
-			//			System.out.println("identify: result=" + sb.toString());
-			//-- Walk the resulting thingy
-			List<OriginalImagePage> list = new ArrayList<OriginalImagePage>();
-			LineNumberReader lr = new LineNumberReader(new StringReader(sb.toString()));
-			String mime = null;
-			String line;
-			while(null != (line = lr.readLine())) {
-				StringTokenizer st = new StringTokenizer(line, " \t");
+		//-- Start 'identify' and capture the resulting data
+		ProcessBuilder pb = new ProcessBuilder(m_identify.toString(), "-ping", input.toString());
+		sb.setLength(0);
+		int xc = ProcessTools.runProcess(pb, sb);
+		if(xc != 0) {
+			handleIdentifyError(input, xc, sb);
+		}
+
+		//			System.out.println("identify: result=" + sb.toString());
+		//-- Walk the resulting thingy
+		List<OriginalImagePage> list = new ArrayList<OriginalImagePage>();
+		LineNumberReader lr = new LineNumberReader(new StringReader(sb.toString()));
+		String mime = null;
+		String line;
+		while(null != (line = lr.readLine())) {
+			StringTokenizer st = new StringTokenizer(line, " \t");
+			if(st.hasMoreTokens()) {
+				String file = st.nextToken();
 				if(st.hasMoreTokens()) {
-					String file = st.nextToken();
+					String type = st.nextToken();
 					if(st.hasMoreTokens()) {
-						String type = st.nextToken();
-						if(st.hasMoreTokens()) {
-							String size = st.nextToken();
-							OriginalImagePage dap = decodePage(file, type, size);
-							if(dap != null) {
-								list.add(dap);
-								if(mime == null)
-									mime = dap.getMimeType();
-							}
+						String size = st.nextToken();
+						OriginalImagePage dap = decodePage(file, type, size);
+						if(dap != null) {
+							list.add(dap);
+							if(mime == null)
+								mime = dap.getMimeType();
 						}
 					}
 				}
 			}
-			if(list.isEmpty()) {
-				handleIdentifyError(input, xc, sb);
-			}
-			ImageInfo oid = new ImageInfo(mime, typeDescription, true, list);
-			return oid;
-		} finally {
-			//			done();
 		}
+		if(list.isEmpty()) {
+			handleIdentifyError(input, xc, sb);
+		}
+		ImageInfo oid = new ImageInfo(mime, typeDescription, true, list);
+		return oid;
 	}
 
 	private void handleIdentifyError(File imageFile, int xc, StringBuilder output) {
-		final StringBuilder errorMessage = new StringBuilder();
-		errorMessage.append("Identify failed for file: ");
-		errorMessage.append(imageFile.toString());
-		errorMessage.append('\n');
-		errorMessage.append("Identify exited with code ");
-		errorMessage.append(xc);
-		errorMessage.append('\n');
-		errorMessage.append(output.length() == 0 ? "Identify returned 0 lines." : output.toString());
-		throw new IllegalStateException(errorMessage.toString());
+		String errorMessage = "Identify failed for file: "
+			+ imageFile.toString()
+			+ '\n'
+			+ "Identify exited with code "
+			+ xc
+			+ '\n'
+			+ (output.length() == 0 ? "Identify returned 0 lines." : output.toString());
+		throw new IllegalStateException(errorMessage);
 	}
 
 	static private OriginalImagePage decodePage(String file, String type, String size) {
@@ -342,7 +337,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			int xc = ProcessTools.runProcess(pb, sb);
 			//			System.out.println("convert: " + sb.toString());
 			if(xc != 0)
-				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb.toString());
+				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb);
 			return new ImageSpec(tof, targetMime, width, height);
 		} finally {
 			done();
@@ -380,7 +375,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			int xc = ProcessTools.runProcess(pb, sb);
 			//			System.out.println("convert: " + sb.toString());
 			if(xc != 0)
-				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb.toString());
+				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb);
 			return new ImageSpec(tof, targetMime, width, height);
 		} finally {
 			done();
@@ -403,9 +398,9 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			LOG.info("Command: " + pb.command().toString());
 			StringBuilder sb = new StringBuilder(8192);
 			int xc = ProcessTools.runProcess(pb, sb);
-			LOG.info("convert: " + sb.toString());
+			LOG.info("convert: " + sb);
 			if(xc != 0)
-				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb.toString());
+				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb);
 			return new ImageSpec(tof, targetMime, pi.getWidth(), pi.getHeight());
 		} finally {
 			done();

@@ -5,7 +5,7 @@
 
 ( function( factory ) {
 	"use strict";
-	
+
 	if ( typeof define === "function" && define.amd ) {
 
 		// AMD. Register as an anonymous module.
@@ -4152,7 +4152,7 @@ if ( !$.fn.even || !$.fn.odd ) {
 	} );
 }
 
-;
+
 /*!
  * jQuery UI Keycode 1.13.2
  * http://jqueryui.com

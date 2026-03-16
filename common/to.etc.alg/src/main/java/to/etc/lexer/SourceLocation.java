@@ -75,7 +75,7 @@ public class SourceLocation {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		if(m_src != null) {
-			sb.append(m_src.toString());
+			sb.append(m_src);
 			sb.append('(');
 		} else
 			sb.append("Line ");

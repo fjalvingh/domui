@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -174,7 +175,7 @@ public class LogTailerTask implements IConversationStateListener {
 				if(loff >= sz || loff + len > sz)
 					throw new IllegalStateException("Indexing overflow");
 
-				String line = new String(data, loff, len, "utf-8");
+				String line = new String(data, loff, len, StandardCharsets.UTF_8);
 				res.add(line);
 			}
 			sline++;

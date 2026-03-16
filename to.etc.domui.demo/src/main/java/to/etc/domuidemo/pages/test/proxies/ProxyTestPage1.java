@@ -27,7 +27,7 @@ import to.etc.domui.dom.html.UrlPage;
  */
 public class ProxyTestPage1 extends UrlPage {
 	public enum MyValues {
-		My, Name, Is, Ozymandias, King, Of, Kings;
+		My, Name, Is, Ozymandias, King, Of, Kings
 	}
 
 	@Override

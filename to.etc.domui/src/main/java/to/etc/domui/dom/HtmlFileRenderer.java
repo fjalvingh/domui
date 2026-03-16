@@ -103,7 +103,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 		public void download(@NonNull String fileName) throws Exception {
 			File tempFile = File.createTempFile("ht-", ".html");
-			try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), "utf-8")) {
+			try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
 				HtmlFileRenderer fr = HtmlFileRenderer.create(osw, m_root);
 				fr.addHeaderContributors(m_contributors);
 				fr.render(UIContext.getRequestContext());
@@ -157,7 +157,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	static public void download(@NonNull NodeContainer resultFragment, @NonNull String fileName) throws Exception {
 		File tempFile = File.createTempFile("ht-", ".html");
-		try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), "utf-8")) {
+		try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
 			HtmlFileRenderer fr = HtmlFileRenderer.create(osw, resultFragment);
 			fr.render(UIContext.getRequestContext());
 
@@ -423,7 +423,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 		o().writeRaw("<style type='text/css'>\n");
 		try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
-			try(InputStreamReader isr = new InputStreamReader(bbis, "utf-8")) {
+			try(InputStreamReader isr = new InputStreamReader(bbis, StandardCharsets.UTF_8)) {
 				String cssStr = FileTool.readStreamAsString(isr);
 				cssStr = xmlStringize(cssStr);
 				o().writeRaw(cssStr);
@@ -439,7 +439,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 			return;
 		}
 		try(InputStream is = requireNonNull(resource.getInputStream())) {
-			try(InputStreamReader isr = new InputStreamReader(is, "utf-8")) {
+			try(InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
 				String str = FileTool.readStreamAsString(isr);
 				str = xmlStringize(str);
 				o().writeRaw(str);
@@ -483,7 +483,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		try {
 			PartData data = DomApplication.get().getPartService().getData(pp);
 			try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
-				try(InputStreamReader isr = new InputStreamReader(bbis, "utf-8")) {
+				try(InputStreamReader isr = new InputStreamReader(bbis, StandardCharsets.UTF_8)) {
 					String cssStr = FileTool.readStreamAsString(isr);
 					cssStr = xmlStringize(cssStr);
 

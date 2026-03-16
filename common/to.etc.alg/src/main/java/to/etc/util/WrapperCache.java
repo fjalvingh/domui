@@ -68,7 +68,7 @@ public class WrapperCache {
 		if(pValue >= BYTE_LOWER_BOUND && pValue <= BYTE_UPPER_BOUND)
 			return m_bytes[pValue - BYTE_LOWER_BOUND];
 		else
-			return new Byte(pValue);
+			return Byte.valueOf(pValue);
 	}
 
 	public static Character getCharacter(char pValue) {
@@ -82,21 +82,21 @@ public class WrapperCache {
 		if(pValue >= SHORT_LOWER_BOUND && pValue <= SHORT_UPPER_BOUND)
 			return m_shorts[pValue - SHORT_LOWER_BOUND];
 		else
-			return new Short(pValue);
+			return Short.valueOf(pValue);
 	}
 
 	public static Integer getInteger(int pValue) {
 		if(pValue >= INTEGER_LOWER_BOUND && pValue <= INTEGER_UPPER_BOUND)
 			return m_ints[pValue - INTEGER_LOWER_BOUND];
 		else
-			return new Integer(pValue);
+			return Integer.valueOf(pValue);
 	}
 
 	public static Long getLong(long pValue) {
 		if(pValue >= LONG_LOWER_BOUND && pValue <= LONG_UPPER_BOUND)
 			return m_longs[((int) pValue) - LONG_LOWER_BOUND];
 		else
-			return new Long(pValue);
+			return Long.valueOf(pValue);
 	}
 
 	public static Float getFloat(float pValue) {
@@ -159,7 +159,7 @@ public class WrapperCache {
 		Short[] ret = new Short[len];
 		short val = (short) SHORT_LOWER_BOUND;
 		for(int i = 0; i < len; i++, val++)
-			ret[i] = new Short(val);
+			ret[i] = Short.valueOf(val);
 		return ret;
 	}
 
@@ -168,7 +168,7 @@ public class WrapperCache {
 		Integer[] ret = new Integer[len];
 		int val = INTEGER_LOWER_BOUND;
 		for(int i = 0; i < len; i++, val++)
-			ret[i] = new Integer(val);
+			ret[i] = Integer.valueOf(val);
 		return ret;
 	}
 
@@ -177,7 +177,7 @@ public class WrapperCache {
 		Long[] ret = new Long[len];
 		long val = LONG_LOWER_BOUND;
 		for(int i = 0; i < len; i++, val++)
-			ret[i] = new Long(val);
+			ret[i] = Long.valueOf(val);
 		return ret;
 	}
 
@@ -186,7 +186,7 @@ public class WrapperCache {
 		Byte[] ret = new Byte[len];
 		byte val = (byte) BYTE_LOWER_BOUND;
 		for(int i = 0; i < len; i++, val++)
-			ret[i] = new Byte(val);
+			ret[i] = Byte.valueOf(val);
 		return ret;
 	}
 

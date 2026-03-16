@@ -185,10 +185,9 @@ final public class DomUtil {
 	 * Define (or clear) the x-ua-compatible value sent for this page. When not called
 	 * this defaults to the value defined by the ms-emulation property in web.xml.
 	 */
-	static public final void setPageCompatibility(@NonNull HttpServletResponse req, @Nullable String comp) throws IOException {
-		if(!(req instanceof WrappedHttpServetResponse))
+	static public void setPageCompatibility(@NonNull HttpServletResponse req, @Nullable String comp) throws IOException {
+		if(!(req instanceof WrappedHttpServetResponse wsr))
 			return;
-		WrappedHttpServetResponse wsr = (WrappedHttpServetResponse) req;
 		wsr.setIeEmulationMode(comp);
 	}
 
@@ -196,10 +195,10 @@ final public class DomUtil {
 	 * FIXME REMOVE!??!
 	 */
 	@Deprecated
-	static public final void ie8Capable(HttpServletResponse req) throws IOException {
+	static public void ie8Capable(HttpServletResponse req) throws IOException {
 	}
 
-	static public final boolean isEqualOLD(final Object a, final Object b) {
+	static public boolean isEqualOLD(final Object a, final Object b) {
 		if(a == b)
 			return true;
 		if(a == null || b == null)
@@ -207,7 +206,7 @@ final public class DomUtil {
 		return a.equals(b);
 	}
 
-	static public final boolean isEqual(final Object a, final Object b) {
+	static public boolean isEqual(final Object a, final Object b) {
 		if(a == b)
 			return true;
 		if(a == null || b == null)
@@ -231,11 +230,11 @@ final public class DomUtil {
 	 * Use {@link StringTool#isEqualIgnoreCase(String, String)} please.
 	 */
 	@Deprecated
-	static public final boolean isEqualIgnoreCase(@Nullable String a, @Nullable String b) {
+	static public boolean isEqualIgnoreCase(@Nullable String a, @Nullable String b) {
 		return StringTool.isEqualIgnoreCase(a, b);
 	}
 
-	static public final boolean isEqual(final Object... ar) {
+	static public boolean isEqual(final Object... ar) {
 		if(ar.length < 2)
 			throw new IllegalStateException("Silly.");
 		Object a = ar[0];
@@ -270,7 +269,7 @@ final public class DomUtil {
 		return true;
 	}
 
-	static public final Class<?> findClass(@NonNull final ClassLoader cl, @NonNull final String name) {
+	static public Class<?> findClass(@NonNull final ClassLoader cl, @NonNull final String name) {
 		try {
 			return cl.loadClass(name);
 		} catch(Exception x) {
@@ -278,7 +277,7 @@ final public class DomUtil {
 		}
 	}
 
-	static public final Class<?> getUnproxiedClass(@NonNull Class<?> clz) {
+	static public Class<?> getUnproxiedClass(@NonNull Class<?> clz) {
 		String name = clz.getName();
 		if(name.contains("$$") || name.contains("$HibernateProxy$"))    // Sigh
 			clz = clz.getSuperclass();                                    // Enhanced class (Hibernate). Get base class instead
@@ -353,7 +352,7 @@ final public class DomUtil {
 	 * name of a method that *must* exist; it does not add a "get". If the method
 	 * does not exist this throws an exception.
 	 */
-	static public final Object getClassValue(@NonNull final Object inst, @NonNull final String name) throws Exception {
+	static public Object getClassValue(@NonNull final Object inst, @NonNull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
 		Class<?> clz = inst.getClass();
@@ -478,8 +477,7 @@ final public class DomUtil {
 		NodeBase start = in;
 
 		//-- If we're delegated then test the delegate 1st
-		if(in instanceof NodeContainer) {
-			NodeContainer nc = (NodeContainer) in;
+		if(in instanceof NodeContainer nc) {
 			if(nc.getDelegate() != null) {
 				IErrorFence ef = getMessageFence(nc.getDelegate());
 				if(null != ef)
@@ -496,7 +494,7 @@ final public class DomUtil {
 				for(; ; ) {
 					if(start != in)
 						sb.append(" -> ");
-					sb.append(start.toString());
+					sb.append(start);
 					if(!start.hasParent())
 						break;
 					start = start.getParent();
@@ -504,8 +502,7 @@ final public class DomUtil {
 
 				throw new IllegalStateException(sb.toString());
 			}
-			if(start instanceof NodeContainer) {
-				NodeContainer nc = (NodeContainer) start;
+			if(start instanceof NodeContainer nc) {
 				IErrorFence errorFence = nc.getErrorFence();
 				if(errorFence != null)
 					return errorFence;
@@ -532,7 +529,7 @@ final public class DomUtil {
 		byte[] bin = new byte[18];
 		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed
 		ByteArrayUtil.setShort(bin, 4, (short) (Math.random() * 65536));
-		long v = System.currentTimeMillis() / 1000 - (m_guidSeed * 60);
+		long v = System.currentTimeMillis() / 1000 - (m_guidSeed * 60L);
 		ByteArrayUtil.setInt(bin, 6, (int) v);
 		ByteArrayUtil.setLong(bin, 10, System.nanoTime());
 
@@ -797,8 +794,7 @@ final public class DomUtil {
 	 */
 	static public void buildTree(final NodeBase p) throws Exception {
 		p.build();
-		if(p instanceof NodeContainer) {
-			NodeContainer nc = (NodeContainer) p;
+		if(p instanceof NodeContainer nc) {
 			for(NodeBase c : nc)
 				buildTree(c);
 		}
@@ -812,8 +808,7 @@ final public class DomUtil {
 		if(clz.isAssignableFrom(p.getClass()))
 			return (T) p;
 		p.build();
-		if(p instanceof NodeContainer) {
-			NodeContainer nc = (NodeContainer) p;
+		if(p instanceof NodeContainer nc) {
 			for(NodeBase c : nc) {
 				T res = findComponentInTree(c, clz);
 				if(res != null)
@@ -842,15 +837,12 @@ final public class DomUtil {
 		//-- Count the max. row length (max #cells in a row)
 		int maxcol = 0;
 		for(NodeBase b : table) { // For all TBody's
-			if(b instanceof TBody) {
-				TBody tb = (TBody) b;
+			if(b instanceof TBody tb) {
 				for(NodeBase b2 : tb) { // For all TR's
-					if(b2 instanceof TR) {
-						TR tr = (TR) b2;
+					if(b2 instanceof TR tr) {
 						int count = 0;
 						for(NodeBase b3 : tr) {
-							if(b3 instanceof TD) {
-								TD td = (TD) b3;
+							if(b3 instanceof TD td) {
 								count += td.getColspan() > 0 ? td.getColspan() : 1;
 							}
 						}
@@ -865,15 +857,12 @@ final public class DomUtil {
 		 * Adjust all rows that have less cells than the maximum by specifying a colspan on every last cell.
 		 */
 		for(NodeBase b : table) { // For all TBody's
-			if(b instanceof TBody) {
-				TBody tb = (TBody) b;
+			if(b instanceof TBody tb) {
 				for(NodeBase b2 : tb) { // For all TR's
-					if(b2 instanceof TR) {
-						TR tr = (TR) b2;
+					if(b2 instanceof TR tr) {
 						int count = 0;
 						for(NodeBase b3 : tr) {
-							if(b3 instanceof TD) {
-								TD td = (TD) b3;
+							if(b3 instanceof TD td) {
 								count += td.getColspan() > 0 ? td.getColspan() : 1;
 							}
 						}
@@ -910,18 +899,16 @@ final public class DomUtil {
 			if(l0 instanceof THead || l0 instanceof TBody) {
 				//-- Walk all rows.
 				for(NodeBase trb : ((NodeContainer) l0)) {
-					if(!(trb instanceof TR))
+					if(!(trb instanceof TR tr))
 						throw new IllegalStateException("Unexpected child of type " + l0 + " in TBody/THead node (expecting TR)");
-					TR tr = (TR) trb;
 					int minrowspan = 1;
 
 					//-- Start traversing the TD's.
 					List<TD> baserowlist = getTdList(matrix, rowindex);
 					int colindex = 0;
 					for(NodeBase tdb : tr) {
-						if(!(tdb instanceof TD))
+						if(!(tdb instanceof TD td))
 							throw new IllegalStateException("Unexpected child of type " + tr + " in TBody/THead node (expecting TD)");
-						TD td = (TD) tdb;
 
 						int colspan = td.getColspan();
 						int rowspan = td.getRowspan();
@@ -1002,8 +989,7 @@ final public class DomUtil {
 			if(next == curr)
 				next = null;
 
-			if(curr instanceof SQLException) {
-				SQLException sx = (SQLException) curr;
+			if(curr instanceof SQLException sx) {
 				while(sx.getNextException() != null) {
 					sx = sx.getNextException();
 					USERLOG.error("SQL NextException: " + sx);
@@ -1031,8 +1017,7 @@ final public class DomUtil {
 			if(next == curr)
 				next = null;
 
-			if(curr instanceof SQLException) {
-				SQLException sx = (SQLException) curr;
+			if(curr instanceof SQLException sx) {
 				while(sx.getNextException() != null) {
 					sx = sx.getNextException();
 					sb.append("SQL NextException: " + sx).append("\n");
@@ -1252,11 +1237,9 @@ final public class DomUtil {
 		if(s != null)
 			return s;
 		s = br.findMessage(loc, root + ".title");
-		if(s != null)
-			return s;
+		return s;
 
 		//-- No annotation, or the annotation did not deliver data. Try the menu.
-		return null;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1573,7 +1556,7 @@ final public class DomUtil {
 	static public Cookie findCookie(@NonNull String name) {
 		IRequestContext rci = UIContext.getRequestContext();
 		Cookie[] car = rci.getRequestResponse().getCookies();
-		if(car == null || car.length == 0)
+		if(car == null)
 			return null;
 
 		for(Cookie c : car) {
@@ -1689,8 +1672,7 @@ final public class DomUtil {
 			return null;
 		if(v != null)
 			return v;
-		if(root instanceof NodeContainer) {
-			NodeContainer nc = (NodeContainer) root;
+		if(root instanceof NodeContainer nc) {
 			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
 				NodeBase ch = nc.getChild(i);
 				v = walkTree(ch, handler);
@@ -1713,8 +1695,7 @@ final public class DomUtil {
 			return null;
 		if(v != null)
 			return v;
-		if(root instanceof NodeContainer) {
-			NodeContainer nc = (NodeContainer) root;
+		if(root instanceof NodeContainer nc) {
 			for(NodeBase ch : new ArrayList<>(nc.internalGetChildren())) {
 				//System.out.println(" >>> child " + ch);
 				v = walkTreeUndelegated(ch, handler);
@@ -1791,8 +1772,7 @@ final public class DomUtil {
 				wasModifiedBefore = ((IHasModifiedIndication) n).isModified();
 				((IHasModifiedIndication) n).setModified(true);
 			}
-			if(n instanceof IUserInputModifiedFence) {
-				IUserInputModifiedFence fenceNode = (IUserInputModifiedFence) n;
+			if(n instanceof IUserInputModifiedFence fenceNode) {
 				if(!wasModifiedBefore || fenceNode.receiveNewModifications()) {
 					fenceNode.onModifyFlagRaised();
 				}
@@ -2267,7 +2247,7 @@ final public class DomUtil {
 			sb.append(text);
 			return true;
 		} else if(todo > 0) {
-			sb.append(text.substring(0, todo));
+			sb.append(text, 0, todo);
 		}
 		return false;
 	}

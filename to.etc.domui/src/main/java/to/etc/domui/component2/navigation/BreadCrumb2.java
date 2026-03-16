@@ -157,8 +157,7 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 				if(noclick)
 					return;
 
-				if(p instanceof ShelvedDomUIPage) {
-					ShelvedDomUIPage pg = (ShelvedDomUIPage) p;
+				if(p instanceof ShelvedDomUIPage pg) {
 					UIGoto.moveSub(pg.getPage().getBody().getClass(), pg.getPage().getPageParameters());
 				} else {
 					UIGoto.redirect(p.getURL());

@@ -10,11 +10,11 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 final public class Problems {
 	private Problems() {}
 
-	static public final <T> void mandatory(@NonNull ProblemModel model, @NonNull T instance, @NonNull String property) {
+	static public <T> void mandatory(@NonNull ProblemModel model, @NonNull T instance, @NonNull String property) {
 		MandatoryProblem.INSTANCE.check(model, instance, property);
 	}
 
-	static public final <T, V> void mandatory(@NonNull ProblemModel model, @NonNull T instance, @NonNull PropertyMetaModel<V> property) {
+	static public <T, V> void mandatory(@NonNull ProblemModel model, @NonNull T instance, @NonNull PropertyMetaModel<V> property) {
 		MandatoryProblem.INSTANCE.check(model, instance, property);
 	}
 }

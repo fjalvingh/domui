@@ -78,11 +78,10 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 	protected TelnetSession(TelnetServer srv, Socket s) {
 		m_s = s;
 		m_server = srv;
-		StringBuffer sb = new StringBuffer(40);
-		sb.append(m_s.getInetAddress().toString());
-		sb.append(":");
-		sb.append(Integer.toString(m_s.getPort()));
-		m_name = sb.toString();
+		String sb = m_s.getInetAddress().toString()
+			+ ":"
+			+ m_s.getPort();
+		m_name = sb;
 		m_cmd_sb = new StringBuffer(80);
 		m_tpw = new TelnetPrintWriter(new TelnetWriter(this));
 	}
@@ -407,7 +406,7 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 			}
 
 			m_cmd_sb.append((char) c);
-			_write(m_cmd_sb.toString().substring(m_cmd_sb.length() - 1));
+			_write(m_cmd_sb.substring(m_cmd_sb.length() - 1));
 		} catch(TelnetCommandException tcx) {
 			m_tpw.println("Error: " + tcx.getMessage());
 		} catch(Exception x) {

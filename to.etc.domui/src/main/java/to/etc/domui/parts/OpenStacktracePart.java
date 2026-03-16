@@ -28,7 +28,7 @@ final public class OpenStacktracePart implements IUnbufferedPartFactory {
 		String check = param.getPageParameters().getString("check", null);
 		if(null != check) {
 			w.print("{\"reload\":");
-			w.print(Long.toString(ReloadingContextMaker.getLastReload()));
+			w.print(ReloadingContextMaker.getLastReload());
 			w.print(".0}");
 		} else {
 			String stk = param.getPageParameters().getString("element", null);

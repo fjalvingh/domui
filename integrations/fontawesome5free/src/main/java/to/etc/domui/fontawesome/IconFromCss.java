@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,8 +57,8 @@ final public class IconFromCss {
 	}
 
 	private static void renderOutput(File src, List<String> names, Map<String, Ren> map) throws Exception {
-		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(src), "utf-8"))) {
-			try(OutputStreamWriter of = new OutputStreamWriter(new FileOutputStream(new File("/tmp/FaIcon.java")), "utf-8")) {
+		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(src), StandardCharsets.UTF_8))) {
+			try(OutputStreamWriter of = new OutputStreamWriter(new FileOutputStream(new File("/tmp/FaIcon.java")), StandardCharsets.UTF_8)) {
 				String s;
 
 				InSection section = InSection.COPY;
@@ -153,7 +154,7 @@ final public class IconFromCss {
 	}
 
 	private static List<String> loadNames(File file) throws Exception {
-		try(Reader r = new InputStreamReader(new FileInputStream(file), "utf-8") ) {
+		try(Reader r = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8) ) {
 			return new IconFromCss(r).render();
 		}
 	}
@@ -264,7 +265,7 @@ final public class IconFromCss {
 		File mapf = new File(f.getParent(), f.getName() + ".moves");
 
 		Map<String, Ren> map = new HashMap<>();
-		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(mapf), "utf-8")) ) {
+		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(mapf), StandardCharsets.UTF_8)) ) {
 			String s;
 
 			while(null != (s = r.readLine())) {

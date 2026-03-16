@@ -53,7 +53,7 @@ final public class TUtilHibutil {
 	static public String getCriteriaSQL(@NonNull Criteria crit) throws Exception {
 		CriteriaImpl c = (CriteriaImpl) crit;
 		SessionImpl s = (SessionImpl) c.getSession();
-		SessionFactoryImplementor factory = (SessionFactoryImplementor) s.getSessionFactory();
+		SessionFactoryImplementor factory = s.getSessionFactory();
 		String[] implementors = factory.getImplementors(c.getEntityOrClassName());
 		CriteriaLoader loader = new CriteriaLoader((OuterJoinLoadable) factory.getEntityPersister(implementors[0]), factory, c, implementors[0], s.getLoadQueryInfluencers());
 		Field f = OuterJoinLoader.class.getDeclaredField("sql");
@@ -101,7 +101,7 @@ final public class TUtilHibutil {
 	 * This parses a SQL string and tries to detect the primary FROM clause.
 	 */
 	@NonNull
-	static public final String getFromClause(@NonNull String sql) throws Exception {
+	static public String getFromClause(@NonNull String sql) throws Exception {
 		ReaderTokenizerBase rsb = new ReaderTokenizerBase(sql, new StringReader(sql));
 		rsb.setKeepQuotes(true);
 		rsb.setReturnWhitespace(true);
@@ -119,7 +119,7 @@ final public class TUtilHibutil {
 	static private final Set<String> JOINKWS = new HashSet<String>(Arrays.asList("inner", "outer", "left", "right", "join", "as"));
 
 	@NonNull
-	static public final Map<String, String> getTableAliasMap(@NonNull String fromclause) throws Exception {
+	static public Map<String, String> getTableAliasMap(@NonNull String fromclause) throws Exception {
 		ReaderTokenizerBase rsb = new ReaderTokenizerBase(fromclause, new StringReader(fromclause));
 		Map<String, String> res = new HashMap<String, String>();
 		int parencount = 0;
@@ -158,7 +158,7 @@ final public class TUtilHibutil {
 	}
 
 	@NonNull
-	static public final String getWhereClause(@NonNull String sql) throws Exception {
+	static public String getWhereClause(@NonNull String sql) throws Exception {
 		ReaderTokenizerBase rsb = new ReaderTokenizerBase(sql, new StringReader(sql));
 		rsb.setKeepQuotes(true);
 		rsb.setReturnWhitespace(true);
@@ -177,7 +177,7 @@ final public class TUtilHibutil {
 	 * This locates a "( select .... )" fragment and parses it till the end.
 	 */
 	@NonNull
-	static public final String getSubSelect(@NonNull String sql) throws Exception {
+	static public String getSubSelect(@NonNull String sql) throws Exception {
 		ReaderTokenizerBase rsb = new ReaderTokenizerBase(sql, new StringReader(sql));
 		rsb.setKeepQuotes(true);
 		rsb.setReturnWhitespace(true);
@@ -196,7 +196,7 @@ final public class TUtilHibutil {
 					return sb.toString();
 			} else if(parencount == 1) {
 				if(!collecting) {
-					if(t == ReaderScannerBase.T_IDENT && rsb.getCopied().toLowerCase().equals("select")) {
+					if(t == ReaderScannerBase.T_IDENT && rsb.getCopied().equalsIgnoreCase("select")) {
 						collecting = true;
 					}
 				}

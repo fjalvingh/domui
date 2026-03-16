@@ -146,8 +146,7 @@ abstract public class QRenderingVisitorBase implements QNodeVisitor { // jal: DO
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 			case SQL:
-				if(n.getNode() instanceof QLiteral) {
-					QLiteral l = (QLiteral) n.getNode();
+				if(n.getNode() instanceof QLiteral l) {
 					appendWhere((String) l.getValue());
 					return;
 				}

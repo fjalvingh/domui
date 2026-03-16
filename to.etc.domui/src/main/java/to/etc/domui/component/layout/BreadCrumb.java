@@ -80,8 +80,7 @@ public class BreadCrumb extends Div {
 				s = new Span();
 				s.setCssClass("ui-brc-c");
 			} else {
-				if(p instanceof ShelvedDomUIPage) {
-					ShelvedDomUIPage pg = (ShelvedDomUIPage) p;
+				if(p instanceof ShelvedDomUIPage pg) {
 					s = new ALink(pg.getPage().getBody().getClass(), pg.getPage().getPageParameters());
 				} else {
 					ATag a = new ATag();

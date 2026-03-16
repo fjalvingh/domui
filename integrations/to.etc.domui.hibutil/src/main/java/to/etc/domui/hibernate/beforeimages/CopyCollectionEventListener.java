@@ -21,10 +21,9 @@ public class CopyCollectionEventListener implements InitializeCollectionEventLis
 
 		//-- The only way to get hold of the QDataContext is through the Interceptor which must be of a type we support.
 		Interceptor ic = session.getInterceptor();
-		if(!(ic instanceof BeforeImageInterceptor))
+		if(!(ic instanceof BeforeImageInterceptor ccic))
 			throw new IllegalStateException("Interceptor must be of type 'CreateCopyInterceptor' to allow before-images");
 
-		BeforeImageInterceptor ccic = (BeforeImageInterceptor) ic;
 		ccic.collectionLoaded(event.getCollection());
 	}
 }

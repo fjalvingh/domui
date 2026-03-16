@@ -27,8 +27,7 @@ final public class ObjectLookupQueryBuilder<Q, D> implements ILookupQueryBuilder
 
 		// FIXME Handle minimal-size restrictions on input (search field metadata)
 		//-- Put the value into the criteria..
-		if(value instanceof String) {
-			String str = (String) value;
+		if(value instanceof String str) {
 
 			if(m_lookupWildcardByDefault) {
 				if(str.endsWith(".")) {

@@ -347,7 +347,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	}
 
 	@Override
-	final public T getValue() {
+	public T getValue() {
 		try {
 			validateBindValue();
 			setMessage(null);
@@ -369,12 +369,12 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		clearMessage();
 	}
 
-	final public T getBindValue() {
+	public T getBindValue() {
 		validateBindValue();
 		return m_value;
 	}
 
-	final public void setBindValue(T value) {
+	public void setBindValue(T value) {
 		if(MetaManager.areObjectsEqual(m_value, value)) {
 			return;
 		}

@@ -241,7 +241,7 @@ public class SecurityUtils {
 	 */
 	static public String getMd5HashBase36(@NonNull String in) {
 		try {
-			byte[] md5Hash = md5Hash(in.getBytes("UTF-8"));
+			byte[] md5Hash = md5Hash(in.getBytes(StandardCharsets.UTF_8));
 			String hexStr = StringTool.toHex(md5Hash);
 			return new BigInteger(hexStr, 16).toString(36).toLowerCase();
 		} catch(Exception x) {

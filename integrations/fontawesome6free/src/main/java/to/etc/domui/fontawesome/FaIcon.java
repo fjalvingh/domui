@@ -2441,7 +2441,6 @@ public class FaIcon implements IFontIconRef {
 	public static final FaIcon faZap = register(new FaIcon("fa-zap","fas"));
 	public static final FaIcon faZhihu = register(new FaIcon("fa-zhihu","fab"));
 	///--- END ICONS
-	;
 
 	///--- BEGIN MAP
 	static public void initializeIcons() {
@@ -3129,7 +3128,6 @@ public class FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faYoutubeSquare, FaIcon.faYoutubeSquare);
 	}
 	///--- END MAP
-	;
 
 	private final String m_css;
 	private final String m_prefix;

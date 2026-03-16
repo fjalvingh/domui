@@ -55,7 +55,7 @@ public final class ByteArrayUtil {
 		long a = ByteArrayUtil.getInt(ba, offset + 4); // Get the 4 most significant bytes (int).
 		long b = ByteArrayUtil.getInt(ba, offset); // Get the 4 less significant byted (int).
 		a = a << 32; // Make them the 4 most significant bytes.
-		b = b & 0x00000000ffffffffl; // Make sure the sign is removed (possible sign for the 4 most significant bytes).
+		b = b & 0x00000000ffffffffL; // Make sure the sign is removed (possible sign for the 4 most significant bytes).
 		b |= a; // Merge the two values
 
 		return b; // Return the original long.

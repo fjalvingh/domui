@@ -14,7 +14,7 @@ import org.junit.Test;
 public class TestRxLifecycle {
 	@Test
 	public void testLifeCycle1() throws Exception {
-		PublishSubject<String> ps = PublishSubject.<String>create();
+		PublishSubject<String> ps = PublishSubject.create();
 
 		@NonNull Observable<String> replay = ps.replay(1000).autoConnect();
 

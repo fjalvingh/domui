@@ -65,18 +65,16 @@ public class PogRadioGroup extends AbstractPoProxyGenerator implements IPoProxyG
 			return;
 		}
 
-		if(value instanceof Boolean) {
-			Boolean bo = (Boolean) value;
-			sb.append(String.valueOf(bo));
+		if(value instanceof Boolean bo) {
+			sb.append(bo);
 			return;
 		}
 
-		if(value instanceof Enum) {
+		if(value instanceof Enum<?> env) {
 			Class<?> clz = value.getClass();
 			RefType enumc = new RefType(clz.getPackageName(), clz.getSimpleName());
 			rc.addImport(enumc);
 
-			Enum<?> env = (Enum<?>) value;
 			sb.append(clz.getSimpleName()).append('.').append(env.name());
 			return;
 		}

@@ -78,7 +78,7 @@ final public class SortableObservableListModelAdapter<T> implements ITableModel<
 		m_listeners.remove(l);
 	}
 
-	protected List<ITableModelListener<T>> getListeners() {
+	private List<ITableModelListener<T>> getListeners() {
 		return m_listeners;
 	}
 

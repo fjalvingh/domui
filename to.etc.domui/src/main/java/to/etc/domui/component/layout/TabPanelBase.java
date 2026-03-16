@@ -196,10 +196,9 @@ public class TabPanelBase extends Div {
 	 * Close the given tab instance. This will call the onClose listener if present.
 	 */
 	public void closeTab(@NonNull ITabHandle th) throws Exception {
-		if(!(th instanceof TabInstance)) {
+		if(!(th instanceof TabInstance ti)) {
 			throw new IllegalArgumentException("Only instance of TabInstance can be used for closing a tab.");
 		}
-		TabInstance ti = (TabInstance) th;
 		if(ti.getTabPanel() != this)
 			throw new IllegalStateException("The tab handle does not belong to this tab panel");
 
@@ -378,10 +377,8 @@ public class TabPanelBase extends Div {
 
 	public boolean setCurrentTab(@NonNull final ITabHandle tabHandle) throws Exception {
 
-		if(!(tabHandle instanceof TabInstance))
+		if(!(tabHandle instanceof TabInstance ti))
 			throw new IllegalArgumentException("Only instance of TabInstance can be used for setting the current tab.");
-
-		TabInstance ti = (TabInstance) tabHandle;
 
 		int index = m_tablist.indexOf(ti);
 		if(index == -1) {

@@ -73,7 +73,7 @@ public class JsonTypeRegistry {
 		return null;
 	}
 
-	static private final Set<String> IGNORESET = new HashSet<>(Arrays.asList("class"));
+	static private final Set<String> IGNORESET = new HashSet<>(List.of("class"));
 
 	@Nullable
 	public synchronized <T> ITypeMapping createMapping(@NonNull Class<T> clz, @Nullable Type type) {

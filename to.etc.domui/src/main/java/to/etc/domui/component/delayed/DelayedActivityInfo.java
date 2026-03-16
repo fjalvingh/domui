@@ -72,7 +72,7 @@ final public class DelayedActivityInfo implements Runnable {
 	@Nullable
 	private Thread m_thread;
 
-	protected DelayedActivityInfo(@NonNull DelayedActivitiesManager manager, @NonNull IAsyncRunnable activity, @NonNull AsyncContainer ac, int priority) {
+	DelayedActivityInfo(@NonNull DelayedActivitiesManager manager, @NonNull IAsyncRunnable activity, @NonNull AsyncContainer ac, int priority) {
 		m_activity = activity;
 		m_manager = manager;
 		m_container = ac;

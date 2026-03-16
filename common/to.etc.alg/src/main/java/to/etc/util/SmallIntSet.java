@@ -56,9 +56,8 @@ public class SmallIntSet implements Serializable {
 
 	@Override
 	public boolean equals(Object other) {
-		if(!(other instanceof SmallIntSet))
+		if(!(other instanceof SmallIntSet o))
 			return false;
-		SmallIntSet o = (SmallIntSet) other;
 		if(o.size() != size())
 			return false;
 		if(size() == 0)

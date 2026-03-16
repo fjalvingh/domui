@@ -76,8 +76,7 @@ final public class ExceptionUtil {
 		if(null != res)
 			return res;
 
-		if(in instanceof SQLException) {
-			SQLException sx = (SQLException) in;
+		if(in instanceof SQLException sx) {
 			SQLException next = sx.getNextException();
 			if(next != in && next != null) {
 				res = findException(next, matcher);
@@ -99,9 +98,7 @@ final public class ExceptionUtil {
 	 */
 	public static boolean isBugException(Throwable t) {
 		String packageName = t.getClass().getPackageName();
-		if(packageName.startsWith("java.lang"))
-			return true;
-		return false;
+		return packageName.startsWith("java.lang");
 	}
 
 }

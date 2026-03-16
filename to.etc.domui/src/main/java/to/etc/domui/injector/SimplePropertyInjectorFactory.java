@@ -106,7 +106,7 @@ final public class SimplePropertyInjectorFactory implements IPagePropertyFactory
 			RuntimeConversions.isEnumType(ent);
 	}
 
-	protected PropertyInjector createParameterInjector(PropertyInfo pi, String name, boolean mandatory) {
+	private PropertyInjector createParameterInjector(PropertyInfo pi, String name, boolean mandatory) {
 		return new UrlParameterInjector(pi, name, mandatory);
 	}
 }

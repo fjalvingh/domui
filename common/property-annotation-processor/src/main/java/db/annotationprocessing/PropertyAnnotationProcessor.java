@@ -147,7 +147,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 					 */
 					if(!e1.getMessage().toLowerCase().contains("source file already exists")) {
 						e1.printStackTrace();
-						messager.printMessage(Kind.ERROR, e1.toString() + " in " + getClass(), classElement);
+						messager.printMessage(Kind.ERROR, e1 + " in " + getClass(), classElement);
 					}
 				}
 			}

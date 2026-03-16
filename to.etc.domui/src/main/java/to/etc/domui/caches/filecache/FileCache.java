@@ -51,7 +51,7 @@ public class FileCache {
 	private File m_cacheRoot;
 
 	/** Max size in cached files (10GB default) */
-	private long m_maxFileSize = 10l * 1024l * 1024l * 1024l;
+	private long m_maxFileSize = 10L * 1024L * 1024L * 1024L;
 
 	private long m_currentFileSize = 0;
 

@@ -237,7 +237,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 		input.setMaxLength(maxLen);
 		input.setSize(size);
 
-		return confirmInBlood(title, "", input, "", (v1, v2) -> !isBlank(v2), Msgs.reason.toString() + ":", actionBtnTitle, actionButtonIcon, onConfirm);
+		return confirmInBlood(title, "", input, "", (v1, v2) -> !isBlank(v2), Msgs.reason + ":", actionBtnTitle, actionButtonIcon, onConfirm);
 	}
 
 	/**

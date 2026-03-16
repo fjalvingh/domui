@@ -728,12 +728,11 @@ public class MultipartStream {
 	 */
 	@Override
 	public String toString() {
-		StringBuffer sbTemp = new StringBuffer();
-		sbTemp.append("boundary='");
-		sbTemp.append(String.valueOf(boundary));
-		sbTemp.append("'\nbufSize=");
-		sbTemp.append(bufSize);
-		return sbTemp.toString();
+		String sbTemp = "boundary='"
+			+ boundary
+			+ "'\nbufSize="
+			+ bufSize;
+		return sbTemp;
 	}
 
 	/**

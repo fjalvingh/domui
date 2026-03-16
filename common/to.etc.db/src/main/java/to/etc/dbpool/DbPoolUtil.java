@@ -174,17 +174,17 @@ public class DbPoolUtil {
 			sb.append(msg);
 			sb.append("\n");
 			getFilteredStacktrace(sb, x);
-			System.out.println(sb.toString());
+			System.out.println(sb);
 		}
 	}
 
 	static public void getThreadAndLocation(StringBuilder sb) {
 		sb.append("At ");
-		sb.append(new java.util.Date().toString());
+		sb.append(new Date());
 		sb.append(" in thread ");
 		sb.append(Thread.currentThread().getName());
 		sb.append(" (");
-		sb.append(Thread.currentThread().toString());
+		sb.append(Thread.currentThread());
 		sb.append("), stack:\n");
 
 		try {
@@ -303,13 +303,13 @@ public class DbPoolUtil {
 		while(i < TIMESET.length) {
 			if(ns >= TIMESET[i]) {
 				long u = ns / TIMESET[i];
-				sb.append(Long.toString(u));
+				sb.append(u);
 				sb.append(SUFFIXES[i]);
 				sb.append(' ');
 				u = ns % TIMESET[i];
 				i++;
 				u = u / TIMESET[i];
-				sb.append(Long.toString(u));
+				sb.append(u);
 				sb.append(SUFFIXES[i]);
 				return sb.toString();
 			}
@@ -346,13 +346,13 @@ public class DbPoolUtil {
 		while(i < MSTIMESET.length) {
 			if(ns >= MSTIMESET[i]) {
 				long u = ns / MSTIMESET[i];
-				sb.append(Long.toString(u));
+				sb.append(u);
 				sb.append(MSSUFFIXES[i]);
 				sb.append(' ');
 				u = ns % MSTIMESET[i];
 				i++;
 				u = u / MSTIMESET[i];
-				sb.append(Long.toString(u));
+				sb.append(u);
 				sb.append(MSSUFFIXES[i]);
 				return sb.toString();
 			}
@@ -616,10 +616,10 @@ public class DbPoolUtil {
 
 		long v = (sz / div);
 		long r = (sz % div) / (div / 10);
-		sb.append(Long.toString(v));
+		sb.append(v);
 		if(r != 0) {
 			sb.append(".");
-			sb.append(Long.toString(r));
+			sb.append(r);
 		}
 		sb.append(" ");
 		sb.append(sf);

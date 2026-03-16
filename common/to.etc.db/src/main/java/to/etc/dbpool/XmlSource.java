@@ -92,9 +92,9 @@ public class XmlSource extends PoolConfigSource {
 				id = "unknown-source";
 			m_xmlerr_sb.append(id);
 			m_xmlerr_sb.append('(');
-			m_xmlerr_sb.append(Integer.toString(exception.getLineNumber()));
+			m_xmlerr_sb.append(exception.getLineNumber());
 			m_xmlerr_sb.append(':');
-			m_xmlerr_sb.append(Integer.toString(exception.getColumnNumber()));
+			m_xmlerr_sb.append(exception.getColumnNumber());
 			m_xmlerr_sb.append(") ");
 			m_xmlerr_sb.append(type);
 			m_xmlerr_sb.append(":");
@@ -164,7 +164,7 @@ public class XmlSource extends PoolConfigSource {
 				throw new Exception(f + ": xml parse errors: " + deh.getErrors());
 			return getRootElement(doc);
 		} catch(IOException x) {
-			throw new IOException("XML Parser IO error on " + f + ": " + x.toString());
+			throw new IOException("XML Parser IO error on " + f + ": " + x);
 		}
 	}
 

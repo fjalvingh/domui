@@ -421,7 +421,7 @@ public class FileTool {
 	 * Copies a file of max. 1GB.
 	 */
 	static public void copyFile(@NonNull File destf, @NonNull File srcf) throws IOException {
-		copyFile(destf, srcf, 1 * GB);
+		copyFile(destf, srcf, GB);
 	}
 
 	static public void copyFile(@NonNull File destf, @NonNull File srcf, long maxSize) throws IOException {
@@ -435,7 +435,7 @@ public class FileTool {
 	 * Copies the inputstream to the output stream, limited to 1GB of data(!).
 	 */
 	static public void copyFile(@NonNull OutputStream os, @NonNull InputStream is) throws IOException {
-		copyFile(os, is, 1 * GB);
+		copyFile(os, is, GB);
 	}
 
 	static public void copyFile(@NonNull OutputStream os, @NonNull InputStream is, long maxSize) throws IOException {
@@ -1154,7 +1154,7 @@ public class FileTool {
 	 * Unzips an archive. Max file size (and total expanded size) is 1GB.
 	 */
 	public static void unzip(File dest, InputStream is) throws Exception {
-		unzip(dest, is, 1 * GB, 1 * GB);
+		unzip(dest, is, GB, GB);
 	}
 
 	public static void unzip(File dest, InputStream is, long maxFileSize, long maxTotalSize) throws Exception {
@@ -1194,7 +1194,7 @@ public class FileTool {
 	}
 
 	public static void unzipSingleFile(File dest, InputStream is) throws Exception {
-		unzipSingleFile(dest, is, 1 * GB);
+		unzipSingleFile(dest, is, GB);
 	}
 
 	public static void unzipSingleFile(File dest, InputStream is, long maxFileSize) throws Exception {
@@ -1222,7 +1222,7 @@ public class FileTool {
 	 * created if it does not yet exist.
 	 */
 	public static void unzip(final File dest, final File zipfile) throws Exception {
-		unzip(dest, zipfile, 1 * GB, 1 * GB);
+		unzip(dest, zipfile, GB, GB);
 	}
 
 	public static void unzip(final File dest, final File zipfile, long maxFileSize, long maxTotalSize) throws Exception {
@@ -1677,7 +1677,7 @@ public class FileTool {
 			try {
 				tryClose(o);
 			} catch(Exception x) {
-				sb.append("Failed to close ").append(o).append(": ").append(x.toString()).append("\n");
+				sb.append("Failed to close ").append(o).append(": ").append(x).append("\n");
 				StringTool.strStacktrace(sb, x);
 			}
 		}

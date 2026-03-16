@@ -395,11 +395,10 @@ public class PGDataSync {
 	}
 
 	private void where(String s) {
-		StringBuilder sb = new StringBuilder();
 		double pct = ((double) m_recordsDone / m_srcRecordCount * 100.0);
-		sb.append("Table ").append(m_tablesDone).append("/").append(m_tablesTotal).append(" ").append(String.format("%.1f", pct)).append("% ").append(m_currentTable.getName()).append("> ").append(s)
-			.append("\n");
-		System.out.print(sb.toString());
+		String sb = "Table " + m_tablesDone + "/" + m_tablesTotal + " " + String.format("%.1f", pct) + "% " + m_currentTable.getName() + "> " + s
+			+ "\n";
+		System.out.print(sb);
 	}
 
 	/*--------------------------------------------------------------*/

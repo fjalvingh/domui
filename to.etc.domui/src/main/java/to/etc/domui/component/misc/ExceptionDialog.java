@@ -155,7 +155,7 @@ final public class ExceptionDialog {
 			StringBuilder sb = new StringBuilder();
 			StringTool.strStacktrace(sb, x);
 			Pre pre = new Pre();
-			pre.add(message + "\n" + x.toString() + "\n\n" + sb);
+			pre.add(message + "\n" + x + "\n\n" + sb);
 
 			MsgBox2.on(container)
 				.title("An error has occurred")

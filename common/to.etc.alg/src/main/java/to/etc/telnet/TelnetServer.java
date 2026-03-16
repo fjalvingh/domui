@@ -148,10 +148,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 		if(csd.currIs("stdout")) {
 			if(csd.hasMore()) {
 				String n = csd.getNext();
-				if("on".equalsIgnoreCase(n) || "true".equalsIgnoreCase(n) || "capture".equals(n))
-					setCapture(true);
-				else
-					setCapture(false);
+				setCapture("on".equalsIgnoreCase(n) || "true".equalsIgnoreCase(n) || "capture".equals(n));
 			}
 			tpw.println("Stdout state is: " + (m_capturing_stdout ? "capturing stdout" : "not capturing stdout"));
 			return;
@@ -178,7 +175,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 			cmd.reset();
 			return tch.executeTelnetCommand(tpw, cmd);
 		} catch(Exception x) {
-			tpw.println("Exception in command: " + x.toString());
+			tpw.println("Exception in command: " + x);
 			x.printStackTrace(tpw);
 		}
 		return false;
@@ -375,7 +372,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 			}
 
 		} catch(Exception x) {
-			System.out.println("EXCEPTION: " + x.toString());
+			System.out.println("EXCEPTION: " + x);
 			x.printStackTrace();
 		}
 	}
@@ -437,7 +434,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 				System.setOut(ps);
 				System.setErr(ps);
 			} catch(Exception x) {
-				System.err.println("LogMaster: startTelnet failed, " + x.toString());
+				System.err.println("LogMaster: startTelnet failed, " + x);
 				x.printStackTrace();
 			}
 		}

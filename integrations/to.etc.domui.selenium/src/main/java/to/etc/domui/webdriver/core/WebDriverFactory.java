@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -197,7 +198,7 @@ final class WebDriverFactory {
 				+ "</edit>\n"
 				+ "</match>";
 			try(FileOutputStream fos = new FileOutputStream(conf)) {
-				fos.write(text.getBytes("UTF-8"));
+				fos.write(text.getBytes(StandardCharsets.UTF_8));
 			}
 			m_fontConfigDir = fontConfigDir;
 		}
@@ -326,7 +327,7 @@ final class WebDriverFactory {
 			+ "</edit>\n"
 			+ "</match>";
 		try(FileOutputStream fos = new FileOutputStream(dotfont)) {
-			fos.write(text.getBytes("UTF-8"));
+			fos.write(text.getBytes(StandardCharsets.UTF_8));
 		}
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {

@@ -181,7 +181,7 @@ final public class ConnectionProxy implements Connection {
 	}
 
 	@NonNull
-	protected IConnectionEventListener statsHandler() {
+	IConnectionEventListener statsHandler() {
 		return m_pe.getPool().getManager().getConnectionEventListener();
 	}
 
@@ -192,7 +192,7 @@ final public class ConnectionProxy implements Connection {
 	/**
 	 * THIS MAY ONLY LOCK THIS AND MUST BE IMMUTABLE.
 	 */
-	public final boolean isUnpooled() {
+	public boolean isUnpooled() {
 		return m_unpooled;
 	}
 
@@ -508,7 +508,7 @@ final public class ConnectionProxy implements Connection {
 				}
 
 				//-- Unpooled connections only report a warning in staggered intervals
-				long dts = m_expiryWarningCount < WARNINT.length ? WARNINT[m_expiryWarningCount] : (m_expiryWarningCount - WARNINT.length + 1) * 24 * 60 * 60 * 1000;
+				long dts = m_expiryWarningCount < WARNINT.length ? WARNINT[m_expiryWarningCount] : (long) (m_expiryWarningCount - WARNINT.length + 1) * 24 * 60 * 60 * 1000;
 				ets = hs.getNow() - dts;
 				if(getLastUsedTime() > ets) // No need for warning.
 					return;
@@ -534,7 +534,7 @@ final public class ConnectionProxy implements Connection {
 				destroy = true;
 			else {
 				//-- Has the grace period expired too?
-				long gts = hs.getExpiryTS() - getPool().c().getLongRunningGracePeriod() * 1000; // Extend expiry time with grace interval
+				long gts = hs.getExpiryTS() - getPool().c().getLongRunningGracePeriod() * 1000L; // Extend expiry time with grace interval
 				if(getAllocationTime() < gts) // Allocated before grace period?
 					destroy = true;
 			}
@@ -604,7 +604,7 @@ final public class ConnectionProxy implements Connection {
 	 *
 	 * @param o the resource to remove.
 	 */
-	protected void removeResource(final Object o) {
+	void removeResource(final Object o) {
 		try {
 			usable();
 			m_pe.removeResource(this, o);

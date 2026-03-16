@@ -52,7 +52,7 @@ public class DumpDirtyStateRenderer extends NodeVisitorBase {
 		System.out.println("---- Dirty node dump ----");
 		r.m_iw.close();
 		r.m_sw.close();
-		System.out.println(r.m_sw.getBuffer().toString());
+		System.out.println(r.m_sw.getBuffer());
 	}
 
 	@Override

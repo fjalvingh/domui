@@ -51,7 +51,7 @@ final public class Lock implements Serializable {
 	public <T> Lock(@NonNull IIdentifyable<T> instance, boolean exclusive) {
 		m_exclusive = exclusive;
 		ClassMetaModel cmm = MetaManager.findClassMeta(instance.getClass());		// We ask meta manager for the REAL class name to prevent proxies
-		m_uniqueId = cmm.getActualClass().getName() + "#" + String.valueOf(instance.getId());
+		m_uniqueId = cmm.getActualClass().getName() + "#" + instance.getId();
 	}
 
 	/**
@@ -90,15 +90,14 @@ final public class Lock implements Serializable {
 			}
 			Lock l = null;
 			if(o == null) {
-				; // Ignore
+				// Ignore
 			} else if(o instanceof Lock) {
 				l = (Lock) o;
 			} else if(o instanceof String) {
 				l = new Lock((String) o, wlock);
 			} else if(o instanceof IIdentifyable< ? >) {
 				l = new Lock((IIdentifyable< ? >) o, wlock);
-			} else if(o instanceof Collection<?>) {
-				Collection< ? > col = (Collection< ? >) o;
+			} else if(o instanceof Collection<?> col) {
 				for(Object ooo : col) {
 					doLock(res, ooo);
 				}

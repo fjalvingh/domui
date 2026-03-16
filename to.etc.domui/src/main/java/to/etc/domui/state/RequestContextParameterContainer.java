@@ -7,6 +7,7 @@ import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.Constants;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,9 +52,7 @@ public class RequestContextParameterContainer implements IBasicParameterContaine
 	public Set<String> getParameterNames() {
 		String[] parameterNames = m_ctx.getRequestResponse().getParameterNames();
 		Set<String> res = new HashSet<>();
-		for(String parameterName : parameterNames) {
-			res.add(parameterName);
-		}
+		Collections.addAll(res, parameterNames);
 		return res;
 	}
 

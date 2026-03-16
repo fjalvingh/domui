@@ -98,7 +98,6 @@ public class CookieHeaderContributor extends HeaderContributor {
 			cookieAcceptanceJS.append("if($.fn.ihavecookies.preference('analytics')) {\n")
 				.append(analyticsJs)
 				.append("}\n");
-			;
 		}
 
 

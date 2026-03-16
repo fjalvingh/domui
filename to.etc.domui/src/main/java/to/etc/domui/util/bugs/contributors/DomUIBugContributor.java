@@ -164,13 +164,11 @@ final public class DomUIBugContributor implements IBugInfoContributor {
 					ITableModel<?> modl = tmb.getModel();
 					mdlname = String.valueOf(modl);
 
-					if(modl instanceof SimpleSearchModel) {
-						SimpleSearchModel<?> ssm = (SimpleSearchModel<?>) modl;
+					if(modl instanceof SimpleSearchModel<?> ssm) {
 						QCriteria<?> qc = ssm.getQuery();
 						query = qc.toString();
 					}
-					if(tmb instanceof PageableTabularComponentBase) {
-						PageableTabularComponentBase<?> pcb = (PageableTabularComponentBase<?>) tmb;
+					if(tmb instanceof PageableTabularComponentBase<?> pcb) {
 						page = Integer.toString( pcb.getCurrentPage() );
 						int total = pcb.getPageCount();
 						page += " of " + total;

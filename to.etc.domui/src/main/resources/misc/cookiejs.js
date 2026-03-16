@@ -4,8 +4,8 @@ function onCookieNonsense() {
 
 var cookieConsentOptions = {
 	title: ${title},
-	message: ${msg},
-	delay: 600,
+	${msg},
+	600,
 	expires: 1,
 	link: '${link}',
 	onAccept: function(){
@@ -14,14 +14,14 @@ var cookieConsentOptions = {
 		console.log('Yay! The following preferences were saved...');
 		console.log(myPreferences);
 	},
-	uncheckBoxes: true,
+	true,
 	acceptBtnLabel: ${acclabel},
-	moreInfoLabel: ${infolabel},
-	cookieTypesTitle: 'Select which cookies you want to accept',
+	${infolabel},
+	'Select which cookies you want to accept',
 	fixedCookieTypeLabel: 'Essential',
 	fixedCookieTypeDesc: 'These are essential for the website to work correctly.',
 	cookieTypes: ${cookieTypes}
-};
+}
 
 $(document).ready(function() {
 	$('body').ihavecookies(cookieConsentOptions);

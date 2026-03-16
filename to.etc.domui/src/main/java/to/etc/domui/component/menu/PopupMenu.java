@@ -137,8 +137,7 @@ public class PopupMenu {
 
 	public <T> void show(NodeBase ref, T target) {
 		NodeContainer nc = ref.getPage().getPopIn();
-		if(nc instanceof SimplePopupMenu) {
-			SimplePopupMenu sp = (SimplePopupMenu) nc;
+		if(nc instanceof SimplePopupMenu sp) {
 			if(sp.getSource() == this && target == sp.getTargetObject()) {
 				sp.closeMenu();
 				return;

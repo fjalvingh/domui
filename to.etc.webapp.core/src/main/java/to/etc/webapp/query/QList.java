@@ -28,7 +28,7 @@ public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 	public QList(@NonNull R root, @NonNull QField<P, ? > parent, String listName) throws Exception {
 		m_root = root;
 		m_parent = parent;
-		m_listName = parent.toString().equals("") ? listName : parent.toString() + "." + listName;
+		m_listName = parent.toString().equals("") ? listName : parent + "." + listName;
 	}
 
 	@NonNull Class< ? > getRootClass() {

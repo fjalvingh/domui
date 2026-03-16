@@ -113,7 +113,7 @@ public class DurationInMsConverter implements IConverter<Long> {
 						dur += nr;
 						ms.accept();
 					} else {
-						dur += nr * 60 * 1000;
+						dur += (long) nr * 60 * 1000;
 					}
 					break;
 

@@ -161,7 +161,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			for(int i = 0; i < m_level; i++)
 				sb.append(' ');
 			sb.append(s);
-			System.out.println(sb.toString());
+			System.out.println(sb);
 		}
 	}
 

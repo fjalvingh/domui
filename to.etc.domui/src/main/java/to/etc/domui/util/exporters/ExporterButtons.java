@@ -406,11 +406,11 @@ public class ExporterButtons {
 			return columnList;
 		}
 
-		protected List<IExportColumn<?>> convertExpandedToColumn(List<ExpandedDisplayProperty<?>> xProps) {
+		private List<IExportColumn<?>> convertExpandedToColumn(List<ExpandedDisplayProperty<?>> xProps) {
 			return xProps.stream().map(a -> new ExpandedDisplayPropertyColumnWrapper<>(a)).collect(Collectors.toList());
 		}
 
-		protected void executeExportByQuery(NodeContainer node, IExportFormat format) throws Exception {
+		private void executeExportByQuery(NodeContainer node, IExportFormat format) throws Exception {
 			QCriteria<T> criteria = getSelectionCriteria();
 			if(null == criteria) {
 				return;
@@ -423,7 +423,7 @@ public class ExporterButtons {
 			ExporterButtons.export(node, format, criteria, calculateColumnList(), fileName);
 		}
 
-		protected void executeExportFromList(NodeContainer targetNode, IExportFormat format) throws Exception {
+		private void executeExportFromList(NodeContainer targetNode, IExportFormat format) throws Exception {
 			QCriteria<T> criteria = getSelectionCriteria();
 			SupplierEx<List<T>> sourceSupplier = m_sourceSupplier;
 			if(null == sourceSupplier)

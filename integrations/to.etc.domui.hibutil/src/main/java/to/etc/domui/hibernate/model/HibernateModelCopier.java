@@ -106,8 +106,7 @@ public class HibernateModelCopier extends QBasicModelCopier {
 			 *
 			 * In here it means we need to check if the object is indeed a proxy, and retry with the original object.
 			 */
-			if(instance instanceof HibernateProxy) { // Ohh Horror of horrors.
-				HibernateProxy hp = (HibernateProxy) instance;
+			if(instance instanceof HibernateProxy hp) { // Ohh Horror of horrors.
 				Object ainstance = hp.getHibernateLazyInitializer().getImplementation();
 				ee = pc.getEntry(ainstance);
 

@@ -38,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -305,8 +306,7 @@ public class ImageTask extends CacheChange {
 
 	static private List<IImageConversionSpecifier>	convertArray(IImageConversionSpecifier[] conversions) {
 		List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();
-		for(IImageConversionSpecifier s : conversions)
-			l.add(s);
+		Collections.addAll(l, conversions);
 		return l;
 	}
 

@@ -61,7 +61,7 @@ final public class Locker {
 	/**
 	 * Returns T if this locker locks the specified instance.
 	 */
-	final public boolean isLocked(@NonNull Lock obj) {
+	public boolean isLocked(@NonNull Lock obj) {
 		ResourceLock rl = findLockFor(obj.getUniqueId());
 		return rl != null && rl.getLockType() != LockType.UNLOCKED;
 	}
@@ -69,7 +69,7 @@ final public class Locker {
 	/**
 	 * Returns the lock type within this locker for the specified instance.
 	 */
-	final LockType getLocked(@NonNull Lock obj) {
+	LockType getLocked(@NonNull Lock obj) {
 		ResourceLock rl = findLockFor(obj.getUniqueId());
 		if(rl == null)
 			return LockType.UNLOCKED;

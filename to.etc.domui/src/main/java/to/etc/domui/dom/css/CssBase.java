@@ -633,7 +633,7 @@ public class CssBase {
 	}
 
 	public void setTop(int px) {
-		String s = Integer.toString(px) + "px";
+		String s = px + "px";
 		setTop(s);
 	}
 
@@ -649,7 +649,7 @@ public class CssBase {
 	}
 
 	public void setBottom(int px) {
-		String s = Integer.toString(px) + "px";
+		String s = px + "px";
 		setBottom(s);
 	}
 
@@ -665,7 +665,7 @@ public class CssBase {
 	}
 
 	public void setLeft(final int px) {
-		String s = Integer.toString(px) + "px";
+		String s = px + "px";
 		setLeft(s);
 	}
 
@@ -681,7 +681,7 @@ public class CssBase {
 	}
 
 	public void setRight(final int px) {
-		String s = Integer.toString(px) + "px";
+		String s = px + "px";
 		setRight(s);
 	}
 

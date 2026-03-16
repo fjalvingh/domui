@@ -745,7 +745,7 @@ public class ColumnWrapper {
 				sb.append("property ").append(propertyName);
 			}
 		}
-		return m_classWrapper + " " + sb.toString();
+		return m_classWrapper + " " + sb;
 	}
 
 	public void setTransient(boolean aTransient) {
@@ -1174,8 +1174,7 @@ public class ColumnWrapper {
 
 		//-- Find the class referred to
 		Type propertyType = getPropertyType();
-		if(propertyType instanceof ClassOrInterfaceType) {
-			ClassOrInterfaceType ct = (ClassOrInterfaceType) propertyType;
+		if(propertyType instanceof ClassOrInterfaceType ct) {
 
 			String s = ct.getName().asString();
 			if("List".equals(s)) {
@@ -1239,7 +1238,7 @@ public class ColumnWrapper {
 	public void recalculateOneToManyName() {
 		ColumnWrapper childProperty = getChildsParentProperty();
 		if(null == childProperty) {
-			throw new IllegalStateException(toString() + ": missing oneToMany child prop");
+			throw new IllegalStateException(this + ": missing oneToMany child prop");
 		}
 		String childPropertyName = childProperty.getPropertyName();
 		String myClass = m_classWrapper.getSimpleName();

@@ -92,10 +92,9 @@ final public class UILogin {
 	@SuppressWarnings("squid:S2441")
 	@Nullable
 	static private IUser internalGetLoggedInUser(final IRequestContext rx) throws Exception {
-		if(!(rx instanceof RequestContextImpl))
+		if(!(rx instanceof RequestContextImpl rci))
 			return null;
 
-		RequestContextImpl rci = (RequestContextImpl) rx;
 		HttpServerRequestResponse srr = null;
 		if(rci.getRequestResponse() instanceof HttpServerRequestResponse sr) {
 			srr = sr;
@@ -312,9 +311,8 @@ final public class UILogin {
 			return null;
 
 		IRequestContext rcx = UIContext.getRequestContext();
-		if(!(rcx instanceof RequestContextImpl))
+		if(!(rcx instanceof RequestContextImpl ci))
 			return null;
-		RequestContextImpl ci = (RequestContextImpl) rcx;
 
 		String auth = ci.getApplication().getLoginAuthenticator().calcCookieHash(user.getLoginID(), l);
 		if(auth == null)
@@ -346,7 +344,7 @@ final public class UILogin {
 		df.setTimeZone(TimeZone.getTimeZone("GMT"));
 		sb.append(df.format(new Date(l)));
 
-		LOG.debug("LoginCookie: " + sb.toString());
+		LOG.debug("LoginCookie: " + sb);
 		ci.getRequestResponse().addHeader("Set-Cookie", sb.toString());
 		return k;
 	}

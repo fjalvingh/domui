@@ -69,9 +69,7 @@ class ConditionPanel<T, F>(val model: IConditionModel<T, F>) : Div("ui-copa") {
 	}
 }
 
-open class CondUiBase<T, F>(val panel: ConditionPanel<T, F>, css: String) : Div(css) {
-
-}
+open class CondUiBase<T, F>(val panel: ConditionPanel<T, F>, css: String) : Div(css)
 
 /**
  * UI for a simple condition in the form FIELD OPERATION VALUE.
@@ -271,7 +269,7 @@ open class CondUiCompound<T, F>(panel: ConditionPanel<T, F>, val node: CoCompoun
 	}
 }
 
-sealed class CoNode<T, F>() {
+sealed class CoNode<T, F> {
 	var parent: CoCompound<T, F>? = null
 }
 

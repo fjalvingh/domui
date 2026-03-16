@@ -287,10 +287,10 @@ public class MonthPanel extends Div {
 			if(rd == null)
 				continue;
 
-			long ets = rd.getTime() + 1000 * 7 * 86400l;
+			long ets = rd.getTime() + 1000 * 7 * 86400L;
 			if(dt.getTime() >= rd.getTime() && dt.getTime() < ets) {
 				//-- Date is on this row; calculate the cell;
-				int cellix = (int) ((dt.getTime() - rd.getTime()) / 86400000l) + 1;
+				int cellix = (int) ((dt.getTime() - rd.getTime()) / 86400000L) + 1;
 				TD cell = (TD) tr.getChild(cellix);
 				if(on)
 					cell.addCssClass(css);

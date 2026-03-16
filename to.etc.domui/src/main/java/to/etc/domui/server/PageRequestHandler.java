@@ -651,7 +651,7 @@ final public class PageRequestHandler {
 		sb.append(".").append(conversationId);
 		DomUtil.addUrlParameters(sb, pp, false);
 		ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.");
-		String expmsg = "Session " + m_cid + " has expired - starting a new session by redirecting to " + sb.toString();
+		String expmsg = "Session " + m_cid + " has expired - starting a new session by redirecting to " + sb;
 		logUser(expmsg);
 		if(DomUtil.USERLOG.isDebugEnabled())
 			DomUtil.USERLOG.debug(expmsg);
@@ -918,10 +918,9 @@ final public class PageRequestHandler {
 	 */
 	private void runPageJson(@NonNull Page page, @Nullable NodeBase wcomp) throws Exception {
 		try {
-			if(!(wcomp instanceof IComponentJsonProvider))
+			if(!(wcomp instanceof IComponentJsonProvider dp))
 				throw new ProgrammerErrorException("The component " + wcomp + " must implement " + IComponentJsonProvider.class.getName() + " to be able to accept JSON data requests");
 
-			IComponentJsonProvider dp = (IComponentJsonProvider) wcomp;
 			PageParameters pp = new PageParameters(m_ctx.getPageParameters());
 			Object value = dp.provideJsonData(pp);                            // Let the component return something to render.
 			renderJsonLikeResponse(page, value);

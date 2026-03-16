@@ -38,6 +38,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -285,7 +286,7 @@ abstract public class AbstractGenerator {
 		}
 
 		Source source = new DOMSource(m_configDocument);
-		StreamResult result = new StreamResult(new OutputStreamWriter(new FileOutputStream(m_configFile), "utf-8"));
+		StreamResult result = new StreamResult(new OutputStreamWriter(new FileOutputStream(m_configFile), StandardCharsets.UTF_8));
 		Transformer xformer = DomTools.createTransformer();
 		xformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		xformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");

@@ -84,9 +84,8 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 			throw new IllegalStateException("Invalid input URL '" + rurl + "': must be in format cid/pageclass/componentID/resourceType.");
 		String resty = cpr.getArgs()[3];
 
-		if(!(cpr.getComponent() instanceof CKEditor))
+		if(!(cpr.getComponent() instanceof CKEditor e))
 			throw new ThingyNotFoundException("The component " + cpr.getComponent().getActualID() + " on page " + cpr.getPage().getBody() + " is not an HtmlEditor instance");
-		CKEditor e = (CKEditor) cpr.getComponent();
 		IEditorFileSystem ifs = e.getFileSystem();
 		if(ifs == null)
 			throw new ThingyNotFoundException("The HtmlEditor component " + cpr.getComponent().getActualID() + " on page " + cpr.getPage().getBody() + " has no file system attached to it");
@@ -156,8 +155,7 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 		List< ? > resl = ifs.getFilesAndFolders(type, rpath);
 
 		for(Object o : resl) {
-			if(o instanceof EditorFolder) {
-				EditorFolder ef = (EditorFolder) o;
+			if(o instanceof EditorFolder ef) {
 				w.tag("Folder");
 				w.attr("name", ef.getName());
 				w.attr("hasChildren", ef.isHasChildren());
@@ -171,8 +169,7 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 		w.endtag();
 		StringBuilder sb = new StringBuilder(128);
 		for(Object o : resl) {
-			if(o instanceof EditorFile) {
-				EditorFile ef = (EditorFile) o;
+			if(o instanceof EditorFile ef) {
 				w.tag("File");
 				w.attr("name", ef.getName());
 				w.attr("date", getFormatter().format(ef.getDate()));

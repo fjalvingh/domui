@@ -87,8 +87,6 @@ public class CpRadioGroup<T> extends AbstractCpComponent {
 	private WebElement findRadioButton(String subSelector) {
 		By selector = selector(" " + subSelector);
 		WebElement element = wd().findElement(selector);
-		if(null == element)
-			return null;
 
 		//System.out.println("rb: " + element.getTagName() + " id=" + element.getAttribute("id"));
 		return element;

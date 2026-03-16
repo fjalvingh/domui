@@ -16,7 +16,7 @@ public class CompressedTarUtilTest {
 		File rootLocation = new File("/home/vmijic/Downloads/NT15_BZK_DVI_20210120.b Berichten/berichten");
 		String tarName = rootLocation.getAbsolutePath().concat(".tar.gz");
 		try(
-			FileOutputStream fos = new FileOutputStream(tarName);
+			FileOutputStream fos = new FileOutputStream(tarName)
 		) {
 			CompressedTarUtil.tar(fos, (uncompressed, compressed) -> System.out.println("compressed size so far: " + compressed), rootLocation, "NT15_BZK_dVi_20210120.b - testsuite");
 		}

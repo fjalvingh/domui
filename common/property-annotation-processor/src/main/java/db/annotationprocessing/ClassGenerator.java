@@ -227,7 +227,7 @@ abstract class ClassGenerator {
 		return m_processor.getLinkClass(m_targetClassName);
 	}
 
-	static private final Set<String> IGNORED_PROPERTIES = new HashSet<>(Arrays.asList(
+	static private final Set<String> IGNORED_PROPERTIES = new HashSet<>(List.of(
 		"class"
 	));
 

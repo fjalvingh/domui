@@ -30,16 +30,12 @@ public class ListExporter<T> extends AbstractObjectExporter<T> {
 			return ExportResult.EMPTY;
 		List<T> list = m_list;
 		m_exportWriter.startExport(m_columnList);
-		try {
-			int count = 0;
-			p.setTotalWork(list.size() + (list.size() / 100));
-			for(T t : list) {
-				m_exportWriter.exportRow(t);
-				p.setCompleted(count);
-			}
-			return ExportResult.COMPLETED;
-		} finally {
-			//m_exportWriter.close();					// We do not own exportWriter, this leads to double close.
+		int count = 0;
+		p.setTotalWork(list.size() + (list.size() / 100));
+		for(T t : list) {
+			m_exportWriter.exportRow(t);
+			p.setCompleted(count);
 		}
+		return ExportResult.COMPLETED;
 	}
 }

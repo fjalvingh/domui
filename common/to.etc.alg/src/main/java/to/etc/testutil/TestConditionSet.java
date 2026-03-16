@@ -70,7 +70,7 @@ final public class TestConditionSet {
 		synchronized(this) {
 			for(TestCondition testCondition : m_testConditionList) {
 				if(testCondition instanceof TestConditionValue) {
-					TestConditionValue<Object> real = (TestConditionValue<Object>) (TestConditionValue<?>) testCondition;
+					TestConditionValue<Object> real = (TestConditionValue<Object>) testCondition;
 					real.checkValue(v);
 				}
 			}
@@ -106,7 +106,7 @@ final public class TestConditionSet {
 	}
 
 	public <T> TestConditionValue<T> createOrderedConditionValue(T instance) {
-		TestConditionValue<T> cv = new TestConditionValue<T>(this, true, instance.getClass().getSimpleName() + "#" + instance.toString(), (Class<T>) instance.getClass(), a -> a == instance);
+		TestConditionValue<T> cv = new TestConditionValue<T>(this, true, instance.getClass().getSimpleName() + "#" + instance, (Class<T>) instance.getClass(), a -> a == instance);
 		synchronized(this) {
 			m_testConditionList.add(cv);
 		}

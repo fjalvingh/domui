@@ -381,7 +381,7 @@ public class SlowSampler {
 		BufferedImage obi = resample(bi, filter, p.x, p.y);
 		t = System.currentTimeMillis() - t;
 		System.out.print("save, ");
-		ImaTool.saveJPEG(obi, new File("s-" + Integer.toString(p.x) + "x" + Integer.toString(p.y) + "-" + fn + ".jpg"), 0.7);
+		ImaTool.saveJPEG(obi, new File("s-" + p.x + "x" + p.y + "-" + fn + ".jpg"), 0.7);
 		System.out.println("Done in " + t + " millis");
 	}
 
@@ -415,7 +415,7 @@ public class SlowSampler {
 
 	static private void pl(PrintWriter pw, String f, Point p) {
 		pw.println("<br><br>");
-		pw.println("<table><tr><td><img src=\"s-" + Integer.toString(p.x) + "x" + Integer.toString(p.y) + "-" + f + ".jpg\"></td></tr>");
+		pw.println("<table><tr><td><img src=\"s-" + p.x + "x" + p.y + "-" + f + ".jpg\"></td></tr>");
 		pw.println("<tr><td>The " + f + " filter.</td></tr></table>");
 	}
 
@@ -455,9 +455,9 @@ public class SlowSampler {
 				saveWithFilter(bi, "Triangle", p);
 
 				//-- Save an HTML outputfile..
-				PrintWriter pw = new PrintWriter(new FileWriter("s-" + Integer.toString(p.x) + "x" + Integer.toString(p.y) + ".html"));
+				PrintWriter pw = new PrintWriter(new FileWriter("s-" + p.x + "x" + p.y + ".html"));
 				pw.println("<html><head><title>Output of rescaling filter set</title></head>");
-				pw.println("<body><h1>Generated for output size " + Integer.toString(p.x) + "x" + Integer.toString(p.y) + "</h1>");
+				pw.println("<body><h1>Generated for output size " + p.x + "x" + p.y + "</h1>");
 
 				pl(pw, "Bell", p);
 				//				pl(pw, "Box", p);
@@ -474,7 +474,7 @@ public class SlowSampler {
 			}
 			System.out.println("Done");
 		} catch(Throwable t) {
-			System.out.println("FATAL: " + t.toString());
+			System.out.println("FATAL: " + t);
 			t.printStackTrace();
 		}
 		System.exit(10);

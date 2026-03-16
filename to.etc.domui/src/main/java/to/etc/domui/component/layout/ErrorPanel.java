@@ -150,8 +150,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 					errorNode.removeCssClass("ui-input-err");
 				}
 			} else {
-				if(b.getUserObject() instanceof UIMessage) {
-					UIMessage uim = (UIMessage) b.getUserObject();
+				if(b.getUserObject() instanceof UIMessage uim) {
 					if(uim == null)
 						throw new IllegalStateException("No user message found in userObject");
 					if(highest == null)

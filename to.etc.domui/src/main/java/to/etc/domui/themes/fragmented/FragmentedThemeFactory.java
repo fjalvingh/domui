@@ -186,7 +186,7 @@ public class FragmentedThemeFactory {
 		ResourceDependencies rd = m_rdl.createDependencies();
 
 		m_searchList.add("$themes/css-all");                    // 20130327 jal the "all" theme dir contains stuff shared over all themes.
-		return new FragmentedThemeStore(m_application, m_themeName, nullChecked(m_stylesheet).getBytes("utf-8"), executor(), m_searchList, rd);
+		return new FragmentedThemeStore(m_application, m_themeName, nullChecked(m_stylesheet).getBytes(StandardCharsets.UTF_8), executor(), m_searchList, rd);
 	}
 
 	protected void loadStyleInfo() throws Exception {
@@ -376,7 +376,7 @@ public class FragmentedThemeFactory {
 		LOG.info("css: loading " + pname + " as " + ires);
 		try {
 			//-- Execute Javascript;
-			Reader r = new InputStreamReader(is, "utf-8");
+			Reader r = new InputStreamReader(is, StandardCharsets.UTF_8);
 			executor().eval(Object.class, r, pname);
 		} finally {
 			try {
@@ -491,7 +491,6 @@ public class FragmentedThemeFactory {
 				case CHECK:
 					target.append(source);
 					tmpl.execute(new StringBuilder(), executor().newScope());
-					return;
 			}
 		} finally {
 			try {

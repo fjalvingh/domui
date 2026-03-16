@@ -143,7 +143,7 @@ public class JsTemplater {
 
 	static public String intToStr(final int val, final int radix, final int npos) {
 		String v = "000000000000" + Integer.toString(val, radix);
-		return v.substring(v.length() - npos, v.length());
+		return v.substring(v.length() - npos);
 	}
 
 	/**

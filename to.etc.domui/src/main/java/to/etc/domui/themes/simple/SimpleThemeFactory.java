@@ -38,6 +38,7 @@ import to.etc.domui.util.resources.ResourceDependencyList;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -173,7 +174,7 @@ public class SimpleThemeFactory {
 		//-- Load the Javascript && execute in the executor's context.
 		InputStream is = ires.getInputStream();
 		try {
-			InputStreamReader isr = new InputStreamReader(is, "utf-8");
+			InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
 			executor().eval(Object.class, isr, rurl);
 		} finally {
 			try {

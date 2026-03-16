@@ -118,7 +118,7 @@ public class TestBasic {
 				break;
 			System.out.println("la: " + la.getCode() + ", " + la.getDescription() + ", " + la.getTypeDescription() + ", " + la.getId());
 		}
-		Assert.assertTrue(!res.isEmpty());
+		Assert.assertFalse(res.isEmpty());
 	}
 
 	//@Test
@@ -135,7 +135,7 @@ public class TestBasic {
 			if(!la.getCode().startsWith("E"))
 				Assert.fail("Got code not starting with E: " + la.getCode());
 		}
-		Assert.assertTrue(!res.isEmpty());
+		Assert.assertFalse(res.isEmpty());
 	}
 
 	@Test

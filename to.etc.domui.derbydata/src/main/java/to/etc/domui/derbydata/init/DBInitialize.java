@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -44,7 +45,7 @@ public class DBInitialize {
 			is = DBInitialize.class.getResourceAsStream("/resources/database/CreateDB.sql");
 			if(is == null)
 				throw new IllegalStateException("Cannot locate demo database load script.");
-			Reader r = new InputStreamReader(is, "utf-8");
+			Reader r = new InputStreamReader(is, StandardCharsets.UTF_8);
 			ReaderTokenizerBase rsb = new ReaderTokenizerBase("CreateDB.sql", r);
 			rsb.setReturnWhitespace(true);
 			rsb.setReturnNewline(true);

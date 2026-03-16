@@ -405,7 +405,7 @@ import java.util.stream.Collectors;
 		m_requestCounter++;
 	}
 
-	public final int getPageTag() {
+	public int getPageTag() {
 		return m_pageTag;
 	}
 
@@ -413,7 +413,7 @@ import java.util.stream.Collectors;
 	 * Calculates a new ID for a node.
 	 */
 	@NonNull
-	final String nextID() {
+	String nextID() {
 		StringBuilder sb = sb();
 		sb.append("_");
 		int id = m_nextID++;
@@ -433,7 +433,7 @@ import java.util.stream.Collectors;
 	 * Registers the node with this page. If the node has no ID or the ID is invalid then
 	 * a new ID is assigned.
 	 */
-	final void registerNode(@NonNull final NodeBase n) {
+	void registerNode(@NonNull final NodeBase n) {
 		if(n.isAttached())
 			throw new IllegalStateException("Node still attached to other page");
 
@@ -489,7 +489,7 @@ import java.util.stream.Collectors;
 	/**
 	 * Removes this node from the IDmap.
 	 */
-	final void unregisterNode(@NonNull final NodeBase n) {
+	void unregisterNode(@NonNull final NodeBase n) {
 		if(n.getPage() != this)
 			throw new IllegalStateException("This node does not belong to this page!?");
 		if(n.getActualID() == null)
@@ -534,14 +534,14 @@ import java.util.stream.Collectors;
 	 * it checks to see if a before-image is present. If not then it gets created
 	 * so that the structure before the changes is maintained.
 	 */
-	final protected void copyIdMap() {
+	void copyIdMap() {
 		if(m_beforeMap != null)
 			return;
 		m_beforeMap = new HashMap<>(m_nodeMap);
 	}
 
 	@Nullable
-	final public Map<String, NodeBase> getBeforeMap() {
+	public Map<String, NodeBase> getBeforeMap() {
 		return m_beforeMap;
 	}
 
@@ -605,7 +605,7 @@ import java.util.stream.Collectors;
 	 * Call from within the onHeaderContributor call on a node to register any header
 	 * contributors needed by a node.
 	 */
-	final public void addHeaderContributor(@NonNull final HeaderContributor hc, int order) {
+	public void addHeaderContributor(@NonNull final HeaderContributor hc, int order) {
 		Set<HeaderContributor> set = m_headerContributorSet;
 		List<HeaderContributorEntry> list = m_orderedContributorList;
 		if(set.isEmpty() && list.isEmpty()) {
@@ -819,7 +819,7 @@ import java.util.stream.Collectors;
 
 	private String renderPendingChangeSet() {
 		return m_pendingBuildSet.stream()
-			.map(a -> "\n- " + a.toString())
+			.map(a -> "\n- " + a)
 			.collect(Collectors.joining());
 	}
 
@@ -829,9 +829,8 @@ import java.util.stream.Collectors;
 	private void buildSubTree(@NonNull NodeBase nd) throws Exception {
 		nd.build();
 		m_pendingBuildSet.remove(nd); // We're building this dude.
-		if(!(nd instanceof NodeContainer))
+		if(!(nd instanceof NodeContainer nc))
 			return;
-		NodeContainer nc = (NodeContainer) nd;
 		List<NodeBase> ichl = nc.internalGetChildren();
 		for(int i = 0, len = ichl.size(); i < len; i++) {
 			buildSubTree(ichl.get(i));
@@ -840,12 +839,11 @@ import java.util.stream.Collectors;
 
 	private void buildChangedTree(@NonNull NodeBase nd) throws Exception {
 		m_pendingBuildSet.remove(nd);
-		if(!(nd instanceof NodeContainer)) {
+		if(!(nd instanceof NodeContainer nc)) {
 			//-- NodeBase only- simple; always rebuild.
 			nd.build();
 			return;
 		}
-		NodeContainer nc = (NodeContainer) nd;
 		if(nc.childHasUpdates() && nc.internalGetOldChildren() == null) {
 			nc.build();
 

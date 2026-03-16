@@ -111,8 +111,7 @@ public class PartService {
 			return false;
 
 		IPartFactory factory = executionReference.getFactory();
-		if(factory instanceof IUnbufferedPartFactory) {
-			IUnbufferedPartFactory upf = (IUnbufferedPartFactory) factory;
+		if(factory instanceof IUnbufferedPartFactory upf) {
 			DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 			upf.generate(getApplication(), executionReference.getInfo().getInputPath(), ctx);
 		} else if(factory instanceof IBufferedPartFactory) {
@@ -135,8 +134,7 @@ public class PartService {
 		}
 
 		IPartFactory factory = executionReference.getFactory();
-		if(factory instanceof IBufferedPartFactory) {
-			IBufferedPartFactory<?> bf = (IBufferedPartFactory<?>) factory;
+		if(factory instanceof IBufferedPartFactory<?> bf) {
 			PartData cp = getCachedInstance2(bf, parameters);
 			return cp;
 		} else {
@@ -151,9 +149,7 @@ public class PartService {
 			return ref;
 
 		ref = checkUrlPart(parameters);
-		if(null != ref)
-			return ref;
-		return null; // checkResourcePart(parameters);
+		return ref;// checkResourcePart(parameters);
 	}
 
 	@Nullable

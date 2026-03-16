@@ -45,10 +45,9 @@ public class PercentageDoubleConverter implements IConverter<Double> {
 			return null;
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
 		DecimalFormat df = new DecimalFormat("##0.00", dfs);
-		StringBuilder sb = new StringBuilder(10);
-		sb.append(df.format(in));
-		sb.append('%');
-		return sb.toString();
+		String sb = df.format(in)
+			+ '%';
+		return sb;
 	}
 
 	/**

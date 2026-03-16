@@ -41,8 +41,7 @@ final public class ShelvedDomUIPage implements IShelvedEntry {
 	@Override
 	@Nullable
 	public String getTitle() {
-		if(getPage().getBody() instanceof IBreadCrumbTitler) {
-			IBreadCrumbTitler body = (IBreadCrumbTitler) getPage().getBody();
+		if(getPage().getBody() instanceof IBreadCrumbTitler body) {
 			return body.getBreadcrumbTitle();
 		}
 		return null;

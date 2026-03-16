@@ -73,7 +73,7 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 		int type = getLastToken();
 		switch(type) {
 			default:
-				return "'" + Character.toString((char) type) + "'";
+				return "'" + (char) type + "'";
 			case T_EOF:
 				return "<<eof>>";
 			case T_STRING:

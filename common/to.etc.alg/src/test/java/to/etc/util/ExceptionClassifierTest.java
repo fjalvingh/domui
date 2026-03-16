@@ -41,8 +41,7 @@ public class ExceptionClassifierTest {
 
 			@Override
 			public Severity getExceptionSeverity(Throwable throwable) {
-				if(throwable instanceof CustomException) {
-					CustomException codeException = (CustomException) throwable;
+				if(throwable instanceof CustomException codeException) {
 					if("pda.not.assigned".equalsIgnoreCase(codeException.getCode())) {
 						return Severity.UNSEVERE;
 					}

@@ -216,7 +216,7 @@ public class InternalParentTree extends Div {
 
 		Div alt = new Div();
 		m_structure.add(alt);
-		LinkButton lb = new LinkButton("Back to structure", Icon.of("THEME/btnBack.png"), (IClicked<LinkButton>) clickednode -> {
+		LinkButton lb = new LinkButton("Back to structure", Icon.of("THEME/btnBack.png"), clickednode -> {
 			m_structure.removeAllChildren();
 			renderStructure(m_structure);
 		});
@@ -453,13 +453,12 @@ public class InternalParentTree extends Div {
 			//			connected = true;
 			outputStream = s.getOutputStream();
 
-			StringBuilder sb = new StringBuilder();
-			sb.append("SELECT `");
-			sb.append(webappRoot);
-			sb.append("` OPENFILE `");
-			sb.append(name);
-			sb.append('`');
-			outputStream.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+			String sb = "SELECT `"
+				+ webappRoot
+				+ "` OPENFILE `"
+				+ name
+				+ '`';
+			outputStream.write(sb.getBytes(StandardCharsets.UTF_8));
 			outputStream.write(0);
 			outputStream.flush();
 
@@ -475,7 +474,7 @@ public class InternalParentTree extends Div {
 			//			System.out.println("data end = " + szrd);
 			baos.close();
 
-			String response = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+			String response = baos.toString(StandardCharsets.UTF_8);
 			LOG.debug("DomUI Eclipse: response=" + response);
 
 			//-- If response ends in lf strip it

@@ -229,7 +229,7 @@ final public class UIGoto {
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 * On the new page show the specified message as an UI message.
 	 */
-	static public final void replace(Page pg, final Class< ? extends UrlPage> clz, final IPageParameters pp, UIMessage msg) {
+	static public void replace(Page pg, final Class<? extends UrlPage> clz, final IPageParameters pp, UIMessage msg) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
@@ -257,7 +257,7 @@ final public class UIGoto {
 	 * message as an ERROR message.
 	 */
 	@Deprecated
-	static public final void clearPageAndReload(Page pg, String msg) {
+	static public void clearPageAndReload(Page pg, String msg) {
 		clearPageAndReload(pg, msg, pg.getPageParameters());
 	}
 
@@ -267,7 +267,7 @@ final public class UIGoto {
 	 * message as an ERROR message.
 	 */
 	@Deprecated
-	static public final void clearPageAndReload(Page pg, String msg, IPageParameters pp) {
+	static public void clearPageAndReload(Page pg, String msg, IPageParameters pp) {
 		clearPageAndReload(pg, UIMessage.info(Msgs.sPageCleared, msg), pp);
 	}
 
@@ -277,7 +277,7 @@ final public class UIGoto {
 	 * message.
 	 */
 	@Deprecated
-	static public final void clearPageAndReload(Page pg, UIMessage msg) {
+	static public void clearPageAndReload(Page pg, UIMessage msg) {
 		clearPageAndReload(pg, msg, pg.getPageParameters());
 	}
 
@@ -287,7 +287,7 @@ final public class UIGoto {
 	 * message.
 	 */
 	@Deprecated
-	static public final void clearPageAndReload(Page pg, UIMessage msg, IPageParameters pp) {
+	static public void clearPageAndReload(Page pg, UIMessage msg, IPageParameters pp) {
 		WindowSession ws = pg.getConversation().getWindowSession();
 		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
 		msgl.add(msg);

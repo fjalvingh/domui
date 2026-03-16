@@ -339,7 +339,7 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	}
 
 	public void setMaxLength(int l) {
-		m_input.setMaxLength(l);;
+		m_input.setMaxLength(l);
 	}
 
 }

@@ -183,9 +183,8 @@ final public class PoolConfig {
 	 */
 	@Override
 	public boolean equals(final Object b) {
-		if(!(b instanceof PoolConfig))
+		if(!(b instanceof PoolConfig p))
 			return false;
-		PoolConfig p = (PoolConfig) b;
 		if(!m_uid.equalsIgnoreCase(p.m_uid))
 			return false;
 		if(!m_url.equalsIgnoreCase(p.m_url))

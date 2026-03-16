@@ -87,7 +87,7 @@ final public class HeaderContainer<T> {
 	/**
 	 * Return the main header row. Create it if it does not yet exist.
 	 */
-	final public TR row() {
+	public TR row() {
 		m_finished = true;
 		TR tr = m_tr;
 		if(null == tr) {

@@ -364,8 +364,7 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 	}
 
 	public RadioButton<T> addButton(@NonNull T value) {
-		if(value instanceof Enum) {
-			Enum<?> enu = (Enum<?>) value;
+		if(value instanceof Enum<?> enu) {
 			String label = MetaManager.getEnumLabel(enu);
 			return addButton(label, value);
 		}
