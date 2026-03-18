@@ -350,7 +350,7 @@ final public class WebDriverConnector {
 	 */
 	public void waitAnswer(IExecute action) throws Exception {
 		long replyId = getReplyId();
-		System.out.println(">> replyId=" + replyId);
+		//System.out.println(">> replyId=" + replyId);
 		action.execute();
 
 		//-- Now: wait until the response index differs
@@ -358,7 +358,7 @@ final public class WebDriverConnector {
 		for(;;) {
 			try {
 				long nextId = getReplyId();
-				System.out.println(">> nextReplyId=" + nextId);
+				//System.out.println(">> nextReplyId=" + nextId);
 				if(nextId != replyId)						// If it differs -> we've got a response
 					return;
 			} catch(Exception x) {
@@ -1176,7 +1176,7 @@ final public class WebDriverConnector {
 				sb.append(c.getName());
 				sb.append("=");
 				sb.append(c.getValue());
-				System.out.println(">>>> sending to sessionid=" + c.getValue());
+				//System.out.println(">>>> sending to sessionid=" + c.getValue());
 			}
 
 			huc.setRequestProperty("Cookie", sb.toString());
@@ -1261,7 +1261,7 @@ final public class WebDriverConnector {
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
 		WebElement we = wait(xdomui);
 
-		System.out.println(">> OPENSCREEN ELEMENT=" + we + (we == null ? "" : " " + we.getTagName()));
+		//System.out.println(">> OPENSCREEN ELEMENT=" + we + (we == null ? "" : " " + we.getTagName()));
 
 		String id = DomUtil.nullChecked(we).getAttribute("id");
 		if(! "_1".equals(id))                        // If this is a domUI body then be done
