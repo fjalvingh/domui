@@ -19,17 +19,7 @@
 	<properties>
 		<jetty.http.port>8088</jetty.http.port>
 		<jetty.http.stopport>8089</jetty.http.stopport>
-		<sonar.skip>true</sonar.skip>
 	</properties>
-
-	<profiles>
-		<profile>
-			<id>sonar</id>
-			<properties>
-				<sonar.skip>false</sonar.skip>
-			</properties>
-		</profile>
-	</profiles>
 
 	<dependencies>
 		<dependency>

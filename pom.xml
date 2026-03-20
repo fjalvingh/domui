@@ -913,7 +913,6 @@
         <profile>
             <id>sonar-domui</id>
             <properties>
-                <sonar.skip>false</sonar.skip>
                 <sonar.organization>fjalvingh</sonar.organization>
                 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
                 <sonar.projectKey>fjalvingh_domui</sonar.projectKey>

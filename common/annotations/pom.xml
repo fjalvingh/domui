@@ -15,8 +15,4 @@
 
     <name>domui :: common :: annotations</name>
 
-    <properties>
-        <sonar.skip>true</sonar.skip>
-    </properties>
-
 </project>
