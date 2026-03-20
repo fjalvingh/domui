@@ -85,6 +85,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	/** Set of all nodes that were "clicked" on the "current" screen. */
 	private Set<String>		m_clickedNodeSet = new HashSet<String>();
 
+	private String m_unused;
 
 	static synchronized public void initApplication(@NonNull Class< ? extends DomApplication> applicationClass, @NonNull File webappFiles) throws Exception {
 		//AppFilter.initLogConfig(null, null);
@@ -114,6 +115,10 @@ public class DomuiPageTester implements IDomUITestInfo {
 		if(null == da)
 			throw new IllegalStateException("Call #initApplication() before you can run tests.");
 		return da;
+	}
+
+	public void checkRetentionTest(String a, String b, String c) {
+
 	}
 
 	static private void checkInit() {
