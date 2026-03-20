@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+sonar.<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -83,7 +83,6 @@
         <maven.test.skip>${domui.test.skip}</maven.test.skip>
         <maven.failsafe.test.skip>${maven.test.skip}</maven.failsafe.test.skip>
         <jetty.skip>${maven.failsafe.test.skip}</jetty.skip>
-        <sonar.skip>true</sonar.skip>
 
         <!-- Sonar disabled by default, use sonar profile to activate it -->
 		<jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
