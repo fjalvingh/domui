@@ -911,6 +911,7 @@
     </dependencyManagement>
 
     <profiles>
+        <!-- Only enable Sonar if explicitly requested. For some orgs (like Zig) enabling this aborts the analysis due to too many LOCs -->
         <profile>
             <id>sonar-domui</id>
             <properties>
