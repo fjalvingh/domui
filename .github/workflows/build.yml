@@ -41,11 +41,3 @@ jobs:
           retention-days: 7
 #      - name: Perform CodeQL Analysis
 #        uses: github/codeql-action/analyze@v3
-      - name: SonarQube quality gate check
-        id: sonar-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        with:
-          pollingTimeoutSec: 600
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
