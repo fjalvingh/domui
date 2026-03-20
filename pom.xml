@@ -83,12 +83,9 @@
         <maven.test.skip>${domui.test.skip}</maven.test.skip>
         <maven.failsafe.test.skip>${maven.test.skip}</maven.failsafe.test.skip>
         <jetty.skip>${maven.failsafe.test.skip}</jetty.skip>
+        <sonar.skip>true</sonar.skip>
 
         <!-- Sonar disabled by default, use sonar profile to activate it -->
-        <sonar.skip>true</sonar.skip>
-		<sonar.organization>fjalvingh</sonar.organization>
-		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<sonar.projectKey>fjalvingh_domui</sonar.projectKey>
 		<jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
 
         <!-- JDK properties -->
@@ -955,9 +952,12 @@
 
     <profiles>
         <profile>
-            <id>sonar</id>
+            <id>sonar-domui</id>
             <properties>
                 <sonar.skip>false</sonar.skip>
+                <sonar.organization>fjalvingh</sonar.organization>
+                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+                <sonar.projectKey>fjalvingh_domui</sonar.projectKey>
             </properties>
         </profile>
 
