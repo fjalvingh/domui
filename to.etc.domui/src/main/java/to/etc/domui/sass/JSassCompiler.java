@@ -23,6 +23,7 @@ import java.util.Collections;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
+@SuppressWarnings({"squid:S5443"})
 public class JSassCompiler implements ISassCompiler {
 	static private final Logger LOG = LoggerFactory.getLogger(JSassCompiler.class);
 

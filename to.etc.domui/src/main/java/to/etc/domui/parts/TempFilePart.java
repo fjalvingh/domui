@@ -50,6 +50,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 20, 2010
  */
+@SuppressWarnings({"squid:S5443"})
 public class TempFilePart implements IUnbufferedPartFactory {
 	static private class FileInfo {
 		private String m_pw;

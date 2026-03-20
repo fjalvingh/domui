@@ -13,6 +13,7 @@ import java.security.MessageDigest;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-07-2023.
  */
+@SuppressWarnings("squid:S4790")
 final public class ChecksumOutputStream extends OutputStream {
 	private final OutputStream m_os;
 

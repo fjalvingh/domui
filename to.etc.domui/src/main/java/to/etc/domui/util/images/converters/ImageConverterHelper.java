@@ -24,8 +24,10 @@
  */
 package to.etc.domui.util.images.converters;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This handles a converter chain. For every operation in the chain we lookup the appropriate
@@ -36,10 +38,13 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 7, 2008
  */
+@SuppressWarnings({"squid:S5443"})
 public class ImageConverterHelper {
-	private List<File> m_workFiles = new ArrayList<File>();
+	private List<File> m_workFiles = new ArrayList<>();
 
-	private ImageSpec m_source, m_target;
+	private ImageSpec m_source;
+
+	private ImageSpec m_target;
 
 	public ImageSpec getSource() {
 		return m_source;
@@ -56,7 +61,6 @@ public class ImageConverterHelper {
 	/**
 	 * Creates a new tempfile. Files creates by this call will be discarded when the image
 	 * has been generated fully (when this helper is destroyed).
-	 * @return
 	 */
 	public File createWorkFile(String ext) throws IOException {
 		File tmp = File.createTempFile("imc", "." + ext);
@@ -68,15 +72,13 @@ public class ImageConverterHelper {
 		for(File wf : m_workFiles) {
 			try {
 				wf.delete();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/**
 	 * Loop thru all conversions and convert until the image has been translated proper.
-	 * @param src
-	 * @param speclist
-	 * @throws Exception
 	 */
 	public void executeConversionChain(ImageSpec src, List<IImageConversionSpecifier> speclist) throws Exception {
 		if(speclist == null || speclist.isEmpty()) {

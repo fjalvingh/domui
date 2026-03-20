@@ -36,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +59,7 @@ import java.util.Map;
  * <p>Created on Nov 21, 2005
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
+@SuppressWarnings({"squid:S5443"})
 public class UploadParser {
 	private static final Logger LOG = LoggerFactory.getLogger(UploadParser.class);
 
@@ -198,10 +200,10 @@ public class UploadParser {
 
 		//-- We're done: start scanning the stream.
 		HeaderParser hp = new HeaderParser();
-		Map<String, Object> headermap = new HashMap<String, Object>();
+		Map<String, Object> headermap = new HashMap<>();
 		MultipartStream multi = new MultipartStream(is, boundary);
 		multi.setHeaderEncoding(hdrencoding);
-		List<UploadItem> l = new ArrayList<UploadItem>();
+		List<UploadItem> l = new ArrayList<>();
 		if(!multi.skipPreamble()) // Something there?
 			return l;
 		boolean ok = false;
@@ -270,7 +272,7 @@ public class UploadParser {
 
 				//-- Convert boundary to bytes
 				try {
-					return val.getBytes("ISO-8859-1");
+					return val.getBytes(StandardCharsets.ISO_8859_1);
 				} catch(Exception x) {
 					return val.getBytes();
 				}
@@ -283,13 +285,11 @@ public class UploadParser {
 
 	private String decodeHeaderItem(final Map<String, Object> headers, final String headername, final String keyname, final String h1, final String h2, final MiniParser mp) {
 		Object o = headers.get(headername.toLowerCase());
-		if(o == null || !(o instanceof String))
+		if(!(o instanceof String))
 			return null;
 		String hdr = (String) o;
-		if(!hdr.startsWith(h1)) {
-			if(h2 == null || !hdr.startsWith(h2))
-				return null;
-		}
+		if(!hdr.startsWith(h1) && (h2 == null || !hdr.startsWith(h2)))
+			return null;
 
 		//-- Header found.. Now locate the thingy we need.
 		mp.init(hdr);

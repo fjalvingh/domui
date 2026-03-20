@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4/12/16.
  */
+@SuppressWarnings({"squid:S5443"})
 @NonNullByDefault
 public class FileIterator implements Iterable<Entry> {
 	private final File m_root;
@@ -60,8 +61,6 @@ public class FileIterator implements Iterable<Entry> {
 	}
 
 	private final static class Iter implements Iterator<Entry> {
-		final private File m_root;
-
 		private StringBuilder m_pathSb = new StringBuilder();
 
 		private final List<Level> m_levelStack = new ArrayList<>();
@@ -69,7 +68,6 @@ public class FileIterator implements Iterable<Entry> {
 		private boolean m_lastPopped;
 
 		public Iter(File root) {
-			m_root = root;
 			File[] files = root.listFiles();
 			if(files != null && files.length != 0)
 				m_levelStack.add(new Level(files, ""));

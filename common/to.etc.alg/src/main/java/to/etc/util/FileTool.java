@@ -77,6 +77,7 @@ import java.util.zip.ZipOutputStream;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * @version 1.0
  */
+@SuppressWarnings({"squid:S4790", "squid:S5042", "squid:S5443"})
 public class FileTool {
 	private static final Logger LOG = LoggerFactory.getLogger(FileTool.class);
 
