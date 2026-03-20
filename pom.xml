@@ -94,6 +94,7 @@
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <sonar.skip>true</sonar.skip>
 
         <!-- Plugin versions -->
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
@@ -913,11 +914,13 @@
         <profile>
             <id>sonar-domui</id>
             <properties>
+                <sonar.skip>false</sonar.skip>
                 <sonar.organization>fjalvingh</sonar.organization>
                 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
                 <sonar.projectKey>fjalvingh_domui</sonar.projectKey>
             </properties>
         </profile>
+
 
 		<profile>
 			<id>coverage</id>
