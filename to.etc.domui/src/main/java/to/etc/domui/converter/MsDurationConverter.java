@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
+import to.etc.util.StringTool;
 
 import java.util.Locale;
 
@@ -42,7 +43,7 @@ public class MsDurationConverter implements IConverter<Long> {
 			return "";
 		if(in.longValue() < 0)
 			return "";
-		return strDurationMillis(in.longValue());
+		return StringTool.strDurationMillis(in.longValue(), loc);
 	}
 
 	@Override
@@ -120,60 +121,6 @@ public class MsDurationConverter implements IConverter<Long> {
 			ct++;
 			ms.accept();
 		}
-	}
-
-	static public String strDurationMillis(long dlt) {
-		StringBuilder sb = new StringBuilder();
-
-		int millis = (int) (dlt % 1000); // Get milliseconds,
-		dlt /= 1000; // Now in seconds,
-
-		boolean sp = false;
-		if(dlt >= DAYS) {
-			sb.append(dlt / DAYS);
-			sb.append("D");
-			dlt %= DAYS;
-			sp = true;
-		}
-		if(dlt >= HOURS) {
-			long v = dlt / HOURS;
-			if(v != 0) {
-				if(sp)
-					sb.append(' ');
-				sb.append(v);
-				sb.append("u");
-				sp = true;
-			}
-			dlt %= HOURS;
-		}
-		if(dlt >= 60) {
-			long v = dlt / 60;
-			if(v != 0) {
-				if(sp)
-					sb.append(' ');
-				sb.append(v);
-				sb.append("m");
-				sp = true;
-			}
-			dlt %= 60;
-		}
-		if(dlt != 0) {
-			if(sp)
-				sb.append(' ');
-			sb.append(dlt);
-			sb.append("s");
-			sp = true;
-		}
-		if(millis != 0) {
-			if(sp)
-				sb.append(' ');
-			sb.append(millis);
-			sb.append("ms");
-		}
-		if(sb.length() == 0) {
-			sb.append("0s");
-		}
-		return sb.toString();
 	}
 
 }
