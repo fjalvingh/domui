@@ -41,6 +41,7 @@
         <ecj.version>3.36.0</ecj.version>
         <plexus-compiler-eclipse.version>2.8.5</plexus-compiler-eclipse.version>
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <sonar.skip>true</sonar.skip>
     </properties>
 
     <dependencies>

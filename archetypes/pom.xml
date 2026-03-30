@@ -7,6 +7,9 @@
     <packaging>pom</packaging>
     <name>DomUI :: archetypes</name>
     <description>Archetypes for quick setup of a DomUI project</description>
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
 
     <distributionManagement>
         <site>

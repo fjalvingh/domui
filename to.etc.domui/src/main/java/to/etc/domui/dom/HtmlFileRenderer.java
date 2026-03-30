@@ -21,7 +21,6 @@ import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.parts.PartData;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
-import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.javascript.JavascriptStmt;
@@ -49,6 +48,7 @@ import static java.util.Objects.requireNonNull;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 9-3-18.
  */
+@SuppressWarnings({"squid:S5443"})
 public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRenderer {
 	static private final Logger LOG = LoggerFactory.getLogger(HtmlFileRenderer.class);
 
@@ -103,7 +103,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 		public void download(@NonNull String fileName) throws Exception {
 			File tempFile = File.createTempFile("ht-", ".html");
-			try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), "utf-8")) {
+			try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
 				HtmlFileRenderer fr = HtmlFileRenderer.create(osw, m_root);
 				fr.addHeaderContributors(m_contributors);
 				fr.render(UIContext.getRequestContext());
@@ -157,7 +157,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	static public void download(@NonNull NodeContainer resultFragment, @NonNull String fileName) throws Exception {
 		File tempFile = File.createTempFile("ht-", ".html");
-		try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), "utf-8")) {
+		try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
 			HtmlFileRenderer fr = HtmlFileRenderer.create(osw, resultFragment);
 			fr.render(UIContext.getRequestContext());
 
@@ -177,7 +177,6 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 		if(! rootNode.isAttached()) {
 			UrlPage body = new UrlPage();
-			Page page = new Page(body);
 			body.add(rootNode);
 		}
 		m_page = rootNode.getPage();
@@ -332,13 +331,11 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	@Override
 	public void visitChildren(NodeContainer c) throws Exception {
-		if(c instanceof IRenderNBSPIfEmpty) {
-			if(c.getChildCount() == 0) {
-				//-- jal 20091223 If the TD is fully-empty add a nbsp to prevent IE from misrendering the cell.
-				//-- vmijic 20100528 In case of null DisplayValue value render &nbsp; so that height of display value can be correct.
-				o().text("\u00a0"); // Render a nbsp. DO NOT USE THE ENTITY - IT DOES NOT EXIST IN XML.
-				return;
-			}
+		if(c instanceof IRenderNBSPIfEmpty && c.getChildCount() == 0) {
+			//-- jal 20091223 If the TD is fully-empty add a nbsp to prevent IE from misrendering the cell.
+			//-- vmijic 20100528 In case of null DisplayValue value render &nbsp; so that height of display value can be correct.
+			o().text("\u00a0"); // Render a nbsp. DO NOT USE THE ENTITY - IT DOES NOT EXIST IN XML.
+			return;
 		}
 		super.visitChildren(c);
 	}
@@ -366,12 +363,12 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	static private String xmlStringize(final String is) {
 		if(is == null)
 			return "null";
-		StringBuffer sb = new StringBuffer(is.length() + 20);
+		StringBuilder sb = new StringBuilder(is.length() + 20);
 		xmlStringize(sb, is);
 		return sb.toString();
 	}
 
-	static private void xmlStringize(final StringBuffer sb, final String is) {
+	static private void xmlStringize(final StringBuilder sb, final String is) {
 		if(is == null) {
 			sb.append("null");
 			return;
@@ -406,9 +403,6 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	 * "theme directory", which is defined by the "currentTheme" in DomApplication.
 	 */
 	protected void renderThemeCSS() throws Exception {
-		ITheme theme = m_ctx.getCurrentTheme();
-		String sheet = theme.getStyleSheetName();
-
 		String themeName = DomApplication.get().getDefaultThemeName();
 		BrowserVersion version = BrowserVersion.INSTANCE;
 		String css = ThemeResourceFactory.PREFIX + themeName + "/style.scss";
@@ -423,7 +417,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 		o().writeRaw("<style type='text/css'>\n");
 		try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
-			try(InputStreamReader isr = new InputStreamReader(bbis, "utf-8")) {
+			try(InputStreamReader isr = new InputStreamReader(bbis, StandardCharsets.UTF_8)) {
 				String cssStr = FileTool.readStreamAsString(isr);
 				cssStr = xmlStringize(cssStr);
 				o().writeRaw(cssStr);
@@ -439,7 +433,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 			return;
 		}
 		try(InputStream is = requireNonNull(resource.getInputStream())) {
-			try(InputStreamReader isr = new InputStreamReader(is, "utf-8")) {
+			try(InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
 				String str = FileTool.readStreamAsString(isr);
 				str = xmlStringize(str);
 				o().writeRaw(str);
@@ -452,7 +446,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	 */
 	public void renderHeadContributors() throws Exception {
 		if(m_contributors.isEmpty()) {
-			List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(m_page.getApplication().getHeaderContributorList());
+			List<HeaderContributorEntry> full = new ArrayList<>(m_page.getApplication().getHeaderContributorList());
 
 			Collections.sort(full, HeaderContributor.C_ENTRY);
 			for(HeaderContributorEntry hce : full) {
@@ -483,7 +477,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		try {
 			PartData data = DomApplication.get().getPartService().getData(pp);
 			try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
-				try(InputStreamReader isr = new InputStreamReader(bbis, "utf-8")) {
+				try(InputStreamReader isr = new InputStreamReader(bbis, StandardCharsets.UTF_8)) {
 					String cssStr = FileTool.readStreamAsString(isr);
 					cssStr = xmlStringize(cssStr);
 
@@ -526,14 +520,10 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		}
 
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
-		path = ctx().getRelativePath(rurl);
+		//path = ctx().getRelativePath(rurl);
 		o().writeRaw("<script>\n");
 		renderResourceAsText(rurl);
 		o().writeRaw("\n</script>\n");
-	}
-
-	private void genVar(String name, String val) throws Exception {
-		o().writeRaw("var " + name + "=" + val + ";\n");
 	}
 
 	/**

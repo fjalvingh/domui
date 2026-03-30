@@ -64,6 +64,9 @@ final public class DateUtil {
 	@Nullable
 	private static Date m_systemTestDate;
 
+	@Nullable
+	private static Date m_systemTestDateTime;
+
 	/**
 	 * A fixed date way into the future.
 	 */
@@ -699,10 +702,14 @@ final public class DateUtil {
 
 	@NonNull
 	public synchronized static Date now() {
-
 		Calendar now = m_testDate.get();
 		if(null == now) {
-			Date systemTestDate = m_systemTestDate;
+			Date systemTestDate = m_systemTestDateTime;
+			if(null != systemTestDate) {
+				return systemTestDate;
+			}
+
+			systemTestDate = m_systemTestDate;
 			if(null == systemTestDate) {
 				return new Date();
 			}
@@ -717,9 +724,8 @@ final public class DateUtil {
 			return cal.getTime();
 		}
 
-		Calendar cal = Calendar.getInstance();
-		setDate(cal, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-		return cal.getTime();
+		//Calendar cal = Calendar.getInstance();
+		return new Date();
 	}
 
 	public static void setTestDate(@Nullable Date now) {
@@ -737,15 +743,23 @@ final public class DateUtil {
 		return (null != m_testDate.get() || null != m_systemTestDate);
 	}
 
+	/**
+	 * Set a global (all threads) DATE for testing. The time part of now is
+	 * determined by the current time.
+	 */
 	public synchronized static void setSystemTestDate(@Nullable Date now) {
 		if(null == now) {
 			m_systemTestDate = null;
 			return;
 		}
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(now);
-		clearTime(cal);
-		m_systemTestDate = cal.getTime();
+		m_systemTestDate = now;
+	}
+
+	/**
+	 * Set an exact matching date/time to use for all now() calls.
+	 */
+	public synchronized static void setSystemTestDateTime(@Nullable Date date) {
+		m_systemTestDateTime = date;
 	}
 
 	/**

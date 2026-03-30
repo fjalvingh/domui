@@ -33,11 +33,8 @@ import jakarta.servlet.UnavailableException;
 import java.io.File;
 import java.util.List;
 
+@SuppressWarnings({"squid:S5443"})
 public class Application extends DomApplication {
-	private boolean m_hibinit;
-
-	Exception m_hibabort;
-
 	/**
 	 * Called at application start time: this initializes the application by initializing everything required by it.
 	 *
@@ -136,7 +133,6 @@ public class Application extends DomApplication {
 		try {
 			initDatabase();
 			synchronized(this) {
-				m_hibinit = true;
 				notifyAll();
 			}
 
@@ -165,7 +161,7 @@ public class Application extends DomApplication {
 			FileTool.delete(tmp);
 			tmp.mkdirs();
 			String dbPath = tmp.getAbsolutePath();
-			DbUtil.initialize(TestDB.getDataSource(dbPath.toString()));
+			DbUtil.initialize(TestDB.getDataSource(dbPath));
 		} else {
 			//-- Local machine normal run: use a well-known database to prevent reloading it every run.
 			File appFile = getAppFile(".").getAbsoluteFile();

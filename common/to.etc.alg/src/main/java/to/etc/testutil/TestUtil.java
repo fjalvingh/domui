@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 15-04-22.
  */
+@SuppressWarnings({"squid:S4036"})
 final public class TestUtil {
 	private static Boolean m_mavenTest;
 

@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -77,6 +78,11 @@ public class StringTool {
 	static private final long DAYS = 24L * 60 * 60;
 
 	static private final long HOURS = 60L * 60;
+
+	/** Returns "u" for Dutch (uur), "h" for other locales (hour). */
+	private static String hourSuffix(Locale locale) {
+		return "nl".equals(locale.getLanguage()) ? "u" : "h";
+	}
 
 	/**
 	 * JRE version as a packed integer: 1.4.2.1
@@ -704,6 +710,11 @@ public class StringTool {
 
 	@NonNull
 	static public String strDuration(long dlt) {
+		return strDuration(dlt, Locale.getDefault());
+	}
+
+	@NonNull
+	static public String strDuration(long dlt, Locale locale) {
 		StringBuilder sb = new StringBuilder();
 
 		if(dlt >= DAYS) {
@@ -713,7 +724,7 @@ public class StringTool {
 		}
 		if(dlt >= HOURS) {
 			sb.append(Long.toString(dlt / HOURS));
-			sb.append("u ");
+			sb.append(hourSuffix(locale)).append(" ");
 			dlt %= HOURS;
 		}
 		if(dlt >= 60) {
@@ -728,6 +739,11 @@ public class StringTool {
 
 	@NonNull
 	static public String strDurationMillis(long dlt) {
+		return strDurationMillis(dlt, Locale.getDefault());
+	}
+
+	@NonNull
+	static public String strDurationMillis(long dlt, Locale locale) {
 		StringBuilder sb = new StringBuilder();
 
 		int millis = (int) (dlt % 1000); // Get milliseconds,
@@ -746,7 +762,7 @@ public class StringTool {
 				if(sp)
 					sb.append(' ');
 				sb.append(v);
-				sb.append("u");
+				sb.append(hourSuffix(locale));
 				sp = true;
 			}
 			dlt %= HOURS;

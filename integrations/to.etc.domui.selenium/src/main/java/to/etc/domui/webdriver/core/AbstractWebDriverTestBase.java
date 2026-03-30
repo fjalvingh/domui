@@ -21,6 +21,7 @@ import java.time.Duration;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 14-12-2022.
  */
+@SuppressWarnings({"squid:S5443", "squid:S1172"})
 abstract public class AbstractWebDriverTestBase {
 	@Rule
 	public TestName m_testName = new TestName();

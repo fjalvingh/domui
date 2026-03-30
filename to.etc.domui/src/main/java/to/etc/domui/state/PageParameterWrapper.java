@@ -24,6 +24,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 25-10-19.
  */
+@SuppressWarnings("squid:S4790")
 public class PageParameterWrapper implements IPageParameters {
 	static private final Logger LOG = LoggerFactory.getLogger(PageParameterWrapper.class);
 

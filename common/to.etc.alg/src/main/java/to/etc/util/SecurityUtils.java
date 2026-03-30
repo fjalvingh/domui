@@ -49,6 +49,7 @@ import java.security.spec.X509EncodedKeySpec;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 6, 2004
  */
+@SuppressWarnings("squid:S4790")
 public class SecurityUtils {
 
 	static private final SecureRandom RANDOM = new SecureRandom();

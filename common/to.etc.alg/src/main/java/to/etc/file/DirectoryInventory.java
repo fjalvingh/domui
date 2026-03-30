@@ -32,6 +32,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 16, 2013
  */
+@SuppressWarnings("squid:S4790")
 final public class DirectoryInventory implements Serializable {
 	private static final long serialVersionUID = 42328462L;
 

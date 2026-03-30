@@ -16,10 +16,6 @@
     <description>Syntax highlighting code using JEdit's highlighting code</description>
     <inceptionYear>2017</inceptionYear>
 
-    <properties>
-        <sonar.skip>true</sonar.skip>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

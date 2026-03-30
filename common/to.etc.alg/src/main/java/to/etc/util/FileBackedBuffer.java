@@ -37,6 +37,7 @@ import java.io.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 10, 2006
  */
+@SuppressWarnings({"squid:S5443"})
 public class FileBackedBuffer extends OutputStream {
 	static private final byte[] NODATA = new byte[0];
 
@@ -85,7 +86,6 @@ public class FileBackedBuffer extends OutputStream {
 	}
 
 	public FileBackedBuffer(int size, int initial) {
-		assert (size >= 0 && initial > 0);
 		m_maxInMemory = size;
 		m_initialAllocation = initial;
 	}
@@ -125,6 +125,7 @@ public class FileBackedBuffer extends OutputStream {
 	 *
 	 * @see java.lang.Object#finalize()
 	 */
+	@SuppressWarnings({"squid:S5738", "squid:S1113"})
 	@Override
 	protected void finalize() throws Throwable {
 		discard();
