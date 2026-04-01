@@ -29,7 +29,8 @@ namespace WebUI {
 				val = t.value;
 			}
 
-			fields[t.id] = val;
+			if(t.id.length > 0)
+				fields[t.id] = val;
 		}
 
 		q1 = $("select").get();
@@ -40,7 +41,7 @@ namespace WebUI {
 				val = sel.options[sel.selectedIndex].value;
 			}
 
-			if(val != undefined)
+			if(val != undefined && sel.id.length > 0)
 				fields[sel.id] = val;
 		}
 		q1 = $("textarea").get();
@@ -56,7 +57,8 @@ namespace WebUI {
 			} else {
 				val = sel.value;
 			}
-			fields[sel.id] = val;
+			if(sel.id.length > 0)
+				fields[sel.id] = val;
 		}
 
 		//-- Handle all registered controls
@@ -68,7 +70,8 @@ namespace WebUI {
 				list.splice(i, 1);
 			} else {
 				let data = item.control.getInputField(fields);
-				fields[item.id] = data;
+				if(item.id.length > 0)
+					fields[item.id] = data;
 			}
 		}
 
