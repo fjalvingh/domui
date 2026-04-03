@@ -58,6 +58,14 @@ public class TestDbQCriteria {
 	}
 
 	@Test
+	public void testConditionOnList1() throws Exception {
+		QCriteria<Artist> q = QCriteria.create(Artist.class)
+			.isnotnull(Artist_.albumList());
+		List<Artist> res = dc().query(q);
+		Assert.assertEquals("Result count should be correct", 204, res.size());
+	}
+
+	@Test
 	public void testReload1() throws Exception {
 		List<Artist> artists = dc().query(QCriteria.create(Artist.class));
 

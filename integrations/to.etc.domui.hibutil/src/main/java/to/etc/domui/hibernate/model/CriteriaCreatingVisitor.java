@@ -479,12 +479,46 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 
 			case ISNOTNULL:
-				m_last = m_criteriaBuilder.isNotNull(parsePropertyPath(name));
+				if(isPluralProperty(name)) {
+					@SuppressWarnings("unchecked")
+					Expression<Collection<?>> collectionPath = (Expression<Collection<?>>) (Expression<?>) parsePropertyPath(name);
+					m_last = m_criteriaBuilder.isNotEmpty(collectionPath);
+				} else {
+					m_last = m_criteriaBuilder.isNotNull(parsePropertyPath(name));
+				}
 				break;
 			case ISNULL:
-				m_last = m_criteriaBuilder.isNull(parsePropertyPath(name));
+				if(isPluralProperty(name)) {
+					@SuppressWarnings("unchecked")
+					Expression<Collection<?>> collectionPath = (Expression<Collection<?>>) (Expression<?>) parsePropertyPath(name);
+					m_last = m_criteriaBuilder.isEmpty(collectionPath);
+				} else {
+					m_last = m_criteriaBuilder.isNull(parsePropertyPath(name));
+				}
 				break;
 		}
+	}
+
+	/**
+	 * Check if a property path resolves to a plural (collection) attribute.
+	 * When isNull/isNotNull is used on a collection, it should be translated
+	 * to isEmpty/isNotEmpty instead, since JPA does not support null checks on plural paths.
+	 */
+	private boolean isPluralProperty(String propertyName) {
+		SessionFactoryImplementor sfi = m_session.getSessionFactory().unwrap(SessionFactoryImplementor.class);
+		Class<?> currentClass = m_rootClass;
+		String[] segments = propertyName.split("\\.");
+		for(int i = 0; i < segments.length; i++) {
+			EntityPersister entityDescriptor = sfi.getMappingMetamodel().getEntityDescriptor(currentClass);
+			AttributeMapping attributeMapping = entityDescriptor.findAttributeMapping(segments[i]);
+			if(attributeMapping == null)
+				return false;
+			if(attributeMapping instanceof PluralAttributeMapping)
+				return i == segments.length - 1;
+			if(i < segments.length - 1)
+				currentClass = attributeMapping.getJavaType().getJavaTypeClass();
+		}
+		return false;
 	}
 
 	@Override
