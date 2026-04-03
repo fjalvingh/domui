@@ -628,7 +628,7 @@
             <dependency>
                 <groupId>io.github.bonigarcia</groupId>
                 <artifactId>webdrivermanager</artifactId>
-                <version>5.9.3</version>
+                <version>6.1.0</version>
 
                 <exclusions>
                     <exclusion>
@@ -651,6 +651,10 @@
                         <groupId>org.apache.commons</groupId>
                         <artifactId>commons-compress</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>net.java.dev.jna</groupId>
+                        <artifactId>jna-platform</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -664,12 +668,6 @@
                 <artifactId>httpcore5</artifactId>
                 <version>5.4</version>
             </dependency>
-
-            <!--            <dependency>-->
-            <!--                <groupId>net.bytebuddy</groupId>-->
-            <!--                <artifactId>byte-buddy</artifactId>-->
-            <!--                <version>1.10.17</version>-->
-            <!--            </dependency>-->
 
             <dependency>
                 <artifactId>okio</artifactId>

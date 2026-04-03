@@ -416,6 +416,37 @@ public class TestDbQCriteria {
 		Assert.assertEquals(3, ires.size());
 	}
 
+	/**
+	 * Test "in" with a QSelection subquery: find all customers whose country
+	 * is in the set of countries that have a customer in Paris.
+	 * SQL equivalent: SELECT * FROM Customer WHERE Country IN (SELECT Country FROM Customer WHERE City = 'Paris')
+	 */
+	@Test
+	public void testInWithSubquery() throws Exception {
+		//-- First, get expected count using a simple eq on country
+		QCriteria<Customer> controlQ = QCriteria.create(Customer.class);
+		controlQ.eq("city", "Paris");
+		List<Customer> parisCustomers = dc().query(controlQ);
+		Assert.assertTrue("Should have customers in Paris", parisCustomers.size() > 0);
+		String expectedCountry = parisCustomers.get(0).getCountry();
+
+		QCriteria<Customer> expectedQ = QCriteria.create(Customer.class);
+		expectedQ.eq("country", expectedCountry);
+		int expected = dc().query(expectedQ).size();
+		Assert.assertTrue("Should have customers in country " + expectedCountry, expected > 0);
+
+		//-- Now the same using IN with a subquery
+		QSelection<Customer> subq = QSelection.create(Customer.class);
+		subq.selectProperty("country");
+		subq.eq("city", "Paris");
+
+		QCriteria<Customer> mainq = QCriteria.create(Customer.class);
+		mainq.in("country", subq);
+
+		List<Customer> res = dc().query(mainq);
+		Assert.assertEquals(expected, res.size());
+	}
+
 	@Test
 	public void testExistsWith2ListsInSubquery() throws Exception {
 

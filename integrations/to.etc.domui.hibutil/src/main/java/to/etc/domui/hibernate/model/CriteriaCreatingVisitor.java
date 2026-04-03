@@ -337,13 +337,16 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 				throw new QQuerySyntaxException("Unexpected value for 'in' operation: " + litval + ", should be Collection or subquery");
 			}
 		} else if(rhs.getOperation() == QOperation.SELECTION_SUBQUERY) {
-			// QTODO - implement subquery IN
-			throw new NotImplementedException("in subquery not implemented yet");
-			//QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
-			//qsq.visit(this);                                        // Resolve subquery
-			//String fullName = parseSubcriteria(n.getProperty());    // Handle dotted pair in name
-			//m_last = Subqueries.propertyIn(fullName, (DetachedCriteria) m_lastSubqueryCriteria);
-			//return;
+			QSelectionSubquery qsq = (QSelectionSubquery) rhs;
+			Path<?> propPath = parsePropertyPath(name);
+			m_expectedSubqueryType = propPath.getJavaType();
+			qsq.visit(this);
+			m_expectedSubqueryType = null;
+			Subquery<?> subquery = m_lastSubqueryCriteria;
+			if(null == subquery)
+				throw new QQuerySyntaxException("Subquery was not created during visit of " + qsq);
+			m_last = m_criteriaBuilder.in(propPath, (JpaExpression<?>) subquery);
+			return;
 		} else
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 	}
