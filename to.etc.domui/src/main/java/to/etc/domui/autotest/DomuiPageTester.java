@@ -85,7 +85,6 @@ public class DomuiPageTester implements IDomUITestInfo {
 	/** Set of all nodes that were "clicked" on the "current" screen. */
 	private Set<String>		m_clickedNodeSet = new HashSet<String>();
 
-
 	static synchronized public void initApplication(@NonNull Class< ? extends DomApplication> applicationClass, @NonNull File webappFiles) throws Exception {
 		//AppFilter.initLogConfig(null, null);
 

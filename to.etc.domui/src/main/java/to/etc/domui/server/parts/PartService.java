@@ -86,7 +86,7 @@ public class PartService {
 	public PartService(DomApplication application) {
 		m_application = application;
 
-		m_cache = new LRUHashMap<>(item -> item == null ? 4 : item.getSize() + 32, 16 * 1024 * 1024); 			// Accept 16MB of resources FIXME Must be parameterized
+		m_cache = new LRUHashMap<>(item -> item == null ? 4 : item.getSize() + 32, 16 * 1024 * 1024);            // Accept 16MB of resources FIXME Must be parameterized
 		m_allowExpires = DeveloperOptions.getBool("domui.expires", true);
 	}
 
@@ -111,9 +111,9 @@ public class PartService {
 			return false;
 
 		IPartFactory factory = executionReference.getFactory();
-		if(factory instanceof IUnbufferedPartFactory) {
-			IUnbufferedPartFactory upf = (IUnbufferedPartFactory) factory;
-			DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
+		if(factory instanceof IUnbufferedPartFactory upf) {
+			Map<String, String> headerMap = DomApplication.get().getSiteResourceHeaderMap(ctx.getInputPath());
+			headerMap.forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 			upf.generate(getApplication(), executionReference.getInfo().getInputPath(), ctx);
 		} else if(factory instanceof IBufferedPartFactory) {
 			generate((IBufferedPartFactory<?>) factory, ctx, executionReference.getInfo());
@@ -164,7 +164,7 @@ public class PartService {
 			}
 		}
 
-		return null;							// No matches
+		return null;                            // No matches
 	}
 
 	@Nullable
@@ -176,6 +176,7 @@ public class PartService {
 				return new PartExecutionReference(new InternalResourcePart(), xpi);
 			}
 		} catch(Exception x) {
+			// ignore
 		}
 		return null;
 	}
@@ -202,9 +203,9 @@ public class PartService {
 		}
 
 		//-- Is this an actual .part?
-		if(! segment.endsWith(PART_SUFFIX))				// If it's not ending in .part we're done
+		if(!segment.endsWith(PART_SUFFIX))                // If it's not ending in .part we're done
 			return null;
-		segment = segment.substring(0, segment.length() - PART_SUFFIX.length());	// Remove .part to get the class name
+		segment = segment.substring(0, segment.length() - PART_SUFFIX.length());    // Remove .part to get the class name
 
 		//-- We are sure that this is a part, so the class must exist and be valid.
 		IPartFactory factory = getPartFactoryByClassName(segment);
@@ -230,7 +231,7 @@ public class PartService {
 		IPartFactory factory = m_partByClassMap.get(name);
 		if(null == factory) {
 			//-- Try to locate the factory class passed,
-			Class< ? > fc = DomUtil.findClass(getClass().getClassLoader(), name);
+			Class<?> fc = DomUtil.findClass(getClass().getClassLoader(), name);
 			if(fc == null)
 				return null;
 			if(!IPartFactory.class.isAssignableFrom(fc))
@@ -244,7 +245,7 @@ public class PartService {
 		return factory;
 	}
 
-	static private final IPartFactory makePartInst(final Class< ? > fc) {
+	static private final IPartFactory makePartInst(final Class<?> fc) {
 		try {
 			return (IPartFactory) fc.newInstance();
 		} catch(Exception x) {
@@ -255,6 +256,7 @@ public class PartService {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Buffered parts cache and code.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Helper which handles possible cached buffered parts.
 	 */
@@ -266,7 +268,8 @@ public class PartService {
 		if(cp.getCacheTime() > 0 && m_allowExpires) {
 			ctx.getRequestResponse().setExpiry(cp.getCacheTime());
 		}
-		DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
+		Map<String, String> headerMap = DomApplication.get().getSiteResourceHeaderMap(ctx.getInputPath());
+		headerMap.forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 
 		try {
 			os = ctx.getRequestResponse().getOutputStream(cp.getContentType(), null, cp.getSize());
@@ -276,15 +279,17 @@ public class PartService {
 			try {
 				if(os != null)
 					os.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// ignore
+			}
 		}
 	}
 
 	private <K> PartData getCachedInstance2(final IBufferedPartFactory<K> pf, final IPageParameters parameters) throws Exception {
 		//-- Convert the data to a key object, then lookup;
 		K key = pf.decodeKey(m_application, parameters);
-		if(key == null)
-			throw new ThingyNotFoundException("Cannot get resource for " + pf + " with rurl=" + parameters.getInputPath());
+		//if(key == null)
+		//	throw new ThingyNotFoundException("Cannot get resource for " + pf + " with rurl=" + parameters.getInputPath());
 		return getCachedInstance(pf, key);
 	}
 
@@ -307,19 +312,16 @@ public class PartService {
 		 * in development only OR also in production. This should fix VP call 27223: menu colors do not change when
 		 * VP colors are changed.
 		 */
-		if(cp != null /* && m_application.inDevelopmentMode() */) {
-			if(cp.getDependencies() != null) {
-				if(cp.getDependencies().isModified()) {
-					LOG.info("parts: part " + key + " has changed. Reloading..");
-					cp = null;
-				}
-			}
+		/* && m_application.inDevelopmentMode() */
+		if(cp != null && cp.getDependencies() != null && cp.getDependencies().isModified()) {
+			LOG.info("parts: part " + key + " has changed. Reloading..");
+			cp = null;
 		}
 		if(cp != null)
 			return cp;
 
 		//-- We're going to (re)create the part
-		ResourceDependencyList rdl = new ResourceDependencyList();	// Fix bug# 852: allow resource change checking in production also.
+		ResourceDependencyList rdl = new ResourceDependencyList();    // Fix bug# 852: allow resource change checking in production also.
 		ByteBufferOutputStream os = new ByteBufferOutputStream();
 		PartResponse pr = new PartResponse(os);
 		pf.generate(pr, m_application, key, rdl);
@@ -331,11 +333,10 @@ public class PartService {
 		os.close();
 		cp = new PartData(os.getBuffers(), os.getSize(), pr.getCacheTime(), mime, rdl.createDependencies(), pr.getExtra());
 		synchronized(m_cache) {
-			m_cache.put(key, cp); 								// Store (may be done multiple times due to race condition)
+			m_cache.put(key, cp);                                // Store (may be done multiple times due to race condition)
 		}
 		return cp;
 	}
-
 
 	private DomApplication getApplication() {
 		return m_application;

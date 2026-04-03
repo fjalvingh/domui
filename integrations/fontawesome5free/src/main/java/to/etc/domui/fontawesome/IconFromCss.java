@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-10-18.
  */
+@SuppressWarnings({"squid:S5443"})
 final public class IconFromCss {
 	private final Reader m_r;
 
@@ -36,7 +38,7 @@ final public class IconFromCss {
 		File f = new File(".").getAbsoluteFile();
 		System.out.println("Path " + f);
 		File src = new File(f, "integrations/fontawesome5free/src/main/java/to/etc/domui/fontawesome/FaIcon.java");
-		if(! src.exists())
+		if(!src.exists())
 			throw new IllegalStateException("Cannot find java source as " + src);
 
 		File file = new File(args[0]);
@@ -47,17 +49,22 @@ final public class IconFromCss {
 	}
 
 	static private final String ICON_START = "///--- BEGIN ICONS";
+
 	static private final String ICON_END = "///--- END ICONS";
+
 	static private final String MAP_START = "///--- BEGIN MAP";
+
 	static private final String MAP_END = "///--- END MAP";
 
 	enum InSection {
-		COPY, ICONS, MAP
+		COPY,
+		ICONS,
+		MAP
 	}
 
 	private static void renderOutput(File src, List<String> names, Map<String, Ren> map) throws Exception {
-		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(src), "utf-8"))) {
-			try(OutputStreamWriter of = new OutputStreamWriter(new FileOutputStream(new File("/tmp/FaIcon.java")), "utf-8")) {
+		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(src), StandardCharsets.UTF_8))) {
+			try(OutputStreamWriter of = new OutputStreamWriter(new FileOutputStream(new File("/tmp/FaIcon.java")), StandardCharsets.UTF_8)) {
 				String s;
 
 				InSection section = InSection.COPY;
@@ -121,7 +128,7 @@ final public class IconFromCss {
 			if(null != ren) {
 				newName = alterName(ren.m_new);
 			} else {
-				if(! nameSet.contains(newName))
+				if(!nameSet.contains(newName))
 					throw new IllegalStateException("Missing icon " + icon.name());
 			}
 			of.write("\t\tIcon.setIcon(Icon.");
@@ -142,18 +149,16 @@ final public class IconFromCss {
 
 			String mainClass = "fa";
 			Ren ren = by.get(key);
-			if(null != ren) {
-				//System.out.println("Got name");
-				if(!"fa".equals(ren.m_prefix) && !"fas".equals(ren.m_prefix))
-					mainClass = ren.m_prefix;
-			}
+			//System.out.println("Got name");
+			if(null != ren && !"fa".equals(ren.m_prefix) && !"fas".equals(ren.m_prefix))
+				mainClass = ren.m_prefix;
 
 			of.write("\t" + alterName(name) + "(\"" + name + "\",\"" + mainClass + "\"),\n");
 		}
 	}
 
 	private static List<String> loadNames(File file) throws Exception {
-		try(Reader r = new InputStreamReader(new FileInputStream(file), "utf-8") ) {
+		try(Reader r = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
 			return new IconFromCss(r).render();
 		}
 	}
@@ -199,7 +204,7 @@ final public class IconFromCss {
 						m_state = State.findDot;
 					} else if(t == '.') {
 						sb.setLength(0);
-					} else if(! Character.isWhitespace(t)){
+					} else if(!Character.isWhitespace(t)) {
 						sb.append((char) t);
 					}
 					break;
@@ -224,7 +229,7 @@ final public class IconFromCss {
 					} else if(t == '}') {
 						sb.setLength(0);
 						m_state = State.findDot;
-					} else if(! Character.isWhitespace(t)) {
+					} else if(!Character.isWhitespace(t)) {
 						sb.append((char) t);
 					}
 					break;
@@ -240,7 +245,7 @@ final public class IconFromCss {
 	}
 
 	static String alterName(String faname) {
-		if(! faname.startsWith("fa-"))
+		if(!faname.startsWith("fa-"))
 			faname = "fa-" + faname;
 
 		StringBuilder sb = new StringBuilder();
@@ -259,12 +264,11 @@ final public class IconFromCss {
 		return sb.toString();
 	}
 
-
 	private static Map<String, Ren> loadMap(File f) throws Exception {
 		File mapf = new File(f.getParent(), f.getName() + ".moves");
 
 		Map<String, Ren> map = new HashMap<>();
-		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(mapf), "utf-8")) ) {
+		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(mapf), StandardCharsets.UTF_8))) {
 			String s;
 
 			while(null != (s = r.readLine())) {
@@ -289,7 +293,9 @@ final public class IconFromCss {
 
 	static private final class Ren {
 		public final String m_old;
+
 		public final String m_new;
+
 		public final String m_prefix;
 
 		public Ren(String old, String aNew, String prefix) {

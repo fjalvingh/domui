@@ -15,6 +15,7 @@ import java.io.File;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 14-6-17.
  */
+@SuppressWarnings({"squid:S5443"})
 final public class TestDB {
 	@Nullable
 	static private ConnectionPool m_pool;

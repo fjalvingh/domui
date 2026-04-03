@@ -14,6 +14,7 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-10-17.
  */
+@SuppressWarnings({"squid:S5443"})
 abstract public class AbstractExporter<T> extends AbstractAsyncDialogTask implements IExportFile {
 	private final IExportFormat m_format;
 

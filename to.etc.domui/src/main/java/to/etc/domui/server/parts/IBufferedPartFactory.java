@@ -33,9 +33,6 @@ public interface IBufferedPartFactory<K> extends IPartFactory {
 	/**
 	 * Decode the input and create a KEY for the request. This key must be hashable, and forms
 	 * the key for the cache to retrieve an already generated copy.
-	 *
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	K decodeKey(@NonNull DomApplication application, @NonNull IPageParameters param) throws Exception;
@@ -44,15 +41,13 @@ public interface IBufferedPartFactory<K> extends IPartFactory {
 	 * This must generate the output for the resource. That output will be put into the cache and re-rendered
 	 * when the same resource is used <i>without</i> calling this method again.
 	 *
-	 * @param os		The stream to write the data to.
-	 * @param da		The Application on behalf of which this resource is generated.
-	 * @param key		The key, as specified by decodeKey.
-	 * @param rdl		When running in development mode, each file resource used should be added
-	 * 					to this list. The buffer code will use that list to check whether a source
-	 * 					for this thing has changed; if so it will be re-generated. This causes runtime
-	 * 					editability for parameter files of any buffered thingydoo.
-	 * @return
-	 * @throws Exception
+	 * @param pr  The response to write the data to.
+	 * @param da  The Application on behalf of which this resource is generated.
+	 * @param key The key, as specified by decodeKey.
+	 * @param rdl When running in development mode, each file resource used should be added
+	 *            to this list. The buffer code will use that list to check whether a source
+	 *            for this thing has changed; if so it will be re-generated. This causes runtime
+	 *            editability for parameter files of any buffered thingydoo.
 	 */
 	void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull K key, @NonNull IResourceDependencyList rdl) throws Exception;
 }

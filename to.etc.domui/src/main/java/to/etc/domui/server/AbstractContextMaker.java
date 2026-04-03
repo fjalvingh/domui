@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 abstract public class AbstractContextMaker implements IContextMaker {
@@ -48,8 +49,8 @@ abstract public class AbstractContextMaker implements IContextMaker {
 
 	private static final String LOCALE_PARAM = "___locale";
 
-	@Override
-	abstract public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception;
+	//@Override
+	//abstract public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception;
 
 	private static class Pair {
 		@NonNull
@@ -76,7 +77,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 	/**
 	 * Maps URL patterns to a default IE emulation mode to send as a header.
 	 */
-	private List<Pair> m_ieEmulationList = new ArrayList<Pair>();
+	private List<Pair> m_ieEmulationList = new ArrayList<>();
 
 	public AbstractContextMaker(ConfigParameters pp) throws UnavailableException {
 		decodeParameters(pp);
@@ -148,12 +149,11 @@ abstract public class AbstractContextMaker implements IContextMaker {
 				ctx.flush();
 			} else {
 				//-- Non-DomUI request.
-				DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
+				Map<String, String> headerMap = DomApplication.get().getSiteResourceHeaderMap(ctx.getInputPath());
+
+				headerMap.forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 				handleDoFilter(chain, requestResponse.getRequest(), requestResponse.getResponse());
 			}
-
-			//requestResponse.getResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
-			//requestResponse.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 		} catch(HttpCallException x) {
 			requestResponse.getResponse().sendError(x.getCode(), x.getMessage());
 		} catch(Exception xxx) {
@@ -198,7 +198,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		wsr.flushBuffer();
 	}
 
-
+	@SuppressWarnings("squid:S2139")
 	static public void callInterceptorsBegin(final List<IRequestInterceptor> il, final RequestContextImpl ctx) throws Exception {
 		int i;
 		for(i = 0; i < il.size(); i++) {

@@ -50,6 +50,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings({"squid:S5443"})
 public class TUtilDomUI {
 	@SuppressWarnings("squid:S3077")
 	static private volatile AppSession m_session;

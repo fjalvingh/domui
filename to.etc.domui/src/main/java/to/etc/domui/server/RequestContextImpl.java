@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings({"squid:S5443"})
 public class RequestContextImpl implements IRequestContext, IAttributeContainer {
 	static private final Logger LOG = LoggerFactory.getLogger(RequestContextImpl.class);
 

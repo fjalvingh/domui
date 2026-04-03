@@ -629,6 +629,45 @@ public class TestDbQCriteria {
 	/*	CODING:	Like on non-string properties.							    */
 	/*----------------------------------------------------------------------*/
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Commit / transaction semantics tests.					    */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Save a new Artist, commit, then read it back via dc().get() and verify the name.
+	 * The ID is assigned automatically from the artist_sq sequence (@SequenceGenerator on getId()).
+	 * Cleans up the inserted record afterward.
+	 */
+	@Test
+	public void testSaveAndCommit() throws Exception {
+		String uniqueName = "TestArtist_" + System.nanoTime();
+
+		Artist artist = new Artist();
+		artist.setName(uniqueName);
+		dc().save(artist);
+		dc().commit();
+
+		Long savedId = artist.getId();
+		Assert.assertNotNull("Saved artist should have a sequence-assigned ID after commit", savedId);
+
+		tearDownConnection();
+		setUpConnection();
+		try {
+			Artist found = dc().get(Artist.class, savedId);
+			Assert.assertEquals("Artist name should match the saved value", uniqueName, found.getName());
+		} finally {
+			Artist toDelete = dc().find(Artist.class, savedId);
+			if(toDelete != null) {
+				try {
+					dc().delete(toDelete);
+					dc().commit();
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+			}
+		}
+	}
+
 	/**
 	 * Test like on a BigDecimal property. This uses CAST(column AS VARCHAR)
 	 * under the covers since like is a string operation.

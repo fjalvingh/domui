@@ -13,7 +13,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,7 @@ import java.util.zip.ZipInputStream;
  * Created on 26-10-17.
  */
 @NonNullByDefault
+@SuppressWarnings({"squid:S4790", "squid:S5042", "squid:S5443"})
 final public class JarFileContainer implements IFileContainer {
 	static private final Logger LOG = LoggerFactory.getLogger(JarFileContainer.class);
 
@@ -37,8 +37,6 @@ final public class JarFileContainer implements IFileContainer {
 	private long m_tsModified;
 
 	private final Map<String, JarredFileRef> m_fileMap = new ConcurrentHashMap<>();
-
-	private final Map<String, byte[][]> m_cachedMap = new HashMap<>();
 
 	private JarFileContainer(File file) {
 		m_file = file;

@@ -72,7 +72,6 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 				return m_icon.equals(other.m_icon);
 		}
 
-
 	}
 
 	@Override
@@ -90,7 +89,7 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 		if(k.isSprite())
 			bi = prepareSpriteImage(bi);
 		else
-			bi = prepareImage(bi);
+			prepareImage(bi);
 
 		ImageIO.write(bi, "png", pr.getOutputStream());
 		pr.setMime("image/png");
@@ -118,11 +117,10 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 
 	/**
 	 * We will brute-force the conversion, since none of the known methods for grayscaling retain transparency 8-(
-	 * @param image
 	 */
 	private void convertToGrayscale(BufferedImage image) {
-		for(int y = image.getHeight(); --y >= 0;) {
-			for(int x = image.getWidth(); --x >= 0;) {
+		for(int y = image.getHeight(); --y >= 0; ) {
+			for(int x = image.getWidth(); --x >= 0; ) {
 				int argb = image.getRGB(x, y);
 
 				//-- Calculate pixel luminance retaining transparency.
@@ -139,8 +137,6 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 
 	/**
 	 * Return the URL for a grayscaled image icon. The icon should be an application-relative path.
-	 * @param icon
-	 * @return
 	 */
 	@NonNull
 	public static String getURL(@NonNull String icon) {
@@ -153,8 +149,6 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 	/**
 	 * Return the URL for a sprite containing original and grayscaled image icon.
 	 * The icon should be an application-relative path.
-	 * @param icon
-	 * @return
 	 */
 	@NonNull
 	public static String getSpriteURL(@NonNull String icon) {

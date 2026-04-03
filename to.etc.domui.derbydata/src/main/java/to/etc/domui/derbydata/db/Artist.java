@@ -3,6 +3,8 @@ package to.etc.domui.derbydata.db;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
@@ -18,7 +20,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "Artist", indexes = {@Index(name = "artist_name_idx", columnList = "name")})
-@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
+//@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
 @MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")}, defaultSortColumn = "name")
 public class Artist extends DbRecordBase<Long> {
 	private Long m_id;
@@ -30,6 +32,7 @@ public class Artist extends DbRecordBase<Long> {
 	@Override
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
 	@Column(name = "ArtistId", nullable = false, precision = 20)
 	public Long getId() {
 		return m_id;

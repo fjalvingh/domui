@@ -1,5 +1,7 @@
 package to.etc.domui.derbydata.db;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaObject;
 import to.etc.domui.component.meta.MetaSearchItem;
@@ -61,6 +63,7 @@ public class Invoice extends DbRecordBase<Long> {
 	@Override
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "invoice_sq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
 	@Column(name = "InvoiceId", nullable = false, precision = 20)
 	public Long getId() {
 		return m_id;

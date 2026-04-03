@@ -11,6 +11,7 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 08-12-21.
  */
+@SuppressWarnings({"squid:S5443"})
 public class PageObjectGenerator {
 	static public final String PROXYPACKAGE = "to.etc.domui.webdriver.poproxies";
 

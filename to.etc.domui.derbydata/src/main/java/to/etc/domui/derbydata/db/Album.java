@@ -1,5 +1,7 @@
 package to.etc.domui.derbydata.db;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaObject;
@@ -34,6 +36,7 @@ public class Album extends DbRecordBase<Long> {
 	@Override
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "album_sq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
 	@Column(name = "AlbumId", precision = 20, nullable = false)
 	public Long getId() {
 		return m_id;

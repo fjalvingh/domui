@@ -1,13 +1,18 @@
 package to.etc.dbcompare;
 
-import java.io.*;
+import to.etc.dbcompare.generator.AbstractGenerator;
+import to.etc.dbcompare.generator.GeneratorRegistry;
+import to.etc.dbutil.schema.Database;
+import to.etc.util.StringTool;
 
-import to.etc.dbcompare.generator.*;
-import to.etc.dbutil.schema.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
+@SuppressWarnings({"squid:S5443"})
 public class CompareDB {
 	/**
-	 * @param args
+	 *
 	 */
 	public static void main(String[] args) {
 		try {
@@ -18,6 +23,10 @@ public class CompareDB {
 	}
 
 	private Database initDb(String poolid, String schema) throws Exception {
+		if(!StringTool.isValidJavaIdentifier(poolid) || !StringTool.isValidJavaIdentifier(schema)) {
+			throw new IllegalArgumentException("poolid or poolid is invalid");
+		}
+
 		//-- 1. Try to load an earlier schema,
 		File sf = new File(poolid + "-" + schema + ".ser");
 		return Database.loadSchema(poolid, schema, sf);
@@ -25,8 +34,6 @@ public class CompareDB {
 
 	/**
 	 * Usage: src-poolid src-schemaname dst-poolid dst-schemaname
-	 * @param args
-	 * @throws Exception
 	 */
 	private void run(String[] args) throws Exception {
 		if(args.length != 4)

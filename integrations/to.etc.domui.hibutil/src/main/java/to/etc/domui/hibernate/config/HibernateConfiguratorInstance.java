@@ -294,7 +294,7 @@ final public class HibernateConfiguratorInstance {
 		if(DeveloperOptions.getBool("hibernate.format_sql", true)) {
 			serviceBuilder.applySetting("hibernate.format_sql", "true");
 		}
-		serviceBuilder.applySetting(JdbcSettings.CONNECTION_HANDLING, PhysicalConnectionHandlingMode.DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT);
+		serviceBuilder.applySetting(JdbcSettings.CONNECTION_HANDLING, PhysicalConnectionHandlingMode.DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION);
 
 		switch(m_mode){
 			default:

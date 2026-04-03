@@ -11,7 +11,6 @@ import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeDriverService.Builder;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.CapabilityType;
@@ -28,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -38,11 +38,15 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 /**
  * Factory to create raw WebDriver instances.
  */
+@SuppressWarnings({"squid:S5443"})
 @NonNullByDefault
 final class WebDriverFactory {
 	private static Logger LOG = LoggerFactory.getLogger(WebDriverFactory.class);
 
 	private static boolean m_chromeDriverUpdated;
+
+	private WebDriverFactory() {
+	}
 
 	/**
 	 * Allocate a WebDriver instance with the specified characteristics.
@@ -197,7 +201,7 @@ final class WebDriverFactory {
 				+ "</edit>\n"
 				+ "</match>";
 			try(FileOutputStream fos = new FileOutputStream(conf)) {
-				fos.write(text.getBytes("UTF-8"));
+				fos.write(text.getBytes(StandardCharsets.UTF_8));
 			}
 			m_fontConfigDir = fontConfigDir;
 		}
@@ -283,7 +287,7 @@ final class WebDriverFactory {
 
 	@NonNull
 	private static WebDriver allocateFirefoxDriver(Locale lang) throws IOException {
-		FirefoxOptions fo = new FirefoxOptions();
+		//FirefoxOptions fo = new FirefoxOptions();
 
 		////-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
 		//File dir = createFontConfigFile();
@@ -311,12 +315,8 @@ final class WebDriverFactory {
 		File home = new File(System.getProperty("user.home"));
 		final File dotfont = new File(home, ".fonts.conf");
 		final File dotbackup = new File(home, "fonts.conf.backup");
-		if(!dotbackup.exists()) {
-			if(dotfont.exists()) {
-				if(!dotfont.renameTo(dotbackup)) {
-					throw new IOException("Cannot rename " + dotfont + " to " + dotbackup);
-				}
-			}
+		if(!dotbackup.exists() && dotfont.exists() && !dotfont.renameTo(dotbackup)) {
+			throw new IOException("Cannot rename " + dotfont + " to " + dotbackup);
 		}
 
 		//-- Now write a new .fonts.conf
@@ -326,7 +326,7 @@ final class WebDriverFactory {
 			+ "</edit>\n"
 			+ "</match>";
 		try(FileOutputStream fos = new FileOutputStream(dotfont)) {
-			fos.write(text.getBytes("UTF-8"));
+			fos.write(text.getBytes(StandardCharsets.UTF_8));
 		}
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -336,10 +336,8 @@ final class WebDriverFactory {
 					if(!dotfont.delete()) {
 						System.err.println("FAILED TO DELETE " + dotfont);
 					}
-					if(dotbackup.exists()) {
-						if(!dotbackup.renameTo(dotfont)) {
-							System.err.println("FAILED TO RENAME " + dotbackup + " back to " + dotfont);
-						}
+					if(dotbackup.exists() && !dotbackup.renameTo(dotfont)) {
+						System.err.println("FAILED TO RENAME " + dotbackup + " back to " + dotfont);
 					}
 
 				} catch(Exception x) {
