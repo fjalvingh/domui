@@ -119,7 +119,7 @@
         <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
         <maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
 
-        <hibernate.core.version>7.2.2.Final</hibernate.core.version>
+        <hibernate.core.version>7.2.9.Final</hibernate.core.version>
         <javassist.version>3.23.1-GA</javassist.version>
 
         <bouncy.version>1.79</bouncy.version>
