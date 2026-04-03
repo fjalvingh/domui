@@ -102,7 +102,24 @@ public class TestDbQCriteria {
 		dc().rollback();			// Don't permanently delete test data
 	}
 
+	@Test
+	public void testDeleteWithoutCascade3() throws Exception {
+		//-- Load a root level instance
+		Artist artist = dc().get(Artist.class, 3L);
 
+		//-- Now find its children, but not using the Collection.
+		QCriteria<Album> aq = QCriteria.create(Album.class)
+			.eq(Album_.artist(), artist)
+			;
+		List<Album> list = dc().query(aq);
+		for(Album album : list) {
+			album.getArtist().getName();				// Make sure all children refer the parent, but the parent's collection remains unloaded
+		}
+
+		dc().delete(artist);
+		dc().flushIfPossible();		// Verify no TransientPropertyValueException during flush
+		dc().rollback();			// Don't permanently delete test data
+	}
 
 	/**
 	 * isnotnull on a list property should mean "where there are items in that list".

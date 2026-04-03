@@ -26,10 +26,13 @@ package to.etc.domui.hibernate.generic;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.engine.spi.PersistenceContext;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.metamodel.mapping.AttributeMapping;
 import org.hibernate.metamodel.mapping.EntityValuedModelPart;
 import org.hibernate.metamodel.mapping.PluralAttributeMapping;
+import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.query.Query;
 import to.etc.domui.hibernate.model.GenericHibernateHandler;
@@ -44,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -102,6 +106,10 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 	 * After session.remove(parent), children handled by JPA cascade are already
 	 * REMOVED and session.contains() returns false for them, so only children
 	 * without JPA cascade (still MANAGED) get detached.
+	 *
+	 * For uninitialized collections (children loaded via a separate query, not
+	 * through the collection getter), we scan the persistence context for
+	 * managed entities whose back-reference points to the deleted entity.
 	 */
 	private void detachLoadedChildren(Session session, Object entity, Set<Object> visited) {
 		if(!visited.add(entity))
@@ -112,7 +120,7 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 		var attributeMappings = persister.getAttributeMappings();
 		for(int i = 0; i < attributeMappings.size(); i++) {
 			AttributeMapping attr = attributeMappings.get(i);
-			if(attr instanceof PluralAttributeMapping) {
+			if(attr instanceof PluralAttributeMapping pluralAttr) {
 				Object collectionValue = attr.getPropertyAccess().getGetter().get(entity);
 				if(collectionValue instanceof Collection<?> coll && Hibernate.isInitialized(coll)) {
 					for(Object child : new ArrayList<>(coll)) {
@@ -121,6 +129,10 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 							session.detach(child);
 						}
 					}
+				} else {
+					// Collection not initialized: children may still be in the persistence
+					// context (loaded via a separate query). Scan for them using mappedBy.
+					detachOrphanedChildrenFromPersistenceContext(session, entity, pluralAttr, visited);
 				}
 			} else if(attr instanceof EntityValuedModelPart) {
 				// Follow loaded singular entity associations (ManyToOne/OneToOne)
@@ -131,6 +143,85 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 				}
 			}
 		}
+	}
+
+	/**
+	 * For an uninitialized collection on a deleted entity, scan the persistence
+	 * context for managed entities of the collection's element type whose
+	 * back-reference (mappedBy) points to the deleted entity, and detach them.
+	 */
+	private void detachOrphanedChildrenFromPersistenceContext(Session session, Object deletedEntity, PluralAttributeMapping pluralAttr, Set<Object> visited) {
+		CollectionPersister collPersister = pluralAttr.getCollectionDescriptor();
+		String mappedByProperty = collPersister.getMappedByProperty();
+		if(mappedByProperty == null) {
+			return;	// Not a bidirectional association; nothing to scan for
+		}
+
+		// Get element class from the element descriptor's Java type (getElementClass() returns null in Hibernate 7.2+)
+		Class<?> elementClass = pluralAttr.getElementDescriptor().getJavaType().getJavaTypeClass();
+		if(elementClass == null) {
+			return;
+		}
+
+		// Get the element entity's persister to resolve the mappedBy attribute getter
+		SessionFactoryImplementor sfi = session.getSessionFactory().unwrap(SessionFactoryImplementor.class);
+		EntityPersister elementPersister;
+		try {
+			elementPersister = sfi.getMappingMetamodel().getEntityDescriptor(elementClass);
+		} catch(Exception ex) {
+			return; // Not an entity type (e.g. embeddable collection)
+		}
+		AttributeMapping backRef = elementPersister.findAttributeMapping(mappedByProperty);
+		if(backRef == null) {
+			return;
+		}
+
+		// Iterate all managed entities in the persistence context
+		PersistenceContext pc = ((SessionImpl) session).getPersistenceContext();
+		Iterator<Object> managedEntities = pc.managedEntitiesIterator();
+		List<Object> toDetach = new ArrayList<>();
+		while(managedEntities.hasNext()) {
+			Object managed = managedEntities.next();
+			if(!elementClass.isInstance(managed)) {
+				continue;
+			}
+			if(!session.contains(managed)) {
+				continue;
+			}
+			Object ref = backRef.getPropertyAccess().getGetter().get(managed);
+			if(ref == null) {
+				continue;
+			}
+			// Check if the back-reference points to the deleted entity (by identity or by PK)
+			if(isSameEntity(sfi, session, ref, deletedEntity)) {
+				toDetach.add(managed);
+			}
+		}
+		for(Object child : toDetach) {
+			if(session.contains(child)) {
+				detachLoadedChildren(session, child, visited);
+				session.detach(child);
+			}
+		}
+	}
+
+	/**
+	 * Check whether two entity references (which may be proxies) refer to the same
+	 * persistent entity, comparing first by identity, then by class + primary key.
+	 */
+	private boolean isSameEntity(SessionFactoryImplementor sfi, Session session, Object a, Object b) {
+		if(a == b) {
+			return true;
+		}
+		Class<?> classA = Hibernate.getClass(a);
+		Class<?> classB = Hibernate.getClass(b);
+		if(!classA.equals(classB)) {
+			return false;
+		}
+		EntityPersister persister = sfi.getMappingMetamodel().getEntityDescriptor(classA);
+		Object idA = persister.getIdentifier(a, (SessionImpl) session);
+		Object idB = persister.getIdentifier(b, (SessionImpl) session);
+		return idA != null && idA.equals(idB);
 	}
 
 	@Override
