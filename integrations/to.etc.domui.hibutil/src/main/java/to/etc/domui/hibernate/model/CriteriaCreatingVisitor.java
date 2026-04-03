@@ -34,7 +34,6 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
 import jakarta.persistence.metamodel.EntityType;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -618,7 +617,9 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		m_currentRoot = subRoot;
 		m_currentQuery = subquery;
 
-		q.getRestrictions().visit(this);                            // Calculate the basic criteria for the exists
+		QOperatorNode restrictions = q.getRestrictions();
+		if(null != restrictions)
+			restrictions.visit(this);                            // Calculate the basic criteria for the exists
 		JpaPredicate existsCriteria = m_last;
 
 		/*

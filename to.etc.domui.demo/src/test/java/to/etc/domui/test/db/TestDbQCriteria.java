@@ -57,12 +57,23 @@ public class TestDbQCriteria {
 		return m_dc;
 	}
 
+	/**
+	 * isnotnull on a list property should mean "where there are items in that list".
+	 */
 	@Test
 	public void testConditionOnList1() throws Exception {
 		QCriteria<Artist> q = QCriteria.create(Artist.class)
 			.isnotnull(Artist_.albumList());
 		List<Artist> res = dc().query(q);
 		Assert.assertEquals("Result count should be correct", 204, res.size());
+	}
+
+	@Test
+	public void testConditionOnList2() throws Exception {
+		QCriteria<Artist> q = QCriteria.create(Artist.class);
+		q.not().exists(Artist.class, Artist_.albumList());
+		List<Artist> res = dc().query(q);
+		Assert.assertEquals("Result count should be correct", 71, res.size());
 	}
 
 	@Test
