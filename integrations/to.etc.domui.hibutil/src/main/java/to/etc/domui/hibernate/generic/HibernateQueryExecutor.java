@@ -28,6 +28,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metamodel.mapping.AttributeMapping;
+import org.hibernate.metamodel.mapping.EntityValuedModelPart;
 import org.hibernate.metamodel.mapping.PluralAttributeMapping;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.query.Query;
@@ -120,6 +121,13 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 							session.detach(child);
 						}
 					}
+				}
+			} else if(attr instanceof EntityValuedModelPart) {
+				// Follow loaded singular entity associations (ManyToOne/OneToOne)
+				// to discover more of the entity graph whose children may need detaching
+				Object related = attr.getPropertyAccess().getGetter().get(entity);
+				if(related != null && Hibernate.isInitialized(related) && session.contains(related)) {
+					detachLoadedChildren(session, related, visited);
 				}
 			}
 		}

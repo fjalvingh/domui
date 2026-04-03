@@ -57,6 +57,12 @@ public class TestDbQCriteria {
 		return m_dc;
 	}
 
+	/**
+	 * Hibernate 7 adds a mess in checking that there are
+	 * no references to the deleted record in any other
+	 * relation. This check tests that this gets prevented
+	 * when walking children only.
+	 */
 	@Test
 	public void testDeleteWithoutCascade() throws Exception {
 		Artist a = dc().get(Artist.class, Long.valueOf(2));
@@ -68,6 +74,34 @@ public class TestDbQCriteria {
 		dc().flushIfPossible();		// Verify no TransientPropertyValueException during flush
 		dc().rollback();			// Don't permanently delete test data
 	}
+
+	/**
+	 * Hibernate 7 adds a mess in checking that there are
+	 * no references to the deleted record in any other
+	 * relation. This check tests that this gets prevented
+	 * when walking children only.
+	 */
+	@Test
+	public void testDeleteWithoutCascade2() throws Exception {
+		Album a = dc().get(Album.class, Long.valueOf(2));
+		Assert.assertNotNull(a);
+		for(Track t : a.getTrackList()) {					// load a child collection
+			t.getName();
+			t.getAlbum().getTitle();
+		}
+		a.getArtist().getName();							// load parent relation
+		for(Album album : a.getArtist().getAlbumList()) {
+			album.getTitle();
+			for(Track tl : album.getTrackList()) {
+				tl.getName();
+			}
+		}
+
+		dc().delete(a);
+		dc().flushIfPossible();		// Verify no TransientPropertyValueException during flush
+		dc().rollback();			// Don't permanently delete test data
+	}
+
 
 
 	/**
