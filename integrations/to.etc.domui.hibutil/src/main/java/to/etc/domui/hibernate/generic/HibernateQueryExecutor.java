@@ -24,6 +24,12 @@
  */
 package to.etc.domui.hibernate.generic;
 
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.metamodel.mapping.AttributeMapping;
+import org.hibernate.metamodel.mapping.PluralAttributeMapping;
+import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.query.Query;
 import to.etc.domui.hibernate.model.GenericHibernateHandler;
 import to.etc.webapp.query.ICriteriaTableDef;
@@ -33,8 +39,12 @@ import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QSelection;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This handler knows how to execute Hibernate queries using a basic Hibernate context.
@@ -75,11 +85,44 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * Delete the record passed.
+	 * Delete the record passed. After removing, detach any loaded child
+	 * entities that were not handled by JPA cascade, to prevent Hibernate 7.x
+	 * TransientPropertyValueException when relying on database ON DELETE CASCADE.
 	 */
 	@Override
 	public void delete(BuggyHibernateBaseContext root, Object o) throws Exception {
-		root.getSession().remove(o);
+		Session session = root.getSession();
+		session.remove(o);
+		detachLoadedChildren(session, o, Collections.newSetFromMap(new IdentityHashMap<>()));
+	}
+
+	/**
+	 * Recursively detach loaded child entities from initialized collections.
+	 * After session.remove(parent), children handled by JPA cascade are already
+	 * REMOVED and session.contains() returns false for them, so only children
+	 * without JPA cascade (still MANAGED) get detached.
+	 */
+	private void detachLoadedChildren(Session session, Object entity, Set<Object> visited) {
+		if(!visited.add(entity))
+			return;
+		Class<?> entityClass = Hibernate.getClass(entity);
+		SessionFactoryImplementor sfi = session.getSessionFactory().unwrap(SessionFactoryImplementor.class);
+		EntityPersister persister = sfi.getMappingMetamodel().getEntityDescriptor(entityClass);
+		var attributeMappings = persister.getAttributeMappings();
+		for(int i = 0; i < attributeMappings.size(); i++) {
+			AttributeMapping attr = attributeMappings.get(i);
+			if(attr instanceof PluralAttributeMapping) {
+				Object collectionValue = attr.getPropertyAccess().getGetter().get(entity);
+				if(collectionValue instanceof Collection<?> coll && Hibernate.isInitialized(coll)) {
+					for(Object child : new ArrayList<>(coll)) {
+						if(session.contains(child)) {
+							detachLoadedChildren(session, child, visited);
+							session.detach(child);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override

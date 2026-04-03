@@ -1,35 +1,35 @@
-CREATE TABLE Genre 
-( 
+CREATE TABLE Genre
+(
     GenreId INTEGER NOT NULL,
     Name VARCHAR(120),
     PRIMARY KEY(GenreId)
 );
 
-CREATE TABLE MediaType 
-( 
+CREATE TABLE MediaType
+(
     MediaTypeId INTEGER NOT NULL,
     Name VARCHAR(120),
     PRIMARY KEY(MediaTypeId)
 );
 
-CREATE TABLE Artist 
-( 
+CREATE TABLE Artist
+(
     ArtistId INTEGER NOT NULL,
     Name VARCHAR(120),
     PRIMARY KEY(ArtistId)
 );
 create sequence artist_sq start with 20000;
 
-CREATE TABLE Album 
-( 
+CREATE TABLE Album
+(
     AlbumId INTEGER NOT NULL,
     Title VARCHAR(160) NOT NULL,
     ArtistId INTEGER NOT NULL,
     PRIMARY KEY(AlbumId)
 );
 
-CREATE TABLE Track 
-( 
+CREATE TABLE Track
+(
     TrackId INTEGER NOT NULL,
     Name VARCHAR(200) NOT NULL,
     AlbumId INTEGER,
@@ -42,8 +42,8 @@ CREATE TABLE Track
     PRIMARY KEY(TrackId)
 );
 
-CREATE TABLE Employee 
-( 
+CREATE TABLE Employee
+(
     EmployeeId INTEGER NOT NULL,
     LastName VARCHAR(20) NOT NULL,
     FirstName VARCHAR(20) NOT NULL,
@@ -62,8 +62,8 @@ CREATE TABLE Employee
     PRIMARY KEY(EmployeeId)
 );
 
-CREATE TABLE Customer 
-( 
+CREATE TABLE Customer
+(
     CustomerId INTEGER NOT NULL,
     FirstName VARCHAR(40) NOT NULL,
     LastName VARCHAR(20) NOT NULL,
@@ -80,8 +80,8 @@ CREATE TABLE Customer
     PRIMARY KEY(CustomerId)
 );
 
-CREATE TABLE Invoice 
-( 
+CREATE TABLE Invoice
+(
     InvoiceId INTEGER NOT NULL,
     CustomerId INTEGER NOT NULL,
     InvoiceDate DATE NOT NULL,
@@ -94,8 +94,8 @@ CREATE TABLE Invoice
     PRIMARY KEY(InvoiceId)
 );
 
-CREATE TABLE InvoiceLine 
-( 
+CREATE TABLE InvoiceLine
+(
     InvoiceLineId INTEGER NOT NULL,
     InvoiceId INTEGER NOT NULL,
     TrackId INTEGER NOT NULL,
@@ -104,15 +104,15 @@ CREATE TABLE InvoiceLine
     PRIMARY KEY(InvoiceLineId)
 );
 
-CREATE TABLE Playlist 
-( 
+CREATE TABLE Playlist
+(
     PlaylistId INTEGER NOT NULL,
     Name VARCHAR(120),
     PRIMARY KEY(PlaylistId)
 );
 
-CREATE TABLE PlaylistTrack 
-( 
+CREATE TABLE PlaylistTrack
+(
     PlaylistId INTEGER NOT NULL,
     TrackId INTEGER NOT NULL,
     PRIMARY KEY(PlaylistId, TrackId)
@@ -122,17 +122,17 @@ CREATE TABLE PlaylistTrack
 /*******************************************************************************
    Create Foreign Keys
 ********************************************************************************/
-ALTER TABLE Album ADD FOREIGN KEY (ArtistId) REFERENCES Artist(ArtistId);
-ALTER TABLE Track ADD FOREIGN KEY (AlbumId) REFERENCES Album(AlbumId);
-ALTER TABLE Track ADD FOREIGN KEY (MediaTypeId) REFERENCES MediaType(MediaTypeId);
-ALTER TABLE Track ADD FOREIGN KEY (GenreId) REFERENCES Genre(GenreId);
-ALTER TABLE Employee ADD FOREIGN KEY (ReportsTo) REFERENCES Employee(EmployeeId);
-ALTER TABLE Customer ADD FOREIGN KEY (SupportRepId) REFERENCES Employee(EmployeeId);
-ALTER TABLE Invoice ADD FOREIGN KEY (CustomerId) REFERENCES Customer(CustomerId);
-ALTER TABLE InvoiceLine ADD FOREIGN KEY (TrackId) REFERENCES Track(TrackId);
-ALTER TABLE InvoiceLine ADD FOREIGN KEY (InvoiceId) REFERENCES Invoice(InvoiceId);
-ALTER TABLE PlaylistTrack ADD FOREIGN KEY (TrackId) REFERENCES Track(TrackId);
-ALTER TABLE PlaylistTrack ADD FOREIGN KEY (PlaylistId) REFERENCES Playlist(PlaylistId);
+ALTER TABLE Album ADD FOREIGN KEY (ArtistId) REFERENCES Artist(ArtistId) ON DELETE CASCADE;
+ALTER TABLE Track ADD FOREIGN KEY (AlbumId) REFERENCES Album(AlbumId) ON DELETE CASCADE;
+ALTER TABLE Track ADD FOREIGN KEY (MediaTypeId) REFERENCES MediaType(MediaTypeId) ON DELETE CASCADE;
+ALTER TABLE Track ADD FOREIGN KEY (GenreId) REFERENCES Genre(GenreId) ON DELETE CASCADE;
+ALTER TABLE Employee ADD FOREIGN KEY (ReportsTo) REFERENCES Employee(EmployeeId) ON DELETE CASCADE;
+ALTER TABLE Customer ADD FOREIGN KEY (SupportRepId) REFERENCES Employee(EmployeeId) ON DELETE CASCADE;
+ALTER TABLE Invoice ADD FOREIGN KEY (CustomerId) REFERENCES Customer(CustomerId) ON DELETE CASCADE;
+ALTER TABLE InvoiceLine ADD FOREIGN KEY (TrackId) REFERENCES Track(TrackId) ON DELETE CASCADE;
+ALTER TABLE InvoiceLine ADD FOREIGN KEY (InvoiceId) REFERENCES Invoice(InvoiceId) ON DELETE CASCADE;
+ALTER TABLE PlaylistTrack ADD FOREIGN KEY (TrackId) REFERENCES Track(TrackId) ON DELETE CASCADE;
+ALTER TABLE PlaylistTrack ADD FOREIGN KEY (PlaylistId) REFERENCES Playlist(PlaylistId) ON DELETE CASCADE;
 
 /*******************************************************************************
    Create Indexes

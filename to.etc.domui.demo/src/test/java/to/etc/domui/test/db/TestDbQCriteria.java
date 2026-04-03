@@ -57,6 +57,19 @@ public class TestDbQCriteria {
 		return m_dc;
 	}
 
+	@Test
+	public void testDeleteWithoutCascade() throws Exception {
+		Artist a = dc().get(Artist.class, Long.valueOf(2));
+		Assert.assertNotNull(a);
+		for(Album album : a.getAlbumList()) {
+			album.getTitle();
+		}
+		dc().delete(a);
+		dc().flushIfPossible();		// Verify no TransientPropertyValueException during flush
+		dc().rollback();			// Don't permanently delete test data
+	}
+
+
 	/**
 	 * isnotnull on a list property should mean "where there are items in that list".
 	 */
