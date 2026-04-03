@@ -180,10 +180,14 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 
 		// Iterate all managed entities in the persistence context
 		PersistenceContext pc = ((SessionImpl) session).getPersistenceContext();
-		Iterator<Object> managedEntities = pc.managedEntitiesIterator();
+		Iterator<Object> iter = pc.managedEntitiesIterator();
+		List<Object> managedObjects = new ArrayList<>();
+		while(iter.hasNext()) {
+			managedObjects.add(iter.next());
+		}
+
 		List<Object> toDetach = new ArrayList<>();
-		while(managedEntities.hasNext()) {
-			Object managed = managedEntities.next();
+		for(Object managed : managedObjects) {
 			if(!elementClass.isInstance(managed)) {
 				continue;
 			}
