@@ -40,6 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metamodel.mapping.AttributeMapping;
+import org.hibernate.metamodel.mapping.EntityIdentifierMapping;
 import org.hibernate.metamodel.mapping.PluralAttributeMapping;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
@@ -81,6 +82,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Thingy which creates a Hibernate Criteria thingy from a generic query. This is harder than
@@ -155,6 +158,7 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		m_currentQuery = crit;
 		m_topRoot = crit.from(qc.getBaseClass());
 		m_currentRoot = m_topRoot;
+		m_currentRoot.alias("this_");
 	}
 
 	/**
@@ -460,14 +464,121 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 	}
 
+	private static final Pattern THIS_PATTERN = Pattern.compile("this_\\.(\\w+)");
+
 	@Override
 	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {
-		Expression<?>[] args = new Expression<?>[v.getParameters().length];
+		List<Expression<?>> argList = new ArrayList<>();
 		for(int i = 0; i < v.getParameters().length; i++) {
-			args[i] = m_criteriaBuilder.literal(v.getParameters()[i]);
+			argList.add(m_criteriaBuilder.literal(v.getParameters()[i]));
 		}
-		JpaExpression<Boolean> expr = m_criteriaBuilder.sql(v.getSql(), Boolean.class, args);
+
+		String sql = v.getSql();
+		if(sql.contains("this_.")) {
+			//-- Replace this_.columnName references with ? placeholders and root path expressions,
+			//-- so that Hibernate renders them with the correct SQL table alias (which is internally generated in Hibernate 7.x).
+			//-- Hibernate's sql() function uses sequential ? substitution (not ?N numbered), so we need to
+			//-- rebuild the SQL with all ? placeholders in the correct order, interleaving original params
+			//-- and this_-derived path expressions.
+
+			List<Expression<?>> reorderedArgs = new ArrayList<>();
+			Matcher matcher = THIS_PATTERN.matcher(sql);
+			StringBuilder result = new StringBuilder();
+			int lastEnd = 0;
+			int originalParamIndex = 0;
+
+			while(matcher.find()) {
+				//-- Process the segment between last match and this match: copy text and collect any original ? params
+				String segment = sql.substring(lastEnd, matcher.start());
+				for(int i = 0; i < segment.length(); i++) {
+					if(segment.charAt(i) == '?') {
+						if(originalParamIndex >= argList.size()) {
+							throw new QQuerySyntaxException("SQL restriction has more ? placeholders than parameters");
+						}
+						reorderedArgs.add(argList.get(originalParamIndex++));
+					}
+				}
+				result.append(segment);
+
+				//-- Replace this_.xxx with ? and add path expression
+				String columnOrAttr = matcher.group(1);
+				String jpaAttribute = resolveToJpaAttribute(columnOrAttr);
+				reorderedArgs.add(m_currentRoot.get(jpaAttribute));
+				result.append('?');
+				lastEnd = matcher.end();
+			}
+
+			//-- Process remaining segment after last match
+			String tail = sql.substring(lastEnd);
+			for(int i = 0; i < tail.length(); i++) {
+				if(tail.charAt(i) == '?') {
+					if(originalParamIndex >= argList.size()) {
+						throw new QQuerySyntaxException("SQL restriction has more ? placeholders than parameters");
+					}
+					reorderedArgs.add(argList.get(originalParamIndex++));
+				}
+			}
+			result.append(tail);
+
+			sql = result.toString();
+			argList = reorderedArgs;
+		}
+
+		Expression<?>[] args = argList.toArray(new Expression<?>[0]);
+		JpaExpression<Boolean> expr = m_criteriaBuilder.sql(sql, Boolean.class, args);
 		m_last = m_criteriaBuilder.isTrue(expr);
+	}
+
+	/**
+	 * Resolve a name to a JPA attribute name. First tries the name directly as a JPA attribute,
+	 * then falls back to searching by database column name (case-insensitive) using Hibernate's metamodel.
+	 */
+	private String resolveToJpaAttribute(String columnOrAttr) {
+		//-- First try as a JPA attribute name
+		try {
+			m_currentRoot.get(columnOrAttr);
+			return columnOrAttr;
+		} catch(IllegalArgumentException e) {
+			// Not a JPA attribute name, try as column name
+		}
+
+		//-- Search by column name in the Hibernate metamodel
+		SessionFactoryImplementor sfi = m_session.getSessionFactory().unwrap(SessionFactoryImplementor.class);
+		EntityPersister persister = sfi.getMappingMetamodel().getEntityDescriptor(m_rootClass);
+
+		//-- Check identifier mapping first
+		EntityIdentifierMapping idMapping = persister.getIdentifierMapping();
+		String idAttr = findAttributeByColumn(idMapping, columnOrAttr);
+		if(idAttr != null) {
+			return idMapping.getAttributeName();
+		}
+
+		//-- Check all attribute mappings
+		String[] result = {null};
+		persister.forEachAttributeMapping(attr -> {
+			if(result[0] == null && findAttributeByColumn(attr, columnOrAttr) != null) {
+				result[0] = attr.getAttributeName();
+			}
+		});
+		if(result[0] != null) {
+			return result[0];
+		}
+
+		throw new QQuerySyntaxException("Cannot resolve 'this_." + columnOrAttr + "': no JPA attribute or column with that name found on " + m_rootClass.getName());
+	}
+
+	/**
+	 * Check if a model part has a selectable (column) matching the given name (case-insensitive).
+	 */
+	@Nullable
+	private String findAttributeByColumn(org.hibernate.metamodel.mapping.ModelPart part, String columnName) {
+		boolean[] found = {false};
+		part.forEachSelectable((index, selectable) -> {
+			if(selectable.getSelectionExpression().equalsIgnoreCase(columnName)) {
+				found[0] = true;
+			}
+		});
+		return found[0] ? columnName : null;
 	}
 
 	@Override

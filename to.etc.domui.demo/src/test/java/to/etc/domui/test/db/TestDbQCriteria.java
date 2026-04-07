@@ -708,6 +708,21 @@ public class TestDbQCriteria {
 		Assert.assertEquals(2, res.size());
 	}
 
+	@Test
+	public void testSqlRestrictionWithThis() throws Exception {
+		QCriteria<Customer> q = QCriteria.create(Customer.class);
+
+		String ex = """
+			exists (select 1 from invoice ii where ii.customerId=this_.customerId)
+			""";
+
+		q.sqlCondition(ex);
+		List<Customer> res = dc().query(q);
+		Assert.assertTrue("Expected customers with invoices", res.size() > 0);
+
+
+	}
+
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Like on non-string properties.							    */
 	/*----------------------------------------------------------------------*/
