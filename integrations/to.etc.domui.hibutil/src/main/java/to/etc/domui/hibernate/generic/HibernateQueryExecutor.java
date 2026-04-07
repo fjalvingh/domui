@@ -98,7 +98,9 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 	public void delete(BuggyHibernateBaseContext root, Object o) throws Exception {
 		Session session = root.getSession();
 		session.remove(o);
-		detachLoadedChildren(session, o, Collections.newSetFromMap(new IdentityHashMap<>()));
+		Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+		detachLoadedChildren(session, o, visited);
+		detachInboundReferences(session, o, visited);
 	}
 
 	/**
@@ -133,13 +135,6 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 					// Collection not initialized: children may still be in the persistence
 					// context (loaded via a separate query). Scan for them using mappedBy.
 					detachOrphanedChildrenFromPersistenceContext(session, entity, pluralAttr, visited);
-				}
-			} else if(attr instanceof EntityValuedModelPart) {
-				// Follow loaded singular entity associations (ManyToOne/OneToOne)
-				// to discover more of the entity graph whose children may need detaching
-				Object related = attr.getPropertyAccess().getGetter().get(entity);
-				if(related != null && Hibernate.isInitialized(related) && session.contains(related)) {
-					detachLoadedChildren(session, related, visited);
 				}
 			}
 		}
@@ -178,10 +173,14 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 
 		// Iterate all managed entities in the persistence context
 		PersistenceContext pc = ((SessionImpl) session).getPersistenceContext();
-		Iterator<Object> managedEntities = pc.managedEntitiesIterator();
+		Iterator<Object> iter = pc.managedEntitiesIterator();
+		List<Object> managedObjects = new ArrayList<>();
+		while(iter.hasNext()) {
+			managedObjects.add(iter.next());
+		}
+
 		List<Object> toDetach = new ArrayList<>();
-		while(managedEntities.hasNext()) {
-			Object managed = managedEntities.next();
+		for(Object managed : managedObjects) {
 			if(!elementClass.isInstance(managed)) {
 				continue;
 			}
@@ -222,6 +221,70 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 		Object idA = persister.getIdentifier(a, (SessionImpl) session);
 		Object idB = persister.getIdentifier(b, (SessionImpl) session);
 		return idA != null && idA.equals(idB);
+	}
+
+	/**
+	 * Scan the entire persistence context for managed entities that have a
+	 * singular entity association (ManyToOne / OneToOne) pointing to the
+	 * deleted entity, and detach them. This catches unidirectional @ManyToOne
+	 * relationships where the deleted entity has no corresponding @OneToMany
+	 * collection, so the outward walk in {@link #detachLoadedChildren} cannot
+	 * discover them.
+	 */
+	private void detachInboundReferences(Session session, Object deletedEntity, Set<Object> visited) {
+		SessionFactoryImplementor sfi = session.getSessionFactory().unwrap(SessionFactoryImplementor.class);
+		PersistenceContext pc = ((SessionImpl) session).getPersistenceContext();
+
+		// Snapshot all managed entities to avoid ConcurrentModificationException during detach
+		List<Object> snapshot = new ArrayList<>();
+		Iterator<Object> it = pc.managedEntitiesIterator();
+		while(it.hasNext()) {
+			snapshot.add(it.next());
+		}
+
+		List<Object> toDetach = new ArrayList<>();
+		for(Object managed : snapshot) {
+			if(managed == deletedEntity) {
+				continue;
+			}
+			if(!session.contains(managed)) {
+				continue;
+			}
+			if(referencesEntity(sfi, session, managed, deletedEntity)) {
+				toDetach.add(managed);
+			}
+		}
+		for(Object entity : toDetach) {
+			if(session.contains(entity)) {
+				detachLoadedChildren(session, entity, visited);
+				session.detach(entity);
+			}
+		}
+	}
+
+	/**
+	 * Check whether a managed entity has any singular entity-valued attribute
+	 * (ManyToOne / OneToOne) whose current value references the given target entity.
+	 */
+	private boolean referencesEntity(SessionFactoryImplementor sfi, Session session, Object managed, Object target) {
+		Class<?> entityClass = Hibernate.getClass(managed);
+		EntityPersister persister;
+		try {
+			persister = sfi.getMappingMetamodel().getEntityDescriptor(entityClass);
+		} catch(Exception ex) {
+			return false;
+		}
+		var attributeMappings = persister.getAttributeMappings();
+		for(int i = 0; i < attributeMappings.size(); i++) {
+			AttributeMapping attr = attributeMappings.get(i);
+			if(attr instanceof EntityValuedModelPart) {
+				Object ref = attr.getPropertyAccess().getGetter().get(managed);
+				if(ref != null && isSameEntity(sfi, session, ref, target)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
