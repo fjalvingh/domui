@@ -49,6 +49,7 @@ import org.hibernate.query.criteria.JpaOrder;
 import org.hibernate.query.criteria.JpaPredicate;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.util.Pair;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.qsql.QQuerySyntaxException;
 import to.etc.webapp.query.QBetweenNode;
@@ -82,7 +83,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -474,59 +474,181 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		}
 
 		String sql = v.getSql();
-		if(sql.contains("this_.")) {
-			//-- Replace this_.columnName references with ? placeholders and root path expressions,
-			//-- so that Hibernate renders them with the correct SQL table alias (which is internally generated in Hibernate 7.x).
-			//-- Hibernate's sql() function uses sequential ? substitution (not ?N numbered), so we need to
-			//-- rebuild the SQL with all ? placeholders in the correct order, interleaving original params
-			//-- and this_-derived path expressions.
+		Pair<String, List<Expression<?>>> pair = replaceThisReferences(sql, argList);
 
-			List<Expression<?>> reorderedArgs = new ArrayList<>();
-			Matcher matcher = THIS_PATTERN.matcher(sql);
-			StringBuilder result = new StringBuilder();
-			int lastEnd = 0;
-			int originalParamIndex = 0;
 
-			while(matcher.find()) {
-				//-- Process the segment between last match and this match: copy text and collect any original ? params
-				String segment = sql.substring(lastEnd, matcher.start());
-				for(int i = 0; i < segment.length(); i++) {
-					if(segment.charAt(i) == '?') {
+		//if(sql.contains("this_.")) {
+		//	//-- Replace this_.columnName references with ? placeholders and root path expressions,
+		//	//-- so that Hibernate renders them with the correct SQL table alias (which is internally generated in Hibernate 7.x).
+		//	//-- Hibernate's sql() function uses sequential ? substitution (not ?N numbered), so we need to
+		//	//-- rebuild the SQL with all ? placeholders in the correct order, interleaving original params
+		//	//-- and this_-derived path expressions.
+		//
+		//	List<Expression<?>> reorderedArgs = new ArrayList<>();
+		//	Matcher matcher = THIS_PATTERN.matcher(sql);
+		//	StringBuilder result = new StringBuilder();
+		//	int lastEnd = 0;
+		//	int originalParamIndex = 0;
+		//
+		//	while(matcher.find()) {
+		//		//-- Process the segment between last match and this match: copy text and collect any original ? params
+		//		String segment = sql.substring(lastEnd, matcher.start());
+		//		for(int i = 0; i < segment.length(); i++) {
+		//			if(segment.charAt(i) == '?') {
+		//				if(originalParamIndex >= argList.size()) {
+		//					throw new QQuerySyntaxException("SQL restriction has more ? placeholders than parameters");
+		//				}
+		//				reorderedArgs.add(argList.get(originalParamIndex++));
+		//			}
+		//		}
+		//		result.append(segment);
+		//
+		//		//-- Replace this_.xxx with ? and add path expression
+		//		String columnOrAttr = matcher.group(1);
+		//		String jpaAttribute = resolveToJpaAttribute(columnOrAttr);
+		//		reorderedArgs.add(m_currentRoot.get(jpaAttribute));
+		//		result.append('?');
+		//		lastEnd = matcher.end();
+		//	}
+		//
+		//	//-- Process remaining segment after last match
+		//	String tail = sql.substring(lastEnd);
+		//	for(int i = 0; i < tail.length(); i++) {
+		//		if(tail.charAt(i) == '?') {
+		//			if(originalParamIndex >= argList.size()) {
+		//				throw new QQuerySyntaxException("SQL restriction has more ? placeholders than parameters");
+		//			}
+		//			reorderedArgs.add(argList.get(originalParamIndex++));
+		//		}
+		//	}
+		//	result.append(tail);
+		//
+		//	sql = result.toString();
+		//	argList = reorderedArgs;
+		//}
+		argList = pair.get2();
+
+		Expression<?>[] args = argList.toArray(new Expression<?>[0]);
+		JpaExpression<Boolean> expr = m_criteriaBuilder.sql(pair.get1(), Boolean.class, args);
+		m_last = m_criteriaBuilder.isTrue(expr);
+	}
+
+	private enum Phase {
+		inSql,
+		inSingleQuote,
+		inDoubleQuote,
+		inWord,
+		inField,
+	}
+
+	/**
+	 * Properly parse a sql expression as far as we can, and
+	 * replace this_.xxx expressions with a ? placeholder and a
+	 * parameter referring to the actual column.
+	 *
+	 * This parses strings properly except around quoting of quotes.
+	 */
+	private Pair<String, List<Expression<?>>> replaceThisReferences(String sqlIn, List<Expression<?>> argList) {
+		List<Expression<?>> reorderedArgs = new ArrayList<>();
+		StringBuilder result = new StringBuilder();
+		StringBuilder frag = new StringBuilder();
+		int originalParamIndex = 0;
+
+		Phase phase = Phase.inSql;
+		int ix = 0;
+		int len = sqlIn.length();
+		while(ix < len) {
+			char c = sqlIn.charAt(ix++);
+			switch(phase) {
+				case inSql -> {
+					if(c == '\'') {
+						phase = Phase.inSingleQuote;
+						result.append(c);
+					} else if(c == '"') {
+						phase = Phase.inDoubleQuote;
+						result.append(c);
+					} else if(Character.isLetter(c) || c == '_') {
+						frag.append(c);
+						phase = Phase.inWord;
+					} else if(c == '?') {
+						//-- Original parameter replacement; add it to the new list,
 						if(originalParamIndex >= argList.size()) {
 							throw new QQuerySyntaxException("SQL restriction has more ? placeholders than parameters");
 						}
 						reorderedArgs.add(argList.get(originalParamIndex++));
+						result.append('?');
+					} else {
+						result.append(c);
 					}
 				}
-				result.append(segment);
 
-				//-- Replace this_.xxx with ? and add path expression
-				String columnOrAttr = matcher.group(1);
-				String jpaAttribute = resolveToJpaAttribute(columnOrAttr);
-				reorderedArgs.add(m_currentRoot.get(jpaAttribute));
-				result.append('?');
-				lastEnd = matcher.end();
-			}
-
-			//-- Process remaining segment after last match
-			String tail = sql.substring(lastEnd);
-			for(int i = 0; i < tail.length(); i++) {
-				if(tail.charAt(i) == '?') {
-					if(originalParamIndex >= argList.size()) {
-						throw new QQuerySyntaxException("SQL restriction has more ? placeholders than parameters");
+				case inDoubleQuote -> {
+					if(c == '"') {
+						phase = Phase.inSql;
 					}
-					reorderedArgs.add(argList.get(originalParamIndex++));
+					result.append(c);
+				}
+
+				case inSingleQuote -> {
+					if(c == '\'') {
+						phase = Phase.inSql;
+					}
+					result.append(c);
+				}
+
+				//-- We're collecting a word (letters, _).
+				case inWord -> {
+					if(c == '.') {
+						//-- Word ends; is the collected word "this_"?
+						if(frag.toString().equalsIgnoreCase("this_")) {
+							//-- Hit 'this_'; collect the identifier after it
+							phase = Phase.inField;
+							frag.setLength(0);
+						} else {
+							//-- End of word, no match.
+							result.append(frag);
+							frag.setLength(0);
+							phase = Phase.inSql;
+							ix--;					// Redo last char
+						}
+					} else if(!Character.isLetter(c) && c != '_') {
+						//-- Actually, we're done here..
+						result.append(frag);
+						frag.setLength(0);
+						phase = Phase.inSql;
+						ix--;
+					} else {
+						frag.append(c);
+					}
+				}
+
+				//-- We're collecting the field name after this_.
+				case inField -> {
+					if(Character.isLetterOrDigit(c) || c == '_' || c == '$') {
+						frag.append(c);
+					} else {
+						//-- End of the name. Now do the replacement.
+						String jpaAttribute = resolveToJpaAttribute(frag.toString());
+						reorderedArgs.add(m_currentRoot.get(jpaAttribute));
+						result.append('?');
+						frag.setLength(0);
+						phase = Phase.inSql;
+						ix--;							// Redo last char
+					}
 				}
 			}
-			result.append(tail);
-
-			sql = result.toString();
-			argList = reorderedArgs;
 		}
 
-		Expression<?>[] args = argList.toArray(new Expression<?>[0]);
-		JpaExpression<Boolean> expr = m_criteriaBuilder.sql(sql, Boolean.class, args);
-		m_last = m_criteriaBuilder.isTrue(expr);
+		if(phase == Phase.inField) {
+			String jpaAttribute = resolveToJpaAttribute(frag.toString());
+			reorderedArgs.add(m_currentRoot.get(jpaAttribute));
+			result.append('?');
+			frag.setLength(0);
+		} else if(phase != Phase.inSql) {
+			throw new IllegalStateException("Mismatched quotes in sql fragment: <<" + sqlIn + ">>, phase=" + phase);
+		}
+
+		return new Pair<>(result.toString(), reorderedArgs);
 	}
 
 	/**
