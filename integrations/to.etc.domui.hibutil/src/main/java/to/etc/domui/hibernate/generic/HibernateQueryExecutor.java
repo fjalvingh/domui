@@ -136,13 +136,6 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 					// context (loaded via a separate query). Scan for them using mappedBy.
 					detachOrphanedChildrenFromPersistenceContext(session, entity, pluralAttr, visited);
 				}
-			} else if(attr instanceof EntityValuedModelPart) {
-				// Follow loaded singular entity associations (ManyToOne/OneToOne)
-				// to discover more of the entity graph whose children may need detaching
-				Object related = attr.getPropertyAccess().getGetter().get(entity);
-				if(related != null && Hibernate.isInitialized(related) && session.contains(related)) {
-					detachLoadedChildren(session, related, visited);
-				}
 			}
 		}
 	}
