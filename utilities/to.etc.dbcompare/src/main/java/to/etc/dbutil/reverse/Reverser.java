@@ -67,4 +67,6 @@ public interface Reverser {
 
 	@Nullable
 	DbSchema findSchema(@NonNull String name);
+
+	void addProgressListener(IReverseProgressListener listener);
 }

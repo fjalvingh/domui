@@ -309,7 +309,7 @@ public class OracleReverser extends JDBCReverser {
 					cc++;
 				}
 			}
-			msg("Loaded " + cc + " table comments");
+			report(ReverserOption.ReverseTables, ProgressType.Log, "Loaded " + cc + " table comments");
 		} finally {
 			try {
 				if(rs != null)
@@ -405,12 +405,12 @@ public class OracleReverser extends JDBCReverser {
 				String tn = rs.getString(2);
 				DbTable tbl = schema.findTable(tn);
 				if(null == tbl) {
-					warning("Can't find table " + tn + " in schema " + owner + " for constraint " + constraintName);
+					report(ReverserOption.ReverseRelations, ProgressType.Error, "Can't find table " + tn + " in schema " + owner + " for constraint " + constraintName);
 					return null;
 				}
 				DbColumn col = tbl.findColumn(cn);
 				if(null == col) {
-					warning("Can't find column " + tn + "." + cn + " in schema " + owner + " for constraint " + constraintName);
+					report(ReverserOption.ReverseRelations, ProgressType.Error, "Can't find column " + tn + "." + cn + " in schema " + owner + " for constraint " + constraintName);
 					return null;
 				}
 
@@ -440,7 +440,7 @@ public class OracleReverser extends JDBCReverser {
 			List<DbColumn> childColumns = getRelationColumns(dbc, table.getSchema(), c.m_owner, c.m_name);                            // Get all columns in the FK part
 			List<DbColumn> parentColumns = getRelationColumns(dbc, table.getSchema(), c.m_remoteOwner, c.m_remoteConstraint);        // Get all columns in the PK part
 			if(null == childColumns || null == parentColumns) {
-				warning("Could not reverse relation " + c.m_owner + "." + c.m_name + " ");
+				report(ReverserOption.ReverseRelations, ProgressType.Error, "Could not reverse relation " + c.m_owner + "." + c.m_name + " ");
 				return;
 			}
 
@@ -506,19 +506,19 @@ public class OracleReverser extends JDBCReverser {
 					String cn = rs.getString(1);
 					DbColumn fkc = t.findColumn(cn);
 					if(fkc == null) {
-						warning("Unknown column " + cn + " in table " + t + " for foreign key constraint " + sp.m_name);
+						report(ReverserOption.ReverseRelations, ProgressType.Error, "Unknown column " + cn + " in table " + t + " for foreign key constraint " + sp.m_name);
 					} else {
 
 						//-- We must have a matching column on the other (PK) side,
 						if(!rs2.next()) {
-							warning("Unmatched column " + cn + " in PK table for foreign key constraint " + sp.m_name);
+							report(ReverserOption.ReverseRelations, ProgressType.Error, "Unmatched column " + cn + " in PK table for foreign key constraint " + sp.m_name);
 						} else {
 							String pkcn = rs2.getString(1);
 							if(pt == null) {
 								String pktn = rs2.getString(2);
 								pt = t.getSchema().findTable(pktn);
 								if(pt == null) {
-									warning("Can't find table for PK " + pktn + " in PK table for foreign key constraint " + sp.m_name);
+									report(ReverserOption.ReverseRelations, ProgressType.Error, "Can't find table for PK " + pktn + " in PK table for foreign key constraint " + sp.m_name);
 								} else {
 									if(rel == null) {
 										//-- Create the relation too.
@@ -529,7 +529,7 @@ public class OracleReverser extends JDBCReverser {
 									}
 									DbColumn pkc = pt.findColumn(pkcn);
 									if(pkc == null) {
-										warning("Unknown column " + pkcn + " in PK table " + pt + " for foreign key constraint " + sp.m_name);
+										report(ReverserOption.ReverseRelations, ProgressType.Error, "Unknown column " + pkcn + " in PK table " + pt + " for foreign key constraint " + sp.m_name);
 									} else if(null != rel) {
 										rel.addPair(pkc, fkc);
 									}
@@ -616,14 +616,14 @@ public class OracleReverser extends JDBCReverser {
 				try {
 					rs2 = ps2.executeQuery();
 					if(!rs2.next())
-						msg("No DDL for " + type + " " + name + "; skipped.");
+						report(ReverserOption.ReverseProcedures, ProgressType.Warning, "No DDL for " + type + " " + name + "; skipped.");
 					else {
 						String ddl = rs2.getString(1);
 						Procedure p = new Procedure(name, ddl);
 						schema.addProcedure(p);
 					}
 				} catch(Exception x) {
-					warning("Can't get DDL for " + type + " " + name + ": " + x);
+					report(ReverserOption.ReverseProcedures, ProgressType.Warning, "Can't get DDL for " + type + " " + name + ": " + x);
 				} finally {
 					FileTool.closeAll(rs2);
 					rs2 = null;
@@ -674,7 +674,7 @@ public class OracleReverser extends JDBCReverser {
 				try {
 					rs2 = ps2.executeQuery();
 					if(!rs2.next())
-						msg("No DDL for package " + name + "; skipped.");
+						report(ReverserOption.ReverseProcedures, ProgressType.Warning, "No DDL for package " + name + "; skipped.");
 					else {
 						String def = rs2.getString(1);
 						rs2.close();
@@ -684,7 +684,7 @@ public class OracleReverser extends JDBCReverser {
 						ps2.setString(2, name);
 						rs2 = ps2.executeQuery();
 						if(!rs2.next())
-							msg("No DDL for package BODY " + name + "; skipped.");
+							report(ReverserOption.ReverseProcedures, ProgressType.Warning, "No DDL for package BODY " + name + "; skipped.");
 						else {
 							String body = rs2.getString(1);
 							Package p = new Package(name, def, body);
@@ -692,7 +692,7 @@ public class OracleReverser extends JDBCReverser {
 						}
 					}
 				} catch(Exception x) {
-					warning("Cannot get package details for " + type + " " + name + ": " + x);
+					report(ReverserOption.ReverseProcedures, ProgressType.Warning, "Cannot get package details for " + type + " " + name + ": " + x);
 				} finally {
 					FileTool.closeAll(rs2);
 					rs2 = null;
@@ -742,20 +742,20 @@ public class OracleReverser extends JDBCReverser {
 				try {
 					rs2 = ps2.executeQuery();
 					if(!rs2.next())
-						msg("No DDL for TRIGGER " + name + "; skipped.");
+						report(ReverserOption.ReverseProcedures, ProgressType.Warning, "No DDL for TRIGGER " + name + "; skipped.");
 					else {
 						String ddl = rs2.getString(1);
 						Trigger t = new Trigger(name, ddl);
 						schema.addTrigger(t);
 					}
 				} catch(Exception x) {
-					warning("Failed to get details for trigger " + schema.getName() + "." + name + ": " + x);
+					report(ReverserOption.ReverseProcedures, ProgressType.Warning, "Failed to get details for trigger " + schema.getName() + "." + name + ": " + x);
 				} finally {
 					FileTool.closeAll(rs2);
 					rs2 = null;
 				}
 			}
-			System.out.println(this + ": loaded " + schema.getTriggerMap().size() + " triggers");
+			report(ReverserOption.ReverseProcedures, ProgressType.Log, this + ": loaded " + schema.getTriggerMap().size() + " triggers");
 		} finally {
 			try {
 				if(rs != null)
@@ -808,7 +808,7 @@ public class OracleReverser extends JDBCReverser {
 
 				DbTable ct = schema.findTable(tn);
 				if(ct == null) {
-					warning("Cannot find table " + tn + " mentioned in constraint " + cn);
+					report(ReverserOption.ReverseConstraints, ProgressType.Warning, "Cannot find table " + tn + " mentioned in constraint " + cn);
 					continue;
 				}
 
@@ -823,12 +823,12 @@ public class OracleReverser extends JDBCReverser {
 				} else if(type.equalsIgnoreCase("U")) {
 					//-- Unique constraint, enforced by an index usually.
 					if(ixnm == null) {
-						warning("Index for unique constraint is not specified.");
+						report(ReverserOption.ReverseConstraints, ProgressType.Warning, "Index for unique constraint is not specified.");
 						continue;
 					}
 					DbIndex bix = ct.findIndex(ixnm);
 					if(bix == null) {
-						warning("Unknown backing index " + ixnm + " for unique constraint " + cn);
+						report(ReverserOption.ReverseConstraints, ProgressType.Warning, "Unknown backing index " + ixnm + " for unique constraint " + cn);
 						continue;
 					}
 
@@ -836,7 +836,7 @@ public class OracleReverser extends JDBCReverser {
 					DbUniqueConstraint uc = new DbUniqueConstraint(cn, bix);
 					ct.addConstraint(uc);
 				} else {
-					warning("Unknown constraint type " + type);
+					report(ReverserOption.ReverseConstraints, ProgressType.Warning, "Unknown constraint type " + type);
 				}
 			}
 		} finally {
@@ -892,7 +892,7 @@ public class OracleReverser extends JDBCReverser {
 				if("NORMAL".equalsIgnoreCase(type)) {
 					//-- Normal column-based index,
 					if(it == null) {
-						warning("Index " + name + " on unknown table " + tn + " skipped");
+						report(ReverserOption.ReverseIndexes, ProgressType.Warning, "Index " + name + " on unknown table " + tn + " skipped");
 						continue;
 					}
 					DbIndex ix = new DbIndex(it, name, unique);
@@ -916,7 +916,7 @@ public class OracleReverser extends JDBCReverser {
 						boolean desc = s != null && s.equalsIgnoreCase("DESC");
 						DbColumn c = it.findColumn(cn);
 						if(c == null) {
-							warning("Unknown column " + tn + "." + cn + " in index " + name);
+							report(ReverserOption.ReverseIndexes, ProgressType.Warning, "Unknown column " + tn + "." + cn + " in index " + name);
 							//throw new IllegalStateException("Unknown column " + tn + "." + cn + " in index " + name);
 						} else {
 							ix.addColumn(c, desc);
@@ -931,7 +931,7 @@ public class OracleReverser extends JDBCReverser {
 					try {
 						rs2 = ps2.executeQuery();
 						if(!rs2.next()) {
-							warning("Cannot obtain index DDL for index=" + name);
+							report(ReverserOption.ReverseIndexes, ProgressType.Warning, "Cannot obtain index DDL for index=" + name);
 							continue;
 						}
 						String ddl = rs2.getString(1);
@@ -939,7 +939,7 @@ public class OracleReverser extends JDBCReverser {
 						schema.addSpecialIndex(sx);
 						rs2.close();
 					} catch(Exception x) {
-						warning("Cannot obtain index DDL for index=" + name + ": " + x);
+						report(ReverserOption.ReverseIndexes, ProgressType.Warning, "Cannot obtain index DDL for index=" + name + ": " + x);
 					} finally {
 						FileTool.closeAll(rs2);
 						rs2 = null;
@@ -1026,7 +1026,7 @@ public class OracleReverser extends JDBCReverser {
 						boolean desc = s != null && s.equalsIgnoreCase("DESC");
 						DbColumn c = t.findColumn(cn);
 						if(c == null) {
-							warning("Unknown column " + tn + "." + cn + " in index " + name + ", removing index");
+							report(ReverserOption.ReverseIndexes, ProgressType.Warning, "Unknown column " + tn + "." + cn + " in index " + name + ", removing index");
 							indexMap.remove(name);
 							continue;
 						}
@@ -1039,13 +1039,13 @@ public class OracleReverser extends JDBCReverser {
 						ps2.setString(1, name);
 						rs2 = ps2.executeQuery();
 						if(!rs2.next()) {
-							warning("Cannot obtain index DDL for index=" + name);
+							report(ReverserOption.ReverseIndexes, ProgressType.Warning, "Cannot obtain index DDL for index=" + name);
 							continue;
 						}
 						//String ddl = rs2.getString(1);
 						rs2.close();
 					} catch(Exception x) {
-						warning("Cannot obtain index DDL for index=" + name);
+						report(ReverserOption.ReverseIndexes, ProgressType.Warning, "Cannot obtain index DDL for index=" + name);
 					}
 
 				} //else throw new IllegalStateException("Unexpected index type "+type);
