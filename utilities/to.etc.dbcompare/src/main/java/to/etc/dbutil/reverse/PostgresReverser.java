@@ -283,7 +283,7 @@ public class PostgresReverser extends JDBCReverser {
 			if(pos == -1) {
 				DbSequence seq = schema.findSequence(sub);
 				if(null == seq) {
-					log("Sequence '" + sub + "' not found (in schema '" + schema.getName() + "') in column default '" + deflt + "'");
+					report(ReverserOption.ReverseSequences, ProgressType.Error, "Sequence '" + sub + "' not found (in schema '" + schema.getName() + "') in column default '" + deflt + "'");
 				}
 				return seq;
 			}
@@ -292,13 +292,13 @@ public class PostgresReverser extends JDBCReverser {
 			String schemaName = sub.substring(0, pos);
 			DbSchema subSchema = findSchema(schemaName);
 			if(null == subSchema) {
-				log("Schema '" + schemaName + "' not found in column default '" + deflt + "'");
+				report(ReverserOption.ReverseSequences, ProgressType.Error, "Schema '" + schemaName + "' not found in column default '" + deflt + "'");
 				return null;
 			}
 			String seqName = sub.substring(pos + 1).trim();
 			DbSequence seq = schema.findSequence(seqName);
 			if(null == seq) {
-				log("Sequence '" + sub + "' not found in column default '" + deflt + "'");
+				report(ReverserOption.ReverseSequences, ProgressType.Error, "Sequence '" + sub + "' not found in column default '" + deflt + "'");
 			}
 			return seq;
 		}
