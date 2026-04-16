@@ -14,6 +14,7 @@ import to.etc.domui.derbydata.db.Employee;
 import to.etc.domui.derbydata.db.Employee_;
 import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.derbydata.db.InvoiceLine;
+import to.etc.domui.derbydata.db.Invoice_;
 import to.etc.domui.derbydata.db.Track;
 import to.etc.domui.derbydata.db.Track_;
 import to.etc.webapp.query.QCriteria;
@@ -26,7 +27,9 @@ import to.etc.webapp.query.QSubQuery;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TestDbQCriteria {
 	/** The dc used for each test. Created and deleted by setup fixure */
@@ -486,6 +489,20 @@ public class TestDbQCriteria {
 			System.out.println("val=" + md.sum() + ", customer=" + md.dude());
 		}
 	}
+
+	@Test
+	public void testDistinctSelect() throws Exception {
+		var qs = QSelection.create(Invoice.class)
+			.distinct(Invoice_.customer());
+		List<Object[]> query = dc().query(qs);
+		Assert.assertEquals(58, query.size());
+		Set<Object> dupset = new HashSet<>();
+		for(Object[] objects : query) {
+			if(!dupset.add(objects[0]))
+				throw new IllegalStateException("Non distinct customer found: " + objects[0]);
+		}
+	}
+
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	"in" query													*/

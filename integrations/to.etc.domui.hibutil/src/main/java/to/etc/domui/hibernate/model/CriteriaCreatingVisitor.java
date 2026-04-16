@@ -1048,9 +1048,9 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 				m_lastSelection = m_criteriaBuilder.count();
 				break;
 			case DISTINCT:
-				throw new IllegalStateException("Not implemented yet: distinct selection");
-				//m_lastSelection = m_criteriaBuilder.distinct(m_criteriaBuilder.property(parsePropertyPath(n.getProperty())));
-				//break;
+				m_lastSelection = parsePropertyPath(n.getProperty());
+				m_currentQuery.distinct(true);
+				break;
 		}
 	}
 
