@@ -2509,6 +2509,15 @@ public class StringTool {
 			throw new IllegalArgumentException("Invalid characters in SQL");
 	}
 
+	/**
+	 * Attempt to check for SQL injection. The identifier cannot contain
+	 */
+	static public void sqlCheckInjection(String identifier) {
+		if(!identifier.contains("'") && !identifier.contains("\"") && !identifier.contains(")") && !identifier.contains(")"))
+			return;
+		throw new IllegalStateException("Invalid characters in SQL name");
+	}
+
 	static private final char[] PUNCT = "!#_^&*.;".toCharArray();
 
 	static private final char[] DIGITS = "023456789".toCharArray();
