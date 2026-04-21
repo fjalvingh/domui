@@ -39,10 +39,11 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 
 	/** Contains manually added quicksearch properties. Is null if none are added. */
 	@Nullable
-	private List<SearchPropertyMetaModel> m_keywordLookupPropertyList;
+	final private List<SearchPropertyMetaModel> m_keywordLookupPropertyList;
 
-	public DefaultStringQueryFactory(@NonNull ClassMetaModel queryMetaModel) {
+	public DefaultStringQueryFactory(@NonNull ClassMetaModel queryMetaModel, @Nullable List<SearchPropertyMetaModel> keywordLookupPropertyList) {
 		m_queryMetaModel = queryMetaModel;
+		m_keywordLookupPropertyList = keywordLookupPropertyList;
 	}
 
 	@Override
@@ -91,7 +92,7 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 					if(pmm == null)
 						throw new ProgrammerErrorException("The quick lookup properties for " + getQueryMetaModel() + " are invalid: the property name is null");
 
-					if(pmm.getActualType() == Long.class || pmm.getActualType() == BigDecimal.class) {
+					if(pmm.getActualType() == Long.class || pmm.getActualType() == long.class || pmm.getActualType() == BigDecimal.class) {
 						if(searchString.contains("%") && !pmm.isTransient()) {
 							r.add(new QPropertyComparison(QOperation.LIKE, pmm.getName(), new QLiteral(searchString)));
 						} else {
