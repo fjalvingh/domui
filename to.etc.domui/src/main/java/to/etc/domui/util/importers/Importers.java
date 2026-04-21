@@ -22,6 +22,8 @@ final public class Importers {
 
 			case "csv":
 				CsvRowReader rr = new CsvRowReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+				rr.multiLine();
+				rr.doubleQuotes();
 				if(hasHeader)
 					rr.hasHeader();
 				return rr;
