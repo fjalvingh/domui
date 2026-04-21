@@ -466,7 +466,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	public IStringQueryFactory<QT> getStringQueryFactory() {
 		IStringQueryFactory<QT> factory = m_stringQueryFactory;
 		if(null == factory) {
-			m_stringQueryFactory = factory = new DefaultStringQueryFactory<>(getQueryMetaModel());
+			m_stringQueryFactory = factory = new DefaultStringQueryFactory<>(getQueryMetaModel(), getKeywordLookupPropertyList());
 		}
 		return factory;
 	}
