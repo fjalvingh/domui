@@ -24,6 +24,7 @@ import to.etc.domui.parts.TempFilePart.Disposition;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.asyncdialog.AsyncDialog;
 import to.etc.function.ConsumerEx;
+import to.etc.function.RunnableEx;
 import to.etc.function.SupplierEx;
 import to.etc.util.Progress;
 import to.etc.webapp.nls.NlsContext;
@@ -69,9 +70,12 @@ public class ExporterButtons {
 	//
 	//
 	//}
-
 	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<? extends IExportColumn<?>> columns, String fileName) {
-		QueryExporterTask<T> x = new QueryExporterTask<>(xf, query, columns);
+		export(node, xf, query, columns, fileName, null, null);
+	}
+
+	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<? extends IExportColumn<?>> columns, String fileName, @Nullable RunnableEx onStarted, @Nullable RunnableEx onCompleted) {
+		QueryExporterTask<T> x = new QueryExporterTask<>(xf, query, columns, onStarted, onCompleted);
 		AsyncDialog.runInDialog(node, x, "Export", true, task -> {
 			File target = Objects.requireNonNull(task.getOutputFile());
 			String fn = fileName;
@@ -89,7 +93,12 @@ public class ExporterButtons {
 
 	@SuppressWarnings("squid:S2095")	// exporterTask is a thread.
 	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<? extends IExportColumn<?>> columns, String fileName) throws Exception {
-		ListExporterTask<T> exporterTask = new ListExporterTask<>(xf, baseClass, list, columns);
+		export(node, baseClass, list, xf, columns, fileName, null, null);
+	}
+
+	@SuppressWarnings("squid:S2095")	// exporterTask is a thread.
+	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<? extends IExportColumn<?>> columns, String fileName, @Nullable RunnableEx onExportStarted, @Nullable RunnableEx onExportCompleted) throws Exception {
+		ListExporterTask<T> exporterTask = new ListExporterTask<>(xf, baseClass, list, columns, onExportStarted, onExportCompleted);
 
 		/*
 		 * The list variant of the exporter should NOT run in an async task, as its
@@ -144,16 +153,33 @@ public class ExporterButtons {
 
 		final private List<? extends IExportColumn<?>> m_columns;
 
-		public QueryExporterTask(IExportFormat format, QCriteria<T> criteria, List<? extends IExportColumn<?>> columns) {
+		@Nullable
+		final private RunnableEx m_onExportStarted;
+
+		@Nullable
+		final private RunnableEx m_onExportCompleted;
+
+		public QueryExporterTask(IExportFormat format, QCriteria<T> criteria, List<? extends IExportColumn<?>> columns, @Nullable RunnableEx onExportStarted, @Nullable RunnableEx onExportCompleted) {
 			super(format);
 			m_criteria = criteria;
 			m_columns = columns;
+			m_onExportStarted = onExportStarted;
+			m_onExportCompleted = onExportCompleted;
 		}
 
 		@Override
 		protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
-			QCriteriaExporter<T> qxp = new QCriteriaExporter<>(writer, dc(), m_criteria, m_columns);
-			qxp.export(progress);
+			if(null != m_onExportStarted) {
+				m_onExportStarted.run();
+			}
+			try {
+				QCriteriaExporter<T> qxp = new QCriteriaExporter<>(writer, dc(), m_criteria, m_columns);
+				qxp.export(progress);
+			} finally {
+				if(null != m_onExportCompleted) {
+					m_onExportCompleted.run();
+				}
+			}
 		}
 	}
 
@@ -164,17 +190,34 @@ public class ExporterButtons {
 
 		private final List<T> m_list;
 
-		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<? extends IExportColumn<?>> columns) {
+		@Nullable
+		private final RunnableEx m_onExportStarted;
+
+		@Nullable
+		private final RunnableEx m_onExportCompleted;
+
+		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<? extends IExportColumn<?>> columns, @Nullable RunnableEx onExportStarted, @Nullable RunnableEx onExportCompleted) {
 			super(format);
 			m_baseClass = baseClass;
 			m_list = list;
 			m_columns = columns;
+			m_onExportStarted = onExportStarted;
+			m_onExportCompleted = onExportCompleted;
 		}
 
 		@Override
 		protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
-			ListExporter<T> qxp = new ListExporter<>(m_baseClass, m_list, writer, m_columns);
-			qxp.export(progress);
+			if(null != m_onExportStarted) {
+				m_onExportStarted.run();
+			}
+			try {
+				ListExporter<T> qxp = new ListExporter<>(m_baseClass, m_list, writer, m_columns);
+				qxp.export(progress);
+			} finally {
+				if(null != m_onExportCompleted) {
+					m_onExportCompleted.run();
+				}
+			}
 		}
 	}
 
@@ -268,6 +311,12 @@ public class ExporterButtons {
 
 		@Nullable
 		private SupplierEx<List<T>> m_sourceSupplier;
+
+		@Nullable
+		private RunnableEx m_onExportStarts;
+
+		@Nullable
+		private RunnableEx m_onExportCompletes;
 
 		public ExportButtonBuilder(Class<T> classModel, SupplierEx<QCriteria<T>> criteriaSupplier) {
 			m_classModel = MetaManager.findClassMeta(classModel);
@@ -389,6 +438,16 @@ public class ExporterButtons {
 			return this;
 		}
 
+		public ExportButtonBuilder<T> onExportStarts(@Nullable RunnableEx onExportStarts) {
+			m_onExportStarts = onExportStarts;
+			return this;
+		}
+
+		public ExportButtonBuilder<T> onExportCompletes(@Nullable RunnableEx onExportCompletes) {
+			m_onExportCompletes = onExportCompletes;
+			return this;
+		}
+
 		private void appendColumn(ColumnDef<T, ?> c) {
 			RowRendererCellWrapper<Object> w = RowRendererCellWrapper.create(c);
 			if(null != w)
@@ -420,7 +479,7 @@ public class ExporterButtons {
 			if(customizer != null)
 				customizer.accept(criteria);
 
-			ExporterButtons.export(node, format, criteria, calculateColumnList(), fileName);
+			ExporterButtons.export(node, format, criteria, calculateColumnList(), fileName, m_onExportStarts, m_onExportCompletes);
 		}
 
 		protected void executeExportFromList(NodeContainer targetNode, IExportFormat format) throws Exception {
@@ -442,7 +501,7 @@ public class ExporterButtons {
 			Class<T> baseClass = criteria == null ? (Class<T>) result.get(0).getClass() : criteria.getBaseClass();
 
 			String fileName = calculateFileName(baseClass);
-			ExporterButtons.export(targetNode, baseClass, result, format, calculateColumnList(), fileName);
+			ExporterButtons.export(targetNode, baseClass, result, format, calculateColumnList(), fileName, m_onExportStarts, m_onExportCompletes);
 		}
 
 		private String calculateFileName(@Nullable Class<?> baseClass) {
