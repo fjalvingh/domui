@@ -191,31 +191,31 @@ public class ExporterButtons {
 		private final List<T> m_list;
 
 		@Nullable
-		private final RunnableEx m_onExportStarted;
+		private final RunnableEx m_onExportStart;
 
 		@Nullable
-		private final RunnableEx m_onExportCompleted;
+		private final RunnableEx m_onExportComplete;
 
-		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<? extends IExportColumn<?>> columns, @Nullable RunnableEx onExportStarted, @Nullable RunnableEx onExportCompleted) {
+		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<? extends IExportColumn<?>> columns, @Nullable RunnableEx onExportStart, @Nullable RunnableEx onExportComplete) {
 			super(format);
 			m_baseClass = baseClass;
 			m_list = list;
 			m_columns = columns;
-			m_onExportStarted = onExportStarted;
-			m_onExportCompleted = onExportCompleted;
+			m_onExportStart = onExportStart;
+			m_onExportComplete = onExportComplete;
 		}
 
 		@Override
 		protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
-			if(null != m_onExportStarted) {
-				m_onExportStarted.run();
+			if(null != m_onExportStart) {
+				m_onExportStart.run();
 			}
 			try {
 				ListExporter<T> qxp = new ListExporter<>(m_baseClass, m_list, writer, m_columns);
 				qxp.export(progress);
 			} finally {
-				if(null != m_onExportCompleted) {
-					m_onExportCompleted.run();
+				if(null != m_onExportComplete) {
+					m_onExportComplete.run();
 				}
 			}
 		}
@@ -313,10 +313,10 @@ public class ExporterButtons {
 		private SupplierEx<List<T>> m_sourceSupplier;
 
 		@Nullable
-		private RunnableEx m_onExportStarts;
+		private RunnableEx m_onExportStart;
 
 		@Nullable
-		private RunnableEx m_onExportCompletes;
+		private RunnableEx m_onExportComplete;
 
 		public ExportButtonBuilder(Class<T> classModel, SupplierEx<QCriteria<T>> criteriaSupplier) {
 			m_classModel = MetaManager.findClassMeta(classModel);
@@ -438,13 +438,13 @@ public class ExporterButtons {
 			return this;
 		}
 
-		public ExportButtonBuilder<T> onExportStarts(@Nullable RunnableEx onExportStarts) {
-			m_onExportStarts = onExportStarts;
+		public ExportButtonBuilder<T> onExportStart(@Nullable RunnableEx onExportStart) {
+			m_onExportStart = onExportStart;
 			return this;
 		}
 
-		public ExportButtonBuilder<T> onExportCompletes(@Nullable RunnableEx onExportCompletes) {
-			m_onExportCompletes = onExportCompletes;
+		public ExportButtonBuilder<T> onExportComplete(@Nullable RunnableEx onExportComplete) {
+			m_onExportComplete = onExportComplete;
 			return this;
 		}
 
@@ -479,7 +479,7 @@ public class ExporterButtons {
 			if(customizer != null)
 				customizer.accept(criteria);
 
-			ExporterButtons.export(node, format, criteria, calculateColumnList(), fileName, m_onExportStarts, m_onExportCompletes);
+			ExporterButtons.export(node, format, criteria, calculateColumnList(), fileName, m_onExportStart, m_onExportComplete);
 		}
 
 		protected void executeExportFromList(NodeContainer targetNode, IExportFormat format) throws Exception {
@@ -501,7 +501,7 @@ public class ExporterButtons {
 			Class<T> baseClass = criteria == null ? (Class<T>) result.get(0).getClass() : criteria.getBaseClass();
 
 			String fileName = calculateFileName(baseClass);
-			ExporterButtons.export(targetNode, baseClass, result, format, calculateColumnList(), fileName, m_onExportStarts, m_onExportCompletes);
+			ExporterButtons.export(targetNode, baseClass, result, format, calculateColumnList(), fileName, m_onExportStart, m_onExportComplete);
 		}
 
 		private String calculateFileName(@Nullable Class<?> baseClass) {
