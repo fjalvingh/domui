@@ -321,7 +321,7 @@ final public class UILogin {
 			return null;
 		String value = user.getLoginID() + ":" + l + ":" + auth;
 		Cookie k = new Cookie("domuiLogin", value);
-		k.setSecure(true);
+		//k.setSecure(true);
 		k.setHttpOnly(true);
 		k.setMaxAge((int) ((l - System.currentTimeMillis()) / 1000)); // #seconds before expiry
 		k.setPath(ci.getRequestResponse().getWebappContext());
