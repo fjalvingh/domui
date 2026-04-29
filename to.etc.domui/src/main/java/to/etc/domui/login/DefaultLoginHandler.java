@@ -3,6 +3,7 @@ package to.etc.domui.login;
 import org.eclipse.jdt.annotation.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.util.StringTool;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -56,6 +57,7 @@ public class DefaultLoginHandler implements ILoginHandler {
 	public IUser decodeCookie(RequestContextImpl rci, String cookie) {
 		if(cookie == null)
 			return null;
+		cookie = StringTool.strUnquote(cookie);
 		String[] car = cookie.split(":");
 		if(car.length != 3)
 			return null;
@@ -70,7 +72,8 @@ public class DefaultLoginHandler implements ILoginHandler {
 			if(null == la)
 				return null;
 
-			return la.authenticateByCookie(uid, ts, car[2]);// Authenticate by cookie
+			//System.out.println("domuicookie: " + cookie + " auth");
+			return la.authenticateByCookie(uid, ts, car[2]);		// Authenticate by cookie
 		} catch(Exception x) {
 			return null;                                    // All cookie format exceptions mean no login
 		}
