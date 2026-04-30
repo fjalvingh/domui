@@ -316,6 +316,9 @@
 				<configuration>
 					<!-- Enable TestUI mode on the server to make Selenium tests run. -->
 					<systemProperties>
+						<domui.testui>true</domui.testui>
+						<domui.selenium>true</domui.selenium>
+
 						<systemProperty>
 							<name>domui.testui</name>
 							<value>true</value>
