@@ -19,6 +19,7 @@ import to.etc.domui.util.IComboDataSet;
 import to.etc.domui.util.ILabelStringRenderer;
 import to.etc.domui.util.IRenderInto;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
@@ -252,7 +253,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 
 	@Nullable
 	@Override
-	public <A> A getAnnotation(@NonNull Class<A> annclass) {
+	public <A extends Annotation> A getAnnotation(@NonNull Class<A> annclass) {
 		return null;
 	}
 

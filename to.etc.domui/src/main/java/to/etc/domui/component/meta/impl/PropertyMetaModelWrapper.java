@@ -42,6 +42,7 @@ import to.etc.domui.util.IComboDataSet;
 import to.etc.domui.util.ILabelStringRenderer;
 import to.etc.domui.util.IRenderInto;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Locale;
@@ -60,7 +61,6 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	/**
 	 * WATCH OUT: Should only be used when initializing outside the constructor; should not change after this
 	 * has been passed to user code.
-	 * @param parent
 	 */
 	public void setWrappedModel(PropertyMetaModel<T> parent) {
 		m_parent = parent;
@@ -90,7 +90,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	abstract public @NonNull ClassMetaModel getClassModel();
 
 	@Override
-	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
+	public Class<? extends IComboDataSet<?>> getComboDataSet() {
 		return m_parent.getComboDataSet();
 	}
 
@@ -100,12 +100,12 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
+	public Class<? extends ILabelStringRenderer<?>> getComboLabelRenderer() {
 		return m_parent.getComboLabelRenderer();
 	}
 
 	@Override
-	public Class< ? extends IRenderInto<T>> getComboNodeRenderer() {
+	public Class<? extends IRenderInto<T>> getComboNodeRenderer() {
 		return m_parent.getComboNodeRenderer();
 	}
 
@@ -165,7 +165,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public Class< ? extends IRenderInto<T>> getLookupSelectedRenderer() {
+	public Class<? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return m_parent.getLookupSelectedRenderer();
 	}
 
@@ -189,7 +189,8 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 		return m_parent.getReadOnly();
 	}
 
-	@Override public boolean isReadOnly() {
+	@Override
+	public boolean isReadOnly() {
 		return m_parent.isReadOnly();
 	}
 
@@ -265,7 +266,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 
 	@Nullable
 	@Override
-	public <A> A getAnnotation(@NonNull Class<A> annclass) {
+	public <A extends Annotation> A getAnnotation(@NonNull Class<A> annclass) {
 		return m_parent.getAnnotation(annclass);
 	}
 

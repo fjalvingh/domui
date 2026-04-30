@@ -94,7 +94,7 @@ final public class ClassUtil {
 	}
 
 	@Nullable
-	static public Method findMethod(@NonNull final Class< ? > clz, @NonNull final String name, @NonNull final Class< ? >... param) {
+	static public Method findMethod(@NonNull final Class<?> clz, @NonNull final String name, @NonNull final Class<?>... param) {
 		try {
 			return clz.getMethod(name, param);
 		} catch(Exception x) {
@@ -110,10 +110,10 @@ final public class ClassUtil {
 	 * Tries to find a method that can be called using the specified parameters.
 	 */
 	@Nullable
-	static public Method findMethod(@NonNull final Class< ? > clz, @NonNull final String name, @NonNull final Object... param) {
+	static public Method findMethod(@NonNull final Class<?> clz, @NonNull final String name, @NonNull final Object... param) {
 		boolean hard = false;
-		Class< ? >[] par = new Class< ? >[param.length];
-		for(int i = param.length; --i >= 0;) {
+		Class<?>[] par = new Class<?>[param.length];
+		for(int i = param.length; --i >= 0; ) {
 			Object v = param[i];
 			if(v == null) {
 				hard = true;
@@ -133,11 +133,11 @@ final public class ClassUtil {
 		for(Method m : mar) {
 			if(!m.getName().equals(name))
 				continue;
-			Class< ? >[] far = m.getParameterTypes();
+			Class<?>[] far = m.getParameterTypes();
 			if(far.length != par.length)
 				continue;
 			boolean ok = true;
-			for(int j = far.length; --j >= 0;) {
+			for(int j = far.length; --j >= 0; ) {
 				if(!far[j].isAssignableFrom(par[j])) {
 					ok = false;
 					break;
@@ -159,18 +159,18 @@ final public class ClassUtil {
 
 		public boolean isPrivate;
 
-		public Method		getter;
+		public Method getter;
 
-		public List<Method>	setterList	= new ArrayList<Method>();
+		public List<Method> setterList = new ArrayList<Method>();
 	}
 
-	static private final Map<Class< ? >, ClassInfo>	m_classMap	= new HashMap<Class< ? >, ClassInfo>();
+	static private final Map<Class<?>, ClassInfo> m_classMap = new HashMap<Class<?>, ClassInfo>();
 
 	/**
 	 * Get introspected bean information for the class. This info is cached so access will be fast after the 1st try.
 	 */
 	@NonNull
-	static synchronized public ClassInfo getClassInfo(@NonNull Class< ? > clz) {
+	static synchronized public ClassInfo getClassInfo(@NonNull Class<?> clz) {
 		ClassInfo ci = m_classMap.get(clz);
 		if(ci == null) {
 			List<PropertyInfo> proplist = calculateProperties(clz);
@@ -181,23 +181,21 @@ final public class ClassUtil {
 	}
 
 	@Nullable
-	static public PropertyInfo findPropertyInfo(@NonNull Class< ? > clz, @NonNull String property) {
+	static public PropertyInfo findPropertyInfo(@NonNull Class<?> clz, @NonNull String property) {
 		return getClassInfo(clz).findProperty(property);
 	}
 
 	@NonNull
-	static public List<PropertyInfo> getProperties(@NonNull final Class< ? > cl) {
+	static public List<PropertyInfo> getProperties(@NonNull final Class<?> cl) {
 		ClassInfo ci = getClassInfo(cl);
 		return ci.getProperties();
 	}
 
 	/**
 	 * DO NOT USE - uncached calculation of a class's properties.
-	 * @param cl
-	 * @return
 	 */
 	@NonNull
-	static public List<PropertyInfo> calculateProperties(@NonNull final Class< ? > cl) {
+	static public List<PropertyInfo> calculateProperties(@NonNull final Class<?> cl) {
 		return calculateProperties(cl, true);
 	}
 
@@ -205,11 +203,11 @@ final public class ClassUtil {
 	 * DO NOT USE - uncached calculation of a class's properties.
 	 */
 	@NonNull
-	static public List<PropertyInfo> calculateProperties(@NonNull final Class< ? > cl, boolean publicOnly) {
-		Map<String, Info> map = new HashMap<String, Info>();
+	static public List<PropertyInfo> calculateProperties(@NonNull final Class<?> cl, boolean publicOnly) {
+		Map<String, Info> map = new HashMap<>();
 
 		//-- First handle private properties
-		if(! publicOnly) {
+		if(!publicOnly) {
 			for(Method m : cl.getDeclaredMethods()) {
 				checkPropertyMethod(map, m, publicOnly);
 			}
@@ -221,7 +219,7 @@ final public class ClassUtil {
 		}
 
 		//-- Construct actual list
-		List<PropertyInfo> res = new ArrayList<PropertyInfo>();
+		List<PropertyInfo> res = new ArrayList<>();
 		for(Entry<String, Info> en : map.entrySet()) {
 			Info i = en.getValue();
 			if(i.getter == null)
@@ -248,7 +246,7 @@ final public class ClassUtil {
 	private static void checkPropertyMethod(Map<String, Info> map, Method m, boolean publicOnly) {
 		//-- Check if this is a valid getter,
 		int mod = m.getModifiers();
-		if(Modifier.isStatic(mod) || (publicOnly && !Modifier.isPublic(mod)) )
+		if(Modifier.isStatic(mod) || (publicOnly && !Modifier.isPublic(mod)))
 			return;
 		String name = m.getName();
 		boolean setter = false;
@@ -266,7 +264,7 @@ final public class ClassUtil {
 			return;
 
 		//-- Check parameters
-		Class< ? >[] param = m.getParameterTypes();
+		Class<?>[] param = m.getParameterTypes();
 		if(setter) {
 			if(param.length != 1)
 				return;
@@ -290,10 +288,10 @@ final public class ClassUtil {
 
 		//-- Private rules: a property is private only if the getter is private.
 		if(pvt) {
-			if(! setter) {
+			if(!setter) {
 				i.isPrivate = true;
 			}
-		} else if(i.isPrivate && ! setter) {
+		} else if(i.isPrivate && !setter) {
 			i.isPrivate = false;
 			//i.getter = null;
 			//i.setterList.clear();
@@ -323,13 +321,12 @@ final public class ClassUtil {
 		return sb.toString();
 	}
 
-
 	/**
 	 * Generic caller of a method using reflection. This prevents us from having
 	 * to link to the stupid Oracle driver.
 	 */
 	@Nullable
-	static public Object callObjectMethod(@NonNull final Object src, @NonNull final String name, @NonNull final Class< ? >[] types, @NonNull final Object... parameters) throws SQLException {
+	static public Object callObjectMethod(@NonNull final Object src, @NonNull final String name, @NonNull final Class<?>[] types, @NonNull final Object... parameters) throws SQLException {
 		try {
 			Method m = src.getClass().getMethod(name, types);
 			return m.invoke(src, parameters);
@@ -342,16 +339,17 @@ final public class ClassUtil {
 		}
 	}
 
-	static public final Class< ? > loadClass(final ClassLoader cl, final String cname) {
+	static public final Class<?> loadClass(final ClassLoader cl, final String cname) {
 		try {
 			return cl.loadClass(cname);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 		return null;
 	}
 
 	@NonNull
 	static public final <T> T loadInstance(@NonNull final ClassLoader cl, @NonNull Class<T> clz, @NonNull final String className) throws Exception {
-		Class< ? > acl;
+		Class<?> acl;
 		try {
 			acl = cl.loadClass(className);
 		} catch(Exception x) {
@@ -401,9 +399,9 @@ final public class ClassUtil {
 	 * null.
 	 */
 	@Nullable
-	static public Class< ? > findCollectionType(@NonNull Type genericType) {
-		if(genericType instanceof Class< ? >) {
-			Class< ? > cl = (Class< ? >) genericType;
+	static public Class<?> findCollectionType(@NonNull Type genericType) {
+		if(genericType instanceof Class<?>) {
+			Class<?> cl = (Class<?>) genericType;
 			if(cl.isArray()) {
 				return cl.getComponentType();
 			}
@@ -413,12 +411,12 @@ final public class ClassUtil {
 			Type raw = pt.getRawType();
 
 			//-- This must be a collection type of class.
-			if(raw instanceof Class< ? >) {
-				Class< ? > cl = (Class< ? >) raw;
+			if(raw instanceof Class<?>) {
+				Class<?> cl = (Class<?>) raw;
 				if(Collection.class.isAssignableFrom(cl)) {
 					Type[] tar = pt.getActualTypeArguments();
 					if(tar != null && tar.length == 1) { // Collection<T> required
-						return (Class< ? >) tar[0];
+						return (Class<?>) tar[0];
 					}
 				}
 			}
@@ -426,7 +424,7 @@ final public class ClassUtil {
 		return null;
 	}
 
-	static public boolean isCollectionOrArrayType(@NonNull Class< ? > clz) {
+	static public boolean isCollectionOrArrayType(@NonNull Class<?> clz) {
 		return clz.isArray() || Collection.class.isAssignableFrom(clz);
 	}
 
@@ -435,25 +433,25 @@ final public class ClassUtil {
 	 * and interfaces, where interfaces have "multiple bases".
 	 */
 	@NonNull
-	static public List<Class< ? >> getClassHierarchy(@NonNull Class< ? > clzin) {
-		List<Class< ? >> res = new ArrayList<Class< ? >>();
+	static public List<Class<?>> getClassHierarchy(@NonNull Class<?> clzin) {
+		List<Class<?>> res = new ArrayList<Class<?>>();
 		appendClassHierarchy(res, clzin);
 		return res;
 	}
 
-	static public void appendClassHierarchy(@NonNull List<Class< ? >> res, @NonNull Class< ? > clzin) {
+	static public void appendClassHierarchy(@NonNull List<Class<?>> res, @NonNull Class<?> clzin) {
 		if(res.contains(clzin))
 			return;
 
 		//-- If this class has a superclass (it is not an interface and not Object) then add that 1st
-		Class< ? > sclz = clzin.getSuperclass();
+		Class<?> sclz = clzin.getSuperclass();
 		if(null != sclz) {
 			appendClassHierarchy(res, sclz); // First add parts upside the hierarchy.
 		}
 
 		//-- Get all implemented interfaces as bases and add them 1st also
-		Class< ? >[] ifar = clzin.getInterfaces();
-		for(Class< ? > iclz : ifar) {
+		Class<?>[] ifar = clzin.getInterfaces();
+		for(Class<?> iclz : ifar) {
 			appendClassHierarchy(res, iclz);
 		}
 		if(res.contains(clzin))
@@ -490,7 +488,7 @@ final public class ClassUtil {
 	}
 
 	@Nullable
-	public static <T> Constructor<T> findConstructor(@NonNull Class<T> clz, @NonNull Class< ? >... formals) {
+	public static <T> Constructor<T> findConstructor(@NonNull Class<T> clz, @NonNull Class<?>... formals) {
 		try {
 			return clz.getConstructor(formals);
 		} catch(Exception x) {
@@ -498,7 +496,7 @@ final public class ClassUtil {
 		}
 	}
 
-	public static <T> T callConstructor(Class<T> clz, Class< ? >[] formals, Object... args) throws Exception {
+	public static <T> T callConstructor(Class<T> clz, Class<?>[] formals, Object... args) throws Exception {
 		Constructor<T> c = findConstructor(clz, formals);
 		if(c == null)
 			throw new IllegalStateException("Cannot find constructor in " + clz + " with args " + Arrays.toString(formals));
@@ -576,7 +574,7 @@ final public class ClassUtil {
 	 * does not exist this throws an exception.
 	 */
 	static public Object getClassValue(@NonNull final Object inst, @NonNull final String name) throws Exception {
-		Class< ? > clz = inst.getClass();
+		Class<?> clz = inst.getClass();
 		Method m;
 		try {
 			m = clz.getMethod(name);
@@ -607,7 +605,7 @@ final public class ClassUtil {
 		if(annotation != null) {
 			return annotation;
 		}
-		Class< ? > parent = annotatedMethod.getDeclaringClass().getSuperclass();
+		Class<?> parent = annotatedMethod.getDeclaringClass().getSuperclass();
 		if(parent != null) {
 			Method superMethod;
 			try {
@@ -627,7 +625,7 @@ final public class ClassUtil {
 	 */
 	@NonNull
 	static public <T extends Annotation> List<T> getMethodAnnotations(Method m, Class<T> annotationType) {
-		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());			// Full class hierarchy including interfaces
+		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());            // Full class hierarchy including interfaces
 
 		List<T> result = new ArrayList<>();
 		for(Class<?> clz : hierarchy) {
@@ -639,7 +637,8 @@ final public class ClassUtil {
 		return result;
 	}
 
-	@Nullable private static Method findMethodInClass(Method m, Class<?> clz) {
+	@Nullable
+	private static Method findMethodInClass(Method m, Class<?> clz) {
 		Method macc;
 		if(clz == m.getDeclaringClass()) {
 			macc = m;
@@ -659,7 +658,7 @@ final public class ClassUtil {
 		if(null != annotation)
 			return annotation;
 
-		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());			// Full class hierarchy including interfaces
+		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());            // Full class hierarchy including interfaces
 		for(Class<?> clz : hierarchy) {
 			Method macc = findMethodInClass(m, clz);
 
@@ -679,7 +678,7 @@ final public class ClassUtil {
 	}
 
 	static public <T extends Annotation> T getClassAnnotation(Class<?> clzIn, Class<T> annotationType) {
-		List<Class<?>> hierarchy = getClassHierarchy(clzIn);			// Full class hierarchy including interfaces
+		List<Class<?>> hierarchy = getClassHierarchy(clzIn);            // Full class hierarchy including interfaces
 		for(Class<?> clz : hierarchy) {
 			T annotation = clz.getAnnotation(annotationType);
 			if(null != annotation)
@@ -734,7 +733,7 @@ final public class ClassUtil {
 			extractTypeArguments(typeMap, instanceClass);
 			instanceClass = instanceClass.getSuperclass();
 			if(instanceClass == null)
-				return null;									// Subclass containing classOfInterest not found
+				return null;                                    // Subclass containing classOfInterest not found
 		} while(classOfInterest != instanceClass);
 
 		Type actualType = valueType;
@@ -747,11 +746,10 @@ final public class ClassUtil {
 		return null;
 	}
 
-
 	/**
 	 * Creates a map of (formal, actual) types for a class. The actual can also be a type name (like T).
 	 */
-	private static void extractTypeArguments(Map <Type, Type> typeMap, Class <?> clazz) {
+	private static void extractTypeArguments(Map<Type, Type> typeMap, Class<?> clazz) {
 		Type genericSuperclass = clazz.getGenericSuperclass();
 		if(!(genericSuperclass instanceof ParameterizedType)) {
 			return;

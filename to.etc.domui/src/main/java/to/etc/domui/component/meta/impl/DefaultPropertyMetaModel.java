@@ -43,7 +43,9 @@ import to.etc.util.PropertyInfo;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
@@ -145,6 +147,17 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			setReadOnly(YesNoType.YES);
 		}
 	}
+
+	public DefaultPropertyMetaModel(@NonNull DefaultClassMetaModel classModel, RecordComponent component, ClassMetaModel valueModel) {
+		m_accessor = new RecordComponentAccessor<>(component);
+		m_valueModel = valueModel;
+		m_classModel = classModel;
+		m_name = component.getName();
+		m_actualType = component.getType();
+		m_genericActualType = component.getGenericType();
+		setReadOnly(YesNoType.YES);
+	}
+
 
 	public DefaultPropertyMetaModel(@NonNull DefaultClassMetaModel classModel, PropertyInfo descriptor) {
 		this(classModel, descriptor, null);
@@ -431,7 +444,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 */
 	@Override
 	@Nullable
-	public <A> A getAnnotation(@NonNull Class<A> annClass) {
+	public <A extends Annotation> A getAnnotation(@NonNull Class<A> annClass) {
 		return m_accessor.getAnnotation(annClass);
 	}
 
