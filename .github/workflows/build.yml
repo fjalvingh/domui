@@ -14,8 +14,8 @@ jobs:
         with:
           java-version: '21'
           distribution: 'zulu'
-#      - name: Initialize CodeQL
-#        uses: github/codeql-action/init@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
 #      - name: Cache SonarQube packages
 #        uses: actions/cache@v4
 #        with:
@@ -38,5 +38,5 @@ jobs:
           name: junit-results
           path: to.etc.domui.demo/target/failsafe-reports/*.png
           retention-days: 7
-#      - name: Perform CodeQL Analysis
-#        uses: github/codeql-action/analyze@v3
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
