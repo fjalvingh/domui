@@ -5,7 +5,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.RecordComponent;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +44,10 @@ final public class RecordComponentAccessor<V> implements IPropertyModelAccessor<
 	@Override
 	@Nullable
 	public <A extends Annotation> A getAnnotation(@NonNull Class<A> annclass) {
-		return m_info.getAnnotation(annclass);
+		A annotation = m_info.getAnnotation(annclass);
+		if(null != annotation)
+			return annotation;
+		return m_info.getAccessor().getAnnotation(annclass);			// What a mess
 	}
 
 	/**
@@ -54,7 +57,17 @@ final public class RecordComponentAccessor<V> implements IPropertyModelAccessor<
 	@Override
 	@NonNull
 	public List<Object> getAnnotations() {
-		return Arrays.asList(m_info.getAnnotations());
+		Annotation[] aa1 = m_info.getAnnotations();
+		Annotation[] aa2 = m_info.getAccessor().getAnnotations();
+		List<Object> res = new ArrayList<>(aa1.length + aa2.length);
+		for(Annotation annotation : aa1) {
+			res.add(annotation);
+		}
+		for(Annotation annotation : aa2) {
+			res.add(annotation);
+		}
+
+		return res;
 	}
 
 	@Override
