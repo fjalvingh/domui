@@ -1587,7 +1587,7 @@ final public class DomUtil {
 	@Nullable
 	static public String findCookieValue(@NonNull String name) {
 		Cookie c = findCookie(name);
-		return c == null ? null : c.getValue();
+		return c == null ? null : StringTool.strUnquote(c.getValue());
 	}
 
 	/**

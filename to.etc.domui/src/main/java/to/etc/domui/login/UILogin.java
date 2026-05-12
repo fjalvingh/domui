@@ -14,6 +14,8 @@ import to.etc.domui.state.UIContext;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
+import to.etc.util.StringTool;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -138,7 +140,7 @@ final public class UILogin {
 						//	+ ", value " + c.getValue()
 						//);
 						if(c.getName().equals("domuiLogin")) {
-							String domval = c.getValue();
+							String domval = StringTool.strUnquote(c.getValue());
 							user = UILogin.getLoginHandler().decodeCookie(rci, domval);
 							//System.out.println("[ loginid = " + user);
 							if(user != null) {
@@ -359,7 +361,8 @@ final public class UILogin {
 		if(car != null) {
 			for(Cookie c : car) {
 				if(c.getName().equals("domuiLogin")) {
-					String[] splt = c.getValue().split(":");
+					String value = StringTool.strUnquote(c.getValue());
+					String[] splt = value.split(":");
 					if(splt.length == 3) {
 						//-- Make sure the same hash value is not used for login again. This prevents "relogin" when the browser sends some requests with the "old" cookie value (obituaries)
 						UILogin.getLoginHandler().registerIgnoredHash(splt[2]);
@@ -367,9 +370,9 @@ final public class UILogin {
 
 					//-- Create a new cookie value containing a delete.
 					Cookie k = new Cookie("domuiLogin", "logout");
-					k.setSecure(true);
-					k.setHttpOnly(true);
-					k.setMaxAge(60);
+					//k.setSecure(true);
+					//k.setHttpOnly(true);
+					k.setMaxAge(0);
 					k.setPath(rci.getRequestResponse().getWebappContext());
 					rci.getRequestResponse().addCookie(k);
 					return true;
