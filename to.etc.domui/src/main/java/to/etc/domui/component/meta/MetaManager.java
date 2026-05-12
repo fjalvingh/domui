@@ -431,12 +431,40 @@ final public class MetaManager {
 			if(raw instanceof Class<?> cl && Collection.class.isAssignableFrom(cl)) {
 				Type[] tar = pt.getActualTypeArguments();
 				if(tar.length == 1) { // Collection<T> required
-					return (Class<?>) tar[0];
+					if(tar[0] instanceof Class<?> clz) {
+						return clz;
+					} else if(tar[0] instanceof ParameterizedType pt2) {
+						return (Class<?>) pt2.getRawType();
+					}
 				}
 			}
 		}
 		return null;
 	}
+
+	@Nullable
+	static public Type findTypeParameter(Type genericType, int index) {
+		if(genericType instanceof Class<?> cl && cl.isArray()) {
+			if(index != 0)
+				throw new IllegalStateException("Type parameter index should be 0 for an array");
+			return cl.getComponentType();
+		}
+
+		if(genericType instanceof ParameterizedType pt) {
+			Type raw = pt.getRawType();
+
+			//-- This must be a collection type of class.
+			if(raw instanceof Class<?>) {
+				Type[] tar = pt.getActualTypeArguments();
+				if(index >= tar.length)
+					throw new IllegalStateException("Type parameter index " + index + " not valid; max is " + (tar.length - 1) + " for " + pt);
+
+				return tar[index];
+			}
+		}
+		return null;
+	}
+
 
 	/**
 	 * Returns T if instance.propertyname is a duplicate in some other instance in the list.
