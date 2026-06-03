@@ -250,6 +250,10 @@ final public class ColumnDef<I, T> {
 		return this;
 	}
 
+	public ColumnDef<I, T> sortable(SortableType sortableType) {
+		m_sortable = sortableType;
+		return this;
+	}
 	/**
 	 * The requested max width in characters.
 	 * It would ensure that column never grows over that value in em units.
