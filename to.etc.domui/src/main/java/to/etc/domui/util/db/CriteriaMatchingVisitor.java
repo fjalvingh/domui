@@ -118,11 +118,11 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 				return;
 
 			case EQ:
-				m_lastResult = val.equals(lit);
+				m_lastResult = MetaManager.areObjectsEqual(val, lit);
 				return;
 
 			case NE:
-				m_lastResult = !val.equals(lit);
+				m_lastResult = !MetaManager.areObjectsEqual(val, lit);
 				return;
 		}
 
