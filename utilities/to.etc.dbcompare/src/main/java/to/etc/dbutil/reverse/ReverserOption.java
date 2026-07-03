@@ -8,6 +8,7 @@ public enum ReverserOption {
 	ReverseTables,
 	ReverseIndexes,
 	ReverseColumns,
+	ReversePrimaryKeys,
 	ReverseRelations,
 	ReverseSequences,
 	ReverseViews,

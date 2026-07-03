@@ -35,14 +35,16 @@ final public class AsyncDialog {
 	static public <T extends IAsyncRunnable> void runInDialog(@NonNull NodeContainer addTo, @NonNull T task, @NonNull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete) {
 		runInDialog(addTo, task, dialogTitle, isAbortable, onComplete, null);
 	}
-	static public <T extends IAsyncRunnable> void runInDialog(@NonNull NodeContainer addTo, @NonNull T task, @NonNull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete, @Nullable ConsumerEx<Exception> onError) {
+
+	static public <T extends IAsyncRunnable> void runInDialog(@NonNull NodeContainer addTo, @NonNull T task, @NonNull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete,
+		@Nullable ConsumerEx<Exception> onError) {
 		final Dialog dlg = new Dialog(true, false, dialogTitle) {
 			@Override
 			public void closePressed() throws Exception {
 				IWindowClosed onClose = getOnClose();
 				if(null != onClose) {
 					onClose.closed(RSN_CLOSE);
-				}else {
+				} else {
 					super.closePressed();
 				}
 			}
@@ -53,7 +55,8 @@ final public class AsyncDialog {
 		dlg.setAutoClose(false);
 
 		IAsyncCompletionListener result = new IAsyncCompletionListener() {
-			@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
+			@Override
+			public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
 				dlg.close();
 				if(errorException == null) {
 					dlg.close();

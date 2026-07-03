@@ -27,7 +27,7 @@ public class DbSchema implements Serializable {
 	/** The assigned schema name */
 	private String m_name;
 
-	/** If this schema is in reality a catalog: thisis the catalog name (or null) */
+	/** If this schema is in reality a catalog: this is the catalog name (or null) */
 	@Nullable
 	private String m_catalogName;
 
@@ -76,9 +76,9 @@ public class DbSchema implements Serializable {
 		return m_name;
 	}
 
-	//public void setName(String name) {
-	//	m_name = name;
-	//}
+	public void setName(String name) {
+		m_name = name;
+	}
 
 	public DbTable createTable(String name) {
 		DbTable t = new DbTable(this, name);
