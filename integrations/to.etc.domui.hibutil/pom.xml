@@ -17,8 +17,9 @@
 
     <properties>
 <!--        <hibernate.core.version>5.2.10.Final</hibernate.core.version>-->
-        <hibernate.core.version>5.4.24.Final</hibernate.core.version>
-        <javassist.version>3.23.1-GA</javassist.version>
+<!--        <hibernate.core.version>5.4.24.Final</hibernate.core.version>-->
+<!--        <javassist.version>3.23.1-GA</javassist.version>-->
+        <sonar.skip>true</sonar.skip>
     </properties>
 
     <dependencies>
@@ -26,10 +27,10 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+        <!-- The Jakarta version of the jsdk, which renamed all packages. May the idiots that did that rot in Hell. -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -41,12 +42,12 @@
             <artifactId>org.eclipse.jdt.annotation</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>el-api</artifactId>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>jsp-api</artifactId>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
         </dependency>
         <dependency>
             <groupId>to.etc.domui</groupId>
@@ -89,13 +90,13 @@
 
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-hibernate5</artifactId>
+            <artifactId>jackson-datatype-hibernate7</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
-            <version>3.4.1.Final</version>
+            <version>3.6.2.Final</version>
         </dependency>
 
         <dependency>

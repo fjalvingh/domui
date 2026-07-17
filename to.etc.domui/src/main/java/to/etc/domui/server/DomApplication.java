@@ -26,6 +26,7 @@ package to.etc.domui.server;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import jakarta.servlet.http.HttpServletRequest;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
@@ -133,6 +134,7 @@ import to.etc.function.BiConsumerEx;
 import to.etc.function.ConsumerEx;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
+import to.etc.util.Pair;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
@@ -141,7 +143,6 @@ import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QNotFoundException;
 import to.etc.webapp.testsupport.TUtilTestProperties;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -154,6 +155,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -283,7 +285,7 @@ public abstract class DomApplication {
 
 	static private int m_nextPageTag = (int) (System.nanoTime() & 0x7fffffff);
 
-	private final boolean m_logOutput = DeveloperOptions.getBool("domui.log", false);
+	private final boolean m_logOutput = DeveloperOptions.getBool("domui.log", false) || System.getProperty("domui.log") != null;
 
 	@NonNull
 	private List<IRequestInterceptor> m_interceptorList = new ArrayList<>();
@@ -358,7 +360,7 @@ public abstract class DomApplication {
 	private boolean m_scanClosed;
 
 	@SuppressWarnings("squid:S3077")
-	private volatile Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
+	private volatile Map<String, Map<String, String>> m_defaultSiteResourceHeaderMap = new HashMap<>();
 
 	private boolean m_dieOnUncheckedInjectors;
 
@@ -673,7 +675,7 @@ public abstract class DomApplication {
 
 		addDefaultHTTPHeader("X-Content-Type-Options", "nosniff");    // Make sure the browser always obeys the actual content type for a document
 
-		addDefaultResourceHeader("X-Content-Type-Options", "nosniff");    // Make sure the browser always obeys the actual content type for a document
+		addDefaultResourceHeader("", "X-Content-Type-Options", "nosniff");    // Make sure the browser always obeys the actual content type for a document
 	}
 
 	protected void registerControlFactories() {
@@ -951,31 +953,61 @@ public abstract class DomApplication {
 	private void configureHeaders(ConfigParameters pp) {
 		for(String parameterName : pp.getParameterNames()) {
 			String value = pp.getString(parameterName);
-			if(parameterName.startsWith(HEADER_PREFIX)) {
-				String name = parameterName.substring(HEADER_PREFIX.length());
+			Pair<String, String> pair = parseHeaderParameter(HEADER_PREFIX, parameterName);
+			if(pair != null) {
 				if(value == null || value.isEmpty()) {
-					addDefaultHTTPHeader(name, null);
-					addDefaultResourceHeader(name, null);
+					addDefaultHTTPHeader(pair.get2(), null);
+					addDefaultResourceHeader(pair.get1(), pair.get2(), null);
 				} else {
-					addDefaultHTTPHeader(name, value);
-					addDefaultResourceHeader(name, value);
+					addDefaultHTTPHeader(pair.get2(), value);
+					addDefaultResourceHeader(pair.get1(), pair.get2(), value);
 				}
-			} else if(parameterName.startsWith(HTTPHEADER_PREFIX)) {
-				String name = parameterName.substring(HTTPHEADER_PREFIX.length());
-				if(value == null || value.isEmpty()) {
-					addDefaultHTTPHeader(name, null);
+			} else {
+				pair = parseHeaderParameter(HTTPHEADER_PREFIX, parameterName);
+				if(null != pair) {
+					if(value == null || value.isEmpty()) {
+						addDefaultHTTPHeader(pair.get2(), null);
+					} else {
+						addDefaultHTTPHeader(pair.get2(), value);
+					}
 				} else {
-					addDefaultHTTPHeader(name, value);
-				}
-			} else if(parameterName.startsWith(RESOURCEHEADER_PREFIX)) {
-				String name = parameterName.substring(RESOURCEHEADER_PREFIX.length());
-				if(value == null || value.isEmpty()) {
-					addDefaultResourceHeader(name, null);
-				} else {
-					addDefaultResourceHeader(name, value);
+					pair = parseHeaderParameter(RESOURCEHEADER_PREFIX, parameterName);
+					if(null != pair) {
+						if(value == null || value.isEmpty()) {
+							addDefaultResourceHeader(pair.get1(), pair.get2(), null);
+						} else {
+							addDefaultResourceHeader(pair.get1(), pair.get2(), value);
+						}
+					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * Split the header parameter name into a possible URL prefix and the actual header name.
+	 */
+	@Nullable
+	static private Pair<String, String> parseHeaderParameter(String expectedPrefix, String parameterName) {
+		if(!parameterName.startsWith(expectedPrefix)) {
+			return null;
+		}
+
+		String rest = parameterName.substring(expectedPrefix.length());
+		int pos = expectedPrefix.indexOf(':');
+		if(pos == -1) {
+			return new Pair<>("", rest);					// Root level header (default)
+		}
+		String rurl = expectedPrefix.substring(0, pos);
+		String header = expectedPrefix.substring(pos + 1);
+		while(rurl.startsWith("/")) {
+			rurl = rurl.substring(1);
+		}
+		if(! rurl.endsWith("/")) {
+			rurl = rurl + "/";
+		}
+
+		return new Pair<>(rurl, header);
 	}
 
 	private void checkIconPackInitialization() {
@@ -1191,14 +1223,29 @@ public abstract class DomApplication {
 		m_defaultSiteHeaderMap = Collections.unmodifiableMap(newMap);
 	}
 
-	public void addDefaultResourceHeader(@NonNull String headerName, @Nullable String value) {
-		Map<String, String> map = m_defaultSiteResourceHeaderMap;
-		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		newMap.putAll(map);
+	public synchronized void addDefaultResourceHeader(@NonNull String rurl, @NonNull String headerName, @Nullable String value) {
+		Map<String, Map<String, String>> map = m_defaultSiteResourceHeaderMap;
+
+		rurl = rurl.toLowerCase();
+
+		//-- Dup the root map
+		Map<String, Map<String, String>> newMap = new HashMap<>(map);
+
+		Map<String, String> headerMap = newMap.computeIfAbsent(rurl, k -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+
+		if(null == headerMap) {
+			headerMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		} else {
+			Map<String, String> newHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+			newHeaderMap.putAll(headerMap);
+			headerMap = newHeaderMap;
+		}
+
 		if(value == null)
-			newMap.remove(headerName);
+			headerMap.remove(headerName);
 		else
-			newMap.put(headerName, value);
+			headerMap.put(headerName, value);
+		newMap.put(rurl, Collections.unmodifiableMap(headerMap));								// Updated header map.
 		m_defaultSiteResourceHeaderMap = Collections.unmodifiableMap(newMap);
 	}
 
@@ -1212,8 +1259,35 @@ public abstract class DomApplication {
 	/**
 	 * All http headers that should be sent with site data resources, as an unmodifyable map.
 	 */
-	public Map<String, String> getDefaultSiteResourceHeaderMap() {
+	public synchronized Map<String, Map<String, String>> getDefaultSiteResourceHeaderMap() {
 		return m_defaultSiteResourceHeaderMap;
+	}
+
+	/**
+	 * Return the correct site resource map for the specified rurl.
+	 *
+	 * @param rurl  The relative resource URL, which is required not to start with a /.
+	 */
+	public Map<String, String> getSiteResourceHeaderMap(String rurl) {
+		rurl = rurl.toLowerCase();
+
+		Map<String, Map<String, String>> urlMap = getDefaultSiteResourceHeaderMap();
+
+		int matchLen = -1;
+		Map<String, String> matchMap = null;
+		for(Entry<String, Map<String, String>> sme : urlMap.entrySet()) {
+			String prefix = sme.getKey();
+			if(prefix.isEmpty() && matchMap == null) {
+				matchMap = sme.getValue();
+				matchLen = 0;
+			} else if(rurl.startsWith(prefix) && prefix.length() > matchLen) {
+				matchLen = prefix.length();
+				matchMap = sme.getValue();
+			}
+		}
+		if(matchMap == null)
+			return Collections.emptyMap();
+		return matchMap;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -2273,8 +2347,23 @@ public abstract class DomApplication {
 		pf = new File(webInf, appName + "-app.properties");        // skarpliance-app.properties
 		if(pf.exists())
 			return pf;
+		if(appName.equals("ROOT")) {
+			//-- Pfff. Try parent dirs.
+			File current = root.getParentFile();
+			if(current != null && current.getName().equals("webapps")) {
+				current = current.getParentFile();
+			}
+			if(current == null)
+				throw new IllegalStateException("I cannot find a config file for appname=" + appName);
+			appName = current.getName();
 
-		throw new IllegalStateException("I cannot find a config file.");
+			//-- If the app is called ROOT, also try WEB-INF/app.properties
+			pf = new File(webInf, appName + "-app.properties");
+			if(pf.exists())
+				return pf;
+		}
+
+		throw new IllegalStateException("I cannot find a config file for appname=" + appName);
 	}
 
 
@@ -2690,7 +2779,7 @@ public abstract class DomApplication {
 			prefix = prefix.substring(1);
 		while(prefix.endsWith("/"))
 			prefix = prefix.substring(0, prefix.length() - 1);
-		prefix += "/";
+		//prefix += "/";
 		m_ignorePrefixList.add(prefix);
 	}
 

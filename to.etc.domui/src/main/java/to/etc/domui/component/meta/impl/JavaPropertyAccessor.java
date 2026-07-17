@@ -52,7 +52,7 @@ public class JavaPropertyAccessor<V> implements IPropertyModelAccessor<V> {
 	 */
 	@Override
 	@Nullable
-	public <A> A getAnnotation(@NonNull Class<A> annclass) {
+	public <A extends Annotation> A getAnnotation(@NonNull Class<A> annclass) {
 		if(Annotation.class.isAssignableFrom(annclass) && m_info != null && m_info.getGetter() != null) {
 			Class< ? extends Annotation> aclz = (Class< ? extends Annotation>) annclass;
 

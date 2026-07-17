@@ -6,22 +6,23 @@ import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.SessionFactoryBuilder;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
 import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.JdbcSettings;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
-import org.hibernate.event.spi.EventType;
+import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.hibernate.service.ServiceRegistry;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.domui.component.misc.ExceptionDialog;
-import to.etc.domui.hibernate.beforeimages.BeforeImageInterceptor;
-import to.etc.domui.hibernate.beforeimages.CopyCollectionEventListener;
-import to.etc.domui.hibernate.beforeimages.CreateBeforeImagePostLoadListener;
 import to.etc.domui.hibernate.generic.BuggyHibernateBaseContext;
 import to.etc.domui.hibernate.generic.HibernateLongSessionContextFactory;
 import to.etc.domui.hibernate.generic.HibernateQueryExecutor;
@@ -39,6 +40,7 @@ import to.etc.webapp.query.QQueryExecutorRegistry;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,8 +87,6 @@ final public class HibernateConfiguratorInstance {
 	static private HibernateConfigurator.Mode m_mode = HibernateConfigurator.Mode.NONE;
 
 	static private boolean m_observableEnabled;
-
-	static private boolean m_beforeImagesEnabled;
 
 	public List<Class<?>> getAnnotatedClassList() {
 		return m_annotatedClassList;
@@ -216,13 +216,6 @@ final public class HibernateConfiguratorInstance {
 		m_handlers.register(qexecutor);
 	}
 
-	public void enableBeforeImages(boolean yes) {
-		requireUnconfigured();
-		requireEmptyInterceptor();
-		m_beforeImagesEnabled = yes;
-		m_interceptorFactory = x -> new BeforeImageInterceptor(x.getBeforeCache());
-	}
-
 	public void enableObservableCollections(boolean yes) {
 		requireUnconfigured();
 		m_observableEnabled = yes;
@@ -268,6 +261,7 @@ final public class HibernateConfiguratorInstance {
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
 		StandardServiceRegistryBuilder serviceBuilder = new StandardServiceRegistryBuilder(bootstrapRegistry)
 			.configure(resname)
+			//.applySetting("hibernate.dialect", new OracleDialect())
 			;
 
 		/*
@@ -300,6 +294,7 @@ final public class HibernateConfiguratorInstance {
 		if(DeveloperOptions.getBool("hibernate.format_sql", true)) {
 			serviceBuilder.applySetting("hibernate.format_sql", "true");
 		}
+		serviceBuilder.applySetting(JdbcSettings.CONNECTION_HANDLING, PhysicalConnectionHandlingMode.DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION);
 
 		switch(m_mode){
 			default:
@@ -324,6 +319,10 @@ final public class HibernateConfiguratorInstance {
 		}
 
 		ServiceRegistry reg = serviceBuilder.build();
+
+		Dialect dialect = reg.requireService(JdbcServices.class).getDialect();
+		patchDialectSizeCrap(dialect);
+
 		MetadataSources sources = new MetadataSources(reg);
 
 		for(Class<?> clz : m_annotatedClassList)
@@ -334,7 +333,9 @@ final public class HibernateConfiguratorInstance {
 			listener.onAddSources(sources);
 		}
 
-		Metadata metaData = sources.getMetadataBuilder()
+		MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
+
+		Metadata metaData = metadataBuilder
 			.applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
 			.build();
 
@@ -357,12 +358,13 @@ final public class HibernateConfiguratorInstance {
 		SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) sessionFactoryBuilder.build();
 		m_sessionFactory = sessionFactory;
 
+
 		EventListenerRegistry listenerRegistry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
-		if(m_beforeImagesEnabled) {
-			// https://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/chapters/events/Events.html
-			listenerRegistry.prependListeners(EventType.POST_LOAD, new CreateBeforeImagePostLoadListener());
-			listenerRegistry.prependListeners(EventType.INIT_COLLECTION, new CopyCollectionEventListener());
-		}
+		//if(m_beforeImagesEnabled) {
+		//	// https://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/chapters/events/Events.html
+		//	listenerRegistry.prependListeners(EventType.POST_LOAD, new CreateBeforeImagePostLoadListener());
+		//	listenerRegistry.prependListeners(EventType.INIT_COLLECTION, new CopyCollectionEventListener());
+		//}
 		for(IHibernateConfigListener listener : m_onConfigureList) {
 			listener.onAddListeners(listenerRegistry);
 		}
@@ -395,6 +397,29 @@ final public class HibernateConfiguratorInstance {
 		ExceptionDialog.register(HibernateMessageDecoder::translateHibernateException);
 
 		System.out.println("domui: Hibernate initialization took a whopping " + StringTool.strNanoTime(System.nanoTime() - ts));
+	}
+
+	/**
+	 * Hibernate 7.2 decides to badly check field sizes, and it aborts when a floating
+	 * type has a scale. And of course this is done by code that cannot simply be overridden
+	 * because hibernate configuration is a terrible mess.
+	 */
+	private void patchDialectSizeCrap(Dialect dialect) {
+		try {
+			Field theUnsafe = Dialect.class.getDeclaredField("sizeStrategy");
+			theUnsafe.setAccessible(true);
+			FixedSizeStrategyImpl fixedSizeStrategy = new FixedSizeStrategyImpl(dialect);
+			theUnsafe.set(dialect, fixedSizeStrategy);
+
+			//Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+			//Field logger = cls.getDeclaredField("logger");
+			//u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+			//
+		} catch(Exception x) {
+			x.printStackTrace();
+		}
+
+
 	}
 
 	/**

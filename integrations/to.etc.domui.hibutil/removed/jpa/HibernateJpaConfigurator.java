@@ -2,7 +2,7 @@ package to.etc.domui.hibernate.jpa;
 
 import to.etc.webapp.query.QContextManager;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 
 /**
  * Initializes the Hibernate JPA interface for DomUI.

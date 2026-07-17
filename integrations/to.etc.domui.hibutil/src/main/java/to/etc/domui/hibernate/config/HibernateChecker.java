@@ -1,5 +1,18 @@
 package to.etc.domui.hibernate.config;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import org.hibernate.annotations.Type;
 import org.hibernate.boot.Metadata;
 import org.hibernate.mapping.Bag;
@@ -13,23 +26,9 @@ import to.etc.domui.hibernate.types.MappedEnumType;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -158,8 +157,7 @@ final public class HibernateChecker {
 
 			checkDomuiMetadata();
 
-			for(Iterator<?> iter2 = pc.getPropertyIterator(); iter2.hasNext(); ) {
-				Property property = (Property) iter2.next();
+			for(Property property : pc.getProperties()) {
 				//				System.out.println("... " + property.getName() + " type " + property.getType().getName());
 				Getter g = property.getGetter(pc.getMappedClass());
 
@@ -167,7 +165,7 @@ final public class HibernateChecker {
 				Class<?> actual = null == method ? null : method.getReturnType();
 
 				if(property.getType().getName().equals(MappedEnumType.class.getName()) || "nl.itris.viewpoint.db.hibernate.ViewPointMappedEnumType".equals(property.getType().getName())) {
-					//-- Sigh.. Try to obtain the property's actual type from the getter because Hibernate does not have an easy route to it, appearently.
+					//-- Sigh. Try to obtain the property's actual type from the getter because Hibernate does not have an easy route to it, appearently.
 					SimpleValue v = (SimpleValue) property.getValue();
 					//					System.out.println("Property " + v + " is " + v.getTypeName() + " class=" + actual);
 					if(v.getTypeParameters() == null)
@@ -232,7 +230,7 @@ final public class HibernateChecker {
 		org.hibernate.annotations.Formula annotation = g.getAnnotation(org.hibernate.annotations.Formula.class);
 		if(null == annotation)
 			return;
-		javax.persistence.Basic lazyLoadingOnFormula = g.getAnnotation(javax.persistence.Basic.class);
+		jakarta.persistence.Basic lazyLoadingOnFormula = g.getAnnotation(jakarta.persistence.Basic.class);
 		if(null == lazyLoadingOnFormula || lazyLoadingOnFormula.fetch() != FetchType.LAZY) {
 			problem(Severity.ERROR, "@Formula that is not lazy loaded using @Basic(fetch=FetchType.LAZY), causing big performance trouble");
 			m_notLazyLoadedFormula++;
@@ -274,11 +272,11 @@ final public class HibernateChecker {
 							m_badBooleans++;
 							problem(Severity.ERROR, "Missing @Type on nullable primitive boolean!");
 						} else {
-							String ttn = ty.type();
-							if(ttn.equals("yes_no")) {
-								problem(Severity.ERROR, "@Type(yes_no) on nullable primitive boolean!");
-								m_badBooleans++;
-							}
+							//Class<?> ttn = ty.value();
+							//if(ttn.equals("yes_no")) {
+							//	problem(Severity.ERROR, "@Type(yes_no) on nullable primitive boolean!");
+							//	m_badBooleans++;
+							//}
 						}
 					}
 				}
@@ -295,7 +293,7 @@ final public class HibernateChecker {
 	 * OneToMany: must have mappedBy, cannot have JoinColumn, must have List<T> resultType.
 	 */
 	private void checkOneToMany(Method g) {
-		javax.persistence.OneToMany o2m = g.getAnnotation(javax.persistence.OneToMany.class);
+		jakarta.persistence.OneToMany o2m = g.getAnnotation(jakarta.persistence.OneToMany.class);
 		if(o2m != null) {
 			if(o2m.mappedBy().isEmpty()) {
 				m_badOneToMany++;
@@ -309,7 +307,7 @@ final public class HibernateChecker {
 			}
 
 			//-- JoinColumn not allowed
-			javax.persistence.JoinColumn jc = g.getAnnotation(javax.persistence.JoinColumn.class);
+			jakarta.persistence.JoinColumn jc = g.getAnnotation(jakarta.persistence.JoinColumn.class);
 			if(null != jc) {
 				problem(Severity.ERROR, "@JoinColumn found on @OneToMany - not allowed. Use mappedBy");
 				m_badJoinColumn++;

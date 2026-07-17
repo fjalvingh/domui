@@ -24,6 +24,8 @@
  */
 package to.etc.dbpool.info;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspWriter;
 import to.etc.dbpool.ConnState;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.ConnectionProxy;
@@ -36,8 +38,6 @@ import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

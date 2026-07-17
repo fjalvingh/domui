@@ -421,7 +421,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitExistsSubquery(@NonNull QExistsSubquery<?> q) throws Exception {
+	public <S> void visitExistsSubquery(@NonNull QExistsSubquery<S> q) throws Exception {
 		PropertyMetaModel<List<?>> pmm = (PropertyMetaModel<List<?>>) m_cmm.getProperty(q.getParentProperty());
 		List<?> list = pmm.getValue(m_instance);
 		if(list == null) {

@@ -44,10 +44,10 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 3, 2013
  */
-@SupportedAnnotationTypes({"javax.persistence.Entity", "to.etc.annotations.GenerateProperties"})
+@SupportedAnnotationTypes({"jakarta.persistence.Entity", "to.etc.annotations.GenerateProperties"})
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 public class PropertyAnnotationProcessor extends AbstractProcessor {
-	static public final String PERSISTENCE_ANNOTATION = "javax.persistence.Entity";
+	static public final String PERSISTENCE_ANNOTATION = "jakarta.persistence.Entity";
 
 	static public final String GENERATED_PROPERTIES_ANNOTATION = "to.etc.annotations.GenerateProperties";
 

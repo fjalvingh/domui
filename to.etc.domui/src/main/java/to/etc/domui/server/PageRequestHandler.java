@@ -1,6 +1,7 @@
 package to.etc.domui.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -55,7 +56,6 @@ import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QContextManager;
 
-import javax.servlet.http.HttpSession;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;

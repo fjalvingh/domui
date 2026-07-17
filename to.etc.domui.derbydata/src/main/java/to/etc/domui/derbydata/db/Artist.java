@@ -1,24 +1,26 @@
 package to.etc.domui.derbydata.db;
 
-import org.hibernate.annotations.Index;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaObject;
 import to.etc.domui.component.meta.MetaSearch;
 import to.etc.domui.component.meta.SearchPropertyType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "Artist")
-@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
+@Table(name = "Artist", indexes = {@Index(name = "artist_name_idx", columnList = "name")})
+//@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
 @MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")}, defaultSortColumn = "name")
 public class Artist extends DbRecordBase<Long> {
 	private Long m_id;
@@ -30,6 +32,7 @@ public class Artist extends DbRecordBase<Long> {
 	@Override
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
 	@Column(name = "ArtistId", nullable = false, precision = 20)
 	public Long getId() {
 		return m_id;
@@ -44,7 +47,6 @@ public class Artist extends DbRecordBase<Long> {
 	 */
 	@MetaSearch(order = 1, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(length = 120, nullable = false, unique = true)
-	@Index(name = "Name")
 	public String getName() {
 		return m_name;
 	}

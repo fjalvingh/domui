@@ -256,13 +256,13 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	}
 
 	/**
-	 * We explicitly undeprecate here.
+	 * Returns the JDBC connection used by the current Hibernate session.
+	 * The connection remains valid as long as the session is open.
 	 */
-	@SuppressWarnings("deprecation")
 	public Connection getConnection() throws Exception {
 		startTransaction();
-		SessionImpl session = (SessionImpl) getSession();
-		return session.connection();
+		SessionImpl sim = (SessionImpl) getSession();
+		return sim.getJdbcCoordinator().getLogicalConnection().getPhysicalConnection();
 	}
 
 	@Override

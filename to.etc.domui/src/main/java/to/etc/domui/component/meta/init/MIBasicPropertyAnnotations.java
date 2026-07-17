@@ -65,14 +65,14 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	}
 
 	protected void decodePropertyAnnotationByName(DefaultClassMetaModel cmm, DefaultPropertyMetaModel<?> pmm, Annotation an, String name) {
-		if("javax.persistence.Column".equals(name)) {
+		if("jakarta.persistence.Column".equals(name)) {
 			decodeJpaColumn(pmm, an);
-		} else if("javax.persistence.JoinColumn".equals(name)) {
+		} else if("jakarta.persistence.JoinColumn".equals(name)) {
 			decodeJpaJoinColumn(pmm, an);
-		} else if("javax.persistence.Id".equals(name) || "javax.persistence.EmbeddedId".equals(name)) {
+		} else if("jakarta.persistence.Id".equals(name) || "jakarta.persistence.EmbeddedId".equals(name)) {
 			pmm.setPrimaryKey(true);
 			cmm.setPersistentClass(true);
-		} else if("javax.persistence.ManyToOne".equals(name) || "javax.persistence.OneToOne".equals(name)) {
+		} else if("jakarta.persistence.ManyToOne".equals(name) || "jakarta.persistence.OneToOne".equals(name)) {
 			pmm.setRelationType(PropertyRelationType.UP);
 
 			//-- Decode fields from the annotation.
@@ -82,7 +82,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 			} catch(Exception x) {
 				Trouble.wrapException(x);
 			}
-		} else if("javax.persistence.Temporal".equals(name)) {
+		} else if("jakarta.persistence.Temporal".equals(name)) {
 			try {
 				Object val = DomUtil.getClassValue(an, "value");
 				if(val != null) {
@@ -97,9 +97,9 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 			} catch(Exception x) {
 				Trouble.wrapException(x);
 			}
-		} else if("javax.persistence.Transient".equals(name) || "org.hibernate.annotations.Formula".equals(name)) {
+		} else if("jakarta.persistence.Transient".equals(name) || "org.hibernate.annotations.Formula".equals(name)) {
 			pmm.setTransient(true);
-		} else if("javax.persistence.OneToMany".equals(name)) {
+		} else if("jakarta.persistence.OneToMany".equals(name)) {
 			//-- This must be a list
 			if(!Collection.class.isAssignableFrom(pmm.getActualType()))
 				throw new IllegalStateException("Invalid property type for DOWN relation of property " + this + ": only List<T> is allowed");
@@ -111,7 +111,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	}
 
 	/**
-	 * Generically decode a JPA javax.persistence.Column annotation.
+	 * Generically decode a JPA jakarta.persistence.Column annotation.
 	 * FIXME Currently only single-column properties are supported.
 	 */
 	protected void decodeJpaColumn(@NonNull DefaultPropertyMetaModel<?> pmm, @NonNull final Annotation an) {
@@ -148,7 +148,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	}
 
 	/**
-	 * Generically decode a JPA  javax.persistence.JoinColumn annotation.
+	 * Generically decode a JPA  jakarta.persistence.JoinColumn annotation.
 	 */
 	protected void decodeJpaJoinColumn(@NonNull DefaultPropertyMetaModel<?> pmm, @NonNull final Annotation an) {
 		try {

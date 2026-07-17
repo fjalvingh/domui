@@ -1,7 +1,7 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
@@ -14,6 +14,7 @@ import java.sql.Types;
  * A UserType implementation to map a boolean primitive object to a VARCHAR.<br /> A true
  * value maps to "true" and a false value maps to "false". This type does not recognise
  * nullity; it gets interpreted as a false.
+ *
  * @author jal
  */
 final public class BooleanPrimitiveTrueFalseType implements UserType {
@@ -50,16 +51,18 @@ final public class BooleanPrimitiveTrueFalseType implements UserType {
 		return true;
 	}
 
-	@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-		if(resultSet == null)
+	@Override
+	public Object nullSafeGet(ResultSet rs, int position, WrapperOptions options) throws SQLException {
+		if(rs == null)
 			return null;
-		String v = resultSet.getString(names[0]);
+		String v = rs.getString(position);
 		if(v == null)
 			return Boolean.FALSE;
 		return parse(v);
 	}
 
-	@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+	@Override
+	public void nullSafeSet(PreparedStatement statement, Object value, int index, WrapperOptions options) throws SQLException {
 		statement.setString(index, value == null ? "false" : ((Boolean) value).booleanValue() ? "true" : "false");
 	}
 
@@ -69,13 +72,13 @@ final public class BooleanPrimitiveTrueFalseType implements UserType {
 	}
 
 	@Override
-	public Class< ? > returnedClass() {
-		return Boolean.class;
+	public Class<?> returnedClass() {
+		return boolean.class;
 	}
 
 	@Override
-	public int[] sqlTypes() {
-		return new int[]{Types.VARCHAR};
+	public int getSqlType() {
+		return Types.VARCHAR;
 	}
 
 	/**

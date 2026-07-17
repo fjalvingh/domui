@@ -2,6 +2,7 @@ package to.etc.domui.webdriver.core;
 
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import org.openqa.selenium.By;
 
 /**
  * This rule causes a screenshot to be written to test output when a
@@ -22,6 +23,15 @@ public class JUnitTestCompletedRule extends TestWatcher {
 	protected void failed(Throwable e, Description description) {
 		m_testBase.snapshot("Screen after test failure");		// ORDERED
 		m_testBase.internalClosePerTestResources();							// ORDERED
+
+		try {
+			String body = m_testBase.wd().getHtmlText(By.tagName("body"));
+			System.err.println("---- HTML ----");
+			System.err.println(body);
+			System.err.println("---- /HTML ----");
+		} catch(Exception x) {
+			System.err.println("debug: failed to get html: " + x);
+		}
 	}
 
 	@Override

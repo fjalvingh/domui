@@ -3,7 +3,7 @@ package to.etc.domui.hibernate.jpa;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.sql.Connection;
 
 /**

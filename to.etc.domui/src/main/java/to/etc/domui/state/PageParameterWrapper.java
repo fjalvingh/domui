@@ -31,6 +31,8 @@ public class PageParameterWrapper implements IPageParameters {
 	private IBasicParameterContainer m_container;
 
 	public PageParameterWrapper(IBasicParameterContainer container) {
+		if(null == container)
+			throw new IllegalStateException("Container cannot be null");
 		m_container = container;
 		if(null == container)
 			throw new IllegalStateException("Null container is not allowed");

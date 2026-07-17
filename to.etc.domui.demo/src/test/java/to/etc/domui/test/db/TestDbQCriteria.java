@@ -14,6 +14,7 @@ import to.etc.domui.derbydata.db.Employee;
 import to.etc.domui.derbydata.db.Employee_;
 import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.derbydata.db.InvoiceLine;
+import to.etc.domui.derbydata.db.Invoice_;
 import to.etc.domui.derbydata.db.Track;
 import to.etc.domui.derbydata.db.Track_;
 import to.etc.webapp.query.QCriteria;
@@ -26,7 +27,9 @@ import to.etc.webapp.query.QSubQuery;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TestDbQCriteria {
 	/** The dc used for each test. Created and deleted by setup fixure */
@@ -55,6 +58,89 @@ public class TestDbQCriteria {
 
 	public QDataContext dc() {
 		return m_dc;
+	}
+
+	/**
+	 * Hibernate 7 adds a mess in checking that there are
+	 * no references to the deleted record in any other
+	 * relation. This check tests that this gets prevented
+	 * when walking children only.
+	 */
+	@Test
+	public void testDeleteWithoutCascade() throws Exception {
+		Artist a = dc().get(Artist.class, Long.valueOf(2));
+		Assert.assertNotNull(a);
+		for(Album album : a.getAlbumList()) {
+			album.getTitle();
+		}
+		dc().delete(a);
+		dc().flushIfPossible();		// Verify no TransientPropertyValueException during flush
+		dc().rollback();			// Don't permanently delete test data
+	}
+
+	/**
+	 * Hibernate 7 adds a mess in checking that there are
+	 * no references to the deleted record in any other
+	 * relation. This check tests that this gets prevented
+	 * when walking children only.
+	 */
+	@Test
+	public void testDeleteWithoutCascade2() throws Exception {
+		Album a = dc().get(Album.class, Long.valueOf(2));
+		Assert.assertNotNull(a);
+		for(Track t : a.getTrackList()) {					// load a child collection
+			t.getName();
+			t.getAlbum().getTitle();
+		}
+		a.getArtist().getName();							// load parent relation
+		for(Album album : a.getArtist().getAlbumList()) {
+			album.getTitle();
+			for(Track tl : album.getTrackList()) {
+				tl.getName();
+			}
+		}
+
+		dc().delete(a);
+		dc().flushIfPossible();		// Verify no TransientPropertyValueException during flush
+		dc().rollback();			// Don't permanently delete test data
+	}
+
+	@Test
+	public void testDeleteWithoutCascade3() throws Exception {
+		//-- Load a root level instance
+		Artist artist = dc().get(Artist.class, 3L);
+
+		//-- Now find its children, but not using the Collection.
+		QCriteria<Album> aq = QCriteria.create(Album.class)
+			.eq(Album_.artist(), artist)
+			;
+		List<Album> list = dc().query(aq);
+		for(Album album : list) {
+			album.getArtist().getName();				// Make sure all children refer the parent, but the parent's collection remains unloaded
+		}
+
+		dc().delete(artist);
+		dc().flushIfPossible();		// Verify no TransientPropertyValueException during flush
+		dc().rollback();			// Don't permanently delete test data
+	}
+
+	/**
+	 * isnotnull on a list property should mean "where there are items in that list".
+	 */
+	@Test
+	public void testConditionOnList1() throws Exception {
+		QCriteria<Artist> q = QCriteria.create(Artist.class)
+			.isnotnull(Artist_.albumList());
+		List<Artist> res = dc().query(q);
+		Assert.assertEquals("Result count should be correct", 204, res.size());
+	}
+
+	@Test
+	public void testConditionOnList2() throws Exception {
+		QCriteria<Artist> q = QCriteria.create(Artist.class);
+		q.not().exists(Artist.class, Artist_.albumList());
+		List<Artist> res = dc().query(q);
+		Assert.assertEquals("Result count should be correct", 71, res.size());
 	}
 
 	@Test
@@ -284,18 +370,6 @@ public class TestDbQCriteria {
 
 	}
 
-
-//	@Test
-//	public void testAliases2() throws Exception {
-//		QCriteria<Customer> q = QCriteria.create(Customer.class);
-//		QRestrictor<Customer> or = q.or();
-//		or.eq("supportRepresentative.firstName", "Margaret");
-//		or.eq("aaaList.bbb", "ccc");
-//		List<Customer> res = dc().query(q);
-//		Assert.assertEquals(20, res.size());
-//	}
-
-
 	/**
 	 * Test to prove that the subquery path does not work in some cases
 	 */
@@ -416,6 +490,20 @@ public class TestDbQCriteria {
 		}
 	}
 
+	@Test
+	public void testDistinctSelect() throws Exception {
+		var qs = QSelection.create(Invoice.class)
+			.distinct(Invoice_.customer());
+		List<Object[]> query = dc().query(qs);
+		Assert.assertEquals(58, query.size());
+		Set<Object> dupset = new HashSet<>();
+		for(Object[] objects : query) {
+			if(!dupset.add(objects[0]))
+				throw new IllegalStateException("Non distinct customer found: " + objects[0]);
+		}
+	}
+
+
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	"in" query													*/
 	/*----------------------------------------------------------------------*/
@@ -423,10 +511,40 @@ public class TestDbQCriteria {
 	@Test
 	public void testInQuery1() throws Exception {
 		QCriteria<Album> q = QCriteria.create(Album.class)
-			.in("title", Arrays.asList("Led Zeppelin I", "Led Zeppelin II", "Led Zeppelin III"))
-			;
+			.in("title", Arrays.asList("Led Zeppelin I", "Led Zeppelin II", "Led Zeppelin III"));
 		List<Album> ires = dc().query(q);
 		Assert.assertEquals(3, ires.size());
+	}
+
+	/**
+	 * Test "in" with a QSelection subquery: find all customers whose country
+	 * is in the set of countries that have a customer in Paris.
+	 * SQL equivalent: SELECT * FROM Customer WHERE Country IN (SELECT Country FROM Customer WHERE City = 'Paris')
+	 */
+	@Test
+	public void testInWithSubquery() throws Exception {
+		//-- First, get expected count using a simple eq on country
+		QCriteria<Customer> controlQ = QCriteria.create(Customer.class);
+		controlQ.eq("city", "Paris");
+		List<Customer> parisCustomers = dc().query(controlQ);
+		Assert.assertTrue("Should have customers in Paris", parisCustomers.size() > 0);
+		String expectedCountry = parisCustomers.get(0).getCountry();
+
+		QCriteria<Customer> expectedQ = QCriteria.create(Customer.class);
+		expectedQ.eq("country", expectedCountry);
+		int expected = dc().query(expectedQ).size();
+		Assert.assertTrue("Should have customers in country " + expectedCountry, expected > 0);
+
+		//-- Now the same using IN with a subquery
+		QSelection<Customer> subq = QSelection.create(Customer.class);
+		subq.selectProperty("country");
+		subq.eq("city", "Paris");
+
+		QCriteria<Customer> mainq = QCriteria.create(Customer.class);
+		mainq.in("country", subq);
+
+		List<Customer> res = dc().query(mainq);
+		Assert.assertEquals(expected, res.size());
 	}
 
 	@Test
@@ -562,5 +680,125 @@ public class TestDbQCriteria {
 
 		List<Employee> ires = dc().query(q);
 		Assert.assertSame(3, ires.size());
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	SQL restriction tests.									    */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Test a plain SQL restriction without parameters.
+	 */
+	@Test
+	public void testSqlRestrictionSimple() throws Exception {
+		QCriteria<Customer> q = QCriteria.create(Customer.class);
+		q.sqlCondition("1 = 1");                                    // Always true, should return all customers
+		List<Customer> res = dc().query(q);
+		Assert.assertEquals(59, res.size());
+	}
+
+	/**
+	 * Test a SQL restriction with a JDBC parameter.
+	 */
+	@Test
+	public void testSqlRestrictionWithParameter() throws Exception {
+		//-- First query with QCriteria eq() to get the expected count
+		QCriteria<Customer> q1 = QCriteria.create(Customer.class).eq("city", "Paris");
+		int expected = dc().query(q1).size();
+
+		//-- Now the same query using a raw SQL restriction with a parameter
+		QCriteria<Customer> q2 = QCriteria.create(Customer.class);
+		q2.sqlCondition("City = ?", new Object[]{"Paris"});
+		List<Customer> res = dc().query(q2);
+		Assert.assertEquals(expected, res.size());
+	}
+
+	/**
+	 * Test a SQL restriction combined with a normal QCriteria restriction.
+	 */
+	@Test
+	public void testSqlRestrictionCombinedWithCriteria() throws Exception {
+		QCriteria<Customer> q = QCriteria.create(Customer.class);
+		q.eq("country", "France");
+		q.sqlCondition("City = ?", new Object[]{"Paris"});
+		List<Customer> res = dc().query(q);
+		Assert.assertEquals(2, res.size());
+	}
+
+	@Test
+	public void testSqlRestrictionWithThis() throws Exception {
+		QCriteria<Customer> q = QCriteria.create(Customer.class);
+
+		String ex = """
+			exists (select 1 from invoice ii where ii.customerId=this_.customerId)
+			""";
+
+		q.sqlCondition(ex);
+		List<Customer> res = dc().query(q);
+		Assert.assertTrue("Expected customers with invoices", res.size() > 0);
+
+
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Like on non-string properties.							    */
+	/*----------------------------------------------------------------------*/
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Commit / transaction semantics tests.					    */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Save a new Artist, commit, then read it back via dc().get() and verify the name.
+	 * The ID is assigned automatically from the artist_sq sequence (@SequenceGenerator on getId()).
+	 * Cleans up the inserted record afterward.
+	 */
+	@Test
+	public void testSaveAndCommit() throws Exception {
+		String uniqueName = "TestArtist_" + System.nanoTime();
+
+		Artist artist = new Artist();
+		artist.setName(uniqueName);
+		dc().save(artist);
+		dc().commit();
+
+		Long savedId = artist.getId();
+		Assert.assertNotNull("Saved artist should have a sequence-assigned ID after commit", savedId);
+
+		tearDownConnection();
+		setUpConnection();
+		try {
+			Artist found = dc().get(Artist.class, savedId);
+			Assert.assertEquals("Artist name should match the saved value", uniqueName, found.getName());
+		} finally {
+			Artist toDelete = dc().find(Artist.class, savedId);
+			if(toDelete != null) {
+				try {
+					dc().delete(toDelete);
+					dc().commit();
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Test like on a BigDecimal property. This uses CAST(column AS VARCHAR)
+	 * under the covers since like is a string operation.
+	 */
+	@Test
+	public void testLikeOnNumericProperty() throws Exception {
+		//-- Get the expected count using a SQL restriction (known to work)
+		QCriteria<Invoice> q1 = QCriteria.create(Invoice.class);
+		q1.sqlCondition("CAST(Total AS VARCHAR(255)) like ?", new Object[]{"1%"});
+		int expected = dc().query(q1).size();
+		Assert.assertTrue("Expected at least some invoices with total starting with 1", expected > 0);
+
+		//-- Now the same using QCriteria like() on the numeric 'total' property
+		QCriteria<Invoice> q2 = QCriteria.create(Invoice.class);
+		q2.like("total", "1%");
+		List<Invoice> res = dc().query(q2);
+		Assert.assertEquals(expected, res.size());
 	}
 }

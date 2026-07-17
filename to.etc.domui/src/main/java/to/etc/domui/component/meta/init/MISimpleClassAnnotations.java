@@ -14,7 +14,7 @@ import java.lang.annotation.Annotation;
  */
 public class MISimpleClassAnnotations extends AbstractClassAnnotationProvider {
 	@Override protected void decodeClassAnnotation(MetaInitContext context, DefaultClassMetaModel cmm, Annotation an, String name) throws Exception {
-		if("javax.persistence.Table".equals(name)) {
+		if("jakarta.persistence.Table".equals(name)) {
 			//-- Decode fields from the annotation.
 			decodeTableAnnotation(cmm, an);
 		} else if("to.etc.webapp.qsql.QJdbcTable".equals(name)) {

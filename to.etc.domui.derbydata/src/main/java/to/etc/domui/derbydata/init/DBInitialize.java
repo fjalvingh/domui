@@ -15,7 +15,6 @@ import java.sql.ResultSet;
 public class DBInitialize {
 	/**
 	 * Load the database, if it is empty.
-	 * @throws Exception
 	 */
 	static public void fillDatabase(DataSource ds) throws Exception {
 		Connection dbc = ds.getConnection();
@@ -51,7 +50,7 @@ public class DBInitialize {
 			rsb.setKeepQuotes(true);
 			StringBuilder sb = new StringBuilder();
 			int count = 0;
-			for(;;) {
+			for(; ; ) {
 				sb.setLength(0);
 				if(!scanStatement(sb, rsb))
 					break;
@@ -73,18 +72,22 @@ public class DBInitialize {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(null != is)
 					is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -105,13 +108,10 @@ public class DBInitialize {
 
 	/**
 	 * Split SQL script into statements.
-	 * @param sb
-	 * @param rsb
-	 * @return
 	 */
 	static private boolean scanStatement(StringBuilder sb, ReaderTokenizerBase rsb) throws Exception {
 		sb.setLength(0);
-		for(;;) {
+		for(; ; ) {
 			int t = rsb.nextToken();
 			if(t == -1)
 				return sb.length() != 0;
@@ -130,6 +130,5 @@ public class DBInitialize {
 				sb.append(rsb.getCopied());
 		}
 	}
-
 
 }

@@ -3,6 +3,7 @@ package to.etc.domui.hibernate.types;
 import org.hibernate.HibernateException;
 import org.hibernate.collection.spi.PersistentCollection;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.metamodel.CollectionClassification;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.usertype.UserCollectionType;
 import to.etc.domui.databinding.observables.ObservableList;
@@ -24,6 +25,16 @@ public class ObservableListType implements UserCollectionType {
 	@Override
 	public Object instantiate(int anticipatedSize) {
 		return new ObservableList<Object>();
+	}
+
+	@Override
+	public CollectionClassification getClassification() {
+		return CollectionClassification.LIST;
+	}
+
+	@Override
+	public Class<?> getCollectionClass() {
+		return List.class;
 	}
 
 	@Override public PersistentCollection instantiate(SharedSessionContractImplementor session, CollectionPersister collectionPersister) throws HibernateException {

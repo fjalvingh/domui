@@ -71,8 +71,8 @@ final public class EntityPropertyInjectorFactory implements IPagePropertyFactory
 	}
 
 	private boolean isValidEntity(String name) {
-		if("javax.persistence.Entity".equals(name))
+		if("jakarta.persistence.Entity".equals(name))
 			return true;
-		return "javax.persistence.Table".equals(name);
+		return "jakarta.persistence.Table".equals(name);
 	}
 }

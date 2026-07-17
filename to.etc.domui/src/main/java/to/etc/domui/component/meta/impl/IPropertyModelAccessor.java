@@ -3,6 +3,7 @@ package to.etc.domui.component.meta.impl;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public interface IPropertyModelAccessor<V> {
 	V getValue(@Nullable Object targetInstance) throws Exception;
 
 	@Nullable
-	<A> A getAnnotation(@NonNull Class<A> annclass);
+	<A extends Annotation> A getAnnotation(@NonNull Class<A> annclass);
 
 	@NonNull
 	List<Object> getAnnotations();

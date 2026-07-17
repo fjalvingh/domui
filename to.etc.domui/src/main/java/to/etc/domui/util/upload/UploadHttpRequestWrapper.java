@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import to.etc.domui.server.DomApplication;
 import to.etc.util.WrappedException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;

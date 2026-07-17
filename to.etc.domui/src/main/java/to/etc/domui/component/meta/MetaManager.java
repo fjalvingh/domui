@@ -123,7 +123,7 @@ final public class MetaManager {
 	 * Find a property using the metamodel for a class. Returns null if not found.
 	 */
 	@Nullable
-	static public PropertyMetaModel<?> findPropertyMeta(@NonNull Class<?> clz, @NonNull String name) {
+	static public <V> PropertyMetaModel<V> findPropertyMeta(@NonNull Class<?> clz, @NonNull String name) {
 		ClassMetaModel cm = findClassMeta(clz);
 		return cm.findProperty(name);
 	}
@@ -147,8 +147,8 @@ final public class MetaManager {
 	}
 
 	@NonNull
-	static public PropertyMetaModel<?> getPropertyMeta(Class<?> clz, String name) {
-		PropertyMetaModel<?> pmm = findPropertyMeta(clz, name);
+	static public <V> PropertyMetaModel<V> getPropertyMeta(Class<?> clz, String name) {
+		PropertyMetaModel<V> pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
 		return pmm;
@@ -431,12 +431,40 @@ final public class MetaManager {
 			if(raw instanceof Class<?> cl && Collection.class.isAssignableFrom(cl)) {
 				Type[] tar = pt.getActualTypeArguments();
 				if(tar.length == 1) { // Collection<T> required
-					return (Class<?>) tar[0];
+					if(tar[0] instanceof Class<?> clz) {
+						return clz;
+					} else if(tar[0] instanceof ParameterizedType pt2) {
+						return (Class<?>) pt2.getRawType();
+					}
 				}
 			}
 		}
 		return null;
 	}
+
+	@Nullable
+	static public Type findTypeParameter(Type genericType, int index) {
+		if(genericType instanceof Class<?> cl && cl.isArray()) {
+			if(index != 0)
+				throw new IllegalStateException("Type parameter index should be 0 for an array");
+			return cl.getComponentType();
+		}
+
+		if(genericType instanceof ParameterizedType pt) {
+			Type raw = pt.getRawType();
+
+			//-- This must be a collection type of class.
+			if(raw instanceof Class<?>) {
+				Type[] tar = pt.getActualTypeArguments();
+				if(index >= tar.length)
+					throw new IllegalStateException("Type parameter index " + index + " not valid; max is " + (tar.length - 1) + " for " + pt);
+
+				return tar[index];
+			}
+		}
+		return null;
+	}
+
 
 	/**
 	 * Returns T if instance.propertyname is a duplicate in some other instance in the list.

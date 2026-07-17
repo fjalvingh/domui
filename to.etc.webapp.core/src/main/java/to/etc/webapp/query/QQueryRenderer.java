@@ -41,7 +41,7 @@ import java.util.List;
  * Created on Jul 17, 2009
  */
 public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisitor {
-	private StringBuilder	m_sb = new StringBuilder(128);
+	private StringBuilder m_sb = new StringBuilder(128);
 
 	private int m_orderIndx;
 
@@ -57,6 +57,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 
 	/**
 	 * Return the result of the conversion.
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -75,7 +76,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitCriteria(@NonNull QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@NonNull QCriteria<?> qc) throws Exception {
 		renderFrom(qc);
 		if(qc.getRestrictions() != null)
 			append(" WHERE ");
@@ -83,13 +84,13 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 		visitOrderList(qc.getOrder());
 	}
 
-	private void renderFrom(QCriteriaQueryBase< ?, ? > qc) {
+	private void renderFrom(QCriteriaQueryBase<?, ?> qc) {
 		append("FROM ");
-		Class< ? > baseClass = qc.getBaseClass();
+		Class<?> baseClass = qc.getBaseClass();
 		if(baseClass != null)
 			append(baseClass.getName());
 		else {
-			ICriteriaTableDef< ? > metaTable = qc.getMetaTable();
+			ICriteriaTableDef<?> metaTable = qc.getMetaTable();
 			if(metaTable != null) {
 				append("[META:");
 				append(metaTable.toString());
@@ -100,7 +101,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitSelection(@NonNull QSelection< ? > s) throws Exception {
+	public void visitSelection(@NonNull QSelection<?> s) throws Exception {
 		renderFrom(s);
 
 		if(!s.getColumnList().isEmpty()) {
@@ -124,7 +125,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 		}
 	}
 
-	public void visitSelectionColumns(QSelection< ? > s) throws Exception {
+	public void visitSelectionColumns(QSelection<?> s) throws Exception {
 		m_currentColumn = 0;
 		for(QSelectionColumn col : s.getColumnList())
 			col.visit(this);
@@ -171,7 +172,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 			if(value instanceof List) {
 				List<Object> list = (List<Object>) value;
 				int ct = 0;
-				for(Object o: list) {
+				for(Object o : list) {
 					if(ct++ > 0)
 						append(",");
 					renderValue(o);
@@ -197,7 +198,6 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 
 		precedenceClose(oldprec);
 	}
-
 
 	@Override
 	public void visitUnaryProperty(@NonNull QUnaryProperty n) throws Exception {
@@ -241,7 +241,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 		int oldprec = precedenceOpen(n);
 
 		//-- Render the literal type
-		Object	val = n.getValue();
+		Object val = n.getValue();
 		renderValue(val);
 		precedenceClose(oldprec);
 	}
@@ -269,7 +269,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 			append(val.toString());
 			append(")");
 		} else if(val instanceof String) {
-			StringTool.strToJavascriptString(m_sb, (String)val, false);
+			StringTool.strToJavascriptString(m_sb, (String) val, false);
 		} else {
 			append("Object[");
 			append(val.toString());
@@ -278,13 +278,13 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	protected void	appendOperation(QOperation op) {
+	protected void appendOperation(QOperation op) {
 		appendOperation(renderOperation(op));
 	}
 
 	private void appendOperation(String renderOperation) {
 		if(Character.isLetter(renderOperation.charAt(0))) {
-			if(m_sb.length() > 0 && m_sb.charAt(m_sb.length()-1) != ' ')
+			if(m_sb.length() > 0 && m_sb.charAt(m_sb.length() - 1) != ' ')
 				append(" ");
 			append(renderOperation);
 			append(" ");
@@ -308,9 +308,8 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 		append("]");
 	}
 
-
 	@Override
-	public void visitExistsSubquery(@NonNull QExistsSubquery< ? > q) throws Exception {
+	public <S> void visitExistsSubquery(@NonNull QExistsSubquery<S> q) throws Exception {
 		append("exists (select 1 from $[parent." + q.getParentProperty() + "]");
 
 		if(q.getRestrictions() != null) {
@@ -331,7 +330,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitSubquery(@NonNull QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull QSubQuery<?, ?> n) throws Exception {
 		visitSelection(n);
 	}
 
@@ -348,7 +347,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitRestrictionsBase(@NonNull QCriteriaQueryBase< ?, ? > n) throws Exception {
+	public void visitRestrictionsBase(@NonNull QCriteriaQueryBase<?, ?> n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(null == r)
 			return;

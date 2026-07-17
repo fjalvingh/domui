@@ -19,7 +19,7 @@ import to.etc.webapp.query.DefaultBeforeImageCache;
 import to.etc.webapp.query.QAbstractDataContext;
 import to.etc.webapp.query.QDataContext;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;

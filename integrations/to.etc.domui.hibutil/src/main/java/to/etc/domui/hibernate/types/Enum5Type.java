@@ -26,14 +26,10 @@ package to.etc.domui.hibernate.types;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.EnhancedUserType;
 import org.hibernate.usertype.ParameterizedType;
 
 import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Properties;
 
@@ -87,33 +83,54 @@ public class Enum5Type implements EnhancedUserType, ParameterizedType {
 		return false;
 	}
 
-	@Override public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-		if(m_ordinal) {
-			int ord = rs.getInt(names[0]);
-			if(rs.wasNull())
-				return null;
-			else
-				return m_enumClass.getEnumConstants()[ord];
-		} else {
-			String name = rs.getString(names[0]);
-			return rs.wasNull() ? null : Enum.valueOf((Class) m_enumClass, name);
-		}
+	@Override
+	public String toSqlLiteral(Object o) {
+		return o.toString();
 	}
 
-	@Override public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
-		if(value == null) {
-			st.setNull(index, Types.VARCHAR);
-		} else {
-			//-- Locate ordinal index,
-			for(int i = m_enumClass.getEnumConstants().length; --i >= 0;) {
-				if(m_enumClass.getEnumConstants()[i] == value) {
-					st.setString(index, ((Enum< ? >) value).name());
-					return;
-				}
-			}
-			throw new IllegalStateException("Cannot convert enum value " + value + " to a valid label for enum=" + m_enumClass);
-		}
+	@Override
+	public String toString(Object o) throws HibernateException {
+		return String.valueOf(o);
 	}
+
+	@Override
+	public Object fromStringValue(CharSequence charSequence) throws HibernateException {
+		if(charSequence == null || charSequence.isEmpty())
+			return null;
+		for(Enum<?> ec : m_enumClass.getEnumConstants()) {
+			if(ec.name().contentEquals(charSequence))
+				return ec;
+		}
+		return null;
+	}
+
+	//@Override public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+	//	if(m_ordinal) {
+	//		int ord = rs.getInt(names[0]);
+	//		if(rs.wasNull())
+	//			return null;
+	//		else
+	//			return m_enumClass.getEnumConstants()[ord];
+	//	} else {
+	//		String name = rs.getString(names[0]);
+	//		return rs.wasNull() ? null : Enum.valueOf((Class) m_enumClass, name);
+	//	}
+	//}
+
+	//@Override public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+	//	if(value == null) {
+	//		st.setNull(index, Types.VARCHAR);
+	//	} else {
+	//		//-- Locate ordinal index,
+	//		for(int i = m_enumClass.getEnumConstants().length; --i >= 0;) {
+	//			if(m_enumClass.getEnumConstants()[i] == value) {
+	//				st.setString(index, ((Enum< ? >) value).name());
+	//				return;
+	//			}
+	//		}
+	//		throw new IllegalStateException("Cannot convert enum value " + value + " to a valid label for enum=" + m_enumClass);
+	//	}
+	//}
 
 	public Object replace(final Object original, final Object target, final Object owner) throws HibernateException {
 		return original;
@@ -123,11 +140,12 @@ public class Enum5Type implements EnhancedUserType, ParameterizedType {
 		return m_enumClass;
 	}
 
-	static private final int[] T_ORD = {Types.NUMERIC};
+	static private final int T_ORD = Types.NUMERIC;
 
-	static private final int[] T_NAME = {Types.VARCHAR};
+	static private final int T_NAME = Types.VARCHAR;
 
-	public int[] sqlTypes() {
+	@Override
+	public int getSqlType() {
 		return m_ordinal ? T_ORD : T_NAME;
 	}
 

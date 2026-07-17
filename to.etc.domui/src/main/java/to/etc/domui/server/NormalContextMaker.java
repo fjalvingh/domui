@@ -27,10 +27,10 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.state.AppSession;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 final public class NormalContextMaker extends AbstractContextMaker {
 	@NonNull
@@ -68,7 +68,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 
 	/**
 	 * Create a normal context.
-	 * @see to.etc.domui.server.IContextMaker#createContext(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 * @see to.etc.domui.server.IContextMaker#createContext(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)
 	 */
 	@SuppressWarnings("squid:S2441")
 	@Override

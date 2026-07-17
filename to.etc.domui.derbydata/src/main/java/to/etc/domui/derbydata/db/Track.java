@@ -1,18 +1,20 @@
 package to.etc.domui.derbydata.db;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaObject;
 import to.etc.domui.component.meta.MetaSearchItem;
 import to.etc.domui.converter.MsDurationConverter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 
 /**
@@ -57,6 +59,7 @@ public class Track extends DbRecordBase<Long> {
 	@Override
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "track_sq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
 	@Column(name = "TrackId", precision = 20, nullable = false)
 	public Long getId() {
 		return m_id;

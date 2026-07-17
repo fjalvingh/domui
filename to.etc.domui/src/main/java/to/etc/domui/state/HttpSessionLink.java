@@ -29,9 +29,9 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.ReloadingContextMaker;
 import to.etc.domui.server.reloader.IReloadedClassesListener;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 
 /**
  * This is contained in an HttpSession and refers to the AppSession
@@ -77,7 +77,7 @@ final public class HttpSessionLink implements IReloadedClassesListener, HttpSess
 
 	/**
 	 * Session expired- discard session properly.
-	 * @see javax.servlet.http.HttpSessionBindingListener#valueUnbound(javax.servlet.http.HttpSessionBindingEvent)
+	 * @see jakarta.servlet.http.HttpSessionBindingListener#valueUnbound(jakarta.servlet.http.HttpSessionBindingEvent)
 	 */
 	@Override
 	public void valueUnbound(HttpSessionBindingEvent arg0) {

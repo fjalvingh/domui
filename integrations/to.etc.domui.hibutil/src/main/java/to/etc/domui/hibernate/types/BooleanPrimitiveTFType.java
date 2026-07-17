@@ -1,7 +1,7 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
@@ -17,24 +17,24 @@ import java.sql.Types;
  *
  * @author jal
  */
-final public class BooleanPrimitiveTFType implements UserType {
+final public class BooleanPrimitiveTFType implements UserType<Boolean> {
 	@Override
-	public Object assemble(Serializable cached, Object owner) throws HibernateException {
+	public Boolean assemble(Serializable cached, Object owner) throws HibernateException {
 		return null;
 	}
 
 	@Override
-	public Object deepCopy(Object value) throws HibernateException {
+	public Boolean deepCopy(Boolean value) throws HibernateException {
 		return value;
 	}
 
 	@Override
-	public Serializable disassemble(Object value) throws HibernateException {
+	public Serializable disassemble(Boolean value) throws HibernateException {
 		return null;
 	}
 
 	@Override
-	public boolean equals(Object x, Object y) throws HibernateException {
+	public boolean equals(Boolean x, Boolean y) throws HibernateException {
 		if(x != null)
 			return x.equals(y);
 		else
@@ -42,7 +42,7 @@ final public class BooleanPrimitiveTFType implements UserType {
 	}
 
 	@Override
-	public int hashCode(Object arg0) throws HibernateException {
+	public int hashCode(Boolean arg0) throws HibernateException {
 		return arg0.hashCode();
 	}
 
@@ -52,33 +52,33 @@ final public class BooleanPrimitiveTFType implements UserType {
 	}
 
 	@Override
-	public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-		if(resultSet == null)
+	public Boolean nullSafeGet(ResultSet rs, int position, WrapperOptions options) throws SQLException {
+		if(rs == null)
 			return null;
-		String v = resultSet.getString(names[0]);
+		String v = rs.getString(position);
 		if(v == null)
 			return Boolean.FALSE;
 		return parse(v);
 	}
 
 	@Override
-	public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
-		statement.setString(index, value == null ? "F" : ((Boolean) value).booleanValue() ? "T" : "F");
+	public void nullSafeSet(PreparedStatement statement, Boolean value, int position, WrapperOptions options) throws SQLException {
+		statement.setString(position, value == null ? "F" : ((Boolean) value).booleanValue() ? "T" : "F");
 	}
 
 	@Override
-	public Object replace(Object arg0, Object arg1, Object arg2) throws HibernateException {
+	public Boolean replace(Boolean arg0, Boolean arg1, Object arg2) throws HibernateException {
 		return null;
 	}
 
 	@Override
-	public Class<?> returnedClass() {
+	public Class<Boolean> returnedClass() {
 		return Boolean.class;
 	}
 
 	@Override
-	public int[] sqlTypes() {
-		return new int[]{Types.VARCHAR};
+	public int getSqlType() {
+		return Types.VARCHAR;
 	}
 
 	/**

@@ -3,7 +3,7 @@ package to.etc.domui.login;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface ILoginDeterminator {
 	/**

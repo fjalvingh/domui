@@ -1,7 +1,7 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
@@ -12,7 +12,7 @@ import java.sql.Types;
 
 /**
  * A UserType implementation to map a boolean primitive object to a numeric value.<br /> A true
- * value maps to 1 and a false value maps to 0. This type does not recognise
+ * value maps to 1 and a false value maps to 0. This type does not recognize
  * nullity; it gets interpreted as a false.
  *
  * @author jal
@@ -52,21 +52,21 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 	}
 
 	@Override
-	public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-		if(resultSet == null)
+	public Object nullSafeGet(ResultSet rs, int position, WrapperOptions options) throws SQLException {
+		if(rs == null)
 			return null;
-		long v = resultSet.getLong(names[0]);
-		if(resultSet.wasNull())
+		long v = rs.getLong(position);
+		if(rs.wasNull())
 			return Boolean.FALSE;
 		return Boolean.valueOf(v != 0);
 	}
 
 	@Override
-	public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+	public void nullSafeSet(PreparedStatement statement, Object value, int position, WrapperOptions options) throws SQLException {
 		if(value == null)
-			statement.setLong(index, 0L);
+			statement.setLong(position, 0L);
 		else
-			statement.setLong(index, ((Boolean) value).booleanValue() ? 1 : 0);
+			statement.setLong(position, ((Boolean) value).booleanValue() ? 1 : 0);
 	}
 
 	@Override
@@ -80,8 +80,8 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 	}
 
 	@Override
-	public int[] sqlTypes() {
-		return new int[]{Types.VARCHAR};
+	public int getSqlType() {
+		return Types.VARCHAR;
 	}
 
 	/**

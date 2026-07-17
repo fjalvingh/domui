@@ -45,6 +45,7 @@ import to.etc.domui.util.IValueAccessor;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
@@ -412,7 +413,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public <A> A getAnnotation(@NonNull Class<A> annclass) {
+	public <A extends Annotation> A getAnnotation(@NonNull Class<A> annclass) {
 		return m_original.getAnnotation(annclass);
 	}
 

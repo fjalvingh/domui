@@ -36,6 +36,7 @@ import to.etc.domui.util.ILabelStringRenderer;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueAccessor;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Locale;
@@ -310,7 +311,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * which can also be some other java class containing data) this returns it.
 	 */
 	@Nullable
-	<A> A getAnnotation(@NonNull Class<A> annclass);
+	<A extends Annotation> A getAnnotation(@NonNull Class<A> annclass);
 
 	/**
 	 * If the property has some kind of "annotations" (which in here does not need to be a Java annotation, but

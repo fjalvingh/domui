@@ -24,9 +24,13 @@
  */
 package to.etc.domui.hibernate.model;
 
-import org.hibernate.*;
-
-import to.etc.webapp.query.*;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QCriteriaQueryBase;
+import to.etc.webapp.query.QSelection;
 
 /**
  * Thingy which helps translating generic database stuff to Hibernate specific
@@ -35,30 +39,50 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 24, 2008
  */
-public class GenericHibernateHandler {
+final public class GenericHibernateHandler {
+	private GenericHibernateHandler() {
+		//-- empty
+	}
+
 	/**
 	 * Translate generalized criteria to Hibernate criteria on a session.
-	 *
-	 * @param ses
-	 * @param qc
-	 * @return
 	 */
-	static public Criteria createCriteria(Session ses, QCriteria< ? > qc) {
+	static public <T> Query<T> createSelectionQuery(Session ses, QCriteria<T> qc) {
 		try {
-			Criteria c = ses.createCriteria(qc.getBaseClass(), "base");
-			qc.visit(new CriteriaCreatingVisitor(ses, c));
-			return c;
+			HibernateCriteriaBuilder critBuilder = ses.getCriteriaBuilder();
+			JpaCriteriaQuery<T> query = critBuilder.createQuery(qc.getBaseClass());
+			qc.visit(new CriteriaCreatingVisitor<>(ses, critBuilder, query, qc));
+			Query<T> anotherUselessQuery = ses.createQuery(query);
+			handlePagination(anotherUselessQuery, qc);
+			return anotherUselessQuery;
 		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {
 			throw new RuntimeException(x); // Cannot happen.
 		}
 	}
-	static public Criteria createCriteria(Session ses, QSelection< ? > qc) {
+
+	private static <T> void handlePagination(Query<T> query, QCriteriaQueryBase<?, ?> qc) {
+		//-- 2. Handle limits and start: applicable to root criterion only
+		if(qc.getLimit() > 0) {
+			query.setMaxResults(qc.getLimit());
+		}
+		if(qc.getStart() > 0) {
+			query.setFirstResult(qc.getStart());
+		}
+		if(qc.getTimeout() > 0)
+			query.setTimeout(qc.getTimeout());
+	}
+
+	static public <T> Query<Object[]> createSelectionQuery(Session ses, QSelection<T> qc) {
 		try {
-			Criteria c = ses.createCriteria(qc.getBaseClass(), "base");
-			qc.visit(new CriteriaCreatingVisitor(ses, c));
-			return c;
+			HibernateCriteriaBuilder critBuilder = ses.getCriteriaBuilder();
+			JpaCriteriaQuery<Object[]> query = critBuilder.createQuery(Object[].class);
+
+			qc.visit(new CriteriaCreatingVisitor<>(ses, critBuilder, query, qc));
+			Query<Object[]> anotherUselessQuery = ses.createQuery(query);
+			handlePagination(anotherUselessQuery, qc);
+			return anotherUselessQuery;
 		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {

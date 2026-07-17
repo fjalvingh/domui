@@ -10,7 +10,7 @@ import to.etc.domui.server.ReloadingContextMaker;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.server.parts.IUnbufferedPartFactory;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 
 final public class OpenStacktracePart implements IUnbufferedPartFactory {

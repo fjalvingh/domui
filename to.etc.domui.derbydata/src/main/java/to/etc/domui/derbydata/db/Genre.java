@@ -1,10 +1,12 @@
 package to.etc.domui.derbydata.db;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "Genre")
@@ -15,6 +17,7 @@ public class Genre extends DbRecordBase<Long> {
 
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "genre_sq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
 	@Column(name = "GenreId", precision = 20, nullable = false)
 	@Override
 	public Long getId() {

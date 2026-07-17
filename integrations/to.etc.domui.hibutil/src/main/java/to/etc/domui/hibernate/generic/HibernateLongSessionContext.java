@@ -26,12 +26,9 @@ package to.etc.domui.hibernate.generic;
 
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
-import org.hibernate.engine.internal.StatefulPersistenceContext;
 import org.hibernate.internal.SessionImpl;
 import to.etc.domui.state.AbstractConversationContext;
 import to.etc.webapp.query.QDataContextFactory;
-
-import java.util.Map;
 
 /**
  * A context that keeps the session alive but in disconnected mode while running. The session
@@ -56,7 +53,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		checkValid();
 		if(m_session == null) {
 			super.getSession();
-			m_session.setFlushMode(FlushMode.MANUAL);
+			m_session.setHibernateFlushMode(FlushMode.MANUAL);
 		}
 		if(!m_session.isConnected())
 			LOG.debug("Hibernate: reconnecting session.");
@@ -70,11 +67,6 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		try {
 			setConversationInvalid("Conversation was destroyed");
 			setIgnoreClose(false);
-			SessionImpl sim = (SessionImpl) m_session;
-			StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
-			Map<?, ?> flups = spc.getEntitiesByKey();
-			if(LOG.isDebugEnabled())
-				LOG.debug("Hibernate: closing (destroying) session " + System.identityHashCode(m_session) + " containing " + flups.size() + " persisted instances");
 			if(m_session.getTransaction().isActive())
 				m_session.getTransaction().rollback();
 			close();
@@ -88,23 +80,17 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		if(m_session == null || !m_session.isConnected())
 			return;
 		setConversationInvalid("Conversation is detached");
-		SessionImpl sim = (SessionImpl) m_session;
-		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
-		Map< ? , ? > flups = spc.getEntitiesByKey();
-		if(LOG.isDebugEnabled())
-			LOG.debug("Hibernate: disconnecting session " + System.identityHashCode(m_session) + " containing " + flups.size() + " persisted instances");
-
 
 		/*
-		 * 20180829 jal Hibernate 5.2 clears its session cache during rollback, so that all
-		 * entities disappear. There is no real way in its code to prevent that. As an experiment
-		 * do not manipulate Hibernate's transaction here; just disconnect the connection.
+		 * Release the physical JDBC connection back to the pool while keeping the Session
+		 * (and its persistence context/entity cache) alive. Hibernate will automatically
+		 * re-acquire a connection from the pool when the session is next used.
+		 *
+		 * We do NOT rollback the transaction here because Hibernate clears its session cache
+		 * during rollback, causing all entities to disappear (observed since Hibernate 5.2).
 		 */
-		//if(m_session.getTransaction().isActive())
-		//	m_session.getTransaction().rollback();
-		m_session.disconnect(); // Disconnect the dude.
-		//		if(m_session.isConnected())
-		//			System.out.println("Session connected after disconnect ;-)");
+		SessionImpl sim = (SessionImpl) m_session;
+		sim.getJdbcCoordinator().getLogicalConnection().manualDisconnect();
 	}
 
 	@Override

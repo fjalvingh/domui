@@ -29,7 +29,7 @@ import to.etc.testutil.TestUtil;
 import to.etc.util.FileTool;
 import to.etc.webapp.query.QContextManager;
 
-import javax.servlet.UnavailableException;
+import jakarta.servlet.UnavailableException;
 import java.io.File;
 import java.util.List;
 

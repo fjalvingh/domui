@@ -34,8 +34,8 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.webapp.core.ServerTools;
 
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;

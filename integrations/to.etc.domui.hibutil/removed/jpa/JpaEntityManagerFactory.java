@@ -6,8 +6,8 @@ import to.etc.webapp.query.QDataContextFactory;
 import to.etc.webapp.query.QEventListenerSet;
 import to.etc.webapp.query.QQueryExecutorRegistry;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

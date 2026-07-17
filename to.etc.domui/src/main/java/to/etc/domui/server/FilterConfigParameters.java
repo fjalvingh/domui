@@ -2,7 +2,7 @@ package to.etc.domui.server;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import javax.servlet.FilterConfig;
+import jakarta.servlet.FilterConfig;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;

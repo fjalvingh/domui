@@ -26,19 +26,19 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.el</groupId>
-			<artifactId>el-api</artifactId>
+			<groupId>jakarta.el</groupId>
+			<artifactId>jakarta.el-api</artifactId>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>jsp-api</artifactId>
+			<groupId>jakarta.servlet.jsp</groupId>
+			<artifactId>jakarta.servlet.jsp-api</artifactId>
 		</dependency>
 
 		<!-- Oddity which seems to be necessary for IntelliJ to pick up the annotation processor. -->
@@ -178,15 +178,21 @@
 		</dependency>
 
 		<!-- Java 9 / JUnit -->
+		<!-- Source: https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
 		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.glassfish.jaxb</groupId>
 			<artifactId>jaxb-runtime</artifactId>
 		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>com.sun.xml.bind</groupId>-->
+<!--			<artifactId>jaxb-impl</artifactId>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>javax.activation</groupId>
@@ -310,6 +316,9 @@
 				<configuration>
 					<!-- Enable TestUI mode on the server to make Selenium tests run. -->
 					<systemProperties>
+						<domui.testui>true</domui.testui>
+						<domui.selenium>true</domui.selenium>
+
 						<systemProperty>
 							<name>domui.testui</name>
 							<value>true</value>
