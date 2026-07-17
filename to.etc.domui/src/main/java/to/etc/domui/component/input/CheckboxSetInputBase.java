@@ -145,6 +145,11 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 	//}
 
 	@Override
+	protected void internalSetValue(@Nullable Set<V> value) {
+		super.internalSetValue(value == null ? null : new HashSet<>(value));
+	}
+
+	@Override
 	public Set<V> internalGetValue() {
 		Set<V> value = super.internalGetValue();
 		if(null == value) {
