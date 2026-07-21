@@ -85,7 +85,14 @@ public class PogRadioGroup extends AbstractPoProxyGenerator implements IPoProxyG
 			StringTool.strToJavascriptString(sb, (String) value, true);
 			return;
 		}
-		throw new IllegalStateException("Don't know how to render a value of type " + value.getClass().getCanonicalName());
+
+		if(value instanceof Number) {
+			sb.append(value.toString());
+			return;
+		}
+
+		//-- Fallback for complex types: render as a String literal using toString()
+		StringTool.strToJavascriptString(sb, value.toString(), true);
 	}
 
 	/**
@@ -129,7 +136,14 @@ public class PogRadioGroup extends AbstractPoProxyGenerator implements IPoProxyG
 			return GeneratorAccepted.RefusedIgnoreChildren;
 		}
 
-		//System.out.println("rg type is " + typeClass);
+		//-- For complex types that cannot be rendered as Java literals, fall back to String
+		if(!Boolean.class.isAssignableFrom(typeClass)
+			&& !Enum.class.isAssignableFrom(typeClass)
+			&& !String.class.isAssignableFrom(typeClass)
+			&& !Number.class.isAssignableFrom(typeClass)) {
+			typeClass = String.class;
+		}
+
 		m_typeClass = typeClass;
 		return GeneratorAccepted.Accepted;
 	}
