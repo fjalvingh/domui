@@ -40,6 +40,9 @@ public enum Msgs implements IBundleCode {
 
 	uiLookupOpCombi, // = "ui.lookup.op.combi";
 
+	/** From date is after until date in a date range lookup */
+	uiLookupDateOrder,
+
 
 	/** CheckBoxButton **/
 	uiChkbbOn,
