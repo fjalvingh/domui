@@ -58,7 +58,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public IQueryManipulator< ? > getQueryManipulator() {
+	public IQueryManipulator<?> getQueryManipulator() {
 		return m_parent.getQueryManipulator();
 	}
 
@@ -73,38 +73,41 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	/**
 	 * WATCH OUT: Should only be used when initializing outside the constructor; should not change after this
 	 * has been passed to user code.
-	 * @param parent
 	 */
 	public void setWrappedModel(ClassMetaModel parent) {
 		m_parent = parent;
 	}
 
 	@Override
-	public PropertyMetaModel< ? > findProperty(@NonNull String name) {
+	public PropertyMetaModel<?> findProperty(@NonNull String name) {
 		return m_parent.findProperty(name);
 	}
 
-	@Nullable @Override public <V> PropertyMetaModel<V> findProperty(@NonNull QField<?, V> field) {
+	@Nullable
+	@Override
+	public <V> PropertyMetaModel<V> findProperty(@NonNull QField<?, V> field) {
 		return m_parent.findProperty(field);
 	}
 
 	@Override
 	@NonNull
-	public PropertyMetaModel< ? > getProperty(@NonNull String name) {
+	public PropertyMetaModel<?> getProperty(@NonNull String name) {
 		return m_parent.getProperty(name);
 	}
 
-	@NonNull @Override public <V> PropertyMetaModel<V> getProperty(@NonNull QField<?, V> field) {
+	@NonNull
+	@Override
+	public <V> PropertyMetaModel<V> getProperty(@NonNull QField<?, V> field) {
 		return m_parent.getProperty(field);
 	}
 
 	@Override
-	public PropertyMetaModel< ? > findSimpleProperty(@NonNull String name) {
+	public PropertyMetaModel<?> findSimpleProperty(@NonNull String name) {
 		return m_parent.findSimpleProperty(name);
 	}
 
 	@Override
-	public @NonNull Class< ? > getActualClass() {
+	public @NonNull Class<?> getActualClass() {
 		return m_parent.getActualClass();
 	}
 
@@ -115,7 +118,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
+	public Class<? extends IComboDataSet<?>> getComboDataSet() {
 		return m_parent.getComboDataSet();
 	}
 
@@ -125,12 +128,12 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
+	public Class<? extends ILabelStringRenderer<?>> getComboLabelRenderer() {
 		return m_parent.getComboLabelRenderer();
 	}
 
 	@Override
-	public Class< ? extends IRenderInto< ? >> getComboNodeRenderer() {
+	public Class<? extends IRenderInto<?>> getComboNodeRenderer() {
 		return m_parent.getComboNodeRenderer();
 	}
 
@@ -154,6 +157,12 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 		return m_parent.getDomainLabel(loc, value);
 	}
 
+	@Nullable
+	@Override
+	public String getDomainHint(Locale loc, Object value) {
+		return m_parent.getDomainHint(loc, value);
+	}
+
 	@Override
 	public Object[] getDomainValues() {
 		return m_parent.getDomainValues();
@@ -170,17 +179,17 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer() {
+	public Class<? extends IRenderInto<?>> getLookupSelectedRenderer() {
 		return m_parent.getLookupSelectedRenderer();
 	}
 
 	@Override
-	public PropertyMetaModel< ? > getPrimaryKey() {
+	public PropertyMetaModel<?> getPrimaryKey() {
 		return m_parent.getPrimaryKey();
 	}
 
 	@Override
-	public @NonNull List<PropertyMetaModel< ? >> getProperties() {
+	public @NonNull List<PropertyMetaModel<?>> getProperties() {
 		return m_parent.getProperties();
 	}
 
@@ -215,7 +224,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public @NonNull QCriteria< ? > createCriteria() throws Exception {
+	public @NonNull QCriteria<?> createCriteria() throws Exception {
 		return m_parent.createCriteria();
 	}
 }
