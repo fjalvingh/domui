@@ -73,7 +73,7 @@ public class QMultiNode extends QOperatorNode {
 		}
 	}
 
-	QMultiNode(QOperation operation, List<QOperatorNode> ch) {
+	public QMultiNode(QOperation operation, List<QOperatorNode> ch) {
 		this(operation, ch.toArray(new QOperatorNode[ch.size()]));
 	}
 
