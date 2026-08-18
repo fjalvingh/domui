@@ -259,7 +259,9 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@NonNull
 	public Text2<T> password() {
 		m_password = true;
-		setSpecialAttribute("autocomplete", "new-password"); //prevent annoying last pass prefilling data
+
+		//-- This is not a login field but some other secret, so tell the browser not to prefill it with a stored password.
+		m_input.setSpecialAttribute("autocomplete", "new-password");
 		return this;
 	}
 

@@ -1099,10 +1099,29 @@ public class HtmlTagRenderer implements INodeVisitor {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}
 		}
-		if(n.getSpecialAttribute("autocomplete") == null) {
-			o().attr("autocomplete", "false");
-		}
+		renderPasswordManagerHints(n);
 		renderTagend(n, m_o);
+	}
+
+	/**
+	 * Tell the browser and any installed password manager to keep their autofill machinery
+	 * away from this input, unless it is an actual credential field (see
+	 * {@link Input#isPasswordManagerAllowed()}). Without this the managers attach an inline
+	 * popup to arbitrary fields, which covers the field's content and can prefill unrelated
+	 * data. Every manager uses its own opt-out attribute; autocomplete= alone is not enough
+	 * because they deliberately ignore it.
+	 */
+	private void renderPasswordManagerHints(final Input n) throws Exception {
+		if(n.getSpecialAttribute("autocomplete") == null) {
+			o().attr("autocomplete", n.isPasswordManagerAllowed() ? "on" : "off");
+		}
+		if(n.isPasswordManagerAllowed()) {
+			return;
+		}
+		o().attr("data-1p-ignore", "true");					// 1Password
+		o().attr("data-lpignore", "true");					// LastPass
+		o().attr("data-bwignore", "true");					// Bitwarden
+		o().attr("data-form-type", "other");				// Dashlane
 	}
 
 	@Override
