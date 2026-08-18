@@ -5,7 +5,9 @@ import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
 import to.etc.domui.dom.html.Input;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.IRequestContext;
@@ -55,7 +57,26 @@ public class TestInputRenderer {
 		assertTrue(html, html.contains("data-1p-ignore=\"true\""));
 	}
 
-	private String renderInput(Input in) throws Exception {
+	@Test
+	public void testTextAreaBlocksPasswordManagers() throws Exception {
+		String html = renderInput(new TextArea(40, 5));
+		assertTrue(html, html.contains("autocomplete=\"off\""));
+		assertTrue(html, html.contains("data-1p-ignore=\"true\""));
+		assertTrue(html, html.contains("data-lpignore=\"true\""));
+		assertTrue(html, html.contains("data-bwignore=\"true\""));
+		assertTrue(html, html.contains("data-form-type=\"other\""));
+	}
+
+	@Test
+	public void testTextAreaCanAllowPasswordManagers() throws Exception {
+		TextArea ta = new TextArea(40, 5);
+		ta.setPasswordManagerAllowed(true);
+		String html = renderInput(ta);
+		assertTrue(html, html.contains("autocomplete=\"on\""));
+		assertTrue(html, !html.contains("data-1p-ignore"));
+	}
+
+	private String renderInput(NodeBase in) throws Exception {
 		Page pg = TUtilDomUI.createPage(UrlPage.class);
 		pg.getBody().add(in);
 

@@ -1099,23 +1099,23 @@ public class HtmlTagRenderer implements INodeVisitor {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}
 		}
-		renderPasswordManagerHints(n);
+		renderPasswordManagerHints(n, n.isPasswordManagerAllowed());
 		renderTagend(n, m_o);
 	}
 
 	/**
 	 * Tell the browser and any installed password manager to keep their autofill machinery
-	 * away from this input, unless it is an actual credential field (see
+	 * away from this control, unless it is an actual credential field (see
 	 * {@link Input#isPasswordManagerAllowed()}). Without this the managers attach an inline
 	 * popup to arbitrary fields, which covers the field's content and can prefill unrelated
 	 * data. Every manager uses its own opt-out attribute; autocomplete= alone is not enough
 	 * because they deliberately ignore it.
 	 */
-	private void renderPasswordManagerHints(final Input n) throws Exception {
+	private void renderPasswordManagerHints(final NodeBase n, boolean passwordManagerAllowed) throws Exception {
 		if(n.getSpecialAttribute("autocomplete") == null) {
-			o().attr("autocomplete", n.isPasswordManagerAllowed() ? "on" : "off");
+			o().attr("autocomplete", passwordManagerAllowed ? "on" : "off");
 		}
-		if(n.isPasswordManagerAllowed()) {
+		if(passwordManagerAllowed) {
 			return;
 		}
 		o().attr("data-1p-ignore", "true");					// 1Password
@@ -1375,6 +1375,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getMaxByteLength() > 0) {
 			o().attr("maxbytes", n.getMaxByteLength());				// If byte-limited, send to Javascript too
 		}
+		renderPasswordManagerHints(n, n.isPasswordManagerAllowed());
 
 		renderTagend(n, o());
 		o().setIndentEnabled(false); // jal 20090923 again: do not indent content (bug 627)
