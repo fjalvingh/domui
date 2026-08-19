@@ -10,6 +10,10 @@ WebUI._T.sysPollFailMsg = "Server unreachable: status=";
 WebUI._T.sysPollFailCont= "Waiting for the server to return....";
 WebUI._T.sessionSeemsLost = "The server seems to have lost your session; reloading the page";
 
+//-- Password manager interference
+WebUI._T.pwmgrIconWarning = "IMPORTANT!! Your password manager (LastPass) is active (and can change data) on this page despite being told NOT to. You should switch it off in LastPass, to prevent data corruption, under Account Options - Extension Preferences, or disable LastPass for this site.";
+WebUI._T.pwmgrIconDismiss = "Do not show this again";
+
 //-- Upload.
 WebUI._T.uploadType = "The file type {0} is not allowed; allowed are {1}";
 WebUI._T.bodyTooLarge = "The upload was refused; the file is probably too large.";

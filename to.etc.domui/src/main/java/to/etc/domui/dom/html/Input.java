@@ -98,6 +98,7 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 * explicitly told to keep away, because their popups obscure the field and their
 	 * "helpful" prefilling corrupts unrelated data.
 	 */
+	@Override
 	public boolean isPasswordManagerAllowed() {
 		return m_passwordManagerAllowed;
 	}
@@ -106,6 +107,7 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 * See {@link #isPasswordManagerAllowed()}. Set this on the username and password
 	 * fields of an actual login screen only.
 	 */
+	@Override
 	public void setPasswordManagerAllowed(boolean passwordManagerAllowed) {
 		if(m_passwordManagerAllowed == passwordManagerAllowed) {
 			return;

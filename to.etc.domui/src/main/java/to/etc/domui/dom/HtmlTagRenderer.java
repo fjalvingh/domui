@@ -1317,6 +1317,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getReturnPressed() != null) {
 			o().attr("onkeypress", "return WebUI.returnKeyPress(event, this)");
 		}
+		renderPasswordManagerHints(n, n.isPasswordManagerAllowed());
 		renderTagend(n, o());
 	}
 

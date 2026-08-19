@@ -109,6 +109,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	 * offer their inline fill/save menu on this textarea. Defaults to F, which keeps their
 	 * popups away from ordinary text.
 	 */
+	@Override
 	public boolean isPasswordManagerAllowed() {
 		return m_passwordManagerAllowed;
 	}
@@ -116,6 +117,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	/**
 	 * See {@link #isPasswordManagerAllowed()}.
 	 */
+	@Override
 	public void setPasswordManagerAllowed(boolean passwordManagerAllowed) {
 		if(m_passwordManagerAllowed == passwordManagerAllowed) {
 			return;

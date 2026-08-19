@@ -49,6 +49,8 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 
 	private boolean m_disabled;
 
+	private boolean m_passwordManagerAllowed;
+
 	private int m_size;
 
 	private int m_selectedIndex;
@@ -112,6 +114,20 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 		} else {
 			removeCssClass("ui-ro");
 		}
+		changed();
+	}
+
+	@Override
+	public boolean isPasswordManagerAllowed() {
+		return m_passwordManagerAllowed;
+	}
+
+	@Override
+	public void setPasswordManagerAllowed(boolean passwordManagerAllowed) {
+		if(m_passwordManagerAllowed == passwordManagerAllowed) {
+			return;
+		}
+		m_passwordManagerAllowed = passwordManagerAllowed;
 		changed();
 	}
 
