@@ -401,11 +401,10 @@ namespace WebUI {
 
 		_asyalerted = true;
 
-		let txt = request.responseText || "No response - status=" + status;
-		if(txt.length > 512)
-			txt = txt.substring(0, 512) + "...";
-		if(txt.length == 0)
+		let txt = request.responseText;
+		if(!txt || txt.length == 0)
 			txt = WebUI._T.sysPollFailMsg + status;
+		let contentType = typeof request.getResponseHeader === "function" ? request.getResponseHeader("Content-Type") : null;
 
 		/*
 		 * As usual there is a problem with error reporting: if the request is aborted because the browser reloads the page
@@ -437,7 +436,7 @@ namespace WebUI {
 			d = document.createElement('div');				// Message content
 			ald.appendChild(d);
 			d.className = "ui-ioe-msg";
-			d.appendChild(document.createTextNode(txt));	// Server unreachable
+			renderErrorResponse(d, txt, contentType);
 
 			d = document.createElement('div');				// Message content
 			ald.appendChild(d);
@@ -449,6 +448,139 @@ namespace WebUI {
 			d.appendChild(document.createTextNode(WebUI._T.sysPollFailCont));	// Waiting for the server to return.
 			startPolling(_pollInterval);
 		}, 250);
+	}
+
+	/**
+	 * The maximum amount of text taken from a plain text error response; the error dialog is small
+	 * so anything longer than this gets truncated.
+	 */
+	const MAX_ERROR_TEXT_LENGTH = 512;
+
+	/**
+	 * The maximum amount of text taken from a html error response. Html documents contain a lot of
+	 * layout whitespace, so this is a lot bigger than the plain text limit; the dialog itself scrolls
+	 * when the result does not fit.
+	 */
+	const MAX_ERROR_HTML_LENGTH = 4096;
+
+	/**
+	 * The elements that are allowed to survive inside a server supplied error document. Anything not
+	 * in here is either dropped completely (see ERROR_DROPPED_ELEMENTS) or replaced by its own,
+	 * sanitized, content.
+	 */
+	const ERROR_ALLOWED_ELEMENTS = [
+		"A", "ABBR", "B", "BIG", "BLOCKQUOTE", "BR", "CAPTION", "CENTER", "CODE", "DD", "DIV", "DL", "DT", "EM", "FONT"
+		, "H1", "H2", "H3", "H4", "H5", "H6", "HR", "I", "LI", "OL", "P", "PRE", "SMALL", "SPAN", "STRONG", "SUB", "SUP"
+		, "TABLE", "TBODY", "TD", "TFOOT", "TH", "THEAD", "TR", "TT", "U", "UL"
+	];
+
+	/**
+	 * Elements whose content is not human readable text: these are dropped including all of their content.
+	 */
+	const ERROR_DROPPED_ELEMENTS = [
+		"EMBED", "HEAD", "IFRAME", "MATH", "NOSCRIPT", "OBJECT", "SCRIPT", "STYLE", "SVG", "TEMPLATE", "TITLE"
+	];
+
+	/**
+	 * The only attributes that are copied from a server supplied error document. Everything else (event
+	 * handlers, style, href, src) is dropped: those are either useless inside the error dialog or a
+	 * security risk, as this data comes straight off the wire.
+	 */
+	const ERROR_ALLOWED_ATTRIBUTES = ["colspan", "rowspan", "title"];
+
+	/**
+	 * Render the response of a failed request inside the error dialog. Servers, proxies and load balancers
+	 * return either plain text or a (partial) html document; html must be rendered as html instead of
+	 * showing all of its tags as literal text. Because this data comes straight off the wire it is
+	 * sanitized before it is added to the document.
+	 */
+	function renderErrorResponse(into: HTMLElement, text: string, contentType: string): void {
+		if(isHtmlResponse(text, contentType)) {
+			let fragment = sanitizeHtmlResponse(text);
+			if(fragment) {
+				into.className += " ui-ioe-html";
+				into.appendChild(fragment);
+				return;
+			}
+		}
+
+		//-- Either not html at all, or html without any readable content: show the response as-is.
+		let txt = text;
+		if(txt.length > MAX_ERROR_TEXT_LENGTH)
+			txt = txt.substring(0, MAX_ERROR_TEXT_LENGTH) + "...";
+		into.appendChild(document.createTextNode(txt));
+	}
+
+	/**
+	 * Recognize markup in an error response: either the content type says it is html, or the response
+	 * contains something that can only be a doctype or a html tag. Plain text must not be recognized as
+	 * html, hence the whitelist of tag names: things like "List<String>" in a stack trace are text.
+	 */
+	function isHtmlResponse(text: string, contentType: string): boolean {
+		if(contentType && contentType.toLowerCase().indexOf("html") >= 0)
+			return true;
+		return /<(!doctype\s+html|html|head|body|title|div|p|pre|br|hr|h[1-6]|span|table|tr|td|ul|ol|li|b|i|em|strong|font|center|a)(\s[^<>]*)?\/?>/i.test(text);
+	}
+
+	/**
+	 * Parse a (partial) html document and return it as a sanitized fragment which is safe to add to the
+	 * document. Returns null if the document has no readable text at all, so that the caller can fall
+	 * back to rendering the raw response instead of showing an empty message.
+	 */
+	function sanitizeHtmlResponse(text: string): DocumentFragment {
+		if(typeof DOMParser === "undefined")				// Ancient browser: no safe way to parse the html.
+			return null;
+		let doc = new DOMParser().parseFromString(text, "text/html");
+		let root = doc.body || doc.documentElement;
+		if(!root)
+			return null;
+
+		let fragment = document.createDocumentFragment();
+		copySanitized(root, fragment, {left: MAX_ERROR_HTML_LENGTH});
+		let content = fragment.textContent;
+		if(!content || content.trim().length == 0)
+			return null;
+		return fragment;
+	}
+
+	/**
+	 * Copy the children of source into target, keeping only whitelisted elements and attributes and
+	 * stopping as soon as the text budget is exhausted.
+	 */
+	function copySanitized(source: Node, target: Node, budget: {left: number}): void {
+		for(let child = source.firstChild; child; child = child.nextSibling) {
+			if(budget.left <= 0)
+				return;
+
+			if(child.nodeType === Node.TEXT_NODE) {
+				let text = child.nodeValue || "";
+				if(text.length > budget.left) {
+					text = text.substring(0, budget.left) + "...";
+					budget.left = 0;
+				} else {
+					budget.left -= text.length;
+				}
+				target.appendChild(document.createTextNode(text));
+			} else if(child.nodeType === Node.ELEMENT_NODE) {
+				let element = child as Element;
+				let name = element.tagName.toUpperCase();
+				if(ERROR_DROPPED_ELEMENTS.indexOf(name) >= 0)
+					continue;
+				if(ERROR_ALLOWED_ELEMENTS.indexOf(name) < 0) {
+					copySanitized(element, target, budget);		// Unknown element: keep its content, lose the element itself.
+					continue;
+				}
+
+				let copy = document.createElement(name);
+				for(let index = 0; index < element.attributes.length; index++) {
+					let attribute = element.attributes[index];
+					if(ERROR_ALLOWED_ATTRIBUTES.indexOf(attribute.name.toLowerCase()) >= 0)
+						copy.setAttribute(attribute.name, attribute.value);
+				}
+				target.appendChild(copy);
+				copySanitized(element, copy, budget);
+			}
+		}
 	}
 
 	export function clearErrorAsy(): void {

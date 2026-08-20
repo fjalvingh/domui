@@ -11,7 +11,7 @@ WebUI._T.sysPollFailCont= "Waiting for the server to return....";
 WebUI._T.sessionSeemsLost = "The server seems to have lost your session; reloading the page";
 
 //-- Password manager interference
-WebUI._T.pwmgrIconWarning = "IMPORTANT!! Your password manager (LastPass) is active (and can change data) on this page despite being told NOT to. You should switch it off in LastPass, to prevent data corruption, under Account Options - Extension Preferences, or disable LastPass for this site.";
+WebUI._T.pwmgrIconWarning = "IMPORTANT!! LastPass is active and can change data automatically on this page - despite being told NOT to. You should switch LastPass off for this site to prevent data corruption! Click on one of the red LastPass boxes inside inputs, select 'More options', then 'Turn off LastPass for this site'";
 WebUI._T.pwmgrIconDismiss = "Do not show this again";
 
 //-- Upload.

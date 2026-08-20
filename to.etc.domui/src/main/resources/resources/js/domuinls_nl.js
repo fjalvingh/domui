@@ -11,7 +11,7 @@ WebUI._T.sysPollFailCont= "Wachten tot de server weer bereikbaar is....";
 WebUI._T.sessionSeemsLost = "De server lijkt uw sessie te zijn vergeten; de pagina wordt herladen.";
 
 //-- Password manager interference
-WebUI._T.pwmgrIconWarning = "BELANGRIJK!! Uw wachtwoordmanager (LastPass) kan informatie incorrect aanpassen - ondanks dat de pagina dit verbiedt. Zet dit uit in LastPass bij Account Options - Extension Preferences, of schakel LastPass uit deze site om data corruptie te voorkomen!!.";
+WebUI._T.pwmgrIconWarning = "BELANGRIJK!! Uw wachtwoordmanager (LastPass) kan informatie ongewenst en automatisch aanpassen - ondanks dat de pagina dit verbiedt. Zet dit uit data corruptie te voorkomen!! Klik op het rode LastPass icoon bij een invoerveld, kies 'More Options', dan 'Turn off LastPass for this site'";
 WebUI._T.pwmgrIconDismiss = "Niet meer tonen";
 
 
