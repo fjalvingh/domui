@@ -20,6 +20,24 @@
 }
 .ui-ioe-msg {
 	padding: 5px;
+	max-height: 40vh;
+	overflow: auto;
+	overflow-wrap: break-word;
+}
+/* Server error response rendered as html: keep the (foreign) markup from blowing up the dialog. */
+.ui-ioe-html h1, .ui-ioe-html h2, .ui-ioe-html h3, .ui-ioe-html h4, .ui-ioe-html h5, .ui-ioe-html h6 {
+	font-size: 1.1em;
+	font-weight: bold;
+	margin: 0 0 4px 0;
+}
+.ui-ioe-html p, .ui-ioe-html div, .ui-ioe-html pre, .ui-ioe-html table, .ui-ioe-html ul, .ui-ioe-html ol {
+	margin: 0 0 4px 0;
+}
+.ui-ioe-html pre {
+	white-space: pre-wrap;
+}
+.ui-ioe-html hr {
+	display: none;
 }
 .ui-ioe-msg2 {
 	padding: 5px;
