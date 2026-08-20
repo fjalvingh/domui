@@ -274,6 +274,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		genVar("DomUICID", StringTool.strToJavascriptString(m_page.getConversation().getFullId(), true));
 		genVar("DomUIDevel", m_ctx.getApplication().inDevelopmentMode() ? "true" : "false");
 		genVar("DomUIappURL", StringTool.strToJavascriptString(m_ctx.getRelativePath(""), true));
+		genVar("DomUIRefusePwmgr", m_ctx.getApplication().isRefuseDisobeyingPasswordManagers() ? "true" : "false");
 
 		if(!isXml())
 			o().writeRaw("\n-->");

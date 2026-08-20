@@ -121,16 +121,34 @@ namespace WebUI {
 	}
 
 	/**
-	 * Marker nodes LastPass injects into the page when it decorates a field with its in-field
-	 * icon. These are LastPass internals, not a documented contract: if they are renamed the
-	 * detection below silently stops working, which is the acceptable failure mode here.
+	 * Nodes LastPass injects into the page. Their mere presence proves nothing: LastPass adds them
+	 * to every page it inspects, also when it obeys us and draws nothing at all - so they are used
+	 * only to recognize what is found on top of a field, never as the symptom itself. These are
+	 * LastPass internals, not a documented contract: if they are renamed the detection below
+	 * silently stops working, which is the acceptable failure mode here.
 	 */
 	const PWMGR_MARKER = "[data-lastpass-icon-root],[data-lastpass-root]";
+
+	/** How far to the left of a field's right edge the in-field icon can sit, in pixels. */
+	const PWMGR_ICON_ZONE = 60;
+
+	/** Fields smaller than this are collapsed or hidden, and cannot be covered in a meaningful way. */
+	const PWMGR_MIN_FIELD_WIDTH = 20;
+
+	const PWMGR_MIN_FIELD_HEIGHT = 10;
 
 	/** Set once the user dismissed the warning, so we nag at most once per browser. */
 	const PWMGR_DISMISSED = "domui.pwmgrWarningDismissed";
 
-	/** How often to look for the marker once the user touched something. */
+	/**
+	 * Set once the barrier was continued past, for this loaded document only: the barrier hides the
+	 * password manager's own icons, and clicking those is the fastest way to switch it off. So it
+	 * must be possible to get it out of the way - but only here and now. Every next page shows it
+	 * again, which is exactly the nagging that is wanted until the manager is really off.
+	 */
+	let _pwmgrBarrierContinued = false;
+
+	/** How often to look for a covered field once the user touched something. */
 	const PWMGR_PROBE_INTERVAL = 500;
 
 	/** Give up after this many probes, so we never keep looking for the rest of the session. */
@@ -140,16 +158,21 @@ namespace WebUI {
 	 * LastPass ignores every documented opt-out attribute we render on our inputs (see
 	 * HtmlTagRenderer#renderPasswordManagerHints) and still draws its icon inside the focused
 	 * field, where it covers the field's content. Its settings cannot be read from a page, so
-	 * instead we detect the symptom: the marker node it injects next to the field. Nothing at
-	 * all is observable before the user touches a field - LastPass leaves no trace on load and
-	 * ignores programmatic focus - so this cannot be decided any earlier than this.
+	 * instead we detect the symptom: an icon of its own sitting on top of a field that carries
+	 * our opt-out attribute. Nothing at all is observable before the user touches a field -
+	 * LastPass leaves no trace on load and ignores programmatic focus - so this cannot be decided
+	 * any earlier than this.
 	 *
-	 * Deliberately silent when the marker is absent: a missed warning is harmless, a warning
+	 * Deliberately silent when nothing covers a field: a missed warning is harmless, a warning
 	 * shown to someone without the problem is not.
 	 */
 	function checkPasswordManagerInterference(): void {
-		if (window.localStorage.getItem(PWMGR_DISMISSED) === "true")
+		if (isRefusingPasswordManagers()) {
+			if (_pwmgrBarrierContinued)
+				return;
+		} else if (window.localStorage.getItem(PWMGR_DISMISSED) === "true") {
 			return;
+		}
 
 		let probes = 0;
 		let timer: number = null;
@@ -164,9 +187,12 @@ namespace WebUI {
 		}
 
 		function probe(): void {
-			if (document.querySelector(PWMGR_MARKER)) {
+			if (isFieldCoveredByPasswordManager()) {
 				stopProbing();
-				showPasswordManagerWarning();
+				if (isRefusingPasswordManagers())
+					showPasswordManagerBarrier();
+				else
+					showPasswordManagerWarning();
 			} else if (++probes >= PWMGR_MAX_PROBES) {
 				stopProbing();								// No LastPass, or its icons are off.
 			}
@@ -186,6 +212,117 @@ namespace WebUI {
 
 		document.addEventListener("focusin", onInteraction);
 		document.addEventListener("click", onInteraction);
+	}
+
+	/**
+	 * T when a password manager actually put something on top of a field that we told it to leave
+	 * alone - i.e. a field rendered with data-lpignore, so not the login page's credential fields
+	 * where a manager is welcome.
+	 *
+	 * Finding LastPass' marker nodes is not enough to conclude anything: measured on Chrome it
+	 * injects those into every page it inspects, including pages where it obeys us and draws no
+	 * icon at all. The icon itself cannot be seen in the DOM either - it lives in a closed shadow
+	 * root inside a host that is forced to 0x0 - but it does take part in hit testing. So ask who
+	 * owns the pixels along the right hand side of each field, where the in-field icon is drawn:
+	 * anything belonging to the manager there is covering content it was told not to touch.
+	 */
+	function isFieldCoveredByPasswordManager(): boolean {
+		let fields = document.querySelectorAll("input[data-lpignore],textarea[data-lpignore],select[data-lpignore]");
+		for (let index = 0; index < fields.length; index++) {
+			let rect = fields[index].getBoundingClientRect();
+			if (rect.width < PWMGR_MIN_FIELD_WIDTH || rect.height < PWMGR_MIN_FIELD_HEIGHT)
+				continue;
+
+			let y = Math.round(rect.top + rect.height / 2);
+			let limit = Math.min(PWMGR_ICON_ZONE, rect.width);
+			for (let dx = 2; dx < limit; dx += 4) {
+				let hit = document.elementFromPoint(Math.round(rect.right - dx), y);
+				if (hit && hit.closest(PWMGR_MARKER))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * T when the application refuses to be used at all while a disobeying password manager is
+	 * active - see DomApplication#isRefuseDisobeyingPasswordManagers.
+	 */
+	function isRefusingPasswordManagers(): boolean {
+		return (window as any).DomUIRefusePwmgr === true;
+	}
+
+	/**
+	 * Show the barrier for applications that refuse to run while a disobeying password manager is
+	 * active: it silently alters data in fields the user never touched, and for those applications
+	 * that corruption is worse than an unusable page. It covers the entire screen, so it cannot be
+	 * overlooked the way the banner is.
+	 *
+	 * It has a "continue" button, but that only hides it until the next page: the barrier covers
+	 * the password manager's own in-field icons, and clicking those is the fastest route to its
+	 * "turn off for this site" option - so leaving no way to uncover them would leave the user
+	 * stuck. Nothing about the dismissal is remembered beyond this document.
+	 *
+	 * Styled inline for the same reason as the banner below.
+	 */
+	function showPasswordManagerBarrier(): void {
+		if (_pwmgrBarrierContinued || document.getElementById("domui-pwmgr-barrier"))
+			return;
+
+		let overlay = document.createElement("div");
+		overlay.id = "domui-pwmgr-barrier";
+		overlay.setAttribute("role", "alertdialog");
+		overlay.tabIndex = -1;
+		overlay.style.cssText = "position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483647;"
+			+ "display:flex;align-items:center;justify-content:center;overflow:auto;"
+			+ "padding:24px;background:#b3261e;color:#fff;font-size:16px;line-height:1.5;"
+			+ "outline:none";
+
+		let panel = document.createElement("div");
+		panel.style.cssText = "max-width:720px";
+		overlay.appendChild(panel);
+
+		let title = document.createElement("div");
+		title.style.cssText = "margin:0 0 16px 0;font-size:26px;font-weight:700;line-height:1.2";
+		title.appendChild(document.createTextNode(WebUI._T.pwmgrBarrierTitle));
+		panel.appendChild(title);
+
+		appendBarrierText(panel, WebUI._T.pwmgrBarrierText);
+		appendBarrierText(panel, WebUI._T.pwmgrBarrierAction);
+
+		/*
+		 * The barrier covers the page, but the fields below it can still be reached with the
+		 * keyboard - and typing in those is exactly what must not happen while it is up. So keep
+		 * the focus inside it. Refocusing the overlay itself re-fires this handler, but then the
+		 * overlay contains the focus so that terminates immediately.
+		 */
+		function keepFocus(e: FocusEvent): void {
+			if (!overlay.contains(e.target as Node))
+				overlay.focus();
+		}
+
+		let btn = document.createElement("button");
+		btn.type = "button";
+		btn.style.cssText = "margin-top:8px;cursor:pointer;padding:8px 20px;border:1px solid #fff;"
+			+ "border-radius:3px;background:#fff;color:#b3261e;font-size:inherit;font-weight:700";
+		btn.appendChild(document.createTextNode(WebUI._T.pwmgrBarrierContinue));
+		btn.onclick = function (): void {
+			_pwmgrBarrierContinued = true;					// This document only - the next page nags again.
+			document.removeEventListener("focusin", keepFocus, true);
+			$(overlay).remove();
+		};
+		panel.appendChild(btn);
+
+		document.body.appendChild(overlay);
+		overlay.focus();
+		document.addEventListener("focusin", keepFocus, true);
+	}
+
+	function appendBarrierText(panel: HTMLElement, text: string): void {
+		let para = document.createElement("div");
+		para.style.cssText = "margin:0 0 12px 0";
+		para.appendChild(document.createTextNode(text));
+		panel.appendChild(para);
 	}
 
 	/**

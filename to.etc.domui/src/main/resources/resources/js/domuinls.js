@@ -13,6 +13,10 @@ WebUI._T.sessionSeemsLost = "The server seems to have lost your session; reloadi
 //-- Password manager interference
 WebUI._T.pwmgrIconWarning = "IMPORTANT!! LastPass is active and can change data automatically on this page - despite being told NOT to. You should switch LastPass off for this site to prevent data corruption! Click on one of the red LastPass boxes inside inputs, select 'More options', then 'Turn off LastPass for this site'";
 WebUI._T.pwmgrIconDismiss = "Do not show this again";
+WebUI._T.pwmgrBarrierTitle = "You must switch LastPass off to use this website";
+WebUI._T.pwmgrBarrierText = "LastPass is active and changes the data on this page automatically - even though this page explicitly forbids it. This corrupts your data without you noticing it, so this website cannot be used while LastPass is active for it. Leaving LastPass on is not an option: this message will block every page you open until you switch LastPass off for this site.";
+WebUI._T.pwmgrBarrierAction = "Press 'Continue' to move this message out of the way for this page only. Then click on one of the red LastPass boxes inside an input field, select 'More options', then 'Turn off LastPass for this site'.";
+WebUI._T.pwmgrBarrierContinue = "Continue";
 
 //-- Upload.
 WebUI._T.uploadType = "The file type {0} is not allowed; allowed are {1}";
