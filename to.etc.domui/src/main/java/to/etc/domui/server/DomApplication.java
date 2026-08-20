@@ -255,6 +255,12 @@ public abstract class DomApplication {
 
 	private boolean m_defaultHintsOnControl = true;
 
+	/**
+	 * When T the UI is made unusable as soon as a password manager is detected that ignores the
+	 * opt-out attributes rendered on inputs. See {@link #isRefuseDisobeyingPasswordManagers()}.
+	 */
+	private boolean m_refuseDisobeyingPasswordManagers;
+
 	private boolean m_underSeleniumTest = System.getProperty("domui.selenium") != null;
 
 	/**
@@ -2807,6 +2813,25 @@ public abstract class DomApplication {
 
 	public void setDefaultHintsOnControl(boolean defaultHintsOnControl) {
 		m_defaultHintsOnControl = defaultHintsOnControl;
+	}
+
+	/**
+	 * When T the UI refuses to be used at all as soon as a password manager is detected that ignores
+	 * the opt-out attributes DomUI renders on its inputs (see HtmlTagRenderer's
+	 * renderPasswordManagerHints): instead of the dismissible warning the user gets a barrier
+	 * covering the whole screen, which cannot be closed.
+	 * Such a password manager silently alters data in fields the user never touched; for applications
+	 * where that data corruption is unacceptable a warning the user can ignore is not enough, so the
+	 * only way forward is switching the password manager off for this site.
+	 *
+	 * Defaults to F, which shows the dismissible warning banner instead.
+	 */
+	public boolean isRefuseDisobeyingPasswordManagers() {
+		return m_refuseDisobeyingPasswordManagers;
+	}
+
+	public void setRefuseDisobeyingPasswordManagers(boolean refuseDisobeyingPasswordManagers) {
+		m_refuseDisobeyingPasswordManagers = refuseDisobeyingPasswordManagers;
 	}
 
 	public int getMaxUploadSize() {

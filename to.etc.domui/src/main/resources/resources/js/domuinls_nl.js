@@ -13,6 +13,10 @@ WebUI._T.sessionSeemsLost = "De server lijkt uw sessie te zijn vergeten; de pagi
 //-- Password manager interference
 WebUI._T.pwmgrIconWarning = "BELANGRIJK!! Uw wachtwoordmanager (LastPass) kan informatie ongewenst en automatisch aanpassen - ondanks dat de pagina dit verbiedt. Zet dit uit data corruptie te voorkomen!! Klik op het rode LastPass icoon bij een invoerveld, kies 'More Options', dan 'Turn off LastPass for this site'";
 WebUI._T.pwmgrIconDismiss = "Niet meer tonen";
+WebUI._T.pwmgrBarrierTitle = "U moet LastPass uitzetten om deze website te gebruiken";
+WebUI._T.pwmgrBarrierText = "LastPass is actief en past de gegevens op deze pagina automatisch aan - ondanks dat de pagina dit expliciet verbiedt. Daardoor raken uw gegevens ongemerkt beschadigd, en kan deze website niet gebruikt worden zolang LastPass hiervoor actief is. LastPass aan laten staan is geen optie: deze melding blokkeert elke pagina die u opent totdat u LastPass voor deze site uitzet.";
+WebUI._T.pwmgrBarrierAction = "Klik op 'Doorgaan' om deze melding alleen voor deze pagina weg te halen. Klik daarna op een van de rode LastPass icoontjes in een invoerveld, kies 'More options' en dan 'Turn off LastPass for this site'.";
+WebUI._T.pwmgrBarrierContinue = "Doorgaan";
 
 
 //-- Upload.
