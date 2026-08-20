@@ -303,6 +303,40 @@ public class TestDbQCriteria {
 	}
 
 	/**
+	 * A restriction on a field of an <i>optional</i> parent relation must join that parent with an
+	 * outer join: records that do not have the parent at all may not silently disappear from the
+	 * result. Here every employee without a manager, plus every employee managed by the sales
+	 * manager, is expected - if the parent is joined with an inner join the managerless employee
+	 * is lost even though the "reportsTo is null" arm of the "or" selects it.
+	 */
+	@Test
+	public void testOptionalParentInOr() throws Exception {
+		QCriteria<Employee> q = QCriteria.create(Employee.class);
+		QRestrictorImpl<Employee> or = q.or();
+		or.isnull(Employee_.reportsTo());
+		or.eq(Employee_.reportsTo().title(), "Sales Manager");
+
+		Set<String> names = new HashSet<>();
+		for(Employee e : dc().query(q)) {
+			names.add(e.getFirstName());
+		}
+		Assert.assertEquals(new HashSet<>(Arrays.asList("Andrew", "Jane", "Margaret", "Steve")), names);
+	}
+
+	/**
+	 * Ordering by a field of an <i>optional</i> parent relation may not act as a filter: the records
+	 * without that parent must still be returned (with a null sort value).
+	 */
+	@Test
+	public void testOrderByOptionalParent() throws Exception {
+		int all = dc().query(QCriteria.create(Employee.class)).size();
+
+		QCriteria<Employee> q = QCriteria.create(Employee.class)
+			.ascending(Employee_.reportsTo().lastName());
+		Assert.assertEquals(all, dc().query(q).size());
+	}
+
+	/**
 	 * Do an "and" between two fields of <i>different</i> parent relations.
 	 */
 	@Test
