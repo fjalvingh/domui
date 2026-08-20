@@ -70,6 +70,8 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 
 	private boolean m_immediate;
 
+	private boolean m_passwordManagerAllowed;
+
 	public Input() {
 		super("input");
 	}
@@ -86,6 +88,31 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 			return;
 		}
 		m_type = type;
+		changed();
+	}
+
+	/**
+	 * When T this input is a real credential field, so browser password managers
+	 * (1Password, LastPass, Bitwarden, Dashlane) are allowed to offer their inline
+	 * fill/save menu on it. It defaults to F: for all other inputs the managers are
+	 * explicitly told to keep away, because their popups obscure the field and their
+	 * "helpful" prefilling corrupts unrelated data.
+	 */
+	@Override
+	public boolean isPasswordManagerAllowed() {
+		return m_passwordManagerAllowed;
+	}
+
+	/**
+	 * See {@link #isPasswordManagerAllowed()}. Set this on the username and password
+	 * fields of an actual login screen only.
+	 */
+	@Override
+	public void setPasswordManagerAllowed(boolean passwordManagerAllowed) {
+		if(m_passwordManagerAllowed == passwordManagerAllowed) {
+			return;
+		}
+		m_passwordManagerAllowed = passwordManagerAllowed;
 		changed();
 	}
 

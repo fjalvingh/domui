@@ -28,12 +28,15 @@ import jakarta.persistence.criteria.AbstractQuery;
 import jakarta.persistence.criteria.CompoundSelection;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
 import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.SingularAttribute;
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -42,6 +45,8 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metamodel.mapping.AttributeMapping;
 import org.hibernate.metamodel.mapping.EntityIdentifierMapping;
 import org.hibernate.metamodel.mapping.PluralAttributeMapping;
+import org.hibernate.metamodel.model.domain.JpaMetamodel;
+import org.hibernate.metamodel.model.domain.ManagedDomainType;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaExpression;
@@ -80,6 +85,8 @@ import to.etc.webapp.query.QUnaryProperty;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -150,6 +157,14 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 	private Class<?> m_expectedSubqueryType;
 
 	private Class<?> m_rootClass;
+
+	/**
+	 * All explicit joins created for association property paths, so that a path that is used in more
+	 * than one restriction reuses the same join instead of adding a new one per restriction. Keyed
+	 * by the {@link From} the join starts from (identity, as the same path can occur in the main
+	 * query and in subqueries) and then by the association's property name.
+	 */
+	private final Map<From<?, ?>, Map<String, From<?, ?>>> m_joinMap = new IdentityHashMap<>();
 
 	public CriteriaCreatingVisitor(Session ses, HibernateCriteriaBuilder criteriaBuilder, final CriteriaQuery<T> crit, QCriteriaQueryBase<?, ?> qc) {
 		m_session = ses;
@@ -260,16 +275,72 @@ public class CriteriaCreatingVisitor<T> implements QNodeVisitor {
 		return parsePropertyPathFrom(m_currentRoot, input);
 	}
 
+	/**
+	 * Resolve a (possibly dotted) property path into a JPA Path, starting at the specified root.
+	 *
+	 * <p>Every path segment that navigates <i>through</i> an association is turned into an explicit
+	 * join, because JPA's implicit joins (created by just calling {@link Path#get(String)} on an
+	 * association) are rendered as <b>inner</b> joins by Hibernate. For a nullable association that
+	 * silently removes all rows that do not have the relation from the result - even when the
+	 * restriction using the path is only one arm of an <code>or</code>. So the query
+	 * <pre>
+	 * environment is null or environment.lifecycle = ACTIVE
+	 * </pre>
+	 * would never return a row without an environment. Joining nullable associations with an outer
+	 * join fixes that; required associations keep using an inner join because for those both joins
+	 * return the same rows, and the inner join is the cheaper one.</p>
+	 */
 	@SuppressWarnings("unchecked")
 	private <V> Path<V> parsePropertyPathFrom(Path<?> root, String input) throws Exception {
 		Path<?> currentPath = root;
-		for(String segment : input.split("\\.")) {
+		String[] segments = input.split("\\.");
+		for(int i = 0; i < segments.length; i++) {
+			String segment = segments[i];
+			String nextSegment = i + 1 < segments.length ? segments[i + 1] : null;
+			From<?, ?> join = null == nextSegment ? null : createJoinIfNeeded(currentPath, segment, nextSegment);
+			if(null != join) {
+				currentPath = join;
+				continue;
+			}
 			Path<?> nextPath = currentPath.get(segment);
 			if(nextPath == null)
 				throw new QQuerySyntaxException("The property path " + input + " refers to unknown property " + segment);
 			currentPath = nextPath;
 		}
 		return (Path<V>) currentPath;
+	}
+
+	/**
+	 * If the specified segment is a to-one association that the path continues through, return the
+	 * (cached) join for it. Returns null when the segment must be resolved as a plain path instead:
+	 * when it is not an association, when the path cannot be joined from, or when the rest of the
+	 * path only addresses the association's identifier - as that is present in this table's foreign
+	 * key, resolving it needs no join at all.
+	 */
+	@Nullable
+	private From<?, ?> createJoinIfNeeded(Path<?> currentPath, String segment, String nextSegment) {
+		if(!(currentPath instanceof From<?, ?> from))				// Cannot join from inside an embeddable
+			return null;
+		SingularAttribute<?, ?> attribute = findSingularAttribute(from.getJavaType(), segment);
+		if(null == attribute || !attribute.isAssociation())
+			return null;
+		SingularAttribute<?, ?> nextAttribute = findSingularAttribute(attribute.getJavaType(), nextSegment);
+		if(null != nextAttribute && nextAttribute.isId())			// Reachable through the FK: no join needed
+			return null;
+
+		Map<String, From<?, ?>> joinMap = m_joinMap.computeIfAbsent(from, a -> new HashMap<>());
+		return joinMap.computeIfAbsent(segment, a -> from.join(a, attribute.isOptional() ? JoinType.LEFT : JoinType.INNER));
+	}
+
+	/**
+	 * Find the single-valued attribute with the specified name on the specified managed (entity or
+	 * embeddable) type, or null if the type has no such attribute or is not a managed type at all.
+	 */
+	@Nullable
+	private SingularAttribute<?, ?> findSingularAttribute(Class<?> managedClass, String name) {
+		JpaMetamodel metamodel = m_session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJpaMetamodel();
+		ManagedDomainType<?> managedType = metamodel.findManagedType(managedClass);
+		return null == managedType ? null : managedType.findSingularAttribute(name);
 	}
 
 	@Override

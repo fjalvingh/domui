@@ -81,6 +81,8 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	@Nullable
 	private String m_disabledBecause;
 
+	private boolean m_passwordManagerAllowed;
+
 	public TextArea() {
 		super("textarea");
 	}
@@ -100,6 +102,28 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitTextArea(this);
+	}
+
+	/**
+	 * See {@link Input#isPasswordManagerAllowed()}: when T browser password managers may
+	 * offer their inline fill/save menu on this textarea. Defaults to F, which keeps their
+	 * popups away from ordinary text.
+	 */
+	@Override
+	public boolean isPasswordManagerAllowed() {
+		return m_passwordManagerAllowed;
+	}
+
+	/**
+	 * See {@link #isPasswordManagerAllowed()}.
+	 */
+	@Override
+	public void setPasswordManagerAllowed(boolean passwordManagerAllowed) {
+		if(m_passwordManagerAllowed == passwordManagerAllowed) {
+			return;
+		}
+		m_passwordManagerAllowed = passwordManagerAllowed;
+		changed();
 	}
 
 	public int getCols() {

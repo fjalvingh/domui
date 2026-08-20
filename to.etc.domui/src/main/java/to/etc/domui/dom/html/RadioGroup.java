@@ -390,26 +390,30 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 
 	static private <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(Class<T> clz, boolean sorted, @Nullable IRenderInto<RadioButtonInstance<T>> valueRenderer, T... exceptions) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
-		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
+		List<RgItem<T>> l = new ArrayList<>();
 		T[] ar = clz.getEnumConstants();
 		for(T v : ar) {
 			if(!DomUtil.contains(exceptions, v)) {
 				String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
 				if(label == null)
 					label = v.name();
-				l.add(new ValueLabelPair<T>(v, label));
+				String hint = cmm.getDomainHint(NlsContext.getLocale(), v);
+
+				l.add(new RgItem<>(label, v, hint));
 			}
 		}
 		if(sorted) {
-			Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+			Collections.sort(l, (a, b) -> a.label().compareToIgnoreCase(b.label()));
 		}
 		var rg = new RadioGroup<T>();
 		rg.setValueRenderer(valueRenderer);
-		for(ValueLabelPair<T> tValueLabelPair : l) {
-			rg.addButton(tValueLabelPair.getLabel(), tValueLabelPair.getValue());
+		for(RgItem<T> item : l) {
+			RadioButton<T> rb = rg.addButton(item.label(), item.value(), item.hint);
 		}
 		return rg;
 	}
+
+	private record RgItem<T>(String label, T value, @Nullable String hint) {}
 
 	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(T... enums) {
 		return createEnumRadioGroup(Arrays.asList(enums));

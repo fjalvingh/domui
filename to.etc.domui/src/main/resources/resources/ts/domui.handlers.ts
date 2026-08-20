@@ -113,10 +113,116 @@ namespace WebUI {
 
 	export function onDocumentReady(): void {
 		checkBrowser();
+		checkPasswordManagerInterference();
 		WebUI.handleCalendarChanges();
 		if ((window as any).DomUIDevel)
 			handleDevelopmentMode();
 		doCustomUpdates();
+	}
+
+	/**
+	 * Marker nodes LastPass injects into the page when it decorates a field with its in-field
+	 * icon. These are LastPass internals, not a documented contract: if they are renamed the
+	 * detection below silently stops working, which is the acceptable failure mode here.
+	 */
+	const PWMGR_MARKER = "[data-lastpass-icon-root],[data-lastpass-root]";
+
+	/** Set once the user dismissed the warning, so we nag at most once per browser. */
+	const PWMGR_DISMISSED = "domui.pwmgrWarningDismissed";
+
+	/** How often to look for the marker once the user touched something. */
+	const PWMGR_PROBE_INTERVAL = 500;
+
+	/** Give up after this many probes, so we never keep looking for the rest of the session. */
+	const PWMGR_MAX_PROBES = 40;
+
+	/**
+	 * LastPass ignores every documented opt-out attribute we render on our inputs (see
+	 * HtmlTagRenderer#renderPasswordManagerHints) and still draws its icon inside the focused
+	 * field, where it covers the field's content. Its settings cannot be read from a page, so
+	 * instead we detect the symptom: the marker node it injects next to the field. Nothing at
+	 * all is observable before the user touches a field - LastPass leaves no trace on load and
+	 * ignores programmatic focus - so this cannot be decided any earlier than this.
+	 *
+	 * Deliberately silent when the marker is absent: a missed warning is harmless, a warning
+	 * shown to someone without the problem is not.
+	 */
+	function checkPasswordManagerInterference(): void {
+		if (window.localStorage.getItem(PWMGR_DISMISSED) === "true")
+			return;
+
+		let probes = 0;
+		let timer: number = null;
+
+		function stopProbing(): void {
+			if (timer !== null) {
+				window.clearInterval(timer);
+				timer = null;
+			}
+			document.removeEventListener("focusin", onInteraction);
+			document.removeEventListener("click", onInteraction);
+		}
+
+		function probe(): void {
+			if (document.querySelector(PWMGR_MARKER)) {
+				stopProbing();
+				showPasswordManagerWarning();
+			} else if (++probes >= PWMGR_MAX_PROBES) {
+				stopProbing();								// No LastPass, or its icons are off.
+			}
+		}
+
+		/*
+		 * Measured on Chrome: LastPass injects its marker around two seconds after the field is
+		 * touched, and that delay is nothing we control - hence a bounded poll instead of a
+		 * single check on a guessed delay. Both events are needed to start it: clicking a field
+		 * that already has focus (DomUI autofocuses one on every page) fires no focusin, while
+		 * tabbing into a field fires no click.
+		 */
+		function onInteraction(): void {
+			if (timer === null)
+				timer = window.setInterval(probe, PWMGR_PROBE_INTERVAL);
+		}
+
+		document.addEventListener("focusin", onInteraction);
+		document.addEventListener("click", onInteraction);
+	}
+
+	/**
+	 * Show the dismissible banner telling the user to switch their password manager's in-field
+	 * icons off. Styled inline on purpose: this is a framework level warning that must render
+	 * in every theme, including themes outside this repository that never heard of its class.
+	 */
+	function showPasswordManagerWarning(): void {
+		if (document.getElementById("domui-pwmgr-warning"))
+			return;
+
+		let bar = document.createElement("div");
+		bar.id = "domui-pwmgr-warning";
+		bar.setAttribute("role", "alert");
+		bar.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:20000;display:flex;"
+			+ "align-items:center;gap:12px;padding:12px 16px;background:#b3261e;color:#fff;"
+			+ "border-top:1px solid #7f1a15;font-size:13px;font-weight:600;line-height:1.4;"
+			+ "box-shadow:0 -2px 8px rgba(0,0,0,.3)";
+
+		let msg = document.createElement("span");
+		msg.style.cssText = "flex:1";
+		msg.appendChild(document.createTextNode(WebUI._T.pwmgrIconWarning));
+		bar.appendChild(msg);
+
+		let btn = document.createElement("button");
+		btn.type = "button";
+		btn.style.cssText = "flex:none;cursor:pointer;padding:4px 12px;border:1px solid #fff;"
+			+ "border-radius:3px;background:#fff;color:#b3261e;font-size:inherit;"
+			+ "font-weight:inherit";
+		btn.appendChild(document.createTextNode(WebUI._T.pwmgrIconDismiss));
+		btn.onclick = function (): void {
+			window.localStorage.setItem(PWMGR_DISMISSED, "true");
+			$(bar).remove();
+		};
+		bar.appendChild(btn);
+
+		document.body.appendChild(bar);
 	}
 
 	function checkBrowser(): void {

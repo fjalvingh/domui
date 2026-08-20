@@ -88,11 +88,20 @@ namespace WebUI {
 	export function isEnterKey(evt: any): boolean {
 		if(evt.key == 'Enter') {
 			//-- Send a change event
-			console.debug("enter", evt);
 			WebUI.valuechanged('', evt.target.id);
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * onKeyPress handler for input that filters nothing: it sends a change event when the
+	 * enter key is pressed, but accepts every key. These handlers are rendered as the input's
+	 * onkeypress attribute, so returning false would make the browser discard the keystroke.
+	 */
+	export function isAnyKey(evt: any): boolean {
+		isEnterKey(evt);
+		return true;
 	}
 
 	export function delayedSetAttributes(): void {

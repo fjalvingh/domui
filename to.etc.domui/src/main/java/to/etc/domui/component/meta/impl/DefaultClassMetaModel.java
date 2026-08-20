@@ -498,6 +498,20 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Nullable
+	@Override
+	public String getDomainHint(final Locale loc, final Object value) {
+		if(value instanceof Enum<?>) {
+			try {
+				String s = getClassBundle().findMessage(loc, ((Enum<?>) value).name() + ".hint");
+				return s; // jal 20090806 Must return null; let caller decide what the default should be.
+			} catch(Exception x) {
+				// Ignore
+			}
+		}
+		return null;
+	}
+
+	@Nullable
 	public ICriteriaTableDef<?> getMetaTableDef() {
 		return m_metaTableDef;
 	}

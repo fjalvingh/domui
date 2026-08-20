@@ -6,7 +6,9 @@ import java.util.Date;
 
 /**
  * Given a {@link DatePeriod}, this adds the parts to the query that represent
- * that period.
+ * that period. From is inclusive, to is exclusive. {@link DateLookupControl}
+ * rejects a display range where from is after until before building the period
+ * (so the inclusive +1 day on until is not applied to a reversed range).
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 3-12-17.

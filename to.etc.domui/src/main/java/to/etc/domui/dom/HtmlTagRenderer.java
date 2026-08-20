@@ -1099,10 +1099,29 @@ public class HtmlTagRenderer implements INodeVisitor {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}
 		}
-		if(n.getSpecialAttribute("autocomplete") == null) {
-			o().attr("autocomplete", "false");
-		}
+		renderPasswordManagerHints(n, n.isPasswordManagerAllowed());
 		renderTagend(n, m_o);
+	}
+
+	/**
+	 * Tell the browser and any installed password manager to keep their autofill machinery
+	 * away from this control, unless it is an actual credential field (see
+	 * {@link Input#isPasswordManagerAllowed()}). Without this the managers attach an inline
+	 * popup to arbitrary fields, which covers the field's content and can prefill unrelated
+	 * data. Every manager uses its own opt-out attribute; autocomplete= alone is not enough
+	 * because they deliberately ignore it.
+	 */
+	private void renderPasswordManagerHints(final NodeBase n, boolean passwordManagerAllowed) throws Exception {
+		if(n.getSpecialAttribute("autocomplete") == null) {
+			o().attr("autocomplete", passwordManagerAllowed ? "on" : "off");
+		}
+		if(passwordManagerAllowed) {
+			return;
+		}
+		o().attr("data-1p-ignore", "true");					// 1Password
+		o().attr("data-lpignore", "true");					// LastPass
+		o().attr("data-bwignore", "true");					// Bitwarden
+		o().attr("data-form-type", "other");				// Dashlane
 	}
 
 	@Override
@@ -1298,6 +1317,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getReturnPressed() != null) {
 			o().attr("onkeypress", "return WebUI.returnKeyPress(event, this)");
 		}
+		renderPasswordManagerHints(n, n.isPasswordManagerAllowed());
 		renderTagend(n, o());
 	}
 
@@ -1356,6 +1376,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getMaxByteLength() > 0) {
 			o().attr("maxbytes", n.getMaxByteLength());				// If byte-limited, send to Javascript too
 		}
+		renderPasswordManagerHints(n, n.isPasswordManagerAllowed());
 
 		renderTagend(n, o());
 		o().setIndentEnabled(false); // jal 20090923 again: do not indent content (bug 627)

@@ -2,11 +2,13 @@ package to.etc.domui.component.searchpanel.lookupcontrols;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.DateInput2;
+import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
+import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
 import to.etc.util.DateUtil;
 
@@ -55,12 +57,24 @@ public class DateLookupControl extends Div implements IControl<DatePeriod> {
 
 	@Override
 	public DatePeriod getValue() {
-		Date value = m_dateTo.getValue();
-		if(null != value && ! m_withTime) {
-			//in case of date only search add 1 day and truncate time, since date only search is inclusive for dateTo
-			value = DateUtil.addDays(value, 1);
+		Date from = m_dateFrom.getValue();
+		Date to = m_dateTo.getValue();
+		// Validate display dates before adding the inclusive +1 day to "until". Swapping after that
+		// adjustment produces a wrong exclusive upper bound (INSD-155).
+		if(from != null && to != null && from.getTime() > to.getTime()) {
+			ValidationException vx = new ValidationException(Msgs.uiLookupDateOrder);
+			m_dateTo.setMessage(UIMessage.error(vx));
+			throw vx;
 		}
-		return new DatePeriod(m_dateFrom.getValue(), value);
+		UIMessage toMessage = m_dateTo.getMessage();
+		if(toMessage != null && toMessage.getCode() == Msgs.uiLookupDateOrder) {
+			m_dateTo.setMessage(null);
+		}
+		if(null != to && !m_withTime) {
+			//in case of date only search add 1 day and truncate time, since date only search is inclusive for dateTo
+			to = DateUtil.addDays(to, 1);
+		}
+		return new DatePeriod(from, to);
 	}
 
 	@Override public void setValue(@Nullable DatePeriod v) {

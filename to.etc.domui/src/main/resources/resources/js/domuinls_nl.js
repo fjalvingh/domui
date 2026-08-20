@@ -10,6 +10,10 @@ WebUI._T.sysPollFailMsg = "Server onbereikbaar: status=";
 WebUI._T.sysPollFailCont= "Wachten tot de server weer bereikbaar is....";
 WebUI._T.sessionSeemsLost = "De server lijkt uw sessie te zijn vergeten; de pagina wordt herladen.";
 
+//-- Password manager interference
+WebUI._T.pwmgrIconWarning = "BELANGRIJK!! Uw wachtwoordmanager (LastPass) kan informatie incorrect aanpassen - ondanks dat de pagina dit verbiedt. Zet dit uit in LastPass bij Account Options - Extension Preferences, of schakel LastPass uit deze site om data corruptie te voorkomen!!.";
+WebUI._T.pwmgrIconDismiss = "Niet meer tonen";
+
 
 //-- Upload.
 WebUI._T.uploadType = "Het bestandsformaat {0} is niet toegestaan; gebruik {1}";

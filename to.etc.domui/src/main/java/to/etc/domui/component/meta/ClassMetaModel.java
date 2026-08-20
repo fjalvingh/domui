@@ -112,6 +112,12 @@ public interface ClassMetaModel {
 	String getDomainLabel(Locale loc, Object value);
 
 	/**
+	 * Like {@link #getDomainLabel(Locale, Object)}, this returns an optional hint for a value.
+	 */
+	@Nullable
+	String getDomainHint(Locale loc, Object value);
+
+	/**
 	 * Return a user-presentable entity name (singular) for this class. Returns null if not set.
 	 */
 	@Nullable
