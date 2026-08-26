@@ -41,6 +41,9 @@ public class PopupMenu2 extends Div {
 	@Nullable
 	private String m_disableReason;
 
+	@Nullable
+	private String m_testId;
+
 	private final List<Item> m_itemList = new ArrayList<>();
 
 	public PopupMenu2(NodeContainer owner) {
@@ -84,6 +87,10 @@ public class PopupMenu2 extends Div {
 	private void addItem(Item item, boolean hasIcons, boolean hasTexts, @Nullable String disableReason) {
 		Div row = new Div("ui-pome2-r");
 		add(row);
+		String testId = item.getTestId();
+		if(null != testId) {
+			row.setTestID(testId);
+		}
 		if(null == disableReason) {
 			row.setClicked(a -> selectionMade(item));
 		}
@@ -169,15 +176,26 @@ public class PopupMenu2 extends Div {
 		return this;
 	}
 
+	/**
+	 * Sets the testID rendered on the row {@code <div>} of the next item added by {@link #append()}.
+	 * Must be called before {@code append()}. The stored value is reset after the item is appended.
+	 */
+	public PopupMenu2 testId(String testId) {
+		checkEmpty(m_testId);
+		m_testId = testId;
+		return this;
+	}
+
 	public PopupMenu2 append() {
 		if(m_iconRef == null && m_text == null)
 			throw new IllegalStateException("No text nor an icon set; one of the two is mandatory");
-		m_itemList.add(new Item(m_text, m_iconRef, m_hint, m_clicked, m_disableReason));
+		m_itemList.add(new Item(m_text, m_iconRef, m_hint, m_clicked, m_disableReason, m_testId));
 		m_text = null;
 		m_hint = null;
 		m_iconRef = null;
 		m_clicked = null;
 		m_disableReason = null;
+		m_testId = null;
 		forceRebuild();
 		return this;
 	}
@@ -210,12 +228,16 @@ public class PopupMenu2 extends Div {
 		@Nullable
 		private final String m_disableReason;
 
-		public Item(@Nullable String text, @Nullable IIconRef icon, @Nullable String hint, @Nullable IExecute clicked, @Nullable String disableReason) {
+		@Nullable
+		private final String m_testId;
+
+		public Item(@Nullable String text, @Nullable IIconRef icon, @Nullable String hint, @Nullable IExecute clicked, @Nullable String disableReason, @Nullable String testId) {
 			m_text = text;
 			m_icon = icon;
 			m_hint = hint;
 			m_clicked = clicked;
 			m_disableReason = disableReason;
+			m_testId = testId;
 		}
 
 		@Nullable
@@ -241,6 +263,11 @@ public class PopupMenu2 extends Div {
 		@Nullable
 		public String getDisableReason() {
 			return m_disableReason;
+		}
+
+		@Nullable
+		public String getTestId() {
+			return m_testId;
 		}
 	}
 
