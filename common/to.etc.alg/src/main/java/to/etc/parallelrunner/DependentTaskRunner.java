@@ -1,21 +1,26 @@
 package to.etc.parallelrunner;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.FunctionEx;
 import to.etc.parallelrunner.DependentTaskSource.ITaskListener;
 import to.etc.parallelrunner.DependentTaskSource.Task;
+import to.etc.parallelrunner.DependentTaskSource.TaskState;
 import to.etc.util.CancelledException;
 import to.etc.util.Progress;
+import to.etc.util.WrappedException;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-2-19.
  */
-public class DependentTaskRunner<T extends IAsyncRunnable> {
+final public class DependentTaskRunner<T extends IAsyncRunnable> {
 	private final boolean m_logErrors;
 
 	private final DependentTaskSource<T, SingleTaskExecutor<T>> m_taskSource;
@@ -26,27 +31,67 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 
 	private Progress m_progress;
 
-	private AsyncWorker m_executor;
+	private final ITaskScheduler m_scheduler;
 
 	public DependentTaskRunner(AsyncWorker executor) {
 		this(executor, true);
 	}
 
 	public DependentTaskRunner(AsyncWorker executor, boolean logErrors) {
-		m_executor = executor;
+		this(asyncWorkerScheduler(executor), logErrors);
+	}
+
+	public DependentTaskRunner(Executor executor) {
+		this(executor, true);
+	}
+
+	public DependentTaskRunner(Executor executor, boolean logErrors) {
+		this(executorScheduler(executor), logErrors);
+	}
+
+	public DependentTaskRunner(ITaskScheduler scheduler) {
+		this(scheduler, true);
+	}
+
+	public DependentTaskRunner(ITaskScheduler scheduler, boolean logErrors) {
+		m_scheduler = scheduler;
 		m_logErrors = logErrors;
 		m_taskSource = new DependentTaskSource<>(this::convertTaskToRunner, m_logErrors);
-		m_taskSource.addListener(new ITaskListener<T, SingleTaskExecutor<T>>() {
+		m_taskSource.addListener(new ITaskListener<>() {
 			@Override
 			public void onTaskStarted(Task<T, SingleTaskExecutor<T>> task) throws Exception {
 				m_progress.increment(1);
-				DependentTaskRunner.this.onTaskStarted(task);
 			}
 
 			@Override
-			public void onTaskFinished(Task<T, SingleTaskExecutor<T>> task, @Nullable Throwable failure) throws Exception {
-				onFinish(task);
+			public void onTaskFinished(Task<T, SingleTaskExecutor<T>> task, TaskState how, @Nullable Throwable failure) throws Exception {
 				m_progress.increment(99);
+			}
+		});
+	}
+
+	public void addListener(ITaskListener<T, SingleTaskExecutor<T>> l) {
+		m_taskSource.addListener(l);
+	}
+
+	/**
+	 * Adapts the shared {@link AsyncWorker} to a {@link ITaskScheduler}, keeping its name/priority
+	 * based scheduling.
+	 */
+	private static ITaskScheduler asyncWorkerScheduler(AsyncWorker executor) {
+		return (name, runnable, priority) -> executor.schedule(name, runnable, (a, x) -> {}, priority);
+	}
+
+	/**
+	 * Adapts a plain {@link Executor} to a {@link ITaskScheduler}. The executor has no notion of a
+	 * name or a priority, so those are ignored; the runnable is given a fresh {@link Progress}.
+	 */
+	private static ITaskScheduler executorScheduler(Executor executor) {
+		return (name, runnable, priority) -> executor.execute(() -> {
+			try {
+				runnable.run(new Progress(name));
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
 			}
 		});
 	}
@@ -96,25 +141,19 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 	}
 
 	private void scheduleTask(Task<T, SingleTaskExecutor<T>> tableTask) throws Exception {
-		m_executor.schedule("Run#" + tableTask.getItem().toString()
+		m_scheduler.schedule("Run#" + tableTask.getItem().toString()
 			, tableTask
-			, (a, x) -> {}
 			, m_priorityCalculator.apply(tableTask.getItem()));
 	}
 
-	protected void onTaskStarted(Task<T, SingleTaskExecutor<T>> exec) {
-	}
 
-	protected void onFinish(Task<T, SingleTaskExecutor<T>> dx) {
-	}
-
-	protected void handleCancelledAfter(Task<T, SingleTaskExecutor<T>> task) {
+	protected void handleCancelledAfter(@NonNull Task<T, SingleTaskExecutor<T>> task) throws Exception {
 	}
 
 	/**
 	 * Called with all finished tasks AFTER the complete run finishes.
 	 */
-	protected void handleFinishedAfter(Task<T, SingleTaskExecutor<T>> finished) {
+	protected void handleFinishedAfter(@NonNull Task<T, SingleTaskExecutor<T>> finished) throws Exception {
 	}
 
 	public List<Task<T, SingleTaskExecutor<T>>> getAllTasks() {
@@ -131,6 +170,21 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 
 	public List<Task<T, SingleTaskExecutor<T>>> getRunningTasks() {
 		return m_taskSource.getRunning();
+	}
+
+	/**
+	 * Get all tasks that failed execution with an exception (this does not include tasks that were
+	 * cancelled because a dependency failed).
+	 */
+	public List<Task<T, SingleTaskExecutor<T>>> getFailedTasks() {
+		return m_taskSource.getFailedTasks();
+	}
+
+	/**
+	 * Get all tasks that never ran because one of their dependencies failed.
+	 */
+	public Set<Task<T, SingleTaskExecutor<T>>> getCancelledTasks() {
+		return m_taskSource.getCancelledSet();
 	}
 
 

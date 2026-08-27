@@ -74,7 +74,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		default void onTaskStarted(Task<V, X> task) throws Exception {
 		}
 
-		default void onTaskFinished(Task<V, X> task, @Nullable Throwable failure) throws Exception {
+		default void onTaskFinished(Task<V, X> task, TaskState how, @Nullable Throwable failure) throws Exception {
 		}
 	}
 
@@ -269,7 +269,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			notifyAll();										// Some state changed, notify waiters
 		}
 
-		m_listeners.forEach(a -> ExceptionUtil.silentFails(() -> a.onTaskFinished(task, exception)));
+		m_listeners.forEach(a -> ExceptionUtil.silentFails(() -> a.onTaskFinished(task, task.getState(), exception)));
 	}
 
 	/**
@@ -456,6 +456,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 						m_source.m_todo.remove(parent);
 						m_source.m_cancelledSet.add(parent);
 						m_source.m_allDoneSet.add(parent);
+						m_source.m_listeners.forEach(a -> ExceptionUtil.silentFails(() -> a.onTaskFinished(parent, TaskState.CANCELLED, null)));
 
 						if(m_source.m_cancelChildrenOnError)
 							cancelChildren(failedTask);
@@ -480,6 +481,8 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 					child.cancelChildren(failedTask);
 					m_source.m_cancelledSet.add(child);
 					m_source.m_allDoneSet.add(child);
+
+					m_source.m_listeners.forEach(a -> ExceptionUtil.silentFails(() -> a.onTaskFinished(child, TaskState.CANCELLED, null)));
 				}
 			}
 			m_children.clear();
