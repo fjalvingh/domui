@@ -1,6 +1,5 @@
 package to.etc.parallelrunner;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.FunctionEx;
 import to.etc.parallelrunner.DependentTaskSource.ITaskListener;
@@ -117,15 +116,15 @@ final public class DependentTaskRunner<T extends IAsyncRunnable> {
 		System.out.println("** All finished");
 
 		//-- All done; dump their log info
-		List<Task<T, SingleTaskExecutor<T>>> fl = getFinishedList();
-		for(Task<T, SingleTaskExecutor<T>> finished: fl) {
-			handleFinishedAfter(finished);
-		}
+		//List<Task<T, SingleTaskExecutor<T>>> fl = getFinishedList();
+		//for(Task<T, SingleTaskExecutor<T>> finished: fl) {
+		//	handleFinishedAfter(finished);
+		//}
 
-		//-- Also dump info for all cancelled thingies.
-		for(Task<T, SingleTaskExecutor<T>> task: m_taskSource.getCancelledSet()) {
-			handleCancelledAfter(task);
-		}
+		////-- Also dump info for all cancelled thingies.
+		//for(Task<T, SingleTaskExecutor<T>> task: m_taskSource.getCancelledSet()) {
+		//	handleCancelledAfter(task);
+		//}
 	}
 
 	private SingleTaskExecutor<T> convertTaskToRunner(Task<T, SingleTaskExecutor<T>> task) {
@@ -147,14 +146,14 @@ final public class DependentTaskRunner<T extends IAsyncRunnable> {
 	}
 
 
-	protected void handleCancelledAfter(@NonNull Task<T, SingleTaskExecutor<T>> task) throws Exception {
-	}
-
-	/**
-	 * Called with all finished tasks AFTER the complete run finishes.
-	 */
-	protected void handleFinishedAfter(@NonNull Task<T, SingleTaskExecutor<T>> finished) throws Exception {
-	}
+	//protected void handleCancelledAfter(@NonNull Task<T, SingleTaskExecutor<T>> task) throws Exception {
+	//}
+	//
+	///**
+	// * Called with all finished tasks AFTER the complete run finishes.
+	// */
+	//protected void handleFinishedAfter(@NonNull Task<T, SingleTaskExecutor<T>> finished) throws Exception {
+	//}
 
 	public List<Task<T, SingleTaskExecutor<T>>> getAllTasks() {
 		return m_taskSource.getAllTasks();

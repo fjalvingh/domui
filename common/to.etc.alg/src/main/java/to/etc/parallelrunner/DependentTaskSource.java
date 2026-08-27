@@ -237,6 +237,8 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			X executor = m_executorFactory.apply(task);
 			task.setExecutor(executor);
 			task.setStartTime(new Date());
+			m_listeners.forEach(a -> ExceptionUtil.silentFails(() -> a.onTaskStarted(task)));
+
 			executor.run(progress);
 		} catch(Exception | Error x) {
 			if(m_logErrors) {
