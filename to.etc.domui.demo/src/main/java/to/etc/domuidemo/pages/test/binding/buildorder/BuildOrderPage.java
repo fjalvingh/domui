@@ -13,12 +13,17 @@ import to.etc.domui.dom.html.*;
  * Created on 25-6-17.
  */
 public class BuildOrderPage extends UrlPage {
+	private ContentPanel m_cp;
+
 	@Override public void createContent() throws Exception {
-		add(new DefaultButton("ClickMe", c -> openNext()));
+		ContentPanel cp = m_cp = new ContentPanel();
+		add(cp);
+
+		cp.add(new DefaultButton("ClickMe", c -> openNext()));
 	}
 
 	private void openNext() {
-		add(new TestComp1());
+		m_cp.add(new TestComp1());
 	}
 
 	public static class TestComp1 extends Div {

@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.overview.input;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.upload.FileUploadMultiple;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.Div;
@@ -15,12 +16,17 @@ import java.io.IOException;
 import java.util.List;
 
 public class DemoFileUpload extends UrlPage {
+	private ContentPanel m_cp;
+
 
 	@Override
 	public void createContent() {
+		ContentPanel cp = m_cp = new ContentPanel();
+		add(cp);
+
 		Div d = new Div();
-		add(d);
-		add(new BR());
+		cp.add(d);
+		cp.add(new BR());
 
 		Label lab = new Label("Select a file to upload : ");
 		d.add(lab);
@@ -43,16 +49,16 @@ public class DemoFileUpload extends UrlPage {
 	void showHashes(FileUploadMultiple upload) throws IOException {
 		List<UploadItem> uil = upload.getValue();
 		if(null == uil || uil.isEmpty()) {
-			add(new BR());
-			add(new Label("No files uploaded !"));
+			m_cp.add(new BR());
+			m_cp.add(new Label("No files uploaded !"));
 			return;
 		}
 
 		for(UploadItem ui : uil) {
-			add(new BR());
+			m_cp.add(new BR());
 			String calcHash = StringTool.toHex(FileTool.hashFile(ui.getFile()));
 			Label lab = new Label("Hash of file " + ui.getRemoteFileName() + " is " + calcHash);
-			add(lab);
+			m_cp.add(lab);
 		}
 	}
 }

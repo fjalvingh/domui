@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.plotly;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.plotly.PlotlyGraph;
 import to.etc.domui.component.plotly.traces.GaugeDataSource;
@@ -14,20 +15,23 @@ import to.etc.domui.dom.html.UrlPage;
 public class PlotlyGaugePage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		PlotlyGraph.initialize(this);
-		add(new HTag(1, "Gauges"));
+		cp.add(new HTag(1, "Gauges"));
 
 		PlotlyGraph graph = new PlotlyGraph();
-		add(graph);
+		cp.add(graph);
 		graph.setDisplay(DisplayType.INLINE_BLOCK);
 		graph.setHeight("300px");
 		graph.setWidth("300px");
 		graph.setSource(new GaugeDataSource(98, "Valid"));
 
-		add(new VerticalSpacer(20));
-		add(new HTag(2, "And a more formatted one"));
+		cp.add(new VerticalSpacer(20));
+		cp.add(new HTag(2, "And a more formatted one"));
 		graph = new PlotlyGraph();
-		add(graph);
+		cp.add(graph);
 		graph.setDisplay(DisplayType.INLINE_BLOCK);
 		graph.setHeight("500px");
 		graph.setWidth("500px");

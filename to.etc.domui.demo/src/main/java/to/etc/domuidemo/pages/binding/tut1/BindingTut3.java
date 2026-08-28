@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.binding.tut1;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.dom.html.UrlPage;
@@ -14,14 +15,17 @@ import java.util.stream.Collectors;
  */
 final public class BindingTut3 extends UrlPage {
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		List<CssColor> cssColors = CssColor.calculateColors(16);
 		List<String> list = cssColors.stream().map(c -> c.toString()).collect(Collectors.toList());
 
 		ComboLookup2<String> colorC = new ComboLookup2<>(list);
-		add(colorC);
+		cp.add(colorC);
 
 		VerticalSpacer vs = new VerticalSpacer(50);
-		add(vs);
+		cp.add(vs);
 		vs.setBackgroundColor("#000000");
 
 		colorC.bind().to(vs, "backgroundColor");

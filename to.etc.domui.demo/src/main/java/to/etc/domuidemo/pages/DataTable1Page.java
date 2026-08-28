@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
@@ -16,6 +17,9 @@ import to.etc.webapp.query.QCriteria;
  */
 public class DataTable1Page extends UrlPage {
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		QCriteria<Invoice> q = QCriteria.create(Invoice.class);
 		SimpleSearchModel<Invoice> sm = new SimpleSearchModel<>(this, q);
 
@@ -27,8 +31,8 @@ public class DataTable1Page extends UrlPage {
 		rr.column("total").label("Amount");
 		DataTable<Invoice> dt = new DataTable<>(sm, rr);
 		dt.setPageSize(25);
-		add(new DataPager(dt));
-		add(dt);
-		add(new DataPager(dt));
+		cp.add(new DataPager(dt));
+		cp.add(dt);
+		cp.add(new DataPager(dt));
 	}
 }

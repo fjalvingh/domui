@@ -14,9 +14,10 @@ import java.io.File;
 public class DemoCKEditor extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		add(new HTag(1, "Fixed size CKEditor"));
 		ContentPanel d = new ContentPanel();
 		add(d);
+
+		d.add(new HTag(1, "Fixed size CKEditor"));
 
 		//Div cont = new Div();
 		//cont.setDisplay(DisplayType.BLOCK);
@@ -30,7 +31,7 @@ public class DemoCKEditor extends UrlPage {
 		cke.setHeight("100%");
 		d.add(cke);
 
-		add(new VerticalSpacer(10));
+		d.add(new VerticalSpacer(10));
 		Div res = new Div();
 		d.add(res);
 

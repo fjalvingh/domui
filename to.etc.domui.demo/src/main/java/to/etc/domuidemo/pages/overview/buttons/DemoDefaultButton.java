@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.overview.buttons;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.misc.MsgBox.Type;
@@ -13,8 +14,11 @@ public class DemoDefaultButton extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel contentPanel = new ContentPanel();
+		add(contentPanel);
+
 		CenterPanel cp = new CenterPanel();
-		add(cp);
+		contentPanel.add(cp);
 
 		cp.add("This is the default button, called DefaultButton: ");
 		DefaultButton db = new DefaultButton("DefaultButton");

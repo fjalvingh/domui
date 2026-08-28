@@ -118,7 +118,53 @@ Steps:
         Notes" section was removed and the current fact recorded under Key
         Technical Details.
 
+- [x] **Get the demo application into a better state (structural pass).** Three
+      mechanical rules applied across `to.etc.domui.demo`; 118 files changed,
+      module compiles and its 9 unit tests pass.
+      - *Header-like components replaced by `HTag`.* `Caption` and
+        `CaptionedHeader` are gone from every page that used them as an ordinary
+        header (12 files). Convention applied: `HTag(1)` for a page's own title,
+        `HTag(2)` for a section inside a page or fragment. `MenuPage.addCaption2()`
+        was dead code (no callers) and was deleted with it.
+        **Left alone deliberately** - these exist to show the raw component:
+        `pages/overview/layout/DemoCaption`, `DemoCaptionedHeader`,
+        `DemoCaptionedPanel`, `pages/basic/CaptionsDemoPage` and the panels/headers
+        tab of `pages/BasicOverviewPage`.
+      - *form4 `FormBuilder`.* Nothing to convert: `component2.form4.FormBuilder`
+        is already the only form builder in the framework and all 25 demo imports
+        were it. The real defect was elsewhere - 11 pages built a form with
+        `new FormBuilder(this)`, which puts the form on the page and outside the
+        content panel; those now pass the panel. `Text2LayoutTestPage`'s
+        "Without form4 builder" section is a deliberate raw comparison and stays.
+      - *Every page's content inside a `ContentPanel`* (`.ui-cpnl` is what supplies
+        the page padding). 114 of 129 direct `UrlPage` subclasses now have one.
+        Where a helper method or a click handler adds to the page, the panel is
+        held in an `m_cp` field, matching the existing style in `MenuPage`.
+        `AbstractSearchPage` and `BasicPage` gained a `contentPanel()` accessor so
+        their subclasses share one panel rather than each making their own.
+        **Deliberately without a panel:** the six `MenuPage` subclasses (their
+        `dm-content-links` / `dm-expl-panel` CSS already supplies margins, so a
+        panel would double-inset them); the eight `pages/test/msgbox/*` pages
+        (they only open a MsgBox and have no page content); `Application`,
+        `MenuPage`, `WikiExplanationPage` and `TrackDetails` (not content pages);
+        and `OldHome` / `BasicPage`, see below. Overlays stay attached to the page
+        itself, not the panel: the `FloatingWindow` in `BasicOverviewPage` and the
+        title bar in `BasicPage`.
+
 Candidates still open, offered as input - not agreed scope:
+
+- `pages/OldHome.java` is an unreferenced legacy page (nothing links to it, though
+  as a `UrlPage` it stays reachable by URL). Delete?
+- `pages/special/BasicPage.java` is marked `@Deprecated` and documents itself as
+  "DO NOT USE - ancient and badly written" - but it is **live**: `BasicListPage`
+  extends it, and both binding-tutorial `InvoiceListPage`s extend that. The
+  tutorial currently teaches a class the framework tells people not to use.
+  This wants fixing in phase 3.
+- `pages/cddb/TrackDetails.java` is an empty stub page with no content at all.
+- `pages/overview/layout/DemoAppTitle.java` renders a full-width `AppPageTitleBar`
+  and now sits inside a padded panel; worth eyeballing in the browser.
+- The demo mixes its Selenium/JUnit fixture pages (`pages/test/**`) into the same
+  navigable application as the tutorial pages - already noted as a phase 3 item.
 
 - `pom.xml` around line 152 carries a stale comment saying "We cannot upgrade to
   jetty 11 because it uses EE 9", directly above `<jetty.version>11.0.26</jetty.version>`

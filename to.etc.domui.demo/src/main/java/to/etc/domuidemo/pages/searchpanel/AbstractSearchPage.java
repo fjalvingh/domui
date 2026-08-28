@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.searchpanel;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
@@ -17,8 +18,22 @@ public class AbstractSearchPage<T> extends UrlPage {
 
 	private DataTable<T> m_table;
 
+	private ContentPanel m_cp;
+
 	public AbstractSearchPage(Class<T> clazz) {
 		m_clazz = clazz;
+	}
+
+	/**
+	 * The panel holding this page's content; it provides the page padding.
+	 */
+	protected ContentPanel contentPanel() {
+		ContentPanel cp = m_cp;
+		if(null == cp) {
+			cp = m_cp = new ContentPanel();
+			add(cp);
+		}
+		return cp;
 	}
 
 	protected void search(SearchPanel<T> lf) throws Exception {
@@ -39,8 +54,8 @@ public class AbstractSearchPage<T> extends UrlPage {
 		if(null == table) {
 			RowRenderer<T> rr = createRowRenderer();
 			table = m_table = new DataTable<>(model, rr);
-			add(table);
-			add(new DataPager(table));
+			contentPanel().add(table);
+			contentPanel().add(new DataPager(table));
 			table.setPageSize(10);
 		} else {
 			table.setModel(model);

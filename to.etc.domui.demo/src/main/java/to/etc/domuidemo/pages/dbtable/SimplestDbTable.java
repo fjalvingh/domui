@@ -1,11 +1,12 @@
 package to.etc.domuidemo.pages.dbtable;
 
-import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.derbydata.db.Artist;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.webapp.query.QCriteria;
 
@@ -21,7 +22,10 @@ import to.etc.webapp.query.QCriteria;
 public class SimplestDbTable extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		add(new CaptionedHeader("Artists in the database"));
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		cp.add(new HTag(1, "Artists in the database"));
 
 		// Just select all artists. This does not query but /specifies/ the query to do
 		QCriteria<Artist> q = QCriteria.create(Artist.class);
@@ -31,10 +35,10 @@ public class SimplestDbTable extends UrlPage {
 
 		RowRenderer<Artist> rr = new RowRenderer<>(Artist.class);
 		DataTable<Artist> dt = new DataTable<>(model, rr);
-		add(dt);
+		cp.add(dt);
 		dt.setPageSize(25);
 
 		DataPager dp = new DataPager(dt);
-		add(dp);
+		cp.add(dp);
 	}
 }

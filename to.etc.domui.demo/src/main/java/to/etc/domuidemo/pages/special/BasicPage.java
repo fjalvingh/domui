@@ -24,6 +24,7 @@
  */
 package to.etc.domuidemo.pages.special;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
@@ -40,6 +41,8 @@ public class BasicPage<T> extends UrlPage {
 	private Class<T> m_baseClass;
 
 	private BasePageTitleBar m_titleBar;
+
+	private ContentPanel m_cp;
 
 	public BasicPage(Class<T> baseClass) {
 		m_baseClass = baseClass;
@@ -72,6 +75,18 @@ public class BasicPage<T> extends UrlPage {
 	}
 
 	protected void addPageHeaders() throws Exception {
+	}
+
+	/**
+	 * The panel holding this page's content; it provides the page padding.
+	 */
+	protected ContentPanel contentPanel() {
+		ContentPanel cp = m_cp;
+		if(null == cp) {
+			cp = m_cp = new ContentPanel();
+			add(cp);
+		}
+		return cp;
 	}
 
 	/**

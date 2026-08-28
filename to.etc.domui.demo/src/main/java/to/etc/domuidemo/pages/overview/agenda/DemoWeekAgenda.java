@@ -14,6 +14,7 @@ import to.etc.domui.component.agenda.WeekAgendaComponent.IItemRenderer;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.DateInput;
 import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.layout.FloatingWindow;
 import to.etc.domui.component.layout.SplitPanel;
 import to.etc.domui.component.misc.Icon;
@@ -41,6 +42,9 @@ public class DemoWeekAgenda extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		Div left = new Div();
 		Calendar cal = Calendar.getInstance();
 		Date sel = cal.getTime();
@@ -62,7 +66,7 @@ public class DemoWeekAgenda extends UrlPage {
 		m_agenda = wac;
 
 		SplitPanel sp = new SplitPanel(left, "220px", wac, "");
-		add(sp);
+		cp.add(sp);
 		sp.setWidth("100%");
 
 		BasicScheduleModel<ScheduleItem> m = getScheduleModel();
@@ -76,7 +80,7 @@ public class DemoWeekAgenda extends UrlPage {
 				addFake();
 			}
 		});
-		add(b);
+		cp.add(b);
 
 		IItemRenderer<ScheduleItem> care = new DefaultScheduleItemRenderer<ScheduleItem>() {
 			@Override

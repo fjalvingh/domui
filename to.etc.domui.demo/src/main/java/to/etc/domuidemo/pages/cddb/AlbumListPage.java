@@ -25,15 +25,18 @@ final public class AlbumListPage extends UrlPage {
 	@Nullable
 	private DataTable<Album> m_table;
 
+	@Nullable
+	private ContentPanel m_cp;
+
 	@Override @Nullable public String getPageTitle() {
 		return "Album List";
 	}
 
 	@Override public void createContent() throws Exception {
-		add(new HTag(1, "Find an album"));
-
-		ContentPanel cp = new ContentPanel();
+		ContentPanel cp = m_cp = new ContentPanel();
 		add(cp);
+
+		cp.add(new HTag(1, "Find an album"));
 
 		SearchPanel<Album> lookup = new SearchPanel<>(Album.class);
 		cp.add(lookup);
@@ -57,12 +60,21 @@ final public class AlbumListPage extends UrlPage {
 			table = m_table = new DataTable<>(model, rr);
 			table.setPageSize(20);
 
-			add(new DataPager(table));
-			add(table);
-			add(new DataPager(table));
+			ContentPanel cp = contentPanel();
+			cp.add(new DataPager(table));
+			cp.add(table);
+			cp.add(new DataPager(table));
 		} else {
 			table.setModel(model);
 		}
+	}
+
+	@NonNull
+	private ContentPanel contentPanel() {
+		ContentPanel cp = m_cp;
+		if(null == cp)
+			throw new IllegalStateException("The content panel is not yet created");
+		return cp;
 	}
 
 	@NonNull

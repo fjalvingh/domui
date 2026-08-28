@@ -25,6 +25,7 @@
 package to.etc.domuidemo.pages.special;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
@@ -95,7 +96,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 		//-- Lookup thingy.
 		m_lookupForm = new SearchPanel<T>(getBaseClass());
-		add(m_lookupForm);
+		contentPanel().add(m_lookupForm);
 		m_lookupForm.setClicked(new IClicked<SearchPanel<T>>() {
 			@Override
 			public void clicked(@NonNull SearchPanel<T> b) throws Exception {
@@ -120,8 +121,8 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		customizeSearchPanel(m_lookupForm);
 
 		if(m_result != null) {
-			add(m_result);
-			add(m_pager);
+			contentPanel().add(m_result);
+			contentPanel().add(m_pager);
 		}
 
 		if(isSearchImmediately()) {
@@ -175,7 +176,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 			m_result = new DataTable<T>(model, renderer);
 
-			add(m_result);
+			contentPanel().add(m_result);
 			m_result.setPageSize(15);
 			m_result.setTableWidth("100%");
 			m_result.setTestID("resultBasicVpListPage");
@@ -183,7 +184,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			//-- Add the pager,
 			m_pager = new DataPager(m_result);
 
-			add(m_pager);
+			contentPanel().add(m_pager);
 			m_pager.setTestID("pagerBasicVpListPage");
 
 		} else {

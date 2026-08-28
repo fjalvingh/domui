@@ -2,6 +2,7 @@ package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.htmleditor.HtmlEditor;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.FileTool;
@@ -19,9 +20,12 @@ public class HtmlEditorTestPage extends UrlPage {
 	private String m_twoText;
 
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		m_oneText = FileTool.readResourceAsString(getClass(), "editor1.html", "utf-8");
 
-		FormBuilder fb = new FormBuilder(this);
+		FormBuilder fb = new FormBuilder(cp);
 
 		HtmlEditor one = new HtmlEditor(80, 10);
 		one.setMandatory(true);
@@ -31,7 +35,7 @@ public class HtmlEditorTestPage extends UrlPage {
 		two.setMandatory(true);
 		fb.label("Two").property(this, "twoText").control(two);
 
-		add(new DefaultButton("validate", a -> validate()));
+		cp.add(new DefaultButton("validate", a -> validate()));
 	}
 
 	private void validate() throws Exception {

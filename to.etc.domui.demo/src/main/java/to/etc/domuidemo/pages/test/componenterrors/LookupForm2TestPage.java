@@ -1,6 +1,6 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
-import to.etc.domui.component.layout.Caption;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.searchpanel.lookupcontrols.LookupQueryBuilderResult;
@@ -10,6 +10,7 @@ import to.etc.domui.derbydata.db.Genre;
 import to.etc.domui.derbydata.db.Track;
 import to.etc.domui.derbydata.db.Track_;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.Pre;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.webapp.query.QCriteria;
@@ -27,9 +28,12 @@ public class LookupForm2TestPage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		//-- Segment modeled to reproduce github issue #6
 		SearchPanel<Track> lf1 = new SearchPanel<>(Track.class);
-		add(lf1);
+		cp.add(lf1);
 
 		List<Album> list = getSharedContext().query(QCriteria.create(Album.class)); //.like("name", "a%"));
 		ComboLookup2<Album> trackL1 = new ComboLookup2<>(list);
@@ -64,9 +68,9 @@ public class LookupForm2TestPage extends UrlPage {
 			renderCriteria(lf1.getCriteria());
 		});
 
-		add(new VerticalSpacer(10));
-		add(new Caption("Criteria"));
-		add(m_res);
+		cp.add(new VerticalSpacer(10));
+		cp.add(new HTag(2, "Criteria"));
+		cp.add(m_res);
 
 	}
 

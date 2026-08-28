@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.plotly;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.plotly.IPlotlyDataSource;
 import to.etc.domui.component.plotly.IPlotlyDataset;
@@ -30,30 +31,33 @@ import java.util.stream.Collectors;
 public class PlotlyPie1 extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		PlotlyGraph.initialize(this);
-		add(new HTag(1, "Plotly - Pie charts"));
+		cp.add(new HTag(1, "Plotly - Pie charts"));
 
 		PlotlyGraph graph = new PlotlyGraph();
-		add(graph);
+		cp.add(graph);
 		graph.setHeight("400px");
 		graph.setWidth("400px");
 		graph.setDisplay(DisplayType.INLINE_BLOCK);
 		graph.setSource(new PlotlyPieSource(0.0D));
 
-		add(new VerticalSpacer(20));
-		add(new HTag(2, "And a donut chart using, well, a hole (and an annotation in the middle)"));
+		cp.add(new VerticalSpacer(20));
+		cp.add(new HTag(2, "And a donut chart using, well, a hole (and an annotation in the middle)"));
 		graph = new PlotlyGraph();
-		add(graph);
+		cp.add(graph);
 		graph.setHeight("400px");
 		graph.setWidth("400px");
 		graph.setDisplay(DisplayType.INLINE_BLOCK);
 		graph.setSource(new PlotlyPieSource(0.4D));
 
 		//-- Polypi
-		add(new VerticalSpacer(20));
-		add(new HTag(2, "Have a lot of pies!"));
+		cp.add(new VerticalSpacer(20));
+		cp.add(new HTag(2, "Have a lot of pies!"));
 		graph = new PlotlyGraph();
-		add(graph);
+		cp.add(graph);
 		graph.setHeight("300px");
 		graph.setWidth("600px");
 		graph.setDisplay(DisplayType.INLINE_BLOCK);

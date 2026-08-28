@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.misc;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.pages.*;
@@ -8,9 +9,12 @@ import to.etc.domuidemo.pages.overview.input.*;
 public class DemoALink extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		//-- Simple link
 		Div	d	= new Div();
-		add(d);
+		cp.add(d);
 		ATag	al	= new ATag();
 		d.add(al);
 		al.add(new TextNode("Primitive link where clicked and href are different"));
@@ -24,13 +28,13 @@ public class DemoALink extends UrlPage {
 		});
 
 		d	= new Div();
-		add(d);
+		cp.add(d);
 		ALink l = new ALink(DemoDateInput.class);
 		d.add(l);
 		l.setText("Link component moving to another page");
 
 		d	= new Div();
-		add(d);
+		cp.add(d);
 		l = new ALink(MiniPage.class);
 		d.add(l);
 		l.setText("Popup window link creating a new DomUI WindowSession");

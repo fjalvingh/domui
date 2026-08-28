@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.overview.input;
 
 import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Label;
@@ -11,8 +12,11 @@ import java.math.BigDecimal;
 public class DemoText extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		final Div d = new Div();
-		add(d);
+		cp.add(d);
 
 		Label l = new Label("String");
 		d.add(l);

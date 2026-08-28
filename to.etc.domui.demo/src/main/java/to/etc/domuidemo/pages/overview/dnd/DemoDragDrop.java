@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.dnd;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -16,16 +17,19 @@ public class DemoDragDrop extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		m_diva	= new Div();
-		add(m_diva);
+		cp.add(m_diva);
 		m_diva.setHeight("400px");
 		m_diva.setBorder(1, "red", "dotted");
 		m_diva.setDropHandler(DROP_HANDLER);
 
-		add(new VerticalSpacer(10));
-		add(new MsgDiv("Select your pet and drag it to the window above. Deselect by dragging it down again."));
+		cp.add(new VerticalSpacer(10));
+		cp.add(new MsgDiv("Select your pet and drag it to the window above. Deselect by dragging it down again."));
 		m_divb = new Div();
-		add(m_divb);
+		cp.add(m_divb);
 		m_divb.setHeight("200px");
 		m_divb.setBorder(1, "green", "solid");
 		m_divb.setDropHandler(DROP_HANDLER2);

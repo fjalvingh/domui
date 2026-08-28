@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.test.binding.binderrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
@@ -18,20 +19,23 @@ final public class BindvalidationErrorPage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		m_value = "bad";
 		TextArea ta = new TextArea(80, 2);
 		ta.addValidator(new TestValueValidator());
-		FormBuilder fb = new FormBuilder(this);
+		FormBuilder fb = new FormBuilder(cp);
 		fb.property(this, "value").control(ta);
 
 		ta.setTestID("text");
 
 		DefaultButton click = new DefaultButton("Click", a -> handleClick());
-		add(click);
+		cp.add(click);
 		click.setTestID("click");
 
-		add(new VerticalSpacer(10));
-		add(m_resultDiv);
+		cp.add(new VerticalSpacer(10));
+		cp.add(m_resultDiv);
 		m_resultDiv.setTestID("result");
 	}
 

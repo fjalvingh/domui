@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.allcomponents;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.UrlPage;
@@ -10,8 +11,11 @@ import to.etc.domui.dom.html.UrlPage;
  */
 public class AllComponents1Page extends UrlPage {
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		Div container = new Div("flex-table");
-		add(container);
+		cp.add(container);
 
 		container.add(new HTag(1, "Miscellany").css("ui-header flex-table-header"));
 		container.add(new FileUploadFragment());

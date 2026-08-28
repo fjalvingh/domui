@@ -6,8 +6,11 @@ import to.etc.domui.dom.html.*;
 public class DemoScrollableTabPanel extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		ScrollableTabPanel tp = new ScrollableTabPanel();
-		add(tp);
+		cp.add(tp);
 
 		for(int i = 0; i < 20; i++) {
 			Div d = new Div();

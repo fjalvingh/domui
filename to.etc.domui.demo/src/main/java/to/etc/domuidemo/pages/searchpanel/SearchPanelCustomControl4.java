@@ -24,8 +24,7 @@ public class SearchPanelCustomControl4 extends AbstractSearchPage<Track> {
 	}
 
 	@Override public void createContent() throws Exception {
-		ContentPanel cp = new ContentPanel();
-		add(cp);
+		ContentPanel cp = contentPanel();
 
 		SearchPanel<Track> lf = new SearchPanel<>(Track.class);
 		cp.add(lf);

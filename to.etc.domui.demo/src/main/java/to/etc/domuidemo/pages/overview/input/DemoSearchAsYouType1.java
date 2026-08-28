@@ -39,7 +39,7 @@ public class DemoSearchAsYouType1 extends UrlPage {
 		cp.add(new VerticalSpacer(10));
 		DefaultButton b = new DefaultButton("validate", a -> {
 			Div res = new Div();
-			add(res);
+			cp.add(res);
 			res.add("Result is " + st.getValue());
 		});
 		cp.add(b);

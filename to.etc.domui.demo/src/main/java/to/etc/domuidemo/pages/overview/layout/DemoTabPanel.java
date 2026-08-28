@@ -6,6 +6,9 @@ import to.etc.domui.dom.html.*;
 public class DemoTabPanel extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		Div a = new Div();
 		a.add("This is content of tab 1");
 
@@ -13,7 +16,7 @@ public class DemoTabPanel extends UrlPage {
 		b.add("And this is tab 2");
 
 		TabPanel p = new TabPanel();
-		add(p);
+		cp.add(p);
 
 		p.add(a, "One");
 		p.add(b, "Two");

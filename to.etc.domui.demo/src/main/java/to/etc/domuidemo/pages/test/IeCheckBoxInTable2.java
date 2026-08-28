@@ -1,11 +1,17 @@
 package to.etc.domuidemo.pages.test;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.html.*;
 
 public class IeCheckBoxInTable2 extends UrlPage {
+	private ContentPanel m_cp;
+
 	@Override
 	public void createContent() throws Exception {
-		TBody b = addTable();
+		ContentPanel cp = m_cp = new ContentPanel();
+		add(cp);
+
+		TBody b = cp.addTable();
 
 		TD cell = b.addRowAndCell();
 		final Checkbox cb = new Checkbox();
@@ -31,11 +37,11 @@ public class IeCheckBoxInTable2 extends UrlPage {
 
 	protected void tdClicked(Checkbox cb) {
 		cb.setValue(Boolean.valueOf(!cb.getValue().booleanValue()));
-		add(new MsgDiv("tdclicked " + cb.getValue()));
+		m_cp.add(new MsgDiv("tdclicked " + cb.getValue()));
 	}
 
 	protected void checkClicked(Checkbox cb) {
-		add(new MsgDiv("checkbox clicked " + cb.getValue()));
+		m_cp.add(new MsgDiv("checkbox clicked " + cb.getValue()));
 	}
 
 }

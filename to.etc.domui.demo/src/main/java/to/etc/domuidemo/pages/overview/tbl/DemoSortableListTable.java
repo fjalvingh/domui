@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.tbl;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.Explanation;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
@@ -19,10 +20,13 @@ final public class DemoSortableListTable extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		Explanation explanation = new Explanation("This shows how you can use a SortableListModel to manipulate any kind of Java List<T> into a data table.");
-		add(explanation);
+		cp.add(explanation);
 		Div d = new Div();
-		add(d);
+		cp.add(d);
 		d.setClear(ClearType.BOTH);
 
 		//-- 1. Prepare a list to use as the basis of the model. Although this comes from the database any list will do of course.
@@ -41,8 +45,8 @@ final public class DemoSortableListTable extends UrlPage {
 		rr.column(Invoice_.billingCity()).ascending();
 		rr.column(Invoice_.total()).ascending();
 		DataTable<Invoice> dt = new DataTable<>(model, rr);
-		add(dt);
+		cp.add(dt);
 		dt.setPageSize(25);
-		add(new DataPager(dt));
+		cp.add(new DataPager(dt));
 	}
 }

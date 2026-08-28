@@ -1,11 +1,15 @@
 package to.etc.domuidemo.pages.test;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 
 public class IeTableBugPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		Table t = new Table();
 		t.setTableBorder(2);
 		TBody body = t.getBody();
@@ -29,6 +33,6 @@ public class IeTableBugPage extends UrlPage {
 		b.setText("bbbbbbbbbbbbbbbb");
 		b.setHeight("100px");
 		body.addRow();
-		add(t);
+		cp.add(t);
 	}
 }

@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.test.binding.order1;
 
 import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.derbydata.db.Customer;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.webapp.query.QCriteria;
@@ -28,8 +29,11 @@ public class DoNotBindControlDottedTestPage extends UrlPage {
 	}
 
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		MyLookup li = new MyLookup();
-		add(li);
+		cp.add(li);
 
 		li.bind("value.id").to(this, "id");
 	}

@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.binding.tut1;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.derbydata.db.Artist;
@@ -19,18 +20,21 @@ final public class BindingTut5 extends UrlPage {
 	private Customer m_customer;
 
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		LookupInput2<Artist> artistC = new LookupInput2<Artist>(QCriteria.create(Artist.class));
-		add(new Div()).add(artistC);
+		cp.add(new Div()).add(artistC);
 		artistC.bind().to(this, "artist");
 
 		LookupInput2<Customer> customerC = new LookupInput2<Customer>(QCriteria.create(Customer.class));
-		add(new Div()).add(customerC);
+		cp.add(new Div()).add(customerC);
 		customerC.bind().to(this, "customer");
 
 		DefaultButton btn = new DefaultButton("Send info", a -> {
 			MsgBox.info(this, "E-mailing " + customerC.getValue() + " with info on " + artistC.getValue());
 		});
-		add(btn);
+		cp.add(btn);
 		btn.bind("disabled").to(this, "buttonDisabled");
 	}
 

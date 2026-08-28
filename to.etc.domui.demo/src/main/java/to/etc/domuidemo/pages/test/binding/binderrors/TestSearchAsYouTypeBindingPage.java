@@ -24,10 +24,10 @@ public class TestSearchAsYouTypeBindingPage extends UrlPage {
 	private Date m_date;
 
 	@Override public void createContent() throws Exception {
-		add(new MessageLine(MsgType.INFO, "Type a year-month pair, like 02-2018"));
-
 		ContentPanel cp = new ContentPanel();
 		add(cp);
+
+		cp.add(new MessageLine(MsgType.INFO, "Type a year-month pair, like 02-2018"));
 
 		List<Date> list = new ArrayList<>();
 		Calendar cal = Calendar.getInstance();
@@ -55,7 +55,7 @@ public class TestSearchAsYouTypeBindingPage extends UrlPage {
 		cp.add(new VerticalSpacer(10));
 		DefaultButton b = new DefaultButton("validate", a -> {
 			Div res = new Div();
-			add(res);
+			cp.add(res);
 			res.add("Result is " + st.getValue() + " and with binding " + getDate());
 		});
 		cp.add(b);

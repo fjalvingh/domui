@@ -4,6 +4,7 @@ import to.etc.domui.component.ace.AceEditor;
 import to.etc.domui.component.ace.AceEditor.Completion;
 import to.etc.domui.component.ace.PositionCalculator;
 import to.etc.domui.component.layout.ButtonBar;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.UrlPage;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
  */
 public class AcePage extends UrlPage {
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		AceEditor.initialize(this);
 
 		AceEditor editor = new AceEditor();
@@ -30,7 +34,7 @@ public class AcePage extends UrlPage {
 		//editor.setTheme("iplastic");
 		editor.setHeight("200px");
 		editor.setWidth("600px");
-		add(editor);
+		cp.add(editor);
 
 		String text = FileTool.readResourceAsString(getClass(), "demojs.js", "utf-8");
 		editor.setValue(text);
@@ -39,7 +43,7 @@ public class AcePage extends UrlPage {
 
 
 		ButtonBar bb = new ButtonBar();
-		add(bb);
+		cp.add(bb);
 		bb.addButton("SetText", a -> {
 			String t2 = FileTool.readResourceAsString(getClass(), "demo2js.js", "utf-8");
 			editor.setValue(t2);

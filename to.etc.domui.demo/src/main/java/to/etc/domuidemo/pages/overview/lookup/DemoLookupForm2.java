@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.lookup;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
@@ -14,10 +15,15 @@ import to.etc.webapp.query.QCriteria;
 public class DemoLookupForm2 extends UrlPage {
 	private DataTable<Invoice> m_tbl;
 
+	private ContentPanel m_cp;
+
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = m_cp = new ContentPanel();
+		add(cp);
+
 		SearchPanel<Invoice> lf = new SearchPanel<>(Invoice.class, "customer", "billingAddress", "billingCity", "invoiceDate");
-		add(lf);
+		cp.add(lf);
 
 		//-- Click handler gets called when search button is pressed.
 		lf.setClicked((IClicked<SearchPanel<Invoice>>) clickednode -> search(clickednode));
@@ -48,10 +54,10 @@ public class DemoLookupForm2 extends UrlPage {
 		rr.column(Invoice_.total()).ascending();
 
 		m_tbl = new DataTable<>(ssm, rr);
-		add(m_tbl);
+		m_cp.add(m_tbl);
 		m_tbl.setPageSize(25);
 
-		add(new DataPager(m_tbl)); // Add a pager too, to navigate the result set.
+		m_cp.add(new DataPager(m_tbl)); // Add a pager too, to navigate the result set.
 	}
 
 

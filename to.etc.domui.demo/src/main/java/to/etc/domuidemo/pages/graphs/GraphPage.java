@@ -4,6 +4,7 @@ import java.awt.*;
 import java.sql.*;
 
 import to.etc.domui.component.dynaima.*;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.query.*;
 
@@ -16,14 +17,17 @@ import to.etc.webapp.query.*;
 public class GraphPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		Div	d	= new MsgDiv("Dynamische images: deze worden op de server gegenereerd via een factory");
-		add(d);
+		cp.add(d);
 		DynaIma		di	= new DynaIma();
-		add(di);
+		cp.add(di);
 		di.setBufferedSource(getHelpdeskSource());
 
 		di	= new DynaIma();
-		add(di);
+		cp.add(di);
 		di.setBufferedSource(getDisSource());
 	}
 

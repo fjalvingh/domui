@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages.overview.htmleditor;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.ckeditor.CKEditor;
 import to.etc.domui.component.htmleditor.FileBasedEditorFileSystem;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
@@ -13,8 +14,11 @@ import java.io.File;
 public class DemoCKEditorResizing extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		setHeight("98%");
-		add(new HTag(1, "Resizing CKEditor"));
+		cp.add(new HTag(1, "Resizing CKEditor"));
 
 		//Div cont = new Div();
 		//cont.setDisplay(DisplayType.BLOCK);
@@ -26,19 +30,19 @@ public class DemoCKEditorResizing extends UrlPage {
 		cke.setValue("Some sample text");
 		cke.setWidth("80%");
 		cke.setHeight("50%");
-		add(cke);
+		cp.add(cke);
 
-		add(new VerticalSpacer(10));
+		cp.add(new VerticalSpacer(10));
 		Div res = new Div();
-		add(res);
+		cp.add(res);
 
 		//-- Optional
 		File f = new File("/");
 		cke.setFileSystem(new FileBasedEditorFileSystem(f));
 
-		add(new DefaultButton("Show HTML", a -> show(res, cke)));
-		add("\u00a0\u00a0");
-		add(new DefaultButton("Set text", a -> cke.setValue("<p>This is <b>new</b> text</p>")));
+		cp.add(new DefaultButton("Show HTML", a -> show(res, cke)));
+		cp.add("\u00a0\u00a0");
+		cp.add(new DefaultButton("Set text", a -> cke.setValue("<p>This is <b>new</b> text</p>")));
 	}
 
 	private void show(Div res, CKEditor cke) {

@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.basic;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
@@ -8,8 +9,11 @@ import to.etc.domui.dom.html.UrlPage;
 public class HelloWorld extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		Div d = new Div();
-		add(d);
+		cp.add(d);
 		d.add("Hello world! Click me!");
 		d.setClicked(new IClicked<Div>() {
 			@Override

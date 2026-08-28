@@ -2,7 +2,7 @@ package to.etc.domuidemo.pages.binding.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.LinkButton;
-import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.tbl.DataPager;
@@ -13,6 +13,7 @@ import to.etc.domui.databinding.observables.IObservableList;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.StringTool;
@@ -32,6 +33,9 @@ public class DemoObservableListPage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		QCriteria<Artist> q = QCriteria.create(Artist.class);
 
 		SimpleSearchModel<Artist> sm = new SimpleSearchModel<>(this, q);
@@ -39,13 +43,13 @@ public class DemoObservableListPage extends UrlPage {
 		rr.column("name").label("Name");
 
 		DataTable<Artist> dt = new DataTable<>(sm, rr);
-		add(dt);
+		cp.add(dt);
 		dt.setPageSize(10);
-		add(new DataPager(dt));
+		cp.add(new DataPager(dt));
 
 		rr.setRowClicked(rowval -> clickedOne(rowval));
-		add(new VerticalSpacer(10));
-		add(m_lower);
+		cp.add(new VerticalSpacer(10));
+		cp.add(m_lower);
 
 	}
 
@@ -54,7 +58,7 @@ public class DemoObservableListPage extends UrlPage {
 		System.out.println("Type is: " + res.getClass());
 
 		m_lower.removeAllChildren();
-		m_lower.add(new CaptionedHeader("Artist: " + a.getName()));
+		m_lower.add(new HTag(2, "Artist: " + a.getName()));
 
 		final IObservableList<Album> ol = (IObservableList<Album>) res;
 

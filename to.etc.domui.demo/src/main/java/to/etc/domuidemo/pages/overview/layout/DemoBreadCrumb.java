@@ -7,9 +7,12 @@ import to.etc.domui.dom.html.*;
 public class DemoBreadCrumb extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		add("The DemoApplication has a breadcrumb attached: you can navigate back to the mainpage.");
-		add(new VerticalSpacer(20));
-		add("The standard look is");
-		add(new BreadCrumb());
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		cp.add("The DemoApplication has a breadcrumb attached: you can navigate back to the mainpage.");
+		cp.add(new VerticalSpacer(20));
+		cp.add("The standard look is");
+		cp.add(new BreadCrumb());
 	}
 }

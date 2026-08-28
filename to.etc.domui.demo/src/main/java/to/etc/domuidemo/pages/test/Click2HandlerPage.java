@@ -1,12 +1,16 @@
 package to.etc.domuidemo.pages.test;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.html.*;
 
 public class Click2HandlerPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		Div d = new Div();
-		add(d);
+		cp.add(d);
 		d.setHeight("200px");
 		d.setBorder(1, "red", "dotted");
 		d.add("Click me");

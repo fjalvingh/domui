@@ -1,9 +1,9 @@
 package to.etc.domuidemo.pages.cddb;
 
-import to.etc.domui.component.layout.Caption;
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.derbydata.db.Track;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.UIGoto;
 
@@ -13,10 +13,9 @@ import to.etc.domui.state.UIGoto;
  */
 public class CdCollection extends UrlPage {
 	@Override public void createContent() throws Exception {
-		add(new Caption("Find your favorite track"));
-
 		ContentPanel cp = new ContentPanel();
 		add(cp);
+		cp.add(new HTag(1, "Find your favorite track"));
 
 		SearchPanel<Track> lookup = new SearchPanel<>(Track.class);
 		cp.add(lookup);

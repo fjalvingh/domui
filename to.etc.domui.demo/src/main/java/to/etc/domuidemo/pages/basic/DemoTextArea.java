@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages.basic;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.dom.html.HTag;
 
 /**
  * Test page for showing TextArea.
@@ -13,11 +14,16 @@ import to.etc.domui.dom.html.*;
 public class DemoTextArea extends UrlPage {
 	private TextArea m_area;
 
+	private ContentPanel m_cp;
+
 	@Override
 	public void createContent() throws Exception {
-		add(new Caption("Text area test."));
+		ContentPanel cp = m_cp = new ContentPanel();
+		add(cp);
+
+		cp.add(new HTag(1, "Text area test."));
 		m_area = new TextArea(80, 5);
-		add(m_area);
+		cp.add(m_area);
 
 		DefaultButton b = new DefaultButton("Save", new IClicked<DefaultButton>() {
 			@Override
@@ -25,7 +31,7 @@ public class DemoTextArea extends UrlPage {
 				handleClick();
 			}
 		});
-		add(b);
+		cp.add(b);
 	}
 
 	void handleClick() {
@@ -36,6 +42,6 @@ public class DemoTextArea extends UrlPage {
 		Div d = new Div();
 		d.setCssClass("ui-pre");
 		d.add(text);
-		add(d);
+		m_cp.add(d);
 	}
 }

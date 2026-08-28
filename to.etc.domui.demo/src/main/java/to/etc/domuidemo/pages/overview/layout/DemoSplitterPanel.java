@@ -8,8 +8,13 @@ public class DemoSplitterPanel extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 
+		ContentPanel cp = new ContentPanel();
+
+		add(cp);
+
+
 		Div d = new Div();
-		add(d);
+		cp.add(d);
 		d.setWidth("90%");
 		d.setHeight("400px");
 		d.setBorder(1, "grey", "solid");

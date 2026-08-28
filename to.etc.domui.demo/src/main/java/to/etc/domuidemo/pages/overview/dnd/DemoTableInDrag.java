@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.dnd;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -19,12 +20,15 @@ public class DemoTableInDrag extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
-		add(new Explanation("Dit voorbeeld showt drag-and-drop in <i>row</i> mode. In deze mode is de dropzone een DIV die gekoppeld is aan een TBODY. De " +
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		cp.add(new Explanation("Dit voorbeeld showt drag-and-drop in <i>row</i> mode. In deze mode is de dropzone een DIV die gekoppeld is aan een TBODY. De " +
 				" gesleepte objecten worden als 'row' toegevoegd in de TBODY, en dat wordt ook visueel weergegeven door het insert point te markeren. De locatie" +
 				" waar het object terechtkomt wordt bepaald door het slepen."));
 
 		Table	root = new Table();							// Horizontal divider.
-		add(root);
+		cp.add(root);
 		root.setTableWidth("100%");
 		TBody	b = new TBody();
 		root.add(b);

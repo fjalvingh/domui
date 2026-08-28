@@ -3,13 +3,17 @@ package to.etc.domuidemo.pages.overview.input;
 import java.util.*;
 
 import to.etc.domui.component.input.*;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.html.*;
 
 public class DemoComboFixed extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		final Div d = new Div();
-		add(d);
+		cp.add(d);
 
 		List<ValueLabelPair<Integer>> vlist = new ArrayList<ValueLabelPair<Integer>>();
 		vlist.add(new ValueLabelPair<Integer>(Integer.valueOf(1), "The number one"));

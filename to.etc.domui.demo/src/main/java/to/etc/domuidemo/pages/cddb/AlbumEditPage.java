@@ -32,11 +32,11 @@ public class AlbumEditPage extends UrlPage {
 		fb.property(m_album, Album_.artist()).control();
 		fb.property(m_album, Album_.title()).control();
 
-		add(new VerticalSpacer(10));
-		add(new ChildFragment<>(m_album, Album_.trackList()));
+		cp.add(new VerticalSpacer(10));
+		cp.add(new ChildFragment<>(m_album, Album_.trackList()));
 
 		ButtonBar2 bb = new ButtonBar2();
-		add(bb);
+		cp.add(bb);
 		bb.addButton("Save", Theme.BTN_SAVE, a -> save());
 	}
 

@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.rxjava;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
@@ -14,10 +15,13 @@ import to.etc.domuidemo.logic.RxTimer;
 public class RxTimePage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		add(new HTag(1, "RxJava timer lifecycle test"));
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		cp.add(new HTag(1, "RxJava timer lifecycle test"));
 
 		Div d = new Div();
-		add(d);
+		cp.add(d);
 		d.setHeight("400px");
 		d.setOverflow(Overflow.AUTO);
 

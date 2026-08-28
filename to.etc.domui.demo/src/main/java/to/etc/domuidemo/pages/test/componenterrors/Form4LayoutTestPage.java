@@ -4,6 +4,7 @@ import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.headers.GenericHeader;
 import to.etc.domui.component.headers.GenericHeader.Type;
 import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component2.form4.FormBuilder;
@@ -45,11 +46,14 @@ public class Form4LayoutTestPage extends UrlPage {
 	private Date m_date = new Date();
 
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		QCriteria<Album> q = QCriteria.create(Album.class).eq("title", "Angel Dust");
 		m_album4 = m_album3 = m_album22 = m_album23 = getSharedContext().queryOne(q);
 
-		add(new GenericHeader(Type.BLUE, "LookupInput variants"));
-		FormBuilder fb = new FormBuilder(this);
+		cp.add(new GenericHeader(Type.BLUE, "LookupInput variants"));
+		FormBuilder fb = new FormBuilder(cp);
 
 		//-- LookupInput
 		LookupInput<Artist> li = new LookupInput<>(Artist.class);
@@ -75,8 +79,8 @@ public class Form4LayoutTestPage extends UrlPage {
 		fb.property(this, "album4").control(li8);
 
 		//-- LookupInput2
-		add(new GenericHeader(Type.BLUE, "LookupInput2 variants"));
-		fb = new FormBuilder(this);
+		cp.add(new GenericHeader(Type.BLUE, "LookupInput2 variants"));
+		fb = new FormBuilder(cp);
 
 		LookupInput2<Artist> li3 = new LookupInput2<>(Artist.class);			// Should not have input
 		li3.setTestID("three");
@@ -99,8 +103,8 @@ public class Form4LayoutTestPage extends UrlPage {
 		li23.setMandatory(true);
 		fb.property(this, "album23").control(li23);
 
-		add(new GenericHeader(Type.BLUE, "Text inputs"));
-		fb = new FormBuilder(this);
+		cp.add(new GenericHeader(Type.BLUE, "Text inputs"));
+		fb = new FormBuilder(cp);
 
 		//-- Text<String>
 		IControl<?> text = fb.property(this, "text").label("text zzzzzzzz").control();
@@ -113,7 +117,7 @@ public class Form4LayoutTestPage extends UrlPage {
 		fb.property(this, "memo").control(ta);
 
 		DefaultButton validate = new DefaultButton("validate", a -> validate());
-		add(validate);
+		cp.add(validate);
 
 	}
 

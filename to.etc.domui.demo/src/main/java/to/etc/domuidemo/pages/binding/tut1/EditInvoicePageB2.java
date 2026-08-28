@@ -58,7 +58,7 @@ final public class EditInvoicePageB2 extends UrlPage {
 		addrC.bind().to(m_invoice, "billingAddress");
 		amountC.bind().to(m_invoice, "total");
 
-		add(new DefaultButton("Clear amount", a -> {
+		cp.add(new DefaultButton("Clear amount", a -> {
 			m_invoice.setTotal(BigDecimal.ZERO);
 		}));
 	}

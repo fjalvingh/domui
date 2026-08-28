@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.overview.buttons;
 
 import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.misc.VerticalSpacer;
@@ -9,9 +10,12 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.themes.Theme;
 
 public class DemoLinkButton extends UrlPage {
+	private ContentPanel m_cp;
+
 	@Override
 	public void createContent() throws Exception {
-		addCssClass("ui-content");
+		m_cp = new ContentPanel();
+		add(m_cp);
 
 		add("Without an icon", new LinkButton("this link", clickednode -> tell()));
 		add("With an image icon", new LinkButton("with image", Theme.BTN_SAVE, clickednode -> tell()));
@@ -29,11 +33,11 @@ public class DemoLinkButton extends UrlPage {
 
 	private void add(String text, LinkButton lb) {
 		Div d = new Div();
-		add(d);
+		m_cp.add(d);
 		d.add(text + " ");
 		d.add(lb);
 		d.add(" and text after");
-		add(new VerticalSpacer(30));
+		m_cp.add(new VerticalSpacer(30));
 	}
 
 	private void tell() {

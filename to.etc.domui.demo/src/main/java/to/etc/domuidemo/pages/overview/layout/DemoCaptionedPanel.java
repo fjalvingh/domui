@@ -7,18 +7,21 @@ import to.etc.domui.dom.html.*;
 public class DemoCaptionedPanel extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel contentPanel = new ContentPanel();
+		add(contentPanel);
+
 		CaptionedPanel cp = new CaptionedPanel("Captioned panel: title area");
-		add(cp);
+		contentPanel.add(cp);
 		cp.getContent().add("This is the content- which can be anything, really");
 
-		add(new VerticalSpacer(40));
+		contentPanel.add(new VerticalSpacer(40));
 
 		//-- We can also add anything inside the title.
 		NodeContainer d = new Div();
 		d.add("Hello world");
 		d.add(new Img("img/btnSmileyWink.png"));
 		cp = new CaptionedPanel(d);
-		add(cp);
+		contentPanel.add(cp);
 		cp.getContent().add("Bla bla");
 	}
 }

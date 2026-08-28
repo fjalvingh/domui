@@ -1,7 +1,7 @@
 package to.etc.domuidemo.pages.overview.allcomponents;
 
-import to.etc.domui.component.layout.Caption;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 
@@ -11,7 +11,7 @@ import to.etc.domui.dom.html.TD;
  */
 public class TextFragment extends Div {
 	@Override public void createContent() throws Exception {
-		add(new Caption("Text component"));
+		add(new HTag(2, "Text component"));
 
 		TBody tb = addTable("With form builder", "Without form builder");
 		TD td = tb.addRowAndCell();

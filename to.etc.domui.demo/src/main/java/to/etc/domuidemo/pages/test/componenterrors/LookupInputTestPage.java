@@ -2,6 +2,7 @@ package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component2.form4.FormBuilder;
@@ -19,11 +20,14 @@ public class LookupInputTestPage extends UrlPage {
 	private Album m_album;
 
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		/*
 		 * This input uses Artist which allows no quick lookup, only search form lookup.
 		 */
 		LookupInput<Artist> li = new LookupInput<>(Artist.class);
-		FormBuilder fb = new FormBuilder(this);
+		FormBuilder fb = new FormBuilder(cp);
 		li.setTestID("one");
 		li.setMandatory(true);
 		fb.property(this, "artist").control(li);
@@ -37,7 +41,7 @@ public class LookupInputTestPage extends UrlPage {
 		fb.property(this, "album").control(li2);
 
 		DefaultButton validate = new DefaultButton("validate", a -> validate());
-		add(validate);
+		cp.add(validate);
 	}
 
 	private void validate() throws Exception {

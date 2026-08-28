@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.tbl.DataTable;
@@ -46,7 +47,10 @@ public class EditableTablePage extends UrlPage {
 	private DataTable<Line> m_dataTable;
 
 	@Override public void createContent() throws Exception {
-		add(new HTag(1, "Editable table using data binding and behaviors, example 1"));
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		cp.add(new HTag(1, "Editable table using data binding and behaviors, example 1"));
 
 		RowRenderer<Line> rr = createRowRenderer();
 		DataTable<Line> dataTable = m_dataTable = new DataTable<>(rr);
@@ -57,11 +61,11 @@ public class EditableTablePage extends UrlPage {
 
 		//m_simpleListModel.setComparator(Comparator.comparing(Line::getPeriodeVan).thenComparing(Line::getPeriodeTm));
 		dataTable.setPreventRowHighlight(true);
-		add(dataTable);
+		cp.add(dataTable);
 		addTotalsRow();
 
-		add(new VerticalSpacer(10));
-		add(new LinkButton("Add Row", Icon.faPlus, a -> model().addEditRow()));
+		cp.add(new VerticalSpacer(10));
+		cp.add(new LinkButton("Add Row", Icon.faPlus, a -> model().addEditRow()));
 	}
 
 	private RowRenderer<Line> createRowRenderer() {

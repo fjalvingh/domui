@@ -1,9 +1,10 @@
 package to.etc.domuidemo.sourceviewer;
 
 import to.etc.domui.annotations.UIUrlParameter;
-import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.InfoPanel;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.UrlPage;
@@ -51,14 +52,16 @@ public class SourcePage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		String name = getName();
 
 		SourceFile sf = SourceLocator.getInstance().findSource(name);
-		CaptionedHeader ch = new CaptionedHeader("Source for " + name);
-		add(ch);
+		cp.add(new HTag(1, "Source for " + name));
 
 		if(sf == null) {
-			add(new InfoPanel("The source code for " + name + " could not be found."));
+			cp.add(new InfoPanel("The source code for " + name + " could not be found."));
 			return;
 		}
 
@@ -69,7 +72,7 @@ public class SourcePage extends UrlPage {
 		m_th.setTabSize(m_tabSize);
 		m_th.setImportList(m_importList);
 		Div scrolldiv = new Div();
-		add(scrolldiv);
+		cp.add(scrolldiv);
 		scrolldiv.addCssClass("dm-srcp-scrl");
 
 		TBody tb = scrolldiv.addTable();

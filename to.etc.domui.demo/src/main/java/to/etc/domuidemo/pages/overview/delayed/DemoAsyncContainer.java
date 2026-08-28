@@ -3,17 +3,23 @@ package to.etc.domuidemo.pages.overview.delayed;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IActivity;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.Progress;
 
 public class DemoAsyncContainer extends UrlPage {
+	private ContentPanel m_cp;
+
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = m_cp = new ContentPanel();
+		add(cp);
+
 		Div d = new Div();
 		d.setText("The content will be calculated in a separate thread");
-		add(d);
+		cp.add(d);
 
 		DefaultButton sb = new DefaultButton("Calculate", new IClicked<DefaultButton>() {
 			@Override
@@ -21,7 +27,7 @@ public class DemoAsyncContainer extends UrlPage {
 				addDelayed();
 			}
 		});
-		add(sb);
+		cp.add(sb);
 	}
 
 	public void	addDelayed() {
@@ -49,6 +55,6 @@ public class DemoAsyncContainer extends UrlPage {
 		asc.setBorder(1);
 		asc.setBorderColor("#ff0000");
 		asc.setBorderStyle("solid");
-		add(asc);
+		m_cp.add(asc);
 	}
 }

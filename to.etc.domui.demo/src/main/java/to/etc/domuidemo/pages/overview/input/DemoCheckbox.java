@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.overview.input;
 
 import to.etc.domui.component.buttons.CheckboxButton;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Checkbox;
@@ -12,15 +13,18 @@ import to.etc.domui.dom.html.UrlPage;
 public class DemoCheckbox extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		Checkbox cb = new Checkbox();
-		add(cb);
-		add(" Simple checkbox");
+		ContentPanel cp = new ContentPanel();
+		add(cp);
 
-		add(new VerticalSpacer(40));
+		Checkbox cb = new Checkbox();
+		cp.add(cb);
+		cp.add(" Simple checkbox");
+
+		cp.add(new VerticalSpacer(40));
 
 		cb = new Checkbox();
-		add(cb);
-		add(" Simple checkbox with change listener");
+		cp.add(cb);
+		cp.add(" Simple checkbox with change listener");
 		cb.setOnValueChanged(new IValueChanged<Checkbox>() {
 			@Override
 			public void onValueChanged(Checkbox component) throws Exception {
@@ -31,8 +35,8 @@ public class DemoCheckbox extends UrlPage {
 		});
 
 
-		add(new HTag(2, "Checkbox Buttons"));
-		FormBuilder fb = new FormBuilder(this);
+		cp.add(new HTag(2, "Checkbox Buttons"));
+		FormBuilder fb = new FormBuilder(cp);
 
 		fb.label("Normal size").control(new CheckboxButton());
 		fb.label("Small").control(new CheckboxButton().css("is-small"));

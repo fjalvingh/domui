@@ -8,6 +8,7 @@ import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.layout.CaptionedHeader;
 import to.etc.domui.component.layout.CaptionedPanel;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.FloatingWindow;
 import to.etc.domui.component.layout.TabPanel;
@@ -45,12 +46,15 @@ public class BasicOverviewPage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		ErrorPanel ep = new ErrorPanel();
-		add(ep);
+		cp.add(ep);
 
 		//-- Tab panel
 		TabPanel tp = new TabPanel();
-		add(tp);
+		cp.add(tp);
 		tp.add(createTab1(), "Simple input");
 		tp.add(createTab3(), "Panels and headers");
 		tp.add(createTab2(), "Tab Two $");

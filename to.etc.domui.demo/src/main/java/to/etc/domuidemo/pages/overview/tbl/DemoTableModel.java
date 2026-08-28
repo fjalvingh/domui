@@ -8,6 +8,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.dom.html.HTag;
 import to.etc.util.*;
 
 /**
@@ -43,6 +44,11 @@ public class DemoTableModel extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+
+		ContentPanel cp = new ContentPanel();
+
+		add(cp);
+
 
 		IRowRenderer<File> rr = new IRowRenderer<File>() {
 			/**
@@ -81,10 +87,10 @@ public class DemoTableModel extends UrlPage {
 			}
 		};
 
-		add(new Caption("Table and TableModel example"));
+		cp.add(new HTag(1, "Table and TableModel example"));
 
 		Div d = new Div();
-		add(d);
+		cp.add(d);
 		DefaultButton	ib = new DefaultButton("Add last");
 		d.add(ib);
 		ib.setClicked(new IClicked<DefaultButton>() {
@@ -136,7 +142,7 @@ public class DemoTableModel extends UrlPage {
 
 
 		DataTable<File> dt = new DataTable<File>(m_model, rr);
-		add(dt);
+		cp.add(dt);
 	}
 
 	public File	rndFile() {

@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages.test.binding.order1;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.Text;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.DisplayValue;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
@@ -19,7 +20,10 @@ public class BindingTypeForm1 extends UrlPage {
 	private Div m_div;
 
 	@Override public void createContent() throws Exception {
-		FormBuilder fb = new FormBuilder(this);
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		FormBuilder fb = new FormBuilder(cp);
 
 		Text<String> control = new Text<>(String.class);
 
@@ -30,8 +34,8 @@ public class BindingTypeForm1 extends UrlPage {
 				checkClickValue();
 			}
 		});
-		add(db);
-		add(m_div = new Div());
+		cp.add(db);
+		cp.add(m_div = new Div());
 	}
 
 	private void checkClickValue() {

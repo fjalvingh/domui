@@ -2,6 +2,7 @@ package to.etc.domuidemo.pages.test.binding.binderrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.layout.MessageLine;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
@@ -23,22 +24,27 @@ import to.etc.domui.dom.html.UrlPage;
 public class BindError1Page extends UrlPage {
 	private String m_fullName = "Hello ladies";
 
+	private ContentPanel m_cp;
+
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = m_cp = new ContentPanel();
+		add(cp);
+
 		Text2<String> text = new Text2<>(String.class);
-		add(text);
+		cp.add(text);
 		text.setMandatory(true);
 		text.setTestID("edit");
 
 		text.bind().to(this, "fullName");
 
-		add(new DefaultButton("click", a -> save()));
+		cp.add(new DefaultButton("click", a -> save()));
 	}
 
 	private void save() throws Exception {
 		if(bindErrors())
 			return;
-		add(new MessageLine(MsgType.INFO, "Validated"));
+		m_cp.add(new MessageLine(MsgType.INFO, "Validated"));
 	}
 
 	@MetaProperty(required = YesNoType.YES)

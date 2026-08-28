@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.Text;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.DisplayValue;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
@@ -46,7 +47,10 @@ public class BindingConversionTestForm extends UrlPage {
 	}
 
 	@Override public void createContent() throws Exception {
-		FormBuilder fb = new FormBuilder(this);
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		FormBuilder fb = new FormBuilder(cp);
 		Text<String> control = new Text<>(String.class);
 
 		fb.property(this, "value").label("Integer").control(control, new TestConverter());
@@ -56,22 +60,22 @@ public class BindingConversionTestForm extends UrlPage {
 				checkClickValue();
 			}
 		});
-		add(db);
+		cp.add(db);
 
 		db = new DefaultButton("setvalue", new IClicked<DefaultButton>() {
 			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				setValue(Integer.valueOf(987));
 			}
 		});
-		add(db);
+		cp.add(db);
 
 		db = new DefaultButton("setnull", new IClicked<DefaultButton>() {
 			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				setValue(null);
 			}
 		});
-		add(db);
-		add(m_div = new Div());
+		cp.add(db);
+		cp.add(m_div = new Div());
 	}
 
 	private void checkClickValue() throws Exception {

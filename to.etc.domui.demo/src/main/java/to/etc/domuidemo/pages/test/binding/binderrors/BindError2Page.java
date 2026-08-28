@@ -2,6 +2,7 @@ package to.etc.domuidemo.pages.test.binding.binderrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.derbydata.db.Artist;
@@ -31,9 +32,14 @@ import java.util.List;
 public class BindError2Page extends UrlPage {
 	private Artist m_artist;
 
+	private ContentPanel m_cp;
+
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = m_cp = new ContentPanel();
+		add(cp);
+
 		LookupInput<Artist> li = new LookupInput<>(QCriteria.create(Artist.class));
-		add(li);
+		cp.add(li);
 
 		List<Artist> artists = getSharedContext().query(QCriteria.create(Artist.class).limit(1));
 		m_artist = artists.get(0);
@@ -42,7 +48,7 @@ public class BindError2Page extends UrlPage {
 		li.setTestID("edit");
 		li.bind().to(this, "artist");
 
-		add(new DefaultButton("click", a-> save()));
+		cp.add(new DefaultButton("click", a-> save()));
 	}
 
 	private void save() throws Exception {
@@ -50,9 +56,9 @@ public class BindError2Page extends UrlPage {
 			//-- If we have bind errors we expect the control to have set the binding to null
 			Artist artist = getArtist();
 			if(null != artist)
-				add(new Div("failed", "The binding has still the previous value: " + artist));
+				m_cp.add(new Div("failed", "The binding has still the previous value: " + artist));
 			else
-				add(new Div("success", "Binding is null as it should be"));
+				m_cp.add(new Div("success", "Binding is null as it should be"));
 		}
 	}
 

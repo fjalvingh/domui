@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.plotly;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.plotly.IPlotlyDataSource;
 import to.etc.domui.component.plotly.IPlotlyDataset;
 import to.etc.domui.component.plotly.PlotlyDataSet;
@@ -28,11 +29,14 @@ import java.util.stream.Collectors;
 public class Plotly1 extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		PlotlyGraph.initialize(this);
-		add(new HTag(1, "A Plotly graph"));
+		cp.add(new HTag(1, "A Plotly graph"));
 
 		PlotlyGraph graph = new PlotlyGraph();
-		add(graph);
+		cp.add(graph);
 		graph.setHeight("1000px");
 		graph.setSource(new PlotlySource1());
 	}

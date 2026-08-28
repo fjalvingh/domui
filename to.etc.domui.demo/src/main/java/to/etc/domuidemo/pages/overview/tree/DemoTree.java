@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.tree;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.tree.Tree;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeContainer;
@@ -14,8 +15,11 @@ import java.io.File;
 public class DemoTree extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		Tree<File> tree = new Tree<>();
-		add(tree);
+		cp.add(tree);
 		DemoTreeModel model = new DemoTreeModel(new File(System.getProperty("user.home")));
 		tree.setModel(model);
 

@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.tbl;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
@@ -12,6 +13,9 @@ import to.etc.webapp.query.QCriteria;
 public class DemoRowRenderer1 extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		// Set up a data table
 		QCriteria<Album> q = QCriteria.create(Album.class);
 		SimpleSearchModel<Album> ssm = new SimpleSearchModel<>(this, q);
@@ -21,10 +25,10 @@ public class DemoRowRenderer1 extends UrlPage {
 		brr.column(Album_.title()).label("Album Name").ascending().width(40);
 
 		DataTable<Album> dt = new DataTable<>(ssm, brr);
-		add(dt);
+		cp.add(dt);
 		dt.setPageSize(25);
 
 		//-- This is the actual demo ;-)
-		add(new DataPager(dt));
+		cp.add(new DataPager(dt));
 	}
 }
