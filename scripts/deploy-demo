@@ -1,0 +1,122 @@
+#!/bin/bash
+#
+# Deploy the DomUI demo application to https://demo.domui.org/
+#
+# The application runs in its own Tomcat 11 instance on pigalle.etc.to, in
+# /env/demo, started by the systemd template unit tomcat11@demo.service.
+# Apache terminates TLS and proxies to it (see 030-domuidemo.conf on that
+# machine). The webapp is served as the root context, so it is unpacked into
+# /env/demo/webapps/ROOT.
+#
+# Usage:
+#   scripts/deploy-demo [-s server] [-n]
+#
+#   -s server   deploy to another host (default demo.domui.org's host)
+#   -n          do not build; deploy the war that is already in target/
+#
+set -euo pipefail
+
+SERVER=${DEPLOY_SERVER:-pigalle.etc.to}
+INSTANCE=demo
+BASE=/env/$INSTANCE
+SERVICE=tomcat11@$INSTANCE.service
+HEALTHURL=https://demo.domui.org/
+LOCALPORT=8086
+SKIPBUILD=0
+
+while getopts "s:nh" opt; do
+	case $opt in
+		s) SERVER=$OPTARG ;;
+		n) SKIPBUILD=1 ;;
+		h) sed -n '2,20p' "$0"; exit 0 ;;
+		*) echo "Unknown option; use -h for help" >&2; exit 1 ;;
+	esac
+done
+
+cd "$(dirname "$0")/.."
+ROOTDIR=$(pwd)
+WAR=$ROOTDIR/to.etc.domui.demo/target/demo.war
+
+say() { echo; echo "=== $* ==="; }
+
+#-- 1. Build ---------------------------------------------------------------
+if [ $SKIPBUILD = 0 ]; then
+	say "Building the demo war"
+	mvn21 clean install -DskipTests -Dmaven.javadoc.skip=true
+else
+	say "Skipping the build (-n)"
+fi
+
+if [ ! -f "$WAR" ]; then
+	echo "The war $WAR does not exist - build it first, or drop the -n option." >&2
+	exit 1
+fi
+echo "War is $(du -h "$WAR" | cut -f1), built $(date -r "$WAR" '+%Y-%m-%d %H:%M')"
+
+#-- 2. Copy to the server --------------------------------------------------
+#-- The war is copied to a staging name first so that a half-copied file can
+#-- never be unpacked over a working installation.
+say "Copying the war to $SERVER"
+scp -q "$WAR" "$SERVER:/tmp/demo-deploy.war"
+
+#-- 3. Install and restart --------------------------------------------------
+say "Installing on $SERVER and restarting $SERVICE"
+ssh "$SERVER" "bash -euo pipefail -s" <<EOF
+	BASE=$BASE
+	SERVICE=$SERVICE
+	INSTANCE=$INSTANCE
+
+	#-- Stop the instance before touching the webapp, so Tomcat is not
+	#-- reading the directory while we replace it.
+	if systemctl is-active --quiet \$SERVICE; then
+		echo "Stopping \$SERVICE"
+		sudo systemctl stop \$SERVICE
+	else
+		echo "\$SERVICE was not running"
+	fi
+
+	#-- Keep the previous version so a bad deploy can be rolled back by hand.
+	if [ -d \$BASE/webapps/ROOT ] && [ -n "\$(ls -A \$BASE/webapps/ROOT 2>/dev/null)" ]; then
+		echo "Keeping the previous version as ROOT.previous"
+		sudo -u \$INSTANCE rm -rf \$BASE/webapps/ROOT.previous
+		sudo -u \$INSTANCE mv \$BASE/webapps/ROOT \$BASE/webapps/ROOT.previous
+	fi
+
+	#-- Unpack the new one. autoDeploy is off and there is no ROOT.war, so
+	#-- Tomcat serves this directory as the root context.
+	echo "Unpacking the new version into \$BASE/webapps/ROOT"
+	sudo -u \$INSTANCE mkdir -p \$BASE/webapps/ROOT
+	sudo -u \$INSTANCE unzip -q -o /tmp/demo-deploy.war -d \$BASE/webapps/ROOT
+	rm -f /tmp/demo-deploy.war
+
+	#-- Tomcat caches the unpacked application; a stale work directory makes
+	#-- it serve the previous version's compiled pages.
+	sudo -u \$INSTANCE rm -rf \$BASE/work/Catalina
+
+	echo "Starting \$SERVICE"
+	sudo systemctl start \$SERVICE
+EOF
+
+#-- 4. Wait for it to answer -------------------------------------------------
+say "Waiting for the application to come up"
+for i in $(seq 1 60); do
+	code=$(ssh "$SERVER" "curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:$LOCALPORT/ || true")
+	if [ "$code" = "200" ]; then
+		echo "Tomcat is answering on port $LOCALPORT"
+		break
+	fi
+	if [ "$i" = 60 ]; then
+		echo "The application did not come up within 2 minutes. Last status: ${code:-none}" >&2
+		echo "Check: ssh $SERVER 'sudo journalctl -u $SERVICE -n 50; tail -50 $BASE/logs/catalina.out'" >&2
+		exit 1
+	fi
+	sleep 2
+done
+
+code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$HEALTHURL" || true)
+if [ "$code" = "200" ]; then
+	say "Deployed: $HEALTHURL is up"
+else
+	echo "Tomcat is up, but $HEALTHURL answered $code - check the Apache proxy config." >&2
+	exit 1
+fi
