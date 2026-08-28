@@ -23,6 +23,6 @@ public class CdCollection extends UrlPage {
 		TrackResultFragment<Track> resultFragment = new TrackResultFragment<>(lookup);
 		cp.add(resultFragment);
 
-		resultFragment.setOnClick(row -> UIGoto.moveSub(TrackDetails.class, row));
+		resultFragment.setOnClick(row -> UIGoto.moveSub(TrackDetails.class, "id", row.getId()));
 	}
 }

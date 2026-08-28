@@ -175,6 +175,46 @@ Steps:
         `HiParser`; both are styled identically, so it is invisible. Java text
         blocks (`"""`) are likewise not understood.
 
+- [x] **CD shop application pages.** The demo database (the Chinook model: artist -
+      album - track, customer - invoice - invoice line, employee) only had screens
+      for albums and track search. Added the missing ones as an application rather
+      than as one list+edit pair per table, under `pages/cddb`, reachable from a
+      new `CdShopMenuPage` linked from the demo home page:
+      - `ArtistListPage` -> `ArtistDetailPage`: the artist with **its albums** as
+        the bound detail part, each album linking on to the existing album screen.
+      - `CustomerListPage` -> `CustomerDetailPage`: contact and address details
+        with the customer's **purchase history** below, linking to the invoice.
+      - `InvoiceListPage` -> `InvoiceDetailPage`: invoice header with the **sold
+        lines** as the bound detail part, each line linking to its track.
+      - `EmployeeListPage` -> `EmployeeDetailPage`: an employee with two detail
+        tabs - **who reports to them** (bound) and **which customers they support**
+        (queried).
+      - `ReferenceDataPage`: the genre and media-type lookup tables maintained as
+        **editable tables**, each row's control bound straight to its record.
+      - `TrackDetails` was an empty stub that `CdCollection` already navigated to,
+        so clicking a track search result led to a blank page. It is now the track
+        screen. Its navigation was broken too: `CdCollection` passed the entity
+        itself to `UIGoto.moveSub`, which makes `PageParameters` derive a parameter
+        named after the class; it now uses the `"id"` convention the other pages use.
+      - `AbstractCdShopListPage` holds the shared search-plus-result behaviour, so
+        each list page only declares its columns and where a row click goes.
+      Verified by running the demo under jetty and fetching every page: all 14
+      render without exceptions, and the detail tables contain real data (artist 1
+      has its 2 albums, invoice 1 its lines, employee 2 its 3 direct reports).
+      Interactive flows (pressing Search, pressing Save) were not clicked through.
+      - Fixed a framework defect this depended on: `ChildFragment`, the master/detail
+        component, declared its constructor as `QField<P, C>` while the class treats
+        `C` as the collection's *element* type. `C` was therefore inferred as
+        `List<Album>`, making the documented `ChildFragment<Artist, Album>`
+        impossible to declare. It is now `QField<P, List<C>>`. The one existing
+        caller (`AlbumEditPage`) is unaffected.
+      - Found that entity label bundles **never loaded**: `Artist.properties` and
+        `Invoice.properties` sat in `src/main/java` with no `<resources>` entry to
+        copy them, so they never reached the classpath and every label in the demo
+        showed the raw property name (`mediaType`, `supportRepresentative`). Moved
+        them to `src/main/resources` and added bundles for the other entities, so
+        labels now read properly everywhere - including on the pre-existing screens.
+
 Candidates still open, offered as input - not agreed scope:
 
 - `pages/OldHome.java` is an unreferenced legacy page (nothing links to it, though

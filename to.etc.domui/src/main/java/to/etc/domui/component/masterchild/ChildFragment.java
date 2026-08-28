@@ -43,9 +43,9 @@ public class ChildFragment<P, C> extends Div {
 	@Nullable
 	private ConsumerEx<C> m_onNew;
 
-	public ChildFragment(P parent, QField<P, C> property) throws Exception {
+	public ChildFragment(P parent, QField<P, List<C>> property) throws Exception {
 		m_parent = parent;
-		PropertyMetaModel<C> pmm = MetaManager.getPropertyMeta(parent.getClass(), property);
+		PropertyMetaModel<List<C>> pmm = MetaManager.getPropertyMeta(parent.getClass(), property);
 		if(pmm.getRelationType() != PropertyRelationType.DOWN)
 			throw new ProgrammerErrorException("The property " + property + " must be a relation property to a child collection (list of children)");
 		if(! List.class.isAssignableFrom(pmm.getActualType()))
