@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-DomUI is a server-side Java UI framework library. The project is currently undergoing Jakarta EE migration (javax.* to jakarta.* packages). Main development branch is `skarp-jakarta`.
+DomUI is a server-side Java UI framework library. The main development branch is `skarp-master`.
 
 ## Build Commands
 
@@ -68,7 +68,18 @@ UI components in `to.etc.domui` follow a server-side rendering model with AJAX u
 - **Test Framework**: JUnit 4
 - **Build System**: Maven multi-module
 - **Primary database**: PostgreSQL version 15+
+- **Servlet API**: Jakarta EE (`jakarta.servlet`), on Jetty 11.0.26
 
-## Current Migration Notes
+## Running Projects
 
-The `skarp-jakarta` branch is migrating from javax.* to jakarta.* packages. Jetty remains at 9.4.x due to package naming incompatibilities with newer versions.
+### Documentation & demo improvement (ongoing)
+
+A multi-step improvement of the documentation website and the demo/tutorial
+application, including removal of old and incorrect code and information. The
+plan, current state and decisions log live in **[IMPROVEMENT-PLAN.md](IMPROVEMENT-PLAN.md)**.
+Read it before working on documentation or on `to.etc.domui.demo`, and update it
+(tick boxes, add decisions) as work progresses.
+
+The documentation website source is a separate repository at
+`/home/jal/git/domui.github.io` (Markdown under `site/content`, static site
+generator in `sitegenerator`).
