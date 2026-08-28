@@ -81,6 +81,10 @@ pre.code {
 	color: #000fd4;
 }
 
+/*
+ * Token classes emitted by the syntax highlighters (to.etc.syntaxer): the renderer
+ * writes "s-" plus the lowercased HighlightTokenType name.
+ */
 .s-keyword1 {
 	color: #fb8d00;
 	font-weight: bold;
@@ -89,6 +93,47 @@ pre.code {
 .s-keyword2 {
 	color: #86002f;
 	font-weight: bold;
+}
+
+.s-keyword3 {
+	color: #86002f;
+}
+
+.s-type {
+	color: #0057b7;
+	font-weight: bold;
+}
+
+.s-comment {
+	color: #006121;
+	font-style: italic;
+}
+
+.s-string, .s-character {
+	color: #00807a;
+}
+
+.s-stringescape {
+	color: #00807a;
+	font-weight: bold;
+}
+
+.s-number {
+	color: #842900;
+}
+
+.s-punctuation {
+	color: #555;
+}
+
+.s-id, .s-text {
+	color: #222;
+}
+
+/* Identifiers the source viewer could resolve are rendered as links. */
+a.s-id {
+	color: #000fd4;
+	text-decoration: underline;
 }
 
 .s-literal1 {

@@ -151,6 +151,30 @@ Steps:
         itself, not the panel: the `FloatingWindow` in `BasicOverviewPage` and the
         title bar in `BasicPage`.
 
+- [x] **Syntax highlighting for the demo's source viewer.** `JavaHighlighter` was a
+      stub that rendered every line as one plain `text` token, and - more to the
+      point - `HighlighterFactory` only ever registered `sql`, so `.java` files got
+      a `NullHighlighter` and the class could never have run. Finished it following
+      `SqlHighlighter`: `HiParser` already implements Java's lexical structure
+      (both comment forms, string escapes including `\uXXXX`, and the hex/binary/
+      octal/underscore numeric formats), so the highlighter only adds keyword sets -
+      case *dependent*, unlike SQL. Four groups: `type` (primitives plus the
+      java.lang types visible without an import), `keyword1` (reserved words),
+      `keyword2` (contextual: `var`, `record`, `sealed`, `permits`, `yield`) and
+      `keyword3` (`true`, `false`, `null`). Registered `java` in the factory, and
+      added the `s-*` token CSS to the demo's `_syntax.scss`, which only styled
+      `s-keyword1` and `s-keyword2` and would have left everything else black.
+      Covered by a round-trip + golden-file test alongside the SQL ones.
+      - Found and fixed a real defect in the shared `HiParser` while verifying:
+        base-10 literals only consumed a `d`/`D` suffix, so `123456789L` lexed as
+        a number followed by an identifier `L`. It now accepts `l/L/f/F/d/D`. The
+        SQL golden files are unaffected.
+      - Known limitation, left alone: `HiParser` hardcodes both quote characters to
+        the `string` token type, so Java char literals are `string` rather than the
+        `character` type the enum defines. Distinguishing them needs a new hook in
+        `HiParser`; both are styled identically, so it is invisible. Java text
+        blocks (`"""`) are likewise not understood.
+
 Candidates still open, offered as input - not agreed scope:
 
 - `pages/OldHome.java` is an unreferenced legacy page (nothing links to it, though
