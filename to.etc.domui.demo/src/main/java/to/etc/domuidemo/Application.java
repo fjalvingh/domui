@@ -46,6 +46,8 @@ public class Application extends DomApplication {
 		ImageCache.initialize(32 * 1024L * 1024L, 5L * 1024L * 1024L * 1024L, imagecache);
 
 		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
+		addDefaultHTTPHeader("X-Frame-Options", null);
+
 
 		//-- Append the default style sheet.
 		addHeaderContributor(HeaderContributor.loadStylesheet("css/demostyle.scss"), 1000);	// Add default stylesheet for the app
