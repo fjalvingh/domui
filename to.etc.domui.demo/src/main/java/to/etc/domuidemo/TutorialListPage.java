@@ -5,6 +5,9 @@ import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut3;
 import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut4;
 import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut5;
 import to.etc.domuidemo.pages.binding.tut1.InvoiceListPage;
+import to.etc.domuidemo.pages.tutorial.first.HelloClickPage;
+import to.etc.domuidemo.pages.tutorial.first.HelloPage;
+import to.etc.domuidemo.pages.tutorial.first.HelloTreePage;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -16,6 +19,11 @@ final public class TutorialListPage extends MenuPage {
 	}
 
 	@Override public void createContent() throws Exception {
+		addCaption("Building your first page");
+		addLink(HelloPage.class, "A page with a div in it");
+		addLink(HelloTreePage.class, "A page is a tree of tags");
+		addLink(HelloClickPage.class, "Clicking a tag");
+
 		addCaption("Binding tutorial");
 		addLink(InvoiceListPage.class, "Simple binding for editing a record");
 		addLink(BindingTut3.class, "Binding to other things as values");

@@ -81,5 +81,5 @@ Read it before working on documentation or on `to.etc.domui.demo`, and update it
 (tick boxes, add decisions) as work progresses.
 
 The documentation website source is a separate repository at
-`/home/jal/git/domui.github.io` (Markdown under `site/content`, static site
+`/home/jal/git/update-domui/domui.github.io` (Markdown under `site/content`, static site
 generator in `sitegenerator`).
