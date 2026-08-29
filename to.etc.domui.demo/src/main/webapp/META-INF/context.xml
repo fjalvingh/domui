@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Tomcat deployment settings for the demo application.
+
+	The documentation site at domui.org shows pages of this application in an
+	iframe, which is a cross-site context: the browser drops the session cookie
+	unless it says SameSite=None, and it drops it again - even then - when the
+	user blocks third party cookies, unless the cookie is Partitioned (CHIPS),
+	which gives the embedded application its own session per embedding site.
+
+	The Secure flag that SameSite=None requires is set in WEB-INF/web.xml.
+
+	"partitioned" needs Tomcat 10.1.20 / 11.0.0-M18 or newer; on an older
+	Tomcat the attribute is unknown and the application will not deploy.
+ -->
+<Context>
+	<CookieProcessor sameSiteCookies="none" partitioned="true"/>
+</Context>

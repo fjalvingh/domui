@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-	      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-         version="3.0">
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+	      https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
   <display-name>to.etc.domui.demo</display-name>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
@@ -39,4 +39,23 @@
   <filter-name>DomFilter</filter-name>
   <url-pattern>/*</url-pattern>
  </filter-mapping>
+
+ <!--
+ 	The documentation site at domui.org embeds pages of this application in an
+ 	iframe (the !demo() tag). That makes this a cross-site frame, so the browser
+ 	only sends the session cookie back when it is marked SameSite=None, and a
+ 	SameSite=None cookie is only accepted when it is Secure as well. Without
+ 	both, DomUI never sees its session and every embedded page shows
+ 	"Can't create session, session cookie is blocked by the browser!".
+
+ 	SameSite (and Partitioned, for browsers that block third party cookies
+ 	outright) are set on the CookieProcessor in META-INF/context.xml, which
+ 	Tomcat reads. The Secure flag is set by the listener below: Tomcat ignores
+ 	session-config/cookie-config/secure and derives the flag from the request
+ 	being secure, which it never is here because Apache terminates the TLS in
+ 	front of it.
+  -->
+ <listener>
+  <listener-class>to.etc.domuidemo.SessionCookieSetup</listener-class>
+ </listener>
 </web-app>

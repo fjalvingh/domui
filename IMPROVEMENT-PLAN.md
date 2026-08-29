@@ -239,6 +239,50 @@ Steps:
       - The rest of `building-pages` is untouched on purpose; moving or deleting
         those pages comes later.
 
+- [x] **The embedded demo pages (`!demo()`) did not work at all.** Every iframe on
+      the documentation site showed "Can't create session, session cookie is
+      blocked by the browser!" - not only the new page, the data-binding ones too.
+      Cause: domui.org frames demo.domui.org, which is a **cross-site** frame, and
+      the demo's session cookie was plain `JSESSIONID=...; Path=/; HttpOnly`.
+      Without `SameSite=None` a browser defaults it to Lax and never returns it in
+      that frame, so DomUI redirects once with `$cid=...r`, finds no session
+      again, and gives up with that message (`PageRequestHandler`, the
+      `conversationId.equals("r")` branch).
+      Fixed in the demo webapp:
+      - `src/main/webapp/META-INF/context.xml` (new): a Tomcat `CookieProcessor`
+        with `sameSiteCookies="none"` and `partitioned="true"`. Partitioned (CHIPS)
+        keeps it working for people whose browser blocks third party cookies
+        outright; it gives the embedded application a session per embedding site.
+        It needs Tomcat 10.1.20 / 11.0.0-M18 or newer - on an older Tomcat the
+        attribute is unknown and the application does not deploy.
+      - `SessionCookieSetup`, a `ServletContextListener`, sets the Secure flag,
+        which `SameSite=None` requires. It is done in code because **Tomcat
+        ignores `session-config/cookie-config/secure`** - verified: changing
+        `<name>` in that block does change the cookie name, while `<secure>` and
+        `<http-only>` do nothing; Tomcat takes those from the Context defaults and
+        from `request.isSecure()`, which is false because Apache terminates TLS in
+        front of it. The listener skips a developer workstation
+        (`DeveloperOptions`), so local http development is unaffected.
+      - The demo's `web.xml` was on the pre-Jakarta schema (`java.sun.com`
+        namespace, version 3.0); it is now `jakartaee` version 6.0.
+      Verified on a real Tomcat 11.0.18 with the war built from this tree: the app
+      deploys clean and answers
+      `Set-Cookie: JSESSIONID=...; Path=/; Secure; HttpOnly; SameSite=None; Partitioned`,
+      and with the documentation built against that instance the demo renders
+      inside the iframe in Chrome, cross-site. (Jetty 11, which the local
+      `jetty:run` uses, ignores `session-config` altogether - it cannot show this.)
+      **Not deployed**: the live site keeps showing the message until the demo is
+      redeployed with `scripts/deploy-demo`.
+
+- [x] **Inline code was rendered as a block on the whole documentation site.**
+      `site/templates/css/site.css` styled the bare `code` element as the code box
+      (`display: block`, padding, border-left), which is meant for a fenced block -
+      `<pre><code>` - but also hit every inline `code` span in running text,
+      cutting each sentence containing one into pieces. The box now belongs to
+      `pre`, `pre code` is neutralised, and inline `code` has its own compact
+      style; the `@media print` block had the same `code, pre` conflation and was
+      split the same way.
+
 Candidates still open, offered as input - not agreed scope:
 
 - `pages/OldHome.java` is an unreferenced legacy page (nothing links to it, though
