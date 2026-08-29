@@ -434,6 +434,8 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	private void checkForFocus(NodeBase n) {
 		if(m_tagRenderer.getMode() != HtmlRenderMode.FULL)
 			return;
+		if(!DomApplication.get().isAutoFocus())            // Automatic focus disabled by the application?
+			return;
 		if(n.getPage().getFocusComponent() != null)
 			return;
 		if(n.isFocusable())

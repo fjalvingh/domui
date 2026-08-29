@@ -261,6 +261,12 @@ public abstract class DomApplication {
 	 */
 	private boolean m_refuseDisobeyingPasswordManagers;
 
+	/**
+	 * When T (the default) the first focusable component on a newly built page gets the focus
+	 * automatically. See {@link #isAutoFocus()}.
+	 */
+	private boolean m_autoFocus = true;
+
 	private boolean m_underSeleniumTest = System.getProperty("domui.selenium") != null;
 
 	/**
@@ -2832,6 +2838,20 @@ public abstract class DomApplication {
 
 	public void setRefuseDisobeyingPasswordManagers(boolean refuseDisobeyingPasswordManagers) {
 		m_refuseDisobeyingPasswordManagers = refuseDisobeyingPasswordManagers;
+	}
+
+	/**
+	 * When T (the default) DomUI automatically focuses the first focusable component it finds
+	 * when a page (or a {@link to.etc.domui.component.layout.Window}) is rendered and no component
+	 * asked for the focus itself. Set to F to leave the focus alone unless a component explicitly
+	 * requests it using {@link to.etc.domui.dom.html.NodeBase#setFocus()}.
+	 */
+	public boolean isAutoFocus() {
+		return m_autoFocus;
+	}
+
+	public void setAutoFocus(boolean autoFocus) {
+		m_autoFocus = autoFocus;
 	}
 
 	public int getMaxUploadSize() {

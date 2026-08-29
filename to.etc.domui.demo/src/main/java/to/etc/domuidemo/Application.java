@@ -26,6 +26,7 @@ import to.etc.domuidemo.components.PageHeader;
 import to.etc.domuidemo.pages.HomePage;
 import to.etc.domuidemo.sourceviewer.SourcePage;
 import to.etc.testutil.TestUtil;
+import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 import to.etc.webapp.query.QContextManager;
 
@@ -58,6 +59,10 @@ public class Application extends DomApplication {
 		if(!DomUtil.isBlank(uacode)) {
 			addHeaderContributor(HeaderContributor.loadGoogleAnalytics(uacode), 0);
 		}
+
+		//-- The demo site does not use auto focus because that makes pages with embedded iframes scroll
+		if(!DeveloperOptions.isDeveloperWorkstation())
+			setAutoFocus(false);
 
 		slowInit();
 
