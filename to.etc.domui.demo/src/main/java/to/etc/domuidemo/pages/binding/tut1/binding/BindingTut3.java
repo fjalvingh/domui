@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.binding.tut1;
+package to.etc.domuidemo.pages.binding.tut1.binding;
 
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;

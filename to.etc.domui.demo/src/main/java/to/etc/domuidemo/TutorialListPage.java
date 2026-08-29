@@ -1,9 +1,9 @@
 package to.etc.domuidemo;
 
 import to.etc.domuidemo.pages.MenuPage;
-import to.etc.domuidemo.pages.binding.tut1.BindingTut3;
-import to.etc.domuidemo.pages.binding.tut1.BindingTut4;
-import to.etc.domuidemo.pages.binding.tut1.BindingTut5;
+import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut3;
+import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut4;
+import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut5;
 import to.etc.domuidemo.pages.binding.tut1.InvoiceListPage;
 
 /**

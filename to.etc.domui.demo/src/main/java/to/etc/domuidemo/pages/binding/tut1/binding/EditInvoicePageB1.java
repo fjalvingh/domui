@@ -1,7 +1,6 @@
-package to.etc.domuidemo.pages.binding.tut1;
+package to.etc.domuidemo.pages.binding.tut1.binding;
 
 import to.etc.domui.annotations.UIUrlParameter;
-import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.DateInput2;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.TextStr;
@@ -21,7 +20,7 @@ import java.util.Date;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 15-10-18.
  */
-final public class EditInvoicePageB2 extends UrlPage {
+public class EditInvoicePageB1 extends UrlPage {
 	private Invoice m_invoice;
 
 	@Override public void createContent() throws Exception {
@@ -57,10 +56,6 @@ final public class EditInvoicePageB2 extends UrlPage {
 		dateC.bind().to(m_invoice, "invoiceDate");
 		addrC.bind().to(m_invoice, "billingAddress");
 		amountC.bind().to(m_invoice, "total");
-
-		cp.add(new DefaultButton("Clear amount", a -> {
-			m_invoice.setTotal(BigDecimal.ZERO);
-		}));
 	}
 
 	@UIUrlParameter(name = "invoice")

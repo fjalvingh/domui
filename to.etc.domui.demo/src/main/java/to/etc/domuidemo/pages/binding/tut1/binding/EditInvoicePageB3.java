@@ -1,6 +1,7 @@
-package to.etc.domuidemo.pages.binding.tut1;
+package to.etc.domuidemo.pages.binding.tut1.binding;
 
 import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.DateInput2;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.TextStr;
@@ -8,6 +9,7 @@ import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.derbydata.db.Customer;
 import to.etc.domui.derbydata.db.Invoice;
+import to.etc.domui.derbydata.db.Invoice_;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.UrlPage;
@@ -20,7 +22,7 @@ import java.util.Date;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 15-10-18.
  */
-public class EditInvoicePageB1 extends UrlPage {
+final public class EditInvoicePageB3 extends UrlPage {
 	private Invoice m_invoice;
 
 	@Override public void createContent() throws Exception {
@@ -52,10 +54,14 @@ public class EditInvoicePageB1 extends UrlPage {
 		tb.addCell().add(amountC);
 
 		//-- Now bind the components to the m_invoice instance's properties!
-		custLI.bind().to(m_invoice, "customer");
-		dateC.bind().to(m_invoice, "invoiceDate");
-		addrC.bind().to(m_invoice, "billingAddress");
-		amountC.bind().to(m_invoice, "total");
+		custLI.bind().to(m_invoice, Invoice_.customer());
+		dateC.bind().to(m_invoice, Invoice_.invoiceDate());
+		addrC.bind().to(m_invoice, Invoice_.billingAddress());
+		amountC.bind().to(m_invoice, Invoice_.total());
+
+		cp.add(new DefaultButton("Clear amount", a -> {
+			m_invoice.setTotal(BigDecimal.ZERO);
+		}));
 	}
 
 	@UIUrlParameter(name = "invoice")
