@@ -5,6 +5,7 @@ import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleSearchModel;
+import to.etc.domui.converter.MsDurationConverter;
 import to.etc.domui.derbydata.db.Track;
 import to.etc.domui.derbydata.db.Track_;
 import to.etc.domui.dom.css.TextAlign;
@@ -48,14 +49,13 @@ public class TableColumnsPage extends UrlPage {
 				clicked.add("Cell clicked: " + t.getName());
 			});
 
-		//-- Nothing is said about the format: the property's metadata has the converter.
-		rr.column(Track_.milliseconds()).label("Duration").align(TextAlign.RIGHT);
+		//-- A converter decides how the value is shown.
+		rr.column(Track_.milliseconds()).label("Duration").converter(new MsDurationConverter()).align(TextAlign.RIGHT);
 
 		//-- A property of a property: the column follows the relation.
 		rr.column(Track_.album().title()).label("Album").width(25);
 
-		//-- A renderer gets the column's value and fills the cell itself. It replaces
-		//-- the money format the metadata would have given this column.
+		//-- A renderer gets the column's value and fills the cell itself.
 		rr.column(Track_.unitPrice()).label("Price").align(TextAlign.RIGHT)
 			.renderer((node, price) -> {
 				Span s = new Span(price.toString());

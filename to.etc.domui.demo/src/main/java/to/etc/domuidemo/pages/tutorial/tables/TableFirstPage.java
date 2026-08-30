@@ -42,13 +42,5 @@ public class TableFirstPage extends UrlPage {
 		cp.add(dt);
 		dt.setPageSize(10);
 		cp.add(new DataPager(dt));
-
-		cp.add(new HTag(2, "The same table without columns"));
-
-		SimpleSearchModel<Track> model2 = new SimpleSearchModel<>(this, QCriteria.create(Track.class));
-		DataTable<Track> dt2 = new DataTable<>(model2, new RowRenderer<>(Track.class));
-		cp.add(dt2);
-		dt2.setPageSize(5);
-		cp.add(new DataPager(dt2));
 	}
 }

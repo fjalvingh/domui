@@ -476,8 +476,7 @@ Steps:
       way to show more than one record. Three parts, as agreed. First the table:
       the model / `RowRenderer` / `DataTable` split and the `DataPager`, the
       query running on first render rather than at construction, page size and
-      the 1000-row model maximum with its truncation marker, and a renderer with
-      no columns at all taking them from `@MetaObject(defaultColumns)`. Then the
+      the 1000-row model maximum with its truncation marker. Then the
       columns: the four `column()` forms tabled, everything a `ColumnDef` can be
       told tabled (label, width in characters or css, maxWidth, align, css,
       wrap, hint, converter, renderer, the sort methods, cellClicked, editable /
@@ -485,7 +484,14 @@ Steps:
       so a changed row value updates the cell - and the rules around custom
       renderers (`IRenderInto`, not called for null unless you implement
       `renderOpt`, and a warning callout that editable/factory cannot be combined
-      with renderer/converter, which throws). Only `RowRenderer` is used; the
+      with renderer/converter, which throws), and a **sorting** section: how a
+      column becomes sortable, what `sortdefault()` decides, and that a header
+      click tells the *model* to sort rather than reordering the screen - which
+      for `SimpleSearchModel` means an `order by` in the database, applied
+      **before** the row limit. Sort -> limit -> show, not limit -> sort: sorting
+      20,000 tracks in a model that fetches 1000 gives the first 1000 names of
+      all of them, where the other order would silently sort an arbitrary
+      thousand. A diagram carries that pipeline. Only `RowRenderer` is used; the
       other row renderer classes are not mentioned. Then `SearchPanel`: the whole
       list screen written in the search handler with no components in fields,
       `getCriteria()` returning null on bad input, where the fields come from
@@ -497,23 +503,34 @@ Steps:
       `SimpleSearchModel.onShelve()` dropping the result so the next render
       re-queries, and `setRefreshAfterShelve(true)` for the second staleness -
       the page's own persistence session handing back the entity objects it
-      already had. Two plantuml diagrams: how a cell gets filled, and what
-      shelving does to the model.
-      Five demo pages carry it, in `pages/tutorial/tables`: `TableFirstPage`
-      (explicit columns, and the same table with metadata columns),
+      already had. And finally the alternative for data that is not a query
+      result: `SortableListModel<T>` over a list of your own, which sorts in
+      memory instead of in the database, plus the rule that every change goes
+      through the model (`add()`, `delete()`, `modified()`, `move()`) because
+      that is what tells the table which rows to change - a change made behind
+      the model's back leaves the screen showing the old rows. Three plantuml
+      diagrams: how a cell gets filled, where sorting happens, and what shelving
+      does to the model.
+      Six demo pages carry it, in `pages/tutorial/tables`: `TableFirstPage`
+      (the model, the columns, the table and a pager),
       `TableColumnsPage` (the column options, cell and row click handlers, a
       renderer that highlights a price, a `column()` column sorted on the
       artist), `TableSearchPage` (SearchPanel + result table),
       `TableShelvePage` (a query counter incremented inside the query itself) and
-      `TableDetailPage` (what a row click opens, so the list gets shelved). They
-      are linked from `TutorialListPage` under a new "Showing rows" caption.
+      `TableDetailPage` (what a row click opens, so the list gets shelved) and
+      `TableListPage` (a `SortableListModel` over a basket of plain
+      `BasketLine` objects, with buttons that add, change and delete rows through
+      the model and no `forceRebuild()` anywhere). They are linked from
+      `TutorialListPage` under a new "Showing rows" caption.
       Verified by driving all of them under jetty in Chrome: sorting on a
       property-less column orders by artist; the cell handler wins over the row
       handler on its own column; `maxWidth` truncates with a hover title; a
       search for `love` returns 27 records; and on the shelve page the counter
       goes 1 -> 2 after visiting a track and pressing Back, stays put when paging
       (the model reads the result once and the pager slices it) and goes up again
-      when a column header is sorted. The site builds and both diagrams render.
+      when a column header is sorted. On the list page, adding a line drops it in
+      at its sorted position and "one more copy" changes that one cell, both
+      without a rebuild. The site builds and both diagrams render.
       - `SearchPanel` was given an explicit property list (`name`, `album.title`,
         `album.artist.name`) rather than the metadata default, because the
         metadata search fields for `Track` include two entity lookups whose popup
@@ -524,6 +541,15 @@ Steps:
         and `DataTable` in fields, which is what the conventions forbid; the
         tutorial page shows the closure form instead. Reworking that base class is
         a phase-3 item.
+      - **The page says nothing about metadata**, deliberately: the concept is
+        not explained yet, and the page after this one is about it. An earlier
+        draft had a "Columns you did not define" section (a `RowRenderer` with no
+        columns, taking them from `@MetaObject`) and explained why a price shows
+        as money; both were removed, together with the second table on
+        `TableFirstPage` that the section demonstrated. That material, and the
+        rest of what metadata decides (labels, converters, default columns,
+        default sort, search fields), belongs on the metadata page - which should
+        pick it up there.
       - **Not deployed**: the four `!demo()` frames on this page are 404 until the
         demo is redeployed with `scripts/deploy-demo`.
 
@@ -564,10 +590,9 @@ Steps:
       `fb.property(m_track, Track_.milliseconds()).readOnly().control()` instead
       of calling `MsDurationConverter` itself, and the tutorial's
       `TableColumnsPage` no longer passes a converter for its Duration column.
-      The "showing rows" page was updated to match: it now says that the price is
-      money because the property's metadata says so, that the duration converter
-      lives on the property, and that a renderer replaces that formatting (which
-      is why the price in that one table has no `$`).
+      The "showing rows" page does not mention any of this - metadata is not a
+      concept it may use yet - so its Duration columns state their converter on
+      the column, which overrides what metadata now gives anyway.
       Verified in the demo: the CD shop's track search (`CdCollection`) now shows
       Title / Duration / Price / Album / Artist sorted by title with `$ 0.99`
       prices; the media type combo reads "MPEG audio file"; `TrackDetails` shows

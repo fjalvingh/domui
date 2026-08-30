@@ -6,6 +6,7 @@ import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleSearchModel;
+import to.etc.domui.converter.MsDurationConverter;
 import to.etc.domui.derbydata.db.Track;
 import to.etc.domui.derbydata.db.Track_;
 import to.etc.domui.dom.html.Div;
@@ -46,7 +47,7 @@ public class TableSearchPage extends UrlPage {
 			SimpleSearchModel<Track> model = new SimpleSearchModel<>(this, criteria);
 			RowRenderer<Track> rr = new RowRenderer<>(Track.class);
 			rr.column(Track_.name()).label("Track").ascending().sortdefault();
-			rr.column(Track_.milliseconds()).label("Duration");
+			rr.column(Track_.milliseconds()).label("Duration").converter(new MsDurationConverter());
 			rr.column(Track_.album().title()).label("Album");
 			rr.column(Track_.album().artist().name()).label("Artist");
 

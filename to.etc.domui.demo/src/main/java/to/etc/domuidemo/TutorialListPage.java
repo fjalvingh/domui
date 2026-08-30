@@ -20,6 +20,7 @@ import to.etc.domuidemo.pages.tutorial.first.HelloClickPage;
 import to.etc.domuidemo.pages.tutorial.navigation.NavDetailPage;
 import to.etc.domuidemo.pages.tutorial.tables.TableColumnsPage;
 import to.etc.domuidemo.pages.tutorial.tables.TableFirstPage;
+import to.etc.domuidemo.pages.tutorial.tables.TableListPage;
 import to.etc.domuidemo.pages.tutorial.tables.TableSearchPage;
 import to.etc.domuidemo.pages.tutorial.tables.TableShelvePage;
 import to.etc.domuidemo.pages.tutorial.navigation.NavStatePage;
@@ -75,6 +76,7 @@ final public class TutorialListPage extends MenuPage {
 		addLink(TableColumnsPage.class, "Defining the columns");
 		addLink(TableSearchPage.class, "A search screen");
 		addLink(TableShelvePage.class, "Re-querying after a visit");
+		addLink(TableListPage.class, "A table of your own data");
 
 		addCaption("Binding tutorial");
 		addLink(InvoiceListPage.class, "Simple binding for editing a record");
