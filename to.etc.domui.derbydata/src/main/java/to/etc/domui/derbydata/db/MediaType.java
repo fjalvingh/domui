@@ -7,12 +7,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import to.etc.domui.component.meta.MetaCombo;
+import to.etc.domui.component.meta.MetaComboProperty;
 import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaObject;
 
 @Entity
 @Table(name = "MediaType")
 @MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")}, defaultSortColumn = "name")
+@MetaCombo(properties = @MetaComboProperty(name = "name"))
 public class MediaType extends DbRecordBase<Long> {
 	private Long m_id;
 

@@ -22,7 +22,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "Album")
-@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "title")}, defaultSortColumn = "name")
+@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "title")}, defaultSortColumn = "title")
 public class Album extends DbRecordBase<Long> {
 	private Long m_id;
 

@@ -7,7 +7,6 @@ import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component2.buttons.ButtonBar2;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.form4.FormBuilder;
-import to.etc.domui.converter.MsDurationConverter;
 import to.etc.domui.derbydata.db.Genre;
 import to.etc.domui.derbydata.db.MediaType;
 import to.etc.domui.derbydata.db.Track;
@@ -17,7 +16,6 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.themes.Theme;
-import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QCriteria;
 
 /**
@@ -52,7 +50,7 @@ public class TrackDetails extends UrlPage {
 		fb.property(m_track, Track_.genre()).control(new ComboLookup2<>(QCriteria.create(Genre.class).ascending("name")));
 		fb.property(m_track, Track_.mediaType()).control(new ComboLookup2<>(QCriteria.create(MediaType.class).ascending("name")));
 
-		fb.label("Duration").item(new Span(new MsDurationConverter().convertObjectToString(NlsContext.getLocale(), m_track.getMilliseconds())));
+		fb.property(m_track, Track_.milliseconds()).readOnly().control();
 		fb.property(m_track, Track_.unitPrice()).mandatory().control();
 
 		cp.add(new VerticalSpacer(10));

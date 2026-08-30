@@ -470,6 +470,120 @@ Steps:
       - **Not deployed**: the two `!demo()` frames on this page are 404 until the
         demo is redeployed with `scripts/deploy-demo`.
 
+- [x] **Documentation: "Showing rows".** The seventh page of the walkthrough,
+      `site/content/building-pages/70-showing-rows/index.md`, filling the biggest
+      hole in it: after "using databases" a reader could run a query but had no
+      way to show more than one record. Three parts, as agreed. First the table:
+      the model / `RowRenderer` / `DataTable` split and the `DataPager`, the
+      query running on first render rather than at construction, page size and
+      the 1000-row model maximum with its truncation marker, and a renderer with
+      no columns at all taking them from `@MetaObject(defaultColumns)`. Then the
+      columns: the four `column()` forms tabled, everything a `ColumnDef` can be
+      told tabled (label, width in characters or css, maxWidth, align, css,
+      wrap, hint, converter, renderer, the sort methods, cellClicked, editable /
+      factory), what a cell actually is - a `DisplaySpan` bound to the property,
+      so a changed row value updates the cell - and the rules around custom
+      renderers (`IRenderInto`, not called for null unless you implement
+      `renderOpt`, and a warning callout that editable/factory cannot be combined
+      with renderer/converter, which throws). Only `RowRenderer` is used; the
+      other row renderer classes are not mentioned. Then `SearchPanel`: the whole
+      list screen written in the search handler with no components in fields,
+      `getCriteria()` returning null on bad input, where the fields come from
+      (metadata, a property-name list, a base `QCriteria`, `add().property()`),
+      and two tables of what a user may type in a text or number search box
+      (`*` wildcards, a trailing point for exact, `> 12 < 100`, `*`/`!`). Finally
+      the shelve mechanism: `TableModelTableBase.onShelve/onUnshelve` handing the
+      event to a model that implements `IShelvedListener`,
+      `SimpleSearchModel.onShelve()` dropping the result so the next render
+      re-queries, and `setRefreshAfterShelve(true)` for the second staleness -
+      the page's own persistence session handing back the entity objects it
+      already had. Two plantuml diagrams: how a cell gets filled, and what
+      shelving does to the model.
+      Five demo pages carry it, in `pages/tutorial/tables`: `TableFirstPage`
+      (explicit columns, and the same table with metadata columns),
+      `TableColumnsPage` (the column options, cell and row click handlers, a
+      renderer that highlights a price, a `column()` column sorted on the
+      artist), `TableSearchPage` (SearchPanel + result table),
+      `TableShelvePage` (a query counter incremented inside the query itself) and
+      `TableDetailPage` (what a row click opens, so the list gets shelved). They
+      are linked from `TutorialListPage` under a new "Showing rows" caption.
+      Verified by driving all of them under jetty in Chrome: sorting on a
+      property-less column orders by artist; the cell handler wins over the row
+      handler on its own column; `maxWidth` truncates with a hover title; a
+      search for `love` returns 27 records; and on the shelve page the counter
+      goes 1 -> 2 after visiting a track and pressing Back, stays put when paging
+      (the model reads the result once and the pager slices it) and goes up again
+      when a column header is sorted. The site builds and both diagrams render.
+      - `SearchPanel` was given an explicit property list (`name`, `album.title`,
+        `album.artist.name`) rather than the metadata default, because the
+        metadata search fields for `Track` include two entity lookups whose popup
+        is unusable inside a `!demo()` iframe - the same trap as the
+        `LookupInput2` one noted under the data-binding page. The metadata form is
+        documented, just not embedded.
+      - `AbstractCdShopListPage` (the cddb list screens) keeps its `ContentPanel`
+        and `DataTable` in fields, which is what the conventions forbid; the
+        tutorial page shows the closure form instead. Reworking that base class is
+        a phase-3 item.
+      - **Not deployed**: the four `!demo()` frames on this page are 404 until the
+        demo is redeployed with `scripts/deploy-demo`.
+
+- [x] **Fixed the metadata of the Track entity and the entities around it.**
+      Writing the "showing rows" page made the gaps visible: the tutorial had to
+      hand a converter and an alignment to a column that metadata should have
+      supplied, and `TrackDetails` formatted a duration by hand. In
+      `to.etc.domui.derbydata`:
+      - `Track` had **no `defaultSortColumn`**, so any metadata-driven table of
+        tracks came out in database order; it is now `name`.
+      - The duration converter sat on the *column*
+        (`@MetaDisplayProperty(converterClass = MsDurationConverter.class)`), so
+        it worked in a default table and nowhere else. It moved to the property
+        as `@MetaProperty(converterClass = MsDurationConverter.class)`, which is
+        what makes it work in forms and in explicitly-defined columns too.
+      - `Track.unitPrice` had **no numeric presentation**, so prices rendered as
+        a bare `0.99`, left aligned. It now carries
+        `@MetaProperty(numericPresentation = NumericPresentation.MONEY_FULL)` and
+        renders as `$ 0.99`, right aligned, everywhere.
+      - `unitPrice` was added to the default columns; a track's price belongs in
+        the list of a CD shop, and it makes the money presentation visible in the
+        metadata-driven table.
+      - `Track.name` was mapped `@Column(length = 128)` while the schema says
+        `VARCHAR(200)`; the annotation now matches the column.
+      - `Album.defaultSortColumn` was **`"name"`, a property Album does not
+        have** (it has `title`), so it silently did nothing -
+        `ColumnList.setDefaultSortColumn()` just finds no matching column. Fixed
+        to `title`.
+      - `MediaType` rendered as `to.etc.domui.derbydata.db.MediaType#1 @1491...`
+        in the combo on `TrackDetails`: a combo renders through
+        `@MetaCombo`/`getComboDisplayProperties()`, falling back to `toString()`,
+        and `MediaType` had neither (`Genre` only worked because it happens to
+        have a `toString()`). Both now carry
+        `@MetaCombo(properties = @MetaComboProperty(name = "name"))`, so the
+        rendering comes from metadata rather than from an accident.
+      Two consumers were simplified to use what metadata now provides:
+      `TrackDetails` shows the duration with
+      `fb.property(m_track, Track_.milliseconds()).readOnly().control()` instead
+      of calling `MsDurationConverter` itself, and the tutorial's
+      `TableColumnsPage` no longer passes a converter for its Duration column.
+      The "showing rows" page was updated to match: it now says that the price is
+      money because the property's metadata says so, that the duration converter
+      lives on the property, and that a renderer replaces that formatting (which
+      is why the price in that one table has no `$`).
+      Verified in the demo: the CD shop's track search (`CdCollection`) now shows
+      Title / Duration / Price / Album / Artist sorted by title with `$ 0.99`
+      prices; the media type combo reads "MPEG audio file"; `TrackDetails` shows
+      `5m 43s 719ms` from metadata; `AlbumListPage` is unaffected because its own
+      renderer sets a sort column, which beats the metadata default. The demo
+      module's 9 unit tests pass and the HibernateChecker reports no issues.
+      - **Not checked**: the Selenium `IT*` fixtures were not run (they need a
+        browser driver). `LookupForm1TestPage`/`LookupForm2TestPage` use Track's
+        *search* metadata, which was not touched, but a test that counts the
+        default columns of a Track table would now see five instead of four.
+      - **Left alone, worth a decision**: every entity except `Artist` names a
+        sequence that `CreateDB.sql` does not define (`track_sq`, `album_sq`,
+        `genre_sq`), and `MediaType` names `track_sq` - a copy-paste. Nothing
+        inserts these entities in the demo, so it never surfaces; fixing it means
+        deciding whether the sequences belong in the schema script.
+
 - [x] **The embedded demo pages (`!demo()`) did not work at all.** Every iframe on
       the documentation site showed "Can't create session, session cookie is
       blocked by the browser!" - not only the new page, the data-binding ones too.

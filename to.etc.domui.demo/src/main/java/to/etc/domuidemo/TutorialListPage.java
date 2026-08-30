@@ -18,6 +18,10 @@ import to.etc.domuidemo.pages.tutorial.database.QueryJoinPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryRestrictionsPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloClickPage;
 import to.etc.domuidemo.pages.tutorial.navigation.NavDetailPage;
+import to.etc.domuidemo.pages.tutorial.tables.TableColumnsPage;
+import to.etc.domuidemo.pages.tutorial.tables.TableFirstPage;
+import to.etc.domuidemo.pages.tutorial.tables.TableSearchPage;
+import to.etc.domuidemo.pages.tutorial.tables.TableShelvePage;
 import to.etc.domuidemo.pages.tutorial.navigation.NavStatePage;
 import to.etc.domuidemo.pages.tutorial.typed.TypedGenericPage;
 import to.etc.domuidemo.pages.tutorial.typed.TypedPathPage;
@@ -65,6 +69,12 @@ final public class TutorialListPage extends MenuPage {
 		addCaption("Page navigation");
 		addLink(NavStatePage.class, "Page state and navigation");
 		addLink(NavDetailPage.class, "The shelve stack and the breadcrumb");
+
+		addCaption("Showing rows");
+		addLink(TableFirstPage.class, "Your first table");
+		addLink(TableColumnsPage.class, "Defining the columns");
+		addLink(TableSearchPage.class, "A search screen");
+		addLink(TableShelvePage.class, "Re-querying after a visit");
 
 		addCaption("Binding tutorial");
 		addLink(InvoiceListPage.class, "Simple binding for editing a record");
