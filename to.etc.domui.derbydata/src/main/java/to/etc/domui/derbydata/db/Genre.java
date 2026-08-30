@@ -7,9 +7,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import to.etc.domui.component.meta.MetaDisplayProperty;
+import to.etc.domui.component.meta.MetaObject;
 
 @Entity
 @Table(name = "Genre")
+@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")}, defaultSortColumn = "name")
 public class Genre extends DbRecordBase<Long> {
 	private Long m_id;
 

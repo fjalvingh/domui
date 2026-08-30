@@ -408,6 +408,19 @@ Steps:
         has it. Its lookup popup is nearly full-page, so inside a `!demo()` iframe
         it is unusable; the page now uses two `ComboLookup2` with `limit(20)`.
         Worth remembering for any tutorial page that will be embedded.
+      - **Fixed a defect in the demo data model that this page hit.**
+        `FormBuilder.property(m_order, AlbumOrder_.genre()).readOnly().control()`
+        picks a lookup for an entity-typed property, and rendering a *selected*
+        value in one needs presentation metadata - so choosing a genre threw
+        `The class ClassMetaModel[...Genre] has no presentation metadata
+        (@MetaObject or @MetaCombo)` from `SimpleLookupInputRenderer`. `Genre` and
+        `MediaType` were the only two of the nine derbydata entities without
+        `@MetaObject`; both now carry
+        `@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")}, defaultSortColumn = "name")`
+        like `Artist` does. It only surfaces once a value is selected, which is
+        why the first pass through the screen missed it. Verified: the read-only
+        genre now renders "Jazz", `ReferenceDataPage` and `TrackDetails?id=1`
+        still render, and the module's 9 unit tests pass.
       - The old `pages/binding/tut1/**` pages stay for now: they are what
         `TutorialListPage`'s "Binding tutorial" caption still points at, they use
         `Text` and `TextStr` (pre-`component2`) and `InvoiceListPage` extends the
@@ -418,6 +431,44 @@ Steps:
         `data/data-binding/index.md` goes, take
         `data/data-binding/typed-properties` (superseded by
         `40-typed-properties`) with it and repoint the five links listed above.
+
+- [x] **Documentation: "Page navigation".** The sixth page of the walkthrough,
+      `site/content/building-pages/60-page-navigation/index.md`. It opens with a
+      page that keeps two fields, walks away from it and comes back to find them
+      unchanged; then that a `UIGoto` is a real page change (redirect, new
+      document, new page object) and that it only *records* the target, so the
+      rest of the handler still runs; then the six moves tabled, with page
+      parameters and `@UIUrlParameter` on the receiving side; then `moveSub` and
+      the shelf in detail - the `WindowSession` stack, `getShelvedPageStack()`,
+      `BreadCrumb2.createPageCrumb()` being nothing but that stack drawn, how an
+      entry gets its name (`IBreadCrumbTitler`, `getPageTitle()`, class name), and
+      `addBackButton()` turning into a Close button at the bottom of the shelf;
+      then what each move does to the stack, including the two rules that cut
+      across it (a target already on the shelf turns any move into a move *back*
+      to that instance, destroying everything above it; moving to the root page
+      always empties the shelf); then conversations travelling with a shelved page
+      and the `moveSub(clz, conversation, pp)` join; then
+      `addActionMessage()`/`addAction()` for saying something on the page you land
+      on. Two plantuml diagrams: the request in which a `UIGoto` happens, and the
+      shelf through moveSub/moveSub/back. Closing pointer to `state-management`.
+      Two demo pages carry it, in `pages/tutorial/navigation`: `NavStatePage`
+      (state in fields, and buttons for moveSub / moveSub with a message /
+      replace / reload) and `NavDetailPage` (prints the live shelve stack and
+      walks it with Back, Deeper, Sideways, Start over here, and a moveSub to the
+      page it came from), linked from `TutorialListPage` under a new "Page
+      navigation" caption.
+      Verified by driving both pages under jetty in Chrome, watching the printed
+      stack and the breadcrumb: `moveSub` pushes and starts a new conversation
+      (`$cid` .x -> .c1 -> .c2); `back()` returns to the page instance with its
+      counter intact; `replace` swaps the top entry and leaves the depth alone;
+      `moveNew` empties the shelf, leaving one entry and a Close button;
+      `reload()` keeps the shelf but gives a new conversation and a zeroed page;
+      `addActionMessage` shows its flare on the page arrived at; and a `moveSub`
+      to a page already on the shelf returned to *that* instance (state intact)
+      and dropped the two pages above it - which is why that rule is in the page
+      as a warning callout. The site builds and both diagrams render.
+      - **Not deployed**: the two `!demo()` frames on this page are 404 until the
+        demo is redeployed with `scripts/deploy-demo`.
 
 - [x] **The embedded demo pages (`!demo()`) did not work at all.** Every iframe on
       the documentation site showed "Can't create session, session cookie is
