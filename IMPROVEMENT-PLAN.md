@@ -239,6 +239,40 @@ Steps:
       - The rest of `building-pages` is untouched on purpose; moving or deleting
         those pages comes later.
 
+- [x] **Documentation: "Using components".** The second page of the walkthrough,
+      `site/content/building-pages/using-components/index.md`: a component is a
+      node that builds itself (`Text2<T> extends Div`, `DefaultButton extends
+      Button`, the same `createContent()` mechanism a page uses, layer 0 versus
+      layer 1, `forceRebuild()` when a property changes the presentation); a form
+      built with `component2.form4.FormBuilder` without binding; the state every
+      `IControl<T>` has (value, readOnly, disabled, disabledBecause, mandatory)
+      and the fact that each control shows readOnly its own way; `getValue()` as
+      the place where mandatory, conversion and validators are checked, posting a
+      `UIMessage` to the error fence and throwing a `ValidationException` that the
+      framework - not the handler - catches; and `setOnValueChanged` with the
+      request order (raw values in, change handlers, then the action). No data
+      binding and no database, on purpose - binding is the next step.
+      Three demo pages carry it, in `pages/tutorial/components`:
+      `ComponentFormPage` (Text2<String/Integer/BigDecimal>, DateInput2,
+      ComboFixed2, two buttons reading the values with `getValue()` and with
+      `hasError()`), `ComponentStatePage` (four buttons switching all three
+      controls between editable, read only, disabled and disabledBecause) and
+      `ComponentChangePage` (two change handlers recomputing a total). Linked from
+      `TutorialListPage` under a new "Using components" caption.
+      Verified by running the demo under jetty and driving it in Chrome: the
+      mandatory error renders as "**Album title:** Mandatory field" in the
+      auto-inserted `ErrorPanel` with the field in red, an Integer field holding
+      "abc" gives "The field content "abc" is invalid", readOnly turns the combo
+      into plain text while disabledBecause leaves it a greyed select, and
+      changing a field and leaving it updates the total without a button.
+      - Found while writing it: `DateInput2` reacts to an unparseable date with a
+        client-side `alert()` (`WebUI.dateInputCheckInput` -> `dateInputRepairValueIn`
+        in `domui.dateinput.ts`), which blocks the browser rather than using the
+        framework's own error reporting. Left alone - not this step's scope, but a
+        candidate.
+      - `Text2<BigDecimal>` accepts "1.2.3" and silently converts it to 1.2; the
+        conversion example in the documentation therefore uses an Integer field.
+
 - [x] **The embedded demo pages (`!demo()`) did not work at all.** Every iframe on
       the documentation site showed "Can't create session, session cookie is
       blocked by the browser!" - not only the new page, the data-binding ones too.
