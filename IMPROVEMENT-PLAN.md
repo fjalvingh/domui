@@ -653,8 +653,104 @@ Steps:
       style; the `@media print` block had the same `code, pre` conflation and was
       split the same way.
 
+- [x] **Documentation: "Metadata".** The eighth page of the walkthrough,
+      `site/content/building-pages/80-metadata/index.md`, and the page the
+      previous one deliberately left material for. Two subjects in one page,
+      because they are one mechanism. First metadata: a form and a table built
+      over `Track` that state no label, size, converter, mandatory marker,
+      column or sort order at all, then where each of those came from - the four
+      sources read in order (the properties themselves, JPA annotations, DomUI
+      property annotations, DomUI class annotations, the class's `.properties`
+      file), tabled per source, with the rule that `@MetaProperty` **adds** to
+      what JPA already said rather than repeating it. Then asking for the model
+      yourself (`MetaManager.findClassMeta` / `getPropertyMeta`, dotted paths)
+      with `PropertyMetaModel` and `ClassMetaModel` tabled. Then what metadata
+      decides, one section each: the label (and that a missing key shows the
+      property name, which is how you find it); which control (the
+      `ControlCreatorRegistry` scoring, the >5-values-becomes-a-combo rule, a
+      relation becoming a lookup unless the metadata prefers a combo); the
+      limits of the field (`length` -> maxLength, `precision`/`scale` ->
+      validator plus a calculated width, and the JPA-255 trap); how the value is
+      shown (`numericPresentation` and `temporal` steering the converter factory
+      scoring, `converterClass` beating everything, and why that belongs on the
+      property rather than on one column); and the table, sort order and search
+      fields from `@MetaObject`, including that defining one column drops all
+      the default ones. Then enum labels: `<VALUE>.label` in the enum's bundle,
+      `<property>.<VALUE>.label` overriding it in the owning class's bundle, and
+      booleans getting Yes/No from DomUI's own bundle.
+      Then internationalization, taken from `99-todo/internationalization` and
+      its `locale-handling` sub-page and rewritten: one page in two languages
+      first, then where the locale of a request comes from (`___locale` -
+      **three** underscores, kept in the session - then the session, then
+      `DomApplication.getRequestLocale()`), `NlsContext.getLocale()` as a
+      ThreadLocal set per request, and the currency locale as a separate
+      question. Then **why the JDK's localization is not used**, with the four
+      concrete reasons rather than the old page's rant: a `ResourceBundle` is
+      one language so it cannot be a constant; a missing translation falls back
+      to `Locale.getDefault()` - the locale of the *server* - before it falls
+      back to the base file, so it silently becomes the wrong language
+      (`ResourceBundle.Control.getFallbackLocale()`); the search order cannot be
+      extended with DomUI's dialect level; and the encoding trap. Then
+      `BundleRef` (a place, not a language; one instance per place; the
+      resolution order and key-level fallback), `IBundleCode` enums as the way
+      to name a message, with `CodeException`, `UIMessage.error()` and `Msgs`;
+      the bundle stack behind `$()` and how a subclass overrides a superclass's
+      text; and finally **the keys metadata looks for**, tabled - which is where
+      the two halves meet, since the class bundle is an ordinary `BundleRef`.
+      Three plantuml diagrams: how a class metadata model is built, which
+      control a property gets, and where the locale of a request comes from.
+      Three demo pages carry it, in `pages/tutorial/meta`, plus a small model:
+      `ShippingMethod` and `ShipmentState` (enums with their own bundles, three
+      and six values, so one becomes a radio group and the other a combo) and
+      `Shipment` (a `@GenerateProperties` class with a bundle that overrides one
+      enum value label for one property). `MetaFormPage` (the `Track` form and
+      the column-less `RowRenderer`, with a box printing the metadata that
+      produced them), `MetaEnumPage` (the four controls plus
+      `MetaManager.getEnumLabel` asked directly, per enum and per property) and
+      `MetaNlsPage` (language links, `$()` texts, an `Invoice` form and the
+      framework's own `Msgs`). Linked from `TutorialListPage` under a new
+      "Metadata and internationalization" caption.
+      Verified by running the demo under jetty and driving all three in Chrome:
+      the form shows Title/Composer/Duration/Price/Album/Media type with three
+      mandatory markers, `5m 43s 719ms` and `$ 0.99`, and the table comes out
+      with the five `@MetaObject` columns sorted on title; the enum page shows
+      "Pick up at the shop" on one field and "Customer brings it back" on the
+      other, Yes/No on the boolean and a combo for the six-valued enum; and the
+      NLS page switches wholesale to Dutch on `___locale=nl_NL` - labels, enum
+      values, page title, breadcrumb, `02-01-2007` and `3,96` - while the two
+      `Invoice` properties that `Invoice_nl.properties` has no key for stay
+      English, which is the per-key fallback made visible. The site builds, all
+      three diagrams render and all three `!demo()` frames resolve. The demo
+      module's 9 unit tests pass.
+      - **The framework's own bundles have Dutch as their default language**
+        (`to/etc/domui/util/messages.properties` is Dutch, `_en` is English; the
+        same for `YesNoType` and the rest). The `de_DE` link on the demo page
+        shows what that means: the application's texts fall back to their default
+        file - English there - while `Msgs.mandatory` comes out as "Dit veld is
+        verplicht". Documented as a warning callout, and listed as a candidate
+        below.
+      - Corrected against the old page while writing: the locale parameter is
+        `___locale` with **three** underscores, not `__locale`, and it is stored
+        in the session rather than applying to one request only; parameters
+        starting with `_` are filtered out of `PageParameters`, so it never
+        reaches the page.
+      - **`99-todo/internationalization` and its `locale-handling` sub-page are
+        superseded by this page and were deleted**, everything worth keeping
+        having been carried over. The two links to them were repointed:
+        `building-pages/index.md` now lists the metadata page, and
+        `release-notes/domui-2-0` (itself due for deletion in phase 4) points at
+        the new page.
+      - **Not deployed**: the three `!demo()` frames on this page are 404 until
+        the demo is redeployed with `scripts/deploy-demo`.
+
+
 Candidates still open, offered as input - not agreed scope:
 
+- DomUI's own message bundles have **Dutch** as their default language: the
+  base `to/etc/domui/util/messages.properties`, `YesNoType.properties`,
+  `MsgBoxButton.properties` and the rest are Dutch, with English in the `_en`
+  files. Any user whose locale has no bundle of its own therefore gets Dutch
+  framework texts. Swap the two files around so the base language is English?
 - `pages/OldHome.java` is an unreferenced legacy page (nothing links to it, though
   as a `UrlPage` it stays reachable by URL). Delete?
 - `pages/special/BasicPage.java` is marked `@Deprecated` and documents itself as

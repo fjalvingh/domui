@@ -17,6 +17,9 @@ import to.etc.domuidemo.pages.tutorial.database.QueryFirstPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryJoinPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryRestrictionsPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloClickPage;
+import to.etc.domuidemo.pages.tutorial.meta.MetaEnumPage;
+import to.etc.domuidemo.pages.tutorial.meta.MetaFormPage;
+import to.etc.domuidemo.pages.tutorial.meta.MetaNlsPage;
 import to.etc.domuidemo.pages.tutorial.navigation.NavDetailPage;
 import to.etc.domuidemo.pages.tutorial.tables.TableColumnsPage;
 import to.etc.domuidemo.pages.tutorial.tables.TableFirstPage;
@@ -77,6 +80,11 @@ final public class TutorialListPage extends MenuPage {
 		addLink(TableSearchPage.class, "A search screen");
 		addLink(TableShelvePage.class, "Re-querying after a visit");
 		addLink(TableListPage.class, "A table of your own data");
+
+		addCaption("Metadata and internationalization");
+		addLink(MetaFormPage.class, "A form that repeats nothing");
+		addLink(MetaEnumPage.class, "Labels for enum values");
+		addLink(MetaNlsPage.class, "One page, two languages");
 
 		addCaption("Binding tutorial");
 		addLink(InvoiceListPage.class, "Simple binding for editing a record");
