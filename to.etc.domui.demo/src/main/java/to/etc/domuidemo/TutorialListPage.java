@@ -17,6 +17,10 @@ import to.etc.domuidemo.pages.tutorial.database.QueryFirstPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryJoinPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryRestrictionsPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloClickPage;
+import to.etc.domuidemo.pages.tutorial.layout.LayoutFragmentPage;
+import to.etc.domuidemo.pages.tutorial.layout.LayoutPanelPage;
+import to.etc.domuidemo.pages.tutorial.layout.LayoutSectionPage;
+import to.etc.domuidemo.pages.tutorial.layout.LayoutTabPage;
 import to.etc.domuidemo.pages.tutorial.messages.MsgAskPage;
 import to.etc.domuidemo.pages.tutorial.messages.MsgBoxPage;
 import to.etc.domuidemo.pages.tutorial.messages.MsgExceptionPage;
@@ -97,6 +101,12 @@ final public class TutorialListPage extends MenuPage {
 		addLink(MsgMessagePage.class, "Messages on the page");
 		addLink(MsgExceptionPage.class, "Showing an exception");
 		addLink(MsgFencePage.class, "Where a message ends up");
+
+		addCaption("Layout");
+		addLink(LayoutPanelPage.class, "Panels and button bars");
+		addLink(LayoutTabPage.class, "Tabs");
+		addLink(LayoutFragmentPage.class, "A fragment of your own");
+		addLink(LayoutSectionPage.class, "A section that folds shut");
 
 		addCaption("Binding tutorial");
 		addLink(InvoiceListPage.class, "Simple binding for editing a record");

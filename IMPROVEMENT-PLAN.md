@@ -819,8 +819,64 @@ Steps:
       - **Not deployed**: the five `!demo()` frames on this page are 404 until the
         demo is redeployed with `scripts/deploy-demo`.
 
+- [x] **Documentation: "Layout".** The tenth page of the walkthrough,
+      `site/content/building-pages/100-layout/index.md`, in two halves. First the
+      three things a screen is framed with: `ContentPanel` (a `Div` with
+      `ui-cpnl`, the padding a page's content needs - with the demo page adding
+      one line to the page itself so the difference is visible, and the rule that
+      overlays go on the page rather than in the panel); `ButtonBar2` (left and
+      right groups, horizontal or vertical, a table of the *kinds* of button it
+      adds rather than a list of overloads, the `order` argument, and that
+      `addBackButton()` reads the page shelf and silently becomes a **Close**
+      button when there is nothing to go back to); and `TabPanel` (the `tab()`
+      builder tabled - label/image/content/lazy/closable/position/onDisplay/
+      onHide/onClose - `ITabHandle` for select/close/updateLabel/updateContent,
+      why `lazy()` matters, `new TabPanel(true)` making the panel an error fence
+      that marks the tab an error came from, and `ScrollableTabPanel`).
+      Then the second half: writing a **fragment** - a `NodeContainer` that fills
+      itself in `createContent()`, "a `UrlPage` minus the URL". `ArtistCardFragment`
+      shown whole, used three times on one page; a plantuml of what
+      `forceRebuild()` on one of them costs; five reasons to bother (reuse, a
+      readable page build method, per-part redraw over a page-wide rebuild, state
+      living with what owns it, and one place for the css class); and the rules
+      inside one - components local, state in fields, parameters through the
+      constructor, results through a listener.
+      The page ends on `CollapsibleSection`, written out in full: a titled section
+      with a chevron that folds it shut, with three things called out because
+      every component has to answer them - **where the content lives** (the
+      content `Div` *is* a field, deliberately: it holds what the caller put in
+      it, so the rule is not "no components in fields" but "a field may hold what
+      the fragment does not build"), **what opening and closing costs** (a boolean
+      plus `forceRebuild()`, a delta of one div), and **how it tells anyone**
+      (`INotify<CollapsibleSection>`, the shape every DomUI event has). It closes
+      by naming what a fragment still lacks to be a component - a value, the
+      control states, a place in the form builder, metadata - pointing at the
+      components section.
+      Four demo pages plus two fragment classes in `pages/tutorial/layout`:
+      `LayoutPanelPage`, `LayoutTabPage`, `ArtistCardFragment` +
+      `LayoutFragmentPage`, `CollapsibleSection` + `LayoutSectionPage`, with
+      `dm-card`, `dm-cardrow` and `dm-cs*` styles added to the demo's
+      `_panels.scss`. Linked from `TutorialListPage` under a new "Layout" caption.
+      Verified by driving all four under jetty in Chrome: the tab builder's icon,
+      lazy body, closable cross and `select()` from outside all behave; opening
+      one card leaves the other two alone; and the album section survives a
+      collapse-and-expand with its table intact, which is the point being made
+      about the kept content div. Site builds, the diagram renders, all four
+      `!demo()` frames resolve. The demo module's unit tests pass.
+      - **`TabPanelBase.add(content, label, ...)` is marked "legacy quick add
+        methods - prefer the builder instead" in the source**, and every one of
+        them just calls `tab()...build()`. The page and the demo therefore use the
+        builder only, and the `add()` forms are not documented.
+      - **Not deployed**: the four `!demo()` frames on this page are 404 until the
+        demo is redeployed with `scripts/deploy-demo`.
+
 Candidates still open, offered as input - not agreed scope:
 
+- `component/layout/ExpandCollapsePanel` does roughly what the tutorial's
+  `CollapsibleSection` does, but it puts its content *next to* itself
+  (`appendAfterMe`) rather than inside it, so the panel and what it opens are
+  siblings. Only `AsyncDiv` uses it. Replace it with a version shaped like the
+  tutorial one, or leave it undocumented and eventually delete it?
 - A control error raised inside a `MsgBox2` is shown twice: in the box and in the
   page's error display (see the "Telling something to a user" entry above). Decide
   which of the two fences a message box should have and remove the other?

@@ -164,3 +164,39 @@
 .lpf-content-links {
 
 }
+
+/*** Tutorial "layout": the reusable card fragment ***/
+.dm-cardrow {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.dm-card {
+	width: 280px;
+	margin: 0 20px 20px 0;
+	padding: 10px 15px;
+	border: 1px solid #d0d0d0;
+	background-color: #fbfbfb;
+}
+
+.dm-card h2 {
+	margin-top: 0;
+}
+
+/*** Tutorial "layout": the collapsible section fragment ***/
+.dm-cs {
+	margin-bottom: 10px;
+	border: 1px solid #d0d0d0;
+}
+
+.dm-cs-h {
+	padding: 4px 10px;
+	background-color: #f0f0f0;
+	border-bottom: 1px solid #d0d0d0;
+	font-weight: bold;
+}
+
+.dm-cs-c {
+	padding: 10px;
+}
