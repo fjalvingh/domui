@@ -89,6 +89,16 @@
 	background-color: #ffe9a0;
 }
 
+/*** The generated query text, shown next to a tutorial query result ***/
+.dm-tut-q {
+	margin: 20px 20px 0 20px;
+	padding: 10px;
+	background-color: #f4f4f4;
+	border: 1px solid #d0d0d0;
+	font-family: monospace;
+	white-space: pre-wrap;
+}
+
 /*** Wiki page data ***/
 .ui-wiki {
 	position: absolute;

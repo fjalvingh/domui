@@ -8,6 +8,9 @@ import to.etc.domuidemo.pages.binding.tut1.InvoiceListPage;
 import to.etc.domuidemo.pages.tutorial.components.ComponentChangePage;
 import to.etc.domuidemo.pages.tutorial.components.ComponentFormPage;
 import to.etc.domuidemo.pages.tutorial.components.ComponentStatePage;
+import to.etc.domuidemo.pages.tutorial.database.QueryFirstPage;
+import to.etc.domuidemo.pages.tutorial.database.QueryJoinPage;
+import to.etc.domuidemo.pages.tutorial.database.QueryRestrictionsPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloClickPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloTreePage;
@@ -31,6 +34,11 @@ final public class TutorialListPage extends MenuPage {
 		addLink(ComponentFormPage.class, "A form of components");
 		addLink(ComponentStatePage.class, "readOnly, disabled and disabledBecause");
 		addLink(ComponentChangePage.class, "Reacting to a changed value");
+
+		addCaption("Using databases");
+		addLink(QueryFirstPage.class, "Your first query");
+		addLink(QueryRestrictionsPage.class, "Restrictions and combinators");
+		addLink(QueryJoinPage.class, "Querying over a relation");
 
 		addCaption("Binding tutorial");
 		addLink(InvoiceListPage.class, "Simple binding for editing a record");

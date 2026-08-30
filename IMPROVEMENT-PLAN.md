@@ -281,6 +281,45 @@ Steps:
         readOnly/disabled/disabledBecause in fields and calls `forceRebuild()`, which is
         the pattern the documentation points at as the reason components are not fields.
 
+- [x] **Documentation: "Using databases".** The third page of the walkthrough,
+      `site/content/building-pages/30-using-databases/index.md`, started from
+      `data/qcriteria` and rewritten in the agreed style. It opens with the two
+      classes the rest depends on - `QCriteria<T>` as the question and
+      `QDataContext` as the thing that runs it - and `getSharedContext()` as where
+      a page gets the latter; then a first query (restrictions, ordering, limit,
+      typed results, property paths rather than column names, the value travelling
+      as a JDBC parameter); then what a `QDataContext` is and how the shared one
+      lives (opened during a request, closed when the conversation detaches, its
+      `close()` ignored) with the useful calls tabled; then restrictions and
+      combinators (and by default, `or()`/`and()`/`not()` returning a restrictor,
+      levels of the same kind merging) and finally querying over a relation - a
+      dotted path upwards, `exists()` downwards, and why the child condition is a
+      subselect rather than a join (`limit()` counts entities). Two plantuml
+      diagrams: query-versus-context, and the and/or tree. No data binding and no
+      `DataTable`, on purpose; a single pointer at the end to `data/qcriteria` for
+      the reference-level material.
+      Three demo pages carry it, in `pages/tutorial/database`: `QueryFirstPage`
+      (ilike/ascending/limit on `Album`), `QueryRestrictionsPage` (an `or()` over
+      name and composer, anded with a duration, showing the query's own
+      `toString()` in a new `.dm-tut-q` box) and `QueryJoinPage` (albums by
+      `artist.name`, and artists by `exists(Album.class, "albumList")`). Linked
+      from `TutorialListPage` under a new "Using databases" caption.
+      Verified by running the demo under jetty and fetching all three: "rock"
+      finds 7 albums, the restrictions page renders
+      `WHERE (name ilike '%brown%' or composer ilike '%brown%') and milliseconds>=240000L`
+      with 5 matching tracks, and the exists query returns 11 artists once each.
+      The site builds clean, both diagrams render and all three `!demo()` iframes
+      resolve.
+      - Found while writing it: the demo database itself holds truncated artist
+        and track names - `CreateDB.sql` has both `Led Zeppeli` and
+        `Led Zeppelin` as separate artists, plus `Iron Maide`,
+        `Yamma Brow`, `Talkin Loud and Saying Nothi`. Not a rendering bug; the
+        insert statements are like that. Left alone - a candidate, below.
+      - `data/qcriteria` now overlaps this page and still carries stale material
+        (an `examples/tutorial` module that no longer exists, an `Album.year`
+        property the entity does not have, Confluence-hosted images). It wants
+        triage in phase 2 as the reference page this one points at.
+
 - [x] **The embedded demo pages (`!demo()`) did not work at all.** Every iframe on
       the documentation site showed "Can't create session, session cookie is
       blocked by the browser!" - not only the new page, the data-binding ones too.
@@ -335,6 +374,10 @@ Candidates still open, offered as input - not agreed scope:
   tutorial currently teaches a class the framework tells people not to use.
   This wants fixing in phase 3.
 - `pages/cddb/TrackDetails.java` is an empty stub page with no content at all.
+- The demo database has corrupt names in `to.etc.domui.derbydata`'s `CreateDB.sql`:
+  artists and tracks whose last character(s) were cut off (`Iron Maide`,
+  `Led Zeppeli` next to a separate `Led Zeppelin`, `Yamma Brow`). Repair the
+  script?
 - `pages/overview/layout/DemoAppTitle.java` renders a full-width `AppPageTitleBar`
   and now sits inside a padded panel; worth eyeballing in the browser.
 - The demo mixes its Selenium/JUnit fixture pages (`pages/test/**`) into the same
