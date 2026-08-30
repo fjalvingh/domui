@@ -42,7 +42,7 @@ $errors_transparent: rgba(red($errors_border), green($errors_border), blue($erro
 $errors_input_background: #ffe5e5 !default;	// error bg for input component
 
 $warnings_background: #fffeee !default; // light yellow
-$warnings_foreground: yellow !default;
+$warnings_foreground: #8a6100 !default;	// dark amber: yellow is unreadable on $warnings_background
 $warnings_border: goldenrod !default;
 $warnings_transparent: rgba(red($warnings_border), green($warnings_border), blue($warnings_border), 0.25) !default;
 

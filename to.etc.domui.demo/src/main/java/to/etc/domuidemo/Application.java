@@ -4,6 +4,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.caches.images.ImageCache;
 import to.etc.domui.component.layout.BreadCrumb;
 import to.etc.domui.component.layout.ErrorMessageDiv;
+import to.etc.domui.component.misc.ExceptionDialog;
+import to.etc.domui.component.misc.ExceptionDialog.ExceptionPresentation;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.RowRenderer.ColumnWidth;
 import to.etc.domui.component.tbl.RowRenderer.IColumnListener;
@@ -24,6 +26,8 @@ import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.Msgs;
 import to.etc.domuidemo.components.PageHeader;
 import to.etc.domuidemo.pages.HomePage;
+import to.etc.domuidemo.pages.tutorial.messages.OutOfStockException;
+import to.etc.domuidemo.pages.tutorial.messages.TutorialMsg;
 import to.etc.domuidemo.sourceviewer.SourcePage;
 import to.etc.testutil.TestUtil;
 import to.etc.util.DeveloperOptions;
@@ -78,6 +82,14 @@ public class Application extends DomApplication {
 				source.addGlobalMessage(UIMessage.error(Msgs.unexpectedException, x.toString()));
 			return true;
 		});
+
+		/*
+		 * Teach the exception dialog about an exception of our own: instead of a stack
+		 * trace the user gets the sentence that belongs to it.
+		 */
+		ExceptionDialog.register(x -> x instanceof OutOfStockException osx
+			? new ExceptionPresentation(TutorialMsg.orderOutOfStock.format(osx.getAlbum()))
+			: null);
 
 		/*
 		 * Add a new page listener. Every new page automatically gets a Breadcrumb injected @ it's start

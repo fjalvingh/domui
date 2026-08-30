@@ -744,8 +744,86 @@ Steps:
         the demo is redeployed with `scripts/deploy-demo`.
 
 
+- [x] **Documentation: "Telling something to a user".** The ninth page of the
+      walkthrough, `site/content/building-pages/90-telling-the-user/index.md`:
+      everything an application uses to say something out of band, ordered by how
+      much it interrupts. `MsgBox2` first - `on(node)` hanging the box on the
+      page, the four types, `text()`/`content()`/`title()`/`size()`, and the
+      warning that the box does **not** block the code that made it. Then asking:
+      which handler an answer arrives in, tabled (`onAnswer` for a `MsgBoxButton`,
+      `onAnswer2` for a value of your own, a click handler for a button that does
+      not answer, the input handler for a value), the default `CONTINUE`/`CANCEL`
+      buttons, priority-based button order, and `onValidate` refusing to let the
+      box close. `MsgBox` gets one short subsection: the same window with a fixed
+      set of static methods, worth recognising in existing code, not worth writing
+      - deliberately the only place in the section where an older API is named
+      (the user asked for it explicitly).
+      Then `UIMessage`: its five parts tabled (bundle code + parameters, type,
+      error location, node, group), the static constructors, and the two ways to
+      post one - `setMessage()` on a control (one at a time; a less severe message
+      does not replace a more severe one) and `addGlobalMessage()` on any node.
+      Then `ExceptionDialog`: `create(container, message, throwable)`, a plantuml
+      of what it decides (ValidationException shown as nothing, unwrapping,
+      translators, else log + stack trace), the built-in translators tabled
+      (`CodeException`, concurrent update, SQL state 23505, Hibernate constraint
+      violations), registering one of your own in the application's
+      `initialize()`, and `executeWithDialog()`. Its sub-section covers the
+      exceptions nobody catches: `DomApplication.addExceptionListener()`, most
+      specific class first, `true` meaning handled, with DomUI's own
+      `QNotFoundException` -> `ExpiredDataPage` as the example.
+      Then the **error fence**, with a nested-rectangle plantuml: a message
+      travels up until it meets a fence; the page body always is one; a fence is
+      an `IErrorFence` on a `NodeContainer` holding listeners; `ErrorPanel` and
+      `ErrorMessageDiv` are listeners; `new ErrorMessageDiv(panel)` makes a panel
+      a fence and its own display in one call; a fence with no listeners asks
+      `DomApplication.addDefaultErrorComponent()` (which the demo application
+      overrides); `PropagatingErrorFenceHandler` passes messages on upwards. The
+      page closes on `bindErrors()`, pointing back at data binding for the
+      mechanism and repeating only the rule.
+      Five demo pages carry it, in `pages/tutorial/messages`, plus a `TutorialMsg`
+      bundle-code enum with its `.properties` and an `OutOfStockException`:
+      `MsgBoxPage` (info/warning/error/translated text/own content),
+      `MsgAskPage` (yes-no, buttons carrying values, an input box, an input box
+      with `onValidate`), `MsgMessagePage` (global messages per severity, a
+      message with an error location, messages on one control),
+      `MsgExceptionPage` (an unrecognised exception, a `CodeException`, an
+      exception with a registered translator, `executeWithDialog`) and
+      `MsgFencePage` (two panels each with their own `ErrorMessageDiv` fence, and
+      the page around them). The translator for `OutOfStockException` is
+      registered in `Application.initialize()`, which is where such a registration
+      belongs. Linked from `TutorialListPage` under a new "Telling something to a
+      user" caption.
+      Verified by running the demo under jetty and driving all five in Chrome, and
+      the site builds with both diagrams rendered and all five `!demo()` frames
+      resolved. The demo module's unit tests pass.
+      - **Two theme defects found and fixed while verifying** (they made the page
+        impossible to illustrate honestly):
+        `themes/scss/winter/_errorMessageDiv.scss` set the info and warning
+        message backgrounds with the `background` *shorthand*
+        (`background: $info_bg url(mini-info.png)`), which resets the
+        `no-repeat`, position and `background-size` that `.ui-emd-msg` had just
+        set - so every info and warning message rendered as a page-filling tiled
+        carpet of icons with the text nowhere in sight, while errors (which use
+        `background-image`) were fine. Both are longhand now.
+        And `$warnings_foreground` was `yellow` on the `#fffeee` warning
+        background - invisible; it is a dark amber (`#8a6100`) now. Both
+        variables are used only for text on that background (here and in
+        `_flare.scss`).
+      - **Observed, not fixed:** a control error inside a `MsgBox2` is reported
+        **twice** - once inside the box and once in the page's own error display.
+        `MsgBox2`'s constructor does `setErrorFence(null)` ("do not accept
+        handling errors") while `Window.init()`/`createFrame()` set fences on the
+        window and on its content, and the message ends up in two of them. It
+        happens for a plain mandatory field just as much as for a message set by
+        hand, so it is not something the tutorial code causes. Candidate below.
+      - **Not deployed**: the five `!demo()` frames on this page are 404 until the
+        demo is redeployed with `scripts/deploy-demo`.
+
 Candidates still open, offered as input - not agreed scope:
 
+- A control error raised inside a `MsgBox2` is shown twice: in the box and in the
+  page's error display (see the "Telling something to a user" entry above). Decide
+  which of the two fences a message box should have and remove the other?
 - DomUI's own message bundles have **Dutch** as their default language: the
   base `to/etc/domui/util/messages.properties`, `YesNoType.properties`,
   `MsgBoxButton.properties` and the rest are Dutch, with English in the `_en`

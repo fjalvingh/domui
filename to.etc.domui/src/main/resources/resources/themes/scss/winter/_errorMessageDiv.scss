@@ -12,7 +12,8 @@
 	background-size: 11px 11px;
 }
 .ui-emd-info {
-	background: $info_bg url(mini-info.png);
+	background-color: $info_bg;
+	background-image: url(mini-info.png);
 	color: $info_fg;
 	border-color: 1px solid $info_border;
 }
@@ -20,6 +21,7 @@
 	background-image: url(mini-error.png);
 }
 .ui-emd-warning {
-	background: $warnings_background url(mini-warning.png);
+	background-color: $warnings_background;
+	background-image: url(mini-warning.png);
 	color: $warnings_foreground;
 }

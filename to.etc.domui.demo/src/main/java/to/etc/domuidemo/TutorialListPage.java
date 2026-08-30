@@ -17,6 +17,11 @@ import to.etc.domuidemo.pages.tutorial.database.QueryFirstPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryJoinPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryRestrictionsPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloClickPage;
+import to.etc.domuidemo.pages.tutorial.messages.MsgAskPage;
+import to.etc.domuidemo.pages.tutorial.messages.MsgBoxPage;
+import to.etc.domuidemo.pages.tutorial.messages.MsgExceptionPage;
+import to.etc.domuidemo.pages.tutorial.messages.MsgFencePage;
+import to.etc.domuidemo.pages.tutorial.messages.MsgMessagePage;
 import to.etc.domuidemo.pages.tutorial.meta.MetaEnumPage;
 import to.etc.domuidemo.pages.tutorial.meta.MetaFormPage;
 import to.etc.domuidemo.pages.tutorial.meta.MetaNlsPage;
@@ -85,6 +90,13 @@ final public class TutorialListPage extends MenuPage {
 		addLink(MetaFormPage.class, "A form that repeats nothing");
 		addLink(MetaEnumPage.class, "Labels for enum values");
 		addLink(MetaNlsPage.class, "One page, two languages");
+
+		addCaption("Telling something to a user");
+		addLink(MsgBoxPage.class, "Telling the user something");
+		addLink(MsgAskPage.class, "Asking the user something");
+		addLink(MsgMessagePage.class, "Messages on the page");
+		addLink(MsgExceptionPage.class, "Showing an exception");
+		addLink(MsgFencePage.class, "Where a message ends up");
 
 		addCaption("Binding tutorial");
 		addLink(InvoiceListPage.class, "Simple binding for editing a record");
