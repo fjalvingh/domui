@@ -200,3 +200,50 @@
 .dm-cs-c {
 	padding: 10px;
 }
+
+/*** Tutorial "writing a component": the star rating control ***/
+.dm-rating {
+	display: inline-block;
+	font-size: 20px;
+	line-height: 20px;
+	user-select: none;
+}
+
+.dm-rating span {
+	padding: 0 1px;
+	color: #e8a33d;
+}
+
+.dm-rating-off {
+	color: #c0c0c0;
+}
+
+.dm-rating:not(.dm-rating-ro):not(.dm-rating-disabled) span {
+	cursor: pointer;
+}
+
+.dm-rating-ro span {
+	color: #808080;
+}
+
+.dm-rating-disabled span {
+	color: #d0d0d0;
+}
+
+/*** Tutorial "writing a component": the album badge control ***/
+.dm-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border: 1px solid #d0d0d0;
+	border-radius: 10px;
+	background-color: #f4f4f4;
+}
+
+.dm-badge-i {
+	color: #909090;
+}
+
+.dm-badge-empty {
+	color: #909090;
+	font-style: italic;
+}

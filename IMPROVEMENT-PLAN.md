@@ -870,6 +870,73 @@ Steps:
       - **Not deployed**: the four `!demo()` frames on this page are 404 until the
         demo is redeployed with `scripts/deploy-demo`.
 
+- [x] **Documentation: "Writing a component".** The eleventh page of the
+      walkthrough, `site/content/building-pages/110-writing-a-component/index.md`,
+      picking up where the layout page's fragment stopped: a component is a
+      fragment that holds a value, and it is nothing more than a class
+      implementing `IControl<T>`. Opens with `StarRating` (a five-star control)
+      and the demo page using it exactly like a `Text2`. Then what `IControl`
+      asks for, tabled per interface it inherits from (`IActionControl`,
+      `IHasChangeListener`, `INodeErrorDelegate`, `IForTarget`), and the note that
+      nothing in it says "node". Then `AbstractDivControl` tabled - what it
+      already does (`internalGetValue`/`internalSetValue`, `setValue` with its
+      equality check, `onValueSet` -> `forceRebuild`, the three states with their
+      `xxxChanged()` hooks, `setBindValue`) against the four things left to write
+      (`createContent()`, `getForTarget()`, `validateBindValue()`, and turning
+      user actions into a value).
+      Then how a control learns about a change: `acceptRequestParameter()`
+      answering *whether the value differed* for input-based controls, and for a
+      click-driven one the three obligations of its own handler - `setValue()`,
+      `OldBindingHandler.controlToModel(this)` (because the request's
+      control-to-model pass already ran before the click handler; the framework's
+      own lookup input does the same), and calling the change listener. With
+      `RadioGroup`'s delegation of `internalOnValueChanged()` as the alternative
+      for a control built out of other controls.
+      Then the core of the page: **when has a value changed?** `setValue()` shown
+      whole, the consequence that setting the value a control already holds costs
+      nothing (which is what makes it safe for binding to push on every request),
+      and `MetaManager.areObjectsEqual` tabled in order - identity, `equals`,
+      class relation, **primary key**, arrays. The two traps then get a section
+      each: a mutable object changed in place is still the same value, and two
+      objects with the same primary key are the same value; with the three ways
+      out (treat values as immutable, `forceRebuild()`, a real `equals()`), and
+      `RadioGroup`'s `m_valueIsSet` as the answer to "set to null" versus "never
+      set". Then the same question inside a binding, twice: on the way in the
+      control's `bindValue` against the model, on the way out the model against
+      `m_lastValueFromControlAsModelValue` (the value last exchanged, which is
+      what keeps a control in error showing what the user typed) - with the
+      `Collection` content-hash exception named as the patch over the same hole,
+      and a sequence diagram of both comparisons.
+      Closes on `bindValue` versus `value`, tabled: same value, different
+      audience - `getValue()` reports the error on the control and throws,
+      `getBindValue()` throws silently and the binding keeps the error until
+      `bindErrors()`; `setBindValue()` is the equality check plus `setValue()`;
+      `bind()` binds `bindValue` when the control has one. With the two-method
+      implementation pattern (`validateBindValue()` + a reporting `getValue()`)
+      that `RadioGroup` and the comboboxes use word for word. One pointer at the
+      end to the components section for control factories and css rules.
+      Three demo pages and three classes in `pages/tutorial/component`:
+      `StarRating` (the control), `AlbumBadge` (a control whose value is an
+      entity), `Review` (the bound model), `ComponentStarPage`,
+      `ComponentBindPage` and `ComponentEqualityPage`, with `dm-rating*` and
+      `dm-badge*` styles in the demo's `_panels.scss`. Linked from
+      `TutorialListPage` under a new "Writing a component" caption.
+      Verified in Chrome against the running demo, including every claim the page
+      makes about equality: clicking a star fires the change event and reaches the
+      model in the same request; a mandatory empty control reports "Mandatory
+      field" through `getValue()` (label prefix and all) and through
+      `bindErrors()` on the bound page; changing an album's title in place and
+      calling `setValue()` with it changes **nothing** on screen, `forceRebuild()`
+      does; setting a *different* `Album` object carrying the same id changes
+      nothing either; and mutating the album inside the bound model is invisible
+      while replacing it moves. The site builds, the sequence diagram renders and
+      all three `!demo()` frames resolve. The demo module's unit tests pass.
+      - The page lives in `building-pages` rather than in `components` because it
+        is the next step of the walkthrough; `components/` keeps the reference
+        material (rules, the existing component catalogue) that it points at.
+      - **Not deployed**: the three `!demo()` frames on this page are 404 until
+        the demo is redeployed with `scripts/deploy-demo`.
+
 Candidates still open, offered as input - not agreed scope:
 
 - `component/layout/ExpandCollapsePanel` does roughly what the tutorial's

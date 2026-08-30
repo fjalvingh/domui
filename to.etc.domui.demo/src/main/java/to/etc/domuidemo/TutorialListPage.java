@@ -13,6 +13,9 @@ import to.etc.domuidemo.pages.tutorial.binding.BindValuePage;
 import to.etc.domuidemo.pages.tutorial.components.ComponentChangePage;
 import to.etc.domuidemo.pages.tutorial.components.ComponentFormPage;
 import to.etc.domuidemo.pages.tutorial.components.ComponentStatePage;
+import to.etc.domuidemo.pages.tutorial.component.ComponentBindPage;
+import to.etc.domuidemo.pages.tutorial.component.ComponentEqualityPage;
+import to.etc.domuidemo.pages.tutorial.component.ComponentStarPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryFirstPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryJoinPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryRestrictionsPage;
@@ -107,6 +110,11 @@ final public class TutorialListPage extends MenuPage {
 		addLink(LayoutTabPage.class, "Tabs");
 		addLink(LayoutFragmentPage.class, "A fragment of your own");
 		addLink(LayoutSectionPage.class, "A section that folds shut");
+
+		addCaption("Writing a component");
+		addLink(ComponentStarPage.class, "A control of your own");
+		addLink(ComponentBindPage.class, "The control, bound");
+		addLink(ComponentEqualityPage.class, "When has a value changed?");
 
 		addCaption("Binding tutorial");
 		addLink(InvoiceListPage.class, "Simple binding for editing a record");
