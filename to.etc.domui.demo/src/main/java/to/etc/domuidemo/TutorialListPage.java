@@ -5,6 +5,11 @@ import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut3;
 import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut4;
 import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut5;
 import to.etc.domuidemo.pages.binding.tut1.InvoiceListPage;
+import to.etc.domuidemo.pages.tutorial.binding.BindByHandPage;
+import to.etc.domuidemo.pages.tutorial.binding.BindErrorsPage;
+import to.etc.domuidemo.pages.tutorial.binding.BindPropertyPage;
+import to.etc.domuidemo.pages.tutorial.binding.BindStylePage;
+import to.etc.domuidemo.pages.tutorial.binding.BindValuePage;
 import to.etc.domuidemo.pages.tutorial.components.ComponentChangePage;
 import to.etc.domuidemo.pages.tutorial.components.ComponentFormPage;
 import to.etc.domuidemo.pages.tutorial.components.ComponentStatePage;
@@ -12,6 +17,9 @@ import to.etc.domuidemo.pages.tutorial.database.QueryFirstPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryJoinPage;
 import to.etc.domuidemo.pages.tutorial.database.QueryRestrictionsPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloClickPage;
+import to.etc.domuidemo.pages.tutorial.typed.TypedGenericPage;
+import to.etc.domuidemo.pages.tutorial.typed.TypedPathPage;
+import to.etc.domuidemo.pages.tutorial.typed.TypedQueryPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloPage;
 import to.etc.domuidemo.pages.tutorial.first.HelloTreePage;
 
@@ -39,6 +47,18 @@ final public class TutorialListPage extends MenuPage {
 		addLink(QueryFirstPage.class, "Your first query");
 		addLink(QueryRestrictionsPage.class, "Restrictions and combinators");
 		addLink(QueryJoinPage.class, "Querying over a relation");
+
+		addCaption("Typed properties");
+		addLink(TypedQueryPage.class, "The same query, typed");
+		addLink(TypedPathPage.class, "Typed property paths");
+		addLink(TypedGenericPage.class, "A property as a value");
+
+		addCaption("Data binding");
+		addLink(BindByHandPage.class, "Carrying the values by hand");
+		addLink(BindValuePage.class, "The same screen, bound");
+		addLink(BindPropertyPage.class, "Binding a control property");
+		addLink(BindErrorsPage.class, "Binding errors");
+		addLink(BindStylePage.class, "Binding a style");
 
 		addCaption("Binding tutorial");
 		addLink(InvoiceListPage.class, "Simple binding for editing a record");

@@ -320,6 +320,105 @@ Steps:
         property the entity does not have, Confluence-hosted images). It wants
         triage in phase 2 as the reference page this one points at.
 
+- [x] **Documentation: "Typed properties".** The fourth page of the walkthrough,
+      `site/content/building-pages/40-typed-properties/index.md`, taking its
+      material from `data/data-binding/typed-properties` and rewritten in the
+      agreed style, without any data binding (that is the next page). It opens
+      where the previous page left off - the four things that can be wrong with
+      `q.ilike("artist.name", part)` that the compiler cannot see (typo, rename,
+      wrong value type, wrong entity) - then shows the same query typed, and the
+      three compile errors those mistakes now produce, quoted from an actual
+      javac run. Then what `Album_` is (`QField<R, P>`, and the `Artist_Link<R>`
+      that is itself a `QField<Album, Artist>`, which is what makes chaining
+      work) with a plantuml class diagram; paths of any depth and `exists()`
+      still needing the child class; a typed property as an ordinary value; and
+      finally turning it on - `@Entity` (jakarta) or `@GenerateProperties`, the
+      maven-compiler-plugin block, the `to.etc:annotations` dependency, the ecj
+      caveat, where the generated sources land, which property types are
+      generated and `@IgnoreGeneration` on the getter.
+      Three demo pages carry it, in `pages/tutorial/typed`: `TypedQueryPage`
+      (the previous page's album search with `Album_.title()` and
+      `Album_.artist().name()`), `TypedPathPage`
+      (`Track_.album().artist().name()`, and
+      `exists(Album.class, Artist_.albumList())`) and `TypedGenericPage` (one
+      generic `listOf(List<T>, QField<T, String>)` helper rendering artists,
+      albums and tracks with no cast and no `Class<T>` parameter, via
+      `MetaManager.getPropertyMeta(clz, QField)`). Linked from
+      `TutorialListPage` under a new "Typed properties" caption.
+      Verified by running the demo under jetty and driving it in Chrome: all
+      three render, the query box shows the typed path arriving as the plain
+      string it always was (`artist.name`, `album.artist.name`), and searching
+      for artist "AC/DC" on top of title "rock" produces
+      `title ilike '%rock%' and artist.name ilike '%AC/DC%'` with the two
+      expected albums. The three compile errors quoted in the page were produced
+      by compiling them, not assumed. The site builds and the class diagram
+      renders.
+      - Corrected against the old page while writing: the processor triggers on
+        **`jakarta.persistence.Entity`** (the old page says `javax.*`); the
+        version floor for `plexus-compiler-eclipse` is 2.8.4 and the repo is on
+        2.8.5, so the old page's "to be released" note is gone; the generated
+        sources land in `target/generated-sources/annotations`, not
+        `target/annotations`; and a getter carrying `@Column` is generated
+        whatever its type, which the old "what is generated" rules did not say.
+      - **`data/data-binding/typed-properties/index.md` is now superseded by this
+        page** and is stale in the ways just listed, plus a "recent addition,
+        work in progress" banner and 2018 IntelliJ screenshots. It was left in
+        place because five pages link to it (`data/index.md`,
+        `data/data-binding/index.md`, `getting-started/intellij-plugin`,
+        `introduction/developer-view-of-domui`, `release-notes/domui-2-0`), two
+        of which are themselves due for rework or deletion. Delete it and
+        repoint those links when the data-binding page lands.
+
+- [x] **Documentation: "Data binding".** The fifth page of the walkthrough,
+      `site/content/building-pages/50-data-binding/index.md`, consolidating
+      `data/data-binding` and `data/data-binding/how-does-it-work` and rewritten
+      in the agreed style, with typed properties used throughout. It opens with
+      the screen written without binding - ten lines of carrying values, in two
+      places that must stay in step - then the same screen bound, where a handler
+      that only calls `m_order.setPrice(ZERO)` changes what is on screen; then
+      `FormBuilder.property().control()` as one line per field; then when the
+      moving happens (soft binding, the two moments in a request, bindings living
+      inside the control so they die with it); then bidirectional value binding
+      versus unidirectional binding to any other control property, with the
+      `IControl.DISABLED` / `READONLY` and `CssBase.VISIBILITY` / `DISPLAY`
+      constants tabled; then `bindErrors()` and why bindings read `bindValue`
+      rather than `value`; and finally `StyleBinder` / `StyleBinding`. Three
+      plantuml diagrams: the request round trip, which way each kind of binding
+      moves, and what a binding does with a value it cannot deliver. A single
+      closing pointer to `how-does-it-work` for binding order and the
+      changed-value pitfalls.
+      Five demo pages carry it, in `pages/tutorial/binding`, plus two model
+      classes: `AlbumOrder` (a plain `@GenerateProperties` class - no entity is
+      edited, so an embedded demo cannot write to the demo database) with an
+      `AlbumOrder.properties` label bundle, and `SendInfoModel`.
+      `BindByHandPage`, `BindValuePage`, `BindPropertyPage`, `BindErrorsPage`
+      and `BindStylePage`, linked from `TutorialListPage` under a new "Data
+      binding" caption. Four order-state colours added to the demo's
+      `_panels.scss`.
+      Verified by running the demo under jetty and driving all five in Chrome:
+      typing in a bound field updates the read-only mirror bound to the same
+      property; "Clear the price" sets both price fields to 0 from a handler that
+      touches only the model; the Send button is disabled until both combos have
+      a value and then enables itself; Save with an empty mandatory Customer and
+      "abc" in Copies shows **Customer:** Mandatory field and **Copies:** The
+      field content "abc" is invalid, saves nothing, and saves correctly once
+      fixed; and the style-bound box changes colour with the order state. The
+      site builds and all three diagrams render.
+      - `BindPropertyPage` was first written with `LookupInput2`, as the old page
+        has it. Its lookup popup is nearly full-page, so inside a `!demo()` iframe
+        it is unusable; the page now uses two `ComboLookup2` with `limit(20)`.
+        Worth remembering for any tutorial page that will be embedded.
+      - The old `pages/binding/tut1/**` pages stay for now: they are what
+        `TutorialListPage`'s "Binding tutorial" caption still points at, they use
+        `Text` and `TextStr` (pre-`component2`) and `InvoiceListPage` extends the
+        `@Deprecated` `BasicPage`. Deleting them is a phase-3 item.
+      - **`data/data-binding/index.md` is now superseded by this page.**
+        `how-does-it-work` is not - it keeps the binding-order and
+        changed-value material, and this page links to it. When
+        `data/data-binding/index.md` goes, take
+        `data/data-binding/typed-properties` (superseded by
+        `40-typed-properties`) with it and repoint the five links listed above.
+
 - [x] **The embedded demo pages (`!demo()`) did not work at all.** Every iframe on
       the documentation site showed "Can't create session, session cookie is
       blocked by the browser!" - not only the new page, the data-binding ones too.

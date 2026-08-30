@@ -89,6 +89,23 @@
 	background-color: #ffe9a0;
 }
 
+/*** Tutorial: the state colours a StyleBinding maps an order state onto ***/
+.dm-tut-new {
+	background-color: #f0f0f0;
+}
+
+.dm-tut-paid {
+	background-color: #d9f0d9;
+}
+
+.dm-tut-shipped {
+	background-color: #d9e4f5;
+}
+
+.dm-tut-cancelled {
+	background-color: #f5d9d9;
+}
+
 /*** The generated query text, shown next to a tutorial query result ***/
 .dm-tut-q {
 	margin: 20px 20px 0 20px;
