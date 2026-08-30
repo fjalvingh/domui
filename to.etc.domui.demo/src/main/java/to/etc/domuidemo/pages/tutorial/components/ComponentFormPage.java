@@ -24,20 +24,6 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class ComponentFormPage extends UrlPage {
-	private final Text2<String> m_title = new Text2<>(String.class);
-
-	private final Text2<Integer> m_copies = new Text2<>(Integer.class);
-
-	private final Text2<BigDecimal> m_price = new Text2<>(BigDecimal.class);
-
-	private final DateInput2 m_released = new DateInput2();
-
-	private final ComboFixed2<String> m_medium = new ComboFixed2<>(List.of(
-		new ValueLabelPair<>("cd", "Compact disc"),
-		new ValueLabelPair<>("lp", "Vinyl LP"),
-		new ValueLabelPair<>("dl", "Download")
-	));
-
 	@Override
 	public void createContent() throws Exception {
 		setPageTitle("A form of components");
@@ -46,39 +32,49 @@ public class ComponentFormPage extends UrlPage {
 		add(cp);
 		cp.add(new HTag(1, "A form of components"));
 
+		Text2<String> title = new Text2<>(String.class);
+		Text2<Integer> copies = new Text2<>(Integer.class);
+		Text2<BigDecimal> price = new Text2<>(BigDecimal.class);
+		DateInput2 released = new DateInput2();
+		ComboFixed2<String> medium = new ComboFixed2<>(List.of(
+			new ValueLabelPair<>("cd", "Compact disc"),
+			new ValueLabelPair<>("lp", "Vinyl LP"),
+			new ValueLabelPair<>("dl", "Download")
+		));
+
 		FormBuilder fb = new FormBuilder(cp);
-		fb.label("Album title").mandatory().control(m_title);
-		fb.label("Copies in stock").control(m_copies);
-		fb.label("Price each").control(m_price);
-		fb.label("Released").control(m_released);
-		fb.label("Medium").control(m_medium);
+		fb.label("Album title").mandatory().control(title);
+		fb.label("Copies in stock").control(copies);
+		fb.label("Price each").control(price);
+		fb.label("Released").control(released);
+		fb.label("Medium").control(medium);
 
 		Div result = new Div("dm-tut");
 		result.add("Press a button to see what the controls hold");
 
 		cp.add(new DefaultButton("Show the values", a -> {
 			//-- Every getValue() can fail: the first one that does ends this handler.
-			String title = m_title.getValue();
-			Integer copies = m_copies.getValue();
-			BigDecimal price = m_price.getValue();
-			Date released = m_released.getValue();
-			String medium = m_medium.getValue();
+			String titleValue = title.getValue();
+			Integer copiesValue = copies.getValue();
+			BigDecimal priceValue = price.getValue();
+			Date releasedValue = released.getValue();
+			String mediumValue = medium.getValue();
 
 			result.removeAllChildren();
-			line(result, "Title: " + title);
-			line(result, "Copies: " + copies);
-			line(result, "Price: " + price);
-			line(result, "Released: " + (released == null ? null : new SimpleDateFormat("dd-MM-yyyy").format(released)));
-			line(result, "Medium: " + medium);
+			line(result, "Title: " + titleValue);
+			line(result, "Copies: " + copiesValue);
+			line(result, "Price: " + priceValue);
+			line(result, "Released: " + (releasedValue == null ? null : new SimpleDateFormat("dd-MM-yyyy").format(releasedValue)));
+			line(result, "Medium: " + mediumValue);
 		}));
 
 		cp.add(new DefaultButton("Which fields are wrong?", a -> {
 			result.removeAllChildren();
-			line(result, "Title is " + (m_title.hasError() ? "wrong or missing" : "ok"));
-			line(result, "Copies is " + (m_copies.hasError() ? "wrong or missing" : "ok"));
-			line(result, "Price is " + (m_price.hasError() ? "wrong or missing" : "ok"));
-			line(result, "Released is " + (m_released.hasError() ? "wrong or missing" : "ok"));
-			line(result, "Medium is " + (m_medium.hasError() ? "wrong or missing" : "ok"));
+			line(result, "Title is " + (title.hasError() ? "wrong or missing" : "ok"));
+			line(result, "Copies is " + (copies.hasError() ? "wrong or missing" : "ok"));
+			line(result, "Price is " + (price.hasError() ? "wrong or missing" : "ok"));
+			line(result, "Released is " + (released.hasError() ? "wrong or missing" : "ok"));
+			line(result, "Medium is " + (medium.hasError() ? "wrong or missing" : "ok"));
 		}));
 
 		cp.add(result);

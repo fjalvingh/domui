@@ -272,6 +272,14 @@ Steps:
         candidate.
       - `Text2<BigDecimal>` accepts "1.2.3" and silently converts it to 1.2; the
         conversion example in the documentation therefore uses an Integer field.
+      - Reworked directly afterwards to the style decided on 2026-08-30 (see the
+        decisions log): each section now opens with its example and explains afterwards,
+        the forward references to data binding are gone, three plantuml diagrams carry
+        what prose was carrying (the tree a `Text2` builds, the `getValue()` decision
+        path, the round trip of a changed field), and all three demo pages were rewritten
+        to keep their controls in local variables. `ComponentStatePage` now keeps only
+        readOnly/disabled/disabledBecause in fields and calls `forceRebuild()`, which is
+        the pattern the documentation points at as the reason components are not fields.
 
 - [x] **The embedded demo pages (`!demo()`) did not work at all.** Every iframe on
       the documentation site showed "Can't create session, session cookie is
@@ -415,6 +423,26 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-08-30 - Documentation style, and components are never fields
+
+Two rules, settled and not to be re-litigated per page. Both are also written into the
+workspace `CLAUDE.md`.
+
+**Documentation style.** A concept is introduced with a short description, then the
+example (code plus a `!demo()` where one exists), and only then the explanation of how it
+works - the reader sees what is done before being told how. No forward references: a page
+does not explain or lean on concepts that come later, because the goal is learning rather
+than completeness. Where a picture carries the mechanism better than a paragraph, use a
+```plantuml block (sequence diagram for a round trip, activity diagram for a decision
+path, nested rectangles for a built node tree).
+
+**Components are never fields.** In demo pages and in every documented example, controls
+and other components are local variables of `createContent()`. `forceRebuild()` discards
+the built tree and calls `createContent()` again; a component in a field survives that,
+so the screen ends up showing a new component while the code still holds the old one.
+State that the page rebuilds itself from - booleans, values, the edited entity - is what
+belongs in fields; a handler changes those and calls `forceRebuild()`.
 
 ### 2026-08-28 - Current version and current usage only
 

@@ -33,7 +33,7 @@ while getopts "s:nh" opt; do
 	esac
 done
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")"
 ROOTDIR=$(pwd)
 WAR=$ROOTDIR/to.etc.domui.demo/target/demo.war
 
