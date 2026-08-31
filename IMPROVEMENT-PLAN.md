@@ -62,7 +62,9 @@ Documentation site:
   - ~~`getting-started/running-the-demo/index.md` describes branches `master`,
     `2.0-stable` and `1.1`~~ - rewritten 2026-08-31 for `skarp-master`, Java 21,
     Maven 3.9 and the committed IntelliJ `demo` run configuration.
-  - `data/data-binding/typed-properties/index.md` still refers to `javax.*`.
+  - ~~`data/data-binding/typed-properties/index.md` still refers to `javax.*`~~ -
+    moved to `70-implementation-details/typed-properties` and rewritten against the
+    processor source on 2026-08-31.
   - Several pages still refer to Java 8 / old Eclipse / Launchpad-era tooling
     (`development-environment/ecj-in-maven`, `data/qcriteria`,
     ~~`introduction/developer-view-of-domui`~~ - rewritten 2026-08-31 -,
@@ -361,14 +363,12 @@ Steps:
         sources land in `target/generated-sources/annotations`, not
         `target/annotations`; and a getter carrying `@Column` is generated
         whatever its type, which the old "what is generated" rules did not say.
-      - **`data/data-binding/typed-properties/index.md` is now superseded by this
-        page** and is stale in the ways just listed, plus a "recent addition,
-        work in progress" banner and 2018 IntelliJ screenshots. It was left in
-        place because five pages link to it (`data/index.md`,
-        `data/data-binding/index.md`, `getting-started/intellij-plugin`,
-        `introduction/developer-view-of-domui`, `release-notes/domui-2-0`), two
-        of which are themselves due for rework or deletion. Delete it and
-        repoint those links when the data-binding page lands.
+      - **`data/data-binding/typed-properties/index.md` was superseded by this
+        page** and was stale in the ways just listed, plus a "recent addition,
+        work in progress" banner and 2018 IntelliJ screenshots. Rather than being
+        deleted it became `70-implementation-details/typed-properties` on
+        2026-08-31, rewritten as the processor's own page (see the decisions log);
+        the five links to it were repointed to this page.
 
 - [x] **Documentation: "Data binding".** The fifth page of the walkthrough,
       `site/content/building-pages/50-data-binding/index.md`, consolidating
@@ -426,14 +426,12 @@ Steps:
         `TutorialListPage`'s "Binding tutorial" caption still points at, they use
         `Text` and `TextStr` (pre-`component2`) and `InvoiceListPage` extends the
         `@Deprecated` `BasicPage`. Deleting them is a phase-3 item.
-      - **`data/data-binding/index.md` is now superseded by this page.**
-        `how-does-it-work` is not - it keeps the binding-order and
-        changed-value material, and this page links to it. It has since moved to
-        `70-implementation-details/data-binding-details` (see the decisions log).
-        When
-        `data/data-binding/index.md` goes, take
-        `data/data-binding/typed-properties` (superseded by
-        `40-typed-properties`) with it and repoint the five links listed above.
+      - **`data/data-binding/index.md` was superseded by this page** and was
+        deleted on 2026-08-31, together with the rest of `data/data-binding` (see
+        the decisions log). `how-does-it-work` was not superseded - it keeps the
+        binding-order and changed-value material, and this page links to it; it
+        moved to `70-implementation-details/data-binding-details`, and
+        `typed-properties` to `70-implementation-details/typed-properties`.
 
 - [x] **Documentation: "Page navigation".** The sixth page of the walkthrough,
       `site/content/building-pages/60-page-navigation/index.md`. It opens with a
@@ -1033,7 +1031,7 @@ Candidates still open, offered as input - not agreed scope:
       `building-pages/state-management`, `building-pages/subpages`,
       `components/forms-and-input/fileupload`,
       `components/lookup-and-search/searchpanel`, `components/rules`,
-      `data/data-binding/typed-properties`, `getting-started/intellij-plugin`,
+      `getting-started/intellij-plugin`,
       `look-and-feel/animations`, `testing/junit-testing`. Each says "used to be" / "no longer" / "since
       DomUI 2.0" somewhere; replace with a plain statement of what is true now.
 - [ ] **Framework: restore JPA support.** `integrations/to.etc.domui.hibutil`
@@ -1069,6 +1067,43 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-08-31 - `typed-properties` moved into `Implementation details`
+
+`data/data-binding/typed-properties` was the last document left under
+`data/data-binding` besides its index, and it was superseded twice over by
+`building-pages/40-typed-properties`. It became
+`70-implementation-details/typed-properties`, "Typed properties: the annotation
+processor", rewritten around what `40-typed-properties` does *not* say: the two classes
+generated per annotated class (`X_` with its private constructor and static methods, and
+`X_Link<R> extends QField<R, X>`), `QField` as a parent-linked list flattened by
+`getName()`, and the exact order in which the generator decides what a property becomes.
+
+Everything on it was verified against
+`common/property-annotation-processor` and by running the processor over a probe class
+with `javac -proc:only`: primitives come out wrapped, `Collection`/`Map` properties are
+endpoints rather than steps, arrays are generated, a reserved-word property gets a
+trailing underscore (`getNew()` -> `new_()`), and - the useful surprise - a `java.time`
+or `UUID` property is generated only when its getter carries `@Column`, because those
+types are in neither the simple-type list nor the annotated-class rule. The old page's
+`javax.persistence`, `1.2-SNAPSHOT` poms, `target/annotations` path, "to be released"
+plexus note, "work in progress" banner and two 2018 IntelliJ screenshots are gone; the
+pom and IntelliJ setup is not repeated but pointed at in `40-typed-properties`.
+
+Links repointed to `building-pages/40-typed-properties`: `data/index.md`,
+`data/data-binding/index.md`, `getting-started/intellij-plugin`,
+`release-notes/domui-2-0`. `40-typed-properties` gained a closing pointer to the new
+page and `70-implementation-details/index.md` a bullet for it. Site builds clean, 75
+pages.
+
+With that page gone, `data/data-binding/index.md` - the old data binding article that
+`building-pages/50-data-binding` supersedes, still showing `Text`, `TextStr` and string
+bindings - was all that was left of the section, and it was deleted the same day, with
+its two 2018 screenshots. Its one remaining inbound link, from
+`building-pages/10-first-page`, now points at `building-pages/50-data-binding`. `data/`
+holds only QCriteria and the POJO generator now, so its index is retitled
+**"Databases and queries"** and closes with a pointer to the walkthrough's data binding
+page and to `data-binding-details`. Site builds clean, 74 pages.
 
 ### 2026-08-31 - `Implementation details` is where the in-depth material goes
 
