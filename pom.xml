@@ -191,7 +191,6 @@
         <module>to.etc.domui</module>
         <module>to.etc.domui.derbydata</module>
         <module>to.etc.domui.demo</module>
-        <module>archetypes</module>
         <module>utilities</module>
         <module>integrations</module>
     </modules>

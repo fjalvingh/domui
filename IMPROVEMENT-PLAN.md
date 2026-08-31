@@ -1016,6 +1016,9 @@ Candidates still open, offered as input - not agreed scope:
 ### Phase 4 - Remove old and incorrect code and information
 
 - [ ] Delete documentation pages describing things that no longer exist.
+- [x] Remove the Maven archetype (`archetypes/domui-hello`) from the framework and
+      the `getting-started/maven-archetype` page from the site. **Done 2026-08-31**
+      (see the decisions log entry of that date).
 - [ ] Delete the whole `release-notes/` section. It is historic by nature, and
       its one page (`release-notes/domui-2-0`) documents moving from Hibernate
       3.6 to 5.2 - wrong twice over now that the framework is on 7.2.
@@ -1053,6 +1056,19 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-08-31 - The Maven archetype is gone
+
+`archetypes/domui-hello` and its `archetypes` module are removed from `domui`, and
+`getting-started/maven-archetype` (with its two 2017 screenshots) is removed from the
+site; the link to it in `getting-started/index.md` went with it.
+
+The archetype generated a single-page "hello" project against DomUI 1.1 and was never
+updated afterwards - the page told the reader to run it with `-DarchetypeVersion=1.1`.
+There are now two ways to start an application, and only one of them should be shown:
+`domui-skeleton` is the encouraged starting point, and it is being brought to the
+current stack. Keeping a second, stale bootstrap route contradicts the "one current
+way" rule, so it is deleted rather than modernized.
 
 ### 2026-08-31 - `running-the-demo` rewritten; its 2017 screenshots deleted
 
