@@ -65,7 +65,8 @@ Documentation site:
   - `data/data-binding/typed-properties/index.md` still refers to `javax.*`.
   - Several pages still refer to Java 8 / old Eclipse / Launchpad-era tooling
     (`development-environment/ecj-in-maven`, `data/qcriteria`,
-    `introduction/developer-view-of-domui`, `data/data-binding/property-references`).
+    ~~`introduction/developer-view-of-domui`~~ - rewritten 2026-08-31 -,
+    `data/data-binding/property-references`).
   - `about/index.md` itself admits the pages are older than the code.
 
 Demo application (`to.etc.domui.demo`):
@@ -996,6 +997,10 @@ Candidates still open, offered as input - not agreed scope:
 - [x] Rewrite `getting-started/running-the-demo` for the real branches, Java 21,
       current Maven and the current IntelliJ run configuration. **Done 2026-08-31**
       (see the decisions log entry of that date).
+- [x] Rewrite `introduction/developer-view-of-domui` against the source: the
+      stack it never named, the entry points (`AppFilter`, `DomApplication`,
+      `UrlPage`, `@UIPage`, `@UIRights`), layer 2, and the test framework.
+      **Done 2026-08-31** (see the decisions log entry of that date).
 - [ ] Purge `javax.*`, Java 8, Eclipse/Launchpad-era and 1.1/2.0-branch
       references site-wide.
 - [ ] Verify every code sample against the current source; fix or delete the
@@ -1027,9 +1032,15 @@ Candidates still open, offered as input - not agreed scope:
       `components/forms-and-input/fileupload`,
       `components/lookup-and-search/searchpanel`, `components/rules`,
       `data/data-binding/typed-properties`, `getting-started/intellij-plugin`,
-      `introduction/developer-view-of-domui`, `look-and-feel/animations`,
-      `testing/junit-testing`. Each says "used to be" / "no longer" / "since
+      `look-and-feel/animations`, `testing/junit-testing`. Each says "used to be" / "no longer" / "since
       DomUI 2.0" somewhere; replace with a plain statement of what is true now.
+- [ ] **Framework: restore JPA support.** `integrations/to.etc.domui.hibutil`
+      ships a Hibernate (native) query executor and `to.etc.webapp.qsql` a JDBC
+      one; the JPA executor sits in hibutil's unbuilt `removed/jpa/` directory, so
+      "runs on JPA" is not true of the current code. The claim was taken out of
+      `introduction/developer-view-of-domui` on 2026-08-31 rather than documented
+      as a limitation. Bring the JPA executor back, then say so on that page and
+      on `data/qcriteria`.
 - [ ] Delete demo pages that demonstrate removed or discouraged APIs.
 - [ ] Remove the deprecated framework code that nothing (docs, demo, framework)
       still needs, once phases 2-3 have stopped referring to it.
@@ -1056,6 +1067,46 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-08-31 - `developer-view-of-domui` rewritten against the source
+
+Every claim on the page was checked against the code. What was wrong:
+
+- "can be made completely cookieless" - `NormalContextMaker` does
+  `request.getSession(true)` and `AppFilter` reads `rq.getSession().getId()`; the
+  demo needs its `SessionCookieSetup` listener precisely because a blocked session
+  cookie makes DomUI fail outright. The page now says the servlet session cookie
+  is required.
+- "`$cid` contains a session ID" - `ConversationContext` builds it as
+  `windowID + "." + conversationId`, so it is the window (tab) plus the
+  conversation. Stated as such now.
+- "OptimalDeltaBuilder" - the class is `OptimalDeltaRenderer`.
+- "implementations exist for JPA and Hibernate" - removed; the JPA executor is in
+  hibutil's unbuilt `removed/jpa/`. Restoring it is now a Phase 4 to-do rather
+  than something the documentation describes as present.
+- The two `help.eclipse.org/neon/` links (2016) became `/latest/` ones, and the
+  typed-properties link was repointed from `data/data-binding/typed-properties` to
+  `building-pages/40-typed-properties`.
+
+Correct after checking, and kept: querying a collection of objects with a
+`QCriteria` (`MetaManager.query(Collection, QCriteria)`, via
+`CriteriaMatchingVisitor`), Hibernate 7.2, jQuery 3.7.1, `Text2<T>`,
+`NodeBase`/`NodeContainer`, the `web.xml` filter and the singleton
+`DomApplication`.
+
+What the page was missing and now has: the stack (Java 21, `jakarta.servlet`,
+Jetty 11 / Tomcat 11, Maven with ecj); how a URL reaches a page (`AppFilter`
+mapped to `/*`, `getRootPage()`, `UrlPage.createContent()`, class name plus `.ui`,
+`@UIPage`, `PageParameters` and `@UIUrlParameter`); per-page access control with
+`@UIRights`; layer 2 - the metadata-driven builders and renderers - which finishes
+the layering that stopped at layer 1; and the test framework
+(`AbstractWebDriverTest`, the `Cp*` page-object proxies, and `PageObjectGenerator`
+on `ctrl-shift-~` twice in development mode). Two plantuml diagrams replace the
+three overlapping prose descriptions of the delta mechanism: a sequence diagram of
+a page load plus one round trip, and the layer stack.
+
+Theming was left alone deliberately: it is due to change, so the page says nothing
+about it.
 
 ### 2026-08-31 - The Maven archetype is gone
 
