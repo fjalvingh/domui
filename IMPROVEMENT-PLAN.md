@@ -428,7 +428,9 @@ Steps:
         `@Deprecated` `BasicPage`. Deleting them is a phase-3 item.
       - **`data/data-binding/index.md` is now superseded by this page.**
         `how-does-it-work` is not - it keeps the binding-order and
-        changed-value material, and this page links to it. When
+        changed-value material, and this page links to it. It has since moved to
+        `70-implementation-details/data-binding-details` (see the decisions log).
+        When
         `data/data-binding/index.md` goes, take
         `data/data-binding/typed-properties` (superseded by
         `40-typed-properties`) with it and repoint the five links listed above.
@@ -1067,6 +1069,32 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-08-31 - `Implementation details` is where the in-depth material goes
+
+`70-implementation-details` collects the in-depth descriptions of how the framework
+works: the mechanisms the tutorial and the component pages use without explaining them.
+It starts unordered - its index says so - and order is imposed later, once it has enough
+pages to have a shape.
+
+First move into it: `data/data-binding/how-does-it-work` became
+`70-implementation-details/data-binding-details`, "Data binding details". It now opens by
+pointing at `building-pages/50-data-binding`, and everything that page already explains
+well was dropped from it: the request round-trip sequence diagram, the bidirectional /
+unidirectional walkthrough with its `IControl.DISABLED` examples, and the whole
+`bindValue` / `bindErrors()` section with its activity diagram. What is left is what only
+this page has - soft versus hard binding and why the update moments are tied to the
+request cycle, where a binding object lives (the `IBinding` / `ComponentPropertyBinding*`
+class diagram), binding order with its collect-then-move diagram, binding performance,
+and when a value counts as changed for collections and mutable compound values. A little
+overlap was kept where removing it would have made the remaining text hard to follow: the
+two binding moments are still named, and the fact that a value binding is bidirectional
+and the rest is not is still stated before the consequences that depend on it.
+
+Links repointed: `data/index.md` (which also lost its bullet to the already-deleted
+`property-references`), `components/rules/index.md` (now pointing at the tutorial page
+rather than at implementation detail), and the closing pointer in
+`building-pages/50-data-binding`. Site builds clean, 75 pages.
 
 ### 2026-08-31 - `developer-view-of-domui` rewritten against the source
 
