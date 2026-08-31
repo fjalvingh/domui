@@ -59,9 +59,9 @@ Documentation site:
 - 129 files under `site/content`; screenshots are largely from 2017-2018 and show
   an old look and feel and old IDE versions.
 - Concrete staleness already spotted:
-  - `getting-started/running-the-demo/index.md` describes branches `master`,
-    `2.0-stable` and `1.1` as the branches that matter. Reality is
-    `skarp-master`. It also predates Java 21 / Maven requirements as they are now.
+  - ~~`getting-started/running-the-demo/index.md` describes branches `master`,
+    `2.0-stable` and `1.1`~~ - rewritten 2026-08-31 for `skarp-master`, Java 21,
+    Maven 3.9 and the committed IntelliJ `demo` run configuration.
   - `data/data-binding/typed-properties/index.md` still refers to `javax.*`.
   - Several pages still refer to Java 8 / old Eclipse / Launchpad-era tooling
     (`development-environment/ecj-in-maven`, `data/qcriteria`,
@@ -993,8 +993,9 @@ Candidates still open, offered as input - not agreed scope:
 
 ### Phase 2 - Correct the factual errors in the documentation
 
-- [ ] Rewrite `getting-started/running-the-demo` for the real branches, Java 21,
-      current Maven and the current IntelliJ run configuration.
+- [x] Rewrite `getting-started/running-the-demo` for the real branches, Java 21,
+      current Maven and the current IntelliJ run configuration. **Done 2026-08-31**
+      (see the decisions log entry of that date).
 - [ ] Purge `javax.*`, Java 8, Eclipse/Launchpad-era and 1.1/2.0-branch
       references site-wide.
 - [ ] Verify every code sample against the current source; fix or delete the
@@ -1052,6 +1053,42 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-08-31 - `running-the-demo` rewritten; its 2017 screenshots deleted
+
+Everything on the page was checked against the repository rather than reworded.
+What was wrong and is now fixed:
+
+- The branch section named `master`, `2.0-stable` and `1.1` as the branches that
+  matter, and told the reader to `git clone -b master`. There is no `master` and
+  no `2.0-stable` branch; the default branch is `skarp-master`, so a plain clone
+  is what the page now shows. Only `1.1` still exists of the three.
+- Java 8 as the project SDK and language level became Java 21 (`jdk.version` in
+  the root pom, JDK 21 in `.github/workflows/build.yml`).
+- "Maven >= 3.5" became "Maven 3.9 or newer, running on a JDK 21".
+- `-Dmaven.test.skip=true` became `-DskipTests`: the root pom chains
+  `skipTests` -> `domui.test.skip` -> `maven.test.skip` -> failsafe -> `jetty.skip`,
+  so that one property is what actually switches off unit tests, integration
+  tests and the Jetty run together.
+- The manual chromedriver install (and its dead
+  `sites.google.com/a/chromium.org/chromedriver` link) is gone: `WebDriverFactory`
+  calls `WebDriverManager.chromedriver().setup()`, so only Chrome itself is needed.
+- The IntelliJ section no longer describes the "event log -> Add as Maven project"
+  dance, which modern IntelliJ does not have, and no longer blames
+  `vaadin-sass-compiler` for the generated-source problem - that module is gone;
+  the reason to run Maven first is stated plainly instead.
+- Added: the build uses ecj rather than javac (with a link to
+  `development-environment/ecj-in-maven`), the committed `.idea/compiler.xml`
+  already selects it, and the committed `demo` run configuration is a Tomcat 11
+  configuration deploying the exploded war at `/demo` on port 8088.
+- Added: the demo needs no database setup (embedded HSQLDB with the Chinook data).
+
+All six `image2017-11-28_*.png` screenshots were deleted rather than annotated.
+Each of them showed something that no longer exists: a module tree containing
+`sass-compiler [vaadin-sass-compiler]`, `jsr305`, `to.etc.db`, `to.etc.dbcompare`
+and `to.etc.domui.formbuilder`; a 2017 build-success terminal; and an IntelliJ
+import flow that has since changed. Phase 4 can add current screenshots if any
+are worth having; none of these were.
 
 ### 2026-08-30 - Documentation style, and components are never fields
 
