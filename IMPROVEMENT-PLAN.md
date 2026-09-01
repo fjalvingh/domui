@@ -66,9 +66,10 @@ Documentation site:
     moved to `70-implementation-details/typed-properties` and rewritten against the
     processor source on 2026-08-31.
   - Several pages still refer to Java 8 / old Eclipse / Launchpad-era tooling
-    (`development-environment/ecj-in-maven`, `data/qcriteria`,
+    (`development-environment/ecj-in-maven`,
     ~~`introduction/developer-view-of-domui`~~ - rewritten 2026-08-31 -,
-    `data/data-binding/property-references`).
+    ~~`data/qcriteria`~~ - moved to `70-implementation-details/qcriteria` and
+    rewritten against the query layer's source on 2026-08-31).
   - `about/index.md` itself admits the pages are older than the code.
 
 Demo application (`to.etc.domui.demo`):
@@ -299,8 +300,8 @@ Steps:
       dotted path upwards, `exists()` downwards, and why the child condition is a
       subselect rather than a join (`limit()` counts entities). Two plantuml
       diagrams: query-versus-context, and the and/or tree. No data binding and no
-      `DataTable`, on purpose; a single pointer at the end to `data/qcriteria` for
-      the reference-level material.
+      `DataTable`, on purpose; a single pointer at the end to the in-depth page
+      (now `70-implementation-details/qcriteria`) for the reference-level material.
       Three demo pages carry it, in `pages/tutorial/database`: `QueryFirstPage`
       (ilike/ascending/limit on `Album`), `QueryRestrictionsPage` (an `or()` over
       name and composer, anded with a duration, showing the query's own
@@ -318,10 +319,12 @@ Steps:
         `Led Zeppelin` as separate artists, plus `Iron Maide`,
         `Yamma Brow`, `Talkin Loud and Saying Nothi`. Not a rendering bug; the
         insert statements are like that. Left alone - a candidate, below.
-      - `data/qcriteria` now overlaps this page and still carries stale material
+      - ~~`data/qcriteria` now overlaps this page and still carries stale material
         (an `examples/tutorial` module that no longer exists, an `Album.year`
         property the entity does not have, Confluence-hosted images). It wants
-        triage in phase 2 as the reference page this one points at.
+        triage in phase 2 as the reference page this one points at.~~ Done
+        2026-08-31: it became `70-implementation-details/qcriteria` and was
+        rewritten as the layer's own page (see the decisions log).
 
 - [x] **Documentation: "Typed properties".** The fourth page of the walkthrough,
       `site/content/building-pages/40-typed-properties/index.md`, taking its
@@ -1040,7 +1043,8 @@ Candidates still open, offered as input - not agreed scope:
       "runs on JPA" is not true of the current code. The claim was taken out of
       `introduction/developer-view-of-domui` on 2026-08-31 rather than documented
       as a limitation. Bring the JPA executor back, then say so on that page and
-      on `data/qcriteria`.
+      in `70-implementation-details/qcriteria`, whose "What is not implemented"
+      section states it now.
 - [ ] Delete demo pages that demonstrate removed or discouraged APIs.
 - [ ] Remove the deprecated framework code that nothing (docs, demo, framework)
       still needs, once phases 2-3 have stopped referring to it.
@@ -1067,6 +1071,46 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-08-31 - `qcriteria` moved into `Implementation details`
+
+`data/qcriteria` was the reference page `building-pages/30-using-databases` points at. It
+became `70-implementation-details/qcriteria`, "The generic query layer (QCriteria)",
+rewritten from the source of `to.etc.webapp.query`, hibutil's `CriteriaCreatingVisitor`
+and the demo's `TestDbQCriteria`, and now opens by pointing back at the walkthrough page.
+
+What it says that the walkthrough does not: the query as an expression tree with the
+`QRestrictor` / `QCriteriaQueryBase` / `QCriteria` / `QSelection` hierarchy and the
+`QNodeVisitor`s that turn it into a rendered string, a JPA `CriteriaQuery` or an
+in-memory match; the executor registry, asked per queried class, with `@QJdbcTable`
+routing a class to `JdbcQueryExecutor` and everything else to `HibernateQueryExecutor`;
+what the translator makes of a dotted path (explicit joins, `LEFT` for optional
+relations and `INNER` for required ones, joins cached per relation, a path ending in the
+relation's id needing no join at all); how an `exists` subselect is built from the
+collection's `mappedBy` - and that a unidirectional collection therefore cannot be used -
+plus the automatic rewrite of a two-collection path into nested `exists`; `QSelection`
+with its implicit `group by` over every plainly selected property; `@QFld` interfaces and
+`QQueryUtils.queryCount`; `in(property, QSelection)` and correlated `subquery()`;
+`sqlCondition()` and its `this_.` alias rewriting; `MetaManager.query(Collection,
+QCriteria)`; and `testId` with `TestDataContextMock` for querying code under test.
+
+Corrected while rewriting: the old page sent the reader to an `examples/tutorial` module
+that does not exist (the tree has `examples/astfixer` and `examples/skeleton`), used an
+`Album.year` property the entity does not have, told people to use the *Eclipse* plugin
+for property checking, embedded two Confluence-hosted images and a 2018 screenshot, left
+"Parent and child relation queries: joins" as `TBD`, and claimed DomUI aborts a query
+that eagerly fetches with a `limit()` in place - `handleFetch` in
+`CriteriaCreatingVisitor` validates the fetch path and then ignores the strategy
+entirely, so eager fetching is simply not implemented. The page now carries a "What is
+not implemented" section saying that, plus `QMultiSelection` being rejected by the
+Hibernate translator and there being no plain-JPA executor in the built code.
+
+`data/` now holds only the POJO generator; its index points at the walkthrough pages and
+at the two implementation-details pages instead of listing what has moved out. The
+closing pointer of `30-using-databases` names the new page and what is actually on it.
+Links in `introduction/developer-view-of-domui` and `getting-started/example-skeleton`
+were repointed by the build's own link repair. Site builds clean, 74 pages, both new
+diagrams render.
 
 ### 2026-08-31 - `typed-properties` moved into `Implementation details`
 
