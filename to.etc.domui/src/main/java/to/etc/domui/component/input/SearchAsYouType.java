@@ -62,7 +62,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 
 	private boolean m_setValueCalled;
 
-	enum MatchMode {
+	public enum MatchMode {
 		/**
 		 * The string entered must be part of the value
 		 */

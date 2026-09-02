@@ -58,11 +58,38 @@ public class SwitchButton extends AbstractDivControl<Boolean> {
 		m_cb.setOnValueChanged(onValueChanged);
 	}
 
+	/**
+	 * The value of this control <b>is</b> the state of the checkbox inside it; without
+	 * these two the control would keep a value of its own that the checkbox never sees.
+	 */
+	@Override
+	protected void internalSetValue(@Nullable Boolean value) {
+		m_cb.setValue(value);
+	}
+
+	@Nullable
+	@Override
+	protected Boolean internalGetValue() {
+		return m_cb.getValue();
+	}
+
 	public boolean isChecked() {
 		return m_cb.isChecked();
 	}
 
 	public void setChecked(boolean checked) {
-		m_cb.setChecked(checked);
+		setValue(Boolean.valueOf(checked));
+	}
+
+	@Override
+	public void setDisabled(boolean d) {
+		super.setDisabled(d);
+		m_cb.setDisabled(d);
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+		super.setReadOnly(ro);
+		m_cb.setReadOnly(ro);
 	}
 }

@@ -28,7 +28,7 @@ public class ActionButton extends DefaultButton {
 	private final List<Pair<?, IUIAction<?>>> m_actions = new ArrayList<>();
 
 	public <T> ActionButton(T instance, IUIAction<T> action) throws Exception {
-		super(action);
+		super(instance, action);
 	}
 
 	public ActionButton(IBundleCode code, IIconRef icon, final IClicked<DefaultButton> clicked) {

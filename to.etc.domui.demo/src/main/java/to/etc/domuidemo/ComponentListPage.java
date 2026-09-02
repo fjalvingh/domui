@@ -5,6 +5,19 @@ import to.etc.domuidemo.pages.DataTable1Page;
 import to.etc.domuidemo.pages.MenuPage;
 import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.binding.editabletable.EditableTablePage;
+import to.etc.domuidemo.pages.components.lookup.LookupInput2LookPage;
+import to.etc.domuidemo.pages.components.lookup.LookupInput2Page;
+import to.etc.domuidemo.pages.components.lookup.LookupInput2QueryPage;
+import to.etc.domuidemo.pages.components.lookup.SearchAsYouTypePage;
+import to.etc.domuidemo.pages.components.lookup.SearchPanelControlPage;
+import to.etc.domuidemo.pages.components.lookup.SearchPanelFormPage;
+import to.etc.domuidemo.pages.components.lookup.SearchPanelItemsPage;
+import to.etc.domuidemo.pages.components.lookup.SearchPanelPage;
+import to.etc.domuidemo.pages.components.buttons.ActionButtonPage;
+import to.etc.domuidemo.pages.components.buttons.ButtonBar2Page;
+import to.etc.domuidemo.pages.components.buttons.ButtonKindsPage;
+import to.etc.domuidemo.pages.components.buttons.DefaultButtonPage;
+import to.etc.domuidemo.pages.components.buttons.ToggleButtonPage;
 import to.etc.domuidemo.pages.components.choice.CheckboxPage;
 import to.etc.domuidemo.pages.components.choice.ComboFixed2Page;
 import to.etc.domuidemo.pages.components.choice.ComboLookup2Page;
@@ -21,8 +34,6 @@ import to.etc.domuidemo.pages.components.input.TextAreaPage;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
 import to.etc.domuidemo.pages.graphs.GraphPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
-import to.etc.domuidemo.pages.overview.buttons.DemoDefaultButton;
-import to.etc.domuidemo.pages.overview.buttons.DemoLinkButton;
 import to.etc.domuidemo.pages.overview.delayed.DemoAsyncContainer;
 import to.etc.domuidemo.pages.overview.delayed.DemoPollingDiv;
 import to.etc.domuidemo.pages.overview.dnd.DemoDragDrop;
@@ -32,10 +43,7 @@ import to.etc.domuidemo.pages.overview.htmleditor.DemoCKEditorResizing;
 import to.etc.domuidemo.pages.overview.htmleditor.DemoDisplayHtml;
 import to.etc.domuidemo.pages.overview.htmleditor.DemoHtmlEditor;
 import to.etc.domuidemo.pages.overview.input.DemoBulkUpload;
-import to.etc.domuidemo.pages.overview.input.DemoCheckbox;
 import to.etc.domuidemo.pages.overview.input.DemoFileUpload;
-import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType1;
-import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType2;
 import to.etc.domuidemo.pages.overview.layout.DemoAppTitle;
 import to.etc.domuidemo.pages.overview.layout.DemoCaption;
 import to.etc.domuidemo.pages.overview.layout.DemoCaptionedHeader;
@@ -43,8 +51,6 @@ import to.etc.domuidemo.pages.overview.layout.DemoCaptionedPanel;
 import to.etc.domuidemo.pages.overview.layout.DemoMessageLine;
 import to.etc.domuidemo.pages.overview.layout.DemoSplitterPanel;
 import to.etc.domuidemo.pages.overview.layout.DemoTabPanel;
-import to.etc.domuidemo.pages.overview.lookup.DemoLookupForm;
-import to.etc.domuidemo.pages.overview.lookup.DemoLookupForm2;
 import to.etc.domuidemo.pages.overview.menu.DemoPopupMenu;
 import to.etc.domuidemo.pages.overview.misc.DemoALink;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayCheckbox;
@@ -58,7 +64,6 @@ import to.etc.domuidemo.pages.plotly.PlotlyGaugePage;
 import to.etc.domuidemo.pages.plotly.PlotlyPie1;
 import to.etc.domuidemo.pages.plotly.PlotlyStackedBar;
 import to.etc.domuidemo.pages.plotly.PlotlySunburst;
-import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
 import to.etc.domuidemo.pages.special.ace.AcePage;
 
 /**
@@ -92,11 +97,13 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(DemoALink.class, "The ALink and ATag components (links)");
 		f.addLink(SvgIconPage.class, "Renders components with SVG icons");
 
-		f = new ListFragment("Buttons");
+		f = new ListFragment("Buttons and actions");
 		main.add(f);
-		f.addLink(DemoDefaultButton.class, "The DefaultButton");
-		f.addLink(DemoLinkButton.class, "The LinkButton");
-		f.addLink(DemoCheckbox.class, "The CheckboxButton component");
+		f.addLink(DefaultButtonPage.class, "DefaultButton: the ordinary button");
+		f.addLink(ButtonKindsPage.class, "The kinds of button");
+		f.addLink(ToggleButtonPage.class, "CheckboxButton and SwitchButton");
+		f.addLink(ActionButtonPage.class, "Buttons made from an action");
+		f.addLink(ButtonBar2Page.class, "ButtonBar2: the bar the buttons sit on");
 
 		f = new ListFragment("Text and value input");
 		main.add(f);
@@ -117,6 +124,17 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(ComboLookup2Page.class, "ComboLookup2: choosing a record");
 		f.addLink(EnumSetInputPage.class, "EnumSetInput: choosing several");
 
+		f = new ListFragment("Lookup and search");
+		main.add(f);
+		f.addLink(LookupInput2Page.class, "LookupInput2: finding a record");
+		f.addLink(LookupInput2LookPage.class, "LookupInput2: what it shows");
+		f.addLink(LookupInput2QueryPage.class, "LookupInput2: limiting what can be found");
+		f.addLink(SearchAsYouTypePage.class, "SearchAsYouType: typing the value");
+		f.addLink(SearchPanelPage.class, "SearchPanel: a search screen from metadata");
+		f.addLink(SearchPanelItemsPage.class, "SearchPanel: fields of your own");
+		f.addLink(SearchPanelControlPage.class, "SearchPanel: controls of your own");
+		f.addLink(SearchPanelFormPage.class, "SearchPanel: the form and its buttons");
+
 		f = new ListFragment("Input Components");
 		main.add(f);
 		f.addLink(DemoFileUpload.class, "File upload component");
@@ -125,11 +143,6 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(DemoCKEditor.class, "CKEditor HTML component, fixed size");
 		f.addLink(DemoCKEditorResizing.class, "CKEditor HTML component, auto resizing");
 		f.addLink(AcePage.class, "The ACE code editor");
-
-		f = new ListFragment("Search as you type");
-		main.add(f);
-		f.addLink(DemoSearchAsYouType1.class, "Component to search-as-you-type in a list of possible values");
-		f.addLink(DemoSearchAsYouType2.class, "Component to search-as-you-type in a list of possible values");
 
 		f = new ListFragment("Display-only components");
 		main.add(f);
@@ -158,9 +171,6 @@ public class ComponentListPage extends MenuPage {
 
 		f = new ListFragment("Form builders and form components");
 		main.add(f);
-		f.addLink(SearchPanelMenuPage.class, "SearchPanel: searching for things in the database");
-		f.addLink(DemoLookupForm.class, "Using a lookupform to generalize search pages");
-		f.addLink(DemoLookupForm2.class, "LookupForm with LookupInput for a many-to-one relation, and search-as-you-type");
 
 		//f.addLink(FormDesigner.class, "Form designer - work in progress");
 

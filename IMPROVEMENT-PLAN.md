@@ -966,11 +966,13 @@ Steps:
       - [x] **Choice input** - `Checkbox`, `RadioButton`/`RadioGroup`,
             `ComboFixed2`, `ComboLookup2`, `EnumSetInput`. Done 2026-09-02; see
             the decisions log entry of that date.
-      - [ ] Lookup and search - `LookupInput2`, `SearchInput2`, `SearchAsYouType`,
-            `SearchPanel`
-      - [ ] Buttons and actions - `DefaultButton`, `LinkButton`, `SmallImgButton`,
-            `HoverButton`, `CheckboxButton`, `SwitchButton`, `ActionButton` +
-            `IUIAction`, `ButtonBar2`
+      - [x] **Lookup and search** - `LookupInput2`, `SearchInput2`,
+            `SearchAsYouType`, `SearchPanel`. Done 2026-09-02; see the decisions
+            log entry of that date.
+      - [x] **Buttons and actions** - `DefaultButton`, `LinkButton`,
+            `SmallImgButton`, `HoverButton`, `CheckboxButton`, `SwitchButton`,
+            `ActionButton` + `IUIAction`, `ButtonBar2`. Done 2026-09-02; see the
+            decisions log entry of that date.
       - [ ] Display-only components - `DisplaySpan`, `DisplayControl`,
             `DisplayCheckbox`, `DisplayRadiobutton`, `DisplayHtml`,
             `PercentageCompleteRuler2`, `EmbeddedCode`
@@ -997,6 +999,19 @@ Steps:
       `tables-trees-navigation`) are dissolved into the groups above.
 
 Candidates still open, offered as input - not agreed scope:
+
+- The `IUIAction` API is inconsistent about instances:
+  `DefaultButton(instance, action)` and `ButtonBar2.addAction(instance, action)`
+  are generic, while `LinkButton(IUIAction<Void>)` and
+  `ButtonBar2.addButton(IUIAction<Void>)` accept an action over `Void` only. Make
+  the latter two generic as well, or drop them in favour of the working pair.
+
+- `AbstractSearchPage` (the demo's shared list-screen base, now under
+  `pages/components/lookup`) keeps its `ContentPanel` and `DataTable` in fields,
+  which the conventions forbid. It works because the page never rebuilds - it
+  swaps the table's model instead - but it is the second base class in the demo
+  doing this (`AbstractCdShopListPage` is the other). Worth reworking both in
+  phase 3.
 
 - **No label a form builder writes has a `for` attribute.**
   `ResponsiveFormLayouter` - the default layouter of `FormBuilder` - never calls
@@ -1151,6 +1166,162 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-02 - Components group 4: buttons and actions
+
+`components/40-buttons/`: a group page plus `defaultbutton`, `linkbutton`,
+`smallimgbutton`, `hoverbutton`, `checkboxbutton`, `switchbutton`,
+`actionbutton` (IUIAction and ActionButton together) and `buttonbar2`, carried
+by five demo pages in `to.etc.domuidemo.pages.components.buttons`.
+
+The group page answers the question the eight pages cannot: **which button**.
+An activity diagram walks it - does it hold a value (CheckboxButton if the two
+states have names, SwitchButton if not), is it the action of the screen
+(DefaultButton on a ButtonBar2), is it inside a control or a row
+(SmallImgButton), otherwise a LinkButton - and the page tables what all of them
+share: the click handler, disabled-with-a-reason, `IIconRef` icons, and the `!`
+accelerator.
+
+**Verified in headless Chrome**: `"S!ave"` really renders `S<u>a</u>ve`;
+`setDisabledBecause` puts its reason in the title of a disabled button; the
+`is-primary`/`is-small`/`is-outlined` classes come out on the button element as
+documented; `mini()` **replaces** the button's classes with `ui-sdbtn-mini`
+rather than adding one (so the `is-` classes do not apply to a mini button - now
+a warning callout); a CheckboxButton renders its two texts as the css attributes
+`data-checked`/`data-unchecked`, defaulting to On/Off; `ButtonBar2` sorts on the
+`order` argument rather than call order (first/second/third added 300/100/200
+come out in the right order), renders `ui-bbar2-l` and `ui-bbar2-r` groups with
+each button in a `ui-bbar2-bc` cell, shows the confirm box before the handler
+for `addConfirmedButton`, and `addBackButton()` renders as **Close** when the
+page was opened directly; and an `IUIAction` gives its name, tooltip, icon and
+disable reason to every button made from it.
+
+**Two defects fixed:**
+
+- **`SwitchButton` did not work as a control at all.** It extends
+  `AbstractDivControl<Boolean>` but never overrode `internalGetValue()` /
+  `internalSetValue()`, so the control kept a value of its own that the checkbox
+  inside it never saw: `getValue()` returned **null** however the switch was
+  set, and `setValue()` changed nothing on screen - which also means it could
+  not be bound. It now delegates both to the checkbox (the two lines
+  `CheckboxButton` already had), and `setChecked()` goes through `setValue()` so
+  one path sets the value. `setDisabled()` and `setReadOnly()` are passed on too,
+  which they also were not. Verified: the demo page reported `switch=null`
+  before the fix and `switch=true` after it.
+- **`ActionButton` dropped its instance.** `ActionButton(T instance,
+  IUIAction<T> action)` called `super(action)` rather than
+  `super(instance, action)`, so the action was executed with a null instance -
+  every action written against an instance would fail. Verified: the demo's
+  action button now reports "Shipped For Those About To Rock We Salute You".
+
+**Left alone, noted below:** `LinkButton(IUIAction<Void>)` and
+`ButtonBar2.addButton(IUIAction<Void>)` take a `Void` action only, while
+`DefaultButton(instance, action)` and `ButtonBar2.addAction(instance, action)`
+are generic. The pages document the working pair and warn about the other; the
+inconsistency is a candidate.
+
+**Deleted, superseded:** the site's `components/forms-and-input/defaultbutton`
+(most of it was a note on how the scss was adapted from Bulma, with a 2017
+screenshot, and its rendered-structure example named a css class -
+`ui-btntext` - that the code does not use; the real one is `ui-sdbtn-txt`) and
+`components/forms-and-input/checkboxbutton` (accurate but a stub, with a 2018
+screenshot). The demo pages `DemoDefaultButton`, `DemoLinkButton`,
+`DemoSmallImageButton`, `DemoButtonBar` and `DemoCheckbox` are replaced by the
+five new ones. `forms-and-input` now holds only the form builder, file upload
+and the editors - it will disappear entirely as the remaining groups are done.
+
+Site builds clean, 92 pages, the group's activity diagram renders and all five
+`!demo()` frames resolve. `mvn21 clean install` builds the whole tree and the
+demo module's 9 unit tests pass. **Not deployed**: the frames are 404 until the
+demo is redeployed with `scripts/deploy-demo`.
+
+### 2026-09-02 - Components group 3: lookup and search
+
+`components/30-lookup-and-search/`: a group page plus `lookupinput2`,
+`searchinput2`, `searchasyoutype` and `searchpanel`, carried by eight demo pages
+in `to.etc.domuidemo.pages.components.lookup`. The old
+`components/lookup-and-search/` directory is gone; its four pages were a "TBD"
+stub, a rules page written for two generations of the control at once, a
+search-as-you-type page and a long SearchPanel article - see below for what
+happened to each.
+
+The group page draws the line the section needed: **`LookupInput2` finds one
+record to put in a field, `SearchPanel` searches for the records a screen is
+about**. They meet where a search panel's relation field is itself a
+`LookupInput2`. A diagram carries that, and the page tables the three things the
+group shares: where search properties come from (`SEARCH_FIELD` / `KEYWORD` /
+`BOTH`), that a search value is what the user may *express* rather than a
+property value, and the control/query-builder split.
+
+**What the `lookupinput2` page says that nothing said before**: the three things
+it can render and which one you get; and the four-way branch on the number of
+records a quick search finds - none says *no matches*, **exactly one is selected
+without asking**, 2..100 drop down as a list, more than 100 shows the count. Then
+the `$$3` and `$$city=Oslo` prefixes of `DefaultStringQueryFactory`, minimum
+lengths per keyword property, the three ways to limit what can be found at all
+(root criteria, query manipulator, fixed list), and the three separate renderers
+(value, drop-down, dialog table).
+
+**Verified in headless Chrome** against the running demo: all four result
+branches reproduced on a `LookupInput2<Track>` - "zzzz" gives
+*no matches* (`ui-lui-result-none`), "a" gives *199 record(s)*
+(`ui-lui-result-count`), "wonderful tonight" **selects the track outright**, and
+"he" on the customer control drops down Helena Holý and Heather Leacock;
+`addKeywordProperty("artist.name", 2)` really does refuse to search on one
+character and searches on two; the three render states come out as
+`ui-lui ctl-has-addons ui-control` with an input, *(no selection)* without one,
+and `ui-lui-selected ui-lui-selected-ro` with no buttons when read only.
+On the SearchPanel side: metadata alone produces exactly Date of invoice /
+Billing City / Customer and searching with an empty form returns all 458
+invoices; `addDefault()` after one manual field yields four fields in that order;
+`action(() -> builder.addBreak())` really produces two `ui-dfsb-part` columns;
+`setOnNew` adds the **Add** button; and **Reset** puts the *default* values back
+(`>=5.0`, "until 2010-01-01"), not an empty form.
+
+**Two defects fixed:**
+
+- `SearchAsYouType.MatchMode` was **package-private** while `setMode(MatchMode)`
+  is public, so no application outside `to.etc.domui.component.input` could pick
+  a match mode at all. The enum is public now.
+- (Group 2's `EnumSetInput` fix carries into this group: the control the
+  `SearchPanel` example uses for a `Set<Genre>` search now works for enums too.)
+
+**Corrected against the old page while rewriting**, each checked in the source:
+`ILookupQueryBuilder` is `<Q, D>` with `appendCriteria(QCriteria<Q>, D)`, not
+`<D>` with a method-level `<T>`; `EnumSetQueryBuilder` is `<Q, V>`;
+`SearchControlLine` is `<T, D>`; `control(control, queryBuilder)` takes the
+control first; `EnumSetInput` needs its label property in the constructor;
+`ObjectLookupQueryBuilder` only appends the `%` when `lookupWildcardByDefault`
+is on and treats a trailing `.` as "exact"; the clear button is labelled
+**Reset** and restores `defaultValue` rather than emptying the form; and
+`initialValue()` differs from `defaultValue()` exactly in that Reset goes to the
+latter.
+
+**Deleted:** `components/lookup-and-search/` entirely.
+`lookupinput2/index.md` said "TBD"; `lookupinput-rules` documented
+`LookupInput` and `LookupInput2` side by side with seven 2017 screenshots, which
+the "one current way" rule does not allow - what is still true about the control's
+states is now on the `lookupinput2` page; `searchasyoutype` was rewritten (its
+seven 2018 screenshots dropped, and its closing section on a `SearchAsYouTypeQ`
+component removed - **no such class exists**); `searchpanel` was rewritten around
+the same structure but against the current signatures, without its
+LookupForm comparison section (that class is gone from the framework) and without
+the six "the result looks like this:" lines that pointed at images the page never
+had. The two release-note links into the deleted pages were repointed.
+
+**Demo pages deleted or moved:** `pages/searchpanel/**` (six pages plus their
+menu) became four pages under `pages/components/lookup`, merged in pairs -
+`SearchPanelPage` (metadata), `SearchPanelItemsPage` (the builder and default
+values), `SearchPanelControlPage` (own control, own query builder),
+`SearchPanelFormPage` (addDefault, addBreak, the buttons); `AbstractSearchPage`
+moved with them. `pages/overview/lookup/DemoLookupForm{,2}` are deleted - despite
+their names they were two more `SearchPanel` examples - and so are
+`DemoSearchAsYouType1/2`, replaced by `SearchAsYouTypePage`.
+
+Site builds clean, 85 pages, the group diagram renders and all eight `!demo()`
+frames resolve. `mvn21 clean install` builds the whole tree and the demo module's
+9 unit tests pass. **Not deployed**: the frames are 404 until the demo is
+redeployed with `scripts/deploy-demo`.
 
 ### 2026-09-02 - Components group 2: choice input
 

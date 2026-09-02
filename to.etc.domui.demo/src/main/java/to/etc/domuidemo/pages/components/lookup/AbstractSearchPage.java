@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.searchpanel;
+package to.etc.domuidemo.pages.components.lookup;
 
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.searchpanel.SearchPanel;
