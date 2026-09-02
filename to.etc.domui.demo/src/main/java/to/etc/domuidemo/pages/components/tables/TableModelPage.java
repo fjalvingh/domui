@@ -117,6 +117,11 @@ public class TableModelPage extends UrlPage {
 
 		private int m_copies;
 
+		/** T when this line orders more than ten copies; used by a style binding. */
+		public boolean isBulk() {
+			return m_copies > 10;
+		}
+
 		public BasketLine(String album, int copies) {
 			m_album = album;
 			m_copies = copies;

@@ -24,6 +24,7 @@ import to.etc.domuidemo.pages.components.display.DisplaySpanPage;
 import to.etc.domuidemo.pages.components.display.RulerPage;
 import to.etc.domuidemo.pages.components.tables.ColumnDefPage;
 import to.etc.domuidemo.pages.components.tables.DataTablePage;
+import to.etc.domuidemo.pages.components.tables.TableBindingPage;
 import to.etc.domuidemo.pages.components.tables.TableEditPage;
 import to.etc.domuidemo.pages.components.tables.OtherTablesPage;
 import to.etc.domuidemo.pages.components.tables.TableModelPage;
@@ -168,6 +169,7 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(TableModelPage.class, "Table models");
 		f.addLink(TableSelectionPage.class, "Selecting rows");
 		f.addLink(TableEditPage.class, "Editing in a table");
+		f.addLink(TableBindingPage.class, "Data binding in a table");
 		f.addLink(OtherTablesPage.class, "A grid and a shuttle");
 		f.addLink(Tree3Page.class, "Tree3: showing a tree");
 

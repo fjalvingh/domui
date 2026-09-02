@@ -1002,6 +1002,11 @@ Steps:
 
 Candidates still open, offered as input - not agreed scope:
 
+- The site generator's link checker refuses an internal link with a `#fragment`
+  (*link to unknown document*), even though the generated pages do give headings
+  an id. Cross-page links into a section therefore have to point at the whole
+  page. Worth fixing in sigeto: check only the part before the `#`.
+
 - The `IUIAction` API is inconsistent about instances:
   `DefaultButton(instance, action)` and `ButtonBar2.addAction(instance, action)`
   are generic, while `LinkButton(IUIAction<Void>)` and
@@ -1168,6 +1173,54 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-02 - Data binding in a table is documented with the table
+
+Binding inside a table is a subject of its own - the cells are made by the
+component, only the visible page exists, and the rows can come from an
+observable list - so it belongs with the table rather than with the general
+data binding page. `components/60-tables-and-trees/datatable` gained a
+**Data binding in a table** section covering:
+
+- every value cell **is already a bound control** (a `DisplaySpan` bound to that
+  property of that row), which is why changing a row object changes the screen
+  with nothing else being called;
+- a cell built by a **renderer** has no value to compare and is *not* updated -
+  `rerenderOnBind()` redraws it once per request instead (a `CalculatedBinding`
+  with `updateAlways`), and `valueHint()` binds the cell's tooltip the same way;
+- **editable** cells: `editable()` binds a control to the row's property, the
+  control comes from metadata or from `factory()`, and - the trap -
+  *whichever way it is made the binding is always to the column's property*, so
+  a factory-built control must have that value type. The source carries a FIXME
+  saying the same thing;
+- **style binding** per cell (`styleBinding(StyleBinder).to(property)`) and the
+  **footer** (`getFooterBody()`), where a total binds to the page or a
+  controller rather than to a row;
+- **rows from an `IObservableList`** (`setList()`): one add/delete/modify moves
+  one row, an assign or a multi-change event rebuilds the table. A Hibernate
+  relation list is observable, which is the natural master/detail screen;
+- and the special cases: a row that is `modified()` is **thrown away and
+  rebuilt** (new controls, so an unsaved keystroke, a validation error and the
+  focus go with it); only the rows of the visible page have bindings at all; the
+  usual `areObjectsEqual` trap, which bites hardest here because the cells are
+  made for you; and the cost - the binding pass walks every control on the page
+  once per request.
+
+A demo page carries it: `TableBindingPage`, with the same computed column twice -
+once with `rerenderOnBind()` and once without - a style-bound cell, a footer
+total bound to a property of the page, and a button that adds a line through the
+model. Verified in headless Chrome: pressing the button takes the bound cell from
+2 to 3 to 14, the `rerenderOnBind` column follows (`3 x 14.95 = 44.85`), the
+column without it stays at what it first rendered, the cell gains `dm-tut-hi`
+once the row passes ten copies, and the footer total goes 15 -> 16.
+
+`DemoTableBinding2`, one of the older table examples kept under "more examples",
+used the superseded `LookupInput` in a control factory; it now uses
+`LookupInput2`. The other binding examples there are current and stay.
+
+Also noted: the site generator's link checker rejects an internal link carrying
+a `#fragment`, although the generated headings do have ids - so cross-page links
+into a section have to point at the page. Candidate below.
 
 ### 2026-09-02 - Components group 6: tables, lists and trees
 
