@@ -44,6 +44,35 @@ final public class HtmlUtil {
 
 	private static final Set<String> VALID_ATTRIBUTE_NAMES = new HashSet<>(Arrays.asList("id", "class", "href", "target", "title", "color", "face", "size", "style"));
 
+	/**
+	 * Attributes whose value is a url. Their value is checked against {@link #SAFE_URL_SCHEMES},
+	 * because an allowed attribute with a "javascript:" value is exactly as dangerous as a script
+	 * element would have been.
+	 */
+	private static final Set<String> URL_ATTRIBUTE_NAMES = new HashSet<>(Arrays.asList("href", "src", "action", "background", "cite", "formaction", "longdesc", "poster", "xlink:href"));
+
+	/** The url schemes an attribute value may use; everything else (javascript:, data:, vbscript:) is dropped. */
+	private static final Set<String> SAFE_URL_SCHEMES = new HashSet<>(Arrays.asList("http", "https", "mailto", "ftp", "ftps", "tel"));
+
+	/**
+	 * Elements that are removed <i>with their content</i>. For all other rejected elements only the
+	 * tags are removed and the text between them is kept - which is right for a rejected table cell
+	 * but very wrong for a script, whose "text" is code.
+	 */
+	private static final Set<String> KILL_CONTENT_ELEMENT_NAMES = new HashSet<>(Arrays.asList(HTMLElementName.SCRIPT, HTMLElementName.STYLE, HTMLElementName.IFRAME,
+		HTMLElementName.OBJECT, HTMLElementName.EMBED, HTMLElementName.APPLET, HTMLElementName.NOSCRIPT, HTMLElementName.TITLE, HTMLElementName.HEAD,
+		HTMLElementName.FRAME, HTMLElementName.FRAMESET, HTMLElementName.BASE, HTMLElementName.LINK, HTMLElementName.META,
+		"template", "svg", "math"));
+
+	/**
+	 * The killed elements that have no end tag of their own. For the others - script, style and
+	 * friends - a missing end tag means everything after them is their content, in a browser too.
+	 */
+	private static final Set<String> KILL_CONTENT_VOID_ELEMENT_NAMES = new HashSet<>(Arrays.asList(HTMLElementName.BASE, HTMLElementName.LINK, HTMLElementName.META, HTMLElementName.FRAME));
+
+	/** Things inside a style attribute that can load or run something; ordinary formatting has none of them. */
+	private static final String[] UNSAFE_STYLE_FRAGMENTS = {"url(", "expression", "javascript", "vbscript", "behavior", "binding", "@import", "\\"};
+
 	private static final Object VALID_MARKER = new Object();
 
 	@Nullable
@@ -71,6 +100,16 @@ final public class HtmlUtil {
 		List<Tag> tags = source.getAllTags();
 		int pos = 0;
 		for(Tag tag : tags) {
+			if(tag.getBegin() < pos)							// Inside an element that was removed with its content
+				continue;
+			if(stripInvalidElements && isContentKilled(tag)) {
+				//-- Remove the element *and everything inside it*: its content is not text to show.
+				reencodeTextSegment(source, outputDocument, pos, tag.getBegin(), formatWhiteSpace);
+				int end = killedElementEnd(source, tag);
+				outputDocument.remove(new Segment(source, tag.getBegin(), end));
+				pos = end;
+				continue;
+			}
 			if(processTag(tag, outputDocument)) {
 				tag.setUserData(VALID_MARKER);
 			} else {
@@ -202,12 +241,100 @@ final public class HtmlUtil {
 			outputDocument.replace(textSegment, encodedText);
 	}
 
+	/**
+	 * T when this is the start tag of an element that must disappear together with its content.
+	 */
+	private static boolean isContentKilled(Tag tag) {
+		return StartTagType.NORMAL.equals(tag.getTagType()) && KILL_CONTENT_ELEMENT_NAMES.contains(tag.getName());
+	}
+
+	/**
+	 * Where the killed element ends. With an end tag: after it. Without one: after the start tag for
+	 * the elements that never have an end tag, and <b>at the end of the input</b> for the rest -
+	 * an unclosed script element makes everything after it script content, in a browser too.
+	 */
+	private static int killedElementEnd(Source source, Tag tag) {
+		Element element = tag.getElement();
+		if(null != element && null != element.getEndTag())
+			return element.getEnd();
+		if(KILL_CONTENT_VOID_ELEMENT_NAMES.contains(tag.getName()))
+			return tag.getEnd();
+		return source.getEnd();
+	}
+
+	/**
+	 * Check the value of a url attribute. Anything without a scheme is relative and therefore safe;
+	 * a scheme must be one of {@link #SAFE_URL_SCHEMES}. Characters a browser ignores while working
+	 * out the scheme (spaces, tabs, newlines, control characters) are removed before looking, so
+	 * "java\tscript:..." does not slip through.
+	 */
+	static boolean isSafeUrl(@Nullable String value) {
+		if(null == value)
+			return true;									// An attribute without a value carries no scheme
+		StringBuilder sb = new StringBuilder(value.length());
+		for(int i = 0; i < value.length(); i++) {
+			char c = value.charAt(i);
+			if(c > ' ' && c != 0x7f)
+				sb.append(c);
+		}
+		String url = sb.toString();
+		int colon = url.indexOf(':');
+		if(colon < 0)
+			return true;									// No scheme at all: a relative url
+		//-- A colon after the start of the path, the query or the fragment is not a scheme separator
+		int slash = url.indexOf('/');
+		int question = url.indexOf('?');
+		int hash = url.indexOf('#');
+		if((slash >= 0 && slash < colon) || (question >= 0 && question < colon) || (hash >= 0 && hash < colon))
+			return true;
+		return SAFE_URL_SCHEMES.contains(url.substring(0, colon).toLowerCase());
+	}
+
+	/**
+	 * Check the value of a style attribute: it may format, but it may not load or run anything.
+	 * Css comments and whitespace are removed first, because both can be used to break a keyword up.
+	 */
+	static boolean isSafeStyle(@Nullable String value) {
+		if(null == value)
+			return true;
+		String style = value.toLowerCase()
+			.replaceAll("/\\*.*?\\*/", "")					// css comments
+			.replaceAll("\\s+", "");
+		for(String bad : UNSAFE_STYLE_FRAGMENTS) {
+			if(style.contains(bad))
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * T when this attribute may be rendered: its name must be allowed, and for the attributes whose
+	 * value can do something - a url, a style - the value must be allowed too.
+	 */
+	private static boolean isAcceptedAttribute(Attribute attribute) {
+		String name = attribute.getKey();
+		if(!VALID_ATTRIBUTE_NAMES.contains(name))
+			return false;
+		if(URL_ATTRIBUTE_NAMES.contains(name))
+			return isSafeUrl(attribute.getValue());
+		if("style".equals(name))
+			return isSafeStyle(attribute.getValue());
+		if("id".equals(name)) {
+			String value = attribute.getValue();
+			return null == value || !value.startsWith("_");	// DomUI's own node IDs start with _
+		}
+		return true;
+	}
+
 	private static CharSequence getStartTagHTML(StartTag startTag) {
-		// tidies and filters out non-approved attributes
+		// tidies and filters out non-approved attributes and non-approved attribute values
 		StringBuilder sb = new StringBuilder();
 		sb.append('<').append(startTag.getName());
+		boolean hasTarget = false;
 		for(Attribute attribute : startTag.getAttributes()) {
-			if(VALID_ATTRIBUTE_NAMES.contains(attribute.getKey())) {
+			if(isAcceptedAttribute(attribute)) {
+				if("target".equals(attribute.getKey()))
+					hasTarget = true;
 				sb.append(' ').append(attribute.getName());
 				if(attribute.getValue() != null) {
 					sb.append("=\"");
@@ -216,6 +343,8 @@ final public class HtmlUtil {
 				}
 			}
 		}
+		if(hasTarget)
+			sb.append(" rel=\"noopener noreferrer\"");		// A target'ed link may not get at the opening window
 		if(startTag.getElement().getEndTag() == null && !HTMLElements.getEndTagOptionalElementNames().contains(startTag.getName()))
 			sb.append(" /");
 		sb.append('>');

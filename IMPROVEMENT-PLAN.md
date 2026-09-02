@@ -973,9 +973,10 @@ Steps:
             `SmallImgButton`, `HoverButton`, `CheckboxButton`, `SwitchButton`,
             `ActionButton` + `IUIAction`, `ButtonBar2`. Done 2026-09-02; see the
             decisions log entry of that date.
-      - [ ] Display-only components - `DisplaySpan`, `DisplayControl`,
+      - [x] **Display-only components** - `DisplaySpan`, `DisplayControl`,
             `DisplayCheckbox`, `DisplayRadiobutton`, `DisplayHtml`,
-            `PercentageCompleteRuler2`, `EmbeddedCode`
+            `PercentageCompleteRuler2`, `EmbeddedCode`. Done 2026-09-02; see the
+            decisions log entry of that date.
       - [ ] Tables, lists and trees - `DataTable`, `DataPager`, `RowRenderer` /
             `ColumnDef`, the `ITableModel` family, `ExpandingEditTable`,
             `DataCellTable`, `ListShuttle`, `Tree3`
@@ -1166,6 +1167,117 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-02 - Security: the html sanitizer now checks values, not just names
+
+`HtmlUtil.removeUnsafe()` is what `DisplayHtml` and `HtmlEditor` put every value
+through. It allow-listed element names and attribute names but **never looked at
+an attribute's value**, and `href` and `style` were on the allow-list - so a link
+carrying a script scheme passed through sanitizing untouched and arrived in the
+browser as a working link. Reproduced while writing the group 5 documentation.
+
+Fixed in three parts:
+
+- **Url attributes are checked against a scheme allow-list.** `href`, `src`,
+  `action`, `background`, `cite`, `formaction`, `longdesc`, `poster` and
+  `xlink:href` may use `http`, `https`, `mailto`, `ftp`, `ftps` and `tel`; a url
+  with no scheme is relative and always allowed. Before the scheme is read, the
+  characters a browser ignores while resolving one (spaces, tabs, newlines,
+  control characters) are stripped from the copy being examined, so
+  `java\tscript:` does not slip through, and the comparison is case-insensitive.
+  Entities were already decoded before parsing, so `&#106;avascript:` is caught
+  as well. A refused *value* costs the attribute, not the element: the link keeps
+  its text and loses its href.
+- **`style` values are checked**: a value containing `url(`, `expression`,
+  `javascript`, `vbscript`, `behavior`, `binding`, `@import` or a backslash
+  escape is dropped, after css comments and whitespace are removed so that
+  `expr/**/ession` is caught too. Ordinary colour and font styling - which is
+  what the editors produce - is unaffected.
+- **Dangerous elements are removed with their content.** Previously only the
+  *tags* of a rejected element were removed, which is right for a table cell but
+  wrong for a script: its text is code, and it stayed on the page. `script`,
+  `style`, `iframe`, `object`, `embed`, `applet`, `noscript`, `svg`, `math`,
+  `template`, `title`, `head`, `frame`, `frameset`, `base`, `link` and `meta` now
+  disappear entirely, and an unclosed one of the non-void ones takes everything
+  after it - which is what a browser treats as its content too.
+
+Two smaller hardenings while in there: an `id` value starting with `_` is
+dropped (it could collide with a DomUI node id in the browser), and a link
+carrying a `target` gets `rel="noopener noreferrer"`.
+
+`HtmlUtilTest` pins all of it down - 16 tests, split into what must survive
+(formatting, ordinary and relative links, inline styling) and what must not
+(script elements and their content, unclosed scripts, the other content-killing
+elements, script schemes in every disguise tried, unsafe style values, event
+handler attributes). The framework module's 58 tests and the demo's 9 pass, and
+the sanitizer's output on ordinary html - including the example in the class's
+own `main()` - is unchanged.
+
+The `displayhtml` page and its demo page now describe this behaviour, with the
+element and attribute rules tabled; the warning that html from an untrusted
+source is not safe with this component alone is gone, because it no longer is.
+
+### 2026-09-02 - Components group 5: display-only components
+
+`components/50-display-only/`: a group page plus `displayspan`,
+`displaycontrol`, `displaycheckbox`, `displayradiobutton`, `displayhtml`,
+`percentagecompleteruler2` and `embeddedcode`, carried by four demo pages in
+`to.etc.domuidemo.pages.components.display` (the boolean pair and the
+ruler/code pair share a page each).
+
+The group page states what an `IDisplayControl` *is* - `IControl` with a marker,
+answering `getValue()` with what it was given, `isReadOnly()` with true, and
+`getOnValueChanged()` with null - and, more usefully, **when not to use one**:
+most input controls already render as plain text when read only, so a screen
+that switches between viewing and editing should use one control and one
+binding, and a display component is for a value that is never editable here.
+
+`DisplaySpan`'s page documents the six-step order it renders by (converter,
+renderer, empty string, the registry's default converter for the value's class,
+the domain label, and finally the class's default renderer) - which is why a
+`DisplaySpan<Date>` formats a date and an enum shows its label without being
+told anything. `DisplayControl` is the same thing as a div and its page says
+only what differs.
+
+**Verified against the running demo**: the money converter gives `$ 14.95`, a
+renderer puts markup inside the span, an unset value shows the empty string, a
+`Date` comes out formatted; the ruler at 35% of 300 pixels renders a 105-pixel
+bar with the class `ui-rlr2-pct-35`, and at 100% `ui-rlr2-pct-100` (the only one
+the theme styles); `DisplayCheckbox` swaps its image `src` between the theme's
+two pictures and shows `null` as unticked.
+
+**A security defect found in `HtmlUtil.removeUnsafe()`** - the sanitizer
+`DisplayHtml` and `HtmlEditor` put every value through. It is an allow-list of
+elements (`b`, `i`, `u`, `p`, `br`, `a`, `ol`, `ul`, `li`, `code`, `div`,
+`strike`, `strong`, `blockquote`, `sup`, `sub`, `hr`) and of attributes (`id`,
+`class`, `href`, `target`, `title`, `color`, `face`, `size`, `style`), and:
+
+- **attribute values are never inspected**, so an `href` carrying a script
+  scheme survives the sanitizer intact and reaches the browser as a working
+  link. Reproduced in the demo before the page was changed;
+- the tags of a rejected element are dropped but **its text content is kept**,
+  so a `<script>` element leaves its script text behind as visible text (ugly
+  rather than dangerous).
+
+The first is a real hole in the one method whose job is to close it. It is now a
+candidate below, with the fix named (check the value of `href` - and of `style` -
+against a scheme allow-list, or hand the whole job to a library built for it).
+**The demo does not ship a proof of it**: the page's "html it does not allow"
+example uses a `<script>` and a `<table>` and no script-carrying link, and the
+`displayhtml` page states the limitation as two warning callouts - html from a
+source you do not control is not made safe by this component alone - without
+giving a recipe.
+
+**Deleted, superseded:** the demo pages `DemoDisplayValue` (which demonstrated
+the `@Deprecated` `DisplayValue`, seven times over, and nothing else),
+`DemoDisplayCheckbox` and `DemoDisplayHtml` - the last of which called
+`setText()` rather than `setValue()`, so it never exercised the html path it was
+demonstrating.
+
+Site builds clean, 100 pages, all four `!demo()` frames resolve. `mvn21 clean
+install` builds the whole tree and the demo module's 9 unit tests pass. **Not
+deployed**: the frames are 404 until the demo is redeployed with
+`scripts/deploy-demo`.
 
 ### 2026-09-02 - Components group 4: buttons and actions
 
