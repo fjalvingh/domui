@@ -1002,11 +1002,6 @@ Steps:
 
 Candidates still open, offered as input - not agreed scope:
 
-- The site generator's link checker refuses an internal link with a `#fragment`
-  (*link to unknown document*), even though the generated pages do give headings
-  an id. Cross-page links into a section therefore have to point at the whole
-  page. Worth fixing in sigeto: check only the part before the `#`.
-
 - The `IUIAction` API is inconsistent about instances:
   `DefaultButton(instance, action)` and `ButtonBar2.addAction(instance, action)`
   are generic, while `LinkButton(IUIAction<Void>)` and
@@ -1173,6 +1168,41 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-02 - sigeto: links into a place inside a page
+
+The generator refused any internal link carrying a `#fragment` - it resolved the
+whole url as a document name, found nothing, and failed the build with *link to
+unknown document*. So a link into a section of another page was impossible, and
+the components pages had to point at whole pages instead.
+
+Fixed in `sitegenerator`, and it does more than accept them:
+
+- `Content.documentPart()` / `fragmentPart()` split a url; `ContentItem.resolveURL()`
+  resolves the document part only, and `LinkUpdater` re-appends the fragment to
+  the rewritten href, so `../datatable/index.md#data-binding-in-a-table` becomes
+  `…/datatable/index.html#data-binding-in-a-table`.
+- **The fragment is checked as well.** While scanning, each page's anchors are
+  collected: its heading ids, computed exactly the way commonmark's
+  `HeadingAnchorExtension` computes them at render time (the `Text` and `Code`
+  inside the heading, trimmed and lowercased, through a per-document
+  `IdGenerator`), plus every `id="…"` written in raw html - which is how the
+  older pages anchor their sections. A fragment matching none of them fails the
+  build, naming the file, the line, and the anchor that comes closest.
+- Same-page links (`[the database](#the-database)`) are checked too; they were
+  skipped entirely before.
+- The check runs after every page has been scanned (`MarkdownChecker.checkAnchors()`,
+  called from `Main`), because a link may point forward at a page not read yet.
+
+Verified against the real site, which is a better test than a fixture: 106 pages
+build clean with the fragment links restored; the anchors survive into the html;
+a misspelled cross-page fragment gives *link to unknown place in a document:
+../datatable/index.md#data-binding-in-a-tabel - did you mean
+#data-binding-in-a-table?* and exit code 9; and a misspelled same-page fragment
+does the same. The generator's README and CLAUDE.md describe the behaviour.
+
+**This is a change in the `sitegenerator` submodule**, so it needs its own commit
+there, and the site repository's submodule pointer needs updating with it.
 
 ### 2026-09-02 - Data binding in a table is documented with the table
 
