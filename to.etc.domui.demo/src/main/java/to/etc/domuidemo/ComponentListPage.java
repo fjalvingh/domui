@@ -22,6 +22,13 @@ import to.etc.domuidemo.pages.components.display.DisplayBooleanPage;
 import to.etc.domuidemo.pages.components.display.DisplayHtmlPage;
 import to.etc.domuidemo.pages.components.display.DisplaySpanPage;
 import to.etc.domuidemo.pages.components.display.RulerPage;
+import to.etc.domuidemo.pages.components.tables.ColumnDefPage;
+import to.etc.domuidemo.pages.components.tables.DataTablePage;
+import to.etc.domuidemo.pages.components.tables.TableEditPage;
+import to.etc.domuidemo.pages.components.tables.OtherTablesPage;
+import to.etc.domuidemo.pages.components.tables.TableModelPage;
+import to.etc.domuidemo.pages.components.tables.TableSelectionPage;
+import to.etc.domuidemo.pages.components.tables.Tree3Page;
 import to.etc.domuidemo.pages.components.choice.CheckboxPage;
 import to.etc.domuidemo.pages.components.choice.ComboFixed2Page;
 import to.etc.domuidemo.pages.components.choice.ComboLookup2Page;
@@ -58,8 +65,6 @@ import to.etc.domuidemo.pages.overview.menu.DemoPopupMenu;
 import to.etc.domuidemo.pages.overview.misc.DemoALink;
 import to.etc.domuidemo.pages.overview.misc.DemoMsgBox;
 import to.etc.domuidemo.pages.overview.misc.SvgIconPage;
-import to.etc.domuidemo.pages.overview.tree.DemoTree;
-import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
 import to.etc.domuidemo.pages.plotly.Plotly1;
 import to.etc.domuidemo.pages.plotly.PlotlyGaugePage;
 import to.etc.domuidemo.pages.plotly.PlotlyPie1;
@@ -156,15 +161,20 @@ public class ComponentListPage extends MenuPage {
 		main.add(f);
 		f.addLink(GraphPage.class, "DOES NOT YET WORK- Pie chart using a dynamic image/JChart");
 
-		f = new ListFragment("Tables");
+		f = new ListFragment("Tables, lists and trees");
+		main.add(f);
+		f.addLink(DataTablePage.class, "DataTable: rows on the screen");
+		f.addLink(ColumnDefPage.class, "Columns: what a column can be told");
+		f.addLink(TableModelPage.class, "Table models");
+		f.addLink(TableSelectionPage.class, "Selecting rows");
+		f.addLink(TableEditPage.class, "Editing in a table");
+		f.addLink(OtherTablesPage.class, "A grid and a shuttle");
+		f.addLink(Tree3Page.class, "Tree3: showing a tree");
+
+		f = new ListFragment("Tables: more examples");
 		main.add(f);
 		f.addLink(TableMenuPage.class, "Data tables, row renderers and ITableModels.");
 		f.addLink(DataTable1Page.class, "Simple data table");
-
-		f = new ListFragment("Trees");
-		main.add(f);
-		f.addLink(Tree2DemoPage.class, "The tree2 component");
-		f.addLink(DemoTree.class, "The old tree component - file system tree, lazily loaded, and file type icons");
 
 		f = new ListFragment("Drag and drop");
 		main.add(f);

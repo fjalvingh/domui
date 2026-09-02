@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.overview.tree2;
+package to.etc.domuidemo.pages.components.tables;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -15,10 +15,10 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 22-8-17.
  */
-final public class Tree2DemoModel implements ITreeModel<DemoNode> {
+final public class TreeDemoModel implements ITreeModel<DemoNode> {
 	final private DemoNode m_root;
 
-	public Tree2DemoModel(NodeBase nb) throws Exception {
+	public TreeDemoModel(NodeBase nb) throws Exception {
 		List<Artist> artists = nb.getSharedContext().query(QCriteria.create(Artist.class).ascending("name"));
 		m_root = new DemoNode(artists);
 	}

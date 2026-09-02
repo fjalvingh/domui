@@ -977,9 +977,10 @@ Steps:
             `DisplayCheckbox`, `DisplayRadiobutton`, `DisplayHtml`,
             `PercentageCompleteRuler2`, `EmbeddedCode`. Done 2026-09-02; see the
             decisions log entry of that date.
-      - [ ] Tables, lists and trees - `DataTable`, `DataPager`, `RowRenderer` /
-            `ColumnDef`, the `ITableModel` family, `ExpandingEditTable`,
-            `DataCellTable`, `ListShuttle`, `Tree3`
+      - [x] **Tables, lists and trees** - `DataTable`, `DataPager`,
+            `RowRenderer` / `ColumnDef`, the `ITableModel` family,
+            `ExpandingEditTable`, `DataCellTable`, `ListShuttle`, `Tree3`. Done
+            2026-09-02; see the decisions log entry of that date.
       - [ ] Layout and page structure - `ContentPanel`, `Panel`, `CaptionedPanel`,
             `Caption2`, `GenericHeader`, `ExpandHeader`, `TabPanel`,
             `ScrollableTabPanel`, `SplitterPanel`, `VerticalSpacer`, `ChildFragment`
@@ -1167,6 +1168,80 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-02 - Components group 6: tables, lists and trees
+
+`components/60-tables-and-trees/`: a group page plus `datatable`, `rowrenderer`
+(RowRenderer and ColumnDef together), `tablemodels`, `datapager`,
+`expandingedittable`, `datacelltable`, `listshuttle` and `tree3`, carried by
+seven demo pages in `to.etc.domuidemo.pages.components.tables`.
+
+The group page states the split the whole group rests on - a **model** says what
+the rows are, a **renderer** says what one row looks like, a **component** puts
+them on screen, and none of the three knows what the others do - with a diagram
+and the rule that follows from it: every change to the data goes through the
+model, because that is what tells the table which rows to redraw.
+
+**Tree2 is retired in favour of Tree3**, as the inventory decided: the demo page
+moved to `Tree3` (with `DemoNode` and the tree model moved into the components
+package), the old `Tree` demo is deleted with it, and the `tree3` page documents
+the model, the selection predicate and the rendered `ul`/`li` structure - the
+last taken from the old `tree-rendering` page, which was already written about
+tree3 and is now part of the component's own page.
+
+**Verified in headless Chrome** against the running demo: a table pages without
+re-querying (a query counter in the model's own query functor stays at one while
+paging); an empty model shows its empty message and keeps its header when told
+to; a column's converter, alignment, `maxWidth` truncation (`showTitle`),
+renderer and `cellClicked` all come out as documented, and a cell handler wins
+over the row handler; a column with **no property** sorts on the property it was
+given; the list model's `add`, `modified` and `delete` move exactly one row each;
+editable columns put what is typed into the object (`Rubber Soul x 7`), a
+`factory` gives one combo per row, and the `ExpandingEditTable` renders its rows;
+the `DataCellTable` lays 12 albums out four to a row; the `ListShuttle` moves a
+selected album from left to right and the page reads it back; and the tree
+renders `ui-tree3-item ui-tree3-closed ui-tree3-branch` with
+`ui-tree3-unselectable` on the nodes its predicate refuses.
+
+**Corrected while verifying**, each checked in the source:
+
+- A row that a selection model's `IAcceptable` refuses **still gets a checkbox** -
+  a dead one. DomUI has no read-only checkbox, so `setReadOnly(true)` becomes
+  `disabled`. The first draft said the row had no checkbox at all.
+- **Select-all respects the acceptor**: with an acceptor that takes only AC/DC
+  albums, the tick in the header selects 2 of the model's 347 rows.
+- `IRowRenderHelper.setRow()` is called **per row**, before that row's cells are
+  rendered - not once per page with all of them, which is what the first draft
+  assumed.
+- A `RowRenderer` becomes **immutable the first time a table uses it**: changing
+  a column afterwards throws *This object has been USED and cannot be changed
+  anymore*. Now a callout.
+- `DataPager` is a wrapper that renders the application's default pager
+  (`DataPager2` unless `DataPager.setPagerFactory()` says otherwise), which is
+  why a screen never names `DataPager1` or `DataPager2`.
+- `ListShuttle.moveSourceToTarget()` is called with a target index of **9999**
+  when the shuttle means "at the end"; a model that takes it literally throws.
+  The demo model clamps it and the page says so.
+
+**Deleted, superseded:** `components/tables-trees-navigation/datatable` (its
+column-width and resizing material is now on the `datatable` page, without the
+2017 screenshot, the `!w` callout and the "TBD" opening), `.../tree2` (Tree2 is
+superseded by Tree3, and the page's only link pointed at a demo host that no
+longer exists) and `.../tree-rendering` (folded into `tree3`). What remains of
+that directory is `breadcrumb2`, which group 9 will take; the section is
+retitled **Navigation** until then. The demo pages `Tree2DemoPage`, `DemoTree`
+and `DemoTreeModel` are deleted.
+
+`TableMenuPage` and its twelve older table examples are **kept for now**, under a
+"Tables: more examples" heading: several of them show data binding against
+tables, which is a subject the group pages point at rather than cover, and
+`DemoTableBinding2` still uses the superseded `LookupInput`. Sorting that out
+belongs with the binding pages in phase 3.
+
+Site builds clean, 106 pages, the group diagram renders and all seven `!demo()`
+frames resolve. `mvn21 clean install` builds the whole tree; the framework's 58
+tests and the demo's 9 pass. **Not deployed**: the frames are 404 until the demo
+is redeployed with `scripts/deploy-demo`.
 
 ### 2026-09-02 - Security: the html sanitizer now checks values, not just names
 

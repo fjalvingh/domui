@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.overview.tree2;
+package to.etc.domuidemo.pages.components.tables;
 
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
