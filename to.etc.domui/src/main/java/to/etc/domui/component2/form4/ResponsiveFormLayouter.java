@@ -3,6 +3,7 @@ package to.etc.domui.component2.form4;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 
@@ -47,6 +48,8 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 					//-- We need to add the label to the control container
 					controlContainer.add(lbl);
 					lbl.addCssClass("ui-f5-lbl-icc");		// Mark that it is in control container
+					if(lbl instanceof Label)
+						((Label) lbl).setForTarget(control);
 				}
 				controlContainer.add(control);
 				control.addCssClass("ui-f5-ctl-add");
@@ -85,6 +88,8 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 			if(labelCss != null) {
 				lc.addCssClass(labelCss);
 			}
+			if(lbl instanceof Label)
+				((Label) lbl).setForTarget(control);
 		}
 
 		if(hintText != null && lc != null) {
