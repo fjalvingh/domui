@@ -27,6 +27,10 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 
 	private boolean m_mandatory;
 
+	private boolean m_disabled;
+
+	private boolean m_readOnly;
+
 	/**
 	 * Create the required structure.
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
@@ -39,6 +43,11 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 		if(m_hidden.getRawValue() == null)
 			m_hidden.setRawValue("ffffff");
 		m_coldiv.setBackgroundColor("#" + m_hidden.getRawValue());
+		if(isOff()) {
+			//-- Do not attach the picker at all: the button then just shows the color.
+			addCssClass("ui-cpbt-off");
+			return;
+		}
 		appendCreateJS("WebUI.colorPickerButton('#" + getActualID() + "','#" + m_hidden.getActualID() + "','" + m_hidden.getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
 
 		//		appendCreateJS("$('#" + getActualID() + "').ColorPicker({flat: false, color:'" + m_hidden.getRawValue() + "', onChange: function(hsb,hex,rgb) { $('#" + m_hidden.getActualID() + "').val(hex); } });");
@@ -92,24 +101,37 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 		m_onValueChanged = onValueChanged;
 	}
 
+	/**
+	 * T when the button must not open the picker, for whatever reason.
+	 */
+	private boolean isOff() {
+		return m_disabled || m_readOnly;
+	}
+
 	@Override
 	public void setDisabled(boolean d) {
+		if(m_disabled == d)
+			return;
+		m_disabled = d;
+		forceRebuild();
 	}
 
 	@Override
 	public boolean isReadOnly() {
-		return isDisabled();
+		return m_readOnly;
 	}
 
 	@Override
 	public void setReadOnly(boolean ro) {
-		setDisabled(ro);
+		if(m_readOnly == ro)
+			return;
+		m_readOnly = ro;
+		forceRebuild();
 	}
 
 	@Override
 	public boolean isDisabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return m_disabled;
 	}
 
 	@Override

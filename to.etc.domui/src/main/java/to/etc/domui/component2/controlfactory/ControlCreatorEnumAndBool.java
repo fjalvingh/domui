@@ -43,7 +43,9 @@ public class ControlCreatorEnumAndBool implements IControlCreator {
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
-		if(controlClass != null && !controlClass.isAssignableFrom(ComboFixed2.class)) // This one only creates ComboFixed2 thingies
+		if(controlClass != null
+			&& !controlClass.isAssignableFrom(ComboFixed2.class)
+			&& !controlClass.isAssignableFrom(RadioGroup.class)) // This one creates either of those two
 			return -1;
 		Class< ? > iclz = pmm.getActualType();
 		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
@@ -54,6 +56,9 @@ public class ControlCreatorEnumAndBool implements IControlCreator {
 	 */
 	@Override
 	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+		if(controlClass == RadioGroup.class)                        // Asked for explicitly: always honour it
+			return (C) RadioGroup.createGroupFor(pmm, true, true);
+
 		Object[] domainValues = pmm.getDomainValues();
 		if(domainValues == null || domainValues.length > 5 || controlClass == ComboFixed2.class) {
 			ComboFixed2<?> c = ComboFixed2.createComboFor(pmm, true);

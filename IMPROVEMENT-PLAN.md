@@ -941,7 +941,87 @@ Steps:
       - **Not deployed**: the three `!demo()` frames on this page are 404 until
         the demo is redeployed with `scripts/deploy-demo`.
 
+- [ ] **Documentation: the components reference.** The `components/` section is
+      rewritten as a **reference catalogue, organised in functional groups**. The
+      structure is fixed (decided 2026-09-01, see the decisions log for the full
+      inventory and the group membership):
+      - one **group page** per functional group, describing what the group is for
+        and listing its members with one line each;
+      - one **component page** per component below its group: what it is for,
+        its example, then its relevant properties and methods;
+      - one **demo page** per component, in
+        `to.etc.domui.demo/pages/components/<group>/`, embedded with `!demo()`.
+        Complex components (`LookupInput2`, `SearchPanel`, `DataTable`) get
+        several demo pages, one per aspect.
+      Only the **current** component of each kind is documented; the superseded
+      ones (`Text`, `ComboFixed`, `LookupInput`, `Tree`/`Tree2`, `MsgBox`, ...)
+      are not named at all. `ComponentListPage` in the demo is regrouped to match
+      these groups exactly, so the demo's own overview and the documentation have
+      the same shape.
+      The thirteen groups, worked one at a time:
+      - [x] **Text and value input** - `Text2`, `TextArea`, `DateInput2`,
+            `ColorPicker`, `ColorPickerButton`, `ColorPickerInput`. Done
+            2026-09-01; see the decisions log entry of that date for what the
+            pages say, what was verified and the two defects found.
+      - [x] **Choice input** - `Checkbox`, `RadioButton`/`RadioGroup`,
+            `ComboFixed2`, `ComboLookup2`, `EnumSetInput`. Done 2026-09-02; see
+            the decisions log entry of that date.
+      - [ ] Lookup and search - `LookupInput2`, `SearchInput2`, `SearchAsYouType`,
+            `SearchPanel`
+      - [ ] Buttons and actions - `DefaultButton`, `LinkButton`, `SmallImgButton`,
+            `HoverButton`, `CheckboxButton`, `SwitchButton`, `ActionButton` +
+            `IUIAction`, `ButtonBar2`
+      - [ ] Display-only components - `DisplaySpan`, `DisplayControl`,
+            `DisplayCheckbox`, `DisplayRadiobutton`, `DisplayHtml`,
+            `PercentageCompleteRuler2`, `EmbeddedCode`
+      - [ ] Tables, lists and trees - `DataTable`, `DataPager`, `RowRenderer` /
+            `ColumnDef`, the `ITableModel` family, `ExpandingEditTable`,
+            `DataCellTable`, `ListShuttle`, `Tree3`
+      - [ ] Layout and page structure - `ContentPanel`, `Panel`, `CaptionedPanel`,
+            `Caption2`, `GenericHeader`, `ExpandHeader`, `TabPanel`,
+            `ScrollableTabPanel`, `SplitterPanel`, `VerticalSpacer`, `ChildFragment`
+      - [ ] Windows, dialogs and messages - `Window`, `Dialog`, `InputDialog`,
+            `MsgBox2`, `ExceptionDialog`, `ErrorPanel`, `ErrorMessageDiv`,
+            `MessageFlare`/`Flare`, `MessageLine`, `InfoPanel`, `Explanation`
+      - [ ] Navigation and menus - `BreadCrumb2`, `AppPageTitleBar`, `PopupMenu2`,
+            `HamburgerMenu`, `ALink`
+      - [ ] Images, icons and file upload - `Icon`/`IIconRef`, `FontIcon`,
+            `SvgIcon`, `ImgIcon`, `Img`, `DisplayImage`, `ImageSelectControl`,
+            `FileUpload2`, `FileUploadMultiple`
+      - [ ] Rich content editors - `CKEditor`, `HtmlEditor`, `AceEditor`
+      - [ ] Charts - `PlotlyGraph`
+      - [ ] Asynchronous and long-running work - `AsyncContainer`, `AsyncDiv`,
+            `PollingDiv`
+      The existing `components/rules` page stays where it is; the three current
+      subdirectories (`forms-and-input`, `lookup-and-search`,
+      `tables-trees-navigation`) are dissolved into the groups above.
+
 Candidates still open, offered as input - not agreed scope:
+
+- **No label a form builder writes has a `for` attribute.**
+  `ResponsiveFormLayouter` - the default layouter of `FormBuilder` - never calls
+  `Label.setForTarget(control)`, while the (unused) `TableFormLayouter` does. So
+  clicking a form label focuses nothing, and clicking the label of a checkbox
+  does not tick it. The fix is the one line `TableFormLayouter` already has, but
+  it changes the rendering of every form in every application - worth deciding
+  deliberately. (Found writing the components group 2 pages.)
+
+- `EnumSetInput.setMatcher()` stores a matcher that nothing reads, and
+  `setAddSingleMatch()` is commented out while its getter remains. Wire them up
+  or remove them.
+
+- `RadioGroup` has three overlapping enum factories: `createEnumRadioGroup(Class,
+  exceptions...)` (sorted), `createEnumRadioGroupUnsorted(...)` and
+  `createFromEnum(Class, ignored...)` - the last being a duplicate of the second.
+  Only the first two are documented; `createFromEnum` is a candidate for removal.
+
+- `DateInput2`'s browser-side date repair (`dateInputRepairValueIn` in
+  `domui.dateinput.ts`) is locale-blind: it rewrites what was typed as
+  day-month-year whatever the request's locale is, while `DateConverter` reads
+  `dd-MM-yyyy` for Dutch, `yyyy-MM-dd` for English and the JDK SHORT pattern for
+  everything else. With `___locale=en_GB`, typing `13-3-13` leaves `2013-03-13`
+  in the box while the value taken from it is the year 13. The fix is to give the
+  client the pattern the server will use. (See the components group 1 entry.)
 
 - `component/layout/ExpandCollapsePanel` does roughly what the tutorial's
   `CollapsibleSection` does, but it puts its content *next to* itself
@@ -1071,6 +1151,282 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-02 - Components group 2: choice input
+
+`components/20-choice-input/`: a group page plus `checkbox`, `radiogroup`,
+`combofixed2`, `combolookup2` and `enumsetinput`, each with a demo page in
+`to.etc.domuidemo.pages.components.choice` and a `!demo()` frame.
+`ComponentListPage` gained a "Choice input" section with the five pages. A small
+`Medium` enum with a `Medium.properties` bundle carries the group, so every
+control in it takes its texts from metadata rather than from the code.
+
+The group page carries the thing the individual pages cannot: **which control to
+use**, tabled by how many values there are and where they come from, with the
+five-value rule (`ControlCreatorEnumAndBool`: five or fewer domain values gives a
+`RadioGroup`, more gives a `ComboFixed2`) and the fact that a relation property
+gets a `LookupInput2` unless its component type hint says `comboLookup`.
+
+**Verified in headless Chrome against the running demo** (devtools protocol, real
+key and mouse events): enum labels come out of `Medium.properties`
+("Compact disc", "Vinyl LP", "Cassette tape") in every control;
+`createEnumRadioGroup` sorts by label and `createEnumRadioGroupUnsorted` does not;
+`asButtons()` gives `ui-rbb-buttons` and an empty group `ui-rbb-empty`; a
+mandatory radio group and a mandatory combo both report *Mandatory field* with
+the label prefixed; a read-only `ComboFixed2` renders as plain text
+(`ui-cbb2-ro`, no select at all); `ComboLookup2` renders `Genre` and `MediaType`
+from their `@MetaCombo` and a renderer of your own from the code, and
+`addExtraButton` sits next to it; a checkbox click handler runs at once while a
+box without one keeps its value until the next request; and in `EnumSetInput`
+typing "jaz" offers Jazz, clicking it adds the label and fires the change
+handler, and its cross takes it off again.
+
+**Corrected while verifying** - things that read plausibly but are not what the
+code does:
+
+- A **mandatory combo does not lose its empty choice when a value is picked**.
+  The empty option is decided in `renderEditable()`, so it is only gone when the
+  control is *built* with a valid value; picking one in the browser leaves the
+  option there until something rebuilds. The page says that, and the demo shows
+  both cases side by side.
+- A **read-only `EnumSetInput` keeps its search box** (read-only), it only loses
+  the crosses on its labels.
+- `EnumSetInput`'s search is a **server round trip** over the list it holds, not
+  browser-side filtering.
+
+**Three defects fixed:**
+
+- `EnumSetInput` **could not be used with an enum** - the thing it is named
+  after. Its inner `SearchAsYouType` was given the property name and nothing
+  else, so for a value class that is not a "simple type" and has no string
+  property (every enum) building the page threw
+  `ProgrammerErrorException: You must specify either a property or a converter to
+  handle search on a complex data class`. It now hands the input its own
+  `getLabelText()` as the converter, so the box searches in exactly the text the
+  labels show - which also makes `setConverter()` work for searching, not just
+  for display.
+- `EnumSetInput`'s constructors declared the label property `@NonNull` (the class
+  is `@NonNullByDefault`) while the implementation explicitly handles `null` -
+  so the metadata-labelled case could not be written at all. Both constructors
+  and the field are `@Nullable` now.
+- `ControlCreatorEnumAndBool.accepts()` refused any `controlClass` that was not
+  assignable from `ComboFixed2`, so `control(RadioGroup.class)` - asking for the
+  other control that same factory makes - was rejected. It now accepts either,
+  and an explicit `RadioGroup.class` is honoured whatever the domain value count
+  is. (Same shape as the `ControlCreatorDate` defect fixed for group 1.)
+
+**Two defects found and left** (added to the candidates list):
+
+- `ResponsiveFormLayouter` - the **default** form layouter - never calls
+  `Label.setForTarget(control)`, which `TableFormLayouter` does, so no label a
+  form builder writes has a `for` attribute: clicking a form label focuses
+  nothing and does not tick a checkbox. One line, but it changes the rendering of
+  every form in every application, so it is offered rather than done.
+- `EnumSetInput.setMatcher()` stores a matcher that nothing ever reads, and
+  `setAddSingleMatch()` is commented out while the getter remains.
+
+**Deleted, superseded:** the site's
+`components/forms-and-input/radiobutton-and-radiogroup` (its main example added
+buttons to the page rather than to the group, which the current `RadioGroup`
+throws away on its next build, plus two 2018 screenshots and a `ui-rbb-buttoned`
+css class that does not exist), and the demo pages `DemoComboFixed` (used the
+superseded `ComboFixed`), `DemoRadioButton` (the same wrong pattern) and
+`RadioButtonPage` with its `TestEnum`. `DemoCheckbox` lost its checkbox half -
+which used the deprecated `Checkbox.setOnValueChanged` - and is now the
+`CheckboxButton` demo it mostly was, linked under Buttons until group 4 replaces
+it.
+
+Site builds clean, 85 pages, all five `!demo()` frames resolve. The demo module
+compiles and its 9 unit tests pass. **Not deployed**: the frames are 404 until
+the demo is redeployed with `scripts/deploy-demo`.
+
+### 2026-09-01 - Components group 1: text and value input
+
+The first of the thirteen component groups is written:
+`components/10-text-and-value-input/`, a group page plus one page per component,
+each with its own demo page under `to.etc.domuidemo.pages.components.input` and a
+`!demo()` frame. `ComponentListPage` gained a "Text and value input" section
+listing all eight demo pages, in the same order.
+
+| Page | Demo pages |
+| --- | --- |
+| group index | - |
+| `text2` | `Text2Page` (the types and what `getValue()` hands back), `Text2LookPage` (size, maxLength, placeholder, marker, password, hint, attached buttons), `Text2ValidatePage` (mandatory, regexp, validators, converter, and the three states) |
+| `textarea` | `TextAreaPage` (cols/rows, maxLength, maxByteLength, read only, the value round trip) |
+| `dateinput2` | `DateInput2Page` (date, date+time, seconds, hideTodayButton, read only, disabled, and a box printing the request locale with the date format it produces) |
+| `colorpicker` | `ColorPickerPage` |
+| `colorpickerbutton` | `ColorPickerButtonPage` |
+| `colorpickerinput` | `ColorPickerInputPage` |
+
+The `Text2` page states the value type as the thing that decides converter,
+keyboard filter and error message; the exact order `getValue()` checks in
+(mandatory, regexp on the raw text, converter, validators) and that the result is
+remembered until the raw text changes; the three states; the presentation
+methods; buttons rendered *inside* the control (`ctl-has-addons`), which is how
+`DateInput2` is built; the rendered DOM; and the `createXxxInput` factories.
+
+**Verified by driving the running demo**, partly through a scripted DomUI round
+trip and partly in headless Chrome over the devtools protocol:
+`Text2Page` hands back `String/Integer/Long/Double/BigDecimal` values with the
+right classes and renders `isAnyKey`/`isNumberKey`/`isFloatKey` per type;
+`Text2ValidatePage` gives *Mandatory field*, *Invalid email address*,
+*Input format must be 9999 AA*, *Value too large (maximum is 99)* and
+*Unexpected character (a) in number abc*, each as the label-prefixed line in the
+error div plus the message as the control's tooltip, and accepts `1.234,56` as
+1234.56 through the money converter; `setDisabledBecause` puts its reason in the
+title; the two buttons on a `Text2` read and clear the box; `TextAreaPage`
+returns text with its newlines intact and renders `mxlength`/`maxbytes`;
+the colour pickers work (the flat one builds its 356x176 panel and its value
+reaches the server on the next request, the button opens exactly one picker and
+the disabled ones open none, the optional input hands back `null`).
+
+**Deleted, superseded by the new pages:** the site's
+`components/forms-and-input/text2` (it described a `<table>` structure `Text2`
+has not rendered for years, next to a "replaces Text<T>" note and a 2017
+screenshot), and the demo pages `DemoText`, `DemoDateInput`, `DemoTextArea`,
+`DemoColorPicker`, `DemoColorPicker2`, plus `DemoTextStr` and `DemoHiddenText`
+which demonstrated superseded controls and were linked from nothing. `DemoALink`
+now links to `DateInput2Page`.
+
+**Three defects fixed while writing this:**
+
+- `ColorPickerButton.setDisabled()` was empty and `isDisabled()` returned a
+  hardcoded `false`, so the control could not be switched off at all - and it is
+  an `IControl`, so a form builder or a binding may do exactly that. Both states
+  are now kept, the picker is not attached when either is set, and the button
+  gets `ui-cpbt-off` (a `not-allowed` cursor and some transparency, added to
+  `_colorpicker.scss`).
+- `ColorPickerInput.getValue()` threw a `NullPointerException` for an empty box
+  on a control with `setMandatory(false)` - the one combination that makes the
+  "or null" branch reachable.
+- `ControlCreatorDate.accepts()` tested `controlClass.isAssignableFrom(DateInput.class)`
+  while creating a `DateInput2`, so `fb.property(...).control(DateInput2.class)` -
+  asking for the control the factory actually makes - was refused.
+
+**Two defects found and left, both in `DateInput2`'s client side** (added to the
+candidates list):
+
+- The browser-side repair of a typed date assumes the day-month-year shape
+  whatever the locale is, while `DateConverter` has three branches (`nl`:
+  `dd-MM-yyyy`, read leniently with all the short forms; `en`: `yyyy-MM-dd`, read
+  strictly; anything else: the JDK SHORT pattern for that locale). Reproduced:
+  with `___locale=en_GB`, typing `13-3-13` leaves `2013-03-13` in the box while
+  the value taken from it is the year **13**.
+- Typing something unparseable produces a browser `alert()` rather than the
+  framework's own error reporting (already a listed candidate; now confirmed
+  from the `en_GB` case, where `13/3/2012` alerts *Invalid date*).
+
+The `dateinput2` page therefore does **not** repeat the javadoc's list of
+accepted formats as though it were universal: it tables the three locale
+branches and carries both defects as warning callouts, and the demo page prints
+the locale of the request together with the format it produces (`05-02-2013`,
+`2013-02-05`, `05.02.13` for nl/en/de - checked).
+
+Site builds clean, 80 pages, all eight `!demo()` frames resolve. The demo module
+compiles and its 9 unit tests pass. **Not deployed**: the frames are 404 until
+the demo is redeployed with `scripts/deploy-demo`.
+
+### 2026-09-01 - The component inventory, and the thirteen functional groups
+
+The whole component set was surveyed from the source rather than from the existing
+documentation: every class in `to.etc.domui` that ends up below `NodeBase` was
+collected (213 of them), the raw HTML tag nodes in `dom/html` and the framework's own
+internal pages (`login`, `trouble`, `log`, `util/importers`, `pages/generic`) were set
+aside, and of every pair or triple of generations only the current one was kept. This
+grouping is settled and is what the `components/` section is built from.
+
+**Only the current component of each kind is documented.** These are the ones that are
+superseded, with what replaces them; they are not named on the site at all:
+
+| Not documented | Current |
+| --- | --- |
+| `Text` (@Deprecated), `TextStr`, `HiddenText` (@Deprecated), `AutocompleteText` | `Text2<T>` |
+| `DateInput` | `DateInput2` |
+| `ComboFixed`, `ComboLookup`, `ComboComponentBase`, `ComboFixedClientFilter`, `ComboBoxBase`, `SelectFixed`, `ComboOption` | `ComboFixed2`, `ComboLookup2` |
+| `LookupInput`, `LookupInputBase`, `AbstractLookupInputBase`, `AbstractFloatingLookup`, `KeyWordSearchInput` | `LookupInput2`, `SearchInput2` |
+| `LookupForm` (gone), the old `component/controlfactory`, the old form builders | `SearchPanel`, `component2/controlfactory`, `form4.FormBuilder` |
+| `ButtonBar` | `ButtonBar2` |
+| `BreadCrumb` | `BreadCrumb2` |
+| `Caption`, `CaptionedHeader` | `Caption2`, `GenericHeader`, `HTag` |
+| `MsgBox` | `MsgBox2` |
+| `PercentageCompleteRuler` | `PercentageCompleteRuler2` |
+| `SmallHoverButton` (@Deprecated) | `HoverButton` |
+| `DisplayValue` (@Deprecated) | `DisplaySpan` |
+| `FloatingWindow` (@Deprecated) | `Dialog` |
+| `ScrollableDataTable` (@Deprecated) | `DataTable` |
+| `Tree`, `Tree2`, `TreeSelect`, `TreeSelectMulti`, `TreeSelectionWindow` | `Tree3` |
+| `DataPager1`, `DataPager2` | `DataPager` (the wrapper that picks the default) |
+| `PopupMenu`, `SimplePopupMenu` | `PopupMenu2` |
+| `CheckboxSetInput` | `EnumSetInput` |
+| `DropDownPicker`, `EditableDropDownPicker` | - (nothing; they are old and unused) |
+| `LiteralXhtml` (@Deprecated) | - |
+
+`Tree3` is `Tree2` plus selection, `ICellClicked2` and double-click expand, and has its
+own `_tree3.scss`; nothing in the framework or the demo uses it yet, and the demo still
+shows `Tree2`. Documenting `Tree3` therefore means moving the demo to it.
+
+**The thirteen groups**, in the order the section presents them. Each is a page of its
+own describing the group and listing its members; each member gets a page and at least
+one demo page.
+
+1. **Text and value input** - `Text2<T>`, `TextArea`, `DateInput2`, `ColorPicker`,
+   `ColorPickerButton`, `ColorPickerInput`.
+2. **Choice input** - `Checkbox`, `RadioButton`/`RadioGroup<T>`, `ComboFixed2<T>`,
+   `ComboLookup2<T>`, `EnumSetInput<T>`.
+3. **Lookup and search** - `LookupInput2<T>`, `SearchInput2`, `SearchAsYouType<T>`,
+   `SearchPanel<T>`. The two complex ones (`LookupInput2`, `SearchPanel`) get several
+   demo pages each: the plain case, a query manipulator, own popup columns / own
+   renderer, a `SearchPanel` from metadata, from a property list, with `add()` items,
+   and with a base `QCriteria`.
+4. **Buttons and actions** - `DefaultButton`, `LinkButton`, `SmallImgButton`,
+   `HoverButton`, `CheckboxButton`, `SwitchButton`, `ActionButton` + `IUIAction`,
+   `ButtonBar2`.
+5. **Display-only components** - `DisplaySpan<T>`, `DisplayControl<T>`,
+   `DisplayCheckbox`, `DisplayRadiobutton`, `DisplayHtml`, `PercentageCompleteRuler2`,
+   `EmbeddedCode`.
+6. **Tables, lists and trees** - `DataTable<T>`, `DataPager`, `RowRenderer<T>` with
+   `ColumnDef`, the `ITableModel` family (`SimpleSearchModel`, `SortableListModel`,
+   `SimpleListModel`, selection models), `ExpandingEditTable`, `DataCellTable`,
+   `ListShuttle`, `Tree3<T>` with `ITreeModel`.
+7. **Layout and page structure** - `ContentPanel`, `Panel`, `CaptionedPanel`,
+   `Caption2`, `GenericHeader`, `ExpandHeader`, `TabPanel`, `ScrollableTabPanel`,
+   `SplitterPanel`, `VerticalSpacer`, `ChildFragment`.
+8. **Windows, dialogs and messages** - `Window`, `Dialog`, `InputDialog`, `MsgBox2`,
+   `ExceptionDialog`, `ErrorPanel`, `ErrorMessageDiv`, `MessageFlare`/`Flare`,
+   `MessageLine`, `InfoPanel`, `Explanation`.
+9. **Navigation and menus** - `BreadCrumb2`, `AppPageTitleBar`, `PopupMenu2`,
+   `HamburgerMenu`, `ALink`.
+10. **Images, icons and file upload** - `Icon` (the Font Awesome enum) and `IIconRef`,
+    `FontIcon`, `SvgIcon`, `ImgIcon`, `Img`, `DisplayImage`, `ImageSelectControl`,
+    `FileUpload2` (single), `FileUploadMultiple`.
+11. **Rich content editors** - `CKEditor`, `HtmlEditor` (the small fast wysiwyg),
+    `AceEditor` (code).
+12. **Charts** - `PlotlyGraph` with its traces and layout classes.
+13. **Asynchronous and long-running work** - `AsyncContainer`, `AsyncDiv`, `PollingDiv`.
+
+Groups 6, 7 and 8 overlap with walkthrough pages that already exist
+(`70-showing-rows`, `100-layout`, `90-telling-the-user`). The walkthrough teaches; the
+component pages are the reference, and each says what the other covers rather than
+repeating it.
+
+**Decisions still needed, per component, when its group comes up** - these are the ones
+whose future is not obvious and which are not in any group above yet:
+
+- `WeekAgendaComponent` + `MonthPanel` (the agenda), `DynaIma` with the JGraph charters
+  (the demo's own link says "DOES NOT YET WORK"), `LayoutPanelBase`/`XYLayout`
+  (marked "experimental"), `SplitPanel` (a table-based sibling of `SplitterPanel`),
+  `PopInPanel`, `SizedPanel`, `ActionContainer`, `ExpandCollapsePanel` (already an open
+  candidate), `ChildFragment`: document or delete?
+- Developer aids rather than application components, and not documented in this
+  section either way: `InternalParentTree`, `DebugWindow`, `MiniLogger`,
+  `OddCharacters`, `KeyCodeDiv`.
+- Unused as of today (0 references outside their own file): `ActionContainer`,
+  `AsyncDiv`, `ColorPickerInput`, `DisplayImage`, `EditableDropDownPicker`,
+  `ExpandHeader`, `InputDialog`, `PercentageCompleteRuler2`, `PopInPanel`, `SizedPanel`,
+  `SwitchButton`, `Tree3`, `CheckboxSetInput`. Being unused is not itself a reason to
+  drop one - `Tree3` and `PercentageCompleteRuler2` are the *newest* of their kind - but
+  it does mean the demo page is written from scratch and the component gets exercised
+  for the first time.
 
 ### 2026-08-31 - `qcriteria` moved into `Implementation details`
 

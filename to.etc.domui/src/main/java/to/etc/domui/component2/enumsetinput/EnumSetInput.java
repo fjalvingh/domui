@@ -41,6 +41,8 @@ import static java.util.Objects.requireNonNull;
 public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	private final Class<T> m_actualClass;
 
+	/** The property of T whose value is shown as the label, or null to use the value itself. */
+	@Nullable
 	private final String m_property;
 
 	@NonNull
@@ -62,12 +64,12 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	@Nullable
 	private SearchAsYouType<T> m_input;
 
-	public EnumSetInput(Class<T> actualClass, String property) {
+	public EnumSetInput(Class<T> actualClass, @Nullable String property) {
 		m_actualClass = actualClass;
 		m_property = property;
 	}
 
-	public EnumSetInput(Class<T> actualClass, List<T> data, String property) {
+	public EnumSetInput(Class<T> actualClass, List<T> data, @Nullable String property) {
 		m_actualClass = actualClass;
 		m_property = property;
 		m_dataList = data;
@@ -90,6 +92,16 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		SearchAsYouType<T> input = m_input = new SearchAsYouType<>(m_actualClass, m_property);
 		//input.setCssBase("ui-esic-input");
 		add(input);
+
+		//-- Search on exactly the text that is shown as a label: that also covers the
+		//-- cases the input cannot handle by itself - an enum, or a converter set here.
+		input.setConverter((loc, item) -> {
+			try {
+				return getLabelText(item);
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
+		});
 		input.setAddSingleMatch(isAddSingleMatch());
 		//input.setCssClass("ui-esic-input");
 		input.setData(getData());

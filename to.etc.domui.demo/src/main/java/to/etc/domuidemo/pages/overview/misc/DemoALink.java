@@ -4,7 +4,7 @@ import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.pages.*;
-import to.etc.domuidemo.pages.overview.input.*;
+import to.etc.domuidemo.pages.components.input.DateInput2Page;
 
 public class DemoALink extends UrlPage {
 	@Override
@@ -29,7 +29,7 @@ public class DemoALink extends UrlPage {
 
 		d	= new Div();
 		cp.add(d);
-		ALink l = new ALink(DemoDateInput.class);
+		ALink l = new ALink(DateInput2Page.class);
 		d.add(l);
 		l.setText("Link component moving to another page");
 
