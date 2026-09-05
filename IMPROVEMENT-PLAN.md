@@ -1020,8 +1020,8 @@ Candidates still open, offered as input - not agreed scope:
 
 - The `IUIAction` API is inconsistent about instances:
   `DefaultButton(instance, action)` and `ButtonBar2.addAction(instance, action)`
-  are generic, while `LinkButton(IUIAction<Void>)` and
-  `ButtonBar2.addButton(IUIAction<Void>)` accept an action over `Void` only. Make
+  are generic, while `LinkButton(IUIAction)` and
+  `ButtonBar2.addButton(IUIAction)` accept an action over `Void` only. Make
   the latter two generic as well, or drop them in favour of the working pair.
 
 - `AbstractSearchPage` (the demo's shared list-screen base, now under
@@ -2241,8 +2241,8 @@ disable reason to every button made from it.
   every action written against an instance would fail. Verified: the demo's
   action button now reports "Shipped For Those About To Rock We Salute You".
 
-**Left alone, noted below:** `LinkButton(IUIAction<Void>)` and
-`ButtonBar2.addButton(IUIAction<Void>)` take a `Void` action only, while
+**Left alone, noted below:** `LinkButton(IUIAction)` and
+`ButtonBar2.addButton(IUIAction)` take a `Void` action only, while
 `DefaultButton(instance, action)` and `ButtonBar2.addAction(instance, action)`
 are generic. The pages document the working pair and warn about the other; the
 inconsistency is a candidate.
