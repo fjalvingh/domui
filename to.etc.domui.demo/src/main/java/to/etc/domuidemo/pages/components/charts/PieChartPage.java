@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.plotly;
+package to.etc.domuidemo.pages.components.charts;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.layout.ContentPanel;
@@ -28,14 +28,16 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 02-12-21.
  */
-public class PlotlyPie1 extends UrlPage {
+public class PieChartPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		setPageTitle("Pie charts");
+
 		ContentPanel cp = new ContentPanel();
 		add(cp);
 
 		PlotlyGraph.initialize(this);
-		cp.add(new HTag(1, "Plotly - Pie charts"));
+		cp.add(new HTag(1, "Pie charts"));
 
 		PlotlyGraph graph = new PlotlyGraph();
 		cp.add(graph);

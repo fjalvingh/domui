@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.plotly;
+package to.etc.domuidemo.pages.components.charts;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.exporters.ExcelFormat;

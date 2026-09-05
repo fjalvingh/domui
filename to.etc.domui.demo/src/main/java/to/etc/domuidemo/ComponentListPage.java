@@ -37,6 +37,14 @@ import to.etc.domuidemo.pages.components.images.ImgPage;
 import to.etc.domuidemo.pages.components.editors.AceEditorPage;
 import to.etc.domuidemo.pages.components.editors.CKEditorPage;
 import to.etc.domuidemo.pages.components.editors.HtmlEditorPage;
+import to.etc.domuidemo.pages.components.async.AsyncContainerPage;
+import to.etc.domuidemo.pages.components.async.AsyncDivPage;
+import to.etc.domuidemo.pages.components.async.PollingDivPage;
+import to.etc.domuidemo.pages.components.charts.BarChartPage;
+import to.etc.domuidemo.pages.components.charts.GaugeChartPage;
+import to.etc.domuidemo.pages.components.charts.PieChartPage;
+import to.etc.domuidemo.pages.components.charts.SunburstChartPage;
+import to.etc.domuidemo.pages.components.charts.TimeSeriesChartPage;
 import to.etc.domuidemo.pages.components.display.DisplayBooleanPage;
 import to.etc.domuidemo.pages.components.display.DisplayHtmlPage;
 import to.etc.domuidemo.pages.components.display.DisplaySpanPage;
@@ -69,17 +77,9 @@ import to.etc.domuidemo.pages.components.input.Text2ValidatePage;
 import to.etc.domuidemo.pages.components.input.TextAreaPage;
 import to.etc.domuidemo.pages.tutorial.messages.MsgExceptionPage;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
-import to.etc.domuidemo.pages.graphs.GraphPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
-import to.etc.domuidemo.pages.overview.delayed.DemoAsyncContainer;
-import to.etc.domuidemo.pages.overview.delayed.DemoPollingDiv;
 import to.etc.domuidemo.pages.overview.dnd.DemoDragDrop;
 import to.etc.domuidemo.pages.overview.dnd.DemoTableInDrag;
-import to.etc.domuidemo.pages.plotly.Plotly1;
-import to.etc.domuidemo.pages.plotly.PlotlyGaugePage;
-import to.etc.domuidemo.pages.plotly.PlotlyPie1;
-import to.etc.domuidemo.pages.plotly.PlotlyStackedBar;
-import to.etc.domuidemo.pages.plotly.PlotlySunburst;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -179,10 +179,6 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(DisplayHtmlPage.class, "DisplayHtml: showing html");
 		f.addLink(RulerPage.class, "A ruler and a piece of code");
 
-		f = new ListFragment("Graphical components");
-		main.add(f);
-		f.addLink(GraphPage.class, "DOES NOT YET WORK- Pie chart using a dynamic image/JChart");
-
 		f = new ListFragment("Tables, lists and trees");
 		main.add(f);
 		f.addLink(DataTablePage.class, "DataTable: rows on the screen");
@@ -204,16 +200,15 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(DemoDragDrop.class, "Drag and drop - Petstore (DIV dropmode)");
 		f.addLink(DemoTableInDrag.class, "Drag and drop - ordered row drop mode");
 
-		f = new ListFragment("Form builders and form components");
+		f = new ListFragment("Asynchronous and long-running work");
 		main.add(f);
-
-		//f.addLink(FormDesigner.class, "Form designer - work in progress");
+		f.addLink(AsyncContainerPage.class, "AsyncContainer: work on a thread of its own");
+		f.addLink(AsyncDivPage.class, "AsyncDiv: the same, with the result built for you");
+		f.addLink(PollingDivPage.class, "PollingDiv: a piece of screen that refreshes itself");
 
 		f = new ListFragment("Special components");
 		main.add(f);
 		f.addLink(DemoWeekAgenda.class, "The WeekAgenda");
-		f.addLink(DemoAsyncContainer.class, "The AsyncContainer");
-		f.addLink(DemoPollingDiv.class, "The PollingDiv component");
 
 		f = new ListFragment("Data binding");
 		main.add(f);
@@ -221,12 +216,12 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(EditableTablePage.class, "Editable table using data binding and a model");
 		//f.addLink(InvoiceListPage.class, "Editable table using data binding and a model");
 
-		f = new ListFragment("Plotly");
+		f = new ListFragment("Charts");
 		main.add(f);
-		f.addLink(Plotly1.class, "Plotly time series demo");
-		f.addLink(PlotlyStackedBar.class, "Plotly stacked bar demo");
-		f.addLink(PlotlyPie1.class, "Pie chart");
-		f.addLink(PlotlySunburst.class, "Sunburst");
-		f.addLink(PlotlyGaugePage.class, "Gauges");
+		f.addLink(TimeSeriesChartPage.class, "Time series");
+		f.addLink(BarChartPage.class, "Bar charts");
+		f.addLink(PieChartPage.class, "Pie and donut charts");
+		f.addLink(SunburstChartPage.class, "Sunburst charts");
+		f.addLink(GaugeChartPage.class, "Gauges");
 	}
 }

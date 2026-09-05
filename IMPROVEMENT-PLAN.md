@@ -941,7 +941,8 @@ Steps:
       - **Not deployed**: the three `!demo()` frames on this page are 404 until
         the demo is redeployed with `scripts/deploy-demo`.
 
-- [ ] **Documentation: the components reference.** The `components/` section is
+- [x] **Documentation: the components reference.** All thirteen groups are
+      written, 2026-09-05. The `components/` section is
       rewritten as a **reference catalogue, organised in functional groups**. The
       structure is fixed (decided 2026-09-01, see the decisions log for the full
       inventory and the group membership):
@@ -999,12 +1000,21 @@ Steps:
             decisions log entry of that date.
       - [x] **Rich content editors** - `CKEditor`, `HtmlEditor`, `AceEditor`.
             Done 2026-09-05; see the decisions log entry of that date.
-      - [ ] Charts - `PlotlyGraph`
-      - [ ] Asynchronous and long-running work - `AsyncContainer`, `AsyncDiv`,
-            `PollingDiv`
+      - [x] **Charts** - `PlotlyGraph`. Done 2026-09-05; see the decisions log
+            entry of that date.
+      - [x] **Asynchronous and long-running work** - `AsyncContainer`,
+            `AsyncDiv`, `PollingDiv`. Done 2026-09-05; see the decisions log
+            entry of that date.
       The existing `components/rules` page stays where it is; the three current
       subdirectories (`forms-and-input`, `lookup-and-search`,
       `tables-trees-navigation`) are dissolved into the groups above.
+      **What is left of that dissolving:** `lookup-and-search` and
+      `tables-trees-navigation` are gone, and `forms-and-input` is down to a
+      single page, the `form4` FormBuilder. The form builder is a member of no
+      group - it is not a component but the thing that lays components out - so
+      it needs a home of its own to be decided: a group of its own next to the
+      thirteen, or a page in the walkthrough, which already teaches it in
+      `building-pages/20-using-components`.
 
 Candidates still open, offered as input - not agreed scope:
 
@@ -1289,6 +1299,86 @@ sorts them only as long as no button was given a priority of its own.
 
 `mvn21 test` on the framework and the demo passes (58 + 9). Site builds clean,
 130 pages.
+
+
+### 2026-09-05 - Components groups 12 and 13: charts, and asynchronous work
+
+The last two groups, and with them the thirteen are done.
+
+**`components/120-charts/`**: a group page plus `plotlygraph`, `traces` and
+`layout`, carried by the five chart demo pages. The group page is built on the
+one thing that makes this component unlike every other: **the page does not carry
+the chart's data**. The graph renders as an empty box, the browser then asks for
+the dataset, and `IPlotlyDataSource.createDataset()` runs in a request of its own
+with the page no longer active and a `QDataContext` created for that call. So a
+slow query does not delay the page - and a source that reads a field of the page
+it was made in is a bug waiting for a second user. The `traces` page is organised
+by what each trace type *draws* (a line, bars, a pie, a hierarchy, a dial),
+because that is how someone arrives at the question.
+
+**`components/130-async/`**: a group page plus `asynccontainer`, `asyncdiv` and
+`pollingdiv`, carried by three new demo pages. The group page states the shared
+mechanism once - all three work only because the browser polls the server every
+two and a half seconds - and the shared rule once: while the job runs the page is
+not active, so the job may touch none of it, not its components, not its fields
+and not its shared `QDataContext`. `AsyncContainer` versus `AsyncDiv` is settled
+as *who builds the result*: the job on the worker thread, or the component
+afterwards on the page's thread.
+
+**Two open decisions from the inventory of 2026-09-01, settled.**
+
+- **`DynaIma` and the JGraph charters: not documented, and the demo is deleted.**
+  `GraphPage` was the "DOES NOT YET WORK" entry of the component overview, and it
+  earns the label: it queries `dis_documents` and `kbc_topics`, tables of some
+  other application that have never existed in the Chinook demo database. It
+  cannot have worked in this demo at any point. `PlotlyGraph` is the charting
+  component, so the page and its `GraphSource` are gone and `component.dynaima`
+  is a phase-4 deletion candidate.
+- **The agenda (`WeekAgendaComponent`, `MonthPanel`): not documented.** It is a
+  member of none of the thirteen groups. `DemoWeekAgenda` is **left in place**
+  rather than deleted, because deleting it would remove the only way to see a
+  component that still exists - but it is built on three superseded components
+  (`DateInput`, `FloatingWindow` and `SplitPanel`), so it teaches the wrong thing
+  wherever it is looked at. It wants either a rewrite or a deletion, and that is
+  a call for phase 3 rather than one to make while documenting something else.
+
+**Demo pages moved and renamed rather than rewritten.** The five Plotly pages
+were written in 2021, use the Chinook data properly, and are good; they moved
+from `pages/plotly` to `pages/components/charts` and were renamed for what they
+show - `TimeSeriesChartPage`, `BarChartPage`, `PieChartPage`,
+`SunburstChartPage`, `GaugeChartPage` - and given page titles. The sunburst's
+`ImportDataset` helper came with them; its csv is read from an absolute classpath
+path, so the move did not break it. The three async demos are new
+(`AsyncContainerPage`, `AsyncDivPage`, `PollingDivPage`), replacing
+`DemoAsyncContainer` and `DemoPollingDiv`/`SillyClock`.
+
+`ComponentListPage` gained "Charts" and "Asynchronous and long-running work"
+sections; "Plotly" and "Graphical components" are gone, and "Special components"
+is down to the agenda.
+
+**A mistake in my own demo page, caught by driving it.** The first
+`PollingDivPage` printed a poll counter that never moved: the count was built in
+`createContent()` and only the time was updated in `checkForChanges()`. That is
+precisely the trap the page is about, so the demo now keeps both nodes in fields
+and updates both - and the doc page says that a polling div is the one place
+where holding a node in a field is right, because the alternative is the default
+`checkForChanges()` throwing the whole tree away.
+
+**Verified by driving the demo in Chrome:** the time-series chart draws two
+spline series with a legend, a watermark and an axis title; the gauges draw the
+plain one and the formatted one with its steps, bar and red threshold at 490; the
+sunburst draws 180 paths of the coffee-flavour hierarchy out of its csv. The
+`AsyncContainer` shows "75% step 7 of 8" with a Cancel button and then replaces
+itself with the job's result; the failing job produces a message box reading
+"Exception while creating result for asynchronous task:
+java.lang.IllegalStateException: The job could not finish" with its stack trace.
+The `AsyncDiv` shows its counted lines on success, and on failure keeps its
+heading over "Error in background task: There is nothing to count" plus a
+foldable Details panel. The polling clock ticks about every three seconds.
+
+Site builds clean, 152 pages. `mvn21 test` on the framework and the demo passes.
+**Not deployed**: the frames are 404 until the demo is redeployed with
+`scripts/deploy-demo`.
 
 
 ### 2026-09-05 - Components group 11: rich content editors

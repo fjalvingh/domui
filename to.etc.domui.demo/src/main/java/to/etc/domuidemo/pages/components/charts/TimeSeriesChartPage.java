@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.plotly;
+package to.etc.domuidemo.pages.components.charts;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.layout.ContentPanel;
@@ -26,14 +26,16 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 30-11-21.
  */
-public class Plotly1 extends UrlPage {
+public class TimeSeriesChartPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		setPageTitle("Time series");
+
 		ContentPanel cp = new ContentPanel();
 		add(cp);
 
 		PlotlyGraph.initialize(this);
-		cp.add(new HTag(1, "A Plotly graph"));
+		cp.add(new HTag(1, "Time series"));
 
 		PlotlyGraph graph = new PlotlyGraph();
 		cp.add(graph);

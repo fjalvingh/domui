@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.plotly;
+package to.etc.domuidemo.pages.components.charts;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.layout.ContentPanel;
@@ -27,14 +27,16 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 30-11-21.
  */
-public class PlotlyStackedBar extends UrlPage {
+public class BarChartPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		setPageTitle("Bar charts");
+
 		ContentPanel cp = new ContentPanel();
 		add(cp);
 
 		PlotlyGraph.initialize(this);
-		cp.add(new HTag(1, "A Plotly graph"));
+		cp.add(new HTag(1, "Bar charts"));
 
 		PlotlyGraph graph = new PlotlyGraph();
 		cp.add(graph);

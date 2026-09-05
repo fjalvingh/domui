@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.plotly;
+package to.etc.domuidemo.pages.components.charts;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.layout.ContentPanel;
@@ -19,14 +19,16 @@ import java.nio.charset.StandardCharsets;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 02-12-21.
  */
-public class PlotlySunburst extends UrlPage {
+public class SunburstChartPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		setPageTitle("Sunburst charts");
+
 		ContentPanel cp = new ContentPanel();
 		add(cp);
 
 		PlotlyGraph.initialize(this);
-		cp.add(new HTag(1, "Plotly - Sunburst chart"));
+		cp.add(new HTag(1, "Sunburst charts"));
 
 		PlotlyGraph graph = new PlotlyGraph();
 		cp.add(graph);

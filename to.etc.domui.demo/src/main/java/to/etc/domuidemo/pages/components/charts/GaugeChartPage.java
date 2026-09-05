@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.plotly;
+package to.etc.domuidemo.pages.components.charts;
 
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;
@@ -12,9 +12,11 @@ import to.etc.domui.dom.html.UrlPage;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 02-12-21.
  */
-public class PlotlyGaugePage extends UrlPage {
+public class GaugeChartPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
+		setPageTitle("Gauges");
+
 		ContentPanel cp = new ContentPanel();
 		add(cp);
 
