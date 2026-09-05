@@ -445,7 +445,7 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 		if(m_tabSize == tabSize)
 			return;
 		m_tabSize = tabSize;
-		if(!isBuilt())
+		if(isBuilt())
 			updateTabSize();
 	}
 
