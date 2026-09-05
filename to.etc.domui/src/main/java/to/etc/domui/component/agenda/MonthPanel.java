@@ -47,6 +47,9 @@ import java.util.Date;
  * Created on Oct 5, 2008
  */
 public class MonthPanel extends Div {
+	/** The css class added to a day cell by {@link #setMarked(Date, String)} when the caller passes none. */
+	public static final String MARKED = "ui-mp-mrk";
+
 	private Date m_date;
 
 	private int m_firstDay = Calendar.MONDAY;
@@ -173,7 +176,7 @@ public class MonthPanel extends Div {
 		for(int i = 0; i < 7; i++) {
 			String day = dfs.getShortWeekdays()[cday]; // Short day name
 			td = b.addCell();
-			td.setCssClass("ui-mp-d");
+			td.setCssClass("ui-mp-dh");
 			td.setText(day);
 
 			cday++;
@@ -261,6 +264,8 @@ public class MonthPanel extends Div {
 	public void unmarkAll(String css) {
 		if(m_body == null)
 			return;
+		if(css == null)
+			css = MARKED;
 		for(NodeBase row : m_body) {
 			TR tr = (TR) row;
 			for(NodeBase b2 : tr) {
@@ -277,7 +282,7 @@ public class MonthPanel extends Div {
 			return;
 
 		if(css == null)
-			css = "mp-ui-mrk";
+			css = MARKED;
 		build();
 
 		//-- Walk all month rows and check which one contains this date
@@ -287,11 +292,11 @@ public class MonthPanel extends Div {
 			if(rd == null)
 				continue;
 
-			long ets = rd.getTime() + 1000 * 7 * 86400l;
-			if(dt.getTime() >= rd.getTime() && dt.getTime() < ets) {
-				//-- Date is on this row; calculate the cell;
-				int cellix = (int) ((dt.getTime() - rd.getTime()) / 86400000l) + 1;
-				TD cell = (TD) tr.getChild(cellix);
+			//-- Day number inside this row's week. Counted in days, not in milliseconds: a week
+			//-- containing a daylight saving change is not 7 * 86400 seconds long.
+			int day = DateUtil.deltaInDays(rd, dt);
+			if(day >= 0 && day < 7) {
+				TD cell = (TD) tr.getChild(day + 1); // Cell 0 holds the week number
 				if(on)
 					cell.addCssClass(css);
 				else

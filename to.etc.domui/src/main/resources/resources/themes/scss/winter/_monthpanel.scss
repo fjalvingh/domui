@@ -1,0 +1,75 @@
+/*** MonthPanel: the small month calendar ***/
+@import "_variables";
+@import "_datatable";
+
+$month_panel_bg: #ffffff !default;
+$month_panel_border: $data_tbl_border_color !default;
+$month_panel_header_bg: $data_tbl_header_bg !default;
+$month_panel_weeknr_color: lighten(#000000, 55%) !default;
+$month_panel_othermonth_color: lighten(#000000, 65%) !default;
+$month_panel_marked_bg: $highlight_bg !default;
+
+div.ui-mp {
+	display: inline-block;
+	margin: 0 10px 10px 0;
+	vertical-align: top;
+}
+
+table.ui-mp {
+	background-color: $month_panel_bg;
+	border: 1px solid $month_panel_border;
+	border-collapse: collapse;
+	font-size: 12px;
+
+	td {
+		padding: 2px 5px;
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	/* The month name, above everything */
+	.ui-mp-mn td {
+		background-color: $month_panel_header_bg;
+		color: $data_tbl_header_text_color;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	/* The row of weekday names */
+	.ui-mp-top {
+		background-color: lighten($month_panel_header_bg, 12%);
+	}
+
+	td.ui-mp-dh {
+		font-weight: bold;
+		text-align: center;
+	}
+
+	/* The week number, in the first column of every week */
+	td.ui-mp-w {
+		background-color: lighten($month_panel_header_bg, 12%);
+		border-right: 1px solid $month_panel_border;
+		color: $month_panel_weeknr_color;
+		font-size: 10px;
+	}
+
+	/* A day from the month before or after the one being shown */
+	td.ui-mp-xd {
+		color: $month_panel_othermonth_color;
+	}
+
+	/* Days are only clickable when a day click handler is set */
+	td.ui-mp-ch {
+		cursor: pointer;
+
+		&:hover {
+			background-color: $data_tbl_selected_bg;
+		}
+	}
+
+	/* The class setMarked() adds when the caller names none */
+	td.ui-mp-mrk {
+		background-color: $month_panel_marked_bg;
+		font-weight: bold;
+	}
+}

@@ -1233,6 +1233,10 @@ Candidates still open, offered as input - not agreed scope:
 - [ ] Separate the JUnit/Selenium fixture pages from the tutorial/demo pages so
       the demo reads as a tutorial rather than a test bed.
 - [ ] Rewrite demo pages that use superseded APIs to use the current ones.
+      *Nearly done*: everything the component list and the tutorial link to is
+      current (2026-09-05). What is left sits outside both: `pages/basic`,
+      `pages/cddb`, `pages/dbtable`, `pages/rxjava` and the `pages/test/**`
+      fixtures, which phase 3's separation item deals with anyway.
 - [x] Ensure the source-viewer (`SourceIcon`) story works for every tutorial page,
       since that is how readers get from a screen to its code. **Done** -
       verified 2026-09-05 by running the demo: `Application.onNewPage()` puts a
@@ -1271,14 +1275,14 @@ Candidates still open, offered as input - not agreed scope:
       as a limitation. Bring the JPA executor back, then say so on that page and
       in `70-implementation-details/qcriteria`, whose "What is not implemented"
       section states it now.
-- [ ] Delete demo pages that demonstrate removed or discouraged APIs.
-      *Well under way*: all thirteen component groups have deleted the demo pages
-      they superseded (see the decisions log), so nothing is pending from that
-      side any more. Re-checked 2026-09-05, what is left is the old binding
-      tutorial (`pages/binding/tut1/**`, which uses `Text`/`TextStr` and the
-      deprecated `BasicPage`) and the pre-`component2` leftovers that only
-      `OldHome` still links to (`BasicOverviewPage` and the `pages/overview/**`
-      pages the component list no longer points at).
+- [x] Delete demo pages that demonstrate removed or discouraged APIs. **Done
+      2026-09-05**: the thirteen component groups deleted the pages they
+      superseded as they went, and the last two remnants - the old binding
+      tutorial (`pages/binding/tut1/**`) and the whole pre-`component2`
+      `pages/overview/**` tree, with `BasicOverviewPage`, `TableMenuPage` and
+      `DataTable1Page` - went with the entry of that date. The two things that
+      tree still demonstrated, the week agenda and drag and drop, were rewritten
+      as component group demo pages and documented.
 - [ ] Remove the deprecated framework code that nothing (docs, demo, framework)
       still needs, once phases 2-3 have stopped referring to it.
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
@@ -1304,6 +1308,121 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-05 - The last pre-component2 demo pages; agenda and drag and drop
+
+Two things at once: the deletions phase 4 was waiting for, and the two features
+that were only reachable through the pages being deleted.
+
+**Deleted from the demo** - 50 files, none of them referenced by the
+documentation (three of them, the agenda and the two drag and drop pages, are
+replaced by the rewrites below):
+
+- `pages/binding/tut1/**` (9 files): the old binding tutorial, and the
+  "Binding tutorial" block at the end of `TutorialListPage` that linked it. The
+  tutorial's own binding chapter (`pages/tutorial/binding/**`, the pages the
+  data-binding chapter `!demo()`s) covers the same ground with current APIs.
+- The whole `pages/overview/**` tree: `allcomponents` (a pre-`component2`
+  "all components" fixture only the JUnit menu still linked), `buttons`, `tbl`,
+  `form`, `BadPage`, `DatabaseSchemaExpl` (which described the demo database as
+  DerbyDB and pointed at a codeplex url that has not existed for years), and the
+  empty `dynaima`, `fasthtml`, `meta` and `graph` directories.
+- `BasicOverviewPage` (referenced by nothing once `OldHome` was deleted),
+  `TableMenuPage` (the pre-group table menu, superseded by the group 6 pages) and
+  `DataTable1Page` (the same `DataTable` again), plus the "Tables: more examples"
+  section of `ComponentListPage` that held the last two, and
+  `img/chinook-schema-1.1.png`, which only `DatabaseSchemaExpl` used.
+
+**The agenda is a component group now.** `WeekAgendaComponent` and `MonthPanel`
+were only demonstrated by `DemoWeekAgenda`, a page under "Special components"
+that used `FloatingWindow`, `DateInput` and `SplitPanel` and had a Dutch new-
+appointment window. They are group 14 of the components section
+(`components/140-agenda`), with two demo pages under
+`pages/components/agenda/`:
+
+- `WeekAgendaPage` - a schedule model with work hours, a holiday and
+  appointments; buttons that move the period and switch between the day, the
+  work week and the week; an item renderer that colours an appointment by its
+  type; and dragging on the raster asking for a new appointment through an
+  `InputDialog`, which is added to the model and appears without a rebuild.
+- `MonthPanelPage` - two panels, a day click handler, and the clicked day marked
+  with `setMarked()`.
+
+Five defects were fixed to make that work:
+
+- **The raster lost its last hour.** `initModel()` had
+  `m_endHour /= 60 + 1`, which divides by 61 instead of dividing by 60. A model
+  whose work hours end at 17:30 got a raster to 17:00 rather than to 18:00.
+- **`setMode()` threw when no date was set yet.** It called `initDateBounds()`
+  unconditionally, and that requires a date; a page that sets the mode before the
+  date got a `NullPointerException` ("date must not be null"). It only computes
+  the bounds when there is a date now - `createContent()` defaults the date to
+  today anyway.
+- **`BasicScheduleModel.getScheduleItems()` ignored the period.** It filtered the
+  items into a list and then returned the unfiltered field, so a model with a
+  year of appointments handed all of them to the component for every week shown.
+- **`ScheduleMode.MONTH` did not exist.** The enum offered it, `initDateBounds()`
+  handled it, and `createContent()` threw "mode not implemented yet" for it. The
+  value is gone; `MonthPanel` is the month view.
+- **`MonthPanel` had no stylesheet at all.** The component renders `ui-mp*`
+  classes that only the obsolete css themes ever styled, so in the current theme
+  it came out as a wall of numbers. There is a `_monthpanel.scss` now: the month
+  name, the weekday header, the week numbers, the greyed-out days of the
+  neighbouring months, the hover on clickable days and the marked day. While
+  writing it: the weekday header cells used the day cells' class (`ui-mp-dh`
+  now), the default marker class was the misspelt `mp-ui-mrk` (`ui-mp-mrk`, as
+  `MonthPanel.MARKED`), and `mark()` located the clicked day by dividing a
+  millisecond difference by 86400000, which is off by one in the week a
+  daylight-saving change falls in - it counts days with `DateUtil.deltaInDays()`
+  now.
+
+**Drag and drop is documented, and works.** The two demo pages
+(`DemoDragDrop`, `DemoTableInDrag` - the second with a Dutch explanation) became
+`pages/components/dragdrop/DragDropDivPage` (pets dragged into a basket and back)
+and `DragDropRowPage` (tracks dropped into a playlist at the position they are
+dropped at, rows reordered by dragging, and dragged back off the list). The
+documentation is `components/150-drag-and-drop`, described as what it is: not a
+component but two handlers hung on nodes.
+
+Four defects, three of them making it plainly broken:
+
+- **Dropping into an empty table did nothing at all.** `RowDropzoneHandler`
+  computed the column under the mouse from the last row it found, and with no
+  rows at all that is `null`, so `locateBest()` threw a `TypeError` before the
+  server was ever called. The dragged node stayed hidden - the drag hides it -
+  and the drop vanished. Every playlist starts empty, so this was every first
+  drop. An empty body now gives index 0, and the insert marker gets a cell to
+  live in.
+- **The drop zones were measured once per page.** `dropGetList()` caches the
+  zones with their positions and sizes, and the comment says the cache is cleared
+  when an ajax request is done - but `dropClearList()` was never called by
+  anything. After the first drop the cached rectangles are stale, so a drop
+  outside the old rectangle is not seen. `dragMouseDown()` clears the list, so
+  the zones are measured once per drag.
+- **The winter theme had no drag and drop css either.** `ui-drgbl`,
+  `ui-drp-hover` and `ui-drp-ins` only existed in the obsolete css themes: no
+  move cursor, no zone highlight, and an invisible insert marker.
+  `_draganddrop.scss` supplies them.
+- **`IDropHandler.getDragMode()` was never called.** The mode is a property of
+  the target - `Div.setDropHandler()` defaults to `DropMode.DIV`,
+  `Div.setDropBody(body, ROW)` selects row mode - so every implementor wrote a
+  method that did nothing. It is gone.
+
+**And the dead half of the drag and drop implementation went with it.**
+`UIDragDropUtil` kept a registry of `IDragNdropPlugin`s keyed on a `DROP_MODE`
+attribute, whose second entry, `DivModeDragAndDropPlugin`, emits
+`DDD.makeDraggableById(...)` against `divModeDragAndDropPlugin.js` - a file
+nothing loads, so that path could only ever produce a javascript error. The
+plugin, the interface, the unreferenced js and css, and the attribute that
+selected them are deleted; `UIDragDropUtil` renders the attributes and that is
+all it does.
+
+Verified by running the demo: the agenda in all three modes, moving the period,
+the new-appointment dialog adding to the model, the month panel's day click and
+marking, dragging pets in and out of the basket, and dropping tracks into an
+empty playlist, reordering them and dragging them back off. `mvn21 install` over
+all modules is clean and the 42 `TestDbQCriteria` tests pass; the site builds
+(156 pages).
 
 ### 2026-09-05 - The open candidates worked off
 

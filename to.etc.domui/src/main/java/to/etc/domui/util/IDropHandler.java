@@ -25,7 +25,6 @@
 package to.etc.domui.util;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.dom.html.DropMode;
 
 /**
  * Nodes that can accept dropped things must have this interface defined via setDropHandler(). The instance
@@ -52,10 +51,5 @@ public interface IDropHandler {
 	 * @throws Exception
 	 */
 	void onDropped(@NonNull DropEvent context) throws Exception;
-
-	/**
-	 * Returns drag&drop mode that is supported by drop handler.
-	 */
-	@NonNull DropMode getDragMode();
 
 }

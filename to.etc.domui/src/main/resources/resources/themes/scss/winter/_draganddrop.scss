@@ -1,0 +1,24 @@
+/*** Drag and drop ***/
+@import "_variables";
+
+$dnd_hover_border: $main_color !default;
+$dnd_hover_bg: rgba(red($main_color), green($main_color), blue($main_color), 0.1) !default;
+
+/* Every node that has a drag handler */
+.ui-drgbl {
+	cursor: move;
+}
+
+/* A drop zone in DIV mode, while something acceptable hovers over it */
+.ui-drp-hover {
+	outline: 2px solid $dnd_hover_border;
+	background-color: $dnd_hover_bg;
+}
+
+/* In ROW mode: the cell of the placeholder row marking where the drop will land */
+.ui-drp-ins {
+	background: url(dnd-separator.png) repeat-x center;
+	font-size: x-small;
+	font-variant: small-caps;
+	text-align: center;
+}

@@ -247,3 +247,64 @@
 	color: #909090;
 	font-style: italic;
 }
+
+/*** Drag and drop demo: the zones dragged between, and the things dragged ***/
+.dm-dnd-cols {
+	display: flex;
+	gap: 20px;
+	margin: 20px;
+}
+
+.dm-dnd-cols > .dm-dnd-zone {
+	flex: 1;
+	margin: 0;
+}
+
+.dm-dnd-zone {
+	min-height: 120px;
+	margin: 20px;
+	padding: 10px;
+	border: 1px dashed #b0b0b0;
+	background-color: #fbfbfb;
+}
+
+.dm-dnd-basket {
+	min-height: 160px;
+	background-color: #f2f7ff;
+}
+
+.dm-dnd-item {
+	display: inline-block;
+	margin: 4px;
+	padding: 4px 8px;
+	border: 1px solid #d0d0d0;
+	border-radius: 4px;
+	background-color: #ffffff;
+}
+
+/*** Agenda demo: the colour of an appointment is taken from its type ***/
+.dm-agenda-meeting {
+	background-color: #d9e4f5;
+}
+
+.dm-agenda-private {
+	background-color: #d9f0d9;
+}
+
+.dm-agenda-problem {
+	background-color: #f5d9d9;
+}
+
+.dm-dnd-item img {
+	max-height: 70px;
+}
+
+table.dm-dnd-list {
+	border-collapse: collapse;
+
+	td {
+		padding: 4px 8px;
+		border-bottom: 1px solid #e0e0e0;
+		background-color: #ffffff;
+	}
+}

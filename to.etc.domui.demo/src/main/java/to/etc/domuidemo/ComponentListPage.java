@@ -1,9 +1,7 @@
 package to.etc.domuidemo;
 
 import to.etc.domui.dom.html.Div;
-import to.etc.domuidemo.pages.DataTable1Page;
 import to.etc.domuidemo.pages.MenuPage;
-import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.binding.editabletable.EditableTablePage;
 import to.etc.domuidemo.pages.components.lookup.LookupInput2LookPage;
 import to.etc.domuidemo.pages.components.lookup.LookupInput2Page;
@@ -77,9 +75,10 @@ import to.etc.domuidemo.pages.components.input.Text2ValidatePage;
 import to.etc.domuidemo.pages.components.input.TextAreaPage;
 import to.etc.domuidemo.pages.tutorial.messages.MsgExceptionPage;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
-import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
-import to.etc.domuidemo.pages.overview.dnd.DemoDragDrop;
-import to.etc.domuidemo.pages.overview.dnd.DemoTableInDrag;
+import to.etc.domuidemo.pages.components.agenda.MonthPanelPage;
+import to.etc.domuidemo.pages.components.agenda.WeekAgendaPage;
+import to.etc.domuidemo.pages.components.dragdrop.DragDropDivPage;
+import to.etc.domuidemo.pages.components.dragdrop.DragDropRowPage;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -190,15 +189,10 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(OtherTablesPage.class, "A grid and a shuttle");
 		f.addLink(Tree3Page.class, "Tree3: showing a tree");
 
-		f = new ListFragment("Tables: more examples");
-		main.add(f);
-		f.addLink(TableMenuPage.class, "Data tables, row renderers and ITableModels.");
-		f.addLink(DataTable1Page.class, "Simple data table");
-
 		f = new ListFragment("Drag and drop");
 		main.add(f);
-		f.addLink(DemoDragDrop.class, "Drag and drop - Petstore (DIV dropmode)");
-		f.addLink(DemoTableInDrag.class, "Drag and drop - ordered row drop mode");
+		f.addLink(DragDropDivPage.class, "Dragging nodes between two zones");
+		f.addLink(DragDropRowPage.class, "Dropping into a table, at a position");
 
 		f = new ListFragment("Asynchronous and long-running work");
 		main.add(f);
@@ -206,9 +200,10 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(AsyncDivPage.class, "AsyncDiv: the same, with the result built for you");
 		f.addLink(PollingDivPage.class, "PollingDiv: a piece of screen that refreshes itself");
 
-		f = new ListFragment("Special components");
+		f = new ListFragment("Agenda and calendar");
 		main.add(f);
-		f.addLink(DemoWeekAgenda.class, "The WeekAgenda");
+		f.addLink(WeekAgendaPage.class, "WeekAgendaComponent: a week of appointments");
+		f.addLink(MonthPanelPage.class, "MonthPanel: a month to pick a day from");
 
 		f = new ListFragment("Data binding");
 		main.add(f);

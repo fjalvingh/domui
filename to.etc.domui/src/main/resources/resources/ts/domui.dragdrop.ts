@@ -35,6 +35,7 @@ namespace WebUI {
 	 */
 	export function dragMouseDown(item, evt): void {
 		dragReset();
+		dropClearList();								// The page has changed since the last drag: recalculate the zones
 		_dragType = item.getAttribute('uitype');
 		if(!_dragType)
 			alert("This DRAGGABLE node has no 'uitype' attribute??");
@@ -227,8 +228,8 @@ namespace WebUI {
 	/**
 	 * Gets or recalculates the list of possible drop targets and their absolute
 	 * on-screen position. This list is used to determine if the mouse is "in" a
-	 * drop target. The list gets cached globally in the WebUI object; if an
-	 * AJAX request is done the list gets cleared.
+	 * drop target. The list is calculated once per drag: dragMouseDown clears it,
+	 * because anything that happened since the last drag can have moved the zones.
 	 */
 	export function dropGetList(): any[] {
 		if(_dropList)
@@ -379,6 +380,17 @@ namespace WebUI {
 			}
 			//console.debug("ACCEPTED last one");
 
+			if(lastrow === null) {
+				// -- The tbody has no rows at all: the drop is the first one, at index 0.
+				return {
+					index: 0,
+					iindex: 0,
+					gravity: 0,
+					row: null,
+					colIndex: 0
+				};
+			}
+
 			// -- If we're here we must insert at the last location
 			var colIndex = this.getColIndex(lastrow, mouseX);
 			return {
@@ -430,6 +442,9 @@ namespace WebUI {
 				$(temp).each(function() {
 					colCount += $(this).attr('colspan') ? parseInt($(this).attr('colspan')) : 1;
 				});
+			}
+			if(colCount == 0) {
+				colCount = 1;								// An empty table still needs a cell to show the insert marker in
 			}
 
 

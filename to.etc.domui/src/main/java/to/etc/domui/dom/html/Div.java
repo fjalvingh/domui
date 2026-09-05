@@ -33,7 +33,6 @@ import to.etc.domui.util.IDropBody;
 import to.etc.domui.util.IDropHandler;
 import to.etc.domui.util.IDropTargetable;
 import to.etc.domui.util.MiniTableBuilder;
-import to.etc.domui.util.UIDragDropUtil;
 
 public class Div extends NodeContainer implements IDropTargetable, IDraggable, IDropBody {
 	private IReturnPressed< ? extends NodeBase> m_returnPressed;
@@ -178,7 +177,6 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 		}
 		m_dropMode = dropMode;
 		m_dropBody = body;
-		setSpecialAttribute(UIDragDropUtil.DROP_MODE_ATTRIBUTE, dropMode.name());
 	}
 
 	public IDropBody getDropBody() {

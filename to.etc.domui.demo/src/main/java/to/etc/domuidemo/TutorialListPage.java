@@ -1,10 +1,6 @@
 package to.etc.domuidemo;
 
 import to.etc.domuidemo.pages.MenuPage;
-import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut3;
-import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut4;
-import to.etc.domuidemo.pages.binding.tut1.binding.BindingTut5;
-import to.etc.domuidemo.pages.binding.tut1.InvoiceListPage;
 import to.etc.domuidemo.pages.tutorial.binding.BindByHandPage;
 import to.etc.domuidemo.pages.tutorial.binding.BindErrorsPage;
 import to.etc.domuidemo.pages.tutorial.binding.BindPropertyPage;
@@ -115,11 +111,5 @@ final public class TutorialListPage extends MenuPage {
 		addLink(ComponentStarPage.class, "A control of your own");
 		addLink(ComponentBindPage.class, "The control, bound");
 		addLink(ComponentEqualityPage.class, "When has a value changed?");
-
-		addCaption("Binding tutorial");
-		addLink(InvoiceListPage.class, "Simple binding for editing a record");
-		addLink(BindingTut3.class, "Binding to other things as values");
-		addLink(BindingTut4.class, "Binding disabled for a button - part 1");
-		addLink(BindingTut5.class, "Binding disabled for a button - fixed");
 	}
 }
