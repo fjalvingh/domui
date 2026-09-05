@@ -636,7 +636,9 @@ final public class DomUtil {
 	 * Call depends on existing of request, so it can't be used within backend threads.
 	 */
 	static public String getRelativeApplicationResourceURL(String resource) {
-		return "/" + getApplicationContext() + "/" + resource;
+		//-- The webapp context is either empty or ends in a slash already; adding another one
+		//-- creates an empty path segment which servlet containers reject as an ambiguous URI.
+		return "/" + getApplicationContext() + resource;
 	}
 
 	/**

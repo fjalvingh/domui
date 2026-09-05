@@ -997,7 +997,8 @@ Steps:
             `SvgIcon`, `ImgIcon`, `Img`, `DisplayImage`, `ImageSelectControl`,
             `FileUpload2`, `FileUploadMultiple`. Done 2026-09-05; see the
             decisions log entry of that date.
-      - [ ] Rich content editors - `CKEditor`, `HtmlEditor`, `AceEditor`
+      - [x] **Rich content editors** - `CKEditor`, `HtmlEditor`, `AceEditor`.
+            Done 2026-09-05; see the decisions log entry of that date.
       - [ ] Charts - `PlotlyGraph`
       - [ ] Asynchronous and long-running work - `AsyncContainer`, `AsyncDiv`,
             `PollingDiv`
@@ -1031,6 +1032,35 @@ Candidates still open, offered as input - not agreed scope:
 - `EnumSetInput.setMatcher()` stores a matcher that nothing reads, and
   `setAddSingleMatch()` is commented out while its getter remains. Wire them up
   or remove them.
+
+- **`CKEditor.setToolbarSet()` throws its own javascript away.** On a built
+  editor it composes the statement that would set the new toolbar and then calls
+  `appendJavascript("")` - the empty string, not the statement. Repairing that
+  would not help much: assigning `.toolbar` on a live CKEditor 4 instance does
+  not redraw its toolbar either. The honest fix is to drop the dead branch and
+  let the setter be a build-time property. (Found writing the group 11 pages.)
+
+- **`CKEditor` can never set its own width and height.** The `setWidth()` and
+  `setHeight()` overrides are commented out, so `m_internalWidth` and
+  `m_internalHeight` stay null and the `width:`/`height:` options are never
+  emitted into the editor's configuration. The calls size the wrapping `div`
+  instead, which is not the same thing - the toolbar eats the height.
+
+- **`AceEditor.setTabSize()` has its `isBuilt()` test inverted.** It updates when
+  the editor is *not* built, where `setTheme()` and `setMode()` next to it update
+  when it *is*. It works out because `renderJavascriptState()` pushes the tab
+  size on every render, but the setter reads as a bug and behaves like one in
+  isolation.
+
+- **`AceEditor.selectWord()` selects nothing.** It calls
+  `selection.getWordRange(line, col)`, which is a getter: it computes a range and
+  discards it. It should feed that range to `selection.setRange`, the way
+  `select()` does.
+
+- **CKEditor 4.3 is bundled**, dating from 2013, and CKEditor 4 is out of
+  support. `DomApplication` already stopped loading it on every page for that
+  reason. Deciding what happens to it - upgrade, replace, or keep as an
+  opt-in - is worth doing deliberately rather than by neglect.
 
 - **`FileUpload2.renderEmpty()` is half dead.** The whole method is
   `if(true) { ... } else { ...an older, nearly identical rendering... }`; the
@@ -1259,6 +1289,88 @@ sorts them only as long as no button was given a priority of its own.
 
 `mvn21 test` on the framework and the demo passes (58 + 9). Site builds clean,
 130 pages.
+
+
+### 2026-09-05 - Components group 11: rich content editors
+
+`components/110-editors/`: a group page plus `htmleditor`, `ckeditor` and
+`aceeditor`, carried by three demo pages in
+`to.etc.domuidemo.pages.components.editors`.
+
+The group page splits the three by what they edit - two produce **html a user
+formatted**, the third edits **code** - and then splits the two html ones by
+weight: `HtmlEditor` appears instantly and has one row of buttons, `CKEditor` can
+do far more and takes a visible moment to start. All three are
+`IControl<String>`; what differs is what the string is.
+
+**A framework defect fixed, and it was breaking more than the editors.**
+`DomUtil.getRelativeApplicationResourceURL()` returned
+`"/" + getApplicationContext() + "/" + resource`, but `getWebappContext()`
+already ends in a slash - so every url it produced had an **empty path segment**:
+`/demo//$ckeditor/domuiconfig.js`. Jetty 11 answers those with
+`400 Bad Message: Ambiguous URI empty segment`. The consequence for this group
+was total: CKEditor's `customConfig` never loaded, so **none of the four toolbar
+sets had any effect** and every editor got CKEditor's stock toolbar. With the
+extra slash removed, the demo page shows `DOMUI` drawing the DomUI toolbar and
+`TXTONLY` drawing exactly its nine buttons. The same method is
+`CachedImagePart.getURL()`'s, so the image cache's part urls were malformed in
+exactly the same way and are repaired by the same line; and on a root context
+(`""`) the old code produced `//resource`, which a browser reads as a
+protocol-relative url - wrong in a second way.
+
+**Three demo pages were dead and nobody had noticed.** `DemoCKEditor` and
+`DemoCKEditorResizing` render an empty space and log `CKEDITOR is not defined`,
+because `DomApplication` deliberately stopped putting `$ckeditor/ckeditor.js` on
+every page - "old and has vulnerabilities. Use CKEditor.initialize on pages using
+it", says the comment next to the commented-out line - and the demos were never
+updated. The new `CKEditorPage` calls `CKEditor.initialize(this)`, and that
+requirement is a callout on both the group page and the CKEditor page: forget it
+and nothing appears at all.
+
+**What the old `forms-and-input/aceeditor` page had wrong**, corrected against
+the source and the running editor:
+
+- it said the component "loads the Ace editor's javascript from a CDN
+  (cdnjs.cloudflare.com)". Those two lines are commented out; Ace is served from
+  the framework's own `$js/aceeditor-1.4.13/`;
+- its example wrote `setTheme("ace/theme/iplastic")`. `updateTheme()` prefixes
+  `ace/theme/` itself, so the **theme takes a bare name** (`"iplastic"`) while
+  the **mode takes the full path** (`"ace/mode/pgsql"`). That asymmetry is now a
+  callout, because it is invisible until the theme silently does not apply;
+- it described the editor as having a "live demo" that was never there, and two
+  2017/2018 screenshots that the `!demo()` frame replaces.
+
+`toolbar_DOMUI` and `toolbar_FULL` are byte-identical in `domuiconfig.js`, so the
+first thing I wrote - "DOMUI is FULL plus the framework's own buttons" - was
+wrong and is corrected: they are the same toolbar, and they are the two sets that
+load the extra plugins (image picker, special characters, colours, smileys).
+
+**A group 10 leftover, cleaned up here.** `components/forms-and-input/fileupload`
+should have gone when group 10 replaced it and did not. It is deleted now; it
+claimed the control "shows a progress bar" during the upload (the component's own
+javadoc says "No upload progress reporting is done") and called the value class
+`UploadFile`, which is `UploadItem`.
+
+**`components/forms-and-input` is down to the form builder alone.** Its index now
+says so and points at the groups that took file upload and the editors. The form
+builder is not a member of any of the thirteen groups and still needs a home -
+worth settling when the remaining groups are done.
+
+**Demo pages deleted:** `DemoHtmlEditor`, `DemoCKEditor`,
+`DemoCKEditorResizing` and `AcePage`, taking the `pages/overview/htmleditor` and
+`pages/special/ace` packages with them; the two javascript resources the Ace demo
+reads moved to the new package. `ComponentListPage`'s "Rich content editors"
+section now lists the three new pages.
+
+**Verified by driving the demo in Chrome:** the Ace editor renders with syntax
+colouring, the `iplastic` theme and line numbers, and "Mark every 'var'" puts a
+warning marker under each one; `HtmlEditor` shows its fixed toolbar and
+`getValue()` hands back `<p>The <b>small</b> editor: ...</p>`; and both CKEditors
+appear with the toolbars their sets ask for once the config loads.
+
+Site builds clean, 144 pages, and the `!demo()` frames of the group resolve.
+`mvn21 test` on the framework and the demo passes. **Not deployed**: the frames
+are 404 until the demo is redeployed with `scripts/deploy-demo`.
 
 
 ### 2026-09-05 - Components group 10: images, icons and file upload

@@ -34,6 +34,9 @@ import to.etc.domuidemo.pages.components.images.FileUploadPage;
 import to.etc.domuidemo.pages.components.images.IconsPage;
 import to.etc.domuidemo.pages.components.images.ImageUploadPage;
 import to.etc.domuidemo.pages.components.images.ImgPage;
+import to.etc.domuidemo.pages.components.editors.AceEditorPage;
+import to.etc.domuidemo.pages.components.editors.CKEditorPage;
+import to.etc.domuidemo.pages.components.editors.HtmlEditorPage;
 import to.etc.domuidemo.pages.components.display.DisplayBooleanPage;
 import to.etc.domuidemo.pages.components.display.DisplayHtmlPage;
 import to.etc.domuidemo.pages.components.display.DisplaySpanPage;
@@ -72,15 +75,11 @@ import to.etc.domuidemo.pages.overview.delayed.DemoAsyncContainer;
 import to.etc.domuidemo.pages.overview.delayed.DemoPollingDiv;
 import to.etc.domuidemo.pages.overview.dnd.DemoDragDrop;
 import to.etc.domuidemo.pages.overview.dnd.DemoTableInDrag;
-import to.etc.domuidemo.pages.overview.htmleditor.DemoCKEditor;
-import to.etc.domuidemo.pages.overview.htmleditor.DemoCKEditorResizing;
-import to.etc.domuidemo.pages.overview.htmleditor.DemoHtmlEditor;
 import to.etc.domuidemo.pages.plotly.Plotly1;
 import to.etc.domuidemo.pages.plotly.PlotlyGaugePage;
 import to.etc.domuidemo.pages.plotly.PlotlyPie1;
 import to.etc.domuidemo.pages.plotly.PlotlyStackedBar;
 import to.etc.domuidemo.pages.plotly.PlotlySunburst;
-import to.etc.domuidemo.pages.special.ace.AcePage;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -169,10 +168,9 @@ public class ComponentListPage extends MenuPage {
 
 		f = new ListFragment("Rich content editors");
 		main.add(f);
-		f.addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
-		f.addLink(DemoCKEditor.class, "CKEditor HTML component, fixed size");
-		f.addLink(DemoCKEditorResizing.class, "CKEditor HTML component, auto resizing");
-		f.addLink(AcePage.class, "The ACE code editor");
+		f.addLink(HtmlEditorPage.class, "HtmlEditor: the small wysiwyg editor");
+		f.addLink(CKEditorPage.class, "CKEditor: the full wysiwyg editor");
+		f.addLink(AceEditorPage.class, "AceEditor: the code editor");
 
 		f = new ListFragment("Display-only components");
 		main.add(f);
