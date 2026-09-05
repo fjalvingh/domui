@@ -721,13 +721,12 @@ public enum Icon implements IIconRef {
 	}
 
 	/**
-	 * Return a reference to a specific icon type depending on the path. It uses
-	 * the path's extension to determine whether to return the proper type of
-	 * icon once the icon needs to be created:
+	 * Return an {@link ImageIconRef} for the path. The path's extension decides what
+	 * the ref renders when {@link ImageIconRef#createNode(String)} is called on it:
 	 * <ul>
-	 *	<li>an {@link ImageIconRef} when the extension is png, jpg, jpeg, gif</li>
-	 * 	<li>A {@link SvgIcon} when the extension is svg</li>
-	 *	<li>A {@link FontIcon} if the text contains no path and no extension; this assumes the icon is registered</li>
+	 *	<li>an {@link ImgIcon} when the extension is png, jpg, jpeg, gif or anything else</li>
+	 * 	<li>an {@link SvgIcon} when the extension is svg</li>
+	 *	<li>a {@link FontIcon} when the text has no extension at all; this assumes the icon is registered</li>
 	 * </ul>
 	 */
 	static public IIconRef of(String path) {

@@ -25,11 +25,12 @@
 package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.INodeErrorDelegate;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.function.ConsumerEx;
 
-public class FileInput extends NodeBase implements IHasChangeListener, INodeErrorDelegate {
+public class FileInput extends NodeBase implements IHasChangeListener, INodeErrorDelegate, IForTarget {
 	private IValueChanged< ? > m_onValueChanged;
 
 	private boolean m_disabled;
@@ -44,6 +45,13 @@ public class FileInput extends NodeBase implements IHasChangeListener, INodeErro
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitFileInput(this);
+	}
+
+	/**
+	 * The input itself is what a label's "for" points at.
+	 */
+	@Nullable @Override public NodeBase getForTarget() {
+		return this;
 	}
 
 	/**

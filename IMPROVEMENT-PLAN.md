@@ -1038,7 +1038,7 @@ Candidates still open, offered as input - not agreed scope:
   control and a checkbox label ticks it. Fixed in `f7f9df6af`, verified
   2026-09-05.
 
-- `EnumSetInput.setMatcher()` stores a matcher that nothing reads, and
+- FIXED: `EnumSetInput.setMatcher()` stores a matcher that nothing reads, and
   `setAddSingleMatch()` is commented out while its getter remains. Wire them up
   or remove them.
 
@@ -1055,13 +1055,13 @@ Candidates still open, offered as input - not agreed scope:
   emitted into the editor's configuration. The calls size the wrapping `div`
   instead, which is not the same thing - the toolbar eats the height.
 
-- **`AceEditor.setTabSize()` has its `isBuilt()` test inverted.** It updates when
+- FIXED: **`AceEditor.setTabSize()` has its `isBuilt()` test inverted.** It updates when
   the editor is *not* built, where `setTheme()` and `setMode()` next to it update
   when it *is*. It works out because `renderJavascriptState()` pushes the tab
   size on every render, but the setter reads as a bug and behaves like one in
   isolation.
 
-- **`AceEditor.selectWord()` selects nothing.** It calls
+- FIXED: **`AceEditor.selectWord()` selects nothing.** It calls
   `selection.getWordRange(line, col)`, which is a getter: it computes a range and
   discards it. It should feed that range to `selection.setRange`, the way
   `select()` does.
@@ -1076,19 +1076,21 @@ Candidates still open, offered as input - not agreed scope:
   else branch cannot run and has drifted out of step with the branch that does.
   Delete it. (Found writing the group 10 pages.)
 
-- **`LoadedImage.create()` builds an object it throws away.** In the
+- FIXED: **`LoadedImage.create()` builds an object it throws away.** In the
   resize branch it constructs `LoadedImageInstance oli`, never reads it, and
   returns a `LoadedImage` built from the resized file instead. Harmless, but it
   reads as though the resized instance were being cached and it is not.
 
-- **`ImageSelectControl` has no focus target.** `getFocusID()` and
+- FIXED: **`ImageSelectControl` has no focus target.** `getFocusID()` and
   `getForTarget()` both return `m_sib`, the `HoverButton` whose creation is
   commented out - so both always return null and the control can neither be
   focused nor be the target of a label. Point them at the `FileInput` instead.
-  Its accepted types (`.jpg,.jpeg,.png,.gif`) and its 10MB limit are hardcoded
-  in the same method, where `FileUpload2` makes both properties.
 
-- **`Icon.of(String)`'s javadoc describes the wrong object.** It says the method
+- `ImageSelectControl`'s accepted types (`.jpg,.jpeg,.png,.gif`) and its 10MB
+  limit are hardcoded in `createContent()`, where `FileUpload2` makes both
+  properties.
+
+- FIXED: **`Icon.of(String)`'s javadoc describes the wrong object.** It says the method
   returns "an `ImageIconRef` / an `SvgIcon` / a `FontIcon` depending on the
   extension"; it always returns an `ImageIconRef`, and it is that ref's
   `createNode()` that picks between the three. The behaviour is right, the
@@ -1102,7 +1104,7 @@ Candidates still open, offered as input - not agreed scope:
   directly, or make it fail loudly when it finds an `@UIUrlParameter` it cannot
   reach.
 
-- `RadioGroup` has three overlapping enum factories: `createEnumRadioGroup(Class,
+- IGNORE: `RadioGroup` has three overlapping enum factories: `createEnumRadioGroup(Class,
   exceptions...)` (sorted), `createEnumRadioGroupUnsorted(...)` and
   `createFromEnum(Class, ignored...)` - the last being a duplicate of the second.
   Only the first two are documented; `createFromEnum` is a candidate for removal.
@@ -1284,6 +1286,36 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-05 - Four more candidates fixed
+
+- **`AceEditor.selectWord()`** now feeds the computed range back:
+  `selection.setRange(selection.getWordRange(row, col), true)`, with the line
+  made 0-based first, the way `select()` does it. Verified in the demo's ace
+  page by running exactly the statement the method emits: it selects the word.
+- **`LoadedImage.create()`** no longer builds the `LoadedImageInstance` it threw
+  away.
+- **`ImageSelectControl` has a focus target.** `getFocusID()` and
+  `getForTarget()` point at the `FileInput` (and at nothing when the control is
+  disabled or readonly, which is when no input is rendered); the dead `m_sib`
+  field and the commented-out `HoverButton` are gone. Two things were needed to
+  make it actually work:
+  - the `FileInput` is now created with the control rather than in
+    `createContent()`, because a label's `for` is calculated before the control
+    it points at is built - the same reason `Text2` keeps its `Input` in a final
+    field;
+  - **`FileInput` implements `IForTarget`**, returning itself. `HtmlTagRenderer.
+    visitLabel()` walks the `for` chain and drops the target the moment it meets
+    a node that is not an `IForTarget`, so without this the label got no `for`
+    at all. `Input`, `TextArea` and `Checkbox` already did this.
+
+  Verified in the demo: `ImageUploadPage`'s "Your avatar" label now renders
+  `for="_11"`, the id of the rendered file input.
+- **`Icon.of(String)`'s javadoc** says what the method does: it returns an
+  `ImageIconRef`, and the extension decides what *that ref* creates - an
+  `ImgIcon`, an `SvgIcon` or a `FontIcon`.
+
+`mvn21 test` passes on the framework (58) and the demo (9).
 
 ### 2026-09-05 - The open items checked against the tree
 

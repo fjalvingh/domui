@@ -157,80 +157,44 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	}
 
 	private void renderEmpty() {
-		if(true) {
-			Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
-			add(valueD);
+		Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
+		add(valueD);
 
-			Div buttonDiv = new Div("ui-fup2-button ui-button ui-control ui-input");
-			add(buttonDiv);
+		Div buttonDiv = new Div("ui-fup2-button ui-button ui-control ui-input");
+		add(buttonDiv);
 
-			Form f = new Form();
-			buttonDiv.add(f);
-			f.setCssClass("ui-szless");
-			f.setEnctype("multipart/form-data");
-			f.setMethod("POST");
-			StringBuilder sb = new StringBuilder();
-			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
-			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
-			f.setAction(sb.toString());
+		Form f = new Form();
+		buttonDiv.add(f);
+		f.setCssClass("ui-szless");
+		f.setEnctype("multipart/form-data");
+		f.setMethod("POST");
+		StringBuilder sb = new StringBuilder();
+		ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
+		sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
+		f.setAction(sb.toString());
 
-			//Div btn = new Div("ui-fup2-button ui-button ui-control");
-			Div btn = new Div("ui-fup2-button");
-			f.add(btn);
-			String buttonText = m_buttonText;
-			if(null != buttonText) {
-				btn.add(buttonText);
-			}
-
-			FileInput input = m_input = new FileInput(s -> forceRebuild());
-			f.add(input);
-			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
-			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
-			input.setDisabled(isDisabled() || isReadOnly());
-			if(!m_allowedExtensions.isEmpty()) {
-				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
-				input.setSpecialAttribute("fuallowed", values);
-				input.setSpecialAttribute("accept", values);
-			}
-			int maxSize = getMaxSize();
-			if(maxSize <= 0)
-				maxSize = 100 * 1024 * 1024;
-			input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
-		} else {
-			Form f = new Form();
-			add(f);
-			f.setCssClass("ui-szless");
-			f.setEnctype("multipart/form-data");
-			f.setMethod("POST");
-			StringBuilder sb = new StringBuilder();
-			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
-			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
-			f.setAction(sb.toString());
-
-			Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
-			f.add(valueD);
-			Div btn = new Div("ui-fup2-button ui-button ui-control ui-input");
-			f.add(btn);
-			String buttonText = m_buttonText;
-			if(null != buttonText) {
-				btn.add(buttonText);
-			}
-
-			FileInput input = m_input = new FileInput(s -> forceRebuild());
-			f.add(input);
-			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
-			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
-			input.setDisabled(isDisabled() || isReadOnly());
-			if(!m_allowedExtensions.isEmpty()) {
-				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
-				input.setSpecialAttribute("fuallowed", values);
-				input.setSpecialAttribute("accept", values);
-			}
-			int maxSize = getMaxSize();
-			if(maxSize <= 0)
-				maxSize = 100 * 1024 * 1024;
-			input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
+		//Div btn = new Div("ui-fup2-button ui-button ui-control");
+		Div btn = new Div("ui-fup2-button");
+		f.add(btn);
+		String buttonText = m_buttonText;
+		if(null != buttonText) {
+			btn.add(buttonText);
 		}
+
+		FileInput input = m_input = new FileInput(s -> forceRebuild());
+		f.add(input);
+		input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
+		input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
+		input.setDisabled(isDisabled() || isReadOnly());
+		if(!m_allowedExtensions.isEmpty()) {
+			String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
+			input.setSpecialAttribute("fuallowed", values);
+			input.setSpecialAttribute("accept", values);
+		}
+		int maxSize = getMaxSize();
+		if(maxSize <= 0)
+			maxSize = 100 * 1024 * 1024;
+		input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
 	}
 
 	@Nullable

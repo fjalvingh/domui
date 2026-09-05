@@ -472,7 +472,10 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 
 	public void selectWord(int line, int col) {
 		if(isBuilt()) {
-			callMethod("selection.getWordRange", Integer.toString(line), Integer.toString(col));
+			line--;
+			StringBuilder sb = new StringBuilder();
+			handle(sb).append("selection.getWordRange(").append(line).append(",").append(col).append(")");
+			callMethod("selection.setRange", sb.toString(), "true");
 		}
 	}
 
