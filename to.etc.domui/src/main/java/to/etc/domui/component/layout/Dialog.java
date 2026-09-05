@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component2.buttons.ButtonBar2;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.themes.Theme;
 import to.etc.function.IExecute;
@@ -44,7 +45,8 @@ public class Dialog extends Window {
 	static public final String RSN_SAVE = "save";
 
 	/** The button bar for the dialog. */
-	private ButtonBar m_buttonBar;
+	@Nullable
+	private ButtonBar2 m_buttonBar;
 
 	@Nullable
 	private IExecute m_onSave;
@@ -145,9 +147,9 @@ public class Dialog extends Window {
 	private void createButtonBar(boolean onbottom) {
 		if(m_buttonBar != null)
 			return;
-		m_buttonBar = new ButtonBar();
+		ButtonBar2 bb = m_buttonBar = new ButtonBar2();
 		Div area = onbottom ? getBottomContent() : getTopContent();
-		area.add(m_buttonBar);
+		area.add(bb);
 	}
 
 	/**
@@ -166,9 +168,14 @@ public class Dialog extends Window {
 	 * added to the top content area.
 	 */
 	public IButtonBar getButtonBar() {
-		if(m_buttonBar == null)
+		ButtonBar2 bb = m_buttonBar;
+		if(bb == null) {
 			createButtonBar(true);
-		return m_buttonBar;
+			bb = m_buttonBar;
+			if(null == bb)
+				throw new IllegalStateException("The button bar was not created");
+		}
+		return bb;
 	}
 
 	protected void createCancelButton() {

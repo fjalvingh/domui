@@ -261,12 +261,16 @@ final public class MsgBox2 extends Window {
 
 		//-- Sort the buttons if all of them are "default"
 		List<BoxButton> theButtons = m_theButtons;
-		BoxButton defaultButton = renderBoxButtons(bd, theButtons);
-		if(m_defaultButton != null) {
-			defaultButton = m_defaultButton;
+		renderBoxButtons(bd, theButtons);
+		if(unfocused) {
+			//-- Nothing else took the focus, so a button gets it: the one marked default, else the first.
+			BoxButton defaultButton = m_defaultButton;
+			if(null != defaultButton) {
+				defaultButton.getButton().setFocus();
+			} else {
+				setFocusOnButton();
+			}
 		}
-		if(unfocused)
-			setFocusOnButton();
 	}
 
 	@Nullable

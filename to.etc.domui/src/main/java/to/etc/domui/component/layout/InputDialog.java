@@ -27,7 +27,7 @@ package to.etc.domui.component.layout;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.input.TextStr;
+import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox2;
@@ -215,7 +215,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 * Delete confirmation dialog that asks for input value confirmation (in blood) before action is accepted.
 	 */
 	public static Dialog confirmDeleteInBlood(String title, String confirmValue, String controlLabel, PredicateEx<String> onConfirm) {
-		return confirmInBlood(title, Msgs.incorrectInputCantDeleteData.getString(), new TextStr(), confirmValue, (v1, v2) -> v1.equals(v2), controlLabel, Msgs.btnDelete.getString(), Theme.BTN_SKULL, onConfirm);
+		return confirmInBlood(title, Msgs.incorrectInputCantDeleteData.getString(), new Text2<>(String.class), confirmValue, (v1, v2) -> v1.equals(v2), controlLabel, Msgs.btnDelete.getString(), Theme.BTN_SKULL, onConfirm);
 	}
 
 	/**
@@ -232,7 +232,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 * Action confirmation dialog that also asks for input reason.
 	 */
 	public static Dialog confirmWithReason(String title, int maxLen, int size, String actionBtnTitle, IIconRef actionButtonIcon, PredicateEx<String> onConfirm) {
-		TextStr input = new TextStr();
+		Text2<String> input = new Text2<>(String.class);
 		input.setMandatory(true);
 		input.setMaxLength(maxLen);
 		input.setSize(size);

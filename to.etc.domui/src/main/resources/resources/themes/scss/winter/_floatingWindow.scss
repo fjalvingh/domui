@@ -63,6 +63,20 @@
 	}
 }
 
+/* A Dialog's button bar is a ButtonBar2; its buttons sit at the right of the window. */
+.ui-flw-tc > .ui-bbar2,
+.ui-flw-bc > .ui-bbar2 {
+	padding: 5px 10px;
+
+	.ui-bbar2-l {
+		text-align: right;
+	}
+
+	.ui-bbar2-bc:last-child {
+		padding-right: 0;
+	}
+}
+
 .ui-flw-bc .ui-bb-middle {
 	/*?  padding: 5px <%= margins_main %> <%= margins_main %> <%= margins_main %>; */
 	text-align: right;

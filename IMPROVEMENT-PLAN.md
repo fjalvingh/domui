@@ -981,12 +981,15 @@ Steps:
             `RowRenderer` / `ColumnDef`, the `ITableModel` family,
             `ExpandingEditTable`, `DataCellTable`, `ListShuttle`, `Tree3`. Done
             2026-09-02; see the decisions log entry of that date.
-      - [ ] Layout and page structure - `ContentPanel`, `Panel`, `CaptionedPanel`,
-            `Caption2`, `GenericHeader`, `ExpandHeader`, `TabPanel`,
-            `ScrollableTabPanel`, `SplitterPanel`, `VerticalSpacer`, `ChildFragment`
-      - [ ] Windows, dialogs and messages - `Window`, `Dialog`, `InputDialog`,
+      - [x] **Layout and page structure** - `ContentPanel`, `Panel`,
+            `CaptionedPanel`, `Caption2`, `GenericHeader`, `ExpandHeader`,
+            `TabPanel`, `ScrollableTabPanel`, `SplitterPanel`, `VerticalSpacer`,
+            `ChildFragment`. Done 2026-09-02; see the decisions log entry of that
+            date.
+      - [x] **Windows, dialogs and messages** - `Window`, `Dialog`, `InputDialog`,
             `MsgBox2`, `ExceptionDialog`, `ErrorPanel`, `ErrorMessageDiv`,
-            `MessageFlare`/`Flare`, `MessageLine`, `InfoPanel`, `Explanation`
+            `MessageFlare`/`Flare`, `MessageLine`, `InfoPanel`, `Explanation`.
+            Done 2026-09-04; see the decisions log entry of that date.
       - [ ] Navigation and menus - `BreadCrumb2`, `AppPageTitleBar`, `PopupMenu2`,
             `HamburgerMenu`, `ALink`
       - [ ] Images, icons and file upload - `Icon`/`IIconRef`, `FontIcon`,
@@ -1060,7 +1063,6 @@ Candidates still open, offered as input - not agreed scope:
   extends it, and both binding-tutorial `InvoiceListPage`s extend that. The
   tutorial currently teaches a class the framework tells people not to use.
   This wants fixing in phase 3.
-- `pages/cddb/TrackDetails.java` is an empty stub page with no content at all.
 - The demo database has corrupt names in `to.etc.domui.derbydata`'s `CreateDB.sql`:
   artists and tracks whose last character(s) were cut off (`Iron Maide`,
   `Led Zeppeli` next to a separate `Led Zeppelin`, `Yamma Brow`). Repair the
@@ -1086,6 +1088,9 @@ Candidates still open, offered as input - not agreed scope:
 - [ ] List the deprecated/superseded framework APIs that the docs and demo still
       teach (`component` vs `component2`, old form builders vs `form4`, old
       lookup vs `lookupinput`, etc.). This list drives phases 2-4.
+      *Done for the components* - the superseded-to-current table in the entry of
+      2026-09-01 - and being applied group by group. Not yet done for the
+      non-component APIs.
 - [x] Decide the canonical "how you should write a DomUI page today" story - the
       single set of APIs the docs and demo will consistently show. **Decided:**
       current version and current usage only; see "Guiding principle" above.
@@ -1143,6 +1148,10 @@ Candidates still open, offered as input - not agreed scope:
       in `70-implementation-details/qcriteria`, whose "What is not implemented"
       section states it now.
 - [ ] Delete demo pages that demonstrate removed or discouraged APIs.
+      *Well under way*: every component group so far has deleted the demo pages
+      it superseded (see the decisions log). What is left is the old binding
+      tutorial (`pages/binding/tut1/**`, which uses `Text`/`TextStr` and the
+      deprecated `BasicPage`) and whatever groups 8-13 turn up.
 - [ ] Remove the deprecated framework code that nothing (docs, demo, framework)
       still needs, once phases 2-3 have stopped referring to it.
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
@@ -1168,6 +1177,244 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-05 - The four group 8 candidates, done
+
+All four things group 8 turned up were fixed rather than left as candidates.
+
+**`Dialog` now builds a `ButtonBar2`.** It made a pre-`component2` `ButtonBar` -
+a `<table width="100%">` with one cell - so every dialog in every application had
+a button bar of the old kind while `ButtonBar2` is what the documentation tells
+people to use. `IButtonBar` is what `Dialog` and its callers talk to, so the swap
+is the field type and one `new`. The look is kept by css rather than by the
+table: `_floatingWindow.scss` gives a `.ui-bbar2` directly inside `.ui-flw-tc` /
+`.ui-flw-bc` the padding and the right alignment the old `.ui-bb-middle` cell
+had. Verified: the dialog's bar renders as
+`ui-bbar2 ui-bbar2-horizontal > ui-bbar2-l > ui-bbar2-bc`, save and cancel still
+in that order (`ButtonBar2` sorts on the button order, which is -1 for all of
+them, and the sort is stable), and saving, cancelling and refusing still behave
+as they did. The old `.ui-bb-middle` rules stay: `PopInPanel`,
+`TreeSelectionWindow`, `MiniTableBuilder`, `AbstractImportPage` and the log pages
+still use the old bar, and those are not group 8's to change.
+
+**`InputDialog`'s two confirmation dialogs use `Text2<String>`.**
+`confirmDeleteInBlood()` and `confirmWithReason()` built their input with
+`TextStr`, the only remaining use of a pre-`component2` control in this corner of
+the framework. Both now render a `ui-txt2`, and `setMaxLength()` / `setSize()`
+mean the same thing on it. Verified by driving both dialogs: a wrong answer is
+still refused with an error box, the right one deletes, and the reason dialog
+hands its text to the handler.
+
+**`Window` takes an `IIconRef` for its title bar.** `setIcon(String)` created an
+`Img` and inserted it into the title bar by hand (with an IE-era comment about
+where the close button sits); the title bar therefore could not carry a font
+icon. The window now keeps the `IIconRef` and renders it in `createTitleBar()`,
+which is the method that already rebuilds the bar when the title changes.
+`setIcon(String)` stays, as `setIcon(Icon.of(url))`, so the three callers that
+pass a `THEME/...` png are unchanged - verified: the `LookupInput2` popup still
+shows `ttlFind.png` - and `WindowPage` in the demo gained a window with
+`Icon.faMusic` in its title bar, which renders as `fas fa-music`.
+
+**The old `MsgBox` is out of the documentation.** The "MsgBox, the older form"
+section of `building-pages/90-telling-the-user` documented the superseded class
+next to `MsgBox2`, which is exactly what the guiding principle rules out; it is
+deleted. The one other mention, an example in `80-metadata` using
+`MsgBox.info(this, $(...))`, is now `MsgBox2.on(this).info($(...))`. While there,
+the same page's claim that message box buttons are "laid out by priority rather
+than by the order you add them" was corrected to what the code does: the box
+sorts them only as long as no button was given a priority of its own.
+
+`mvn21 test` on the framework and the demo passes (58 + 9). Site builds clean,
+130 pages.
+
+
+### 2026-09-04 - Components group 8: windows, dialogs and messages
+
+`components/80-windows-and-dialogs/`: a group page plus `window`, `dialog`,
+`inputdialog`, `msgbox2`, `exceptiondialog`, `errorpanel`, `errormessagediv`,
+`messageflare`, `messageline`, `infopanel` and `explanation`, carried by seven
+demo pages in `to.etc.domuidemo.pages.components.dialog`.
+
+The group page sorts the eleven components by **how much they interrupt** - an
+overlay that has to be dealt with, a message that waits to be read, a flare that
+is gone in a second - and states the rule the group shares: an overlay is added
+to the **page**, never to the `ContentPanel`, and the code that opened it is not
+blocked, so whatever must happen after the user answers belongs in a handler.
+Messages themselves (the `UIMessage`, where it is posted, the error fence) stay
+where they were written up, in the walkthrough's
+`building-pages/90-telling-the-user`; the component pages say what each display
+component looks like and when to pick it, and point there for the mechanism.
+
+**A defect fixed: `MsgBox2.buttonDefault()` did nothing at all.** `createContent()`
+computed a `defaultButton` - from the explicit `buttonDefault(...)` call, falling
+back to the single primary button - and then never read the variable; the focus
+always went to the *first* button in the bar. So the one thing that distinguishes
+`buttonDefault(mbb, prio)` from `button(mbb, prio)` had no effect. The box now
+focuses the explicitly marked default button when nothing else took the focus.
+Deliberately *not* changed: a box with no explicit default (a plain `yesNo()`)
+still focuses the first button, because letting the auto-computed primary take
+the focus would silently make enter mean YES in every existing confirmation
+dialog in every application.
+
+**A broken constructor deleted:** `Explanation()` left the type null, so
+`createContent()` threw on `"THEME/big-" + m_type.name()`. It had no callers
+anywhere in the tree and no way to become usable (the class has no setter for the
+type), so it is gone rather than repaired.
+
+**Verified by driving the running demo** (jetty on 8088, the pages fetched and
+then driven through DomUI's own ajax protocol, since the browser extension was
+not connected): the dialog's save sequence stops at `onValidate()` and leaves the
+dialog standing with an error box stacked on top of it (z-index 200 over 100);
+save closes with reason `save` and cancel with `closed`; `close()` removes a
+window without calling the close handler where `closePressed()` calls it;
+`confirmDeleteInBlood` refuses a wrong answer and deletes on the right one; the
+message box answers arrive through `onAnswer`, `onAnswer2` and the input handler;
+three flare messages in one request end up in one flare that turns into an error
+flare; a mandatory field reports itself into the panel it is in, the propagating
+fence shows the same message in the panel *and* on the page, and the `ErrorPanel`
+title follows the severest message ("Errors on the page" turns into "Warning(s)
+on the page"). The `MessageLine`, `InfoPanel` and `Explanation` icons resolve
+against the demo's theme (`scss-winter-default-default`), which has all six
+`mini-*`/`big-*` images.
+
+**Learned while verifying, worth writing down:** a delta renders every button
+with `disabled=""`, which looks alarming but is the protocol - `copyAttrs` in
+`domui.packets.ts` removes `disabled`, `readonly`, `checked` and `selected` when
+their value is empty. And a demo page can be fetched with curl only by following
+the redirect chain twice: DomUI redirects a session-less request to `?$cid=….r`,
+that one to `?$cid=….x`, and only the third request renders the page.
+
+**Demo pages deleted:** `DemoMsgBox` (built on the superseded `MsgBox` and the
+old `ButtonBar`), `DemoMessageLine` (one line), `DemoInfoPanel` and
+`DemoFloatingWindow` (a demo of a `@Deprecated` class), replaced by the seven new
+ones. `ComponentListPage` gained a "Windows, dialogs and messages" section with
+all of them; "Layout: more examples" is down to `DemoAppTitle`, which group 9
+takes.
+
+**No site pages were deleted:** the old `components/` tree had nothing at all
+about windows, dialogs or messages - the whole group is new material.
+
+Site builds clean, 130 pages, and the eleven `!demo()` frames of the group -
+eight distinct demo pages - resolve. `mvn21 test`
+on the framework and the demo passes. **Not deployed**: the frames are 404 until
+the demo is redeployed with `scripts/deploy-demo`.
+
+
+### 2026-09-03 - The plan checked against the tree, and the decisions groups 1-7 made
+
+Seven of the thirteen component groups are done, so the plan was read back
+against what is actually in the two repositories. Three things were out of step,
+and are now fixed.
+
+**The group 7 entry claimed a deletion that had not happened.** The six layout
+demo pages it says were "deleted" had only been *unlinked* from
+`ComponentListPage`; the files were still in the tree, unreferenced but still
+reachable by url. They are deleted now - `DemoCaption`, `DemoCaptionedHeader`,
+`DemoCaptionedPanel`, `DemoTabPanel`, `DemoScrollableTabPanel`,
+`DemoSplitterPanel` and `DemoVerticalSpacer` - and the entry is corrected. The
+same entry said the FIXME'd `ScrollableTabPanel` link was "back", which it is
+not: the component works again, and the new `TabPanelPage` demonstrates it.
+
+**A stale candidate was still listed.** `pages/cddb/TrackDetails.java` was
+offered as "an empty stub page with no content at all" - but the CD-shop step of
+phase 0 made it the track screen, and it has been a real page for days. Removed.
+
+**Every demo page was checked for being orphaned**, the way the layout ones
+turned out to be. Of 198 demo pages 30 are referenced by no other java file, and
+all 30 are that way on purpose or already recorded: the `pages/test/**` Selenium
+fixtures (which are driven by url, and whose separation is a phase 3 item), the
+old `pages/binding/tut1/**` tutorial (phase 3), `OldHome` (a candidate),
+`BadPage`, `HelloWorld`, `RxTimePage`, `FormBuilderPage1`, and
+`DemoBreadCrumb` / `DemoFloatingWindow` / `DemoInfoPanel`, which belong to groups
+8 and 9 and will be dealt with there.
+
+**What the groups decided about the components nobody was sure of.**
+
+The inventory of 2026-09-01 listed components "whose future is not obvious",
+to be decided when their group came up. For groups 1-7 it now has:
+
+| Component | Group | Decided |
+| --- | --- | --- |
+| `ChildFragment` | 7 | **documented** - it is the master/detail screen everybody writes |
+| `ExpandCollapsePanel` | 7 | **not documented**: `ExpandHeader` does the same thing properly, and this one puts its content *next to* itself. Still a deletion candidate |
+| `SplitPanel` | 7 | **not documented**: a table-based sibling of `SplitterPanel`, which is the current one |
+| `PopInPanel`, `SizedPanel` | 7 | **not documented**: unused, and nothing on a current screen needs them |
+| `LayoutPanelBase` / `XYLayout` | 7 | **not documented**: marked experimental in the source |
+| `ActionContainer` | 4 | **not documented**: unused; what it does (show/hide a group of buttons) is a binding on a `Div` |
+| `CheckboxSetInput` | 2 | **not documented**: superseded by `EnumSetInput` |
+| `DropDownPicker`, `EditableDropDownPicker` | 2 | **not documented**: old, unused, and covered by `ComboFixed2` and `SearchAsYouType` |
+
+None of those were deleted: not documenting one is a documentation decision, and
+removing framework code is phase 4, after the docs have stopped pointing at it.
+
+Of the "unused as of today" list, five were written up and given a demo page in
+the process - `PercentageCompleteRuler2`, `SwitchButton`, `ColorPickerInput`,
+`ExpandHeader` and `Tree3` - and every one of them turned out to need a fix or a
+correction to work as documented, which is what being unused for years does to a
+component.
+
+### 2026-09-02 - Components group 7: layout and page structure
+
+`components/70-layout/`: a group page plus `contentpanel`, `panel`,
+`captionedpanel`, `caption2`, `genericheader`, `expandheader`, `tabpanel`,
+`scrollabletabpanel`, `splitterpanel`, `verticalspacer` and `childfragment`,
+carried by five demo pages in `to.etc.domuidemo.pages.components.layout`.
+
+The group page states the one rule (**a page's content goes in a
+`ContentPanel`**, and overlays go on the page instead) and points at the
+walkthrough for writing a fragment of your own, which is what most of a screen
+is actually made of. The component pages then answer the questions the
+walkthrough does not: which of the three headers to use, what a lazy tab saves,
+what folding costs, and what `ChildFragment` does for you.
+
+**A defect fixed: `ScrollableTabPanel` really was broken** - `ComponentListPage`
+had its demo link commented out with *FIXME Broken* - and the cause was two
+characters. In `domui.scrolltabpanel.ts` both scroll functions guard with
+`if(this._ignoreScrollClick != 0) return;`, but `_ignoreScrollClick` is a
+variable of the `WebUI` namespace, not a property of anything, so `this.…` is
+`undefined`, `undefined != 0` is true, and **every click on a scroll arrow
+returned immediately**. With twenty tabs on a fixed-width list inside an
+`overflow: hidden` header, the arrows are the only way to reach the later tabs,
+so the component was unusable. The guard now reads the namespace variable
+directly. Verified in the browser: the tab list's `marginLeft` goes from `0px`
+to `-730px` on a click of the right arrow, where it did not move before. The
+component is usable again, and the new `TabPanelPage` demonstrates it - so the
+FIXME'd link to the old demo is gone rather than restored.
+(Note for the build: `tsconfig.json` compiles everything into
+`domui-combined.js`, which is what the pages load; the per-file `.js` next to the
+`.ts` are stale leftovers from an older setup and are not served.)
+
+**Corrected while verifying:** `SplitterPanel`'s boolean is the orientation of
+the **bar**, not of the split - `true` gives a *vertical bar* and therefore two
+panels side by side, `false` a horizontal bar and two panels stacked. The first
+draft of the demo had it exactly the wrong way round, which the rendered css
+(`ui-splt-vert` with `ui-splt-left`/`ui-splt-right`) showed at once. Both the
+page and the demo now say it, with a callout, because it reads as the opposite.
+
+Also verified: all six `GenericHeader` types and both `CaptionType`s render as
+documented; `ExpandHeader` folds its content; a `TabPanel(true)` marks the tab an
+error came from with `ui-tab-err` (verified by leaving a mandatory field empty on
+a tab that is not open); a lazy tab's content reaches the page only when the tab
+is first opened; and `ChildFragment` shows AC/DC's two albums from nothing but
+the artist and `Artist_.albumList()`.
+
+**A demo trap worth remembering:** the first artist by name in the demo database
+(*A Cor Do Som*) has **no albums at all**, so the `ChildFragment` page opened on
+an empty table and looked broken. The page now queries only artists that have
+albums (`exists(Album.class, Artist_.albumList())`).
+
+**Demo pages deleted:** `DemoCaption`, `DemoCaptionedHeader`, `DemoCaptionedPanel`,
+`DemoTabPanel`, `DemoScrollableTabPanel`, `DemoSplitterPanel` and
+`DemoVerticalSpacer`, replaced by the five new ones. `DemoAppTitle`,
+`DemoMessageLine` and `DemoMsgBox` stay under "Layout: more examples" until
+groups 8 and 9 take them.
+(They were first only unlinked from `ComponentListPage` and deleted a day later,
+when the plan was checked against the tree - see the entry of 2026-09-03.)
+
+Site builds clean, 118 pages, all five `!demo()` frames resolve. `mvn21 clean
+install` builds the whole tree; the framework's 58 tests and the demo's 9 pass.
+**Not deployed**: the frames are 404 until the demo is redeployed with
+`scripts/deploy-demo`.
 
 ### 2026-09-02 - sigeto: links into a place inside a page
 
@@ -1858,6 +2105,9 @@ whose future is not obvious and which are not in any group above yet:
   (marked "experimental"), `SplitPanel` (a table-based sibling of `SplitterPanel`),
   `PopInPanel`, `SizedPanel`, `ActionContainer`, `ExpandCollapsePanel` (already an open
   candidate), `ChildFragment`: document or delete?
+  ~~Settled for the ones whose group has been done~~ - see the entry of
+  2026-09-03; `ChildFragment` is documented, the rest of that line is not, and
+  the agenda and `DynaIma` are still open (groups 12 and 13).
 - Developer aids rather than application components, and not documented in this
   section either way: `InternalParentTree`, `DebugWindow`, `MiniLogger`,
   `OddCharacters`, `KeyCodeDiv`.
