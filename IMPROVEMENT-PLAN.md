@@ -1254,19 +1254,18 @@ Candidates still open, offered as input - not agreed scope:
 - [x] Remove the Maven archetype (`archetypes/domui-hello`) from the framework and
       the `getting-started/maven-archetype` page from the site. **Done 2026-08-31**
       (see the decisions log entry of that date).
-- [ ] Delete the whole `release-notes/` section. It is historic by nature, and
-      its one page (`release-notes/domui-2-0`) documents moving from Hibernate
-      3.6 to 5.2 - wrong twice over now that the framework is on 7.2.
-- [ ] Strip version-history asides from the pages that carry them. Each says
-      "used to be" / "no longer" / "since DomUI 2.0" somewhere; replace with a
-      plain statement of what is true now. Re-checked 2026-09-05, the list is now:
-      `about`, `70-implementation-details/state-management` (moved there),
-      `99-todo/subpages` (moved there), `components/rules`,
-      `getting-started/intellij-plugin`, `look-and-feel/animations`,
-      `testing/junit-testing`. Two of the pages originally listed are gone:
-      `components/forms-and-input/fileupload` and
-      `components/lookup-and-search/searchpanel` were deleted by the components
-      group work.
+- [x] Delete the whole `release-notes/` section. **Done 2026-09-05**: the section
+      and its one page (`release-notes/domui-2-0`, the 2017 migration note) are
+      gone, along with the entry for it on the site index. The two things on it
+      that describe live behaviour rather than a migration - the login
+      brute-force limit and user impersonation - were rewritten as statements of
+      what is true now and moved to `getting-started/example-skeleton`, next to
+      the `UILogin.login()` it already described.
+- [x] Strip version-history asides from the pages that carry them. **Done
+      2026-09-05** for all seven: `about`, `70-implementation-details/state-management`,
+      `99-todo/subpages`, `components/rules`, `getting-started/intellij-plugin`,
+      `look-and-feel/animations` and `testing/junit-testing`. See the decisions
+      log entry of that date for what each of them said and says now.
 - [ ] **Framework: restore JPA support.** `integrations/to.etc.domui.hibutil`
       ships a Hibernate (native) query executor and `to.etc.webapp.qsql` a JDBC
       one; the JPA executor sits in hibutil's unbuilt `removed/jpa/` directory, so
@@ -1308,6 +1307,76 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-05 - The release notes deleted, and the version-history asides
+
+Phase 4's two documentation items, both in `domui.github.io`.
+
+**`release-notes/` is gone** - the section page and `release-notes/domui-2-0`,
+which described the 2017 move from Hibernate 3.6 to 5.2 (wrong twice over on
+Hibernate 7.2), the conversion of the javascript to TypeScript, `setClicked()`
+changing shape, and thirty other "this changed" items. Everything on it that is
+still a live subject - the AceEditor, the SearchPanel, FileUpload2, sass, the
+typed properties in QCriteria - has its own current page from the component
+group work, so nothing was lost by deleting it.
+
+Two exceptions were rescued rather than deleted, because they describe behaviour
+the framework still has and nothing else documented them:
+
+- **The login brute-force limit.** Ten failed attempts for one user id within
+  five minutes and `UILogin.login()` returns false even for the right password
+  until the five minutes pass. Both numbers sit in `DefaultLoginHandler`;
+  another `ILoginHandler` replaces them.
+- **Impersonation.** `UILogin.impersonateByLoginId(id)` authenticates a user
+  without a password and makes them the current user - rights included - if the
+  real user's `IUser.canImpersonate()` allows it (it is false by default);
+  `getRealUser()` gives the user behind it and `impersonate(null)` ends it.
+
+Both are now in `getting-started/example-skeleton`, next to the `UILogin.login()`
+call that page already walked through.
+
+**The version-history asides.** Each page said what something "used to be" or
+what changed "since DomUI 2.0"; all seven now state what is true:
+
+- `about` - the paragraph about pages describing "work in progress on DomUI 2.0"
+  became one about the chapter-by-chapter rework. While there: the demo url on
+  that page was `etc.to/demo` and it claimed the demo deploys automatically from
+  the master build; it is `demo.domui.org`, deployed with `scripts/deploy-demo`.
+- `70-implementation-details/state-management` - "In DomUI 2.0 we also have
+  SubPages" is now "There are also SubPages".
+- `99-todo/subpages` - the paragraphs explaining that DomUI 1.x could not do
+  single-page applications and that "DomUI 2.0 has a new concept" became a plain
+  statement of what SubPages are for.
+- `components/rules` - the largest one. The opening about the mistakes made when
+  DomUI started, why there are numbered components and how "questionable" the old
+  stylesheets are, is replaced by the rule a reader needs (the highest number is
+  the current component; styles come from the SCSS theme `winter`). "Reset
+  scripts - no longer used" is "No reset stylesheet". The browser section - the
+  `iehell.jpg` picture, "those times of yore", Internet Explorer, Netscape 1.1
+  and what older stylesheets could preprocess - is two sentences about writing
+  for current browsers and preferring feature detection; the image file is
+  deleted. The fragment rule now says where fragments live
+  (`resources/themes/scss/winter`) and that a new one is added with an `@import`
+  in that theme's `style.scss`, which is what actually happens - the old text
+  named `style.theme.scss` and promised automatic discovery "in a later version".
+  The form builder is "the FormBuilder from `component2.form4`", not "the current
+  best version".
+- `getting-started/intellij-plugin` - "Since DomUI 2.0 all code that earlier
+  accepted property paths as strings now also accept typed properties" is now a
+  statement that it accepts both.
+- `look-and-feel/animations` - the trailing "Since: DomUI 2.0" line is gone.
+- `testing/junit-testing` - more than an aside: the page still offered PhantomJS
+  as an alternative test platform (and said in the same breath that it is
+  unsupported), explained why htmlunit was abandoned for it, and had a section
+  about the Travis-CI build, including how to pin the phantomjs version in it.
+  `BrowserModel` has had PhantomJS commented out for years and the build has not
+  been Travis for as long, so those three sections are deleted. What is left says
+  what the tests do now: headless Chrome by default, `webdriver.hub` for another
+  browser, where the chromedriver is looked for, and where the screenshot of a
+  failed test lands. The chromedriver download link pointed at the retired
+  `sites.google.com` page and now points at Chrome for Testing.
+
+The site builds: 154 pages, down from 156.
 
 ### 2026-09-05 - The last pre-component2 demo pages; agenda and drag and drop
 
