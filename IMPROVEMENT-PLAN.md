@@ -1031,13 +1031,12 @@ Candidates still open, offered as input - not agreed scope:
   doing this (`AbstractCdShopListPage` is the other). Worth reworking both in
   phase 3.
 
-- **No label a form builder writes has a `for` attribute.**
-  `ResponsiveFormLayouter` - the default layouter of `FormBuilder` - never calls
-  `Label.setForTarget(control)`, while the (unused) `TableFormLayouter` does. So
-  clicking a form label focuses nothing, and clicking the label of a checkbox
-  does not tick it. The fix is the one line `TableFormLayouter` already has, but
-  it changes the rendering of every form in every application - worth deciding
-  deliberately. (Found writing the components group 2 pages.)
+- ~~**No label a form builder writes has a `for` attribute.**
+  `ResponsiveFormLayouter` never calls `Label.setForTarget(control)`~~ -
+  **done**: it now does, in both places it attaches a label (the appended-label
+  branch and the label container of a new pair), so a form label focuses its
+  control and a checkbox label ticks it. Fixed in `f7f9df6af`, verified
+  2026-09-05.
 
 - `EnumSetInput.setMatcher()` stores a matcher that nothing reads, and
   `setAddSingleMatch()` is commented out while its getter remains. Wire them up
@@ -1140,10 +1139,19 @@ Candidates still open, offered as input - not agreed scope:
   artists and tracks whose last character(s) were cut off (`Iron Maide`,
   `Led Zeppeli` next to a separate `Led Zeppelin`, `Yamma Brow`). Repair the
   script?
-- `pages/overview/layout/DemoAppTitle.java` renders a full-width `AppPageTitleBar`
-  and now sits inside a padded panel; worth eyeballing in the browser.
+- ~~`pages/overview/layout/DemoAppTitle.java` renders a full-width `AppPageTitleBar`
+  and now sits inside a padded panel; worth eyeballing in the browser.~~ -
+  **done**: the page no longer exists; it was deleted with the group 9/10 work
+  (`8a564b553`), and `AppPageTitleBar` is demonstrated by the navigation group's
+  own page instead.
 - The demo mixes its Selenium/JUnit fixture pages (`pages/test/**`) into the same
   navigable application as the tutorial pages - already noted as a phase 3 item.
+
+- **The source viewer's title overlaps its first source line.** `SourcePage`
+  writes its "Source for ..." header into the same space as line 1 of the file,
+  which is drawn over it. Everything else about the page is right - the Java
+  highlighting works - so this is one bit of css. (Found checking the phase 3
+  source-viewer item on 2026-09-05.)
 
 - `pom.xml` around line 152 carries a stale comment saying "We cannot upgrade to
   jetty 11 because it uses EE 9", directly above `<jetty.version>11.0.26</jetty.version>`
@@ -1161,9 +1169,9 @@ Candidates still open, offered as input - not agreed scope:
 - [ ] List the deprecated/superseded framework APIs that the docs and demo still
       teach (`component` vs `component2`, old form builders vs `form4`, old
       lookup vs `lookupinput`, etc.). This list drives phases 2-4.
-      *Done for the components* - the superseded-to-current table in the entry of
-      2026-09-01 - and being applied group by group. Not yet done for the
-      non-component APIs.
+      *Done for the components*: the superseded-to-current table in the entry of
+      2026-09-01, now applied to all thirteen groups (the last finished
+      2026-09-05). What is left is the non-component APIs.
 - [x] Decide the canonical "how you should write a DomUI page today" story - the
       single set of APIs the docs and demo will consistently show. **Decided:**
       current version and current usage only; see "Guiding principle" above.
@@ -1179,22 +1187,42 @@ Candidates still open, offered as input - not agreed scope:
       stack it never named, the entry points (`AppFilter`, `DomApplication`,
       `UrlPage`, `@UIPage`, `@UIRights`), layer 2, and the test framework.
       **Done 2026-08-31** (see the decisions log entry of that date).
-- [ ] Purge `javax.*`, Java 8, Eclipse/Launchpad-era and 1.1/2.0-branch
-      references site-wide.
+- [x] Purge `javax.*`, Java 8, Eclipse/Launchpad-era and 1.1/2.0-branch
+      references site-wide. **Done** - checked 2026-09-05: no page mentions
+      Java 8, Launchpad, `2.0-stable`, `1.1` or `master-java11` any more, and the
+      single remaining `javax.` is deliberate (`70-implementation-details/typed-properties`
+      saying that the old `javax.persistence.Entity` is *not* seen by the
+      processor). `development-environment/ecj-in-maven` still describes 2017-era
+      plugin and compiler versions, but that is a stale-content problem for
+      phase 2's "verify every code sample", not a `javax`/Java 8 one.
 - [ ] Verify every code sample against the current source; fix or delete the
       ones that no longer compile conceptually.
 - [ ] Check every internal and external link.
 
 ### Phase 3 - Rework the demo/tutorial application
 
-- [ ] Make the tutorial track the spine of the demo: a coherent sequence from
+- [x] Make the tutorial track the spine of the demo: a coherent sequence from
       "hello page" through layout, input, data binding, tables, lookup and
       master/detail, each page small and each showing the recommended API.
+      **Done** - `TutorialListPage` now walks eleven sections in order (first
+      page, using components, using databases, typed properties, data binding,
+      page navigation, showing rows, metadata and internationalization, telling
+      something to a user, layout, writing a component), each built alongside its
+      `building-pages/*` chapter. The one remnant is the old "Binding tutorial"
+      block at the end, which phase 4 deletes.
 - [ ] Separate the JUnit/Selenium fixture pages from the tutorial/demo pages so
       the demo reads as a tutorial rather than a test bed.
 - [ ] Rewrite demo pages that use superseded APIs to use the current ones.
-- [ ] Ensure the source-viewer (`SourceIcon`) story works for every tutorial page,
-      since that is how readers get from a screen to its code.
+- [x] Ensure the source-viewer (`SourceIcon`) story works for every tutorial page,
+      since that is how readers get from a screen to its code. **Done** -
+      verified 2026-09-05 by running the demo: `Application.onNewPage()` puts a
+      `PageHeader` (and with it the `SourceBreadCrumb`) on every page that has no
+      breadcrumb of its own, so every tutorial page carries the `</>` link; it
+      opens `SourcePage` in a 1024x768 popup, the sources are packaged into
+      `WEB-INF/classes`, and the file comes out syntax-highlighted now that the
+      Java highlighter of phase 0 exists. `SourceIcon` itself is dead code - the
+      link is `SourceBreadCrumb`'s. One cosmetic defect is listed as a candidate
+      above: the page title overlaps line 1.
 
 ### Phase 4 - Remove old and incorrect code and information
 
@@ -1205,13 +1233,16 @@ Candidates still open, offered as input - not agreed scope:
 - [ ] Delete the whole `release-notes/` section. It is historic by nature, and
       its one page (`release-notes/domui-2-0`) documents moving from Hibernate
       3.6 to 5.2 - wrong twice over now that the framework is on 7.2.
-- [ ] Strip version-history asides from the pages that carry them: `about`,
-      `building-pages/state-management`, `building-pages/subpages`,
-      `components/forms-and-input/fileupload`,
-      `components/lookup-and-search/searchpanel`, `components/rules`,
-      `getting-started/intellij-plugin`,
-      `look-and-feel/animations`, `testing/junit-testing`. Each says "used to be" / "no longer" / "since
-      DomUI 2.0" somewhere; replace with a plain statement of what is true now.
+- [ ] Strip version-history asides from the pages that carry them. Each says
+      "used to be" / "no longer" / "since DomUI 2.0" somewhere; replace with a
+      plain statement of what is true now. Re-checked 2026-09-05, the list is now:
+      `about`, `70-implementation-details/state-management` (moved there),
+      `99-todo/subpages` (moved there), `components/rules`,
+      `getting-started/intellij-plugin`, `look-and-feel/animations`,
+      `testing/junit-testing`. Two of the pages originally listed are gone:
+      `components/forms-and-input/fileupload` and
+      `components/lookup-and-search/searchpanel` were deleted by the components
+      group work.
 - [ ] **Framework: restore JPA support.** `integrations/to.etc.domui.hibutil`
       ships a Hibernate (native) query executor and `to.etc.webapp.qsql` a JDBC
       one; the JPA executor sits in hibutil's unbuilt `removed/jpa/` directory, so
@@ -1221,10 +1252,13 @@ Candidates still open, offered as input - not agreed scope:
       in `70-implementation-details/qcriteria`, whose "What is not implemented"
       section states it now.
 - [ ] Delete demo pages that demonstrate removed or discouraged APIs.
-      *Well under way*: every component group so far has deleted the demo pages
-      it superseded (see the decisions log). What is left is the old binding
+      *Well under way*: all thirteen component groups have deleted the demo pages
+      they superseded (see the decisions log), so nothing is pending from that
+      side any more. Re-checked 2026-09-05, what is left is the old binding
       tutorial (`pages/binding/tut1/**`, which uses `Text`/`TextStr` and the
-      deprecated `BasicPage`) and whatever groups 8-13 turn up.
+      deprecated `BasicPage`) and the pre-`component2` leftovers that only
+      `OldHome` still links to (`BasicOverviewPage` and the `pages/overview/**`
+      pages the component list no longer points at).
 - [ ] Remove the deprecated framework code that nothing (docs, demo, framework)
       still needs, once phases 2-3 have stopped referring to it.
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
@@ -1250,6 +1284,49 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-05 - The open items checked against the tree
+
+Every open box and every entry of the candidate list was checked against the
+current source, the current site and the running demo, to find the ones that had
+been fixed or had become pointless in passing.
+
+**Marked done.** Two candidates and three phase items:
+
+- *The form builder's labels have no `for`.* `ResponsiveFormLayouter` calls
+  `Label.setForTarget(control)` in both places it attaches a label; it was fixed
+  in `f7f9df6af` while the group 1/2 pages were written, so a form label focuses
+  its control now.
+- *`DemoAppTitle` wants eyeballing.* The page is gone (`8a564b553`).
+- *Phase 2: purge `javax.*`, Java 8, Launchpad and 1.1/2.0-branch references.*
+  Nothing on the site says Java 8, Launchpad, `2.0-stable`, `1.1` or
+  `master-java11` any more, and the one remaining `javax.` is the deliberate one
+  in `typed-properties`.
+- *Phase 3: the tutorial tracks the spine of the demo.* `TutorialListPage` walks
+  eleven sections from "a page with a div in it" to "writing a component"; the
+  old binding tutorial is the only remnant, and phase 4 deletes it.
+- *Phase 3: the source-viewer story.* Verified by running the demo: every page
+  gets the `</>` link from `Application.onNewPage()`, and `SourcePage` renders
+  the file with the Java highlighter built in phase 0. `SourceIcon` is dead code;
+  the link comes from `SourceBreadCrumb`.
+
+**Checked and still true**, so left open: every other candidate. The `IUIAction`
+asymmetry, `AbstractSearchPage`/`AbstractCdShopListPage` holding components in
+fields, `EnumSetInput.setMatcher()`, all three `CKEditor` items and the bundled
+4.3, both `AceEditor` items, `FileUpload2.renderEmpty()`, `LoadedImage.create()`,
+`ImageSelectControl`'s focus target, `Icon.of()`'s javadoc, `@UIUrlParameter` on
+a getterless setter (`ClassUtil.calculateProperties()` skips any property without
+a getter, so the annotation is never seen), `RadioGroup.createFromEnum`,
+`DateInput2`'s locale-blind repair, `ExpandCollapsePanel`, the message box shown
+in two error fences, the Dutch default bundles, `OldHome`, the deprecated
+`BasicPage` under the binding tutorial, the truncated names in `CreateDB.sql`,
+the jetty comment in `pom.xml` and the stale `README.md`. The JPA executor is
+still in hibutil's unbuilt `removed/jpa/`, `release-notes/` is still there, 14 of
+the site's 16 images are still 2017-2018 screenshots, and 46 framework sources
+still carry `@Deprecated`.
+
+**One new candidate**, found while checking the source viewer: `SourcePage`'s
+title is drawn over the first line of the file.
 
 ### 2026-09-05 - The four group 8 candidates, done
 
