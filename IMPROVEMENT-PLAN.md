@@ -990,11 +990,13 @@ Steps:
             `MsgBox2`, `ExceptionDialog`, `ErrorPanel`, `ErrorMessageDiv`,
             `MessageFlare`/`Flare`, `MessageLine`, `InfoPanel`, `Explanation`.
             Done 2026-09-04; see the decisions log entry of that date.
-      - [ ] Navigation and menus - `BreadCrumb2`, `AppPageTitleBar`, `PopupMenu2`,
-            `HamburgerMenu`, `ALink`
-      - [ ] Images, icons and file upload - `Icon`/`IIconRef`, `FontIcon`,
+      - [x] **Navigation and menus** - `BreadCrumb2`, `AppPageTitleBar`,
+            `PopupMenu2`, `HamburgerMenu`, `ALink`. Done 2026-09-05; see the
+            decisions log entry of that date.
+      - [x] **Images, icons and file upload** - `Icon`/`IIconRef`, `FontIcon`,
             `SvgIcon`, `ImgIcon`, `Img`, `DisplayImage`, `ImageSelectControl`,
-            `FileUpload2`, `FileUploadMultiple`
+            `FileUpload2`, `FileUploadMultiple`. Done 2026-09-05; see the
+            decisions log entry of that date.
       - [ ] Rich content editors - `CKEditor`, `HtmlEditor`, `AceEditor`
       - [ ] Charts - `PlotlyGraph`
       - [ ] Asynchronous and long-running work - `AsyncContainer`, `AsyncDiv`,
@@ -1029,6 +1031,37 @@ Candidates still open, offered as input - not agreed scope:
 - `EnumSetInput.setMatcher()` stores a matcher that nothing reads, and
   `setAddSingleMatch()` is commented out while its getter remains. Wire them up
   or remove them.
+
+- **`FileUpload2.renderEmpty()` is half dead.** The whole method is
+  `if(true) { ... } else { ...an older, nearly identical rendering... }`; the
+  else branch cannot run and has drifted out of step with the branch that does.
+  Delete it. (Found writing the group 10 pages.)
+
+- **`LoadedImage.create()` builds an object it throws away.** In the
+  resize branch it constructs `LoadedImageInstance oli`, never reads it, and
+  returns a `LoadedImage` built from the resized file instead. Harmless, but it
+  reads as though the resized instance were being cached and it is not.
+
+- **`ImageSelectControl` has no focus target.** `getFocusID()` and
+  `getForTarget()` both return `m_sib`, the `HoverButton` whose creation is
+  commented out - so both always return null and the control can neither be
+  focused nor be the target of a label. Point them at the `FileInput` instead.
+  Its accepted types (`.jpg,.jpeg,.png,.gif`) and its 10MB limit are hardcoded
+  in the same method, where `FileUpload2` makes both properties.
+
+- **`Icon.of(String)`'s javadoc describes the wrong object.** It says the method
+  returns "an `ImageIconRef` / an `SvgIcon` / a `FontIcon` depending on the
+  extension"; it always returns an `ImageIconRef`, and it is that ref's
+  `createNode()` that picks between the three. The behaviour is right, the
+  sentence is not.
+
+- **`@UIUrlParameter` is silently ignored on a setter that has no getter.** Page
+  parameter injection works from the metamodel's property list, and a property
+  without a getter is not in it, so the annotated setter is simply never called -
+  no warning, no error, the field keeps its default. Found writing the group 9
+  breadcrumb demo page. Either make the injector look at annotated setters
+  directly, or make it fail loudly when it finds an `@UIUrlParameter` it cannot
+  reach.
 
 - `RadioGroup` has three overlapping enum factories: `createEnumRadioGroup(Class,
   exceptions...)` (sorted), `createEnumRadioGroupUnsorted(...)` and
@@ -1226,6 +1259,172 @@ sorts them only as long as no button was given a priority of its own.
 
 `mvn21 test` on the framework and the demo passes (58 + 9). Site builds clean,
 130 pages.
+
+
+### 2026-09-05 - Components group 10: images, icons and file upload
+
+`components/100-images-and-icons/`: a group page plus `icons` (the `IIconRef`
+mechanism with `Icon` and `Theme`), `fonticon`, `svgicon`, `imgicon`, `img`,
+`displayimage`, `imageselectcontrol`, `fileupload2` and `fileuploadmultiple`,
+carried by four demo pages in `to.etc.domuidemo.pages.components.images`.
+
+The group page is built on the one idea the whole group turns on: **an icon is a
+reference, not a component**. A component lives at one place in the node tree, so
+the same icon component cannot mark two buttons; what components accept is an
+`IIconRef`, from which a `FontIcon`, an `SvgIcon` or an `ImgIcon` is made
+whenever one is needed. The second half of the group is the other thing: an
+actual picture, either shipped with the application (`Img` pointing at a
+resource) or held by it (`DisplayImage` and `ImageSelectControl` over an
+`IUIImage`).
+
+**`look-and-feel/icons` is dissolved into this group and deleted**, with its
+`fontawesome-support` child. It was the largest piece of genuinely wrong
+documentation found so far: it said DomUI supports "FontAwesome 4.7 and 5.0
+currently" while the tree has `fontawesome4`, `fontawesome5free` **and**
+`fontawesome6free` and the demo runs on 6; it carried two paragraphs of
+DomUI-1.0-versus-2.0 history that the guiding principle forbids; and the
+`fontawesome-support` page told the reader to download FontAwesome by hand, drop
+the css in a folder, and write `new FaIcon("fa-folder")` - an API that no longer
+exists, `FaIcon` being an enum in the integration modules for years now. What was
+true and worth keeping - the `IIconRef` contract, `Icon.of()`, the icon map and
+its remapping, how a font pack registers itself, `IconFromCss` - is rewritten
+against the source on the new `icons` page. `look-and-feel` is now stylesheets,
+animation and header contributors, and says where the icons went. The one link
+into the deleted page, from `release-notes/domui-2-0`, is repointed.
+
+**`DisplayImage` was written up and given a demo for the first time.** It had
+zero references anywhere in the tree; it is the read-only half of
+`ImageSelectControl` and the component a list of avatars wants, so it is
+documented rather than dropped - the same call as `PercentageCompleteRuler2` and
+`SwitchButton` in earlier groups.
+
+**Verified by driving the running demo in Chrome**, including two real uploads
+through the browser's file input:
+
+- the size classes (`is-size-1`..`is-size-7`, `is-size-small`/`normal`/`medium`/
+  `large`) and the colour classes (`is-primary`, `is-danger`, ...) are real and
+  work on a `FontIcon` and on a single-colour `SvgIcon`. They come from
+  `$sizes-map` and `$colors` in `_derived-variables.scss` via an `@each` in
+  `_fonticon.scss` and `_svgicon.scss` - which is why grepping for `is-size-1`
+  finds nothing;
+- **an `ImgIcon` cannot be recoloured**, as the demo shows side by side. That is
+  the practical argument for a font or an svg icon in anything themed, and it is
+  the callout on the group page;
+- an `Img` resolves all three source kinds: `img/logo-small.png` from the web
+  application, `THEME/btnSave.png` to
+  `$THEME/scss-winter-default-default/btnSave.png`, and a java resource to
+  `$RES/to/etc/domuidemo/...`. A **disabled** `Img` has its src rewritten to
+  `to.etc.domui.parts.GrayscalerPart.part?icon=...`: the grey version is
+  generated on the server, which is worth saying rather than "it greys out";
+- `FileUpload2` end to end: choosing a file posts it in the background and
+  `onValueChanged` sees an `UploadItem` - `upload-test.png, image/png, 6026
+  bytes, written to /tmp/upld…png`;
+- `ImageSelectControl` end to end, with ImageMagick doing the work: a 128x123 png
+  uploaded through it comes back out of the three `DisplayImage`s at 16x15, 32x31
+  and 96x92 - resized on the server, aspect ratio kept.
+
+**A false alarm worth recording so it is not chased twice.** The first upload
+test used `img/java-icon.png` and every display rendered "broken". It was not
+broken: that file is **16x16**, and these components resize *down* only - when
+the source is smaller than the size asked for they hand back the source
+untouched. Fetching the THUMB urls from the page showed valid PNGs with
+`naturalWidth: 16`. The never-scale-up rule is now a callout on the
+`DisplayImage` page.
+
+**Demo pages deleted:** `SvgIconPage` (its content is the new `IconsPage`, minus
+the `MsgBox` and `DisplayHtml` it was built on), `DemoFileUpload` and
+`DemoBulkUpload` (both `FileUploadMultiple` and nothing else), taking the
+`pages/overview/misc` and `pages/overview/input` packages with them.
+`ComponentListPage` gained an "Images, icons and file upload" section;
+"Simple components" is gone, and "Input Components" - which had lost its uploads -
+is renamed "Rich content editors", which is what was left in it and what group 11
+will take.
+
+**Candidates found while reading, not acted on** - see the candidates list.
+
+Site builds clean, 142 pages, and the ten `!demo()` frames - four distinct demo
+pages - resolve. `mvn21 test` on the framework and the demo passes. **Not
+deployed**: the frames are 404 until the demo is redeployed with
+`scripts/deploy-demo`.
+
+
+### 2026-09-05 - Components group 9: navigation and menus
+
+`components/90-navigation/`: a group page plus `breadcrumb2`, `apppagetitlebar`,
+`popupmenu2`, `hamburgermenu` and `alink`, carried by five demo pages in
+`to.etc.domuidemo.pages.components.navigation`.
+
+The group page sorts the five by what they are handles **on**: the page stack -
+which `BreadCrumb2` draws, `AppPageTitleBar` puts a back button on and `ALink`
+changes - and the action, which both menus are made of. What a move *does* to the
+page stack stays where it was written up, in the walkthrough's
+`building-pages/60-page-navigation`; the component pages point there rather than
+repeating it.
+
+**A defect fixed: `BreadCrumb2.setValue()` never redrew the crumb.** It read
+`if(old != m_value)` before assigning the new value, so the comparison was
+`m_value != m_value` - always false, `forceRebuild()` never called. Setting a new
+path on a crumb that was already on the screen therefore changed nothing at all;
+only the observable-list route worked. Now `if(old != value)`, and the demo page
+swaps a rock path for a jazz one to prove it.
+
+**A defect fixed: every `AppPageTitleBar` carried a Dutch button nobody asked
+for.** `addDefaultButtons()` added a `SmallImgButton` titled *"Toon lijst van
+bijzondere tekens"* which opened `OddCharacters` - a developer aid, on the
+"not documented, not a component" list of 2026-09-01, and itself built on the
+`@Deprecated` `FloatingWindow`. So the framework's standard title bar put a
+Dutch-labelled typing aid on every page of every application using it. The method
+is now empty and documented as the hook an application overrides to give all of
+its title bars the same buttons.
+
+**Learned while verifying, and worth knowing: `@UIUrlParameter` on a setter does
+nothing unless the property also has a getter.** The demo page's `setLevel(int)`
+was simply never called - silently, no warning - until `getLevel()` was added
+next to it; injection works from the metamodel's property list, and a property
+needs a getter to exist. `NavDetailPage` has the getter, which is why the same
+annotation works there. A silent no-op is a poor failure mode; worth a defect of
+its own (see the candidates).
+
+**Corrected against the running demo:** the first version of the `HamburgerMenu`
+page said the menu positions itself against whatever opens it. It does not - it
+is `position: absolute; right: 0`, so it lines up with the right edge of the
+block it is added to, wherever the button is. That is why it looks right in an
+`ExpandHeader` (whose three-bar button *is* at the right) and lopsided anywhere
+else, and it is now the callout on that page and a paragraph on the demo page.
+
+**Verified by driving the running demo in Chrome:** the popup menu opens below
+its button with icons and texts, greys out the entry that has a disable reason,
+closes on choice and reports it; a menu of nothing but icons renders no text
+column at all. The hamburger of an `ExpandHeader` opens under its button with the
+same four entries, and choosing one runs the action through `onSelection`. The
+page crumb grows a step per `moveSub` and gains its back arrow as soon as there
+is a page below to go to; the step text is the page's `getPageTitle()`. A title
+bar made with `catchError` shows a mandatory-field message under its own title,
+and does not leak it to the page's `ErrorMessageDiv`, because the block it is in
+is a fence. Every `ALink` renders a real href without a `$cid`, which is the
+whole point of the component - `?level=3` and all.
+
+**Not verifiable through the automation:** a synthetic click on an `ALink` does
+not fire DomUI's click handler, so the SUB/REPLACE moves were confirmed from the
+rendered hrefs and the source rather than by clicking. Every one of those links
+is how a person navigates the demo, so the behaviour itself is not in doubt.
+
+**Demo pages deleted:** `DemoALink` (superseded by `ALinkPage`), `DemoAppTitle`
+(a title bar and nothing else), `DemoBreadCrumb` (built on the superseded
+`BreadCrumb`) and `DemoPopupMenu` (built on the superseded `PopupMenu` and
+`SimplePopupMenu`), taking the `pages/overview/layout` and `pages/overview/menu`
+packages with them. `ComponentListPage` gained a "Navigation and menus" section
+with the five new pages; "Layout: more examples" is gone entirely, "Simple
+components" is down to `SvgIconPage` and "Special components" lost its popup menu
+link.
+
+**Site pages deleted:** `components/tables-trees-navigation/`, whose whole
+content was one Confluence-era `BreadCrumb2` page with a 2018 screenshot. The
+`components/index.md` entry pointing at it is replaced by the group entry.
+
+Site builds clean, 134 pages, and the five `!demo()` frames resolve. `mvn21 test`
+on the framework and the demo passes. **Not deployed**: the frames are 404 until
+the demo is redeployed with `scripts/deploy-demo`.
 
 
 ### 2026-09-04 - Components group 8: windows, dialogs and messages

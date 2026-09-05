@@ -25,6 +25,15 @@ import to.etc.domuidemo.pages.components.dialog.InputDialogPage;
 import to.etc.domuidemo.pages.components.dialog.MsgBox2Page;
 import to.etc.domuidemo.pages.components.dialog.NoticePage;
 import to.etc.domuidemo.pages.components.dialog.WindowPage;
+import to.etc.domuidemo.pages.components.navigation.ALinkPage;
+import to.etc.domuidemo.pages.components.navigation.BreadCrumb2Page;
+import to.etc.domuidemo.pages.components.navigation.HamburgerMenuPage;
+import to.etc.domuidemo.pages.components.navigation.PageTitleBarPage;
+import to.etc.domuidemo.pages.components.navigation.PopupMenu2Page;
+import to.etc.domuidemo.pages.components.images.FileUploadPage;
+import to.etc.domuidemo.pages.components.images.IconsPage;
+import to.etc.domuidemo.pages.components.images.ImageUploadPage;
+import to.etc.domuidemo.pages.components.images.ImgPage;
 import to.etc.domuidemo.pages.components.display.DisplayBooleanPage;
 import to.etc.domuidemo.pages.components.display.DisplayHtmlPage;
 import to.etc.domuidemo.pages.components.display.DisplaySpanPage;
@@ -66,12 +75,6 @@ import to.etc.domuidemo.pages.overview.dnd.DemoTableInDrag;
 import to.etc.domuidemo.pages.overview.htmleditor.DemoCKEditor;
 import to.etc.domuidemo.pages.overview.htmleditor.DemoCKEditorResizing;
 import to.etc.domuidemo.pages.overview.htmleditor.DemoHtmlEditor;
-import to.etc.domuidemo.pages.overview.input.DemoBulkUpload;
-import to.etc.domuidemo.pages.overview.input.DemoFileUpload;
-import to.etc.domuidemo.pages.overview.layout.DemoAppTitle;
-import to.etc.domuidemo.pages.overview.menu.DemoPopupMenu;
-import to.etc.domuidemo.pages.overview.misc.DemoALink;
-import to.etc.domuidemo.pages.overview.misc.SvgIconPage;
 import to.etc.domuidemo.pages.plotly.Plotly1;
 import to.etc.domuidemo.pages.plotly.PlotlyGaugePage;
 import to.etc.domuidemo.pages.plotly.PlotlyPie1;
@@ -111,14 +114,20 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(FlarePage.class, "MessageFlare: a message that vanishes");
 		f.addLink(NoticePage.class, "MessageLine, InfoPanel and Explanation");
 
-		f = new ListFragment("Layout: more examples");
+		f = new ListFragment("Navigation and menus");
 		main.add(f);
-		f.addLink(DemoAppTitle.class, "The AppPageTitle component");
+		f.addLink(BreadCrumb2Page.class, "BreadCrumb2: the path that led here");
+		f.addLink(PageTitleBarPage.class, "AppPageTitleBar: the bar at the top of a page");
+		f.addLink(PopupMenu2Page.class, "PopupMenu2: a menu at a component");
+		f.addLink(HamburgerMenuPage.class, "HamburgerMenu: the menu of an ExpandHeader");
+		f.addLink(ALinkPage.class, "ALink: a link to another page");
 
-		f = new ListFragment("Simple components");
+		f = new ListFragment("Images, icons and file upload");
 		main.add(f);
-		f.addLink(DemoALink.class, "The ALink and ATag components (links)");
-		f.addLink(SvgIconPage.class, "Renders components with SVG icons");
+		f.addLink(IconsPage.class, "Icons: font, svg and image");
+		f.addLink(ImgPage.class, "Img: a picture on the page");
+		f.addLink(ImageUploadPage.class, "DisplayImage and ImageSelectControl");
+		f.addLink(FileUploadPage.class, "FileUpload2 and FileUploadMultiple");
 
 		f = new ListFragment("Buttons and actions");
 		main.add(f);
@@ -158,10 +167,8 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(SearchPanelControlPage.class, "SearchPanel: controls of your own");
 		f.addLink(SearchPanelFormPage.class, "SearchPanel: the form and its buttons");
 
-		f = new ListFragment("Input Components");
+		f = new ListFragment("Rich content editors");
 		main.add(f);
-		f.addLink(DemoFileUpload.class, "File upload component");
-		f.addLink(DemoBulkUpload.class, "The bulk file upload component");
 		f.addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
 		f.addLink(DemoCKEditor.class, "CKEditor HTML component, fixed size");
 		f.addLink(DemoCKEditorResizing.class, "CKEditor HTML component, auto resizing");
@@ -209,7 +216,6 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(DemoWeekAgenda.class, "The WeekAgenda");
 		f.addLink(DemoAsyncContainer.class, "The AsyncContainer");
 		f.addLink(DemoPollingDiv.class, "The PollingDiv component");
-		f.addLink(DemoPopupMenu.class, "Popup menu");
 
 		f = new ListFragment("Data binding");
 		main.add(f);

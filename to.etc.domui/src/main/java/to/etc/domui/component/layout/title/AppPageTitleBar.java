@@ -30,8 +30,6 @@ import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.layout.ErrorMessageDiv;
 import to.etc.domui.component.misc.IIconRef;
-import to.etc.domui.component.misc.Icon;
-import to.etc.domui.component.misc.OddCharacters;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.html.IClicked;
@@ -329,17 +327,11 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		ib.setClicked(handler);
 	}
 
+	/**
+	 * The buttons every title bar of this application gets. The bar itself adds none;
+	 * override this to put an application's standard buttons on all of its title bars.
+	 */
 	protected void addDefaultButtons(final NodeContainer nc) {
-		SmallImgButton ib = new SmallImgButton(Icon.of("THEME/btnSpecialChar.png"));
-		nc.add(ib);
-		ib.setTitle("Toon lijst van bijzondere tekens");
-		ib.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(final @NonNull NodeBase b) throws Exception {
-				OddCharacters oc = new OddCharacters();
-				getPage().getBody().add(oc);
-			}
-		});
 	}
 
 	public TD getTitlePart() {
