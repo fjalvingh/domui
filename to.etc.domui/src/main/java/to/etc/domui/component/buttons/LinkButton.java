@@ -55,7 +55,7 @@ public class LinkButton extends ATag implements IActionControl {
 	private boolean m_disabled;
 
 	@Nullable
-	private IUIAction<Void> m_action;
+	private IUIAction<?> m_action;
 
 	@Nullable
 	private Object m_actionInstance;
@@ -106,16 +106,22 @@ public class LinkButton extends ATag implements IActionControl {
 		setText(code.format());
 	}
 
-	public LinkButton(@NonNull IUIAction<Void> action) throws Exception {
+	/**
+	 * Create a {@link IUIAction} based link button, for an action that needs no instance.
+	 */
+	public LinkButton(@NonNull IUIAction<?> action) throws Exception {
 		this();
 		m_action = action;
 		actionRefresh();
 	}
 
-	public LinkButton(@NonNull IUIAction<Void> action, @Nullable Object actionInstance) throws Exception {
+	/**
+	 * Create a {@link IUIAction} based link button for the instance the action works on.
+	 */
+	public <T> LinkButton(@Nullable T instance, @NonNull IUIAction<T> action) throws Exception {
 		this();
 		m_action = action;
-		m_actionInstance = actionInstance;
+		m_actionInstance = instance;
 		actionRefresh();
 	}
 
@@ -223,7 +229,7 @@ public class LinkButton extends ATag implements IActionControl {
 		return m_actionInstance;
 	}
 
-	public void setAction(@NonNull IUIAction<Void> action) throws Exception {
+	public void setAction(@NonNull IUIAction<?> action) throws Exception {
 		if(DomUtil.isEqual(m_action, action))
 			return;
 		m_action = action;

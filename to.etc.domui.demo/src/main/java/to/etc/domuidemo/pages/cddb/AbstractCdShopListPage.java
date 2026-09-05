@@ -8,7 +8,9 @@ import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleSearchModel;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.webapp.query.QCriteria;
 
@@ -26,12 +28,6 @@ abstract public class AbstractCdShopListPage<T> extends UrlPage {
 
 	@NonNull
 	private final String m_title;
-
-	@Nullable
-	private ContentPanel m_cp;
-
-	@Nullable
-	private DataTable<T> m_table;
 
 	protected AbstractCdShopListPage(@NonNull Class<T> dataClass, @NonNull String title) {
 		m_dataClass = dataClass;
@@ -62,45 +58,37 @@ abstract public class AbstractCdShopListPage<T> extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
-		ContentPanel cp = m_cp = new ContentPanel();
+		ContentPanel cp = new ContentPanel();
 		add(cp);
 		cp.add(new HTag(1, m_title));
 
 		SearchPanel<T> sp = new SearchPanel<>(m_dataClass);
 		cp.add(sp);
-		sp.setClicked(a -> search(sp.getCriteria()));
+
+		//-- The results appear here; both nodes are local, so a rebuild of the page
+		//-- makes new ones and the handler below refers to those.
+		Div results = new Div();
+		cp.add(results);
+
+		sp.setClicked(a -> showResult(results, sp.getCriteria()));
 		if(isNewAllowed()) {
 			sp.setOnNew(a -> onNew());
 		}
 	}
 
-	private void search(@Nullable QCriteria<T> criteria) throws Exception {
+	private void showResult(@NonNull NodeContainer target, @Nullable QCriteria<T> criteria) throws Exception {
 		if(null == criteria)								// Nothing entered, or an input error
 			return;
-		SimpleSearchModel<T> model = new SimpleSearchModel<>(this, criteria);
-
-		DataTable<T> table = m_table;
-		if(null != table) {								// Result table already present -> just requery
-			table.setModel(model);
-			return;
-		}
-
 		RowRenderer<T> rr = new RowRenderer<>(m_dataClass);
 		configureColumns(rr);
 		rr.setRowClicked(this::onRowSelected);
 
-		table = m_table = new DataTable<>(model, rr);
+		DataTable<T> table = new DataTable<>(new SimpleSearchModel<>(this, criteria), rr);
 		table.setPageSize(20);
-		contentPanel().add(table);
-		contentPanel().add(new DataPager(table));
-	}
 
-	@NonNull
-	protected ContentPanel contentPanel() {
-		ContentPanel cp = m_cp;
-		if(null == cp)
-			throw new IllegalStateException("The content panel is not yet created");
-		return cp;
+		target.removeAllChildren();
+		target.add(table);
+		target.add(new DataPager(table));
 	}
 
 	@NonNull

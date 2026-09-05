@@ -37,10 +37,10 @@ public interface IButtonBar {
 	}
 
 	@NonNull
-	DefaultButton addButton(@NonNull IUIAction<Void> action) throws Exception;
+	DefaultButton addButton(@NonNull IUIAction<?> action) throws Exception;
 
 	@NonNull
-	DefaultButton addButton(@NonNull IUIAction<Void> action, int order) throws Exception;
+	DefaultButton addButton(@NonNull IUIAction<?> action, int order) throws Exception;
 
 	@NonNull
 	DefaultButton addButton(String txt, IClicked<DefaultButton> click);

@@ -55,7 +55,7 @@ public class ButtonFactory implements IButtonBar {
 	 */
 	@Override
 	@NonNull
-	public DefaultButton addButton(@NonNull IUIAction<Void> action, int order) throws Exception {
+	public DefaultButton addButton(@NonNull IUIAction<?> action, int order) throws Exception {
 		DefaultButton b = new DefaultButton(action);
 		m_container.addButton(b, order);
 		return b;
@@ -63,7 +63,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@Override
 	@NonNull
-	public DefaultButton addButton(@NonNull IUIAction<Void> action) throws Exception {
+	public DefaultButton addButton(@NonNull IUIAction<?> action) throws Exception {
 		return addButton(action, -1);
 	}
 

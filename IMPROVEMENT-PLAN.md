@@ -1018,18 +1018,22 @@ Steps:
 
 Candidates still open, offered as input - not agreed scope:
 
-- The `IUIAction` API is inconsistent about instances:
+- FIXED: The `IUIAction` API was inconsistent about instances:
   `DefaultButton(instance, action)` and `ButtonBar2.addAction(instance, action)`
   are generic, while `LinkButton(IUIAction)` and
-  `ButtonBar2.addButton(IUIAction)` accept an action over `Void` only. Make
-  the latter two generic as well, or drop them in favour of the working pair.
+  `ButtonBar2.addButton(IUIAction)` accepted an action over `Void` only. The
+  latter two are now shaped like the working pair: `addButton(IUIAction<?>)`
+  (through `IButtonBar`, `ButtonFactory`, `ButtonBar` and `ButtonBar2`) and
+  `LinkButton(IUIAction<?>)` plus `<T> LinkButton(T instance, IUIAction<T>)`.
 
-- `AbstractSearchPage` (the demo's shared list-screen base, now under
-  `pages/components/lookup`) keeps its `ContentPanel` and `DataTable` in fields,
-  which the conventions forbid. It works because the page never rebuilds - it
-  swaps the table's model instead - but it is the second base class in the demo
-  doing this (`AbstractCdShopListPage` is the other). Worth reworking both in
-  phase 3.
+- FIXED: `AbstractSearchPage` (the demo's shared list-screen base, now under
+  `pages/components/lookup`) and `AbstractCdShopListPage` kept their
+  `ContentPanel` and `DataTable` in fields, which the conventions forbid. Both
+  hold no components at all now: the result container is a local `Div` of
+  `createContent()` that the search handler closes over, and the base only
+  offers `showResult(container, criteria)`, which builds the table and pager
+  into it. The four `SearchPanel*Page` demos make their own `ContentPanel` and
+  their own result `Div`.
 
 - ~~**No label a form builder writes has a `for` attribute.**
   `ResponsiveFormLayouter` never calls `Label.setForTarget(control)`~~ -
@@ -1042,14 +1046,14 @@ Candidates still open, offered as input - not agreed scope:
   `setAddSingleMatch()` is commented out while its getter remains. Wire them up
   or remove them.
 
-- **`CKEditor.setToolbarSet()` throws its own javascript away.** On a built
+- IGNORE: **`CKEditor.setToolbarSet()` throws its own javascript away.** On a built
   editor it composes the statement that would set the new toolbar and then calls
   `appendJavascript("")` - the empty string, not the statement. Repairing that
   would not help much: assigning `.toolbar` on a live CKEditor 4 instance does
   not redraw its toolbar either. The honest fix is to drop the dead branch and
   let the setter be a build-time property. (Found writing the group 11 pages.)
 
-- **`CKEditor` can never set its own width and height.** The `setWidth()` and
+- IGNORE: **`CKEditor` can never set its own width and height.** The `setWidth()` and
   `setHeight()` overrides are commented out, so `m_internalWidth` and
   `m_internalHeight` stay null and the `width:`/`height:` options are never
   emitted into the editor's configuration. The calls size the wrapping `div`
@@ -1066,12 +1070,12 @@ Candidates still open, offered as input - not agreed scope:
   discards it. It should feed that range to `selection.setRange`, the way
   `select()` does.
 
-- **CKEditor 4.3 is bundled**, dating from 2013, and CKEditor 4 is out of
+- IGNORE: **CKEditor 4.3 is bundled**, dating from 2013, and CKEditor 4 is out of
   support. `DomApplication` already stopped loading it on every page for that
   reason. Deciding what happens to it - upgrade, replace, or keep as an
   opt-in - is worth doing deliberately rather than by neglect.
 
-- **`FileUpload2.renderEmpty()` is half dead.** The whole method is
+- FIXED: **`FileUpload2.renderEmpty()` is half dead.** The whole method is
   `if(true) { ... } else { ...an older, nearly identical rendering... }`; the
   else branch cannot run and has drifted out of step with the branch that does.
   Delete it. (Found writing the group 10 pages.)
@@ -1086,7 +1090,7 @@ Candidates still open, offered as input - not agreed scope:
   commented out - so both always return null and the control can neither be
   focused nor be the target of a label. Point them at the `FileInput` instead.
 
-- `ImageSelectControl`'s accepted types (`.jpg,.jpeg,.png,.gif`) and its 10MB
+- IGNORE: `ImageSelectControl`'s accepted types (`.jpg,.jpeg,.png,.gif`) and its 10MB
   limit are hardcoded in `createContent()`, where `FileUpload2` makes both
   properties.
 
@@ -1096,51 +1100,65 @@ Candidates still open, offered as input - not agreed scope:
   `createNode()` that picks between the three. The behaviour is right, the
   sentence is not.
 
-- **`@UIUrlParameter` is silently ignored on a setter that has no getter.** Page
-  parameter injection works from the metamodel's property list, and a property
-  without a getter is not in it, so the annotated setter is simply never called -
-  no warning, no error, the field keeps its default. Found writing the group 9
-  breadcrumb demo page. Either make the injector look at annotated setters
-  directly, or make it fail loudly when it finds an `@UIUrlParameter` it cannot
-  reach.
+- FIXED: **`@UIUrlParameter` was silently ignored on a setter that has no
+  getter.** Page parameter injection works from the metamodel's property list,
+  and a property without a getter is not in it, so the annotated setter was
+  simply never called - no warning, no error, the field kept its default. Found
+  writing the group 9 breadcrumb demo page. It now fails loudly:
+  `DefaultPagePropertyInjectorFactory` scans the page's setters after
+  calculating the injectors and throws a `ProgrammerErrorException` naming the
+  method when an `@UIUrlParameter` sits on a property that has no getter.
 
 - IGNORE: `RadioGroup` has three overlapping enum factories: `createEnumRadioGroup(Class,
   exceptions...)` (sorted), `createEnumRadioGroupUnsorted(...)` and
   `createFromEnum(Class, ignored...)` - the last being a duplicate of the second.
   Only the first two are documented; `createFromEnum` is a candidate for removal.
 
-- `DateInput2`'s browser-side date repair (`dateInputRepairValueIn` in
-  `domui.dateinput.ts`) is locale-blind: it rewrites what was typed as
-  day-month-year whatever the request's locale is, while `DateConverter` reads
-  `dd-MM-yyyy` for Dutch, `yyyy-MM-dd` for English and the JDK SHORT pattern for
-  everything else. With `___locale=en_GB`, typing `13-3-13` leaves `2013-03-13`
-  in the box while the value taken from it is the year 13. The fix is to give the
-  client the pattern the server will use. (See the components group 1 entry.)
+- FIXED: `DateInput2`'s browser-side date repair (`dateInputRepairValueIn` in
+  `domui.dateinput.ts`) took its format from the calendar's NLS bundle, of which
+  only a Dutch (the default) and an English one exist - so every other locale got
+  the Dutch `%d-%m-%Y` while `DateConverter` read the JDK SHORT pattern for it.
+  The client is now given the pattern the server will use: `DateInput2` renders
+  `data-datefmt` on its input, translated from `DateConverter.getDatePattern
+  (locale)` into the calendar's `%`-notation, and the repair (and the calendar
+  popup's format) reads it, falling back to the bundle's default when it is
+  absent. Verified in the demo: the same `13-3-13` becomes `2013-03-13` for
+  `%Y-%m-%d`, `13-03-2013` for `%d-%m-%Y` and `13.03.13` for `%d.%m.%y`.
 
-- `component/layout/ExpandCollapsePanel` does roughly what the tutorial's
-  `CollapsibleSection` does, but it puts its content *next to* itself
-  (`appendAfterMe`) rather than inside it, so the panel and what it opens are
-  siblings. Only `AsyncDiv` uses it. Replace it with a version shaped like the
-  tutorial one, or leave it undocumented and eventually delete it?
-- A control error raised inside a `MsgBox2` is shown twice: in the box and in the
-  page's error display (see the "Telling something to a user" entry above). Decide
-  which of the two fences a message box should have and remove the other?
-- DomUI's own message bundles have **Dutch** as their default language: the
+- FIXED: `component/layout/ExpandCollapsePanel` did roughly what the tutorial's
+  `CollapsibleSection` does, but it put its content *next to* itself
+  (`appendAfterMe`) rather than inside it, so the panel and what it opened were
+  siblings. It is now shaped like the tutorial one: a `Div` holding a header and,
+  while it is expanded, its content div; the expanded state is a boolean field
+  and toggling calls `forceRebuild()`, so no component is kept in a field.
+  Verified through its only user, `AsyncDiv`'s "Details" stack trace.
+- FIXED: A control error raised inside a `MsgBox2` was shown twice: in the box and
+  in the page's error display, because the box had no error listener of its own
+  and the application's default component is a *propagating* `ErrorMessageDiv`.
+  `MsgBox2` now adds its own non-propagating `ErrorMessageDiv` to its content
+  when it builds, so a message raised inside the box stops there; the misleading
+  `setErrorFence(null)` in its constructor (undone by `Window.createFrame()`
+  anyway) is gone. Verified in `MsgAskPage`: an order of 99 copies shows the
+  error inside the box only.
+- IGNORE: DomUI's own message bundles have **Dutch** as their default language: the
   base `to/etc/domui/util/messages.properties`, `YesNoType.properties`,
   `MsgBoxButton.properties` and the rest are Dutch, with English in the `_en`
   files. Any user whose locale has no bundle of its own therefore gets Dutch
   framework texts. Swap the two files around so the base language is English?
-- `pages/OldHome.java` is an unreferenced legacy page (nothing links to it, though
-  as a `UrlPage` it stays reachable by URL). Delete?
-- `pages/special/BasicPage.java` is marked `@Deprecated` and documents itself as
-  "DO NOT USE - ancient and badly written" - but it is **live**: `BasicListPage`
-  extends it, and both binding-tutorial `InvoiceListPage`s extend that. The
-  tutorial currently teaches a class the framework tells people not to use.
-  This wants fixing in phase 3.
-- The demo database has corrupt names in `to.etc.domui.derbydata`'s `CreateDB.sql`:
-  artists and tracks whose last character(s) were cut off (`Iron Maide`,
-  `Led Zeppeli` next to a separate `Led Zeppelin`, `Yamma Brow`). Repair the
-  script?
+- FIXED: `pages/OldHome.java` was an unreferenced legacy page. Deleted.
+- FIXED: `pages/special/BasicPage.java` and `BasicListPage.java` (both
+  `@Deprecated`, both documenting themselves as "DO NOT USE - ancient and badly
+  written") are deleted, and with them the `pages/special` package. Their only
+  users, the two binding-tutorial `InvoiceListPage`s, are now plain `UrlPage`s
+  that build a `SearchPanel` and show the result in a local `Div` - the same
+  shape as the rest of the demo.
+- FIXED: The demo database had corrupt names in `to.etc.domui.derbydata`'s
+  `CreateDB.sql`. The corruption turned out to be one mechanical accident: every
+  `n` standing directly before a quote in the script was deleted, which is every
+  value ending in `n` (`Iron Maide`, `Led Zeppeli`, `Yamma Brow`, `Quee`) and
+  every `n` before an escaped apostrophe (`Ca''t`, `Do''t`, `Talki''`,
+  `Heave''s`). 431 distinct values (829 rows) were repaired; see the decisions
+  log entry of 2026-09-05. The 42 `TestDbQCriteria` tests still pass.
 - ~~`pages/overview/layout/DemoAppTitle.java` renders a full-width `AppPageTitleBar`
   and now sits inside a padded panel; worth eyeballing in the browser.~~ -
   **done**: the page no longer exists; it was deleted with the group 9/10 work
@@ -1149,18 +1167,18 @@ Candidates still open, offered as input - not agreed scope:
 - The demo mixes its Selenium/JUnit fixture pages (`pages/test/**`) into the same
   navigable application as the tutorial pages - already noted as a phase 3 item.
 
-- **The source viewer's title overlaps its first source line.** `SourcePage`
-  writes its "Source for ..." header into the same space as line 1 of the file,
-  which is drawn over it. Everything else about the page is right - the Java
-  highlighting works - so this is one bit of css. (Found checking the phase 3
-  source-viewer item on 2026-09-05.)
+- FIXED: **The source viewer's title overlapped its first source line.** The
+  scroll container `.dm-srcp-scrl` was `position: absolute; top: 30px` inside a
+  page that is a normal document, so it was laid over the header. It is a normal
+  block with `overflow: auto` now, and the page scrolls. Verified in the
+  browser.
 
-- `pom.xml` around line 152 carries a stale comment saying "We cannot upgrade to
-  jetty 11 because it uses EE 9", directly above `<jetty.version>11.0.26</jetty.version>`
-  with `9.4.57` commented out below it. The comment contradicts the code under it.
-- `README.md` is stale: a Travis CI build badge for a `master-java11` branch, a
-  Codacy badge, a line about "transitioning off Launchpad", and a pointer to
-  `http://domui.org/` as the place details can be found.
+- FIXED: the stale "we cannot upgrade to jetty 11" comment and the commented-out
+  `9.4.57` version are gone from `pom.xml`.
+- FIXED: `README.md` was rewritten: what DomUI is, the documentation and demo
+  urls, how to build it with Java 21 and run the demo, and a pointer at
+  `domui-skeleton` for starting an application. The dead Travis and Codacy badges
+  and the Launchpad line are gone.
 
 ### Phase 1 - Inventory and triage (no changes yet)
 
@@ -1286,6 +1304,89 @@ Candidates still open, offered as input - not agreed scope:
   Phase 1 "canonical story" decision) here so later sessions do not re-litigate them.
 
 ## Decisions log
+
+### 2026-09-05 - The open candidates worked off
+
+Everything in "candidates still open" that was not marked IGNORE or already
+FIXED has been done. The framework changes:
+
+- **`IUIAction` buttons are generic everywhere.** `addButton(IUIAction<Void>)`
+  became `addButton(IUIAction<?>)` in `IButtonBar`, `ButtonFactory`, `ButtonBar`
+  and `ButtonBar2`, and `LinkButton` now has the same pair `DefaultButton` has:
+  `LinkButton(IUIAction<?>)` and `<T> LinkButton(T instance, IUIAction<T>)`. The
+  old `LinkButton(action, instance)` argument order is gone; nothing called it.
+- **`@UIUrlParameter` on an unreachable setter is now an error.** A property
+  exists only when it has a getter, so the annotation on a write-only property
+  was never seen and the page silently kept its default.
+  `DefaultPagePropertyInjectorFactory` scans the page's setters after computing
+  the injectors and throws a `ProgrammerErrorException` naming the method. It
+  fires only when there is no getter at all - an annotated property no factory
+  accepts is still ignored, as before.
+- **`DateInput2` tells the browser which date pattern the server will read.**
+  `DateConverter.getDatePattern(locale)` is now public, `DateInput2` translates
+  it into the calendar's `%`-notation and renders it as `data-datefmt`, and
+  `domui.dateinput.ts` uses that attribute for the repair and for the calendar
+  popup, falling back to `Calendar._TT["DEF_DATE_FORMAT"]` when it is missing.
+  Only a Dutch and an English calendar bundle exist, so before this every other
+  locale repaired input as Dutch `d-m-Y` while the server parsed the JDK SHORT
+  pattern.
+- **A `MsgBox2` shows its own errors.** It adds a non-propagating
+  `ErrorMessageDiv` to its content when it builds, so a control error raised in
+  the box stays in the box. Before, the box had no listener of its own and the
+  application's default error component (a *propagating* `ErrorMessageDiv`)
+  showed the message in the box and again on the page.
+- **`ExpandCollapsePanel` keeps its content inside itself.** It was a `Span`
+  that hung its content div next to itself with `appendAfterMe()`. It is now a
+  `Div` with a header and, while expanded, a content div; the state is a boolean
+  and toggling rebuilds. Its only user is `AsyncDiv`'s "Details" stack trace.
+- **The source viewer's css.** `.dm-srcp-scrl` was absolutely positioned over
+  the page, drawing line 1 on top of the "Source for ..." title; it is a normal
+  scrolling block now.
+
+The demo:
+
+- `pages/OldHome.java`, `pages/special/BasicPage.java` and
+  `pages/special/BasicListPage.java` are deleted. The two binding-tutorial
+  `InvoiceListPage`s, the only users of `BasicListPage`, were rewritten as plain
+  `UrlPage`s.
+- `AbstractSearchPage` and `AbstractCdShopListPage` no longer keep components in
+  fields. The pattern used for both: the result container is a local `Div` of
+  `createContent()` and the search handler closes over it, so a rebuild makes a
+  new div and a new handler that uses it. No `forceRebuild()` is involved, so the
+  search panel keeps what the user typed.
+
+**The demo database was repaired.** The corruption in
+`to.etc.domui.derbydata`'s `CreateDB.sql` was one mechanical accident: every `n`
+standing directly in front of a quote character in the script had been deleted.
+That is every value ending in `n` - `Iron Maide`, `Led Zeppeli`, `Quee`,
+`Yamma Brow`, `Berli`, `Bosto`, `Dubli` - and every `n` before an escaped
+apostrophe: `Ca''t`, `Do''t`, `Ai''t`, `Talki''`, `Heave''s`, `Ma''s`. Fewer
+than five values in the whole file still ended in `n`, which is what gave the
+rule away. There is no clean copy to restore from - every copy on this machine
+and every version in git history is corrupt - so the values were reconstructed:
+
+- the apostrophe cases from the rule itself (`Ca''t` -> `Can''t` and so on);
+- the value-final ones from the file's own vocabulary: a word that appears
+  somewhere *inside* another value was never corrupted, so a final word `W`
+  whose `W+n` occurs elsewhere and which does not occur elsewhere itself is a
+  truncation. That is how `Zeppeli` (next to the album `Led Zeppelin I`),
+  `Dixo`, `Dickinso`, `Clapto` and 350 others were found;
+- the rest by hand from a dictionary pass over what the vocabulary rule left,
+  including the short ones it cannot judge (`Ma` -> `Man`, `Su` -> `Sun`,
+  `Gu` -> `Gun`, `So` -> `Son`, `Ru` -> `Run`, `O` -> `On`).
+
+431 distinct values in 829 rows changed. Titles that really do end without the
+`n` were kept: `The Evil That Men Do`, `You Shook Me`, `Fast And Loose`,
+`She Suits Me To A Tee`, `Yo-Yo Ma`, `Down by the Sea`, and the roman numerals.
+A handful of never-repeated names cannot be judged either way and were left
+alone; the file is not guaranteed identical to upstream Chinook, but no
+recognisably broken name is left. The 42 `TestDbQCriteria` tests pass on the
+repaired script.
+
+Verified by running the demo under jetty: the source viewer, the reworked search
+pages (`SearchPanelPage`, `ArtistListPage`, the binding tutorial's
+`InvoiceListPage` and its edit screen), `MsgAskPage`'s validation error, and
+`AsyncDivPage`'s expandable details.
 
 ### 2026-09-05 - Four more candidates fixed
 

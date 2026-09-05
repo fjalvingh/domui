@@ -3,6 +3,7 @@ package to.etc.domui.component.misc;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.layout.ErrorMessageDiv;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.layout.Window;
 import to.etc.domui.component.meta.MetaManager;
@@ -146,7 +147,6 @@ final public class MsgBox2 extends Window {
 
 	private MsgBox2() {
 		super(true, false, WIDTH, -1, "");
-		setErrorFence(null); // Do not accept handling errors!!
 		setOnClose(new IWindowClosed() {
 			@Override
 			public void closed(@NonNull String closeReason) throws Exception {
@@ -206,6 +206,12 @@ final public class MsgBox2 extends Window {
 				type(Type.INFO);
 			else
 				type(Type.DIALOG);
+		}
+
+		//-- Errors raised inside the box are shown by the box, and do not travel to the page behind it.
+		NodeContainer boxContent = getDelegate();
+		if(null != boxContent) {
+			add(new ErrorMessageDiv(boxContent, false));
 		}
 
 		//-- Initialize all that was left empty....

@@ -148,15 +148,6 @@
         <jericho.version>3.4</jericho.version>
         <gnu.regexp.version>1.1.4</gnu.regexp.version>
 
-        <!--
-			We cannot upgrade to jetty 11 because it uses EE 9 (which contains the JSDK standard) -
-			which has moved from being a Java trainwreck to a Jakarta trainwreck. During that process
-			all of the packages (java. and javax.) were renamed because the idiots at Oracle did not
-			allow using the original java. and javax packages.
-			Let this be a lesson: nothing is safe in the hands of Oracle and most other large
-			companies.
-		-->
-        <!--        <jetty.version>9.4.57.v20241219</jetty.version>-->
         <jetty.version>11.0.26</jetty.version>
         <selenium.version>3.141.59</selenium.version>
         <hsqldb.version>2.7.1</hsqldb.version>

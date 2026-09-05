@@ -43,6 +43,20 @@ namespace WebUI {
 		dateInputRepairValueIn(c);
 	}
 
+	/**
+	 * The date pattern the server will use to parse this input's value: the control renders
+	 * it as data-datefmt. Without it we fall back to the locale's calendar default.
+	 */
+	export function dateInputDateFormat(c) {
+		let fmt = c && c.getAttribute ? c.getAttribute("data-datefmt") : null;
+		return fmt ? fmt : Calendar._TT["DEF_DATE_FORMAT"];
+	}
+
+	export function dateInputDateTimeFormat(c) {
+		let fmt = c && c.getAttribute ? c.getAttribute("data-datefmt") : null;
+		return fmt ? fmt + Calendar._TT["DATE_TIME_SEPARATOR"] + Calendar._TT["DEF_TIME_FORMAT"] : Calendar._TT["DEF_DATETIME_FORMAT"];
+	}
+
 	export function dateInputRepairValueIn(c) {
 		if(!c)
 			return;
@@ -60,9 +74,9 @@ namespace WebUI {
 			let numbereOfSpaces = val.split(Calendar._TT["DATE_TIME_SEPARATOR"]).length - 1;
 			let res;
 			if(numbereOfSpaces == 0) {
-				res = dateInputRepairDateValue(val);
+				res = dateInputRepairDateValue(val, dateInputDateFormat(c));
 			} else if(numbereOfSpaces == 1) {
-				res = dateInputRepairDateTimeValue(val);
+				res = dateInputRepairDateTimeValue(val, dateInputDateFormat(c), dateInputDateTimeFormat(c));
 			} else {
 				throw "date invalid";
 			}
@@ -157,8 +171,7 @@ namespace WebUI {
 		let params : any = {
 			inputField: inp,
 			eventName: 'click',
-			ifFormat: Calendar._TT[withtime ? "DEF_DATETIME_FORMAT"
-				: "DEF_DATE_FORMAT"],
+			ifFormat: withtime ? dateInputDateTimeFormat(inp) : dateInputDateFormat(inp),
 			daFormat: Calendar._TT["TT_DATE_FORMAT"],
 			singleClick: true,
 			align: 'Br',
@@ -236,8 +249,8 @@ namespace WebUI {
 		dateInputRepairValueIn(c);
 	}
 
-	export function dateInputRepairDateValue(val) {
-		let fmt = Calendar._TT["DEF_DATE_FORMAT"];
+	export function dateInputRepairDateValue(val, dateFormat?) {
+		let fmt = dateFormat ? dateFormat : Calendar._TT["DEF_DATE_FORMAT"];
 		let separatorsCount = countSeparators(val);
 		if(separatorsCount < 2) {
 			val = insertDateSeparators(val, fmt, separatorsCount);
@@ -274,11 +287,11 @@ namespace WebUI {
 		return (time.match(new RegExp("[" + supportedTimeSeparators + "]", "g")) || []).length;
 	}
 
-	export function dateInputRepairDateTimeValue(val) {
-		let fmt = Calendar._TT["DEF_DATETIME_FORMAT"];
+	export function dateInputRepairDateTimeValue(val, dateFormat?, dateTimeFormat?) {
+		let fmt = dateTimeFormat ? dateTimeFormat : Calendar._TT["DEF_DATETIME_FORMAT"];
 
 		let parts = val.split(Calendar._TT["DATE_TIME_SEPARATOR"]);
-		let datePart = dateInputRepairDateValue(parts[0]);
+		let datePart = dateInputRepairDateValue(parts[0], dateFormat);
 		let timePart = dateInputRepairTimeValue(parts[1]);
 		val = datePart + Calendar._TT["DATE_TIME_SEPARATOR"] + timePart;
 

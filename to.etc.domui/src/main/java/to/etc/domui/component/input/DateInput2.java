@@ -40,8 +40,10 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.DateUtil;
+import to.etc.webapp.nls.NlsContext;
 
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Date input component: this is an INPUT component with a button attached; pressing
@@ -50,7 +52,8 @@ import java.util.Date;
  * <br/>
  * <p>
  * <b>Acceptable input:</b> <br/>
- * '/', '.' or '-' are accepted as separators; for brevity only '/' formats will be listed below:<ul>
+ * '/', '.' or '-' are accepted as separators. The order of the fields is the one of the
+ * locale's date pattern; the examples below are for a dd-mm-yyyy locale:<ul>
  * <br/>
  * <li> 13/3/2012, 23/02/2012 -> dd/mm/yyyy format; adapted to 13-3-2012 and 23-2-2012 leading 0 may be omitted i.e. 02/03/2012 equals 2/3/2012</li>
  * <li> 13/3/13 -> dd/mm/yy format; adapted to 13-3-2013, year is considered to be 19yy if yy>29 or 20yy otherwise; leading 0 may be omitted</li>
@@ -100,6 +103,7 @@ public class DateInput2 extends Text2<Date> {
 		sib.setClicked(null);
 		sib.setOnClickJS("WebUI.showCalendar('" + internalGetInput().getActualID() + "'," + isWithTime() + ")");
 		internalGetInput().setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
+		internalGetInput().setSpecialAttribute("data-datefmt", calendarDatePattern(NlsContext.getLocale()));
 		if(! m_hideTodayButton) {
 			SmallImgButton todayBtn = addButtonSmall(Icon.faCalendarCheckO, c -> {
 				Date currentDate = new Date();
@@ -189,6 +193,46 @@ public class DateInput2 extends Text2<Date> {
 
 	public void setHideTodayButton(boolean hideTodayButton) {
 		m_hideTodayButton = hideTodayButton;
+	}
+
+	/**
+	 * Translate the date pattern the server parses this locale's dates with into the
+	 * %-format that the browser side (jscalendar) uses, so that both sides agree on
+	 * what "13-3-13" means.
+	 */
+	static String calendarDatePattern(Locale locale) {
+		String pattern = DateConverter.getDatePattern(locale);
+		StringBuilder sb = new StringBuilder(pattern.length());
+		int len = pattern.length();
+		int ix = 0;
+		while(ix < len) {
+			char c = pattern.charAt(ix);
+			int count = 1;
+			while(ix + count < len && pattern.charAt(ix + count) == c)
+				count++;
+			ix += count;
+
+			switch(c) {
+				case 'y':
+				case 'u':
+					sb.append(count == 2 ? "%y" : "%Y");
+					break;
+
+				case 'M':
+					sb.append("%m");
+					break;
+
+				case 'd':
+					sb.append("%d");
+					break;
+
+				default:
+					if(!Character.isLetter(c))			// Separators are copied, anything else is dropped
+						sb.append(c);
+					break;
+			}
+		}
+		return sb.toString();
 	}
 
 	@NonNull

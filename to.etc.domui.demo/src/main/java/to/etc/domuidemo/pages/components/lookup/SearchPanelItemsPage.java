@@ -7,6 +7,7 @@ import to.etc.domui.component.searchpanel.lookupcontrols.NumberLookupValue;
 import to.etc.domui.derbydata.db.Customer;
 import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.derbydata.db.Invoice_;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.Para;
 import to.etc.util.DateUtil;
@@ -29,12 +30,12 @@ public class SearchPanelItemsPage extends AbstractSearchPage<Invoice> {
 	public void createContent() throws Exception {
 		setPageTitle("SearchPanel: fields of your own");
 
-		ContentPanel cp = contentPanel();
+		ContentPanel cp = new ContentPanel();
+		add(cp);
 		cp.add(new HTag(1, "SearchPanel: fields of your own"));
 
 		SearchPanel<Invoice> sp = new SearchPanel<>(Invoice.class);
 		cp.add(sp);
-		sp.setClicked(a -> search(sp.getCriteria()));
 
 		//-- A default value: the control starts with it, and Clear puts it back.
 		Customer defaultCustomer = getSharedContext().get(Customer.class, Long.valueOf(10));
@@ -69,5 +70,10 @@ public class SearchPanelItemsPage extends AbstractSearchPage<Invoice> {
 			+ "property being searched."));
 		cp.add(new Para().add("The last field searches customer.city: a search property is a "
 			+ "path, so a screen can search on the record behind the record."));
+
+		//-- The result of a search appears here.
+		Div results = new Div();
+		cp.add(results);
+		sp.setClicked(a -> showResult(results, sp.getCriteria()));
 	}
 }

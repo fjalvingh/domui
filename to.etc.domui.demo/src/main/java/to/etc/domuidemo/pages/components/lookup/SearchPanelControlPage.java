@@ -8,6 +8,7 @@ import to.etc.domui.component2.enumsetinput.EnumSetQueryBuilder;
 import to.etc.domui.derbydata.db.Genre;
 import to.etc.domui.derbydata.db.Track;
 import to.etc.domui.derbydata.db.Track_;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.Para;
 import to.etc.webapp.query.QCriteria;
@@ -31,12 +32,12 @@ public class SearchPanelControlPage extends AbstractSearchPage<Track> {
 	public void createContent() throws Exception {
 		setPageTitle("SearchPanel: controls of your own");
 
-		ContentPanel cp = contentPanel();
+		ContentPanel cp = new ContentPanel();
+		add(cp);
 		cp.add(new HTag(1, "SearchPanel: controls of your own"));
 
 		SearchPanel<Track> sp = new SearchPanel<>(Track.class);
 		cp.add(sp);
-		sp.setClicked(a -> search(sp.getCriteria()));
 
 		List<Genre> genres = getSharedContext().query(QCriteria.create(Genre.class));
 
@@ -69,5 +70,10 @@ public class SearchPanelControlPage extends AbstractSearchPage<Track> {
 		cp.add(new Para().add("Both lines search the same property. The panel does not mind: "
 			+ "a search line is a control plus a way to turn its value into a restriction, "
 			+ "not a property."));
+
+		//-- The result of a search appears here.
+		Div results = new Div();
+		cp.add(results);
+		sp.setClicked(a -> showResult(results, sp.getCriteria()));
 	}
 }

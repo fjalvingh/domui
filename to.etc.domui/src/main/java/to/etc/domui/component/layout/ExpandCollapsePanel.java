@@ -6,88 +6,87 @@ import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.TextNode;
 
 /**
- * A panel with a title bar whose content can be expanded and collapsed.
+ * A panel with a title bar whose content can be expanded and collapsed. The content
+ * lives inside the panel, so hiding or showing it changes nothing around the panel.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 04-06-20.
  */
-public class ExpandCollapsePanel extends Span {
+public class ExpandCollapsePanel extends Div {
 	private NodeBase m_label;
 
 	private NodeBase m_content;
 
-	private final Div m_contentDiv = new Div();
-
-	private boolean m_isInitiallyExpanded;
-
-	private LinkButton m_lb = new LinkButton("", a -> toggle());
+	private boolean m_expanded;
 
 	public ExpandCollapsePanel() {
+		super("ui-expcp");
 	}
 
 	public ExpandCollapsePanel(String label) {
+		this();
 		setLabel(label);
 	}
 
 	public ExpandCollapsePanel(String label, String content) {
+		this();
 		setLabel(label);
 		setContent(content);
 	}
 
 	public ExpandCollapsePanel(String label, NodeContainer content) {
+		this();
 		setLabel(label);
 		setContent(content);
 	}
 
 	@Override
-	final public void createContent() throws Exception {
-		if(m_isInitiallyExpanded) {
-			expandPanel();
-		} else {
-			m_lb.setImage(Icon.faPlus);
+	public void createContent() throws Exception {
+		Div header = new Div("ui-expcp-hdr");
+		add(header);
+		header.add(new LinkButton("", m_expanded ? Icon.faMinus : Icon.faPlus, a -> toggle()));
+		header.add(" ");
+		NodeBase label = m_label;
+		if(null != label)
+			header.add(label);
+
+		if(m_expanded) {
+			Div contentDiv = new Div("ui-expcp-c");
+			add(contentDiv);
+			expandContent(contentDiv);
 		}
-		add(m_lb);
-		add("\u00a0");
-		add(m_label);
 	}
 
 	private void toggle() {
-		if(m_contentDiv.isAttached()) {
-			collapsePanel();
-		} else {
-			expandPanel();
-		}
+		m_expanded = !m_expanded;
+		forceRebuild();
 	}
 
-	private void collapsePanel() {
-		m_contentDiv.remove();
-		m_lb.setImage(Icon.faPlus);
-	}
-
-	private void expandPanel() {
-		m_lb.setImage(Icon.faMinus);
-		m_contentDiv.removeAllChildren();
-		appendAfterMe(m_contentDiv);
-		expandContent(m_contentDiv);
+	/**
+	 * Fill the content area, which is only present while the panel is expanded. Override
+	 * to calculate the content at the moment it becomes visible.
+	 */
+	protected void expandContent(Div contentDiv) throws Exception {
+		NodeBase content = m_content;
+		if(null != content)
+			contentDiv.add(content);
 	}
 
 	public void expand() {
 		if(isCollapsed()) {
-			expandPanel();
+			m_expanded = true;
+			forceRebuild();
 		}
 	}
 
 	public void collapse() {
-		if(!isCollapsed())
-			collapsePanel();
-	}
-
-	protected void expandContent(Div contentDiv) {
-		m_contentDiv.add(m_content);
+		if(!isCollapsed()) {
+			m_expanded = false;
+			forceRebuild();
+		}
 	}
 
 	public NodeBase getLabel() {
@@ -109,6 +108,7 @@ public class ExpandCollapsePanel extends Span {
 		if(Objects.equal(m_content, content))
 			return;
 		m_content = content;
+		forceRebuild();
 	}
 
 	public void setLabel(String name) {
@@ -120,14 +120,17 @@ public class ExpandCollapsePanel extends Span {
 	}
 
 	public boolean isInitiallyExpanded() {
-		return m_isInitiallyExpanded;
+		return m_expanded;
 	}
 
 	public void setInitiallyExpanded(boolean initiallyExpanded) {
-		m_isInitiallyExpanded = initiallyExpanded;
+		if(m_expanded == initiallyExpanded)
+			return;
+		m_expanded = initiallyExpanded;
+		forceRebuild();
 	}
 
 	public boolean isCollapsed() {
-		return !m_contentDiv.isAttached();
+		return !m_expanded;
 	}
 }

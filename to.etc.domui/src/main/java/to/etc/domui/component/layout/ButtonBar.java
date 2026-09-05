@@ -151,12 +151,12 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(@NonNull IUIAction<Void> action, int order) throws Exception {
+	public @NonNull DefaultButton addButton(@NonNull IUIAction<?> action, int order) throws Exception {
 		return m_factory.addButton(action, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(@NonNull IUIAction<Void> action) throws Exception {
+	public @NonNull DefaultButton addButton(@NonNull IUIAction<?> action) throws Exception {
 		return m_factory.addButton(action);
 	}
 
