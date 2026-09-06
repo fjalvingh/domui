@@ -40,6 +40,13 @@ abstract public class AbstractCdShopListPage<T> extends UrlPage {
 	abstract protected void onRowSelected(@NonNull T instance) throws Exception;
 
 	/**
+	 * Override to define the search fields. The default uses the properties the
+	 * entity marks as searchable.
+	 */
+	protected void configureSearch(@NonNull SearchPanel<T> sp) throws Exception {
+	}
+
+	/**
 	 * Override to define the result columns. The default uses the columns from
 	 * the entity's metadata.
 	 */
@@ -57,6 +64,12 @@ abstract public class AbstractCdShopListPage<T> extends UrlPage {
 	}
 
 	@Override
+	@NonNull
+	public String getPageTitle() {
+		return m_title;
+	}
+
+	@Override
 	public void createContent() throws Exception {
 		ContentPanel cp = new ContentPanel();
 		add(cp);
@@ -64,6 +77,7 @@ abstract public class AbstractCdShopListPage<T> extends UrlPage {
 
 		SearchPanel<T> sp = new SearchPanel<>(m_dataClass);
 		cp.add(sp);
+		configureSearch(sp);
 
 		//-- The results appear here; both nodes are local, so a rebuild of the page
 		//-- makes new ones and the handler below refers to those.

@@ -15,12 +15,13 @@ import to.etc.domui.dom.html.UrlPage;
 final public class BindvalidationErrorPage extends UrlPage {
 	private String m_value;
 
-	private final Div m_resultDiv = new Div();
-
 	@Override
 	public void createContent() throws Exception {
 		ContentPanel cp = new ContentPanel();
 		add(cp);
+
+		Div resultDiv = new Div();
+		resultDiv.setTestID("result");
 
 		m_value = "bad";
 		TextArea ta = new TextArea(80, 2);
@@ -30,25 +31,24 @@ final public class BindvalidationErrorPage extends UrlPage {
 
 		ta.setTestID("text");
 
-		DefaultButton click = new DefaultButton("Click", a -> handleClick());
+		DefaultButton click = new DefaultButton("Click", a -> handleClick(resultDiv));
 		cp.add(click);
 		click.setTestID("click");
 
 		cp.add(new VerticalSpacer(10));
-		cp.add(m_resultDiv);
-		m_resultDiv.setTestID("result");
+		cp.add(resultDiv);
 	}
 
-	private void handleClick() throws Exception {
-		m_resultDiv.removeAllChildren();
+	private void handleClick(Div resultDiv) throws Exception {
+		resultDiv.removeAllChildren();
 		if(bindErrors()) {
-			m_resultDiv.add("Failed");
-			m_resultDiv.addCssClass("test-failed");
-			m_resultDiv.removeCssClass("test-ok");
+			resultDiv.add("Failed");
+			resultDiv.addCssClass("test-failed");
+			resultDiv.removeCssClass("test-ok");
 		} else {
-			m_resultDiv.add("worked");
-			m_resultDiv.removeCssClass("test-failed");
-			m_resultDiv.addCssClass("test-ok");
+			resultDiv.add("worked");
+			resultDiv.removeCssClass("test-failed");
+			resultDiv.addCssClass("test-ok");
 		}
 	}
 

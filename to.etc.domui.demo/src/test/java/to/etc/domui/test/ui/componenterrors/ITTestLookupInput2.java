@@ -2,6 +2,7 @@ package to.etc.domui.test.ui.componenterrors;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInput2TestPage;
@@ -45,5 +46,22 @@ public class ITTestLookupInput2 extends AbstractWebDriverTest {
 		File file = new File("/tmp/testShowBindingError-" + System.currentTimeMillis() + ".png");
 		ImageIO.write(bi, "png", file);
 		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", TestHelper.isReddish(bi));
+	}
+
+	/**
+	 * Bug: when a LookupInput2.value is bound and the input is mandatory, clicking the lookup
+	 * button will put the component in error state.
+	 */
+	@Test
+	public void testBindingShouldNotThrowErrorOnLookup() throws Exception {
+		wd().openScreen(LookupInput2TestPage.class);
+
+		wd().cmd().click().on("one-lookup");
+		Thread.sleep(1000);
+
+		//-- The lookup cannot be in error state.
+		WebElement one = wd().getElement("one");
+		String aClass = one.getAttribute("class");
+		Assert.assertFalse("The input control should not be in error state", aClass.contains("ui-input-err"));
 	}
 }

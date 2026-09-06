@@ -2,7 +2,7 @@ package to.etc.domuidemo.pages.tutorial.binding;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.layout.ContentPanel;
-import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.component.misc.MsgBox2;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.derbydata.db.Artist;
@@ -48,7 +48,7 @@ public class BindPropertyPage extends UrlPage {
 		fb.label("Artist").control(artistC);
 		fb.label("Customer").control(customerC);
 
-		DefaultButton send = new DefaultButton("Send info", a -> MsgBox.info(this,
+		DefaultButton send = new DefaultButton("Send info", a -> MsgBox2.on(this).info(
 			"E-mailing " + m_model.getCustomer() + " with info on " + m_model.getArtist()));
 		cp.add(send);
 

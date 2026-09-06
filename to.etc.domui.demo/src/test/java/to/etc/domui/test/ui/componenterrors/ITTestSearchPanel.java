@@ -5,22 +5,22 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
-import to.etc.domuidemo.pages.test.componenterrors.LookupForm1TestPage;
-import to.etc.domuidemo.pages.test.componenterrors.LookupForm2TestPage;
+import to.etc.domuidemo.pages.test.componenterrors.SearchPanel1TestPage;
+import to.etc.domuidemo.pages.test.componenterrors.SearchPanel2TestPage;
 import to.etc.webapp.ProgrammerErrorException;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 27-9-17.
  */
-public class ITTestLookupForm1 extends AbstractWebDriverTest {
+public class ITTestSearchPanel extends AbstractWebDriverTest {
 	/**
 	 * Github issue #6: mandatory lookup controls must have clearInput(), and in that case should work correctly.
 	 * @throws Exception
 	 */
 	@Test
 	public void testClearButtonWithClearInputShouldNotError() throws Exception {
-		wd().openScreen(LookupForm1TestPage.class);
+		wd().openScreen(SearchPanel1TestPage.class);
 
 		//-- Clicking "clear" then search should not give an error
 		wd().cmd().click().on("clearButton");
@@ -34,7 +34,7 @@ public class ITTestLookupForm1 extends AbstractWebDriverTest {
 	@Ignore("JAVA9")
 	@Test
 	public void testMandControlShouldExceptionWhenClickedWithoutClearInput() throws Exception {
-		wd().openScreen(LookupForm2TestPage.class);
+		wd().openScreen(SearchPanel2TestPage.class);
 
 		//-- Clicking "clear" then search should not give an error
 		wd().cmd().click().on("clearButton");

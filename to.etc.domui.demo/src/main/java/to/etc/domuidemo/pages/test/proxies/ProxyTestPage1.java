@@ -3,8 +3,6 @@ package to.etc.domuidemo.pages.test.proxies;
 import to.etc.domui.component.buttons.CheckboxButton;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.SmallImgButton;
-import to.etc.domui.component.input.ComboFixed;
-import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.Icon;
@@ -15,6 +13,7 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.RadioGroup;
 import to.etc.domui.dom.html.UrlPage;
 
@@ -27,41 +26,36 @@ import to.etc.domui.dom.html.UrlPage;
  * Created on 28-12-21.
  */
 public class ProxyTestPage1 extends UrlPage {
-	private ContentPanel m_cp;
-
 	public enum MyValues {
 		My, Name, Is, Ozymandias, King, Of, Kings;
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		m_cp = new ContentPanel();
-		add(m_cp);
+		ContentPanel cp = new ContentPanel();
+		add(cp);
 
-		addComponent(new Text2<String>(String.class), "text2");
-		addComponent(new Text<String>(String.class), "text");
+		addComponent(cp, new Text2<String>(String.class), "text2");
 
 		ComboFixed2<MyValues> eco2 = ComboFixed2.createEnumCombo(MyValues.class);
-		addComponent(eco2, "cf2");
-		ComboFixed<MyValues> eco = ComboFixed.createEnumCombo(MyValues.class);
-		addComponent(eco, "cf");
+		addComponent(cp, eco2, "cf2");
 
 		CheckboxButton cbb = new CheckboxButton();
-		addComponent(cbb, "cbb");
+		addComponent(cp, cbb, "cbb");
 
 		Checkbox cb = new Checkbox();
-		addComponent(cb, "checkbox");
+		addComponent(cp, cb, "checkbox");
 
-		addActionComponent(new DefaultButton("PingPong"), "defbtn");
-		addActionComponent(new SmallImgButton(Icon.faAdjust), "sib");
+		addActionComponent(cp, new DefaultButton("PingPong"), "defbtn");
+		addActionComponent(cp, new SmallImgButton(Icon.faAdjust), "sib");
 
 		RadioGroup<MyValues> erg = RadioGroup.createEnumRadioGroup(MyValues.class).asButtons();
-		addComponent(erg, "ragrou");
+		addComponent(cp, erg, "ragrou");
 	}
 
-	private <V, T extends NodeBase & IControl<V>> void addComponent(T comp, String id) {
+	private <V, T extends NodeBase & IControl<V>> void addComponent(NodeContainer target, T comp, String id) {
 		Div pair = new Div();
-		m_cp.add(pair);
+		target.add(pair);
 		Div cod = new Div();
 		pair.add(cod);
 		cod.setDisplay(DisplayType.INLINE_BLOCK);
@@ -81,9 +75,9 @@ public class ProxyTestPage1 extends UrlPage {
 
 	}
 
-	private <T extends NodeBase & IActionControl> void addActionComponent(T comp, String id) {
+	private <T extends NodeBase & IActionControl> void addActionComponent(NodeContainer target, T comp, String id) {
 		Div pair = new Div();
-		m_cp.add(pair);
+		target.add(pair);
 		Div cod = new Div();
 		pair.add(cod);
 		cod.setDisplay(DisplayType.INLINE_BLOCK);

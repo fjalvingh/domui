@@ -19,21 +19,8 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 	@Override
 	public void initializeScreen() throws Exception {
 		wd().openScreenIf(this, Form4LayoutTestPage.class);
-		wd().cmd().type("aaaaaaaaa").on("two", "input");
-		wd().wait(By.className("ui-lui-popup"));
 		wd().cmd().type("aaaaaaaaa").on("four", "input");
-	}
-
-	@Ignore("While redesigning")
-	@Test
-	public void testLookup1Baseline() throws Exception {
-		checkBaseLine("one", "span");
-	}
-
-	@Ignore("While redesigning")
-	@Test
-	public void testLookup2Baseline() throws Exception {
-		checkBaseLine("two", "input");
+		wd().wait(By.className("ui-lui-popup"));
 	}
 
 	@Ignore("While redesigning")

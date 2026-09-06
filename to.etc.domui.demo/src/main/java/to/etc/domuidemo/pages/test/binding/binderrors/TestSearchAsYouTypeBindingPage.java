@@ -49,16 +49,15 @@ public class TestSearchAsYouTypeBindingPage extends UrlPage {
 		cp.add(st);
 		st.bind().to(this, "date");
 
-		Div d = new Div();
-		cp.add(d);
-
 		cp.add(new VerticalSpacer(10));
-		DefaultButton b = new DefaultButton("validate", a -> {
-			Div res = new Div();
-			cp.add(res);
+		Div res = new Div();
+		res.setTestID("result");
+
+		cp.add(new DefaultButton("validate", a -> {
+			res.removeAllChildren();
 			res.add("Result is " + st.getValue() + " and with binding " + getDate());
-		});
-		cp.add(b);
+		}));
+		cp.add(res);
 	}
 
 	public Date getDate() {

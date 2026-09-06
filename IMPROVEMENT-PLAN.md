@@ -81,9 +81,10 @@ Demo application (`to.etc.domui.demo`):
   navigable application **on purpose**: they test the framework and they are the
   worked examples the testing documentation is written around (decided
   2026-09-06; see the log). New fixtures go there too.
-- `pages/basic`, `pages/cddb`, `pages/dbtable` and `pages/rxjava` sit outside both
-  the component list and the tutorial and have not been checked against current
-  usage.
+- `pages/basic`, `pages/dbtable` and `pages/rxjava` are gone (2026-09-06); what
+  they showed is either shown better elsewhere or moved into `pages/test`. The
+  CD shop (`pages/cddb`) is the one demo application left outside the component
+  list and the tutorial, and it is current.
 
 Framework:
 
@@ -168,14 +169,8 @@ for now. They are recorded so they are not re-discovered as news.
 
 ### Phase 3 - Rework the demo/tutorial application
 
-- [ ] Rewrite demo pages that use superseded APIs to use the current ones.
-      *Nearly done*: everything the component list and the tutorial link to is
-      current (2026-09-05). What is left sits outside both: `pages/basic`,
-      `pages/cddb`, `pages/dbtable`, `pages/rxjava` and the `pages/test/**`
-      fixtures. The fixtures are now documented as examples of how a testable
-      page is written, so they are held to the same standard as the rest -
-      `ContentPanel`, no components in fields, current components only - rather
-      than being moved out of the demo.
+**Finished 2026-09-06**; see the log. No demo page uses a superseded component
+any more.
 
 ### Phase 4 - Remove old and incorrect code and information
 
@@ -190,6 +185,15 @@ for now. They are recorded so they are not re-discovered as news.
       section states it now.
 - [ ] Remove the deprecated framework code that nothing (docs, demo, framework)
       still needs, once phases 2-3 have stopped referring to it.
+      *Unblocked by phase 3*: nothing in the documentation or the demo refers to
+      `component.input.Text`, `LookupInput`, `ComboFixed`, `component.misc.MsgBox`,
+      `DisplayValue` or `CaptionedHeader` any more, nor to the page object proxies
+      `CpText` and `CpComboFixed` that go with the first three. What still uses
+      them is the framework itself.
+- [ ] **Framework: `PropBtnPart` and `ButtonPartKey` are dead.** The part that
+      painted a button image from a properties file has no live caller left -
+      `ThemeCssUtils` only mentions it in commented-out code, and the demo page
+      that pointed a URL at it was deleted on 2026-09-06.
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
       that add nothing.
 

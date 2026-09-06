@@ -1,10 +1,10 @@
 package to.etc.domuidemo.pages.test.binding.order1;
 
-import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.layout.ContentPanel;
+import to.etc.domui.component2.lookupinput.LookupInputBase2;
+import to.etc.domui.component2.lookupinput.SameTypeModelFactory;
 import to.etc.domui.derbydata.db.Customer;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.webapp.query.QCriteria;
 
 
 /**
@@ -18,13 +18,13 @@ public class DoNotBindControlDottedTestPage extends UrlPage {
 	private Long m_id;
 
 	/**
-	 * We need to extends LookupInput so that getValue() has an actual
-	 * type instead of type-erased Object. If we would not do this then
+	 * We need a subclass with a concrete type argument so that getValue() has an
+	 * actual type instead of type-erased Object. If we would not do this then
 	 * the screen would fail because Object has no id property.
 	 */
-	public class MyLookup extends LookupInput<Customer> {
+	public static class MyLookup extends LookupInputBase2<Customer, Customer> {
 		public MyLookup() {
-			super(QCriteria.create(Customer.class));
+			super(new SameTypeModelFactory<>(), Customer.class, Customer.class);
 		}
 	}
 

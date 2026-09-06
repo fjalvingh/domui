@@ -1109,6 +1109,101 @@ These were offered as input while the phase 0 items were being worked, and taken
       link is `SourceBreadCrumb`'s. One cosmetic defect is listed as a candidate
       above: the page title overlaps line 1.
 
+- [x] **Rewrite demo pages that use superseded APIs to use the current ones.**
+      **Done 2026-09-06** - the last part of phase 3: the pages that sat outside
+      the component list and the tutorial, and the `pages/test/**` fixtures. No
+      page in `to.etc.domui.demo` imports a superseded component any more
+      (checked against the superseded-to-current table of 2026-09-01).
+      - *`pages/basic` and `pages/dbtable` deleted.* All four pages were
+        unreachable - linked from nothing, `!demo()`d from nothing - and each is
+        shown better elsewhere: `HelloWorld` by `tutorial/first/HelloPage` and
+        `HelloClickPage`, `CaptionsDemoPage` (which used `CaptionedHeader` and put
+        an `AppPageTitleBar` in the middle of a page) by `components/layout/PanelsPage`,
+        `components/dialog/NoticePage` and `components/navigation/PageTitleBarPage`,
+        `WikiDemo` (a `CKEditor` in a field, pointed at `/home/jal/Pictures`, with a
+        Dutch button) by `components/editors/CKEditorPage`, and `SimplestDbTable` by
+        `tutorial/tables/TableFirstPage`. The 2026-08 entry that kept
+        `CaptionsDemoPage` "to show the raw component" was written when
+        `pages/overview/**` still existed; it does not.
+      - *`pages/rxjava` became `pages/test/rxjava`.* `RxTimePage` is a lifecycle
+        fixture - it checks that a `PageScheduler` subscription is disposed when
+        the page dies - so it belongs with the other fixtures and is now linked
+        from `JUnitTestMenuPage`; its `System.out.println` per tick is gone.
+      - *The CD shop's last two component-holding pages are gone.* `AlbumListPage`
+        kept its `DataTable` and its `ContentPanel` in fields to decide whether to
+        add or replace the result table; it is now an `AbstractCdShopListPage<Album>`
+        like its four siblings. `CdCollection` plus `TrackResultFragment` (a `Div`
+        holding a `SearchPanel` and a `DataTable` in fields) were between them a
+        second copy of that same base, so the fragment was deleted and
+        `CdCollection` extends the base too. The base gained `configureSearch()`
+        next to `configureColumns()` - `Album` marks only `title` searchable, and
+        the page searches on artist as well - and a `getPageTitle()` returning the
+        title it is already given, so all five list screens now name themselves in
+        the breadcrumb.
+      - *The fixtures under `pages/test/**` held to the page rules.* The
+        `ContentPanel` / `Div` / control fields went out of `BindError1Page`,
+        `BindError2Page`, `BindvalidationErrorPage`, `BuildOrderPage`,
+        `BindingConversionTestForm`, `BindingTypeForm1`, `ProxyTestPage1` and the
+        two SearchPanel pages: the handler now closes over the local node, the way
+        `AbstractCdShopListPage` does. Anonymous `IClicked` classes became lambdas.
+      - *Superseded components replaced in the fixtures.* `Text` -> `Text2`
+        (`BindingConversionTestForm`, `BindingTypeForm1`, and the "Old Text<>
+        control" section of `Text2LayoutTestPage` which is simply gone),
+        `DisplayValue` -> `DisplaySpan`, `LookupInput` -> `LookupInput2`
+        (`BindError2Page`, and the four LookupInput variants of
+        `Form4LayoutTestPage`, which already had the four LookupInput2 ones),
+        `MsgBox` -> `MsgBox2` (`BuildOrderPage`, and `tutorial/binding/BindPropertyPage`),
+        `ComboFixed.READONLY` -> `IControl.READONLY` (`binding/editabletable/EditableTablePage`).
+        `DoNotBindControlDottedTestPage` needs a subclass with a concrete type
+        argument and `LookupInput2` is `final`, so its `MyLookup` now extends
+        `LookupInputBase2<Customer, Customer>` with a `SameTypeModelFactory`.
+      - *Fixtures whose whole subject was a superseded component are gone*, each
+        already having a current-component twin: `LookupInputTestPage` (twin:
+        `LookupInput2TestPage`), `TestMsgBox1` and `TestMsgBox2` (twins:
+        `TestMsg2Box1`, `TestMsg2Box2`). Their tests went with them -
+        `ITTestLookupInput`, `ITTestLookupInputLayout`, and two methods of
+        `ITTestMsgBox` - but not before the two things in them that were not about
+        the old component were moved: `testBindingShouldNotThrowErrorOnLookup`
+        (clicking the lookup button must not put a mandatory bound control in
+        error) is now in `ITTestLookupInput2`, and `testChromeExtension` (which
+        only needs some screen) in `ITTestLookupInput2Layout`.
+      - *Four more fixtures deleted as dead*: `IeCheckBoxInTable`,
+        `IeCheckBoxInTable2` and `IeTableBugPage` reproduce Internet Explorer 7
+        bugs, and `ImageEntitiesTest` pointed an `Img` at a hand-written
+        `PropBtnPart` URL - a part with no live caller left, now a phase 4 item.
+      - *Two fixtures kept but repaired.* `Click2HandlerPage` and
+        `AddRemoveClickHandlerPage` demonstrate current framework behaviour but
+        were reachable from nothing; both are now linked from `JUnitTestMenuPage`,
+        as the testing documentation's own rule 1 requires.
+      - *`LookupForm1TestPage` / `LookupForm2TestPage` renamed* to
+        `SearchPanel1TestPage` / `SearchPanel2TestPage`, and `ITTestLookupForm1` to
+        `ITTestSearchPanel`: `LookupForm` was removed from the framework in
+        `b57d7d2e1` and the pages have used `SearchPanel` since, so the names were
+        pointing at something that no longer exists. Their one-line class comments
+        (one of them cut off mid-sentence) now say what each actually checks.
+      - *`ProxyTestPage1` lost its `Text` and `ComboFixed` pair*, and with them the
+        `text()`/`cf()` accessors of the committed `POProxyTestPage1Base` and the
+        `testText`/`testFixed` methods of `ITTestProxiesPage1`. The page object was
+        edited by hand rather than regenerated - the generator needs a live browser
+        session and a keystroke.
+      Verified: `mvn21 clean verify -pl to.etc.domui.demo` - 9 unit tests and 57
+      integration tests green before the last round of edits and 55 after it (the
+      two that went with `Form4LayoutTestPage`'s deleted LookupInput baselines),
+      0 failures, 0 errors, the skips all pre-existing `@Ignore`s. Then the demo
+      run under jetty and driven in Chrome: `CdShopMenuPage` -> `AlbumListPage`
+      searches and lists Title/Artist sorted by artist under the breadcrumb
+      "Albums"; `CdCollection` still lists Title/Duration/Price/Album/Artist
+      through the shared base; `JUnitTestMenuPage` shows every link including the
+      three new ones and no longer has a "Deprecated components' test" section;
+      `RxTimePage` subscribes in its new package; `Form4LayoutTestPage` and
+      `Text2LayoutTestPage` render without the sections that were removed; and
+      `EditableTablePage` and `BindPropertyPage` still build. The documentation
+      site builds (157 pages).
+      - The counterpart in `domui.github.io`: the fixture-group table in
+        `testing/50-test-pages-in-the-demo` names the renamed and added tests, and
+        the `rxjava` group with the note that it has no test of its own because
+        what it checks is what happens when you walk away from the page.
+
 ### Phase 4 - Remove old and incorrect code and information
 
 - [x] Remove the Maven archetype (`archetypes/domui-hello`) from the framework and
