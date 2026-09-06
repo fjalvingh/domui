@@ -16,6 +16,8 @@ import to.etc.domuidemo.pages.test.componenterrors.LookupForm2TestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInput2TestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInputTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.Text2LayoutTestPage;
+import to.etc.domuidemo.pages.test.proxies.ProxyTestPage1;
+import to.etc.domuidemo.pages.test.uitest.OrderEntryTestPage;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -52,6 +54,10 @@ public class JUnitTestMenuPage extends MenuPage {
 		addLink(LookupInput2TestPage.class, "Test LookupInput2");
 		addLink(RowRendererFactoryTest.class, "A factory that is not editable, should be editable by default");
 		addLink(TestSearchAsYouTypeBindingPage.class, "SearchAsYouType binding without exceptions");
+
+		addCaption("Pages the testing documentation walks through");
+		addLink(OrderEntryTestPage.class, "Order entry: the page the \"Testing\" documentation writes its tests against");
+		addLink(ProxyTestPage1.class, "Every component that has a page object proxy, on one page");
 
 		addCaption("Deprecated components' test");
 		addLink(LookupInputTestPage.class, "Test LookupInput (deprecated)");

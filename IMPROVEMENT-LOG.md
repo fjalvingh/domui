@@ -1091,6 +1091,13 @@ These were offered as input while the phase 0 items were being worked, and taken
       something to a user, layout, writing a component), each built alongside its
       `building-pages/*` chapter. The one remnant is the old "Binding tutorial"
       block at the end, which phase 4 deletes.
+- [x] **The JUnit/Selenium fixture pages stay in the demo application.** Phase 3
+      used to carry "separate the fixture pages from the tutorial/demo pages".
+      That is settled the other way on 2026-09-06: the pages serve two purposes
+      at once - they test the framework, and they are the worked examples of how
+      a testable page is written - so they stay where they are, new fixtures go
+      there too, and the testing documentation is written around them. See the
+      decisions log entry of that date.
 - [x] Ensure the source-viewer (`SourceIcon`) story works for every tutorial page,
       since that is how readers get from a screen to its code. **Done** -
       verified 2026-09-05 by running the demo: `Application.onNewPage()` puts a
@@ -1129,6 +1136,105 @@ These were offered as input while the phase 0 items were being worked, and taken
       as component group demo pages and documented.
 
 ## Decisions log
+
+### 2026-09-06 - The testing documentation, and the fixture pages that stay
+
+The `testing/` section was the raw Confluence conversion: one page about
+Selenium, one about the HtmlEditor's screenshot test, one listing two data
+binding tests, one about Mockito, and 2017 screenshots. Nothing in it described
+the page objects, the proxies or the generator - the things a DomUI test is
+actually written with today.
+
+**The decision it rests on**: the JUnit/Selenium fixture pages
+(`to.etc.domui.demo/pages/test/**`) are **not** moved out of the demo
+application. They have two jobs - putting a component in the situation a test
+checks, and showing what a testable page looks like - and the second one only
+works if they sit next to the tutorial and the component demos where people
+read them. The plan's phase 3 item asking for the opposite is gone; extra
+fixtures are added there like all the others.
+
+**The section is now seven pages**, in the order someone learns it:
+
+- `10-writing-a-ui-test` - a test that opens a page, types, clicks and asserts;
+  `AbstractWebDriverTest`/`wd()`, `openScreen()`, the testid (who renders it,
+  when, and the calculated ids that `FormBuilder`, `DefaultButton`,
+  `LinkButton`, `SmallImgButton`, `RadioButton` and `DataTable` hand out), the
+  `cmd()` command builder, the reading calls and the waiting calls. A sequence
+  diagram of one test's round trip.
+- `20-running-the-tests` - `IT*` (failsafe) versus `Test*` (surefire), the jetty
+  the build starts in `pre-integration-test`, the three system properties
+  failsafe passes (`webdriver.url`, `webdriver.hub`, `domui.testui`), the
+  browser and its driver, `~/.test.properties` and how `-D` wins over it,
+  running one test from the IDE, and the screenshot a failing test leaves in
+  `target/failsafe-reports`.
+- `30-page-objects` - the same two tests written against a page object, the
+  proxy library table, `AbstractCpPage`, writing one by hand, tables, and
+  putting the vocabulary of the tests in the page object.
+- `40-generating-page-objects` - **the page object generator**, which nothing
+  documented before: how to run it (Ctrl-Shift-` twice, development mode plus
+  `.developer.properties`, and the fact that it generates from the tree *on the
+  screen* - a table needs rows in it), what it writes for the order entry page,
+  the generation model (`PoGeneratorContext` walking the tree,
+  `PoGeneratorRegistry`, `IPoProxyGenerator` with its three-way
+  `acceptChildren()` answer, the two passes, the four `IPoSelector`
+  implementations, `PoClass`/`PoField`/`PoMethod`/`RefType` and
+  `PoClassWriter`), what is recognized, and three ways to extend it: your code
+  in the generated class's subclass, a proxy plus `PoGeneratorRegistry.register`
+  for a component of your own, and an `IPoProxyGenerator` of your own when one
+  proxy is not enough. Carries a screenshot of the generator's own result window.
+- `50-test-pages-in-the-demo` - why the fixture pages are in the demo, the five
+  groups they fall into with the tests that drive them, the order entry page
+  itself, and the five rules for adding one (link it from `JUnitTestMenuPage`,
+  make it deterministic, set testids, keep it one-subject, and follow the
+  ordinary page conventions).
+- `60-rendering-tests` - `ScreenInspector`, `elementScreenshot()` and the colour
+  histogram, the HtmlEditor case that it was written for, and the failure
+  screenshots. This absorbs the old HtmlEditor page.
+- `70-mockito-pitfalls` - moved as it was; it is general Java advice and still
+  true.
+
+`data-binding-tests` and `junit-testing` are deleted, with their three 2017
+screenshots; what was still true in them (the build-order and binding-order
+tests, the HtmlEditor screenshot test, the Selenium and headless-Chrome facts)
+was rewritten into the pages above. The one link to `testing/junit-testing`, in
+`introduction/developer-view-of-domui`, now points at the section.
+
+**A fixture page was added**, `pages/test/uitest/OrderEntryTestPage`, linked
+from `JUnitTestMenuPage`: a form of three controls built with `FormBuilder`, a
+basket as a `DataTable` with a `LinkButton` in every row, a mandatory customer
+field, and an answer div. Fixed data, no database, so every assertion on it is
+stable. Every fragment in the new pages comes from it or from the tests that
+drive it: `ITOrderEntry` (the connector alone), `ITOrderEntryPageObject` (the
+generated page object), the generated `POOrderEntryTestPageBase` +
+`POOrderEntryTestPageBasket` + `POOrderEntryTestPageBaseBasketRow`, and the
+hand-written `POOrderEntryTestPage` that adds the `answer()` proxy and an
+`order(album)` step. **All five tests run and pass** under
+`mvn21 verify -pl to.etc.domui.demo`.
+
+**Three defects found while writing it**, all fixed:
+
+- **A generated page object could not click anything inside a table row.**
+  `PogDataTable` merges the components it finds per column by their test id with
+  the row prefix stripped (`/r1/lbtn_Order` -> `lbtn_Order`), which is right,
+  and then handed that stripped id to the *selector* as well, which is not: the
+  rendered attribute still holds the prefix, so `*[testid='lbtn_Order']` matched
+  nothing and every generated row accessor for a button timed out. Fixed in
+  `CpDataTableRowBase.getCellComponentSelectorCss()`, which now uses the plain id
+  when the cell really has it (a component whose testid was set explicitly, like
+  the display spans of the value columns) and falls back to matching the end of a
+  repeated one. `ITOrderEntryPageObject` failed before the fix and passes after
+  it.
+- **`WebDriverCommandBuilder.timeout(int milliseconds)` was passing milliseconds
+  to a field counted in seconds**, so `timeout(5000)` asked for a wait of 5000
+  seconds. The builder now converts, and `WebDriverConnector.setNextWaitTimeout`
+  says in its name and its javadoc that it takes seconds.
+- **The generator's own "extend me" class imported `UrlPage` and never used it.**
+  `PoGeneratorContext` no longer adds that import.
+
+Also noted, not acted on: `PogButton` generates a proxy class called `ButtonPO`,
+which does not exist - nothing registers it (`DefaultButton` is handled by
+`PogSimple`), so it is dead code; and `IPoProxyGenerator.identifier()` is
+`@Deprecated` with two implementations that throw.
 
 ### 2026-09-05 - The release notes deleted, and the version-history asides
 

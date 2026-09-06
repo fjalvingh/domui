@@ -77,8 +77,10 @@ Demo application (`to.etc.domui.demo`):
 - Three entry points: `HomePage` -> `ComponentListPage` (component overview, now
   grouped exactly like the documentation), `TutorialListPage` (the walkthrough) and
   `JUnitTestMenuPage` (Selenium/JUnit fixture pages).
-- The JUnit test pages are still mixed into the same navigable application as the
-  demo pages - phase 3 separates them.
+- The JUnit/Selenium fixture pages under `pages/test/**` are part of the same
+  navigable application **on purpose**: they test the framework and they are the
+  worked examples the testing documentation is written around (decided
+  2026-09-06; see the log). New fixtures go there too.
 - `pages/basic`, `pages/cddb`, `pages/dbtable` and `pages/rxjava` sit outside both
   the component list and the tutorial and have not been checked against current
   usage.
@@ -166,13 +168,14 @@ for now. They are recorded so they are not re-discovered as news.
 
 ### Phase 3 - Rework the demo/tutorial application
 
-- [ ] Separate the JUnit/Selenium fixture pages from the tutorial/demo pages so
-      the demo reads as a tutorial rather than a test bed.
 - [ ] Rewrite demo pages that use superseded APIs to use the current ones.
       *Nearly done*: everything the component list and the tutorial link to is
       current (2026-09-05). What is left sits outside both: `pages/basic`,
       `pages/cddb`, `pages/dbtable`, `pages/rxjava` and the `pages/test/**`
-      fixtures, which phase 3's separation item deals with anyway.
+      fixtures. The fixtures are now documented as examples of how a testable
+      page is written, so they are held to the same standard as the rest -
+      `ContentPanel`, no components in fields, current components only - rather
+      than being moved out of the demo.
 
 ### Phase 4 - Remove old and incorrect code and information
 
