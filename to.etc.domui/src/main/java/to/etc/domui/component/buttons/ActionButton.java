@@ -27,7 +27,7 @@ public class ActionButton extends DefaultButton {
 
 	private final List<IUIAction> m_actions = new ArrayList<>();
 
-	public <T> ActionButton(IUIAction action) throws Exception {
+	public ActionButton(IUIAction action) throws Exception {
 		super(action);
 	}
 
