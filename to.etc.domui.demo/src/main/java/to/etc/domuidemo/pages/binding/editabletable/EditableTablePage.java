@@ -2,7 +2,6 @@ package to.etc.domuidemo.pages.binding.editabletable;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.LinkButton;
-import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.Icon;
@@ -19,6 +18,7 @@ import to.etc.domui.dom.css.TextAlign;
 import to.etc.domui.dom.css.VisibilityType;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.HTag;
+import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
@@ -184,7 +184,7 @@ public class EditableTablePage extends UrlPage {
 		return row -> {
 			ComboFixed2<AmountType> bedragTypeCombo = ComboFixed2.createEnumCombo(AmountType.class);
 			bedragTypeCombo.bind().to(row, Line_.amountType());
-			bedragTypeCombo.bind(ComboFixed.READONLY).to(model(), LineController_.readOnly());
+			bedragTypeCombo.bind(IControl.READONLY).to(model(), LineController_.readOnly());
 			bedragTypeCombo.setMandatory(true);
 			bedragTypeCombo.immediate();
 			return bedragTypeCombo;

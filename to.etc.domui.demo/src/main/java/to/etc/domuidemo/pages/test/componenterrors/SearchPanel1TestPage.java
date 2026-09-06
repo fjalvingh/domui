@@ -18,18 +18,19 @@ import to.etc.webapp.query.QCriteria;
 import java.util.List;
 
 /**
- * Test github issue #6: clearing a mandatory property must throw an exception.
+ * Github issue #6: a SearchPanel with lookup controls that are <b>not</b> mandatory.
+ * Pressing Clear and then Search must not put a control in error state.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 27-9-17.
  */
-public class LookupForm1TestPage extends UrlPage {
-	private Div m_res = new Div();
-
+public class SearchPanel1TestPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		ContentPanel cp = new ContentPanel();
 		add(cp);
+
+		Div res = new Div();
 
 		//-- Segment modeled to reproduce github issue #6
 		SearchPanel<Track> lf1 = new SearchPanel<>(Track.class);
@@ -64,19 +65,18 @@ public class LookupForm1TestPage extends UrlPage {
 			return LookupQueryBuilderResult.VALID;
 		});
 
-		lf1.setClicked(f -> renderCriteria(lf1.getCriteria()));
+		lf1.setClicked(f -> renderCriteria(res, lf1.getCriteria()));
 
 		cp.add(new VerticalSpacer(10));
 		cp.add(new HTag(2, "Criteria"));
-		cp.add(m_res);
-
+		cp.add(res);
 	}
 
-	private void renderCriteria(QCriteria<Track> enteredCriteria) {
-		m_res.removeAllChildren();
+	private void renderCriteria(Div res, QCriteria<Track> enteredCriteria) {
+		res.removeAllChildren();
 
 		Pre pre = new Pre();
-		m_res.add(pre);
+		res.add(pre);
 		pre.add(String.valueOf(enteredCriteria));
 	}
 }

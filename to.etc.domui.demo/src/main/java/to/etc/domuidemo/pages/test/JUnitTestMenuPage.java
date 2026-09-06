@@ -11,11 +11,13 @@ import to.etc.domuidemo.pages.test.binding.order1.DoNotBindControlDottedTestPage
 import to.etc.domuidemo.pages.test.binding.order1.TestBindingOrder1;
 import to.etc.domuidemo.pages.test.componenterrors.Form4LayoutTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.HtmlEditorTestPage;
-import to.etc.domuidemo.pages.test.componenterrors.LookupForm1TestPage;
-import to.etc.domuidemo.pages.test.componenterrors.LookupForm2TestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInput2TestPage;
-import to.etc.domuidemo.pages.test.componenterrors.LookupInputTestPage;
+import to.etc.domuidemo.pages.test.componenterrors.SearchPanel1TestPage;
+import to.etc.domuidemo.pages.test.componenterrors.SearchPanel2TestPage;
 import to.etc.domuidemo.pages.test.componenterrors.Text2LayoutTestPage;
+import to.etc.domuidemo.pages.test.proxies.ProxyTestPage1;
+import to.etc.domuidemo.pages.test.rxjava.RxTimePage;
+import to.etc.domuidemo.pages.test.uitest.OrderEntryTestPage;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -44,16 +46,20 @@ public class JUnitTestMenuPage extends MenuPage {
 		addCaption("forms and components");
 		addLink(Form4LayoutTestPage.class, "Form4 vertical form builder layout");
 		addLink(Text2LayoutTestPage.class, "Text2 layout");
-		addLink(LookupForm1TestPage.class, "LookupForm tests: clearInput with LookupInput mandatory control");
-		addLink(LookupForm2TestPage.class, "LookupForm tests: same, checks that clearInput is implemented");
+		addLink(SearchPanel1TestPage.class, "SearchPanel: clear and search with lookup controls that are not mandatory");
+		addLink(SearchPanel2TestPage.class, "SearchPanel: clear with mandatory lookup controls that have no clearInput");
 
 		addCaption("Component test pages");
 		addLink(HtmlEditorTestPage.class, "Test htmleditor");
 		addLink(LookupInput2TestPage.class, "Test LookupInput2");
 		addLink(RowRendererFactoryTest.class, "A factory that is not editable, should be editable by default");
 		addLink(TestSearchAsYouTypeBindingPage.class, "SearchAsYouType binding without exceptions");
+		addLink(Click2HandlerPage.class, "A click handler that gets the click position and the modifier keys");
+		addLink(AddRemoveClickHandlerPage.class, "A click handler added to and removed from a rendered node");
+		addLink(RxTimePage.class, "RxJava: the subscription must be disposed when the page is destroyed");
 
-		addCaption("Deprecated components' test");
-		addLink(LookupInputTestPage.class, "Test LookupInput (deprecated)");
+		addCaption("Pages the testing documentation walks through");
+		addLink(OrderEntryTestPage.class, "Order entry: the page the \"Testing\" documentation writes its tests against");
+		addLink(ProxyTestPage1.class, "Every component that has a page object proxy, on one page");
 	}
 }

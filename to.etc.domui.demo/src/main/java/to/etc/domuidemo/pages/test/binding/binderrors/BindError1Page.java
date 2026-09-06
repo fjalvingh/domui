@@ -7,6 +7,7 @@ import to.etc.domui.component.layout.MessageLine;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
 
 /**
@@ -24,11 +25,9 @@ import to.etc.domui.dom.html.UrlPage;
 public class BindError1Page extends UrlPage {
 	private String m_fullName = "Hello ladies";
 
-	private ContentPanel m_cp;
-
 	@Override
 	public void createContent() throws Exception {
-		ContentPanel cp = m_cp = new ContentPanel();
+		ContentPanel cp = new ContentPanel();
 		add(cp);
 
 		Text2<String> text = new Text2<>(String.class);
@@ -38,13 +37,13 @@ public class BindError1Page extends UrlPage {
 
 		text.bind().to(this, "fullName");
 
-		cp.add(new DefaultButton("click", a -> save()));
+		cp.add(new DefaultButton("click", a -> save(cp)));
 	}
 
-	private void save() throws Exception {
+	private void save(NodeContainer target) throws Exception {
 		if(bindErrors())
 			return;
-		m_cp.add(new MessageLine(MsgType.INFO, "Validated"));
+		target.add(new MessageLine(MsgType.INFO, "Validated"));
 	}
 
 	@MetaProperty(required = YesNoType.YES)

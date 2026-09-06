@@ -1,21 +1,19 @@
 package to.etc.domuidemo.pages.test.binding.conversion;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.input.Text;
+import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.layout.ContentPanel;
-import to.etc.domui.component.misc.DisplayValue;
+import to.etc.domui.component.misc.DisplaySpan;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
 
 /**
- * This form contains a binding between a Text&lt;String&gt; and an Integer
+ * This form contains a binding between a Text2&lt;String&gt; and an Integer
  * property. It uses an {@link IBidiBindingConverter} to convert the types. When
  * conversion fails it should act as if validation failed.
  *
@@ -25,8 +23,6 @@ import to.etc.domui.util.Msgs;
 public class BindingConversionTestForm extends UrlPage {
 	@Nullable
 	private Integer m_value;
-
-	private Div m_div;
 
 	final private class TestConverter implements IBidiBindingConverter<String, Integer> {
 		@Nullable @Override public String modelToControl(@Nullable Integer value) throws Exception {
@@ -51,41 +47,25 @@ public class BindingConversionTestForm extends UrlPage {
 		add(cp);
 
 		FormBuilder fb = new FormBuilder(cp);
-		Text<String> control = new Text<>(String.class);
+		Text2<String> control = new Text2<>(String.class);
 
 		fb.property(this, "value").label("Integer").control(control, new TestConverter());
 
-		DefaultButton db = new DefaultButton("click", new IClicked<DefaultButton>() {
-			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
-				checkClickValue();
-			}
-		});
-		cp.add(db);
+		Div result = new Div();
 
-		db = new DefaultButton("setvalue", new IClicked<DefaultButton>() {
-			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
-				setValue(Integer.valueOf(987));
-			}
-		});
-		cp.add(db);
-
-		db = new DefaultButton("setnull", new IClicked<DefaultButton>() {
-			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
-				setValue(null);
-			}
-		});
-		cp.add(db);
-		cp.add(m_div = new Div());
+		cp.add(new DefaultButton("click", a -> checkClickValue(result)));
+		cp.add(new DefaultButton("setvalue", a -> setValue(Integer.valueOf(987))));
+		cp.add(new DefaultButton("setnull", a -> setValue(null)));
+		cp.add(result);
 	}
 
-	private void checkClickValue() throws Exception {
+	private void checkClickValue(Div result) throws Exception {
 		if(bindErrors())
 			return;
-		Integer value = getValue();
-		m_div.removeAllChildren();
-		DisplayValue<Integer> nd = new DisplayValue<>(Integer.class, getValue());
+		result.removeAllChildren();
+		DisplaySpan<Integer> nd = new DisplaySpan<>(Integer.class, getValue());
 		nd.setTestID("result");
-		m_div.add(nd);
+		result.add(nd);
 	}
 
 	@Nullable

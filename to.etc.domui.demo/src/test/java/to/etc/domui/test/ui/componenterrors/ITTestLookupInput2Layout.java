@@ -1,13 +1,18 @@
 package to.etc.domui.test.ui.componenterrors;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
+import to.etc.domui.webdriver.core.ChromeExtender;
+import to.etc.domui.webdriver.core.MyChromeDriver;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInput2TestPage;
+
+import java.io.File;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -77,4 +82,17 @@ public class ITTestLookupInput2Layout extends AbstractWebDriverTest {
 		Assert.assertEquals("Label and control for TWO must be on same Y", label.getLocation().getY(), two.getLocation().getY());
 	}
 
+	/**
+	 * Not about the control at all: it checks that the Chrome extender can take a
+	 * screenshot of whatever screen is loaded.
+	 */
+	@Test
+	public void testChromeExtension() throws Exception {
+		Assume.assumeTrue("Test only valid when running chrome", wd().driver() instanceof MyChromeDriver);
+
+		ChromeExtender xx = new ChromeExtender((MyChromeDriver) wd().driver());
+		File f = File.createTempFile("screen-", ".png");
+		xx.takeScreenshot(f);
+		f.delete();
+	}
 }

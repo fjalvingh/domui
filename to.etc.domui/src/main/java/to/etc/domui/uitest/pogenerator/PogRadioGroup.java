@@ -147,9 +147,4 @@ public class PogRadioGroup extends AbstractPoProxyGenerator implements IPoProxyG
 		m_typeClass = typeClass;
 		return GeneratorAccepted.Accepted;
 	}
-
-	@Override
-	public String identifier() {
-		throw new IllegalStateException();
-	}
 }

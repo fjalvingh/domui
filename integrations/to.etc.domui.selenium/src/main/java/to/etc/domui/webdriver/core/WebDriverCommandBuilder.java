@@ -86,13 +86,12 @@ final public class WebDriverCommandBuilder {
 	}
 
 	/**
-	 * Alter the default timeout for this action.
-	 * @param milliseconds
-	 * @return
+	 * Alter the default timeout for this action. The connector counts its wait
+	 * timeout in seconds, so anything below a second waits a second.
 	 */
 	@NonNull
 	public WebDriverCommandBuilder timeout(int milliseconds) {
-		m_wd.setNextWaitTimeout(milliseconds);
+		m_wd.setNextWaitTimeout((milliseconds + 999) / 1000);
 		return this;
 	}
 

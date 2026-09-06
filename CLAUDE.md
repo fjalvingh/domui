@@ -76,9 +76,11 @@ UI components in `to.etc.domui` follow a server-side rendering model with AJAX u
 
 A multi-step improvement of the documentation website and the demo/tutorial
 application, including removal of old and incorrect code and information. The
-plan, current state and decisions log live in **[IMPROVEMENT-PLAN.md](IMPROVEMENT-PLAN.md)**.
-Read it before working on documentation or on `to.etc.domui.demo`, and update it
-(tick boxes, add decisions) as work progresses.
+plan and current state live in **[IMPROVEMENT-PLAN.md](IMPROVEMENT-PLAN.md)**, which
+holds only what is still open; the finished work and the decisions log are next to it
+in **[IMPROVEMENT-LOG.md](IMPROVEMENT-LOG.md)**. Read the plan before working on
+documentation or on `to.etc.domui.demo`, and keep both up to date: a finished item
+moves to the log, and what it decided becomes an entry in the log's decisions log.
 
 The documentation website source is a separate repository at
 `/home/jal/git/update-domui/domui.github.io` (Markdown under `site/content`, static site
