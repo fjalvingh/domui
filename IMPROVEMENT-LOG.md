@@ -1237,6 +1237,51 @@ These were offered as input while the phase 0 items were being worked, and taken
 
 ## Decisions log
 
+### 2026-09-06 - `to.etc.db`, the connection pool, is documented
+
+`common/to.etc.db` had no page anywhere on the site: the only mention of it was
+one paragraph in `getting-started/example-skeleton` saying "DomUI has its own
+pool" and how to configure it from `app.properties`. It is a substantial module
+and the thing every database-backed DomUI application actually runs on, so it now
+has a page of its own, `data/connection-pool`, at sort 20 in
+"Databases and queries" - before the POJO generator, since the pool is what the
+generated classes end up talking through. The skeleton paragraph links into it
+rather than repeating anything.
+
+Written from the source, not from the class javadoc, which is stale in places:
+
+- The define/initialize split, the `.dbpool.properties` and `.dbpool.xml` forms
+  with the `<poolid>.<key>` naming and the `.local` override file, and a
+  parameter table with the real defaults out of `PoolConfigBuilder` (minconn 5,
+  maxconn 20, `scan` enabled, everything else off) including the `p.`/`extra.`/
+  `p-` pass-through to the driver.
+- Pooled versus unpooled, described as what it is - both come from the same set;
+  the difference is that unpooled connections are not counted against `maxconn`
+  and the janitor leaves them alone - with the naming called out as bad, because
+  it is.
+- What the proxies add: resources closed with the connection, `BetterSQLException`
+  carrying the SQL and its bound parameters, and the timing that the statistics
+  are built from.
+- The hanging-connection janitor as an activity diagram, with the actual rule
+  from `ConnectionProxy.calcLongRunState()` and `checkHangState()`: unused for
+  two minutes, or allocated more than two minutes plus the five minute grace
+  period ago; destroyed in `enabled` mode, only reported in `warn`; and
+  `disabled` overridden in forced mode when the pool runs dry.
+- `pool.jsp`, statistics with `StatisticsRequestListener`, and `DbReplay`.
+
+**Verified.** `checksql` is optional after all - `ConnectionPool.checkParameters()`
+supplies `select 1 from dual` for Oracle and `select 1` for PostgreSQL and MySQL,
+and only throws when the type is unknown; the table says so. The live demo serves
+`pool.jsp`, so the page embeds it with `!demo(pool.jsp, 100%, 620)` - checked in a
+browser, the pool overview renders inside the iframe. Site builds clean (153
+pages, no link or link-check errors) and the plantuml diagram renders.
+
+**Deliberately not documented:** the "connection used for more than 8 seconds
+generates a warning" that `ConnectionPool`'s class javadoc describes.
+`getConnectionUsedTooLongWarningTimeout()` has no callers - the behaviour is gone
+and only the comment survives. A warning about it is also added nowhere; the page
+simply describes what the janitor really does.
+
 ### 2026-09-06 - The triage worked off: six pages gone, two moved, eleven rewritten
 
 The verdicts of the inventory above, carried out the same day. The site went from
