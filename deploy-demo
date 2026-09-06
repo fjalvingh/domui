@@ -9,7 +9,7 @@
 # /env/demo/webapps/ROOT.
 #
 # Usage:
-#   scripts/deploy-demo [-s server] [-n]
+#   ./deploy-demo [-s server] [-n]
 #
 #   -s server   deploy to another host (default demo.domui.org's host)
 #   -n          do not build; deploy the war that is already in target/

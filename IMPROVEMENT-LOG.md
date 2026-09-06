@@ -1237,6 +1237,150 @@ These were offered as input while the phase 0 items were being worked, and taken
 
 ## Decisions log
 
+### 2026-09-06 - The triage worked off: six pages gone, two moved, eleven rewritten
+
+The verdicts of the inventory above, carried out the same day. The site went from
+158 pages to 152.
+
+**Deleted (6).** `99-todo/spi-pages-and-logins` went whole, not half: its SPI
+half documents machinery that is not in the framework, and its login half - the
+one section worth keeping - turned out to be documented better already in
+`getting-started/example-skeleton`, which has the round trip as a sequence
+diagram, the `ILoginDialogFactory` the skeleton registers, `UILogin.login()`, the
+brute-force limit and impersonation. Salvaging it would have created a second
+description of one subject, which is the thing this project is removing. With it
+went `99-todo` itself, `development-environment/github-environment` (TravisCI and
+DeployHQ), `development-environment/intellij-tips-and-tricks` (one tip, for a
+path IntelliJ no longer uses), `look-and-feel/css-problems-and-solutions`
+(jsfiddle links and IE Edge notes) and `faqs-and-issues` (one bullet, no FAQ).
+
+**Moved (2)**, both into `70-implementation-details` and both rewritten on the
+way, because their subjects are live framework code that was sitting in a section
+called "todo":
+
+- `subpages`. Every claim held up, with three corrections. The exception is
+  `SubPageInjectorException`, not `SubFieldInjectionException`; the annotation is
+  `@UIReinject(false)`, not `@ReInject(false)`; and the enforcement is sharper
+  than the page said - a field whose *type* is a persistent class and which is
+  not annotated throws `ProgrammerErrorException` in **every** mode, at the
+  moment the SubPage is first added, while the development-mode checking injector
+  is for fields whose type says nothing (`Object`, a type parameter) and which
+  turn out at runtime to hold an entity. Also written down: an annotated field may
+  not be `final`, and a removed SubPage's conversation is destroyed at the end of
+  the request, not at removal, so a SubPage can be moved within one request
+  without losing its state.
+- `url-contexts`. "Since 2.0" gone, and the example - which did not compile -
+  rewritten. Two things the page never said are now in it: `@UIUrlContext` goes
+  on a **setter**, and the injector matches the decoder's values to setters **by
+  type**, not by the names in the map; and a missing context or a missing value
+  throws `UrlContextUnknownException` unless `optional = true`. How the string is
+  split off is now described from `RequestContextImpl`: last dot, last slash, and
+  a context that always ends in a slash.
+
+**Rewritten (11).** The four with wrong facts were rewritten from the source:
+`ecj-in-maven` from the root pom (maven-compiler-plugin 3.14.0,
+plexus-compiler-eclipse 2.8.5, ecj 3.36.0, jdk 21, `<compilerArgs>`, and what the
+four arguments and the `.settings/org.eclipse.jdt.core.prefs` file do);
+`sass-scss-support` with the Vaadin fallback removed and the *application*-level
+variables added, which it never mentioned - `setThemeProperty()` and
+`IThemeVariablesCalculator` feed `_parameters.scss` alongside the URL parameters;
+`animations` with the real method list and `slideUpAndRemove()`; and
+`pojo-generator` with its option table regenerated from the `@Option`
+annotations. `what-is-domui` lost the 2011 announcement (the mailing lists stay -
+the user confirms they are alive), `about` gained the truth about the build and
+the deploy script, `coding-rules` lost its "TBD" opener, and `urlpage` grew from
+sixteen lines into a real page: the `title` versus `pageTitle` trap, the
+lifecycle hooks, and the page's shared `QDataContext`.
+
+**`header-contributors` was written, not deleted.** The triage had it down for
+deletion because its body was the word "tbd", but two current component pages -
+`fonticon` and `icons` - point at it as *the* explanation of how a font's
+stylesheet gets onto the page. Deleting it would have broken them and removed a
+genuinely needed reference, so it is now a page: the two places a contributor can
+be added and how the two lists are merged and ordered, the factory methods, how a
+resource name is resolved (`THEME/`, `$`, webapp-relative, `http`), why
+`equals()` is not optional, and the fontawesome initializer as the worked
+example.
+
+**Two findings that are not documentation problems:**
+
+- The hibernate generator cannot be run the way anyone would try. Its module
+  builds a plain jar - no `Main-Class`, no dependencies - so `java -jar` fails
+  however the page words it. The page now documents `mvn exec:java`, which was
+  verified to work (it prints the option list), and the missing manifest is an
+  open item in the plan.
+- `.travis.yml` was still in the framework repository, naming openjdk11 and a
+  `scripts/` directory that does not exist. Removed. The workspace `CLAUDE.md`
+  and `deploy-demo`'s own usage line both said `scripts/deploy-demo`; both now
+  say what is true, `domui/deploy-demo`.
+
+### 2026-09-06 - The documentation inventory, and what the source says about it
+
+Phase 1's first item: a page-by-page verdict on `site/content`. Of its 158 leaf
+pages, 126 are in `components/`, `building-pages/` and `testing/` - all written by
+this project against the current source, so the inventory is only about the other
+**32**. Each of those was read, and every claim that could be checked was checked
+against the framework rather than judged by its prose. The verdicts - 12 current,
+11 needing update, 7 to delete, 2 to move - are the table in phase 2 of
+`IMPROVEMENT-PLAN.md`; what follows is what the checking turned up, because that
+is the part that would otherwise have to be found again.
+
+**The SPI documentation describes something that does not exist.**
+`99-todo/spi-pages-and-logins` explains SPI pages at length: an `SpiPage` hosting
+named `SpiContainer`s, fragment identifiers after the `#`, a javascript call that
+posts `window.location.hash` back to `PageRequestHandler.loadSpiFragments`, and a
+redirect that appends `location.hash` to the new URL. None of it is in the tree.
+There is no class whose name contains `Spi` (the only match in the framework is
+`Icon.faSpinner`), no `loadSpiFragment*` method, and no `location.hash` anywhere
+in the framework's java or TypeScript sources. The javascript redirect it builds
+its story on is real - `ApplicationRequestHandler` line 100 emits a
+`location.replace(...)` document rather than an HTTP redirect - but it does not
+append the hash, so even the mechanism the page explains is not the mechanism the
+code has. What *is* real is the first section, the login round trip:
+`NotLoggedInException` carries the original URL, `ILoginDialogFactory` turns it
+into the login page's URL with a `target=` parameter. That section is worth
+keeping; the rest goes.
+
+**The other things the source contradicted:**
+
+- `look-and-feel/sass-scss-support` says DomUI has two SCSS compilers and falls
+  back from jsass to the Vaadin one. `SassCompilerFactory`'s static initialiser
+  registers `JSassCompiler` and nothing else; the Vaadin compiler is gone, and
+  all that is left of it is an unused `vaadin.sass.compiler.version` property in
+  the root pom.
+- `look-and-feel/animations` teaches `Animations.slideUpAndDestroy()`. The method
+  is `slideUpAndRemove()`. The class is `to.etc.domui.dom.Animations`, which the
+  page never says, and it is used by `Tree2`, `Tree3` and `SearchPanel`.
+- `data/pojo-generator` names the jar `hibernate-generator.jar` (it is
+  `domui-hibernate-generator-1.2-SNAPSHOT.jar`) and documents `-pkg` where the
+  tool's `@Option` declares `-pkgroot`, required. Four options it never mentions
+  exist.
+- `development-environment/ecj-in-maven` documents `plexus-compiler-eclipse`
+  2.8.3 with a section on the unreleased 2.8.4, ecj 3.13.101,
+  `maven-compiler-plugin` 3.7.0 and `<compilerArguments>`. The root pom uses
+  2.8.5, ecj 3.36.0, 3.14.0 and `<compilerArgs>`, on jdk 21.
+- `development-environment/github-environment` credits TravisCI and DeployHQ. The
+  build is `.github/workflows/build.yml` - JDK 21, sonarcloud, CodeQL - and
+  `.travis.yml` is a leftover that still names openjdk11 and `scripts/demo-deploy`,
+  a path that does not exist.
+- `about` and the workspace `CLAUDE.md` both say the demo is deployed with
+  `scripts/deploy-demo`. There is no `scripts/` directory in the framework repo;
+  the script is `deploy-demo`, at the root.
+- The two pages worth moving out of `99-todo` check out: `SubPage`,
+  `SubPageInjector` and `@UIReinject` exist for `subpages`, and
+  `IUrlContextDecoder`, `@UIUrlContext` and `getUrlContextString()` exist for
+  `url-contexts`. The latter's example does not compile (`Map<String, Object)`,
+  a `return` in the wrong block), which is a good sign nobody has used the page.
+
+**What the triage did not settle**, because it cannot be settled from the source:
+whether the three `googlegroups.com` mailing lists on `introduction/what-is-domui`
+are still alive, and whether the IntelliJ plugin of
+`getting-started/intellij-plugin` still installs into a current IntelliJ. Both
+need someone to try them; both pages are marked needing update regardless, the
+second for its six screenshots from May 2018.
+
+No page was changed by this pass.
+
 ### 2026-09-06 - The form builder has a group of its own
 
 The last of the three dissolved `components/` subdirectories was

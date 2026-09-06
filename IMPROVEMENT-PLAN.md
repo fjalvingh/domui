@@ -145,8 +145,11 @@ for now. They are recorded so they are not re-discovered as news.
 
 ### Phase 1 - Inventory and triage (no changes yet)
 
-- [ ] Produce a page-by-page inventory of `site/content`: for each leaf page,
-      mark `current` / `needs-update` / `delete`, with the reason.
+The inventory of `site/content` is **done** (2026-09-06): the 126 pages of
+`components/`, `building-pages/` and `testing/` were written by this project, and
+the other 32 were triaged one by one - the verdicts are the table in phase 2
+below, and what was verified against the source is in the log.
+
 - [ ] Produce a page-by-page inventory of the demo pages: mark `keep` /
       `rework` / `delete`, and note which framework feature each demonstrates.
 - [ ] List the deprecated/superseded framework APIs that the docs and demo still
@@ -162,7 +165,25 @@ for now. They are recorded so they are not re-discovered as news.
 
 - [ ] Verify every code sample against the current source; fix or delete the
       ones that no longer compile conceptually.
-- [ ] Check every internal and external link.
+- [ ] Check every internal and external link. Internal links are checked by the
+      build, so this is about the external ones - which sit almost entirely on
+      the pages in the table below.
+
+#### The 32 pages outside the rewritten sections
+
+Triaged 2026-09-06 and **worked off the same day** - the deletions, the two moves
+and all eleven rewrites are done; see the log. What that pass left open:
+
+- [ ] **The IntelliJ plugin page's screenshots** are from May 2018. The plugin
+      itself works (checked by the user 2026-09-06), so the page's text stands;
+      only the six images need retaking, which is part of the screenshot item in
+      phase 4.
+- [ ] **The hibernate generator has no runnable jar.** `HibernateGenerator` has a
+      `main()`, but the module produces a plain jar - no `Main-Class`, no
+      dependencies - so it cannot be started with `java -jar`. The page now
+      documents the `mvn exec:java` invocation that does work; giving the module
+      a shade/assembly configuration would let the simpler command be true again.
+      (Found rewriting `data/pojo-generator`, 2026-09-06.)
 
 ### Phase 3 - Rework the demo/tutorial application
 
@@ -171,7 +192,10 @@ any more.
 
 ### Phase 4 - Remove old and incorrect code and information
 
-- [ ] Delete documentation pages describing things that no longer exist.
+Deleting the documentation pages that describe things which no longer exist is
+**done** (2026-09-06): six pages went, including `99-todo/spi-pages-and-logins`,
+whose SPI machinery is not in the framework at all. See the log.
+
 - [ ] IGNORE: **Framework: restore JPA support.** `integrations/to.etc.domui.hibutil`
       ships a Hibernate (native) query executor and `to.etc.webapp.qsql` a JDBC
       one; the JPA executor sits in hibutil's unbuilt `removed/jpa/` directory, so
