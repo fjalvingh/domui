@@ -1289,7 +1289,16 @@ The documentation followed: twelve pages listed `IClicked<...>` or
 handlers as `a -> ...`; they are `IExecute` and `() -> ...` now. The
 `110-writing-a-component` page showed `StarRating` fetching and calling its
 change listener by hand, which the class stopped doing long ago - it calls
-`callOnValueChanged()`, and the page says so.
+`callOnValueChanged()`, and the page says so. The first-page tutorial's click
+section had the worst of it: its sample still called `clickedNode` inside a
+no-argument lambda, and the paragraph under it taught the old contract.
+
+`setClicked2()` was never documented anywhere, so the click section of
+`building-pages/10-first-page` now ends with it: what `ClickInfo` carries, that
+it does not carry the node because the lambda captures it, that a node has one
+click handler so the two setters replace each other, and a `!demo()` of the
+`Click2HandlerPage` fixture to click on. It sits there rather than in
+`components/40-buttons` because that is where clicking is first explained.
 
 Verified with a full `mvn21 verify`: the framework, the Kotlin sources, the
 integrations and the demo build, and the 9 unit tests and 55 Selenium tests pass.
