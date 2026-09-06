@@ -145,12 +145,12 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(@NonNull IUIAction<?> action, int order) throws Exception {
+	public @NonNull DefaultButton addButton(@NonNull IUIAction action, int order) throws Exception {
 		return m_factory.addButton(action, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(@NonNull IUIAction<?> action) throws Exception {
+	public @NonNull DefaultButton addButton(@NonNull IUIAction action) throws Exception {
 		return m_factory.addButton(action);
 	}
 
@@ -253,13 +253,13 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull <T> DefaultButton addAction(T instance, IUIAction<T> action, int order) throws Exception {
-		return m_factory.addAction(instance, action, order);
+	public @NonNull DefaultButton addAction(IUIAction action, int order) throws Exception {
+		return m_factory.addAction(action, order);
 	}
 
 	@Override
-	public @NonNull <T> DefaultButton addAction(T instance, IUIAction<T> action) throws Exception {
-		return m_factory.addAction(instance, action);
+	public @NonNull DefaultButton addAction(IUIAction action) throws Exception {
+		return m_factory.addAction(action);
 	}
 
 	public void addButton(@NonNull NodeBase b) {

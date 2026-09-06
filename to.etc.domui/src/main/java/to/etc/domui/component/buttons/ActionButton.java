@@ -10,7 +10,6 @@ import to.etc.domui.component2.popupmenus.PopupMenu2.Mode;
 import to.etc.domui.dom.html.HR;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.util.Pair;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
@@ -25,18 +24,18 @@ public class ActionButton extends DefaultButton {
 
 	private PopupMenu2.Mode m_mode = PopupMenu2.Mode.BELOW;
 
-	private final List<Pair<?, IUIAction<?>>> m_actions = new ArrayList<>();
+	private final List<IUIAction> m_actions = new ArrayList<>();
 
-	public <T> ActionButton(T instance, IUIAction<T> action) throws Exception {
-		super(instance, action);
+	public <T> ActionButton(IUIAction action) throws Exception {
+		super(action);
 	}
 
 	public ActionButton(IBundleCode code, IIconRef icon, final IClicked<DefaultButton> clicked) {
 		super(code, icon, clicked);
 	}
 
-	public <T> ActionButton addAction(T instance, IUIAction<T> action) {
-		m_actions.add(new Pair<>(instance, action));
+	public ActionButton addAction(IUIAction action) {
+		m_actions.add(action);
 		if(isBuilt()) {
 			forceRebuild();
 		}
@@ -85,24 +84,20 @@ public class ActionButton extends DefaultButton {
 					p2.setZIndex(floatingParent.getZIndex() + 100);
 				}
 
-				for(Pair<?, IUIAction<?>> pair : m_actions) {
-					Object instance = pair.get1();
-					IUIAction<?> action = pair.get2();
-					addMenuAction(p2, instance, action);
+				for(IUIAction action : m_actions) {
+					addMenuAction(p2, action);
 				}
 				p2.show(this);
 			});
 		}
 	}
 
-	private <T> void addMenuAction(PopupMenu2 pm, Object instance, IUIAction<?> action) throws Exception {
-		T inst = (T) instance;
-		IUIAction<T> ta = (IUIAction<T>) action;
-		pm.text(ta.getName(inst))
-			.hint(ta.getTitle(inst))
-			.icon(ta.getIcon(inst))
-			.click(() -> ta.execute(this, inst))
-			.disableReason(ta.getDisableReason(inst))
+	private void addMenuAction(PopupMenu2 pm, IUIAction ta) throws Exception {
+		pm.text(ta.getName())
+			.hint(ta.getTitle())
+			.icon(ta.getIcon())
+			.click(() -> ta.execute(this))
+			.disableReason(ta.getDisableReason())
 			.append();
 	}
 }

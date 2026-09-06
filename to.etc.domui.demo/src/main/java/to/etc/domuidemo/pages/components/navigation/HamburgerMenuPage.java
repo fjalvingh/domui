@@ -38,7 +38,7 @@ public class HamburgerMenuPage extends UrlPage {
 		ExpandHeader header = new ExpandHeader("Led Zeppelin IV");
 		cp.add(header);
 		header.setOnExpand(content -> content.add("The tracks of the album would be listed here."));
-		for(IUIAction<?> action : actions(chosen)) {
+		for(IUIAction action : actions(chosen)) {
 			header.addAction(action);
 		}
 
@@ -53,7 +53,7 @@ public class HamburgerMenuPage extends UrlPage {
 		buttons.add(new DefaultButton("Menu", Icon.faBars, a -> {
 			HamburgerMenu menu = new HamburgerMenu(actions(chosen));
 			a.appendAfterMe(menu);
-			menu.setOnSelection(action -> action.execute(a, null));
+			menu.setOnSelection(action -> action.execute(a));
 		}));
 
 		cp.add(chosen);
@@ -72,16 +72,16 @@ public class HamburgerMenuPage extends UrlPage {
 	/**
 	 * The actions both menus on this page are made of. They report into the div they are given.
 	 */
-	private static List<IUIAction<?>> actions(Div chosen) {
-		List<IUIAction<?>> list = new ArrayList<>();
-		list.add(new UIAction<Void>("Play the album", "Play every track in order", Icon.faMusic,
-			null, (node, instance) -> report(chosen, "Play the album")));
-		list.add(new UIAction<Void>("Add to the cart", null, Icon.faShoppingCart,
-			null, (node, instance) -> report(chosen, "Add to the cart")));
-		list.add(new UIAction<Void>("Print the sleeve", null, Icon.faPrint,
-			null, (node, instance) -> report(chosen, "Print the sleeve")));
-		list.add(new UIAction<Void>("Delete the album", null, Icon.faTrash,
-			"The album has been sold, so it cannot be deleted", (node, instance) -> report(chosen, "Delete the album")));
+	private static List<IUIAction> actions(Div chosen) {
+		List<IUIAction> list = new ArrayList<>();
+		list.add(new UIAction("Play the album", "Play every track in order", Icon.faMusic,
+			null, (node) -> report(chosen, "Play the album")));
+		list.add(new UIAction("Add to the cart", null, Icon.faShoppingCart,
+			null, (node) -> report(chosen, "Add to the cart")));
+		list.add(new UIAction("Print the sleeve", null, Icon.faPrint,
+			null, (node) -> report(chosen, "Print the sleeve")));
+		list.add(new UIAction("Delete the album", null, Icon.faTrash,
+			"The album has been sold, so it cannot be deleted", (node) -> report(chosen, "Delete the album")));
 		return list;
 	}
 

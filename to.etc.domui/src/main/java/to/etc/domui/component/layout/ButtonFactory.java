@@ -38,7 +38,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@Override
 	@NonNull
-	public DefaultButton addButton(final String txt, final IIconRef icon, final IClicked<DefaultButton> click, int order) {
+	public DefaultButton addButton(final String txt, @Nullable final IIconRef icon, final IClicked<DefaultButton> click, int order) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
 		m_container.addButton(b, order);
 		return b;
@@ -46,7 +46,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public DefaultButton addButton(final String txt, final IIconRef icon, final IClicked<DefaultButton> click) {
+	public DefaultButton addButton(final String txt, @Nullable final IIconRef icon, final IClicked<DefaultButton> click) {
 		return addButton(txt, icon, click, -1);
 	}
 
@@ -55,7 +55,7 @@ public class ButtonFactory implements IButtonBar {
 	 */
 	@Override
 	@NonNull
-	public DefaultButton addButton(@NonNull IUIAction<?> action, int order) throws Exception {
+	public DefaultButton addButton(@NonNull IUIAction action, int order) throws Exception {
 		DefaultButton b = new DefaultButton(action);
 		m_container.addButton(b, order);
 		return b;
@@ -63,7 +63,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@Override
 	@NonNull
-	public DefaultButton addButton(@NonNull IUIAction<?> action) throws Exception {
+	public DefaultButton addButton(@NonNull IUIAction action) throws Exception {
 		return addButton(action, -1);
 	}
 
@@ -239,15 +239,15 @@ public class ButtonFactory implements IButtonBar {
 
 	@Override
 	@NonNull
-	public <T> DefaultButton addAction(T instance, IUIAction<T> action, int order) throws Exception {
-		DefaultButton b = new DefaultButton(instance, action);
+	public DefaultButton addAction(IUIAction action, int order) throws Exception {
+		DefaultButton b = new DefaultButton(action);
 		m_container.addButton(b, order);
 		return b;
 	}
 
 	@Override
 	@NonNull
-	public <T> DefaultButton addAction(T instance, IUIAction<T> action) throws Exception {
-		return addAction(instance, action, -1);
+	public DefaultButton addAction(IUIAction action) throws Exception {
+		return addAction(action, -1);
 	}
 }

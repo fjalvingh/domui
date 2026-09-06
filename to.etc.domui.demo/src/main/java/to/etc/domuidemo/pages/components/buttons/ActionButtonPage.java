@@ -38,36 +38,36 @@ public class ActionButtonPage extends UrlPage {
 		shown.add("The three buttons below are all the same action.");
 
 		//-- One action: its own name, tooltip, icon, reason to be disabled, and what it does.
-		IUIAction<Album> ship = new UIAction<>("Ship it", "Send this album to the customer",
-			Icon.faTruck, null, (node, album) -> {
+		IUIAction ship = new UIAction("Ship it", "Send this album to the customer",
+			Icon.faTruck, null, node -> {
 			shown.removeAllChildren();
-			shown.add("Shipped " + album.getTitle());
+			shown.add("Shipped " + m_album.getTitle());
 		});
 
 		//-- And one that is disabled, with the reason it gives shown on hover.
-		IUIAction<Album> reprint = new UIAction<>("Reprint", "Have the sleeve printed again",
-			Icon.faPrint, "The printer is out of ink", (node, album) -> {
+		IUIAction reprint = new UIAction("Reprint", "Have the sleeve printed again",
+			Icon.faPrint, "The printer is out of ink", node -> {
 		});
 
 		cp.add(new HTag(2, "The same actions, on a button and on a bar"));
 		Div row = new Div("dm-tut");
 		cp.add(row);
-		row.add(new DefaultButton(m_album, ship));
-		row.add(new DefaultButton(m_album, reprint));
+		row.add(new DefaultButton(ship));
+		row.add(new DefaultButton(reprint));
 
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
-		bb.addAction(m_album, ship);
-		bb.addAction(m_album, reprint);
+		bb.addAction(ship);
+		bb.addAction(reprint);
 
 		//-- A button with a menu of further actions hanging off it.
 		cp.add(new HTag(2, "A button with more actions behind it"));
-		ActionButton more = new ActionButton(m_album, ship);
-		more.addAction(m_album, reprint);
-		more.addAction(m_album, new UIAction<Album>("Cancel the order", "Take the order back",
-			Icon.faTimes, null, (node, album) -> {
+		ActionButton more = new ActionButton(ship);
+		more.addAction(reprint);
+		more.addAction(new UIAction("Cancel the order", "Take the order back",
+			Icon.faTimes, null, node -> {
 			shown.removeAllChildren();
-			shown.add("Cancelled the order for " + album.getTitle());
+			shown.add("Cancelled the order for " + m_album.getTitle());
 		}));
 		cp.add(more);
 		cp.add(shown);

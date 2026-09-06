@@ -55,7 +55,7 @@ public class LinkButton extends ATag implements IActionControl {
 	private boolean m_disabled;
 
 	@Nullable
-	private IUIAction<?> m_action;
+	private IUIAction m_action;
 
 	@Nullable
 	private Object m_actionInstance;
@@ -106,22 +106,9 @@ public class LinkButton extends ATag implements IActionControl {
 		setText(code.format());
 	}
 
-	/**
-	 * Create a {@link IUIAction} based link button, for an action that needs no instance.
-	 */
-	public LinkButton(@NonNull IUIAction<?> action) throws Exception {
+	public LinkButton(@NonNull IUIAction action) throws Exception {
 		this();
 		m_action = action;
-		actionRefresh();
-	}
-
-	/**
-	 * Create a {@link IUIAction} based link button for the instance the action works on.
-	 */
-	public <T> LinkButton(@Nullable T instance, @NonNull IUIAction<T> action) throws Exception {
-		this();
-		m_action = action;
-		m_actionInstance = instance;
 		actionRefresh();
 	}
 
@@ -152,20 +139,20 @@ public class LinkButton extends ATag implements IActionControl {
 	 * EXPERIMENTAL - UNSTABLE INTERFACE - Refresh the button regarding the state of the action.
 	 */
 	private void actionRefresh() throws Exception {
-		final IUIAction<Object> action = (IUIAction<Object>) getAction();
+		final IUIAction action = getAction();
 		if(null == action)
 			return;
-		String dt = action.getDisableReason(getActionInstance());
+		String dt = action.getDisableReason();
 		if(null == dt) {
-			setTitle(action.getTitle(getActionInstance())); // The default tooltip or remove it if not present
+			setTitle(action.getTitle()); // The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
 			setTitle(dt);                        // Shot reason for being disabled
 			setDisabled(true);
 		}
-		setText(action.getName(getActionInstance()));
-		setImage(action.getIcon(getActionInstance()));
-		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this, getActionInstance()));
+		setText(action.getName());
+		setImage(action.getIcon());
+		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this));
 	}
 
 	public LinkButton setImage(@Nullable IIconRef url) {
@@ -220,7 +207,7 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	@Nullable
-	public IUIAction<?> getAction() {
+	public IUIAction getAction() {
 		return m_action;
 	}
 
@@ -229,7 +216,7 @@ public class LinkButton extends ATag implements IActionControl {
 		return m_actionInstance;
 	}
 
-	public void setAction(@NonNull IUIAction<?> action) throws Exception {
+	public void setAction(@NonNull IUIAction action) throws Exception {
 		if(DomUtil.isEqual(m_action, action))
 			return;
 		m_action = action;

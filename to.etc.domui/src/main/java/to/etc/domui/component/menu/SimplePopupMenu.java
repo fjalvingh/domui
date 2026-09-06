@@ -30,8 +30,6 @@ public class SimplePopupMenu extends Div {
 	@NonNull
 	private NodeBase m_relativeTo;
 
-	private Object m_targetObject;
-
 	final private List<Item> m_actionList;
 
 	static private class MenuLevel {
@@ -67,9 +65,8 @@ public class SimplePopupMenu extends Div {
 		m_relativeTo = relativeTo;
 	}
 
-	SimplePopupMenu(@NonNull NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
+	SimplePopupMenu(@NonNull NodeBase b, PopupMenu pm, List<Item> actionList) {
 		m_actionList = Collections.unmodifiableList(actionList);
-		m_targetObject = target;
 		m_relativeTo = b;
 		m_source = pm;
 	}
@@ -96,7 +93,7 @@ public class SimplePopupMenu extends Div {
 			if(a instanceof Submenu) {
 				renderSubmenu(items, (Submenu) a);
 			} else if(a.getAction() != null) {
-				renderAction(items, (IUIAction<Object>) a.getAction(), m_targetObject);
+				renderAction(items, a.getAction());
 			} else {
 				renderItem(items, a);
 			}
@@ -159,7 +156,7 @@ public class SimplePopupMenu extends Div {
 				if(s.getTarget() != null)
 					target = s.getTarget();
 
-				renderAction(items, (IUIAction<Object>) a.getAction(), target);
+				renderAction(items, a.getAction());
 			} else {
 				renderItem(items, a);
 			}
@@ -172,10 +169,6 @@ public class SimplePopupMenu extends Div {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Renderers.											*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param a
-	 */
 	protected void renderSubmenu(@NonNull NodeContainer into, final Submenu a) {
 		final Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
 		Img img = new Img("THEME/pmnu-submenu-open.png");
@@ -207,17 +200,17 @@ public class SimplePopupMenu extends Div {
 		return d;
 	}
 
-	protected <T> void renderAction(@NonNull NodeContainer into, final IUIAction<T> action, final T val) throws Exception {
-		String disa = action.getDisableReason(val);
+	protected <T> void renderAction(@NonNull NodeContainer into, final IUIAction action) throws Exception {
+		String disa = action.getDisableReason();
 		if(null != disa) {
-			renderItem(into, action.getName(val), disa, action.getIcon(val), true);
+			renderItem(into, action.getName(), disa, action.getIcon(), true);
 			return;
 		}
 
-		Div d = renderItem(into, action.getName(val), action.getTitle(val), action.getIcon(val), false);
+		Div d = renderItem(into, action.getName(), action.getTitle(), action.getIcon(), false);
 		d.setClicked(clickednode -> {
 			closeMenu();
-			action.execute(getRelativeTo(), val);
+			action.execute(getRelativeTo());
 		});
 	}
 
@@ -238,7 +231,7 @@ public class SimplePopupMenu extends Div {
 		return m_relativeTo;
 	}
 
-	public void addAction(IUIAction< ? > action) {
+	public void addAction(IUIAction action) {
 		getActionList().add(new Item(action));
 	}
 
@@ -262,12 +255,7 @@ public class SimplePopupMenu extends Div {
 		return m_source;
 	}
 
-	public Object getTargetObject() {
-		return m_targetObject;
-	}
-
 	protected void clearPopinIf() {
 		getPage().clearPopIn();
 	}
-
 }

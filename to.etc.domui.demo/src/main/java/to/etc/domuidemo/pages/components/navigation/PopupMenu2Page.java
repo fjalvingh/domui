@@ -76,12 +76,12 @@ public class PopupMenu2Page extends UrlPage {
 		cp.add(actionButton);
 
 		String album = "Led Zeppelin IV";                 // The instance every action below works on
-		ActionButton ab = new ActionButton(album, new UIAction<String>("Play it", "Play the whole album", Icon.faMusic,
-			null, (node, instance) -> report(chosen, "Play " + instance)));
-		ab.addAction(album, new UIAction<String>("Add to the cart", null, Icon.faShoppingCart,
-			null, (node, instance) -> report(chosen, "Add " + instance + " to the cart")));
-		ab.addAction(album, new UIAction<String>("Delete it", null, Icon.faTrash,
-			"The album has been sold, so it cannot be deleted", (node, instance) -> report(chosen, "Delete " + instance)));
+		ActionButton ab = new ActionButton(new UIAction("Play it", "Play the whole album", Icon.faMusic,
+			null, (node) -> report(chosen, "Play " + album)));
+		ab.addAction(new UIAction("Add to the cart", null, Icon.faShoppingCart,
+			null, (node) -> report(chosen, "Add " + album + " to the cart")));
+		ab.addAction(new UIAction("Delete it", null, Icon.faTrash,
+			"The album has been sold, so it cannot be deleted", (node) -> report(chosen, "Delete " + album)));
 		actionButton.add(ab);
 
 		cp.add(new Para().add("An ActionButton is a button plus a chevron that opens a PopupMenu2 of "

@@ -4,9 +4,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.function.BiConsumerEx;
+import to.etc.function.ConsumerEx;
 
-public class UIAction<T> implements IUIAction<T> {
+public class UIAction implements IUIAction {
 	final private String m_name;
 
 	final private String m_title;
@@ -16,18 +16,18 @@ public class UIAction<T> implements IUIAction<T> {
 	@Nullable
 	private String m_disableReason;
 
-	private final BiConsumerEx<NodeBase, T> m_execute;
+	private final ConsumerEx<NodeBase> m_execute;
 
 	public UIAction(String name, String title, IIconRef icon) {
 		m_name = name;
 		m_title = title;
 		m_icon = icon;
-		m_execute = (a, b) -> {
+		m_execute = (b) -> {
 			throw new IllegalStateException("Missing execute");
 		};
 	}
 
-	public UIAction(String name, String title, IIconRef icon, @Nullable String disableReason, BiConsumerEx<NodeBase, T> execute) {
+	public UIAction(String name, String title, IIconRef icon, @Nullable String disableReason, ConsumerEx<NodeBase> execute) {
 		m_name = name;
 		m_title = title;
 		m_icon = icon;
@@ -37,7 +37,7 @@ public class UIAction<T> implements IUIAction<T> {
 
 	@Override
 	@Nullable
-	public String getDisableReason(@Nullable T instance) throws Exception {
+	public String getDisableReason() throws Exception {
 		return m_disableReason;
 	}
 
@@ -47,23 +47,24 @@ public class UIAction<T> implements IUIAction<T> {
 
 	@Override
 	@NonNull
-	public String getName(@Nullable T instance) throws Exception {
+	public String getName() throws Exception {
 		return m_name;
 	}
 
 	@Override
 	@Nullable
-	public String getTitle(@Nullable T instance) throws Exception {
+	public String getTitle() throws Exception {
 		return m_title;
 	}
 
 	@Override
 	@Nullable
-	public IIconRef getIcon(@Nullable T instance) throws Exception {
+	public IIconRef getIcon() throws Exception {
 		return m_icon;
 	}
 
-	@Override public void execute(@NonNull NodeBase component, @Nullable T instance) throws Exception {
-		m_execute.accept(component, instance);
+	@Override
+	public void execute(@NonNull NodeBase component) throws Exception {
+		m_execute.accept(component);
 	}
 }

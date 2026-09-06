@@ -19,12 +19,12 @@ import java.util.List;
  */
 @NonNullByDefault
 public class HamburgerMenu extends CloseOnClickPanel {
-	final private List<IUIAction<?>> m_actionList;
+	final private List<IUIAction> m_actionList;
 
 	@Nullable
-	private INotify<IUIAction<?>> m_onSelection;
+	private INotify<IUIAction> m_onSelection;
 
-	public HamburgerMenu(List<IUIAction<?>> actionList) {
+	public HamburgerMenu(List<IUIAction> actionList) {
 		m_actionList = actionList;
 	}
 
@@ -33,31 +33,31 @@ public class HamburgerMenu extends CloseOnClickPanel {
 		setCssClass("ui-hmbrg-menu");
 
 		boolean hasicon = false;
-		for(IUIAction<?> action : m_actionList) {
-			if(action.getIcon(null) != null) {
+		for(IUIAction action : m_actionList) {
+			if(action.getIcon() != null) {
 				hasicon = true;
 			}
 		}
 
-		for(IUIAction<?> action : m_actionList) {
+		for(IUIAction action : m_actionList) {
 			renderAction(action, hasicon);
 		}
 		super.createContent();
 	}
 
-	private void renderAction(IUIAction<?> action, boolean hasicon) throws Exception {
+	private void renderAction(IUIAction action, boolean hasicon) throws Exception {
 		Div sel = new Div();
 		add(sel);
 		sel.setCssClass("ui-hmbrg-item" + (hasicon ? " ui-hmbrg-icon" : ""));
-		IIconRef icon = action.getIcon(null);
+		IIconRef icon = action.getIcon();
 
-		String disable = action.getDisableReason(null);
+		String disable = action.getDisableReason();
 		if(null != icon) {
 			NodeBase node = icon.createNode();
 			node.addCssClass("ui-hmbrg-icon");
 			sel.add(node);
 		}
-		Span sp = new Span("ui-hmbrg-txt", action.getName(null));
+		Span sp = new Span("ui-hmbrg-txt", action.getName());
 		sel.add(sp);
 		if(null != disable) {
 			sel.addCssClass("ui-hmbrg-disabled ui-disabled");
@@ -67,10 +67,10 @@ public class HamburgerMenu extends CloseOnClickPanel {
 		}
 	}
 
-	private void handleSelection(IUIAction<?> action) throws Exception {
+	private void handleSelection(IUIAction action) throws Exception {
 		close();
 
-		INotify<IUIAction<?>> onSelection = m_onSelection;
+		INotify<IUIAction> onSelection = m_onSelection;
 		if(null != onSelection)
 			onSelection.onNotify(action);
 	}
@@ -80,11 +80,11 @@ public class HamburgerMenu extends CloseOnClickPanel {
 	 * @return
 	 */
 	@Nullable
-	public INotify<IUIAction<?>> getOnSelection() {
+	public INotify<IUIAction> getOnSelection() {
 		return m_onSelection;
 	}
 
-	public void setOnSelection(@Nullable INotify<IUIAction<?>> onSelection) {
+	public void setOnSelection(@Nullable INotify<IUIAction> onSelection) {
 		m_onSelection = onSelection;
 	}
 }

@@ -64,7 +64,7 @@ public class DefaultButton extends Button implements IActionControl {
 	private IIconRef m_icon;
 
 	/** If this is an action-based button this contains the action. */
-	private IUIAction<?> m_action;
+	private IUIAction m_action;
 
 	private Object m_actionInstance;
 
@@ -87,19 +87,9 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Create a {@link IUIAction} based button.
 	 */
-	public DefaultButton(IUIAction<?> action) throws Exception {
+	public DefaultButton(IUIAction action) throws Exception {
 		this();
 		m_action = action;
-		actionRefresh();
-	}
-
-	/**
-	 * Create a {@link IUIAction} based button.
-	 */
-	public <T> DefaultButton(T instance, IUIAction<T> action) throws Exception {
-		this();
-		m_action = action;
-		m_actionInstance = instance;
 		actionRefresh();
 	}
 
@@ -130,7 +120,7 @@ public class DefaultButton extends Button implements IActionControl {
 		this(code.getString(), icon, clicked);
 	}
 
-	public DefaultButton(String txt, IIconRef icon, final IClicked<DefaultButton> clicked) {
+	public DefaultButton(@Nullable String txt, @Nullable IIconRef icon, final IClicked<DefaultButton> clicked) {
 		this();
 		setText(txt);
 		setIcon(icon);
@@ -189,7 +179,7 @@ public class DefaultButton extends Button implements IActionControl {
 			//	img.setDisabled(isDisabled());
 			//}
 		}
-		if(! StringTool.isBlank(getText())) {
+		if(!StringTool.isBlank(getText())) {
 			Span txt = new Span();
 			txt.setCssClass("ui-sdbtn-txt");
 			add(txt);
@@ -325,10 +315,9 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * EXPERIMENTAL - UNSTABLE INTERFACE - Get the action associated with this button, or
 	 * null if the button is not action based.
-	 * @return
 	 */
 	@Nullable
-	public IUIAction<?> getAction() {
+	public IUIAction getAction() {
 		return m_action;
 	}
 
@@ -336,24 +325,19 @@ public class DefaultButton extends Button implements IActionControl {
 	 * EXPERIMENTAL - UNSTABLE INTERFACE - Refresh the button regarding the state of the action.
 	 */
 	private void actionRefresh() throws Exception {
-		final IUIAction<Object> action = (IUIAction<Object>) getAction();
+		final IUIAction action = getAction();
 		if(null == action)
 			return;
-		String dt = action.getDisableReason(m_actionInstance);
+		String dt = action.getDisableReason();
 		if(null == dt) {
-			dt = action.getTitle(m_actionInstance);        // The default tooltip or remove it if not present
+			dt = action.getTitle();        // The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
 			setDisabled(true);
 		}
 		setTitle(dt);
-		setText(action.getName(m_actionInstance));
-		setIcon(action.getIcon(m_actionInstance));
-		setClicked(new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
-				action.execute(DefaultButton.this, m_actionInstance);
-			}
-		});
+		setText(action.getName());
+		setIcon(action.getIcon());
+		setClicked((IClicked<DefaultButton>) clickednode -> action.execute(DefaultButton.this));
 	}
 }

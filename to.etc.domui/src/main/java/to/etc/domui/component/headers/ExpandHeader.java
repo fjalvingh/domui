@@ -39,7 +39,7 @@ public class ExpandHeader extends Div {
 	@Nullable
 	private NodeBase m_captionNode;
 
-	private List<IUIAction<?>> m_actionList = new ArrayList<>();
+	private List<IUIAction> m_actionList = new ArrayList<>();
 
 	@Nullable
 	private HoverButton m_expandButton;
@@ -139,7 +139,7 @@ public class ExpandHeader extends Div {
 			nullChecked(m_hamburgerButton).appendAfterMe(menu);
 			menu.setOnSelection(action -> {
 				m_menu = null;
-				action.execute(this, null);
+				action.execute(this);
 			});
 		} else {
 			menu.remove();
@@ -231,11 +231,11 @@ public class ExpandHeader extends Div {
 		}
 	}
 
-	public List<IUIAction<?>> getActionList() {
+	public List<IUIAction> getActionList() {
 		return m_actionList;
 	}
 
-	public void setActionList(List<IUIAction<?>> actionList) {
+	public void setActionList(List<IUIAction> actionList) {
 		forceRebuild();
 		m_actionList = actionList;
 	}
@@ -248,7 +248,7 @@ public class ExpandHeader extends Div {
 		m_actionList.clear();
 	}
 
-	public void addAction(IUIAction<?> action) {
+	public void addAction(IUIAction action) {
 		m_actionList.add(action);
 	}
 
