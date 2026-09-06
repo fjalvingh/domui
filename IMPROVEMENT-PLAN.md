@@ -98,16 +98,6 @@ Framework:
 Phase 0 (fix the basics) is **finished**; see the log. What remains is the
 top-down work: decide what is true, then fix docs, then fix the demo, then delete.
 
-### Open questions left over from phase 0
-
-- [ ] **The `form4` FormBuilder needs a home.** The three old `components/`
-      subdirectories are dissolved into the thirteen groups, except
-      `forms-and-input`, which is down to the single FormBuilder page. The form
-      builder is a member of no group - it is not a component but the thing that
-      lays components out - so it needs a place of its own: a group next to the
-      thirteen, or a page in the walkthrough, which already teaches it in
-      `building-pages/20-using-components`.
-
 ### Defects known and deliberately left alone
 
 Raised while writing the component pages, looked at, and decided against acting on
@@ -134,6 +124,13 @@ for now. They are recorded so they are not re-discovered as news.
 - IGNORE: `ImageSelectControl`'s accepted types (`.jpg,.jpeg,.png,.gif`) and its 10MB
   limit are hardcoded in `createContent()`, where `FileUpload2` makes both
   properties.
+
+- IGNORE: **`unlabeled()` and `controlOnly()` are the same thing.** On a
+  `FormBuilder` row `unlabeled()` is `label("")`, and an empty label produces no
+  label node at all - which is exactly what `controlOnly()`'s marker does, in
+  both layouters. Only `controlOnly()` is documented, and only `controlOnly()`
+  exists as an entry point on the builder itself; `unlabeled()` is a candidate
+  for removal once nothing calls it. (Found writing the forms group, 2026-09-06.)
 
 - IGNORE: `RadioGroup` has three overlapping enum factories: `createEnumRadioGroup(Class,
   exceptions...)` (sorted), `createEnumRadioGroupUnsorted(...)` and
@@ -190,6 +187,15 @@ any more.
       `DisplayValue` or `CaptionedHeader` any more, nor to the page object proxies
       `CpText` and `CpComboFixed` that go with the first three. What still uses
       them is the framework itself.
+- [ ] **Framework: `TableFormLayouter` is dead.** The `FormBuilder` constructor
+      makes a `ResponsiveFormLayouter`; the line that would make a
+      `TableFormLayouter` instead is commented out next to it, and nothing else
+      in the framework, the demo or the documentation names the class. It is the
+      only thing that emits the `ui-f4` table markup, so most of
+      `themes/scss/winter/_form4.scss` goes with it - all but the three classes
+      the responsive layouter still uses (`ui-f4-mandatory`, `ui-f4-hinticon`,
+      `ui-f4-ta`), which would be better named `ui-f5-*` while they are being
+      moved. (Found writing the forms group, 2026-09-06.)
 - [ ] **Framework: `PropBtnPart` and `ButtonPartKey` are dead.** The part that
       painted a button image from a properties file has no live caller left -
       `ThemeCssUtils` only mentions it in commented-out code, and the demo page

@@ -916,13 +916,12 @@ the user's direction: fix the basics before rewriting anything on top of them.
       The existing `components/rules` page stays where it is; the three current
       subdirectories (`forms-and-input`, `lookup-and-search`,
       `tables-trees-navigation`) are dissolved into the groups above.
-      **What is left of that dissolving:** `lookup-and-search` and
-      `tables-trees-navigation` are gone, and `forms-and-input` is down to a
-      single page, the `form4` FormBuilder. The form builder is a member of no
-      group - it is not a component but the thing that lays components out - so
-      it needs a home of its own to be decided: a group of its own next to the
-      thirteen, or a page in the walkthrough, which already teaches it in
-      `building-pages/20-using-components`.
+      **The dissolving is finished.** `lookup-and-search`,
+      `tables-trees-navigation` and `forms-and-input` are all gone; the form
+      builder, which is a member of no group because it is not a component but
+      the thing that lays components out, got a group of its own -
+      `components/15-forms` - on 2026-09-06. See the decisions log entry of that
+      date.
 
 ### Candidates raised while doing phase 0, and fixed
 
@@ -1237,6 +1236,75 @@ These were offered as input while the phase 0 items were being worked, and taken
       See the decisions log entry of that date.
 
 ## Decisions log
+
+### 2026-09-06 - The form builder has a group of its own
+
+The last of the three dissolved `components/` subdirectories was
+`forms-and-input`, down to one page: `form4-formbuilder`. That page was still
+the raw Confluence conversion - it opened by saying that "DomUI contains many
+FormBuilders, most of them are attempts to get it right", its first section was
+the word **TBD**, and what it did document was the readOnly and disabled
+bindings and nothing else. Next to it, in `components/rules`, sat
+`vertical-form-builder-details`: nine hundred words on how the baselines of a
+label and an input are aligned inside the `<td>`s of a `ui-f4` table.
+
+**The form builder is a group, `components/15-forms`, between text input and
+choice input.** It is not a component, but every group page's examples are
+written in terms of it, and the walkthrough's one-paragraph pass over it in
+`building-pages/20-using-components` is a teaching pass, not a reference. The
+group has an index and three pages, mirroring three new demo pages:
+
+- `formbuilder` - the pair a form is made of: what the builder is handed, what a
+  label can be, `mandatory()`, hints as tooltip or as icon, and `item()` for a
+  row that is not a control.
+- `from-a-property` - `property()`: the control made from metadata and bound to
+  the property, `control()`/`control(Class)`/`control(control)`, and the
+  `readOnly`/`disabled`/`disabledBecause` trio in its three forms (set, bound
+  for one row, bound for a run of rows).
+- `form-layout` - vertical and horizontal, `nl()`, `append()` and
+  `appendAfterControl()`, the label width classes, `cssLabel()`/`cssControl()`,
+  and the layouter that turns a row into html.
+
+`vertical-form-builder-details` **is deleted rather than updated**: it describes
+the `TableFormLayouter`, and that is not what a form is any more. The builder's
+constructor makes a `ResponsiveFormLayouter`, which builds flexbox `div`s -
+`ui-f5`, `ui-f5-pair`, `ui-f5-lbl`, `ui-f5-ctl` - and the page's table, its
+`<td>` classes and its baseline arithmetic are all about a layout nothing
+creates. Verified against the running demo: a form is
+`div.ui-f5.ui-f5-v > div.ui-f5-pair-v > (div.ui-f5-lbl-v, div.ui-f5-ctl-v)`.
+The `ui-f4` class names that *are* still emitted are the three the responsive
+path uses - `ui-f4-mandatory` on a mandatory label, `ui-f4-hinticon` on the hint
+icon and `ui-f4-ta` on a textarea's label - and the new pages name those.
+
+Three demo pages were added under `pages/components/form`, in a new "Forms"
+group of `ComponentListPage`: `FormBasicsPage`, `FormPropertyPage` and
+`FormLayoutPage`. Everything the pages claim was checked in the browser against
+them: the metadata labels ("Title" for `Track.name`), `control(ComboLookup2.class)`
+turning the default `LookupInput2` for `Track.genre` into a combo, the
+`readOnlyAll()` binding following a checkbox tick, `append()` putting a second
+control in one pair, `ui-label-wide` widening the label column, and the hint
+icon appearing only under `hintAsIcon(true)`.
+
+**Two defects found while writing it, both fixed in `FormBuilder`:**
+
+- `controlOnly()` leaked its own marker. The no-label marker is the string
+  `$nor$`; `determineLabel()` knew it, but `labelTextCalculated()` did not, so a
+  control added with `controlOnly()` got `$nor$` as its error location and as
+  its calculated id. It returns null for the marker now.
+- `disabledBecause("some text")` threw the text away. The literal branch was
+  `//ctl.setDisabledBecause(diMsg); // FIXME` followed by `setDisabled(true)`,
+  because `IControl` has no such method - the property exists only on the
+  controls that have it. It is set through the control's metadata now, the same
+  way the *bound* form of `disabledBecause()` already set it, and a control
+  without the property is still just disabled. Verified in the browser: the
+  `LookupInput2` for `Track.mediaType` carries "The media type is set when the
+  track is imported" as its tooltip.
+
+**What was left alone:** `unlabeled()` and `controlOnly()` do exactly the same
+thing in both layouters (`unlabeled()` is `label("")`, and an empty label
+produces no label node), so only `controlOnly()` is documented - and only
+`controlOnly()` exists as an entry point on the builder itself, which is how the
+demo page found the duplication.
 
 ### 2026-09-06 - IClicked and IValueChanged removed; IExecute is the handler
 

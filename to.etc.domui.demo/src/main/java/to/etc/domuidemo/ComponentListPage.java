@@ -65,6 +65,9 @@ import to.etc.domuidemo.pages.components.choice.ComboFixed2Page;
 import to.etc.domuidemo.pages.components.choice.ComboLookup2Page;
 import to.etc.domuidemo.pages.components.choice.EnumSetInputPage;
 import to.etc.domuidemo.pages.components.choice.RadioGroupPage;
+import to.etc.domuidemo.pages.components.form.FormBasicsPage;
+import to.etc.domuidemo.pages.components.form.FormLayoutPage;
+import to.etc.domuidemo.pages.components.form.FormPropertyPage;
 import to.etc.domuidemo.pages.components.input.ColorPickerButtonPage;
 import to.etc.domuidemo.pages.components.input.ColorPickerInputPage;
 import to.etc.domuidemo.pages.components.input.ColorPickerPage;
@@ -145,6 +148,12 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(ColorPickerPage.class, "ColorPicker: the open picker");
 		f.addLink(ColorPickerButtonPage.class, "ColorPickerButton: a swatch to press");
 		f.addLink(ColorPickerInputPage.class, "ColorPickerInput: the code and a swatch");
+
+		f = new ListFragment("Forms");
+		main.add(f);
+		f.addLink(FormBasicsPage.class, "FormBuilder: labels and controls");
+		f.addLink(FormPropertyPage.class, "FormBuilder: a form from properties");
+		f.addLink(FormLayoutPage.class, "FormBuilder: laying the form out");
 
 		f = new ListFragment("Choice input");
 		main.add(f);

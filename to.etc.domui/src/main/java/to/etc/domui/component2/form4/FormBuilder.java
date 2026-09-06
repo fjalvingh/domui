@@ -446,8 +446,7 @@ final public class FormBuilder {
 			BindReference<?, Boolean> diGlob = m_disabledGlobal;
 
 			if(diMsg != null) {
-				//ctl.setDisabledBecause(diMsg);			// FIXME
-				ctl.setDisabled(true);
+				setDisabledBecause(control, ctl, diMsg);
 			} else if(diMsgOnce != null) {
 				control.bind("disabledBecause").to(diMsgOnce);
 			} else if(diMsgGlob != null) {
@@ -475,6 +474,21 @@ final public class FormBuilder {
 		}
 		if(null != label)
 			control.setCalculcatedId(label.toLowerCase());
+	}
+
+	/**
+	 * Set the control's "disabledBecause" property, which disables it and says why. It is not part
+	 * of {@link IControl} but a property of those controls that have it, so it is set through the
+	 * control's metadata - the same way the bound form of disabledBecause() sets it. A control
+	 * without the property is just disabled.
+	 */
+	static private void setDisabledBecause(NodeBase control, IControl<?> ctl, String message) throws Exception {
+		PropertyMetaModel<String> pmm = MetaManager.findPropertyMeta(control.getClass(), "disabledBecause");
+		if(null == pmm) {
+			ctl.setDisabled(true);
+			return;
+		}
+		pmm.setValue(control, message);
 	}
 
 	private void resetDirection() {
@@ -611,6 +625,8 @@ final public class FormBuilder {
 		private String labelTextCalculated() {
 			String txt = m_nextLabel;
 			if(null != txt) {
+				if(DONOTRENDERLABEL.equals(txt))					// "controlOnly" has no label text either
+					return null;
 				if(!txt.isEmpty())                    // Not "unlabeled"?
 					return txt;
 				return null;
