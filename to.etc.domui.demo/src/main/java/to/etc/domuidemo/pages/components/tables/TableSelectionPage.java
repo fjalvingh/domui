@@ -69,8 +69,8 @@ public class TableSelectionPage extends UrlPage {
 			}
 		});
 
-		cp.add(new DefaultButton("What is selected?", a -> report(shown, selection)));
-		cp.add(new DefaultButton("Clear the selection", a -> {
+		cp.add(new DefaultButton("What is selected?", ()-> report(shown, selection)));
+		cp.add(new DefaultButton("Clear the selection", ()-> {
 			selection.clearSelection();
 			report(shown, selection);
 		}));

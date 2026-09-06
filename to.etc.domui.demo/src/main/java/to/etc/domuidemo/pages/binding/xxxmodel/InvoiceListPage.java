@@ -36,8 +36,8 @@ public class InvoiceListPage extends UrlPage {
 		Div results = new Div();
 		cp.add(results);
 
-		sp.setClicked(a -> showResult(results, sp.getCriteria()));
-		sp.setOnNew(a -> UIGoto.moveSub(InvoiceEditScreen.class, "invoice", "NEW"));
+		sp.setClicked(()-> showResult(results, sp.getCriteria()));
+		sp.setOnNew(()-> UIGoto.moveSub(InvoiceEditScreen.class, "invoice", "NEW"));
 	}
 
 	private void showResult(NodeContainer target, @Nullable QCriteria<Invoice> criteria) throws Exception {

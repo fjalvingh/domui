@@ -60,13 +60,6 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 		m_onValueChanged = onValueChanged;
 	}
 
-	protected void callOnValueChanged() throws Exception {
-		if(m_onValueChanged != null) {
-			IValueChanged<InputNodeContainer> vc = (IValueChanged<InputNodeContainer>) m_onValueChanged;
-			vc.onValueChanged(this);
-		}
-	}
-
 	public boolean isReadOnly() {
 		return m_readOnly;
 	}

@@ -42,7 +42,7 @@ public class TypedPathPage extends UrlPage {
 
 		FormBuilder fb = new FormBuilder(cp);
 		fb.label("Artist name contains").control(artistPart);
-		cp.add(new DefaultButton("Search tracks", a -> searchTracks(artistPart, trackQuery, trackResult)));
+		cp.add(new DefaultButton("Search tracks", ()-> searchTracks(artistPart, trackQuery, trackResult)));
 		cp.add(trackQuery);
 		cp.add(trackResult);
 
@@ -55,7 +55,7 @@ public class TypedPathPage extends UrlPage {
 
 		FormBuilder fb2 = new FormBuilder(cp);
 		fb2.label("Album title contains").control(titlePart);
-		cp.add(new DefaultButton("Search artists", a -> searchArtists(titlePart, artistQuery, artistResult)));
+		cp.add(new DefaultButton("Search artists", ()-> searchArtists(titlePart, artistQuery, artistResult)));
 		cp.add(artistQuery);
 		cp.add(artistResult);
 

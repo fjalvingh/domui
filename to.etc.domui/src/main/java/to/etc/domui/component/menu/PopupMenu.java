@@ -9,6 +9,7 @@ import to.etc.domui.dom.html.NodeContainer;
 
 import java.util.ArrayList;
 import java.util.List;
+import to.etc.function.IExecute;
 
 /**
  * Definition for a popup menu.
@@ -39,6 +40,10 @@ public class PopupMenu {
 			m_disabled = disabled;
 			m_clicked = clicked;
 			m_parent = parent;
+		}
+
+		public Item(IIconRef icon, @NonNull String title, String hint, boolean disabled, IExecute clicked, Submenu parent) {
+			this(icon, title, hint, disabled, IClicked.wrap(clicked), parent);
 		}
 
 		public Item(IUIAction action) {
@@ -83,7 +88,7 @@ public class PopupMenu {
 		final private Object m_target;
 
 		public Submenu(IIconRef icon, @NonNull String title, String hint, boolean disabled, Object target, Submenu parent) {
-			super(icon, title, hint, disabled, null, parent);
+			super(icon, title, hint, disabled, (IClicked<NodeBase>) null, parent);
 			m_target = target;
 		}
 
@@ -97,6 +102,14 @@ public class PopupMenu {
 
 		public void addItem(@NonNull String caption, IIconRef icon, IClicked<NodeBase> clk) {
 			m_itemList.add(new Item(icon, caption, null, false, clk, this));
+		}
+
+		public void addItem(@NonNull String caption, IIconRef icon, String hint, boolean disabled, IExecute clk) {
+			addItem(caption, icon, hint, disabled, IClicked.<NodeBase>wrap(clk));
+		}
+
+		public void addItem(@NonNull String caption, IIconRef icon, IExecute clk) {
+			addItem(caption, icon, IClicked.<NodeBase>wrap(clk));
 		}
 
 		public void addMenu(@NonNull String caption, IIconRef icon, String hint, boolean disabled, Object target) {
@@ -126,6 +139,14 @@ public class PopupMenu {
 
 	public void addItem(@NonNull String caption, IIconRef icon, IClicked<NodeBase> clk) {
 		m_actionList.add(new Item(icon, caption, null, false, clk, null));
+	}
+
+	public void addItem(@NonNull String caption, IIconRef icon, String hint, boolean disabled, IExecute clk) {
+		addItem(caption, icon, hint, disabled, IClicked.<NodeBase>wrap(clk));
+	}
+
+	public void addItem(@NonNull String caption, IIconRef icon, IExecute clk) {
+		addItem(caption, icon, IClicked.<NodeBase>wrap(clk));
 	}
 
 	@NonNull

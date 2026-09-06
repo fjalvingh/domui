@@ -56,7 +56,7 @@ public class BindByHandPage extends UrlPage {
 		fb.label("Price each").control(price);
 
 		Div state = new Div("dm-tut");
-		cp.add(new DefaultButton("Save", a -> {
+		cp.add(new DefaultButton("Save", ()-> {
 			//-- ...and every one of them has to be carried back again.
 			m_order.setCustomerName(customer.getValue());
 			m_order.setGenre(genre.getValue());

@@ -32,8 +32,10 @@ public class PopupMenu2Page extends UrlPage {
 		//-- A menu built when the button is pressed, and thrown away when it closes.
 		Div buttons = new Div("dm-tut");
 		cp.add(buttons);
-		buttons.add(new DefaultButton("What to do with this album", a -> {
-			PopupMenu2 pm = new PopupMenu2(a);
+		DefaultButton albumButton = new DefaultButton("What to do with this album");
+		buttons.add(albumButton);
+		albumButton.setClicked(() -> {
+			PopupMenu2 pm = new PopupMenu2(albumButton);
 			pm.text("Play it").icon(Icon.faMusic).hint("Play the whole album").click(() -> report(chosen, "Play it")).append();
 			pm.text("Add to the cart").icon(Icon.faShoppingCart).click(() -> report(chosen, "Add to the cart")).append();
 			pm.text("Print the sleeve").icon(Icon.faPrint).click(() -> report(chosen, "Print the sleeve")).append();
@@ -41,26 +43,30 @@ public class PopupMenu2Page extends UrlPage {
 				.disableReason("The album has been sold, so it cannot be deleted")
 				.click(() -> report(chosen, "Delete it"))
 				.append();
-			pm.show(a);
-		}));
+			pm.show(albumButton);
+		});
 
 		//-- The same menu, opening upwards.
-		buttons.add(new DefaultButton("...opening upwards", a -> {
-			PopupMenu2 pm = new PopupMenu2(a);
+		DefaultButton upwardsButton = new DefaultButton("...opening upwards");
+		buttons.add(upwardsButton);
+		upwardsButton.setClicked(() -> {
+			PopupMenu2 pm = new PopupMenu2(upwardsButton);
 			pm.above();
 			pm.text("Play it").icon(Icon.faMusic).click(() -> report(chosen, "Play it")).append();
 			pm.text("Add to the cart").icon(Icon.faShoppingCart).click(() -> report(chosen, "Add to the cart")).append();
-			pm.show(a);
-		}));
+			pm.show(upwardsButton);
+		});
 
 		//-- Icons only: with no text on any item the text column is not rendered at all.
-		buttons.add(new DefaultButton("Icons only", a -> {
-			PopupMenu2 pm = new PopupMenu2(a);
+		DefaultButton iconsButton = new DefaultButton("Icons only");
+		buttons.add(iconsButton);
+		iconsButton.setClicked(() -> {
+			PopupMenu2 pm = new PopupMenu2(iconsButton);
 			pm.icon(Icon.faStar).hint("Favourite").click(() -> report(chosen, "Favourite")).append();
 			pm.icon(Icon.faPencil).hint("Rename").click(() -> report(chosen, "Rename")).append();
 			pm.icon(Icon.faTrash).hint("Delete").click(() -> report(chosen, "Delete")).append();
-			pm.show(a);
-		}));
+			pm.show(iconsButton);
+		});
 
 		cp.add(chosen);
 

@@ -32,8 +32,8 @@ public class ComponentChangePage extends UrlPage {
 
 		Div total = new Div("dm-tut");
 
-		copies.setOnValueChanged(c -> showTotal(copies, price, total));
-		price.setOnValueChanged(c -> showTotal(copies, price, total));
+		copies.setOnValueChanged(()-> showTotal(copies, price, total));
+		price.setOnValueChanged(()-> showTotal(copies, price, total));
 
 		FormBuilder fb = new FormBuilder(cp);
 		fb.label("Copies").control(copies);

@@ -67,7 +67,7 @@ public class ProxyTestPage1 extends UrlPage {
 		val.setTestID(id + "_v");
 		val.setDisplay(DisplayType.INLINE_BLOCK);
 
-		comp.setOnValueChanged(component -> {
+		comp.setOnValueChanged(()-> {
 			V value = comp.getValue();
 			val.removeAllChildren();
 			val.add(String.valueOf(value));
@@ -90,7 +90,7 @@ public class ProxyTestPage1 extends UrlPage {
 		val.setTestID(id + "_v");
 		val.setDisplay(DisplayType.INLINE_BLOCK);
 
-		comp.setClicked(clickednode -> {
+		comp.setClicked(()-> {
 			idiots[0] = ! idiots[0];
 			val.setText(idiots[0] ? "Ping" : "Pong");
 		});

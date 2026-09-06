@@ -36,30 +36,30 @@ public class ComponentStarPage extends UrlPage {
 		Div result = new Div("dm-tut");
 
 		//-- It is an IControl, so it has a change event like every other control.
-		rating.setOnValueChanged(a -> say(result, "changed to " + rating.getValue()));
+		rating.setOnValueChanged(()-> say(result, "changed to " + rating.getValue()));
 
 		FormBuilder fb = new FormBuilder(cp);
 		fb.label("How good is it?").control(rating);
 
 		Div buttons = new Div();
 		cp.add(buttons);
-		buttons.add(new DefaultButton("Read the value", a -> say(result, "the value is " + rating.getValue())));
-		buttons.add(new DefaultButton("Set it to 3", a -> rating.setValue(3)));
-		buttons.add(new DefaultButton("Set it to 3 again", a -> {
+		buttons.add(new DefaultButton("Read the value", ()-> say(result, "the value is " + rating.getValue())));
+		buttons.add(new DefaultButton("Set it to 3", ()-> rating.setValue(3)));
+		buttons.add(new DefaultButton("Set it to 3 again", ()-> {
 			rating.setValue(3);                            // Does nothing when it already is 3
 			say(result, "setValue(3) called; the control only redraws when the value really changed");
 		}));
-		buttons.add(new DefaultButton("Clear it", a -> rating.setValue(null)));
+		buttons.add(new DefaultButton("Clear it", ()-> rating.setValue(null)));
 
-		buttons.add(new DefaultButton(m_readOnly ? "readOnly off" : "readOnly on", a -> {
+		buttons.add(new DefaultButton(m_readOnly ? "readOnly off" : "readOnly on", ()-> {
 			m_readOnly = !m_readOnly;
 			forceRebuild();
 		}));
-		buttons.add(new DefaultButton(m_disabled ? "disabled off" : "disabled on", a -> {
+		buttons.add(new DefaultButton(m_disabled ? "disabled off" : "disabled on", ()-> {
 			m_disabled = !m_disabled;
 			forceRebuild();
 		}));
-		buttons.add(new DefaultButton(m_mandatory ? "mandatory off" : "mandatory on", a -> {
+		buttons.add(new DefaultButton(m_mandatory ? "mandatory off" : "mandatory on", ()-> {
 			m_mandatory = !m_mandatory;
 			forceRebuild();
 		}));

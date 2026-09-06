@@ -32,6 +32,7 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.themes.Theme;
+import to.etc.function.IExecute;
 
 abstract public class ButtonMakerBase {
 	abstract protected void addButton(NodeBase b);
@@ -83,5 +84,33 @@ abstract public class ButtonMakerBase {
 		LinkButton b = MsgBox.areYouSureLinkButton(txt, img, msg, click);
 		addButton(b);
 		return b;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Action handlers that do not need the clicked node.	*/
+	/*--------------------------------------------------------------*/
+
+	public DefaultButton addButton(final String txt, final IIconRef icon, final IExecute click) {
+		return addButton(txt, icon, IClicked.wrap(click));
+	}
+
+	public DefaultButton addButton(final String txt, final IExecute click) {
+		return addButton(txt, IClicked.wrap(click));
+	}
+
+	public DefaultButton addConfirmedButton(final String txt, final String msg, final IExecute click) {
+		return addConfirmedButton(txt, msg, IClicked.wrap(click));
+	}
+
+	public DefaultButton addConfirmedButton(final String txt, final IIconRef icon, final String msg, final IExecute click) {
+		return addConfirmedButton(txt, icon, msg, IClicked.wrap(click));
+	}
+
+	public LinkButton addLinkButton(String txt, IIconRef img, IExecute click) {
+		return addLinkButton(txt, img, IClicked.wrap(click));
+	}
+
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, final IExecute click) {
+		return addConfirmedLinkButton(txt, img, msg, IClicked.wrap(click));
 	}
 }

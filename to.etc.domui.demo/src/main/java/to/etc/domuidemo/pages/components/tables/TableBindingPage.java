@@ -84,15 +84,15 @@ public class TableBindingPage extends UrlPage {
 
 		Div buttons = new Div("dm-tut");
 		cp.add(buttons);
-		buttons.add(new DefaultButton("One more of the first", a -> {
+		buttons.add(new DefaultButton("One more of the first", ()-> {
 			BasketLine line = m_lines.get(0);
 			line.setCopies(line.getCopies() + 1);
 		}));
-		buttons.add(new DefaultButton("Eleven more of the first", a -> {
+		buttons.add(new DefaultButton("Eleven more of the first", ()-> {
 			BasketLine line = m_lines.get(0);
 			line.setCopies(line.getCopies() + 11);
 		}));
-		buttons.add(new DefaultButton("Add a line", a -> {
+		buttons.add(new DefaultButton("Add a line", ()-> {
 			BasketLine line = new BasketLine("Let It Be", 1);
 			m_lines.add(line);
 			DomUtil.nullChecked(m_model).add(line);            // The model, not the list, tells the table

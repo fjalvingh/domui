@@ -15,6 +15,7 @@ import to.etc.domui.themes.Theme;
 import to.etc.domui.util.Msgs;
 
 import java.util.List;
+import to.etc.function.IExecute;
 
 /**
  * A thing creating all kinds of buttons all over the place, inside some kind of button
@@ -235,6 +236,16 @@ public class ButtonFactory implements IButtonBar {
 	@NonNull
 	public LinkButton addConfirmedLinkButton(final String txt, final IIconRef img, String msg, final IClicked<LinkButton> click) {
 		return addConfirmedLinkButton(txt, img, msg, click, -1);
+	}
+
+	@NonNull
+	public LinkButton addConfirmedLinkButton(final String txt, final IIconRef img, String msg, final IExecute click, int order) {
+		return addConfirmedLinkButton(txt, img, msg, IClicked.wrap(click), order);
+	}
+
+	@NonNull
+	public LinkButton addConfirmedLinkButton(final String txt, final IIconRef img, String msg, final IExecute click) {
+		return addConfirmedLinkButton(txt, img, msg, IClicked.wrap(click), -1);
 	}
 
 	@Override

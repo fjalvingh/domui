@@ -20,7 +20,7 @@ public class TestMsg2Box4 extends UrlPage {
 			.size(800, 500)
 			.text(Lorem.getSentences(1050))
 			.button(MsgBoxButton.CONTINUE)
-			.onClicked(clickednode -> {
+			.onClicked(()-> {
 				//-- Deliberately empty
 			});
 	}

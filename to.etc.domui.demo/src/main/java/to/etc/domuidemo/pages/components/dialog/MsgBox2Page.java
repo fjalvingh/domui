@@ -35,10 +35,10 @@ public class MsgBox2Page extends UrlPage {
 		cp.add(new HTag(2, "The four types"));
 		Div types = new Div("dm-tut");
 		cp.add(types);
-		types.add(new DefaultButton("info", a -> MsgBox2.on(this).info("The album has been saved.")));
-		types.add(new DefaultButton("warning", a -> MsgBox2.on(this).warning("This album has no tracks yet.")));
-		types.add(new DefaultButton("error", a -> MsgBox2.on(this).error("The album could not be saved.")));
-		types.add(new DefaultButton("question", a -> MsgBox2.on(this)
+		types.add(new DefaultButton("info", ()-> MsgBox2.on(this).info("The album has been saved.")));
+		types.add(new DefaultButton("warning", ()-> MsgBox2.on(this).warning("This album has no tracks yet.")));
+		types.add(new DefaultButton("error", ()-> MsgBox2.on(this).error("The album could not be saved.")));
+		types.add(new DefaultButton("question", ()-> MsgBox2.on(this)
 			.question()
 			.text("Delete the album?")
 			.yesNo()
@@ -47,7 +47,7 @@ public class MsgBox2Page extends UrlPage {
 		cp.add(new HTag(2, "Something other than a sentence"));
 		Div content = new Div("dm-tut");
 		cp.add(content);
-		content.add(new DefaultButton("A piece of DOM", a -> {
+		content.add(new DefaultButton("A piece of DOM", ()-> {
 			Div box = new Div();
 			box.add("The import finished with these results:");
 			Ul ul = new Ul();
@@ -70,7 +70,7 @@ public class MsgBox2Page extends UrlPage {
 		cp.add(answers);
 
 		//-- Standard buttons: the answer is the button that was pressed.
-		answers.add(new DefaultButton("Three standard buttons", a -> MsgBox2.on(this)
+		answers.add(new DefaultButton("Three standard buttons", ()-> MsgBox2.on(this)
 			.question()
 			.text("The album has changed. Save it before leaving?")
 			.button(MsgBoxButton.YES)
@@ -79,7 +79,7 @@ public class MsgBox2Page extends UrlPage {
 			.onAnswer(button -> answered(result, "the button " + button.name()))));
 
 		//-- Buttons of your own, each carrying the value it answers with.
-		answers.add(new DefaultButton("Buttons with values", a -> MsgBox2.on(this)
+		answers.add(new DefaultButton("Buttons with values", ()-> MsgBox2.on(this)
 			.question()
 			.text("Which format?")
 			.button("Compact disc", "CD")
@@ -89,17 +89,17 @@ public class MsgBox2Page extends UrlPage {
 			.onAnswer2(value -> answered(result, "the value " + value))));
 
 		//-- A button that does its own thing: it does not answer the box.
-		answers.add(new DefaultButton("A button with a handler", a -> MsgBox2.on(this)
+		answers.add(new DefaultButton("A button with a handler", ()-> MsgBox2.on(this)
 			.warning()
 			.text("This album is sold out.")
-			.button("Order more", MsgBoxButtonPrio.Secondary, b -> answered(result, "'order more'"))
+			.button("Order more", MsgBoxButtonPrio.Secondary, ()-> answered(result, "'order more'"))
 			.buttonDefault(MsgBoxButton.OK, MsgBoxButtonPrio.Primary)
 			.onAnswer(button -> answered(result, "the button " + button.name()))));
 
 		cp.add(new HTag(2, "Asking for a value"));
 		Div input = new Div("dm-tut");
 		cp.add(input);
-		input.add(new DefaultButton("Ask for a number", a -> {
+		input.add(new DefaultButton("Ask for a number", ()-> {
 			Text2<Integer> copies = new Text2<>(Integer.class);
 			copies.setMandatory(true);
 

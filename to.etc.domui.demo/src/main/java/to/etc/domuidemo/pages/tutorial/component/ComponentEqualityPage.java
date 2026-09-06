@@ -40,22 +40,22 @@ public class ComponentEqualityPage extends UrlPage {
 
 		Div buttons = new Div();
 		cp.add(buttons);
-		buttons.add(new DefaultButton("Change the title in place", a -> {
+		buttons.add(new DefaultButton("Change the title in place", ()-> {
 			m_album.setTitle(m_album.getTitle() + "!");
 			badge.setValue(m_album);                       // The same instance: setValue does nothing
 			say(result, "The object now says \"" + m_album.getTitle() + "\", but the badge still shows the old text:"
 				+ " setValue() got the very object it already held.");
 		}));
-		buttons.add(new DefaultButton("...and force a redraw", a -> {
+		buttons.add(new DefaultButton("...and force a redraw", ()-> {
 			m_album.setTitle(m_album.getTitle() + "!");
 			badge.forceRebuild();                          // Say it yourself
 			say(result, "forceRebuild() redraws the control whether or not it thinks its value changed.");
 		}));
-		buttons.add(new DefaultButton("Another object, same id", a -> {
+		buttons.add(new DefaultButton("Another object, same id", ()-> {
 			badge.setValue(album(m_album.getId(), "A different object with id " + m_album.getId()));
 			say(result, "Nothing happened: two entities with the same primary key count as the same value.");
 		}));
-		buttons.add(new DefaultButton("A really different album", a -> {
+		buttons.add(new DefaultButton("A really different album", ()-> {
 			badge.setValue(album(2L, "Nevermind"));
 			say(result, "That one is a different value, so the control redrew.");
 		}));
@@ -72,12 +72,12 @@ public class ComponentEqualityPage extends UrlPage {
 
 		Div boundButtons = new Div();
 		cp.add(boundButtons);
-		boundButtons.add(new DefaultButton("Change the model's album in place", a -> {
+		boundButtons.add(new DefaultButton("Change the model's album in place", ()-> {
 			m_review.getAlbum().setTitle(m_review.getAlbum().getTitle() + "!");
 			say(result, "The model's object changed, but the binding compares it with the object it delivered last time"
 				+ " - the same one - so nothing moved.");
 		}));
-		boundButtons.add(new DefaultButton("Put a new object in the model", a -> {
+		boundButtons.add(new DefaultButton("Put a new object in the model", ()-> {
 			m_review.setAlbum(album(4L, "A new object at " + System.currentTimeMillis() % 100000));
 			say(result, "A different object: the binding moved it into the control at the end of the request.");
 		}));

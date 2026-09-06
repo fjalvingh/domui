@@ -4,6 +4,7 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 
 import java.util.Set;
+import to.etc.function.IExecute;
 
 /**
  * This is an empty div which reacts to a given keycode.
@@ -17,6 +18,12 @@ public class KeyCodeDiv extends Div {
 	private final Set<KeyModifier> m_modifierSet;
 
 	public KeyCodeDiv(String keyCode, Set<KeyModifier> modifierSet, IClicked<KeyCodeDiv> clicked) {
+		m_keyCode = keyCode;
+		m_modifierSet = modifierSet;
+		setClicked(clicked);
+	}
+
+	public KeyCodeDiv(String keyCode, Set<KeyModifier> modifierSet, IExecute clicked) {
 		m_keyCode = keyCode;
 		m_modifierSet = modifierSet;
 		setClicked(clicked);

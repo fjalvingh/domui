@@ -32,7 +32,7 @@ public class NavStatePage extends UrlPage {
 
 		Text2<String> note = new Text2<>(String.class);
 		note.setValue(m_note);
-		note.setOnValueChanged(c -> {
+		note.setOnValueChanged(()-> {
 			m_note = note.getValueSafe();
 			forceRebuild();
 		});
@@ -46,17 +46,17 @@ public class NavStatePage extends UrlPage {
 
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
-		bb.addButton("Count a click", a -> {
+		bb.addButton("Count a click", ()-> {
 			m_clicks++;
 			forceRebuild();
 		});
 
-		bb.addButton("Detail (moveSub)", a -> UIGoto.moveSub(NavDetailPage.class));
-		bb.addButton("Detail with a message", a -> {
+		bb.addButton("Detail (moveSub)", ()-> UIGoto.moveSub(NavDetailPage.class));
+		bb.addButton("Detail with a message", ()-> {
 			UIGoto.addActionMessage(MsgType.INFO, "Sent along by the page you came from");
 			UIGoto.moveSub(NavDetailPage.class);
 		});
-		bb.addButton("Detail (replace)", a -> UIGoto.replace(NavDetailPage.class));
-		bb.addButton("Reload this page", a -> UIGoto.reload());
+		bb.addButton("Detail (replace)", ()-> UIGoto.replace(NavDetailPage.class));
+		bb.addButton("Reload this page", ()-> UIGoto.reload());
 	}
 }

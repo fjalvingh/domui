@@ -44,7 +44,7 @@ public class CollapsibleSection extends Div {
 	public void createContent() throws Exception {
 		Div header = new Div("dm-cs-h");
 		add(header);
-		header.add(new LinkButton(m_title, m_expanded ? Icon.faAngleDown : Icon.faAngleRight, a -> toggle()));
+		header.add(new LinkButton(m_title, m_expanded ? Icon.faAngleDown : Icon.faAngleRight, ()-> toggle()));
 
 		if(m_expanded) {
 			add(m_content);

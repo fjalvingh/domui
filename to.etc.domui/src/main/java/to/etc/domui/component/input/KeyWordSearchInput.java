@@ -40,6 +40,7 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.
@@ -126,6 +127,10 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 		m_onLookupTyping = onLookupTyping;
 	}
 
+	public void setOnLookupTyping(@NonNull IExecute onLookupTyping) {
+		setOnLookupTyping(IValueChanged.<KeyWordSearchInput<T>>wrap(onLookupTyping));
+	}
+
 	@Nullable
 	public String getKeySearchValue() {
 		return m_keySearch.getRawValue();
@@ -179,6 +184,10 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 
 	public void setOnShowResults(IValueChanged<KeyWordSearchInput<T>> onShowResults) {
 		m_onShowTypingResults = onShowResults;
+	}
+
+	public void setOnShowResults(IExecute onShowResults) {
+		setOnShowResults(IValueChanged.<KeyWordSearchInput<T>>wrap(onShowResults));
 	}
 
 	@Override

@@ -40,6 +40,7 @@ import to.etc.util.StringTool;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Objects;
+import to.etc.function.IExecute;
 
 /**
  * The default button for DomUI renders a sliding doors button that can
@@ -127,6 +128,27 @@ public class DefaultButton extends Button implements IActionControl {
 		setClicked(clicked);
 	}
 
+	public DefaultButton(IBundleCode code, IExecute clicked) {
+		this(code.getString(), clicked);
+	}
+
+	public DefaultButton(String txt, IExecute clicked) {
+		this();
+		setText(txt);
+		setClicked(clicked);
+	}
+
+	public DefaultButton(IBundleCode code, IIconRef icon, final IExecute clicked) {
+		this(code.getString(), icon, clicked);
+	}
+
+	public DefaultButton(@Nullable String txt, @Nullable IIconRef icon, final IExecute clicked) {
+		this();
+		setText(txt);
+		setIcon(icon);
+		setClicked(clicked);
+	}
+
 	/**
 	 * Add the specified css class(es) to the button.
 	 */
@@ -154,6 +176,12 @@ public class DefaultButton extends Button implements IActionControl {
 
 	@NonNull
 	public DefaultButton clicked(IClicked<DefaultButton> on) {
+		setClicked(on);
+		return this;
+	}
+
+	@NonNull
+	public DefaultButton clicked(IExecute on) {
 		setClicked(on);
 		return this;
 	}

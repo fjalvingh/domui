@@ -43,6 +43,7 @@ import to.etc.webapp.nls.BundleRef;
 
 import java.util.ArrayList;
 import java.util.List;
+import to.etc.function.IExecute;
 
 /**
  * A pager component for a DataTable-based table. This gets attached
@@ -301,6 +302,10 @@ public class DataPager1 extends Div implements IDataTablePager {
 		return m_buttonDiv;
 	}
 
+	public void addButton(IIconRef image, final IExecute click, final BundleRef bundle, final String ttlkey) {
+		addButton(image, IClicked.<DataPager1>wrap(click), bundle, ttlkey);
+	}
+
 	public void addButton(IIconRef image, final IClicked<DataPager1> click, final BundleRef bundle, final String ttlkey) {
 		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager1.this));
 		if(bundle != null)
@@ -345,6 +350,10 @@ public class DataPager1 extends Div implements IDataTablePager {
 	}
 
 	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
+		addButton(new SmallImgButton(img, clicked));
+	}
+
+	public void addButton(@NonNull IIconRef img, @NonNull IExecute clicked) {
 		addButton(new SmallImgButton(img, clicked));
 	}
 

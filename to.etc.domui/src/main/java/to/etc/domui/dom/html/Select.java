@@ -35,6 +35,7 @@ import to.etc.domui.util.DomUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import to.etc.function.IExecute;
 
 /**
  * INCOMPLETE A full-coded select box: this is unsuitable for large amount of options.
@@ -237,6 +238,13 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Code to add extra stuff after this combo.			*/
 	/*--------------------------------------------------------------*/
+	/**
+	 * Add a small image button after the combo.
+	 */
+	public void addExtraButton(IIconRef img, String title, final IExecute click) {
+		addExtraButton(img, title, click == null ? null : IClicked.<NodeBase>wrap(click));
+	}
+
 	/**
 	 * Add a small image button after the combo.
 	 */

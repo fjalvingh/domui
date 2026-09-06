@@ -56,6 +56,7 @@ import to.etc.util.StringTool;
 import to.etc.webapp.nls.NlsContext;
 
 import java.util.Objects;
+import to.etc.function.IExecute;
 
 /**
  * This represents a CKEditor instance.
@@ -243,6 +244,10 @@ public class CKEditor extends Div implements IControl<String> {
 		m_onDomuiImageClicked = onDomuiImageClicked;
 	}
 
+	public void setOnDomuiImageClicked(@NonNull IExecute onDomuiImageClicked) {
+		setOnDomuiImageClicked(IClicked.<NodeBase>wrap(onDomuiImageClicked));
+	}
+
 	@Nullable
 	public IClicked<NodeBase> getOnDomuiOddCharsClicked() {
 		return m_onDomuiOddCharsClicked;
@@ -250,6 +255,10 @@ public class CKEditor extends Div implements IControl<String> {
 
 	public void setOnDomuiOddCharsClicked(@NonNull IClicked<NodeBase> onDomuiOddCharsClicked) {
 		m_onDomuiOddCharsClicked = onDomuiOddCharsClicked;
+	}
+
+	public void setOnDomuiOddCharsClicked(@NonNull IExecute onDomuiOddCharsClicked) {
+		setOnDomuiOddCharsClicked(IClicked.<NodeBase>wrap(onDomuiOddCharsClicked));
 	}
 
 	public boolean isToolbarStartExpanded() {
@@ -325,7 +334,7 @@ public class CKEditor extends Div implements IControl<String> {
 	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		m_onValueChanged = onValueChanged;
 		if(onValueChanged == null) {
-			m_area.setOnValueChanged(null);
+			m_area.clearOnValueChanged();
 		} else {
 			m_area.setOnValueChanged(component -> {
 				((IValueChanged<CKEditor>)onValueChanged).onValueChanged(this);

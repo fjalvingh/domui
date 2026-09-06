@@ -65,6 +65,6 @@ public class LayoutTabPage extends UrlPage {
 			.build();
 
 		//-- A tab can also be selected from the outside.
-		cp.add(new DefaultButton("Show the albums", a -> albumTab.select()));
+		cp.add(new DefaultButton("Show the albums", ()-> albumTab.select()));
 	}
 }

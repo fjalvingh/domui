@@ -25,6 +25,7 @@ import to.etc.domui.util.Msgs;
 import to.etc.webapp.query.QCriteria;
 
 import java.util.List;
+import to.etc.function.IExecute;
 
 public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
@@ -444,6 +445,10 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	public void setOnSelection(@Nullable IClicked<DefaultLookupInputDialog<QT, OT>> onSelection) {
 		m_onSelection = onSelection;
+	}
+
+	public void setOnSelection(@NonNull IExecute onSelection) {
+		setOnSelection(IClicked.<DefaultLookupInputDialog<QT, OT>>wrap(onSelection));
 	}
 
 	@Nullable

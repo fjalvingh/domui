@@ -26,9 +26,9 @@ public class HelloClickPage extends UrlPage {
 		box.add("Click me to change my color");
 		box.setBackgroundColor(m_on ? ON : OFF);
 
-		box.setClicked(clickedNode -> {
+		box.setClicked(() -> {
 			m_on = !m_on;
-			clickedNode.setBackgroundColor(m_on ? ON : OFF);
+			box.setBackgroundColor(m_on ? ON : OFF);
 		});
 	}
 }

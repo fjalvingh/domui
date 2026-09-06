@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import to.etc.function.IExecute;
+
 
 /**
  * DomUI nodes that have a change listener.
@@ -36,4 +38,32 @@ public interface IHasChangeListener {
 	IValueChanged< ? > getOnValueChanged();
 
 	void setOnValueChanged(IValueChanged< ? > onValueChanged);
+
+	/**
+	 * Set the change handler as an action that does not need the component: the normal way to
+	 * respond to a change, because the control is a local variable of createContent() that the
+	 * lambda already captures.
+	 */
+	default void setOnValueChanged(IExecute onValueChanged) {
+		setOnValueChanged(IValueChanged.wrap(onValueChanged));
+	}
+
+	/**
+	 * Remove the change handler set on this component, if any.
+	 */
+	default void clearOnValueChanged() {
+		setOnValueChanged((IValueChanged< ? >) null);
+	}
+
+	/**
+	 * Call the change handler, if one is set. For component implementations: this is how a
+	 * control reports that the user changed its value.
+	 */
+	@SuppressWarnings("unchecked")
+	default void callOnValueChanged() throws Exception {
+		IValueChanged<Object> vc = (IValueChanged<Object>) getOnValueChanged();
+		if(null != vc) {
+			vc.onValueChanged(this);
+		}
+	}
 }

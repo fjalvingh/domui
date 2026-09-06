@@ -29,7 +29,7 @@ public class BindingTypeForm1 extends UrlPage {
 		fb.property(this, "value").label("Integer").control(control);
 
 		Div result = new Div();
-		cp.add(new DefaultButton("click", a -> showValue(result)));
+		cp.add(new DefaultButton("click", ()-> showValue(result)));
 		cp.add(result);
 	}
 

@@ -62,8 +62,8 @@ public class InvoiceDetailPage extends UrlPage {
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
 		bb.addBackButton();
-		bb.addLinkButton("Show the customer", Theme.BTN_FIND, a -> UIGoto.moveSub(CustomerDetailPage.class, "id", m_invoice.getCustomer().getId()));
-		bb.addButton("Save", Theme.BTN_SAVE, a -> save());
+		bb.addLinkButton("Show the customer", Theme.BTN_FIND, ()-> UIGoto.moveSub(CustomerDetailPage.class, "id", m_invoice.getCustomer().getId()));
+		bb.addButton("Save", Theme.BTN_SAVE, ()-> save());
 	}
 
 	static private BigDecimal lineTotal(InvoiceLine line) {

@@ -52,7 +52,7 @@ public class ArtistDetailPage extends UrlPage {
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
 		bb.addBackButton();
-		bb.addButton("Save", Theme.BTN_SAVE, a -> save());
+		bb.addButton("Save", Theme.BTN_SAVE, ()-> save());
 	}
 
 	private void save() throws Exception {

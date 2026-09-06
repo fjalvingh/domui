@@ -52,11 +52,11 @@ public class RulerPage extends UrlPage {
 
 		Div buttons = new Div("dm-tut");
 		cp.add(buttons);
-		buttons.add(new DefaultButton("Less", a -> {
+		buttons.add(new DefaultButton("Less", ()-> {
 			m_done = Math.max(0, m_done - 15);
 			forceRebuild();
 		}));
-		buttons.add(new DefaultButton("More", a -> {
+		buttons.add(new DefaultButton("More", ()-> {
 			m_done = Math.min(100, m_done + 15);
 			forceRebuild();
 		}));

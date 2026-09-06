@@ -1,6 +1,7 @@
 package to.etc.domui.component.buttons;
 
 import to.etc.domui.dom.html.*;
+import to.etc.function.IExecute;
 
 /**
  * DO NOT USE - replaced by {@link HoverButton}.
@@ -33,6 +34,15 @@ public class SmallHoverButton extends Button {
 	 * @param cl
 	 */
 	public SmallHoverButton(String rurl, IClicked<SmallHoverButton> cl) {
+		this();
+		setClicked(cl);
+		setSrc(rurl);
+	}
+
+	/**
+	 * If the rurl is prefixed with THEME/ it specifies an image from the current THEME's directory.
+	 */
+	public SmallHoverButton(String rurl, IExecute cl) {
 		this();
 		setClicked(cl);
 		setSrc(rurl);

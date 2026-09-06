@@ -84,9 +84,9 @@ abstract public class AbstractCdShopListPage<T> extends UrlPage {
 		Div results = new Div();
 		cp.add(results);
 
-		sp.setClicked(a -> showResult(results, sp.getCriteria()));
+		sp.setClicked(()-> showResult(results, sp.getCriteria()));
 		if(isNewAllowed()) {
-			sp.setOnNew(a -> onNew());
+			sp.setOnNew(()-> onNew());
 		}
 	}
 

@@ -38,6 +38,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Objects;
+import to.etc.function.IExecute;
 
 /**
  * A button which looks like a link.
@@ -106,6 +107,28 @@ public class LinkButton extends ATag implements IActionControl {
 		setText(code.format());
 	}
 
+	public LinkButton(@NonNull String txt, @Nullable IIconRef image, @NonNull IExecute clk) {
+		setClicked(clk);
+		setText(txt);
+		setImage(image);
+	}
+
+	public LinkButton(@NonNull IBundleCode code, @Nullable IIconRef image, @NonNull IExecute clk) {
+		setClicked(clk);
+		setText(code.format());
+		setImage(image);
+	}
+
+	public LinkButton(@NonNull String txt, @NonNull IExecute clk) {
+		setClicked(clk);
+		setText(txt);
+	}
+
+	public LinkButton(@NonNull IBundleCode code, @NonNull IExecute clk) {
+		setClicked(clk);
+		setText(code.format());
+	}
+
 	public LinkButton(@NonNull IUIAction action) throws Exception {
 		this();
 		m_action = action;
@@ -169,6 +192,11 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	public LinkButton click(IClicked<LinkButton> b) {
+		setClicked(b);
+		return this;
+	}
+
+	public LinkButton click(IExecute b) {
 		setClicked(b);
 		return this;
 	}

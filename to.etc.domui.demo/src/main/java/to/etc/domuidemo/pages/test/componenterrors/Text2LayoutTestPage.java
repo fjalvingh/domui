@@ -78,7 +78,7 @@ public class Text2LayoutTestPage extends UrlPage {
 		Text2<String> t2	= new Text2<>(String.class);
 		d.add(new Label(t2,"z22222222"));
 		d.add(t2);
-		t2.addButton(Icon.faAddressBookO, a -> {});
+		t2.addButton(Icon.faAddressBookO, ()-> {});
 		t2.setValue("zzzzzzzzzzzzzzzzz");
 
 		//-- Single text with 2 buttons
@@ -88,8 +88,8 @@ public class Text2LayoutTestPage extends UrlPage {
 		Text2<String> t3	= new Text2<>(String.class);
 		d.add(new Label(t3,"z3333333"));
 		d.add(t3);
-		t3.addButton(Icon.faAddressBookO, a -> {});
-		t3.addButton(Icon.faAnchor, a -> {});
+		t3.addButton(Icon.faAddressBookO, ()-> {});
+		t3.addButton(Icon.faAnchor, ()-> {});
 		t3.setValue("zzzzzzzzzzzzzzzzz");
 
 		//-- Button with image
@@ -99,7 +99,7 @@ public class Text2LayoutTestPage extends UrlPage {
 		Text2<String> t4	= new Text2<>(String.class);
 		d.add(new Label(t4,"zzzzzzzzzzz4"));
 		d.add(t4);
-		t4.addButton(Theme.BTN_CLEAR, a -> {});
+		t4.addButton(Theme.BTN_CLEAR, ()-> {});
 		t4.setValue("zzzzzzzzzzzzzzzzz");
 
 		cp.add(new VerticalSpacer(20));
@@ -112,13 +112,13 @@ public class Text2LayoutTestPage extends UrlPage {
 		fb.label("integer").property(this, "t22").control();
 
 		Text2<String> t23 = fb.label("string").property(this, "t23").control(Text2.class);
-		t23.addButton(Icon.faFile, a -> {}).css("is-primary");
-		t23.addButton(Theme.BTN_EDIT, a -> {}).css("is-link");
+		t23.addButton(Icon.faFile, ()-> {}).css("is-primary");
+		t23.addButton(Theme.BTN_EDIT, ()-> {}).css("is-link");
 
 		fb.label("bigdecimal empty").property(this, "t30").control();
 		fb.label("bigdecimal 123.45").property(this, "t31").control();
 
-		cp.add(new DefaultButton("validate", a -> bindErrors()));
+		cp.add(new DefaultButton("validate", ()-> bindErrors()));
 	}
 
 	@MetaProperty(required = YesNoType.YES)

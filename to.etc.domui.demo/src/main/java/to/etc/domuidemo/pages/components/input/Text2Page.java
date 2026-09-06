@@ -48,7 +48,7 @@ public class Text2Page extends UrlPage {
 		Div result = new Div("dm-tut");
 		result.add("Press the button to see what each control hands back.");
 
-		cp.add(new DefaultButton("Show the values", a -> {
+		cp.add(new DefaultButton("Show the values", ()-> {
 			result.removeAllChildren();
 			line(result, title.getValue());
 			line(result, copies.getValue());

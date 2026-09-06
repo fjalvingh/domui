@@ -52,7 +52,7 @@ public class ComponentFormPage extends UrlPage {
 		Div result = new Div("dm-tut");
 		result.add("Press a button to see what the controls hold");
 
-		cp.add(new DefaultButton("Show the values", a -> {
+		cp.add(new DefaultButton("Show the values", ()-> {
 			//-- Every getValue() can fail: the first one that does ends this handler.
 			String titleValue = title.getValue();
 			Integer copiesValue = copies.getValue();
@@ -68,7 +68,7 @@ public class ComponentFormPage extends UrlPage {
 			line(result, "Medium: " + mediumValue);
 		}));
 
-		cp.add(new DefaultButton("Which fields are wrong?", a -> {
+		cp.add(new DefaultButton("Which fields are wrong?", ()-> {
 			result.removeAllChildren();
 			line(result, "Title is " + (title.hasError() ? "wrong or missing" : "ok"));
 			line(result, "Copies is " + (copies.hasError() ? "wrong or missing" : "ok"));

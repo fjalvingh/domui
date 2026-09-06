@@ -102,9 +102,9 @@ public class IconsPage extends UrlPage {
 		cp.add(new HTag(2, "In a component"));
 		Div inComponents = new Div("dm-tut");
 		cp.add(inComponents);
-		inComponents.add(new DefaultButton("Save", Icon.faSave, a -> MsgBox2.on(this).info("Saved")));
-		inComponents.add(new DefaultButton("Check", Icon.of("img/checkmark.svg"), a -> MsgBox2.on(this).info("Checked")));
-		inComponents.add(new LinkButton("Delete", Icon.faTrash.css("is-danger"), a -> MsgBox2.on(this).info("Deleted")));
+		inComponents.add(new DefaultButton("Save", Icon.faSave, ()-> MsgBox2.on(this).info("Saved")));
+		inComponents.add(new DefaultButton("Check", Icon.of("img/checkmark.svg"), ()-> MsgBox2.on(this).info("Checked")));
+		inComponents.add(new LinkButton("Delete", Icon.faTrash.css("is-danger"), ()-> MsgBox2.on(this).info("Deleted")));
 
 		cp.add(new Para().add("Every component that shows an icon takes an IIconRef, never a "
 			+ "component: a component can be added to the page only once, and a reference can be "

@@ -30,15 +30,15 @@ public class ButtonKindsPage extends UrlPage {
 		Div shown = new Div("dm-tut-q");
 		shown.add("Press any of them.");
 
-		DefaultButton normal = new DefaultButton("Save", Icon.faCheck, a -> say(shown, "DefaultButton"));
+		DefaultButton normal = new DefaultButton("Save", Icon.faCheck, ()-> say(shown, "DefaultButton"));
 
-		LinkButton link = new LinkButton("Forgot your password?", a -> say(shown, "LinkButton"));
-		LinkButton linkIcon = new LinkButton("Delete", Icon.faTrash, a -> say(shown, "LinkButton with an icon"));
+		LinkButton link = new LinkButton("Forgot your password?", ()-> say(shown, "LinkButton"));
+		LinkButton linkIcon = new LinkButton("Delete", Icon.faTrash, ()-> say(shown, "LinkButton with an icon"));
 
-		SmallImgButton small = new SmallImgButton(Icon.faSearch, a -> say(shown, "SmallImgButton"));
+		SmallImgButton small = new SmallImgButton(Icon.faSearch, ()-> say(shown, "SmallImgButton"));
 		small.setTitle("A small button, for inside a control or a table row");
 
-		HoverButton hover = new HoverButton("THEME/72x24_close.png", a -> say(shown, "HoverButton"));
+		HoverButton hover = new HoverButton("THEME/72x24_close.png", ()-> say(shown, "HoverButton"));
 		hover.setTitle("Its image holds three states side by side");
 
 		FormBuilder fb = new FormBuilder(cp);

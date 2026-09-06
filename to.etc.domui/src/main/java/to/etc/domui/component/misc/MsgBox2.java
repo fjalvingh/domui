@@ -32,6 +32,7 @@ import to.etc.webapp.nls.IBundleCode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import to.etc.function.IExecute;
 
 import static to.etc.util.StringTool.isBlank;
 
@@ -665,6 +666,47 @@ final public class MsgBox2 extends Window {
 	public MsgBox2 onClicked(@NonNull IClicked<MsgBox2> clicked) {
 		m_clicked = clicked;
 		return this;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Action handlers that do not need the clicked node.	*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Add a non-answering button that executes some action.
+	 */
+	public MsgBox2 button(String title, IExecute clicked) {
+		return button(title, MsgBoxButtonPrio.Default, false, IClicked.wrap(clicked));
+	}
+
+	/**
+	 * Add a non-answering button that executes some action.
+	 */
+	public MsgBox2 button(String title, MsgBoxButtonPrio prio, IExecute clicked) {
+		return button(title, prio, false, IClicked.wrap(clicked));
+	}
+
+	public MsgBox2 buttonDefault(String title, MsgBoxButtonPrio prio, IExecute clicked) {
+		return button(title, prio, true, IClicked.wrap(clicked));
+	}
+
+	public MsgBox2 button(String title, MsgBoxButtonPrio prio, boolean asDefault, IExecute clicked) {
+		return button(title, prio, asDefault, IClicked.wrap(clicked));
+	}
+
+	/**
+	 * Add a non-answering button that executes some action.
+	 */
+	public MsgBox2 button(String title, IIconRef icon, IExecute clicked) {
+		return button(title, icon, IClicked.wrap(clicked));
+	}
+
+	/**
+	 * This handles the usual "confirmation" button and ignores all other type of responses.
+	 */
+	@NonNull
+	public MsgBox2 onClicked(@NonNull IExecute clicked) {
+		return onClicked(IClicked.wrap(clicked));
 	}
 
 	public MsgBox2 autoClose(boolean auto) {

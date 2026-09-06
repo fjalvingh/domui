@@ -59,18 +59,18 @@ public class Text2LookPage extends UrlPage {
 
 		Text2<String> withButtons = new Text2<>(String.class);
 		withButtons.setValue("Yesterday");
-		withButtons.addButtonSmall(Icon.faSearch, a -> {
+		withButtons.addButtonSmall(Icon.faSearch, ()-> {
 			shown.removeAllChildren();
 			shown.add("Search pressed, the box holds: " + withButtons.getValue());
 		});
-		withButtons.addButtonSmall(Icon.faEraser, a -> {
+		withButtons.addButtonSmall(Icon.faEraser, ()-> {
 			withButtons.setValue(null);
 			shown.removeAllChildren();
 			shown.add("Erase pressed, the box is empty now");
 		});
 
 		Text2<String> withBigButton = new Text2<>(String.class);
-		withBigButton.addButton(Icon.faEnvelope, a -> MsgBox2.on(this)
+		withBigButton.addButton(Icon.faEnvelope, ()-> MsgBox2.on(this)
 			.info("Sending to " + withBigButton.getValue()));
 
 		FormBuilder fb2 = new FormBuilder(cp);

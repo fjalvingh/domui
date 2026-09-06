@@ -38,6 +38,7 @@ import to.etc.domui.util.DomUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import to.etc.function.IExecute;
 
 /**
  * Small header component to separate items vertically on a page.
@@ -114,6 +115,10 @@ public class CaptionedHeader extends Table {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setClicked(handler);
 		internallyAddButton(ib, hint);
+	}
+
+	public void addButton(IIconRef image, String hint, IExecute handler) {
+		addButton(image, hint, IClicked.<NodeBase>wrap(handler));
 	}
 
 	public void addButton(IIconRef image, String hint, String onClickJs) {

@@ -40,7 +40,7 @@ public class ComponentBindPage extends UrlPage {
 		Div buttons = new Div();
 		cp.add(buttons);
 
-		buttons.add(new DefaultButton("Save", a -> {
+		buttons.add(new DefaultButton("Save", ()-> {
 			if(bindErrors()) {                             // Mandatory, and nothing chosen?
 				return;
 			}
@@ -48,11 +48,11 @@ public class ComponentBindPage extends UrlPage {
 		}));
 
 		//-- The other direction: change the model and let the binding update the control.
-		buttons.add(new DefaultButton("Set the model to 5 stars", a -> {
+		buttons.add(new DefaultButton("Set the model to 5 stars", ()-> {
 			m_review.setRating(5);
 			say(result, "the model now says 5; the control follows at the end of this request");
 		}));
-		buttons.add(new DefaultButton("Clear the model", a -> {
+		buttons.add(new DefaultButton("Clear the model", ()-> {
 			m_review.setRating(null);
 			m_review.setReviewer(null);
 			say(result, "the model was cleared");

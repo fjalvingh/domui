@@ -80,10 +80,10 @@ public class TabPanelPage extends UrlPage {
 		Div buttons = new Div("dm-tut");
 		cp.add(buttons);
 		//-- A handle is what a tab is addressed by afterwards.
-		buttons.add(new DefaultButton("Open the Lazy tab from code", a -> lazyHandle.select()));
-		buttons.add(new DefaultButton("Rename the closable tab", a ->
+		buttons.add(new DefaultButton("Open the Lazy tab from code", ()-> lazyHandle.select()));
+		buttons.add(new DefaultButton("Rename the closable tab", ()->
 			closableHandle.updateLabel("Renamed", Icon.faStar)));
-		buttons.add(new DefaultButton("Read the mandatory field", a -> name.getValue()));
+		buttons.add(new DefaultButton("Read the mandatory field", ()-> name.getValue()));
 		cp.add(shown);
 
 		cp.add(new Para().add("Press 'read the mandatory field' with the field empty: the "

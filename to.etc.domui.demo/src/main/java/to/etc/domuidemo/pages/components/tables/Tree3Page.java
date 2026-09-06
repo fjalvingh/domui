@@ -53,8 +53,8 @@ public class Tree3Page extends UrlPage {
 
 		Div buttons = new Div("dm-tut");
 		cp.add(buttons);
-		buttons.add(new DefaultButton("Collapse everything", a -> tree.collapseAll()));
-		buttons.add(new DefaultButton("What is selected?", a -> {
+		buttons.add(new DefaultButton("Collapse everything", ()-> tree.collapseAll()));
+		buttons.add(new DefaultButton("What is selected?", ()-> {
 			DemoNode selected = tree.getSelectedValue();
 			shown.removeAllChildren();
 			shown.add(selected == null ? "Nothing is selected" : "Selected: " + selected.getText());

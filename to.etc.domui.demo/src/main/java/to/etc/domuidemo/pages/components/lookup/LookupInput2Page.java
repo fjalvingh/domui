@@ -35,7 +35,7 @@ public class LookupInput2Page extends UrlPage {
 		//-- the control gets its quick search from metadata.
 		LookupInput2<Customer> customer = new LookupInput2<>(Customer.class);
 		customer.setMandatory(true);
-		customer.setOnValueChanged(a -> {
+		customer.setOnValueChanged(()-> {
 			shown.removeAllChildren();
 			Customer value = customer.getValue();
 			shown.add("Customer is now " + (value == null ? "empty" : value.getFirstName() + " " + value.getLastName()));
@@ -68,7 +68,7 @@ public class LookupInput2Page extends UrlPage {
 		fb.label("setReadOnly(true)").control(readOnly);
 		fb.label("setDisabledBecause()").control(disabled);
 
-		cp.add(new DefaultButton("Read the values", a -> {
+		cp.add(new DefaultButton("Read the values", ()-> {
 			Customer customerValue = customer.getValue();
 			Album albumValue = album.getValue();
 			Artist artistValue = noQuick.getValue();

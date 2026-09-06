@@ -80,7 +80,7 @@ public class Form4LayoutTestPage extends UrlPage {
 		TextArea ta = new TextArea(80, 5);
 		fb.property(this, "memo").control(ta);
 
-		DefaultButton validate = new DefaultButton("validate", a -> validate());
+		DefaultButton validate = new DefaultButton("validate", ()-> validate());
 		cp.add(validate);
 
 	}

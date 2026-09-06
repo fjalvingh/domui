@@ -73,7 +73,7 @@ public class ImageUploadPage extends UrlPage {
 		select.setMaxDimensions(new Dimension(512, 512));     // What the picture is resized down to
 		select.setValue(m_avatar);
 		select.setEmptyIcon(Icon.faUser);
-		select.setOnValueChanged(a -> {
+		select.setOnValueChanged(()-> {
 			m_avatar = select.getValue();
 			small.setValue(m_avatar);                     // The displays follow the control...
 			medium.setValue(m_avatar);

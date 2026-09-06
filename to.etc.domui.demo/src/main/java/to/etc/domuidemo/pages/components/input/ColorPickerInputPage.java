@@ -28,7 +28,7 @@ public class ColorPickerInputPage extends UrlPage {
 
 		ColorPickerInput cover = new ColorPickerInput();
 		cover.setValue("c05a2a");
-		cover.setOnValueChanged(a -> {
+		cover.setOnValueChanged(()-> {
 			shown.removeAllChildren();
 			shown.add("The sleeve colour is now " + cover.getValue());
 		});
@@ -45,7 +45,7 @@ public class ColorPickerInputPage extends UrlPage {
 		fb.label("setMandatory(false)").control(optional);
 		fb.label("setReadOnly(true)").control(readOnly);
 
-		cp.add(new DefaultButton("What is in the optional one?", a -> {
+		cp.add(new DefaultButton("What is in the optional one?", ()-> {
 			shown.removeAllChildren();
 			shown.add("The optional box holds: " + optional.getValue());
 		}));

@@ -31,24 +31,16 @@ public class MiniPage extends UrlPage {
 		d.add(text);
 		text.setMandatory(true);
 
-		DefaultButton	b = new DefaultButton("Press this", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton bah) throws Exception {
-				Integer	val = text.getValue();
-				Div nd = new Div();
-				
-				nd.setText("De waarde is "+val);
-				MiniPage.this.add(nd);
-			}
+		DefaultButton	b = new DefaultButton("Press this", () -> {
+			Integer	val = text.getValue();
+			Div nd = new Div();
+
+			nd.setText("De waarde is "+val);
+			add(nd);
 		});
 		d.add(b);
 
-		d.add(new DefaultButton("Rebuild", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton bx) throws Exception {
-				MiniPage.this.forceRebuild();
-			}
-		}));
+		d.add(new DefaultButton("Rebuild", () -> forceRebuild()));
 	}
 
 	@Override

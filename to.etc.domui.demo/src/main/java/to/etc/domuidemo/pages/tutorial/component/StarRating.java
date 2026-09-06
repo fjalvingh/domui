@@ -4,7 +4,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.trouble.ValidationException;
@@ -50,7 +49,7 @@ public class StarRating extends AbstractDivControl<Integer> {
 			add(span);
 			if(!isDisabled() && !isReadOnly()) {
 				span.setTitle(star + " of " + m_stars);
-				span.setClicked(a -> starClicked(star));
+				span.setClicked(()-> starClicked(star));
 			}
 		}
 	}
@@ -68,10 +67,7 @@ public class StarRating extends AbstractDivControl<Integer> {
 		setValue(newValue);                                // Rebuilds, but only on a real change
 		OldBindingHandler.controlToModel(this);            // This request's binding pass already ran
 
-		IValueChanged<StarRating> onValueChanged = (IValueChanged<StarRating>) getOnValueChanged();
-		if(null != onValueChanged) {
-			onValueChanged.onValueChanged(this);
-		}
+		callOnValueChanged();                              // Tell whoever is listening
 	}
 
 	/**

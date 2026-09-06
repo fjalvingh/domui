@@ -69,6 +69,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import to.etc.function.IExecute;
 
 /**
  * A single-line input box with conversion and validation ability, and
@@ -573,7 +574,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	public void setOnValueChanged(@Nullable IValueChanged<?> onValueChanged) {
 		m_onValueChanged = onValueChanged;
 		if(null == onValueChanged) {
-			m_input.setOnValueChanged(null);
+			m_input.clearOnValueChanged();
 		} else {
 			m_input.setOnValueChanged(a -> ((IValueChanged<Text2<T>>) onValueChanged).onValueChanged(this));
 		}
@@ -702,6 +703,14 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		SmallImgButton sib = new SmallImgButton(image, clicked);
 		addButton(sib);
 		return sib;
+	}
+
+	public DefaultButton addButton(IIconRef image, IExecute clicked) {
+		return addButton(image, IClicked.<DefaultButton>wrap(clicked));
+	}
+
+	public SmallImgButton addButtonSmall(IIconRef image, IExecute clicked) {
+		return addButtonSmall(image, IClicked.<SmallImgButton>wrap(clicked));
 	}
 
 	public void addButton(NodeBase button) {

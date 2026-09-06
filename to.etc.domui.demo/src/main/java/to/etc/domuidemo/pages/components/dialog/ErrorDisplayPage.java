@@ -68,13 +68,13 @@ public class ErrorDisplayPage extends UrlPage {
 		FormBuilder fb = new FormBuilder(panel);
 		fb.label("Copies of " + album).control(copies);
 
-		panel.add(new DefaultButton("Order", a -> {
+		panel.add(new DefaultButton("Order", ()-> {
 			Integer value = copies.getValue();            // Empty: the control reports it into this fence
 			panel.addGlobalMessage(UIMessage.info(DialogMsg.albumSaved, album + " x " + value));
 		}));
-		panel.add(new DefaultButton("A message about the panel", a ->
+		panel.add(new DefaultButton("A message about the panel", ()->
 			panel.addGlobalMessage(UIMessage.warning(DialogMsg.albumStockLow, album, Integer.valueOf(3)))));
-		panel.add(new DefaultButton("Clear", a -> {
+		panel.add(new DefaultButton("Clear", ()-> {
 			copies.setMessage(null);
 			panel.clearGlobalMessage();
 		}));

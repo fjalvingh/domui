@@ -34,6 +34,7 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 
 import java.util.function.Function;
+import to.etc.function.IExecute;
 
 /**
  * Wrapper for a "default" datapager. This wraps and proxies the
@@ -103,6 +104,10 @@ final public class DataPager extends Div implements IDataTableChangeListener {
 		SmallImgButton sib = new SmallImgButton(img, clicked);
 		addButton(sib);
 		return sib;
+	}
+
+	public SmallImgButton addButton(@NonNull IIconRef img, @NonNull IExecute clicked) {
+		return addButton(img, IClicked.<SmallImgButton>wrap(clicked));
 	}
 
 	public synchronized static void setPagerFactory(@NonNull Function<IPageableComponent, IDataTablePager> pagerFactory) {

@@ -77,10 +77,10 @@ public class ComponentStatePage extends UrlPage {
 
 		Div buttons = new Div();
 		cp.add(buttons);
-		buttons.add(new DefaultButton("Editable", a -> state(false, false, null)));
-		buttons.add(new DefaultButton("Read only", a -> state(true, false, null)));
-		buttons.add(new DefaultButton("Disabled", a -> state(false, true, null)));
-		buttons.add(new DefaultButton("Disabled because", a -> state(false, false, "This album is no longer for sale")));
+		buttons.add(new DefaultButton("Editable", ()-> state(false, false, null)));
+		buttons.add(new DefaultButton("Read only", ()-> state(true, false, null)));
+		buttons.add(new DefaultButton("Disabled", ()-> state(false, true, null)));
+		buttons.add(new DefaultButton("Disabled because", ()-> state(false, false, "This album is no longer for sale")));
 
 		Para hint = new Para();
 		cp.add(hint);

@@ -33,7 +33,7 @@ public class FileUploadPage extends UrlPage {
 		//-- One file, restricted to a few extensions, and told when it arrives.
 		FileUpload2 single = new FileUpload2("png", "jpg", "gif");
 		single.setMaxSize(4 * 1024 * 1024);               // Refused by the browser above this size
-		single.setOnValueChanged(a -> describe(result, single.getValue()));
+		single.setOnValueChanged(()-> describe(result, single.getValue()));
 
 		//-- ...and any number of them, of any type.
 		FileUploadMultiple several = new FileUploadMultiple();
@@ -42,7 +42,7 @@ public class FileUploadPage extends UrlPage {
 		fb.label("An image, at most 4MB").control(single);
 		fb.label("Any number of files").control(several);
 
-		cp.add(new DefaultButton("What did I get?", a -> describeAll(result, several.getValue())));
+		cp.add(new DefaultButton("What did I get?", ()-> describeAll(result, several.getValue())));
 		cp.add(result);
 
 		cp.add(new Para().add("The upload starts the moment a file is chosen: the control posts it "

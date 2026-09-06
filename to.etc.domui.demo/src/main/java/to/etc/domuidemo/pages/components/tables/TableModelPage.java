@@ -57,7 +57,7 @@ public class TableModelPage extends UrlPage {
 		queriedTable.setPageSize(8);
 		cp.add(new DataPager(queriedTable));
 		cp.add(counter);
-		cp.add(new DefaultButton("Count the queries again", a -> {
+		cp.add(new DefaultButton("Count the queries again", ()-> {
 			counter.removeAllChildren();
 			counter.add("The query has run " + m_queryCount + " time(s) so far.");
 		}));
@@ -87,13 +87,13 @@ public class TableModelPage extends UrlPage {
 
 		Div buttons = new Div("dm-tut");
 		cp.add(buttons);
-		buttons.add(new DefaultButton("Add a line", a -> listModel.add(new BasketLine("Let It Be", 1))));
-		buttons.add(new DefaultButton("One more copy of the first", a -> {
+		buttons.add(new DefaultButton("Add a line", ()-> listModel.add(new BasketLine("Let It Be", 1))));
+		buttons.add(new DefaultButton("One more copy of the first", ()-> {
 			BasketLine line = listModel.getItem(0);
 			line.setCopies(line.getCopies() + 1);
 			listModel.modified(0);                        // Tell the model: it tells the table
 		}));
-		buttons.add(new DefaultButton("Delete the first", a -> {
+		buttons.add(new DefaultButton("Delete the first", ()-> {
 			if(listModel.getRows() > 0)
 				listModel.delete(0);
 		}));

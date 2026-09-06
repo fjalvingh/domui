@@ -86,7 +86,7 @@ public class ALinkPage extends UrlPage {
 
 		ATag handler = new ATag();
 		handler.add("A link that only calls the server");
-		handler.setClicked(a -> MsgBox2.on(this).info("The link was clicked; the browser went nowhere."));
+		handler.setClicked(()-> MsgBox2.on(this).info("The link was clicked; the browser went nowhere."));
 		plain.add(new Div().add(handler));
 
 		cp.add(new Para().add("ATag is the plain html anchor: give it an href and it is a link, give it "

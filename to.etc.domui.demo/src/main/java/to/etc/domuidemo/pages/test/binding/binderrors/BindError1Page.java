@@ -37,7 +37,7 @@ public class BindError1Page extends UrlPage {
 
 		text.bind().to(this, "fullName");
 
-		cp.add(new DefaultButton("click", a -> save(cp)));
+		cp.add(new DefaultButton("click", ()-> save(cp)));
 	}
 
 	private void save(NodeContainer target) throws Exception {

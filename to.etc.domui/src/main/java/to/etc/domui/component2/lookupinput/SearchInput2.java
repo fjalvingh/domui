@@ -33,6 +33,7 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.server.IRequestContext;
+import to.etc.function.IExecute;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.
@@ -79,6 +80,10 @@ public class SearchInput2 extends Div implements IForTarget {
 
 	public void setOnLookupTyping(@Nullable IValueChanged<SearchInput2> onLookupTyping) {
 		m_onLookupTyping = onLookupTyping;
+	}
+
+	public void setOnLookupTyping(@NonNull IExecute onLookupTyping) {
+		setOnLookupTyping(IValueChanged.<SearchInput2>wrap(onLookupTyping));
 	}
 
 	@Nullable

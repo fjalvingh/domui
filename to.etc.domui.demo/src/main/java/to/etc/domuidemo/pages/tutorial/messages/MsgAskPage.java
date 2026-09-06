@@ -32,7 +32,7 @@ public class MsgAskPage extends UrlPage {
 		result.add("The answers appear here.");
 
 		//-- Yes/no: the answer is a MsgBoxButton.
-		buttons.add(new DefaultButton("Delete the album", a -> MsgBox2.on(this)
+		buttons.add(new DefaultButton("Delete the album", ()-> MsgBox2.on(this)
 			.question()
 			.text("Delete the album \"Big Ones\"? This cannot be undone.")
 			.yesNo()
@@ -46,7 +46,7 @@ public class MsgAskPage extends UrlPage {
 		));
 
 		//-- Buttons of your own: the answer is whatever you attached to the button.
-		buttons.add(new DefaultButton("Ship it how?", a -> MsgBox2.on(this)
+		buttons.add(new DefaultButton("Ship it how?", ()-> MsgBox2.on(this)
 			.question()
 			.text("This order has one album in stock and one that has to be ordered. What do we do?")
 			.button("Ship what we have", ShipAction.Partial)
@@ -56,7 +56,7 @@ public class MsgAskPage extends UrlPage {
 		));
 
 		//-- Asking for a value: the box carries a control, and the handler gets its value.
-		buttons.add(new DefaultButton("How many copies?", a -> {
+		buttons.add(new DefaultButton("How many copies?", ()-> {
 			Text2<Integer> copies = new Text2<>(Integer.class);
 			copies.setMandatory(true);
 
@@ -67,7 +67,7 @@ public class MsgAskPage extends UrlPage {
 		}));
 
 		//-- The same, but the box refuses to close while the answer is wrong.
-		buttons.add(new DefaultButton("How many copies, checked", a -> {
+		buttons.add(new DefaultButton("How many copies, checked", ()-> {
 			Text2<Integer> copies = new Text2<>(Integer.class);
 			copies.setMandatory(true);
 

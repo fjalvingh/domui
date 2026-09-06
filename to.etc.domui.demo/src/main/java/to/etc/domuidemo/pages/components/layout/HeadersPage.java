@@ -38,7 +38,7 @@ public class HeadersPage extends UrlPage {
 		//-- ...and one with a button in it.
 		GenericHeader withButton = new GenericHeader(Type.HEADER_2, "With a button");
 		withButton.addButton(Icon.faPencil, "Rename this section",
-			a -> MsgBox2.on(this).info("The pencil was pressed"));
+			()-> MsgBox2.on(this).info("The pencil was pressed"));
 		cp.add(withButton);
 
 		cp.add(new Para().add("A GenericHeader is a header text plus optional buttons at its "
@@ -48,8 +48,8 @@ public class HeadersPage extends UrlPage {
 		cp.add(new HTag(2, "Caption2"));
 		Caption2 caption = new Caption2(CaptionType.Default, "A caption with buttons");
 		cp.add(caption);
-		caption.addButton(Icon.faPlus, "Add something", a -> MsgBox2.on(this).info("Add"));
-		caption.addButton(Icon.faTrash, "Delete it", a -> MsgBox2.on(this).info("Delete"));
+		caption.addButton(Icon.faPlus, "Add something", ()-> MsgBox2.on(this).info("Add"));
+		caption.addButton(Icon.faTrash, "Delete it", ()-> MsgBox2.on(this).info("Delete"));
 
 		Caption2 panelCaption = new Caption2(CaptionType.Panel, "A caption in panel style");
 		cp.add(panelCaption);

@@ -39,7 +39,7 @@ public class TypedQueryPage extends UrlPage {
 		fb.label("Album title contains").control(titlePart);
 		fb.label("Artist name contains").control(artistPart);
 
-		cp.add(new DefaultButton("Search", a -> search(titlePart, artistPart, query, result)));
+		cp.add(new DefaultButton("Search", ()-> search(titlePart, artistPart, query, result)));
 		cp.add(query);
 		cp.add(result);
 		search(titlePart, artistPart, query, result);

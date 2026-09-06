@@ -56,7 +56,7 @@ public class BreadCrumb2Page extends UrlPage {
 
 		Div stackButtons = new Div("dm-tut");
 		cp.add(stackButtons);
-		stackButtons.add(new DefaultButton("Open this page on top of itself", a ->
+		stackButtons.add(new DefaultButton("Open this page on top of itself", ()->
 			UIGoto.moveSub(BreadCrumb2Page.class, new PageParameters("level", m_level + 1))));
 
 		cp.add(new Para().add("createPageCrumb() reads the shelved page stack and makes one step "
@@ -76,8 +76,8 @@ public class BreadCrumb2Page extends UrlPage {
 
 		Div pathButtons = new Div("dm-tut");
 		cp.add(pathButtons);
-		pathButtons.add(new DefaultButton("Show the jazz path", a -> own.setValue(path(picked, "Jazz", "Miles Davis", "Kind of Blue"))));
-		pathButtons.add(new DefaultButton("Show the rock path", a -> own.setValue(path(picked, "Rock", "Led Zeppelin", "IV"))));
+		pathButtons.add(new DefaultButton("Show the jazz path", ()-> own.setValue(path(picked, "Jazz", "Miles Davis", "Kind of Blue"))));
+		pathButtons.add(new DefaultButton("Show the rock path", ()-> own.setValue(path(picked, "Rock", "Led Zeppelin", "IV"))));
 
 		cp.add(new Para().add("Every step is an IItem: an icon, a name, a tooltip and what to do "
 			+ "when it is clicked. Item is the ready-made implementation of it, so a crumb over "
@@ -93,8 +93,8 @@ public class BreadCrumb2Page extends UrlPage {
 
 		Div liveButtons = new Div("dm-tut");
 		cp.add(liveButtons);
-		liveButtons.add(new DefaultButton("A step deeper", a -> m_path.add(new Item(null, "Level " + m_path.size(), null, null))));
-		liveButtons.add(new DefaultButton("A step back", a -> {
+		liveButtons.add(new DefaultButton("A step deeper", ()-> m_path.add(new Item(null, "Level " + m_path.size(), null, null))));
+		liveButtons.add(new DefaultButton("A step back", ()-> {
 			if(m_path.size() > 1) {
 				m_path.remove(m_path.size() - 1);
 			}

@@ -24,7 +24,7 @@ public class BuildOrderPage extends UrlPage {
 		ContentPanel cp = new ContentPanel();
 		add(cp);
 
-		cp.add(new DefaultButton("ClickMe", c -> openNext(cp)));
+		cp.add(new DefaultButton("ClickMe", ()-> openNext(cp)));
 	}
 
 	private void openNext(NodeContainer target) {
@@ -36,7 +36,7 @@ public class BuildOrderPage extends UrlPage {
 			TestComp2 t2 = new TestComp2();
 			add(t2);
 
-			DefaultButton next = new DefaultButton("NextButton", a -> MsgBox2.on(this).error("Should not be possible to get this"));
+			DefaultButton next = new DefaultButton("NextButton", ()-> MsgBox2.on(this).error("Should not be possible to get this"));
 			add(next);
 			next.bind("disabled").to(t2, "disabled");
 			add(new MessageLine(MsgType.INFO, "The 'next' button must be disabled"));

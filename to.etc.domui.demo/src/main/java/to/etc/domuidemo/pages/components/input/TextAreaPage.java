@@ -46,7 +46,7 @@ public class TextAreaPage extends UrlPage {
 		Div result = new Div("dm-tut-q");
 		result.add("Press Save to see the text exactly as the control hands it over.");
 
-		cp.add(new DefaultButton("Save", a -> {
+		cp.add(new DefaultButton("Save", ()-> {
 			String text = review.getValue();
 			result.removeAllChildren();
 			result.add(text);

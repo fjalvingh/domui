@@ -53,9 +53,9 @@ public class BindingConversionTestForm extends UrlPage {
 
 		Div result = new Div();
 
-		cp.add(new DefaultButton("click", a -> checkClickValue(result)));
-		cp.add(new DefaultButton("setvalue", a -> setValue(Integer.valueOf(987))));
-		cp.add(new DefaultButton("setnull", a -> setValue(null)));
+		cp.add(new DefaultButton("click", ()-> checkClickValue(result)));
+		cp.add(new DefaultButton("setvalue", ()-> setValue(Integer.valueOf(987))));
+		cp.add(new DefaultButton("setnull", ()-> setValue(null)));
 		cp.add(result);
 	}
 

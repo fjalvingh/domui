@@ -41,9 +41,9 @@ public class LayoutPanelPage extends UrlPage {
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
 		bb.addBackButton();
-		bb.addButton("Save", Theme.BTN_SAVE, a -> MsgBox2.on(this).info("Saved."));
-		bb.addConfirmedButton("Delete", Theme.BTN_DELETE, "Delete this order?", a -> MsgBox2.on(this).info("Deleted."));
+		bb.addButton("Save", Theme.BTN_SAVE, ()-> MsgBox2.on(this).info("Saved."));
+		bb.addConfirmedButton("Delete", Theme.BTN_DELETE, "Delete this order?", ()-> MsgBox2.on(this).info("Deleted."));
 		bb.right();                                        // Everything after this goes to the right
-		bb.addLinkButton("Help", Theme.ICON_BIG_INFO, a -> MsgBox2.on(this).info("No help for you."));
+		bb.addLinkButton("Help", Theme.ICON_BIG_INFO, ()-> MsgBox2.on(this).info("No help for you."));
 	}
 }

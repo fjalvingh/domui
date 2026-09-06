@@ -40,6 +40,7 @@ import to.etc.domui.util.DomUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import to.etc.function.IExecute;
 
 public class Caption extends Div {
 
@@ -126,6 +127,10 @@ public class Caption extends Div {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setClicked(handler);
 		internallyAddButton(ib, hint);
+	}
+
+	public void addButton(IIconRef image, String hint, IExecute handler) {
+		addButton(image, hint, IClicked.<NodeBase>wrap(handler));
 	}
 
 	public void addButton(IIconRef image, String hint, String onClickJs) {

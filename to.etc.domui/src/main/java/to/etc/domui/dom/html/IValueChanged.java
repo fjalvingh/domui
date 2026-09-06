@@ -26,6 +26,8 @@ package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import to.etc.function.IExecute;
+
 public interface IValueChanged<T> {
 	@NonNull IValueChanged<NodeBase> DUMMY = new IValueChanged<NodeBase>() {
 		@Override
@@ -33,4 +35,13 @@ public interface IValueChanged<T> {
 	};
 
 	void onValueChanged(@NonNull T component) throws Exception;
+
+	/**
+	 * Wrap a parameterless action as a change handler, discarding the component. This
+	 * implements the {@link IExecute} overload of setOnValueChanged.
+	 */
+	@NonNull
+	static <T> IValueChanged<T> wrap(@NonNull IExecute action) {
+		return component -> action.execute();
+	}
 }

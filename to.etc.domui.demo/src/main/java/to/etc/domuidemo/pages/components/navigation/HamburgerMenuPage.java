@@ -50,11 +50,13 @@ public class HamburgerMenuPage extends UrlPage {
 		cp.add(new HTag(2, "Opened by hand"));
 		Div buttons = new Div("dm-tut");
 		cp.add(buttons);
-		buttons.add(new DefaultButton("Menu", Icon.faBars, a -> {
+		DefaultButton menuButton = new DefaultButton("Menu", Icon.faBars);
+		buttons.add(menuButton);
+		menuButton.setClicked(() -> {
 			HamburgerMenu menu = new HamburgerMenu(actions(chosen));
-			a.appendAfterMe(menu);
-			menu.setOnSelection(action -> action.execute(a));
-		}));
+			menuButton.appendAfterMe(menu);
+			menu.setOnSelection(action -> action.execute(menuButton));
+		});
 
 		cp.add(chosen);
 

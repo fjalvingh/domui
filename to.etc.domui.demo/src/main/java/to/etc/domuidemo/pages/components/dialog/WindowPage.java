@@ -32,7 +32,7 @@ public class WindowPage extends UrlPage {
 		cp.add(buttons);
 
 		//-- The simplest window: modal, not resizable, of the default size.
-		buttons.add(new DefaultButton("A modal window", a -> {
+		buttons.add(new DefaultButton("A modal window", ()-> {
 			Window w = new Window("The album");
 			add(w);                                       // An overlay is added to the page, not to the content panel
 			w.add(new Para().add("Everything added to the window ends up in its content area, "
@@ -40,7 +40,7 @@ public class WindowPage extends UrlPage {
 		}));
 
 		//-- An icon in the title bar: any icon reference, so a font icon too.
-		buttons.add(new DefaultButton("With an icon in the title bar", a -> {
+		buttons.add(new DefaultButton("With an icon in the title bar", ()-> {
 			Window w = new Window("Tracks");
 			w.setIcon(Icon.faMusic);
 			add(w);
@@ -49,7 +49,7 @@ public class WindowPage extends UrlPage {
 		}));
 
 		//-- Not modal, resizable, and of a given size.
-		buttons.add(new DefaultButton("Movable and resizable", a -> {
+		buttons.add(new DefaultButton("Movable and resizable", ()-> {
 			Window w = new Window(false, true, 500, 300, "Drag my title bar");
 			add(w);
 			w.add(new Para().add("This window is not modal, so the page behind it still answers. "
@@ -57,7 +57,7 @@ public class WindowPage extends UrlPage {
 		}));
 
 		//-- The two areas that do not scroll with the content.
-		buttons.add(new DefaultButton("Fixed areas around the content", a -> {
+		buttons.add(new DefaultButton("Fixed areas around the content", ()-> {
 			Window w = new Window(true, false, 500, 400, "A window with fixed areas");
 			add(w);
 
@@ -65,7 +65,7 @@ public class WindowPage extends UrlPage {
 			w.getTopContent().add("This line stays where it is.");
 
 			w.getBottomContent().setHeight("40px");
-			w.getBottomContent().add(new DefaultButton("Close", b -> w.close()));
+			w.getBottomContent().add(new DefaultButton("Close", ()-> w.close()));
 
 			for(int i = 1; i <= 40; i++) {
 				w.add(new Div().add("Content line " + i + ", which scrolls between the two."));
@@ -73,7 +73,7 @@ public class WindowPage extends UrlPage {
 		}));
 
 		//-- Told when the user closes it, and by which route.
-		buttons.add(new DefaultButton("Told when it closes", a -> {
+		buttons.add(new DefaultButton("Told when it closes", ()-> {
 			Window w = new Window(true, false, 450, -1, "Close me");
 			add(w);
 			w.setOnClose(reason -> {
@@ -81,18 +81,18 @@ public class WindowPage extends UrlPage {
 				result.add("The window closed, reason: " + reason);
 			});
 			w.add(new Para().add("Press the cross: that is a user action, so the close handler runs."));
-			w.add(new DefaultButton("Close from code", b -> w.close()));
-			w.add(new DefaultButton("Cancel, as the cross does", b -> w.closePressed()));
+			w.add(new DefaultButton("Close from code", ()-> w.close()));
+			w.add(new DefaultButton("Cancel, as the cross does", ()-> w.closePressed()));
 		}));
 
 		//-- No cross in the title bar: the window itself decides when it goes.
-		buttons.add(new DefaultButton("Without a close button", a -> {
+		buttons.add(new DefaultButton("Without a close button", ()-> {
 			Window w = new Window(true, false, 400, -1, "No way out but one");
 			w.setClosable(false);                         // No cross in the title bar
 			w.setAutoClose(false);                        // ...and clicking outside it does not close it either
 			add(w);
 			w.add(new Para().add("This window has no cross, and clicking next to it does nothing."));
-			w.add(new DefaultButton("Let me out", b -> w.close()));
+			w.add(new DefaultButton("Let me out", ()-> w.close()));
 		}));
 
 		cp.add(result);

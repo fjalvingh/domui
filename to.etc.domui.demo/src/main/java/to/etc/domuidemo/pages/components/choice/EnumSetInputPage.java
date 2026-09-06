@@ -38,7 +38,7 @@ public class EnumSetInputPage extends UrlPage {
 
 		EnumSetInput<Genre> chosen = new EnumSetInput<>(Genre.class, genres, "name");
 		chosen.setValue(Set.of(genres.get(0)));
-		chosen.setOnValueChanged(a -> {
+		chosen.setOnValueChanged(()-> {
 			shown.removeAllChildren();
 			shown.add("Now searching in: " + names(chosen.getValue()));
 		});
@@ -55,7 +55,7 @@ public class EnumSetInputPage extends UrlPage {
 		fb.label("Media (from an enum)").control(media);
 		fb.label("setReadOnly(true)").control(readOnly);
 
-		cp.add(new DefaultButton("Read the sets", a -> {
+		cp.add(new DefaultButton("Read the sets", ()-> {
 			shown.removeAllChildren();
 			shown.add("genres=" + names(chosen.getValue())
 				+ ", media=" + (media.getValue() == null ? "none" : media.getValue()));

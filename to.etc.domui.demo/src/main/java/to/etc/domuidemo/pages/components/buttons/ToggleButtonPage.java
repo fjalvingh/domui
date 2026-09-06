@@ -29,7 +29,7 @@ public class ToggleButtonPage extends UrlPage {
 
 		CheckboxButton plain = new CheckboxButton();
 		plain.setChecked(true);
-		plain.setClicked(a -> say(shown, "Newsletter is now " + plain.isChecked()));
+		plain.setClicked(()-> say(shown, "Newsletter is now " + plain.isChecked()));
 
 		CheckboxButton labels = new CheckboxButton()
 			.setOnLabel("In stock")
@@ -57,7 +57,7 @@ public class ToggleButtonPage extends UrlPage {
 		fb.label("SwitchButton, rounded").control(rounded);
 		fb.label("SwitchButton, square").control(square);
 
-		cp.add(new DefaultButton("Read the values", a -> {
+		cp.add(new DefaultButton("Read the values", ()-> {
 			shown.removeAllChildren();
 			shown.add("newsletter=" + plain.getValue()
 				+ ", labelled=" + labels.getValue()

@@ -29,7 +29,7 @@ public class ColorPickerPage extends UrlPage {
 		Div shown = new Div("dm-tut");
 		shown.add("Pick a colour, then press the button.");
 
-		cp.add(new DefaultButton("What did I pick?", a -> {
+		cp.add(new DefaultButton("What did I pick?", ()-> {
 			String colour = picker.getValue();
 			shown.removeAllChildren();
 			shown.add("The picker holds " + colour + ": ");
@@ -41,7 +41,7 @@ public class ColorPickerPage extends UrlPage {
 			shown.add(swatch);
 		}));
 
-		cp.add(new DefaultButton("Set it to DomUI blue", a -> picker.setValue("4a7ebb")));
+		cp.add(new DefaultButton("Set it to DomUI blue", ()-> picker.setValue("4a7ebb")));
 		cp.add(shown);
 
 		cp.add(new Para().add("The picker writes every change straight into a hidden input, "

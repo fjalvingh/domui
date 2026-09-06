@@ -34,7 +34,7 @@ public class DialogPage extends UrlPage {
 		cp.add(buttons);
 
 		//-- The usual shape: a form, a save button that validates, and a cancel button.
-		buttons.add(new DefaultButton("Order copies", a -> {
+		buttons.add(new DefaultButton("Order copies", ()-> {
 			Text2<Integer> copies = new Text2<>(Integer.class);
 			copies.setMandatory(true);
 			copies.setValue(Integer.valueOf(1));
@@ -83,18 +83,18 @@ public class DialogPage extends UrlPage {
 		}));
 
 		//-- A dialog with buttons of its own instead of save and cancel.
-		buttons.add(new DefaultButton("Buttons of my own", a -> {
+		buttons.add(new DefaultButton("Buttons of my own", ()-> {
 			Dialog dlg = new Dialog(true, false, 460, -1, "What shall it be?");
 			add(dlg);
 			dlg.add(new Para().add("This dialog never called createButtons(), so it has no save "
 				+ "and no cancel - only what was added to its button bar."));
 
-			dlg.getButtonBar().addButton("Buy it", Icon.faShoppingCart, b -> {
+			dlg.getButtonBar().addButton("Buy it", Icon.faShoppingCart, ()-> {
 				result.removeAllChildren();
 				result.add("Bought");
 				dlg.close();
 			});
-			dlg.getButtonBar().addButton("Put it back", Icon.faUndo, b -> dlg.close());
+			dlg.getButtonBar().addButton("Put it back", Icon.faUndo, ()-> dlg.close());
 		}));
 
 		cp.add(result);

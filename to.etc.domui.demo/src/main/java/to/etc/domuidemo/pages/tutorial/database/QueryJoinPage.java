@@ -38,7 +38,7 @@ public class QueryJoinPage extends UrlPage {
 
 		FormBuilder fb = new FormBuilder(cp);
 		fb.label("Artist name contains").control(artistPart);
-		cp.add(new DefaultButton("Search albums", a -> searchAlbums(artistPart, artistQuery, artistResult)));
+		cp.add(new DefaultButton("Search albums", ()-> searchAlbums(artistPart, artistQuery, artistResult)));
 		cp.add(artistQuery);
 		cp.add(artistResult);
 
@@ -51,7 +51,7 @@ public class QueryJoinPage extends UrlPage {
 
 		FormBuilder fb2 = new FormBuilder(cp);
 		fb2.label("Album title contains").control(titlePart);
-		cp.add(new DefaultButton("Search artists", a -> searchArtists(titlePart, titleQuery, titleResult)));
+		cp.add(new DefaultButton("Search artists", ()-> searchArtists(titlePart, titleQuery, titleResult)));
 		cp.add(titleQuery);
 		cp.add(titleResult);
 

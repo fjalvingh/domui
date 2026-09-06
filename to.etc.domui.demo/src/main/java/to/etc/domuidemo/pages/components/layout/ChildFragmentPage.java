@@ -46,7 +46,7 @@ public class ChildFragmentPage extends UrlPage {
 		ComboLookup2<Artist> artist = new ComboLookup2<>(artists);
 		artist.setValue(m_artist);
 		artist.setMandatory(true);
-		artist.setOnValueChanged(a -> {
+		artist.setOnValueChanged(()-> {
 			m_artist = artist.getValue();
 			forceRebuild();                                // The fragment is built from the artist
 		});

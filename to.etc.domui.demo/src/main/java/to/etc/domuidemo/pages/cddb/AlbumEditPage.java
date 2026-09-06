@@ -37,7 +37,7 @@ public class AlbumEditPage extends UrlPage {
 
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
-		bb.addButton("Save", Theme.BTN_SAVE, a -> save());
+		bb.addButton("Save", Theme.BTN_SAVE, ()-> save());
 	}
 
 	@UIUrlParameter(name = "id")

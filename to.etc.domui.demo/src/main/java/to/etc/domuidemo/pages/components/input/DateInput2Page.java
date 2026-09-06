@@ -34,14 +34,14 @@ public class DateInput2Page extends UrlPage {
 
 		DateInput2 date = new DateInput2();
 		date.setValue(new Date());
-		date.setOnValueChanged(a -> show(shown, "Date only", date.getValue()));
+		date.setOnValueChanged(()-> show(shown, "Date only", date.getValue()));
 
 		DateInput2 dateTime = new DateInput2(true);
-		dateTime.setOnValueChanged(a -> show(shown, "Date and time", dateTime.getValue()));
+		dateTime.setOnValueChanged(()-> show(shown, "Date and time", dateTime.getValue()));
 
 		DateInput2 seconds = new DateInput2(true);
 		seconds.setWithSeconds(true);
-		seconds.setOnValueChanged(a -> show(shown, "With seconds", seconds.getValue()));
+		seconds.setOnValueChanged(()-> show(shown, "With seconds", seconds.getValue()));
 
 		DateInput2 noToday = new DateInput2();
 		noToday.setHideTodayButton(true);

@@ -74,13 +74,13 @@ public class OrderEntryTestPage extends UrlPage {
 		rr.column(BasketLine_.price()).label("Price each").width(15).align(TextAlign.RIGHT)
 			.converter(new MoneyBigDecimalNoSign());
 		rr.column().label("Order").width(10)
-			.renderer((node, line) -> node.add(new LinkButton("Order", a -> order(answer, customer, shipping, copies, line))));
+			.renderer((node, line) -> node.add(new LinkButton("Order", ()-> order(answer, customer, shipping, copies, line))));
 
 		DataTable<BasketLine> table = new DataTable<>(new SimpleListModel<>(basket), rr);
 		table.setTestID("basket");
 		cp.add(table);
 
-		cp.add(new DefaultButton("Clear", a -> {
+		cp.add(new DefaultButton("Clear", ()-> {
 			answer.removeAllChildren();
 			answer.add(NOTHING);
 		}));

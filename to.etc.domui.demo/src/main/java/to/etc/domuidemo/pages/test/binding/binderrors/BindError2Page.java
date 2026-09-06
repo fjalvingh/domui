@@ -47,7 +47,7 @@ public class BindError2Page extends UrlPage {
 		li.setTestID("edit");
 		li.bind().to(this, "artist");
 
-		cp.add(new DefaultButton("click", a-> save(cp)));
+		cp.add(new DefaultButton("click", ()-> save(cp)));
 	}
 
 	private void save(NodeContainer target) throws Exception {

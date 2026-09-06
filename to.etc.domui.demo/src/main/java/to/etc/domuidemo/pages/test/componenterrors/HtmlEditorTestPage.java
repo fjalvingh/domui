@@ -35,7 +35,7 @@ public class HtmlEditorTestPage extends UrlPage {
 		two.setMandatory(true);
 		fb.label("Two").property(this, "twoText").control(two);
 
-		cp.add(new DefaultButton("validate", a -> validate()));
+		cp.add(new DefaultButton("validate", ()-> validate()));
 	}
 
 	private void validate() throws Exception {

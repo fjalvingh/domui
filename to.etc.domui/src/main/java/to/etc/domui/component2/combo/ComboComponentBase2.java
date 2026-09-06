@@ -538,6 +538,13 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/**
 	 * Add a small image button after the combo.
 	 */
+	public void addExtraButton(IIconRef img, String title, final IExecute click) {
+		addExtraButton(img, title, click == null ? null : IClicked.<NodeBase>wrap(click));
+	}
+
+	/**
+	 * Add a small image button after the combo.
+	 */
 	public void addExtraButton(IIconRef img, String title, final IClicked<NodeBase> click) {
 		if(m_buttonList == Collections.EMPTY_LIST)
 			m_buttonList = new ArrayList<>();
@@ -681,7 +688,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 			return;
 		m_onValueChanged = onValueChanged;
 		if(null == onValueChanged) {
-			m_select.setOnValueChanged(null);
+			m_select.clearOnValueChanged();
 		} else {
 			m_select.setOnValueChanged(new IValueChanged<Select>() {
 				@Override

@@ -31,22 +31,22 @@ public class DefaultButtonPage extends UrlPage {
 		Div row = new Div("dm-tut");
 		cp.add(new HTag(2, "Text, icon and accelerator"));
 		cp.add(row);
-		row.add(new DefaultButton("Just text", a -> say(shown, "Just text")));
-		row.add(new DefaultButton("With an icon", Icon.faHeart, a -> say(shown, "With an icon")));
-		row.add(new DefaultButton("", Icon.faTrash, a -> say(shown, "Icon only")));
-		row.add(new DefaultButton("S!ave", Theme.BTN_SAVE, a -> say(shown, "Save - try alt-A")));
+		row.add(new DefaultButton("Just text", ()-> say(shown, "Just text")));
+		row.add(new DefaultButton("With an icon", Icon.faHeart, ()-> say(shown, "With an icon")));
+		row.add(new DefaultButton("", Icon.faTrash, ()-> say(shown, "Icon only")));
+		row.add(new DefaultButton("S!ave", Theme.BTN_SAVE, ()-> say(shown, "Save - try alt-A")));
 
 		//-- The fluent form builds the same button.
 		row.add(new DefaultButton()
 			.text("Fluent")
 			.icon(Icon.faCheck)
-			.clicked(a -> say(shown, "Built with text().icon().clicked()")));
+			.clicked(()-> say(shown, "Built with text().icon().clicked()")));
 
 		cp.add(new HTag(2, "What it looks like"));
 		Div colours = new Div("dm-tut");
 		cp.add(colours);
 		for(String name : new String[]{"primary", "info", "success", "warning", "danger", "dark", "light"}) {
-			colours.add(new DefaultButton(name, a -> say(shown, "is-" + name)).css("is-" + name));
+			colours.add(new DefaultButton(name, ()-> say(shown, "is-" + name)).css("is-" + name));
 		}
 
 		Div sizes = new Div("dm-tut");
@@ -63,8 +63,8 @@ public class DefaultButtonPage extends UrlPage {
 		Div states = new Div("dm-tut");
 		cp.add(states);
 		DefaultButton disabler = new DefaultButton("Click me to disable me", Theme.BTN_CONFIRM,
-			a -> say(shown, "Disabled now - it will not fire again"));
-		disabler.setClicked(a -> {
+			()-> say(shown, "Disabled now - it will not fire again"));
+		disabler.setClicked(()-> {
 			disabler.setDisabled(true);
 			say(shown, "Disabled now - it will not fire again");
 		});

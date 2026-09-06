@@ -913,6 +913,22 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
+	 * Set a click handler as an action that does not need the clicked node: the normal way to
+	 * handle a click, because the node is a local variable of createContent() that the lambda
+	 * already captures. Use {@link #clearClicked()} to remove the handler again.
+	 */
+	public void setClicked(@NonNull IExecute clicked) {
+		setClicked(IClicked.wrap(clicked));
+	}
+
+	/**
+	 * Remove the click handler set on this node, if any.
+	 */
+	public void clearClicked() {
+		setClicked((IClicked<?>) null);
+	}
+
+	/**
 	 * Mostly internal only: override when this component has a clicked handler which must <i>not</i> be
 	 * rendered as a Javascript "onclick". For instance the LookupForm returns false for this, so
 	 * that it can override the "clicked" property to be called when the lookupform's SEARCH button

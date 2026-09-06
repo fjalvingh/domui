@@ -40,6 +40,7 @@ import to.etc.domui.dom.html.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import to.etc.function.IExecute;
 
 @NonNullByDefault
 public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
@@ -261,6 +262,14 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IClicked<LinkButton> click) {
+		return m_factory.addConfirmedLinkButton(txt, img, msg, click);
+	}
+
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IExecute click, int order) {
+		return m_factory.addConfirmedLinkButton(txt, img, msg, click, order);
+	}
+
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IExecute click) {
 		return m_factory.addConfirmedLinkButton(txt, img, msg, click);
 	}
 

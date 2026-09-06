@@ -40,7 +40,7 @@ public class LookupInput2TestPage extends UrlPage {
 		li2.setMandatory(true);
 		fb.property(this, "album").control(li2);
 
-		DefaultButton validate = new DefaultButton("validate", a -> validate());
+		DefaultButton validate = new DefaultButton("validate", ()-> validate());
 		cp.add(validate);
 	}
 

@@ -66,7 +66,7 @@ public class OtherTablesPage extends UrlPage {
 		shuttle.setSourceRenderer((node, album) -> node.add(((Album) album).getTitle()));
 		shuttle.setTargetRenderer((node, album) -> node.add(((Album) album).getTitle()));
 
-		cp.add(new DefaultButton("What did I choose?", a -> {
+		cp.add(new DefaultButton("What did I choose?", ()-> {
 			StringBuilder sb = new StringBuilder();
 			for(Album album : shuttleModel.getChosen()) {
 				sb.append(album.getTitle()).append("\n");

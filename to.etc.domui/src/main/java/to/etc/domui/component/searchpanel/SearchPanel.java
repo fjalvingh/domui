@@ -793,6 +793,39 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		m_onAfterCollapse = onAfterCollapse;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Action handlers that do not need the clicked node.	*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * When set this will render a "new" button in the form's button bar.
+	 */
+	public void setOnNew(IExecute onNew) {
+		setOnNew(IClicked.<SearchPanel<T>>wrap(onNew));
+	}
+
+	/**
+	 * Action to run when the "clear" button is pressed.
+	 */
+	public void setOnClear(IExecute onClear) {
+		setOnClear(IClicked.<SearchPanel<T>>wrap(onClear));
+	}
+
+	/**
+	 * When set, this causes a "cancel" button to be added to the form, running this action when pressed.
+	 */
+	public void setOnCancel(IExecute onCancel) {
+		setOnCancel(IClicked.<SearchPanel<T>>wrap(onCancel));
+	}
+
+	public void setOnAfterRestore(IExecute onAfterRestore) {
+		setOnAfterRestore(IClicked.<NodeBase>wrap(onAfterRestore));
+	}
+
+	public void setOnAfterCollapse(IExecute onAfterCollapse) {
+		setOnAfterCollapse(IClicked.<NodeBase>wrap(onAfterCollapse));
+	}
+
 	/**
 	 * Returns custom query factory.
 	 */

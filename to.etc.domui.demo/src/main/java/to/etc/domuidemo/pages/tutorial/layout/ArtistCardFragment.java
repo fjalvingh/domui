@@ -39,7 +39,7 @@ public class ArtistCardFragment extends Div {
 
 		add(new LinkButton(m_showAlbums ? "hide the albums" : "show the albums",
 			m_showAlbums ? Icon.faAngleDown : Icon.faAngleRight,
-			a -> {
+			()-> {
 				m_showAlbums = !m_showAlbums;              // Change the state...
 				forceRebuild();                            // ...and build this fragment again
 			}));

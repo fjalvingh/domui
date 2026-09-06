@@ -29,16 +29,16 @@ public class FlarePage extends UrlPage {
 		cp.add(buttons);
 
 		//-- One line, of a given severity.
-		buttons.add(new DefaultButton("Saved", a -> MessageFlare.display(this, MsgType.INFO, "The album has been saved.")));
-		buttons.add(new DefaultButton("Careful", a -> MessageFlare.display(this, MsgType.WARNING, "This album has no tracks yet.")));
-		buttons.add(new DefaultButton("Failed", a -> MessageFlare.display(this, MsgType.ERROR, "The album could not be saved.")));
+		buttons.add(new DefaultButton("Saved", ()-> MessageFlare.display(this, MsgType.INFO, "The album has been saved.")));
+		buttons.add(new DefaultButton("Careful", ()-> MessageFlare.display(this, MsgType.WARNING, "This album has no tracks yet.")));
+		buttons.add(new DefaultButton("Failed", ()-> MessageFlare.display(this, MsgType.ERROR, "The album could not be saved.")));
 
 		//-- A UIMessage carries its own severity, so it needs no type.
-		buttons.add(new DefaultButton("From a UIMessage", a ->
+		buttons.add(new DefaultButton("From a UIMessage", ()->
 			MessageFlare.display(this, UIMessage.warning(DialogMsg.albumStockLow, "Big Ones", Integer.valueOf(3)))));
 
 		//-- One flare per request: several messages end up in the same one, and the severest wins.
-		buttons.add(new DefaultButton("Three at once", a -> {
+		buttons.add(new DefaultButton("Three at once", ()-> {
 			MessageFlare flare = MessageFlare.display(this, MsgType.INFO, "212 albums were read.");
 			flare.addMessage("3 albums were skipped: they have no artist.", MsgType.WARNING);
 			flare.addMessage("1 album was refused: it has no title.", MsgType.ERROR);

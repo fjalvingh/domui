@@ -48,7 +48,7 @@ public class BindPropertyPage extends UrlPage {
 		fb.label("Artist").control(artistC);
 		fb.label("Customer").control(customerC);
 
-		DefaultButton send = new DefaultButton("Send info", a -> MsgBox2.on(this).info(
+		DefaultButton send = new DefaultButton("Send info", ()-> MsgBox2.on(this).info(
 			"E-mailing " + m_model.getCustomer() + " with info on " + m_model.getArtist()));
 		cp.add(send);
 

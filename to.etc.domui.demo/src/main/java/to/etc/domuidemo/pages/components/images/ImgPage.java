@@ -65,12 +65,12 @@ public class ImgPage extends UrlPage {
 
 		Img button = new Img("img/reload.png");
 		button.setTitle("Press me");
-		button.setClicked(a -> MsgBox2.on(this).info("The image was clicked"));
+		button.setClicked(()-> MsgBox2.on(this).info("The image was clicked"));
 		clickable.add(button);
 
 		Img disabled = new Img("img/reload.png");
 		disabled.setTitle("This one is disabled");
-		disabled.setClicked(a -> MsgBox2.on(this).info("...which you should never see"));
+		disabled.setClicked(()-> MsgBox2.on(this).info("...which you should never see"));
 		disabled.setDisabled(true);
 		clickable.add(disabled);
 

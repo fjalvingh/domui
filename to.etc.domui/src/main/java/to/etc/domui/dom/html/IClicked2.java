@@ -26,6 +26,8 @@ package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import to.etc.function.IExecute;
+
 public interface IClicked2<T extends NodeBase> extends IClickBase<T> {
 	/**
 	 * This gets called when the node is clicked. The parameter is the node that the click
@@ -36,4 +38,13 @@ public interface IClicked2<T extends NodeBase> extends IClickBase<T> {
 	 * @throws Exception
 	 */
 	void clicked(@NonNull T node, @NonNull ClickInfo clinfo) throws Exception;
+
+	/**
+	 * Wrap a parameterless action as a click handler, discarding both the clicked node and
+	 * the {@link ClickInfo}.
+	 */
+	@NonNull
+	static <T extends NodeBase> IClicked2<T> wrap(@NonNull IExecute action) {
+		return (node, clinfo) -> action.execute();
+	}
 }

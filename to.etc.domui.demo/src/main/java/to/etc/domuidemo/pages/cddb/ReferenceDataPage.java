@@ -60,7 +60,7 @@ public class ReferenceDataPage extends UrlPage {
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
 		bb.addBackButton();
-		bb.addButton("Save", Theme.BTN_SAVE, a -> save());
+		bb.addButton("Save", Theme.BTN_SAVE, ()-> save());
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class ReferenceDataPage extends UrlPage {
 
 		ButtonBar2 bb = new ButtonBar2();
 		d.add(bb);
-		bb.addLinkButton("Add", Icon.faPlus, a -> model.add(factory.get()));
+		bb.addLinkButton("Add", Icon.faPlus, ()-> model.add(factory.get()));
 		return d;
 	}
 

@@ -34,7 +34,7 @@ public class QueryFirstPage extends UrlPage {
 		FormBuilder fb = new FormBuilder(cp);
 		fb.label("Album title contains").control(titlePart);
 
-		cp.add(new DefaultButton("Search", a -> search(titlePart, result)));
+		cp.add(new DefaultButton("Search", ()-> search(titlePart, result)));
 		cp.add(result);
 		search(titlePart, result);
 	}

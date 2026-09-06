@@ -33,8 +33,8 @@ public class MsgFencePage extends UrlPage {
 		cp.add(new HTag(2, "And the page around them"));
 		Div pageButtons = new Div("dm-tut");
 		cp.add(pageButtons);
-		pageButtons.add(new DefaultButton("A message about the page", a -> addGlobalMessage(UIMessage.warning(TutorialMsg.orderStockLow, "Big Ones", 3))));
-		pageButtons.add(new DefaultButton("Clear it", a -> clearGlobalMessage()));
+		pageButtons.add(new DefaultButton("A message about the page", ()-> addGlobalMessage(UIMessage.warning(TutorialMsg.orderStockLow, "Big Ones", 3))));
+		pageButtons.add(new DefaultButton("Clear it", ()-> clearGlobalMessage()));
 	}
 
 	private void addPanel(ContentPanel cp, String title, String album) throws Exception {
@@ -52,11 +52,11 @@ public class MsgFencePage extends UrlPage {
 		FormBuilder fb = new FormBuilder(panel);
 		fb.label("Copies of " + album).control(copies);
 
-		panel.add(new DefaultButton("Order", a -> {
+		panel.add(new DefaultButton("Order", ()-> {
 			Integer value = copies.getValue();                   // Empty: reports itself, into this panel
 			panel.addGlobalMessage(UIMessage.info(TutorialMsg.orderSaved, value));
 		}));
-		panel.add(new DefaultButton("Clear", a -> {
+		panel.add(new DefaultButton("Clear", ()-> {
 			copies.setMessage(null);
 			panel.clearGlobalMessage();
 		}));

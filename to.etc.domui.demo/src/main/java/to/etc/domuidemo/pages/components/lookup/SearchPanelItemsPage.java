@@ -74,6 +74,6 @@ public class SearchPanelItemsPage extends AbstractSearchPage<Invoice> {
 		//-- The result of a search appears here.
 		Div results = new Div();
 		cp.add(results);
-		sp.setClicked(a -> showResult(results, sp.getCriteria()));
+		sp.setClicked(()-> showResult(results, sp.getCriteria()));
 	}
 }

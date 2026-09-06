@@ -29,8 +29,8 @@ public class PageTitleBarPage extends UrlPage {
 		bar.setIcon("img/logo-small.png");                // An image url, not an icon reference
 		bar.setShowBackButton(true);                      // Back to the page below this one on the stack
 		bar.setHint("Everything about the albums in the shop");
-		bar.addButton(Icon.faSearch, "Find an album", a -> MsgBox2.on(this).info("Find an album"));
-		bar.addButton(Icon.faPrint, "Print the catalogue", a -> MsgBox2.on(this).info("Print the catalogue"));
+		bar.addButton(Icon.faSearch, "Find an album", ()-> MsgBox2.on(this).info("Find an album"));
+		bar.addButton(Icon.faPrint, "Print the catalogue", ()-> MsgBox2.on(this).info("Print the catalogue"));
 
 		ContentPanel cp = new ContentPanel();
 		add(cp);
@@ -60,7 +60,7 @@ public class PageTitleBarPage extends UrlPage {
 		FormBuilder fb = new FormBuilder(fenced);
 		fb.label("Copies of Led Zeppelin IV").control(copies);
 
-		fenced.add(new DefaultButton("Order", a -> {
+		fenced.add(new DefaultButton("Order", ()-> {
 			Integer value = copies.getValue();            // Empty: the control reports it into this fence
 			MsgBox2.on(this).info(value + " copies ordered");
 		}));

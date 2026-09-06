@@ -33,7 +33,7 @@ public class InputDialogPage extends UrlPage {
 		cp.add(buttons);
 
 		//-- One value, one control, save and cancel.
-		buttons.add(new DefaultButton("Rename the album", a -> {
+		buttons.add(new DefaultButton("Rename the album", ()-> {
 			Text2<String> title = new Text2<>(String.class);
 			title.setMandatory(true);
 			title.setValue("Big Ones");
@@ -55,7 +55,7 @@ public class InputDialogPage extends UrlPage {
 		}));
 
 		//-- "Type the name to confirm": the answer must match the value passed in.
-		buttons.add(new DefaultButton("Delete the album", Icon.faTrash, a -> {
+		buttons.add(new DefaultButton("Delete the album", Icon.faTrash, ()-> {
 			Dialog dlg = InputDialog.confirmDeleteInBlood("Delete \"Big Ones\"?", "Big Ones",
 				"Type the album title to confirm", value -> {
 					result.removeAllChildren();
@@ -66,7 +66,7 @@ public class InputDialogPage extends UrlPage {
 		}));
 
 		//-- The same shape, but the answer is a reason and only has to be filled in.
-		buttons.add(new DefaultButton("Cancel the order", Icon.faTimes, a -> {
+		buttons.add(new DefaultButton("Cancel the order", Icon.faTimes, ()-> {
 			Dialog dlg = InputDialog.confirmWithReason("Cancel the order", 80, 40,
 				"Cancel the order", Icon.faTimes, reason -> {
 					result.removeAllChildren();

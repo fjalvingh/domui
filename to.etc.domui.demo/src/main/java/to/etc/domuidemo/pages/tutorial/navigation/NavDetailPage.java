@@ -47,10 +47,10 @@ public class NavDetailPage extends UrlPage {
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
 		bb.addBackButton();
-		bb.addButton("Deeper (moveSub)", a -> UIGoto.moveSub(NavDetailPage.class, "level", m_level + 1));
-		bb.addButton("Sideways (replace)", a -> UIGoto.replace(NavDetailPage.class, "level", m_level + 1));
-		bb.addButton("Start over here (moveNew)", a -> UIGoto.moveNew(NavDetailPage.class, "level", 0));
-		bb.addButton("The page I came from (moveSub)", a -> UIGoto.moveSub(NavStatePage.class));
+		bb.addButton("Deeper (moveSub)", ()-> UIGoto.moveSub(NavDetailPage.class, "level", m_level + 1));
+		bb.addButton("Sideways (replace)", ()-> UIGoto.replace(NavDetailPage.class, "level", m_level + 1));
+		bb.addButton("Start over here (moveNew)", ()-> UIGoto.moveNew(NavDetailPage.class, "level", 0));
+		bb.addButton("The page I came from (moveSub)", ()-> UIGoto.moveSub(NavStatePage.class));
 	}
 
 	public int getLevel() {

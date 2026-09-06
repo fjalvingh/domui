@@ -343,6 +343,10 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		return m_buttonDiv;
 	}
 
+	public void addButton(IIconRef image, final IExecute click, final BundleRef bundle, final String ttlkey) {
+		addButton(image, IClicked.<DataPager2>wrap(click), bundle, ttlkey);
+	}
+
 	public void addButton(IIconRef image, final IClicked<DataPager2> click, final BundleRef bundle, final String ttlkey) {
 		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager2.this));
 		if(bundle != null)
@@ -387,6 +391,10 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	}
 
 	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
+		addButton(new SmallImgButton(img, clicked));
+	}
+
+	public void addButton(@NonNull IIconRef img, @NonNull IExecute clicked) {
 		addButton(new SmallImgButton(img, clicked));
 	}
 

@@ -26,6 +26,8 @@ package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import to.etc.function.IExecute;
+
 /**
  * Listener for basic clickies on a Node. Represents the onclick handler.
  *
@@ -41,4 +43,13 @@ public interface IClicked<T extends NodeBase> extends IClickBase<T> {
 	 * @throws Exception
 	 */
 	void clicked(@NonNull T clickednode) throws Exception;
+
+	/**
+	 * Wrap a parameterless action as a click handler, discarding the clicked node. This
+	 * implements the {@link IExecute} overloads of all setClicked/addButton style methods.
+	 */
+	@NonNull
+	static <T extends NodeBase> IClicked<T> wrap(@NonNull IExecute action) {
+		return node -> action.execute();
+	}
 }

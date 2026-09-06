@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import to.etc.function.IExecute;
 
 /**
  * Represents a file upload thingy which handles ajaxy uploads. This version only allows single file uploads.
@@ -150,9 +151,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		valueD.add(value.getRemoteFileName());
 		IIconRef clearButtonIcon = m_clearButtonIcon;
 		if(clearButtonIcon != null) {
-			add(new DefaultButton("", clearButtonIcon, b -> clearClicked()));
+			add(new DefaultButton("", clearButtonIcon, () -> handleClearClicked()));
 		} else {
-			add(new DefaultButton(m_clearButtonText, b -> clearClicked()));
+			add(new DefaultButton(m_clearButtonText, () -> handleClearClicked()));
 		}
 	}
 
@@ -261,7 +262,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		return DomUtil.getValueSafe(this);
 	}
 
-	private void clearClicked() throws Exception {
+	private void handleClearClicked() throws Exception {
 		if(m_value == null)
 			return;
 		IClicked<FileUpload2> onClearClicked = getOnClearClicked();
@@ -409,6 +410,10 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	public void setOnClearClicked(@Nullable IClicked<FileUpload2> onClearClicked) {
 		m_onClearClicked = onClearClicked;
+	}
+
+	public void setOnClearClicked(@NonNull IExecute onClearClicked) {
+		setOnClearClicked(IClicked.<FileUpload2>wrap(onClearClicked));
 	}
 
 }

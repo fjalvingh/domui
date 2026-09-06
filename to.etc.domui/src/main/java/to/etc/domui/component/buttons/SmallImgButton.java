@@ -32,6 +32,7 @@ import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 /**
  * A Button tag containing a single, usually small, image. The image is a normal image
@@ -70,6 +71,15 @@ public class SmallImgButton extends Button {
 	 * If the rurl is prefixed with THEME/ it specifies an image from the current THEME's directory.
 	 */
 	public SmallImgButton(IIconRef rurl, IClicked<SmallImgButton> cl) {
+		this();
+		setClicked(cl);
+		setSrc(rurl);
+	}
+
+	/**
+	 * If the rurl is prefixed with THEME/ it specifies an image from the current THEME's directory.
+	 */
+	public SmallImgButton(IIconRef rurl, IExecute cl) {
 		this();
 		setClicked(cl);
 		setSrc(rurl);

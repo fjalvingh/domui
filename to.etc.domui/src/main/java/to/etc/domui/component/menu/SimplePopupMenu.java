@@ -15,6 +15,7 @@ import to.etc.domui.server.RequestContextImpl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import to.etc.function.IExecute;
 
 /**
  * EXPERIMENTAL, INCOMPLETE A popup menu.
@@ -241,6 +242,14 @@ public class SimplePopupMenu extends Div {
 
 	public void addItem(String caption, IIconRef icon, IClicked<NodeBase> clk) {
 		getActionList().add(new Item(icon, caption, null, false, clk, null));
+	}
+
+	public void addItem(String caption, IIconRef icon, String hint, boolean disabled, IExecute clk) {
+		addItem(caption, icon, hint, disabled, IClicked.<NodeBase>wrap(clk));
+	}
+
+	public void addItem(String caption, IIconRef icon, IExecute clk) {
+		addItem(caption, icon, IClicked.<NodeBase>wrap(clk));
 	}
 
 	@Override

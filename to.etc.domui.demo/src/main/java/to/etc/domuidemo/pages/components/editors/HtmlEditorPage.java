@@ -32,13 +32,13 @@ public class HtmlEditorPage extends UrlPage {
 
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
-		bb.addButton("Show the html", a -> {
+		bb.addButton("Show the html", ()-> {
 			result.removeAllChildren();
 			String html = editor.getValue();
 			result.add(html == null ? "(empty)" : html);  // Added as text, so the markup is readable
 		});
-		bb.addButton("Set new text", a -> editor.setValue("<p>Text set <i>from the server</i>.</p>"));
-		bb.addButton("Clear", a -> editor.setValue(null));
+		bb.addButton("Set new text", ()-> editor.setValue("<p>Text set <i>from the server</i>.</p>"));
+		bb.addButton("Clear", ()-> editor.setValue(null));
 
 		cp.add(result);
 

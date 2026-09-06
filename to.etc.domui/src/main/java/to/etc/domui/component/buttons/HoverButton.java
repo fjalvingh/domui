@@ -10,6 +10,7 @@ import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.server.DomApplication;
+import to.etc.function.IExecute;
 
 /**
  * This is a button that has hover functionality to handle the button's
@@ -64,6 +65,15 @@ final public class HoverButton extends Button implements IActionControl {
 	 * If the rurl is prefixed with THEME/ it specifies an image from the current THEME's directory.
 	 */
 	public HoverButton(@NonNull String rurl, @NonNull IClicked<HoverButton> cl) {
+		this();
+		setClicked(cl);
+		setSrc(rurl);
+	}
+
+	/**
+	 * If the rurl is prefixed with THEME/ it specifies an image from the current THEME's directory.
+	 */
+	public HoverButton(@NonNull String rurl, @NonNull IExecute cl) {
 		this();
 		setClicked(cl);
 		setSrc(rurl);

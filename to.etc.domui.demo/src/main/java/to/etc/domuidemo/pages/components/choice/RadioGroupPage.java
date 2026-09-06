@@ -61,7 +61,7 @@ public class RadioGroupPage extends UrlPage {
 		fb.label("With a value renderer").control(rendered);
 		fb.label("setReadOnly(true)").control(readOnly);
 
-		cp.add(new DefaultButton("Read the values", a -> {
+		cp.add(new DefaultButton("Read the values", ()-> {
 			//-- The mandatory group throws when nothing is picked.
 			Medium mandatory = fromEnum.getValue();
 			shown.removeAllChildren();

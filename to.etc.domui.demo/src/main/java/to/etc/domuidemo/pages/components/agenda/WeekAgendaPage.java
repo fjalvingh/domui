@@ -51,15 +51,15 @@ public class WeekAgendaPage extends UrlPage {
 		//-- The period buttons: they only change the date field and rebuild.
 		Div buttons = new Div("dm-tut");
 		cp.add(buttons);
-		buttons.add(new DefaultButton("Previous", a -> moveDays(-7)));
-		buttons.add(new DefaultButton("Today", a -> {
+		buttons.add(new DefaultButton("Previous", ()-> moveDays(-7)));
+		buttons.add(new DefaultButton("Today", ()-> {
 			m_date = new Date();
 			forceRebuild();
 		}));
-		buttons.add(new DefaultButton("Next", a -> moveDays(7)));
-		buttons.add(new DefaultButton("Day", a -> setMode(ScheduleMode.DAY)));
-		buttons.add(new DefaultButton("Work week", a -> setMode(ScheduleMode.WORKWEEK)));
-		buttons.add(new DefaultButton("Week", a -> setMode(ScheduleMode.WEEK)));
+		buttons.add(new DefaultButton("Next", ()-> moveDays(7)));
+		buttons.add(new DefaultButton("Day", ()-> setMode(ScheduleMode.DAY)));
+		buttons.add(new DefaultButton("Work week", ()-> setMode(ScheduleMode.WORKWEEK)));
+		buttons.add(new DefaultButton("Week", ()-> setMode(ScheduleMode.WEEK)));
 
 		WeekAgendaComponent<ScheduleItem> agenda = new WeekAgendaComponent<>();
 		cp.add(agenda);

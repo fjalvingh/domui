@@ -65,7 +65,7 @@ public class EditableTablePage extends UrlPage {
 		addTotalsRow();
 
 		cp.add(new VerticalSpacer(10));
-		cp.add(new LinkButton("Add Row", Icon.faPlus, a -> model().addEditRow()));
+		cp.add(new LinkButton("Add Row", Icon.faPlus, ()-> model().addEditRow()));
 	}
 
 	private RowRenderer<Line> createRowRenderer() {
@@ -135,7 +135,7 @@ public class EditableTablePage extends UrlPage {
 			if(null == object) {
 				return;
 			}
-			LinkButton remove = new LinkButton("Remove", Icon.faTimes, clickedNode -> model().delete(object));
+			LinkButton remove = new LinkButton("Remove", Icon.faTimes, ()-> model().delete(object));
 			node.add(remove);
 			remove.setTitle("A completely useless and insultingly stupid explanation, because of course a word like remove is blindingly obvious.");
 		};

@@ -14,6 +14,7 @@ import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import to.etc.function.IExecute;
 
 /**
  * Button with additional actions.
@@ -31,6 +32,10 @@ public class ActionButton extends DefaultButton {
 	}
 
 	public ActionButton(IBundleCode code, IIconRef icon, final IClicked<DefaultButton> clicked) {
+		super(code, icon, clicked);
+	}
+
+	public ActionButton(IBundleCode code, IIconRef icon, final IExecute clicked) {
 		super(code, icon, clicked);
 	}
 

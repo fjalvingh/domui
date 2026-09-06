@@ -35,7 +35,7 @@ public class ComboFixed2Page extends UrlPage {
 			new ValueLabelPair<>("lp", "Vinyl LP"),
 			new ValueLabelPair<>("dl", "Download")
 		));
-		pairs.setOnValueChanged(a -> {
+		pairs.setOnValueChanged(()-> {
 			shown.removeAllChildren();
 			shown.add("The code of the chosen medium is " + pairs.getValue());
 		});
@@ -69,7 +69,7 @@ public class ComboFixed2Page extends UrlPage {
 		fb.label("setEmptyText()").control(emptyText);
 		fb.label("setReadOnly(true)").control(readOnly);
 
-		cp.add(new DefaultButton("Read the values", a -> {
+		cp.add(new DefaultButton("Read the values", ()-> {
 			Medium value = mandatory.getValue();
 			shown.removeAllChildren();
 			shown.add("pairs=" + pairs.getValue()

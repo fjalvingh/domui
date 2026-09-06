@@ -56,7 +56,7 @@ public class ComboLookup2Page extends UrlPage {
 			node.add(new Span("dm-tut-hi", artist.getName()));
 			node.add(" (#" + artist.getId() + ")");
 		});
-		rendered.addExtraButton(Icon.faInfoCircle, "What did I pick?", a -> {
+		rendered.addExtraButton(Icon.faInfoCircle, "What did I pick?", ()-> {
 			Artist artist = rendered.getValue();
 			MsgBox2.on(this).info(artist == null ? "Nothing picked yet" : artist.getName());
 		});
@@ -68,7 +68,7 @@ public class ComboLookup2Page extends UrlPage {
 		fb.label("Media type (from @MetaCombo)").control(mediaType);
 		fb.label("With a renderer and a button").control(rendered);
 
-		cp.add(new DefaultButton("Read the values", a -> {
+		cp.add(new DefaultButton("Read the values", ()-> {
 			Artist artist = byQuery.getValue();
 			shown.removeAllChildren();
 			shown.add("artist=" + (artist == null ? null : artist.getName())

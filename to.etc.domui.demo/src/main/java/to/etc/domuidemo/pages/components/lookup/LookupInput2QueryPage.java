@@ -46,7 +46,7 @@ public class LookupInput2QueryPage extends UrlPage {
 		ComboFixed2<String> countryC = ComboFixed2.createCombo("Brazil", "USA", "Canada", "France");
 		countryC.setValue(m_country);
 		countryC.setMandatory(true);
-		countryC.setOnValueChanged(a -> {
+		countryC.setOnValueChanged(()-> {
 			m_country = countryC.getValue();
 			forceRebuild();
 		});
@@ -62,7 +62,7 @@ public class LookupInput2QueryPage extends UrlPage {
 		fb.label("Query manipulator: country = the combo").control(manipulated);
 		fb.label("A fixed list of five").control(fromList);
 
-		cp.add(new DefaultButton("Read the values", a -> {
+		cp.add(new DefaultButton("Read the values", ()-> {
 			shown.removeAllChildren();
 			shown.add("from query=" + name(fromQuery.getValue())
 				+ ", manipulated=" + name(manipulated.getValue())

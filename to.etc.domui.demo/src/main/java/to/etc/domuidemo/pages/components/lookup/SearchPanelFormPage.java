@@ -41,8 +41,8 @@ public class SearchPanelFormPage extends AbstractSearchPage<Invoice> {
 		sp.add().action(() -> builder.addBreak());              // From here: a second column
 		sp.addDefault();
 
-		sp.setOnNew(a -> MsgBox2.on(this).info("This is where a new invoice would be made"));
-		sp.setOnClear(a -> MsgBox2.on(this).info("Reset - every field is back to its default"));
+		sp.setOnNew(()-> MsgBox2.on(this).info("This is where a new invoice would be made"));
+		sp.setOnClear(()-> MsgBox2.on(this).info("Reset - every field is back to its default"));
 		sp.setShowHideButton(Boolean.TRUE);
 
 		cp.add(new Para().add("The billing address is ours; the three fields after the break "
@@ -58,6 +58,6 @@ public class SearchPanelFormPage extends AbstractSearchPage<Invoice> {
 		//-- The result of a search appears here.
 		Div results = new Div();
 		cp.add(results);
-		sp.setClicked(a -> showResult(results, sp.getCriteria()));
+		sp.setClicked(()-> showResult(results, sp.getCriteria()));
 	}
 }

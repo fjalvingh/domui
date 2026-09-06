@@ -48,6 +48,7 @@ import to.etc.domui.state.UIGoto;
 import to.etc.domui.util.DomUtil;
 
 import java.util.List;
+import to.etc.function.IExecute;
 
 /**
  * A page title bar. This consists of an image in the left corner, a string describing the
@@ -325,6 +326,10 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		getButtonpart().add(ib);
 		ib.setTitle(hint);
 		ib.setClicked(handler);
+	}
+
+	public void addButton(IIconRef image, String hint, IExecute handler) {
+		addButton(image, hint, IClicked.<NodeBase>wrap(handler));
 	}
 
 	/**

@@ -57,7 +57,7 @@ public class Text2ValidatePage extends UrlPage {
 		Div result = new Div("dm-tut");
 		result.add("Fill something wrong in and press Order.");
 
-		cp.add(new DefaultButton("Order", a -> {
+		cp.add(new DefaultButton("Order", ()-> {
 			//-- The first getValue() that cannot deliver ends this handler.
 			String nameValue = name.getValue();
 			String emailValue = email.getValue();
@@ -70,7 +70,7 @@ public class Text2ValidatePage extends UrlPage {
 				+ " for " + nameValue + " (" + emailValue + ", " + postcodeValue + ")");
 		}));
 
-		cp.add(new DefaultButton("Which fields are wrong?", a -> {
+		cp.add(new DefaultButton("Which fields are wrong?", ()-> {
 			result.removeAllChildren();
 			line(result, "Customer", name.hasError());
 			line(result, "Email address", email.hasError());

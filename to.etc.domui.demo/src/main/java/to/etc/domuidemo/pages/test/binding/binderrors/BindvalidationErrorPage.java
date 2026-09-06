@@ -31,7 +31,7 @@ final public class BindvalidationErrorPage extends UrlPage {
 
 		ta.setTestID("text");
 
-		DefaultButton click = new DefaultButton("Click", a -> handleClick(resultDiv));
+		DefaultButton click = new DefaultButton("Click", ()-> handleClick(resultDiv));
 		cp.add(click);
 		click.setTestID("click");
 

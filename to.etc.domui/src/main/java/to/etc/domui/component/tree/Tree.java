@@ -299,7 +299,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 					td.add(img);
 					vn.expanded = false; // Cannot expand
 					vn.unexpandable = true;
-					img.setClicked(null); // Make sure Click handler is discarded FIXME Does this work??
+					img.clearClicked(); // Make sure Click handler is discarded FIXME Does this work??
 				} else {
 					/*
 					 * An unexpanded non-leaf node: change it's icon to "closeable" and change the click handler.

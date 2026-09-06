@@ -29,7 +29,7 @@ public class MsgExceptionPage extends UrlPage {
 		cp.add(buttons);
 
 		//-- Nothing recognises this one: the dialog shows the stack trace.
-		buttons.add(new DefaultButton("Save (unexpected failure)", a -> {
+		buttons.add(new DefaultButton("Save (unexpected failure)", ()-> {
 			try {
 				save(1);
 			} catch(Exception x) {
@@ -38,7 +38,7 @@ public class MsgExceptionPage extends UrlPage {
 		}));
 
 		//-- A CodeException carries a translated message, which is all the dialog shows.
-		buttons.add(new DefaultButton("Save (a refused order)", a -> {
+		buttons.add(new DefaultButton("Save (a refused order)", ()-> {
 			try {
 				save(2);
 			} catch(Exception x) {
@@ -47,7 +47,7 @@ public class MsgExceptionPage extends UrlPage {
 		}));
 
 		//-- A translator registered for this exception type turns it into a sentence.
-		buttons.add(new DefaultButton("Save (sold out)", a -> {
+		buttons.add(new DefaultButton("Save (sold out)", ()-> {
 			try {
 				save(3);
 			} catch(Exception x) {
@@ -56,7 +56,7 @@ public class MsgExceptionPage extends UrlPage {
 		}));
 
 		//-- The same try/catch, written once.
-		buttons.add(new DefaultButton("Save (with executeWithDialog)", a -> executeWithDialog("Saving the order failed", () -> save(3))));
+		buttons.add(new DefaultButton("Save (with executeWithDialog)", ()-> executeWithDialog("Saving the order failed", () -> save(3))));
 	}
 
 	/**

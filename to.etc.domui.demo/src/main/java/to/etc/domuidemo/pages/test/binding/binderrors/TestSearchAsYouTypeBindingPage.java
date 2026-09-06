@@ -53,7 +53,7 @@ public class TestSearchAsYouTypeBindingPage extends UrlPage {
 		Div res = new Div();
 		res.setTestID("result");
 
-		cp.add(new DefaultButton("validate", a -> {
+		cp.add(new DefaultButton("validate", ()-> {
 			res.removeAllChildren();
 			res.add("Result is " + st.getValue() + " and with binding " + getDate());
 		}));

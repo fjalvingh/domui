@@ -27,7 +27,7 @@ public class ColorPickerButtonPage extends UrlPage {
 
 		ColorPickerButton cover = new ColorPickerButton();
 		cover.setValue("c05a2a");
-		cover.setOnValueChanged(a -> {
+		cover.setOnValueChanged(()-> {
 			shown.removeAllChildren();
 			shown.add("The sleeve colour is now " + cover.getValue());
 		});

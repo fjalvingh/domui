@@ -42,7 +42,7 @@ public class SearchAsYouTypePage extends UrlPage {
 		SearchAsYouType<Genre> genre = new SearchAsYouType<>(Genre.class, "name");
 		genre.setData(genres);
 		genre.setMandatory(true);
-		genre.setOnValueChanged(a -> {
+		genre.setOnValueChanged(()-> {
 			shown.removeAllChildren();
 			Genre value = genre.getValue();
 			shown.add("Genre is now " + (value == null ? "empty" : value.getName()));
@@ -75,7 +75,7 @@ public class SearchAsYouTypePage extends UrlPage {
 		fb.label("A month, through a converter").control(month);
 		fb.label("Own drop-down renderer").control(rendered);
 
-		cp.add(new DefaultButton("Read the values", a -> {
+		cp.add(new DefaultButton("Read the values", ()-> {
 			Genre value = genre.getValue();
 			Genre startsValue = starts.getValue();
 			Date monthValue = month.getValue();

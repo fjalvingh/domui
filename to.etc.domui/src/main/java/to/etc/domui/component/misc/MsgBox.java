@@ -57,6 +57,7 @@ import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import to.etc.function.IExecute;
 
 public class MsgBox extends Window {
 	public interface IAnswer {
@@ -596,6 +597,51 @@ public class MsgBox extends Window {
 	@NonNull
 	public static LinkButton areYouSureLinkButton(String text, final String message, final IClicked<LinkButton> ch) {
 		return areYouSureLinkButton(text, null, message, ch);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Action handlers that do not need the clicked node.	*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Ask a yes/no confirmation; run the action if YES is selected and do nothing otherwise.
+	 */
+	public static void yesNo(NodeBase dad, String string, final IExecute onAnswer) {
+		yesNo(dad, MsgBox.Type.DIALOG, string, IClicked.wrap(onAnswer));
+	}
+
+	/**
+	 * Ask a yes/no confirmation; run the action if YES is selected and do nothing otherwise.
+	 */
+	public static void yesNo(NodeBase dad, Type msgtype, String string, final IExecute onAnswer) {
+		yesNo(dad, msgtype, string, IClicked.wrap(onAnswer));
+	}
+
+	/**
+	 * Ask a continue/cancel confirmation, and run the action for CONTINUE only.
+	 */
+	public static void continueCancel(NodeBase dad, String string, final IExecute onAnswer) {
+		continueCancel(dad, string, IClicked.wrap(onAnswer));
+	}
+
+	@NonNull
+	public static DefaultButton areYouSureButton(String text, IIconRef icon, final String message, final IExecute ch) {
+		return areYouSureButton(text, icon, message, IClicked.wrap(ch));
+	}
+
+	@NonNull
+	public static DefaultButton areYouSureButton(String text, final String message, final IExecute ch) {
+		return areYouSureButton(text, null, message, IClicked.wrap(ch));
+	}
+
+	@NonNull
+	public static LinkButton areYouSureLinkButton(String text, IIconRef icon, final String message, final IExecute ch) {
+		return areYouSureLinkButton(text, icon, message, IClicked.wrap(ch));
+	}
+
+	@NonNull
+	public static LinkButton areYouSureLinkButton(String text, final String message, final IExecute ch) {
+		return areYouSureLinkButton(text, null, message, IClicked.wrap(ch));
 	}
 
 	//	/**

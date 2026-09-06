@@ -58,8 +58,8 @@ public class TrackDetails extends UrlPage {
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
 		bb.addBackButton();
-		bb.addLinkButton("Show the album", Theme.BTN_FIND, a -> UIGoto.moveSub(AlbumEditPage.class, "id", m_track.getAlbum().getId()));
-		bb.addButton("Save", Theme.BTN_SAVE, a -> save());
+		bb.addLinkButton("Show the album", Theme.BTN_FIND, ()-> UIGoto.moveSub(AlbumEditPage.class, "id", m_track.getAlbum().getId()));
+		bb.addButton("Save", Theme.BTN_SAVE, ()-> save());
 	}
 
 	private void save() throws Exception {

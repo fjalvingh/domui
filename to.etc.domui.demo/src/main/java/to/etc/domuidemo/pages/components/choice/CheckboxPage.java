@@ -29,7 +29,7 @@ public class CheckboxPage extends UrlPage {
 
 		Checkbox newsletter = new Checkbox();
 		newsletter.setChecked(true);
-		newsletter.setClicked(a -> {
+		newsletter.setClicked(()-> {
 			shown.removeAllChildren();
 			shown.add("Newsletter is now " + newsletter.getValue());
 		});
@@ -49,7 +49,7 @@ public class CheckboxPage extends UrlPage {
 		fb.label("setDisabled(true)").control(disabled);
 		fb.label("setDisabledBecause()").control(because);
 
-		cp.add(new DefaultButton("Read all four", a -> {
+		cp.add(new DefaultButton("Read all four", ()-> {
 			shown.removeAllChildren();
 			shown.add("newsletter=" + newsletter.getValue()
 				+ ", silent=" + silent.getValue()

@@ -28,14 +28,14 @@ public class MsgMessagePage extends UrlPage {
 		Div pageButtons = new Div("dm-tut");
 		cp.add(pageButtons);
 
-		pageButtons.add(new DefaultButton("Info", a -> addGlobalMessage(UIMessage.info(TutorialMsg.orderSaved, 3))));
-		pageButtons.add(new DefaultButton("Warning", a -> addGlobalMessage(UIMessage.warning(TutorialMsg.orderStockLow, "Big Ones", 3))));
-		pageButtons.add(new DefaultButton("Error", a -> addGlobalMessage(UIMessage.error(TutorialMsg.orderTooLarge, 10))));
-		pageButtons.add(new DefaultButton("Error about a field", a -> addGlobalMessage(UIMessage
+		pageButtons.add(new DefaultButton("Info", ()-> addGlobalMessage(UIMessage.info(TutorialMsg.orderSaved, 3))));
+		pageButtons.add(new DefaultButton("Warning", ()-> addGlobalMessage(UIMessage.warning(TutorialMsg.orderStockLow, "Big Ones", 3))));
+		pageButtons.add(new DefaultButton("Error", ()-> addGlobalMessage(UIMessage.error(TutorialMsg.orderTooLarge, 10))));
+		pageButtons.add(new DefaultButton("Error about a field", ()-> addGlobalMessage(UIMessage
 			.error(TutorialMsg.orderEmpty)
 			.location("Copies")                              // Names the field the message is about
 		)));
-		pageButtons.add(new DefaultButton("Clear them all", a -> clearGlobalMessage()));
+		pageButtons.add(new DefaultButton("Clear them all", ()-> clearGlobalMessage()));
 
 		cp.add(new HTag(2, "A message about one control"));
 		Text2<Integer> copies = new Text2<>(Integer.class);
@@ -47,8 +47,8 @@ public class MsgMessagePage extends UrlPage {
 
 		Div controlButtons = new Div("dm-tut");
 		cp.add(controlButtons);
-		controlButtons.add(new DefaultButton("Warn about Copies", a -> copies.setMessage(UIMessage.warning(TutorialMsg.orderStockLow, "Big Ones", 3))));
-		controlButtons.add(new DefaultButton("Reject Copies", a -> copies.setMessage(UIMessage.error(TutorialMsg.orderTooLarge, 10))));
-		controlButtons.add(new DefaultButton("Clear Copies", a -> copies.setMessage(null)));
+		controlButtons.add(new DefaultButton("Warn about Copies", ()-> copies.setMessage(UIMessage.warning(TutorialMsg.orderStockLow, "Big Ones", 3))));
+		controlButtons.add(new DefaultButton("Reject Copies", ()-> copies.setMessage(UIMessage.error(TutorialMsg.orderTooLarge, 10))));
+		controlButtons.add(new DefaultButton("Clear Copies", ()-> copies.setMessage(null)));
 	}
 }

@@ -40,7 +40,7 @@ public class QueryRestrictionsPage extends UrlPage {
 		fb.label("Track name or composer contains").control(word);
 		fb.label("Lasting at least (minutes)").control(minutes);
 
-		cp.add(new DefaultButton("Search", a -> search(word, minutes, query, result)));
+		cp.add(new DefaultButton("Search", ()-> search(word, minutes, query, result)));
 		cp.add(query);
 		cp.add(result);
 		search(word, minutes, query, result);

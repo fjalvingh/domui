@@ -42,7 +42,7 @@ public class BindErrorsPage extends UrlPage {
 		fb.label("Price each").control(price);
 
 		Div result = new Div("dm-tut");
-		cp.add(new DefaultButton("Save", a -> {
+		cp.add(new DefaultButton("Save", ()-> {
 			if(bindErrors()) {                        // Anything wrong anywhere below this node?
 				return;                               // Yes: it is on screen now, stop here.
 			}

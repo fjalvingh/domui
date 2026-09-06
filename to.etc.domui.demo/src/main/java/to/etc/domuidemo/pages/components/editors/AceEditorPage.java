@@ -46,17 +46,17 @@ public class AceEditorPage extends UrlPage {
 
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
-		bb.addButton("Other text", a -> editor.setValue(FileTool.readResourceAsString(getClass(), "demo2js.js", "utf-8")));
-		bb.addButton("Clear", a -> editor.setValue(null));
-		bb.addButton("Read only", a -> editor.setReadOnly(!editor.isReadOnly()));
-		bb.addButton("Show the value", a -> MsgBox2.on(this).info(String.valueOf(editor.getValue())));
-		bb.addButton("Show the selection", a -> MsgBox2.on(this).info(String.valueOf(editor.getSelectedText())));
-		bb.addButton("Mark every 'var'", a -> markVars(editor));
-		bb.addButton("Clear the markers", a -> editor.markerClear());
-		bb.addButton("Insert at the cursor", a -> editor.insertAtCursor("/* inserted from the server */\n"));
-		bb.addButton("Go to line 5", a -> editor.gotoLine(5));
-		bb.addButton("Wrap", a -> editor.setWrapMode(AceWrapMode.Wrap));
-		bb.addButton("Do not wrap", a -> editor.setWrapMode(AceWrapMode.None));
+		bb.addButton("Other text", ()-> editor.setValue(FileTool.readResourceAsString(getClass(), "demo2js.js", "utf-8")));
+		bb.addButton("Clear", ()-> editor.setValue(null));
+		bb.addButton("Read only", ()-> editor.setReadOnly(!editor.isReadOnly()));
+		bb.addButton("Show the value", ()-> MsgBox2.on(this).info(String.valueOf(editor.getValue())));
+		bb.addButton("Show the selection", ()-> MsgBox2.on(this).info(String.valueOf(editor.getSelectedText())));
+		bb.addButton("Mark every 'var'", ()-> markVars(editor));
+		bb.addButton("Clear the markers", ()-> editor.markerClear());
+		bb.addButton("Insert at the cursor", ()-> editor.insertAtCursor("/* inserted from the server */\n"));
+		bb.addButton("Go to line 5", ()-> editor.gotoLine(5));
+		bb.addButton("Wrap", ()-> editor.setWrapMode(AceWrapMode.Wrap));
+		bb.addButton("Do not wrap", ()-> editor.setWrapMode(AceWrapMode.None));
 
 		cp.add(new Para().add("The editor is an IControl<String> whose value is the text being "
 			+ "edited, and everything else is done by calling it: move the caret, select a range, "

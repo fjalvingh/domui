@@ -67,7 +67,7 @@ public class CustomerDetailPage extends UrlPage {
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
 		bb.addBackButton();
-		bb.addButton("Save", Theme.BTN_SAVE, a -> save());
+		bb.addButton("Save", Theme.BTN_SAVE, ()-> save());
 	}
 
 	private DataTable<Invoice> createInvoiceTable() throws Exception {

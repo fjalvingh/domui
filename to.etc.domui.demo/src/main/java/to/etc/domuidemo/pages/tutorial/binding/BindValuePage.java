@@ -60,7 +60,7 @@ public class BindValuePage extends UrlPage {
 		fb.label("Copies").control(copies);
 		fb.label("Price each").control(price);
 
-		cp.add(new DefaultButton("Clear the price", a -> m_order.setPrice(BigDecimal.ZERO)));
+		cp.add(new DefaultButton("Clear the price", ()-> m_order.setPrice(BigDecimal.ZERO)));
 
 		//-- The same five properties again, as read-only controls that FormBuilder
 		//-- makes and binds itself - one line each.

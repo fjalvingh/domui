@@ -28,24 +28,24 @@ public class MsgBoxPage extends UrlPage {
 		Div buttons = new Div("dm-tut");
 		cp.add(buttons);
 
-		buttons.add(new DefaultButton("Info", a -> MsgBox2.on(this)
+		buttons.add(new DefaultButton("Info", ()-> MsgBox2.on(this)
 			.info("The album has been saved.")
 		));
 
-		buttons.add(new DefaultButton("Warning", a -> MsgBox2.on(this)
+		buttons.add(new DefaultButton("Warning", ()-> MsgBox2.on(this)
 			.warning("This album has no tracks yet, so nobody can buy it.")
 		));
 
-		buttons.add(new DefaultButton("Error", a -> MsgBox2.on(this)
+		buttons.add(new DefaultButton("Error", ()-> MsgBox2.on(this)
 			.error("The album could not be saved: the shop is closed.")
 		));
 
-		buttons.add(new DefaultButton("Translated text", a -> MsgBox2.on(this)
+		buttons.add(new DefaultButton("Translated text", ()-> MsgBox2.on(this)
 			.info()
 			.text(TutorialMsg.orderStockLow, "Big Ones", 3)
 		));
 
-		buttons.add(new DefaultButton("A title and a content of your own", a -> {
+		buttons.add(new DefaultButton("A title and a content of your own", ()-> {
 			//-- Anything that is a NodeContainer can be the body of the box.
 			Div content = new Div();
 			content.add("The import finished with these results:");

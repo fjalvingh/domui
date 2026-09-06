@@ -14,7 +14,6 @@ import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QCriteria;
@@ -69,10 +68,10 @@ public class DemoObservableListPage extends UrlPage {
 		m_lower.add(dt);
 		dt.setList(ol);
 
-		LinkButton lb = new LinkButton("Add album", Icon.of("THEME/btnAdd.png"), (IClicked<LinkButton>) clickednode -> addAlbum(a, ol));
+		LinkButton lb = new LinkButton("Add album", Icon.of("THEME/btnAdd.png"), () -> addAlbum(a, ol));
 		m_lower.add(lb);
 
-		lb = new LinkButton("Delete album", Icon.of("THEME/btnDelete.png"), (IClicked<LinkButton>) clickednode -> deleteAlbum(ol));
+		lb = new LinkButton("Delete album", Icon.of("THEME/btnDelete.png"), () -> deleteAlbum(ol));
 		m_lower.add(lb);
 
 

@@ -28,19 +28,19 @@ public class AsyncContainerPage extends UrlPage {
 		Div where = new Div("dm-tut");
 		cp.add(where);
 
-		cp.add(new DefaultButton("Start the slow job", a -> {
+		cp.add(new DefaultButton("Start the slow job", ()-> {
 			where.removeAllChildren();
 			where.add(new AsyncContainer(new SlowJob(8)));
 		}));
 
-		cp.add(new DefaultButton("...one that cannot be cancelled", a -> {
+		cp.add(new DefaultButton("...one that cannot be cancelled", ()-> {
 			where.removeAllChildren();
 			AsyncContainer ac = new AsyncContainer(new SlowJob(5));
 			ac.setAbortable(false);                       // No cancel button
 			where.add(ac);
 		}));
 
-		cp.add(new DefaultButton("...one that throws", a -> {
+		cp.add(new DefaultButton("...one that throws", ()-> {
 			where.removeAllChildren();
 			IActivity failing = p -> {
 				p.setTotalWork(3);

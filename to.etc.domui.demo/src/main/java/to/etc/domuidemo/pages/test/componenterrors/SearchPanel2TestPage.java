@@ -66,7 +66,7 @@ public class SearchPanel2TestPage extends UrlPage {
 			return LookupQueryBuilderResult.VALID;
 		});
 
-		lf1.setClicked(f -> renderCriteria(res, lf1.getCriteria()));
+		lf1.setClicked(()-> renderCriteria(res, lf1.getCriteria()));
 
 		cp.add(new VerticalSpacer(10));
 		cp.add(new HTag(2, "Criteria"));

@@ -38,7 +38,7 @@ public class TableSearchPage extends UrlPage {
 		Div results = new Div();
 		cp.add(results);
 
-		sp.setClicked(a -> {
+		sp.setClicked(()-> {
 			QCriteria<Track> criteria = sp.getCriteria();
 			if(null == criteria)                            // Bad input: the errors are on the screen already.
 				return;

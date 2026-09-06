@@ -50,7 +50,7 @@ public class TableEditPage extends UrlPage {
 		DataTable<BasketLine> table = new DataTable<>(model, rr);
 		cp.add(table);
 
-		cp.add(new DefaultButton("What is in the basket?", a -> {
+		cp.add(new DefaultButton("What is in the basket?", ()-> {
 			StringBuilder sb = new StringBuilder();
 			for(BasketLine line : lines) {
 				sb.append(line.getAlbum()).append(" x ").append(line.getCopies()).append("\n");

@@ -100,7 +100,7 @@ public class DateInput2 extends Text2<Date> {
 		super.createContent();
 		SmallImgButton sib = addButtonSmall(Icon.faCalendar, a -> { });
 		m_showCalendarButton = sib;
-		sib.setClicked(null);
+		sib.clearClicked();
 		sib.setOnClickJS("WebUI.showCalendar('" + internalGetInput().getActualID() + "'," + isWithTime() + ")");
 		internalGetInput().setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 		internalGetInput().setSpecialAttribute("data-datefmt", calendarDatePattern(NlsContext.getLocale()));
