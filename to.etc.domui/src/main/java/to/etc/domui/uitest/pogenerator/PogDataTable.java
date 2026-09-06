@@ -307,11 +307,6 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		return currentHeadIndex;
 	}
 
-	@Override
-	public String identifier() {
-		return "DataTable";
-	}
-
 	/**
 	 * If the test ID passed has a row identifier added to it: extract the test ID.
 	 */

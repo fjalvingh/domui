@@ -23,9 +23,4 @@ public class PogButton extends AbstractPoProxyGenerator implements IPoProxyGener
 			getter.appendType(rc, field.getType()).append("(this, ").append(selector.selectorAsCode()).append(");").nl();
 		});
 	}
-
-	@Override
-	public String identifier() {
-		return "Button";
-	}
 }

@@ -76,9 +76,4 @@ final public class PogSimple extends AbstractPoProxyGenerator implements IPoProx
 				return GeneratorAccepted.Accepted;
 		}
 	}
-
-	@Override
-	public String identifier() {
-		return m_poClass.getTypeName();
-	}
 }
