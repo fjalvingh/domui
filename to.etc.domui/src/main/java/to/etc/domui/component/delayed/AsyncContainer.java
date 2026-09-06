@@ -151,7 +151,7 @@ final public class AsyncContainer extends Div {
 		m_progress = new Div();
 		add(m_progress);
 		if(isAbortable()) {
-			m_cancelButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, b -> {
+			m_cancelButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, ()-> {
 				doCancel();
 			});
 			add(m_cancelButton);

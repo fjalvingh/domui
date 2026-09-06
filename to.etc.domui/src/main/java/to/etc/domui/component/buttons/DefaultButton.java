@@ -31,16 +31,15 @@ import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IActionControl;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.Underline;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Objects;
-import to.etc.function.IExecute;
 
 /**
  * The default button for DomUI renders a sliding doors button that can
@@ -107,27 +106,6 @@ public class DefaultButton extends Button implements IActionControl {
 		setIcon(icon);
 	}
 
-	public DefaultButton(IBundleCode code, IClicked<DefaultButton> clicked) {
-		this(code.getString(), clicked);
-	}
-
-	public DefaultButton(String txt, IClicked<DefaultButton> clicked) {
-		this();
-		setText(txt);
-		setClicked(clicked);
-	}
-
-	public DefaultButton(IBundleCode code, IIconRef icon, final IClicked<DefaultButton> clicked) {
-		this(code.getString(), icon, clicked);
-	}
-
-	public DefaultButton(@Nullable String txt, @Nullable IIconRef icon, final IClicked<DefaultButton> clicked) {
-		this();
-		setText(txt);
-		setIcon(icon);
-		setClicked(clicked);
-	}
-
 	public DefaultButton(IBundleCode code, IExecute clicked) {
 		this(code.getString(), clicked);
 	}
@@ -171,12 +149,6 @@ public class DefaultButton extends Button implements IActionControl {
 	@NonNull
 	public DefaultButton icon(IIconRef icon) {
 		setIcon(icon);
-		return this;
-	}
-
-	@NonNull
-	public DefaultButton clicked(IClicked<DefaultButton> on) {
-		setClicked(on);
 		return this;
 	}
 
@@ -366,6 +338,6 @@ public class DefaultButton extends Button implements IActionControl {
 		setTitle(dt);
 		setText(action.getName());
 		setIcon(action.getIcon());
-		setClicked((IClicked<DefaultButton>) clickednode -> action.execute(DefaultButton.this));
+		setClicked(()-> action.execute(DefaultButton.this));
 	}
 }

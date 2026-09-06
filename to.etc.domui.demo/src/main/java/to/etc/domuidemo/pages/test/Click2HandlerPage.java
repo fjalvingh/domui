@@ -26,7 +26,7 @@ public class Click2HandlerPage extends UrlPage {
 		d.setBorder(1, "red", "dotted");
 		d.add("Click me");
 		d.setTestID("clickarea");
-		d.setClicked2((node, i) -> result.add(new Div("", "Click: x=" + i.getPageX() + ", y=" + i.getPageY()
+		d.setClicked2(i -> result.add(new Div("", "Click: x=" + i.getPageX() + ", y=" + i.getPageY()
 			+ ", shift=" + i.isShift() + ", ctrl=" + i.isControl() + ", alt=" + i.isAlt())));
 
 		cp.add(result);

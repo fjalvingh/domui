@@ -28,7 +28,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
@@ -37,6 +36,7 @@ import to.etc.domui.dom.html.TableVAlign;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 
 import java.util.HashMap;
 import java.util.List;
@@ -244,9 +244,9 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 		if(null != sm) {
 			selected = sm.isSelected(value);
 			td.addCssClass("ui-clickable");
-			td.setClicked(new IClicked<Div>() {
+			td.setClicked(new IExecute() {
 				@Override
-				public void clicked(@NonNull Div clickednode) throws Exception {
+				public void execute() throws Exception {
 					handleSelectionClick(td, value);
 				}
 			});

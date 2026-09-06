@@ -31,14 +31,13 @@ import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IActionControl;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Objects;
-import to.etc.function.IExecute;
 
 /**
  * A button which looks like a link.
@@ -67,13 +66,13 @@ public class LinkButton extends ATag implements IActionControl {
 	public LinkButton() {
 	}
 
-	public LinkButton(@NonNull String txt, @Nullable IIconRef image, @NonNull IClicked<LinkButton> clk) {
+	public LinkButton(@NonNull String txt, @Nullable IIconRef image, @NonNull IExecute clk) {
 		setClicked(clk);
 		setText(txt);
 		setImage(image);
 	}
 
-	public LinkButton(@NonNull IBundleCode code, @Nullable IIconRef image, @NonNull IClicked<LinkButton> clk) {
+	public LinkButton(@NonNull IBundleCode code, @Nullable IIconRef image, @NonNull IExecute clk) {
 		setClicked(clk);
 		setText(code.format());
 		setImage(image);
@@ -95,28 +94,6 @@ public class LinkButton extends ATag implements IActionControl {
 
 	public LinkButton(@NonNull IBundleCode code) {
 		setText(code.format());
-	}
-
-	public LinkButton(@NonNull String txt, @NonNull IClicked<LinkButton> clk) {
-		setClicked(clk);
-		setText(txt);
-	}
-
-	public LinkButton(@NonNull IBundleCode code, @NonNull IClicked<LinkButton> clk) {
-		setClicked(clk);
-		setText(code.format());
-	}
-
-	public LinkButton(@NonNull String txt, @Nullable IIconRef image, @NonNull IExecute clk) {
-		setClicked(clk);
-		setText(txt);
-		setImage(image);
-	}
-
-	public LinkButton(@NonNull IBundleCode code, @Nullable IIconRef image, @NonNull IExecute clk) {
-		setClicked(clk);
-		setText(code.format());
-		setImage(image);
 	}
 
 	public LinkButton(@NonNull String txt, @NonNull IExecute clk) {
@@ -175,7 +152,7 @@ public class LinkButton extends ATag implements IActionControl {
 		}
 		setText(action.getName());
 		setImage(action.getIcon());
-		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this));
+		setClicked(()-> action.execute(LinkButton.this));
 	}
 
 	public LinkButton setImage(@Nullable IIconRef url) {
@@ -188,11 +165,6 @@ public class LinkButton extends ATag implements IActionControl {
 
 	public LinkButton icon(IIconRef ref) {
 		setImage(ref);
-		return this;
-	}
-
-	public LinkButton click(IClicked<LinkButton> b) {
-		setClicked(b);
 		return this;
 	}
 

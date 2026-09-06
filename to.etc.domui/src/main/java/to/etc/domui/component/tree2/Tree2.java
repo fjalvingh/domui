@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.tree2;
 
+import to.etc.domui.dom.html.IClickedInfo;
+import to.etc.function.IExecute;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -37,8 +40,6 @@ import to.etc.domui.dom.Animations;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Ul;
@@ -182,10 +183,10 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 				renderList(childUl, li);
 				li.add(childUl);
 				li.setChildRoot(childUl);
-				li.setFoldingClicked((IClicked<NodeContainer>) bxx -> collapseNode(item, true));
+				li.setFoldingClicked(()-> collapseNode(item, true));
 			} else {
 				li.setType(last ? TreeNodeType.CLOSED_LAST : TreeNodeType.CLOSED);
-				li.setFoldingClicked((IClicked<NodeContainer>) bxx -> expandNode(item, true));
+				li.setFoldingClicked(()-> expandNode(item, true));
 			}
 		}
 		return li;
@@ -245,7 +246,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 					 */
 					vn.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
 					//img.addCssClass("ui-tree2-act");
-					vn.setFoldingClicked((IClicked<NodeContainer>) bxx -> collapseNode(pathValue, true));
+					vn.setFoldingClicked(()-> collapseNode(pathValue, true));
 					Ul childUl = new Ul("ui-tree2-rootlist");
 					renderList(childUl, vn);
 					vn.setChildRoot(childUl);
@@ -279,7 +280,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 
 		vn.setType(last ? TreeNodeType.CLOSED_LAST : TreeNodeType.CLOSED);
 		//img.addCssClass("ui-tree2-act");
-		vn.setFoldingClicked((IClicked<NodeContainer>) bxx -> expandNode(item, true));
+		vn.setFoldingClicked(()-> expandNode(item, true));
 
 		Ul ul = vn.getChildRoot();
 		if(null == ul)
@@ -362,9 +363,9 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 			if(isSelected(value))
 				cell.addCssClass("ui-tree2-selected");
 
-			cell.setClicked2(new IClicked2<NodeContainer>() {
+			cell.setClicked2(new IClickedInfo() {
 				@Override
-				public void clicked(@NonNull NodeContainer node, @NonNull ClickInfo clinfo) throws Exception {
+				public void clicked(@NonNull ClickInfo clinfo) throws Exception {
 					// FIXME This means null root nodes cannot be clicked
 					if(null != value) {
 						cellClicked(value, clinfo);

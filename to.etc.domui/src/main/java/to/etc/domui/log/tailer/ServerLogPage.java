@@ -5,12 +5,12 @@ import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.component.misc.InfoPanel;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
+import to.etc.function.IExecute;
 
 public class ServerLogPage extends UrlPage {
 	private String m_logPath;
@@ -42,9 +42,9 @@ public class ServerLogPage extends UrlPage {
 
 		add(new LogTailerFragment(log));
 
-		add(new DefaultButton("Back", new IClicked<DefaultButton>() {
+		add(new DefaultButton("Back", new IExecute() {
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				UIGoto.back();
 			}
 		}));

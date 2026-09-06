@@ -26,25 +26,15 @@ package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import to.etc.function.IExecute;
-
-public interface IClicked2<T extends NodeBase> extends IClickBase<T> {
-	/**
-	 * This gets called when the node is clicked. The parameter is the node that the click
-	 * handler was attached to. Since the node itself is passed you can easily reuse a click
-	 * handler instance for several same-type nodes.
-	 * @param node
-	 * @param clinfo
-	 * @throws Exception
-	 */
-	void clicked(@NonNull T node, @NonNull ClickInfo clinfo) throws Exception;
-
-	/**
-	 * Wrap a parameterless action as a click handler, discarding both the clicked node and
-	 * the {@link ClickInfo}.
-	 */
-	@NonNull
-	static <T extends NodeBase> IClicked2<T> wrap(@NonNull IExecute action) {
-		return (node, clinfo) -> action.execute();
-	}
+/**
+ * Click handler for a node that needs the details of the click: the position where it
+ * happened and the modifier keys that were pressed. Set with {@link NodeBase#setClicked2(IClickedInfo)};
+ * a handler that does not need those details is an {@link to.etc.function.IExecute} passed
+ * to {@link NodeBase#setClicked(to.etc.function.IExecute)}.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ */
+@FunctionalInterface
+public interface IClickedInfo {
+	void clicked(@NonNull ClickInfo info) throws Exception;
 }

@@ -29,11 +29,11 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.IBundleCode;
 
 /**
@@ -274,9 +274,9 @@ public class Window extends FloatingDiv {
 			//some margin fixes have to be applied with css
 			m_closeButton.setCssClass("ui-flw-btn-close");
 			m_titleBar.add(m_closeButton);
-			m_closeButton.setClicked(new IClicked<NodeBase>() {
+			m_closeButton.setClicked(new IExecute() {
 				@Override
-				public void clicked(@NonNull NodeBase b) throws Exception {
+				public void execute() throws Exception {
 					closePressed();
 				}
 			});

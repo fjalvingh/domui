@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.tree;
 
+import to.etc.domui.dom.html.IClickedInfo;
+import to.etc.function.IExecute;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
@@ -33,9 +36,6 @@ import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClickBase;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 
@@ -59,9 +59,9 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 
 	private long m_lastClickTS;
 
-	private IClickBase< ? > m_clicked;
+	private IExecute m_clicked;
 
-	private IClickBase< ? > m_cancelClicked;
+	private IExecute m_cancelClicked;
 
 	private IRenderInto<T> m_contentRenderer;
 
@@ -82,15 +82,15 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		super.createContent();
 		ButtonBar	bb = new ButtonBar();
 		add(bb);
-		bb.addButton(Msgs.BUNDLE.getString("ui.tsw.select"), new IClicked<DefaultButton>() {
+		bb.addButton(Msgs.BUNDLE.getString("ui.tsw.select"), new IExecute() {
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				select();
 			}
 		});
-		bb.addButton(Msgs.BUNDLE.getString("ui.tsw.cancel"), new IClicked<DefaultButton>() {
+		bb.addButton(Msgs.BUNDLE.getString("ui.tsw.cancel"), new IExecute() {
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				cancel();
 			}
 		});
@@ -110,12 +110,12 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		m_selected = null;
 
 		if(getCancelClicked() != null) {
-			((IClicked<TreeSelectionWindow<T>>) getCancelClicked()).clicked(this);
+			getCancelClicked().execute();
 			return;
 		}
-		IClickBase< ? > clicked = getClicked();
+		IExecute clicked = getClicked();
 		if(clicked != null) {
-			((IClicked<TreeSelectionWindow<T>>) clicked).clicked(this);
+			clicked.execute();
 		}
 	}
 
@@ -123,9 +123,9 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		if(m_selected == null)
 			return;
 		close();
-		IClickBase< ? > clicked = getClicked();
+		IExecute clicked = getClicked();
 		if(clicked != null) {
-			((IClicked<TreeSelectionWindow<T>>) clicked).clicked(this);
+			clicked.execute();
 		}
 	}
 
@@ -168,24 +168,20 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	}
 
 	@Override
-	public IClickBase< ? > getClicked() {
+	public IExecute getClicked() {
 		return m_clicked;
 	}
 
 	@Override
-	public void setClicked(@Nullable IClicked< ? > clicked) {
+	public void setClicked(@Nullable IExecute clicked) {
 		m_clicked = clicked;
 	}
 
-	@Override public void setClicked2(IClicked2<?> clicked) {
-		m_clicked = clicked;
-	}
-
-	public IClickBase< ? > getCancelClicked() {
+	public IExecute getCancelClicked() {
 		return m_cancelClicked;
 	}
 
-	public void setCancelClicked(IClickBase< ? > cancelClicked) {
+	public void setCancelClicked(IExecute cancelClicked) {
 		m_cancelClicked = cancelClicked;
 	}
 

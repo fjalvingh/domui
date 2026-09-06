@@ -17,15 +17,14 @@ import to.etc.domui.component.tbl.PageQueryHandler;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.dom.errors.IErrorMessageListener;
 import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.webapp.query.QCriteria;
 
 import java.util.List;
-import to.etc.function.IExecute;
 
 public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
@@ -114,7 +113,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	 * The handler that is called when a selection is made / unmade.
 	 */
 	@Nullable
-	private IClicked<DefaultLookupInputDialog<QT, OT>> m_onSelection;
+	private IExecute m_onSelection;
 
 	public DefaultLookupInputDialog(@NonNull ClassMetaModel queryMetaModel, @NonNull ClassMetaModel outputMetaModel, @NonNull ITableModelFactory<QT, OT> modelFactory) {
 		m_queryMetaModel = queryMetaModel;
@@ -165,9 +164,10 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		//	}
 		//});
 
-		lf.setClicked((IClicked<SearchPanel<QT>>) b -> search(b));
+		SearchPanel<QT> panel = lf;
+		lf.setClicked(() -> search(panel));
 
-		lf.setOnCancel(b -> closePressed());
+		lf.setOnCancel(()-> closePressed());
 
 		if(initialModel != null && initialModel.getRows() > 0) {
 			setResultModel(initialModel);
@@ -279,9 +279,9 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	}
 
 	private void callOnSelection() throws Exception {
-		IClicked<DefaultLookupInputDialog<QT, OT>> clicked = m_onSelection;
+		IExecute clicked = m_onSelection;
 		if(null != clicked) {
-			clicked.clicked(this);
+			clicked.execute();
 		}
 	}
 
@@ -439,16 +439,12 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	 * is closed the value will be null.
 	 */
 	@Nullable
-	public IClicked<DefaultLookupInputDialog<QT, OT>> getOnSelection() {
+	public IExecute getOnSelection() {
 		return m_onSelection;
 	}
 
-	public void setOnSelection(@Nullable IClicked<DefaultLookupInputDialog<QT, OT>> onSelection) {
+	public void setOnSelection(@Nullable IExecute onSelection) {
 		m_onSelection = onSelection;
-	}
-
-	public void setOnSelection(@NonNull IExecute onSelection) {
-		setOnSelection(IClicked.<DefaultLookupInputDialog<QT, OT>>wrap(onSelection));
 	}
 
 	@Nullable

@@ -44,7 +44,6 @@ import to.etc.domui.component.searchpanel.lookupcontrols.ObjectLookupQueryBuilde
 import to.etc.domui.dom.Animations;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
@@ -106,15 +105,15 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	@Nullable
 	private ISearchFormBuilder m_formBuilder;
 
-	private IClicked<SearchPanel<T>> m_clicker;
+	private IExecute m_clicker;
 
-	private IClicked<SearchPanel<T>> m_onNew;
+	private IExecute m_onNew;
 
 	private DefaultButton m_newBtn;
 
-	private IClicked<? extends SearchPanel<T>> m_onClear;
+	private IExecute m_onClear;
 
-	private IClicked<SearchPanel<T>> m_onCancel;
+	private IExecute m_onCancel;
 
 	private DefaultButton m_cancelBtn;
 
@@ -147,12 +146,12 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	/**
 	 * After restore action on LookupForm.
 	 */
-	private IClicked<NodeBase> m_onAfterRestore;
+	private IExecute m_onAfterRestore;
 
 	/**
 	 * After collapse action on LookupForm.
 	 */
-	private IClicked<NodeBase> m_onAfterCollapse;
+	private IExecute m_onAfterCollapse;
 
 	private IQueryFactory<T> m_queryFactory;
 
@@ -317,7 +316,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
 		setReturnPressed(node -> {
 			if(m_clicker != null)
-				m_clicker.clicked(SearchPanel.this);
+				m_clicker.execute();
 		});
 		m_hasBeenUsed = true;                            // Indicate that we need to use defaultValue instead of initialValue next time.
 	}
@@ -339,7 +338,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	//			clearInput();
 	//			fillSearchFields(sender);
 	//			if(m_clicker != null) {
-	//				m_clicker.clicked(SearchPanel.this);
+	//				m_clicker.execute();
 	//			}
 	//		}
 	//	});
@@ -399,9 +398,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		b.setTestID("searchButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
 		b.css("is-primary");
-		b.setClicked(bx -> {
+		b.setClicked(()-> {
 			if(m_clicker != null)
-				m_clicker.clicked(SearchPanel.this);
+				m_clicker.execute();
 		});
 		addButtonItem(b, 100, ButtonMode.NORMAL);
 
@@ -409,16 +408,16 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		b.setIcon(Icon.of("THEME/btnClear.png"));
 		b.setTestID("clearButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR_TITLE));
-		b.setClicked(xb -> {
+		b.setClicked(()-> {
 			clearInput();
 			if(getOnClear() != null)
-				((IClicked<SearchPanel<T>>) getOnClear()).clicked(SearchPanel.this); // FIXME Another generics snafu, fix.
+				getOnClear().execute();
 		});
 		addButtonItem(b, 200, ButtonMode.NORMAL);
 
 		//-- Collapse button thingy
 		if(isShowHideButton()) {
-			m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), Icon.of("THEME/btnHideLookup.png"), bx -> collapse());
+			m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), Icon.of("THEME/btnHideLookup.png"), ()-> collapse());
 			m_collapseButton.setTestID("hideButton");
 			m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
 			addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
@@ -427,7 +426,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	public void addFilterButton() {
 		if(m_filterButton == null) { // Only add the button if it doesn't exist already
-			m_filterButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SAVE_SEARCH), Theme.BTN_SAVE, clickednode -> saveSearchQuery());
+			m_filterButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SAVE_SEARCH), Theme.BTN_SAVE, ()-> saveSearchQuery());
 			addButtonItem(m_filterButton, 400, ButtonMode.NORMAL);
 		}
 	}
@@ -466,13 +465,13 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		if(null != collapseButton) {
 			collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
 			collapseButton.setIcon(Icon.of("THEME/btnShowLookup.png"));
-			collapseButton.setClicked((IClicked<DefaultButton>) bx -> restore());
+			collapseButton.setClicked(()-> restore());
 			createButtonRow(m_collapsedPanel, true);
 		}
 
 		//trigger after collapse event is set
 		if(getOnAfterCollapse() != null) {
-			getOnAfterCollapse().clicked(this);
+			getOnAfterCollapse().execute();
 		}
 	}
 
@@ -485,14 +484,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
 		m_collapseButton.setIcon(Icon.of("THEME/btnHideLookup.png"));
-		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> collapse());
+		m_collapseButton.setClicked(()-> collapse());
 
 		m_content.setDisplay(DisplayType.BLOCK);
 		m_collapsed = false;
 
 		//trigger after restore event is set
 		if(getOnAfterRestore() != null) {
-			getOnAfterRestore().clicked(this);
+			getOnAfterRestore().execute();
 		}
 	}
 
@@ -589,14 +588,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	/**
 	 * Sets the onNew handler. When set this will render a "new" button in the form's button bar.
 	 */
-	public IClicked<SearchPanel<T>> getOnNew() {
+	public IExecute getOnNew() {
 		return m_onNew;
 	}
 
 	/**
 	 * Returns the onNew handler. When set this will render a "new" button in the form's button bar.
 	 */
-	public void setOnNew(final IClicked<SearchPanel<T>> onNew) {
+	public void setOnNew(final IExecute onNew) {
 		if(m_onNew != onNew) {
 			m_onNew = onNew;
 			if(m_onNew != null && m_newBtn == null) {
@@ -604,9 +603,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_newBtn.setIcon(Theme.BTN_NEW);
 				m_newBtn.setTestID("newButton");
 				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
-				m_newBtn.setClicked(xb -> {
+				m_newBtn.setClicked(()-> {
 					if(getOnNew() != null) {
-						getOnNew().clicked(SearchPanel.this);
+						getOnNew().execute();
 					}
 				});
 				m_newBtn.setDisabledBecause(m_newBtnDisableReason);
@@ -627,32 +626,32 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	/**
 	 * Set the handler to call when the "Search" button is clicked.
 	 *
-	 * @see NodeBase#setClicked(IClicked)
+	 * @see NodeBase#setClicked(to.etc.function.IExecute)
 	 */
 	@Override
-	public void setClicked(final @Nullable IClicked<?> clicked) {
-		m_clicker = (IClicked<SearchPanel<T>>) clicked;
+	public void setClicked(final @Nullable IExecute clicked) {
+		m_clicker = clicked;
 	}
 
-	public IClicked<SearchPanel<T>> getSearchClicked() {
+	public IExecute getSearchClicked() {
 		return m_clicker;
 	}
 
-	public IClicked<? extends SearchPanel<T>> getOnClear() {
+	public IExecute getOnClear() {
 		return m_onClear;
 	}
 
 	/**
 	 * Listener to call when the "clear" button is pressed.
 	 */
-	public void setOnClear(IClicked<? extends SearchPanel<T>> onClear) {
+	public void setOnClear(IExecute onClear) {
 		m_onClear = onClear;
 	}
 
 	/**
 	 * When set, this causes a "cancel" button to be added to the form. When that button is pressed this handler gets called.
 	 */
-	public void setOnCancel(IClicked<SearchPanel<T>> onCancel) {
+	public void setOnCancel(IExecute onCancel) {
 		if(m_onCancel != onCancel) {
 			m_onCancel = onCancel;
 			if(m_onCancel != null && m_cancelBtn == null) {
@@ -660,10 +659,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_cancelBtn.setIcon(Theme.BTN_CANCEL);
 				m_cancelBtn.setTestID("cancelButton");
 				m_cancelBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL_TITLE));
-				m_cancelBtn.setClicked(xb -> {
+				m_cancelBtn.setClicked(()-> {
 
 					if(getOnCancel() != null) {
-						getOnCancel().clicked(SearchPanel.this);
+						getOnCancel().execute();
 					}
 				});
 				addButtonItem(m_cancelBtn, 400, ButtonMode.BOTH);
@@ -680,7 +679,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		}
 	}
 
-	public IClicked<SearchPanel<T>> getOnCancel() {
+	public IExecute getOnCancel() {
 		return m_onCancel;
 	}
 
@@ -762,7 +761,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 *
 	 * @return the onAfterRestore
 	 */
-	public IClicked<NodeBase> getOnAfterRestore() {
+	public IExecute getOnAfterRestore() {
 		return m_onAfterRestore;
 	}
 
@@ -771,7 +770,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 *
 	 * @param onAfterRestore the onAfterRestore to set
 	 */
-	public void setOnAfterRestore(IClicked<NodeBase> onAfterRestore) {
+	public void setOnAfterRestore(IExecute onAfterRestore) {
 		m_onAfterRestore = onAfterRestore;
 	}
 
@@ -780,7 +779,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 *
 	 * @return the onAfterCollpase
 	 */
-	public IClicked<NodeBase> getOnAfterCollapse() {
+	public IExecute getOnAfterCollapse() {
 		return m_onAfterCollapse;
 	}
 
@@ -789,41 +788,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 *
 	 * @param onAfterCollapse the onAfterCollapse to set
 	 */
-	public void setOnAfterCollapse(IClicked<NodeBase> onAfterCollapse) {
-		m_onAfterCollapse = onAfterCollapse;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Action handlers that do not need the clicked node.	*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * When set this will render a "new" button in the form's button bar.
-	 */
-	public void setOnNew(IExecute onNew) {
-		setOnNew(IClicked.<SearchPanel<T>>wrap(onNew));
-	}
-
-	/**
-	 * Action to run when the "clear" button is pressed.
-	 */
-	public void setOnClear(IExecute onClear) {
-		setOnClear(IClicked.<SearchPanel<T>>wrap(onClear));
-	}
-
-	/**
-	 * When set, this causes a "cancel" button to be added to the form, running this action when pressed.
-	 */
-	public void setOnCancel(IExecute onCancel) {
-		setOnCancel(IClicked.<SearchPanel<T>>wrap(onCancel));
-	}
-
-	public void setOnAfterRestore(IExecute onAfterRestore) {
-		setOnAfterRestore(IClicked.<NodeBase>wrap(onAfterRestore));
-	}
-
 	public void setOnAfterCollapse(IExecute onAfterCollapse) {
-		setOnAfterCollapse(IClicked.<NodeBase>wrap(onAfterCollapse));
+		m_onAfterCollapse = onAfterCollapse;
 	}
 
 	/**

@@ -24,6 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.IExecute;
 
 
@@ -35,35 +36,36 @@ import to.etc.function.IExecute;
  * Created on 4 Sep 2009
  */
 public interface IHasChangeListener {
-	IValueChanged< ? > getOnValueChanged();
+	/**
+	 * The handler used to mark a control as "immediate": it has no real change handler but its
+	 * changes must still be reported to the server as they happen.
+	 */
+	IExecute DUMMY = () -> {};
 
-	void setOnValueChanged(IValueChanged< ? > onValueChanged);
+	@Nullable
+	IExecute getOnValueChanged();
 
 	/**
-	 * Set the change handler as an action that does not need the component: the normal way to
-	 * respond to a change, because the control is a local variable of createContent() that the
-	 * lambda already captures.
+	 * Set the change handler: an action, because the control it is set on is a local variable of
+	 * createContent() that the lambda already captures.
 	 */
-	default void setOnValueChanged(IExecute onValueChanged) {
-		setOnValueChanged(IValueChanged.wrap(onValueChanged));
-	}
+	void setOnValueChanged(@Nullable IExecute onValueChanged);
 
 	/**
 	 * Remove the change handler set on this component, if any.
 	 */
 	default void clearOnValueChanged() {
-		setOnValueChanged((IValueChanged< ? >) null);
+		setOnValueChanged(null);
 	}
 
 	/**
 	 * Call the change handler, if one is set. For component implementations: this is how a
 	 * control reports that the user changed its value.
 	 */
-	@SuppressWarnings("unchecked")
 	default void callOnValueChanged() throws Exception {
-		IValueChanged<Object> vc = (IValueChanged<Object>) getOnValueChanged();
+		IExecute vc = getOnValueChanged();
 		if(null != vc) {
-			vc.onValueChanged(this);
+			vc.execute();
 		}
 	}
 }

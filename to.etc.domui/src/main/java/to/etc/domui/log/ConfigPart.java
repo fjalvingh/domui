@@ -11,11 +11,11 @@ import to.etc.domui.component.ntbl.IRowEditorFactory;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleListModel;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.log.data.Handler;
 import to.etc.domui.log.data.HandlerType;
 import to.etc.domui.log.tailer.ServerLogPage;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.log.EtcLoggerFactory;
 import to.etc.webapp.nls.BundleRef;
 
@@ -55,7 +55,7 @@ public class ConfigPart extends Div {
 
 		rr.column().label("^follow").width(20).renderer((node, handler) -> {
 			if(handler.getType() == HandlerType.FILE) {
-				node.add(new LinkButton("follow", clickednode -> ServerLogPage.moveSub(constructLogPath(handler.getFile()))));
+				node.add(new LinkButton("follow", ()-> ServerLogPage.moveSub(constructLogPath(handler.getFile()))));
 			}
 		});
 		m_table = new ExpandingEditTable<>(m_model, rr);
@@ -90,9 +90,9 @@ public class ConfigPart extends Div {
 	}
 
 	private void createAddButton() {
-		getButtonBar().addButton(BUNDLE.getString(Msgs.LOOKUP_FORM_NEW), Icon.of("THEME/btnNew.png"), new IClicked<DefaultButton>() {
+		getButtonBar().addButton(BUNDLE.getString(Msgs.LOOKUP_FORM_NEW), Icon.of("THEME/btnNew.png"), new IExecute() {
 			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
+			public void execute() throws Exception {
 				m_table.addNew(initializeNewInstance());
 			}
 		});

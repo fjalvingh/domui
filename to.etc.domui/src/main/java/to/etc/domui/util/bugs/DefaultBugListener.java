@@ -31,7 +31,6 @@ import to.etc.domui.component.layout.FloatingWindow;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.NodeBase;
@@ -51,6 +50,7 @@ import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 
 import java.util.ArrayList;
@@ -252,9 +252,9 @@ public class DefaultBugListener implements IBugListener {
 			ref.setIndicator(ind, count, img);
 
 			final BugRef info = ref; // Sigh
-			ind.setClicked(new IClicked<Div>() {
+			ind.setClicked(new IExecute() {
 				@Override
-				public void clicked(@NonNull Div clickednode) throws Exception {
+				public void execute() throws Exception {
 					toggleBugDisplay(pg, info);
 				}
 			});
@@ -349,9 +349,9 @@ public class DefaultBugListener implements IBugListener {
 			m_clickimg = new Img("THEME/xdt-collapsed.png");
 			td.add(m_clickimg);
 			m_clickimg.setAlign(ImgAlign.LEFT);
-			m_clickimg.setClicked(new IClicked<Img>() {
+			m_clickimg.setClicked(new IExecute() {
 				@Override
-				public void clicked(@NonNull Img clickednode) throws Exception {
+				public void execute() throws Exception {
 					toggle();
 				}
 			});

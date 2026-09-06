@@ -1230,7 +1230,70 @@ These were offered as input while the phase 0 items were being worked, and taken
       tree still demonstrated, the week agenda and drag and drop, were rewritten
       as component group demo pages and documented.
 
+- [x] Remove the node-carrying handler interfaces `IClicked`, `IClicked2`,
+      `IClickBase` and `IValueChanged`, and every method that took one. **Done
+      2026-09-06**: `IExecute` is now the only click and change handler, and
+      `setClicked2()` takes the new `IClickedInfo` (the `ClickInfo`, no node).
+      See the decisions log entry of that date.
+
 ## Decisions log
+
+### 2026-09-06 - IClicked and IValueChanged removed; IExecute is the handler
+
+The click and change handlers were `IClicked<T extends NodeBase>` (`clicked(T
+node)`), `IClicked2<T>` (`clicked(T node, ClickInfo)`) and `IValueChanged<T>`
+(`onValueChanged(T component)`). Their type parameter never earned its keep: it
+was declared as a wildcard in every field and setter that stored one, and all
+but one of the lambdas written against them ignored the parameter, because the
+node a handler is set on is a local variable of `createContent()` that the
+lambda already captures.
+
+The session before this one added `IExecute` overloads next to them. That made
+it worse rather than better: two SAM types on one method name is exactly what
+Kotlin cannot resolve, so `button.setClicked { ... }` became ambiguous and every
+Kotlin call site had to be written `setClicked(IExecute { ... })`.
+`ConditionPanel.kt` was rewritten that way and it read badly.
+
+**So the old interfaces are gone**, and with them every method that took one:
+
+- `IClicked`, `IClicked2`, `IClickBase` and `IValueChanged` are deleted.
+- `NodeBase.setClicked(IExecute)` / `getClicked()` is the click handler, and
+  `clearClicked()` removes it.
+- `NodeBase.setClicked2(IClickedInfo)` / `getClicked2()` is the handler that
+  wants the click's details; `IClickedInfo` is `clicked(ClickInfo)` - the new
+  interface carries the `ClickInfo` and *not* the node. `hasClicked()` answers
+  whether either one is set.
+- `IHasChangeListener` is `IExecute getOnValueChanged()` /
+  `setOnValueChanged(IExecute)` / `clearOnValueChanged()`, with
+  `callOnValueChanged()` the way a control reports a change. `IHasChangeListener.DUMMY`
+  replaces `IValueChanged.DUMMY` as the marker an "immediate" control returns.
+
+Handlers that genuinely used the node now capture it: `MonthPanel` builds a
+per-cell lambda instead of sharing one handler, `ListShuttle` calls a
+`toggleSelected(TD)` method, `RowRenderer`, `ExporterButtons`, `DataTable`,
+`ScrollableDataTable`, `DataPager1`, `MsgBox`, `MsgBox2`, `LookupInputBase`,
+`LookupInputBase2`, `SearchAsYouTypeBase`, `EditableDropDownPicker` and
+`LogTailerFragment` capture the control they are set on. `RadioButton.getClicked()`
+returns the group's handler directly rather than wrapping it, and
+`TreeSelectionWindow` no longer overrides `setClicked2()`.
+
+`ConditionPanel.kt` is back to Kotlin's own lambda syntax
+(`fieldC.setOnValueChanged { ... }`, `LinkButton("Delete", Icon.faMinus) { ... }`).
+One call in it still needs `IExecute { ... }`: `MsgBox.yesNo(dad, text, ...)` has
+both an `IExecute` and an `IAnswer` overload, and two SAM types on one name is
+the same ambiguity as before - a candidate for a later rename, not something this
+change touched.
+
+The documentation followed: twelve pages listed `IClicked<...>` or
+`IValueChanged<...>` in their API tables, and thirty-odd code samples wrote
+handlers as `a -> ...`; they are `IExecute` and `() -> ...` now. The
+`110-writing-a-component` page showed `StarRating` fetching and calling its
+change listener by hand, which the class stopped doing long ago - it calls
+`callOnValueChanged()`, and the page says so.
+
+Verified with a full `mvn21 verify`: the framework, the Kotlin sources, the
+integrations and the demo build, and the 9 unit tests and 55 Selenium tests pass.
+The site builds clean at 157 pages.
 
 ### 2026-09-06 - The testing documentation, and the fixture pages that stay
 

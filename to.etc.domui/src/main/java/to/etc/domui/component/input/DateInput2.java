@@ -36,9 +36,9 @@ import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.DateConverter;
 import to.etc.domui.converter.DateTimeConverter;
 import to.etc.domui.dom.css.DisplayType;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.util.DateUtil;
 import to.etc.webapp.nls.NlsContext;
 
@@ -98,14 +98,14 @@ public class DateInput2 extends Text2<Date> {
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		SmallImgButton sib = addButtonSmall(Icon.faCalendar, a -> { });
+		SmallImgButton sib = addButtonSmall(Icon.faCalendar, ()-> { });
 		m_showCalendarButton = sib;
 		sib.clearClicked();
 		sib.setOnClickJS("WebUI.showCalendar('" + internalGetInput().getActualID() + "'," + isWithTime() + ")");
 		internalGetInput().setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 		internalGetInput().setSpecialAttribute("data-datefmt", calendarDatePattern(NlsContext.getLocale()));
 		if(! m_hideTodayButton) {
-			SmallImgButton todayBtn = addButtonSmall(Icon.faCalendarCheckO, c -> {
+			SmallImgButton todayBtn = addButtonSmall(Icon.faCalendarCheckO, ()-> {
 				Date currentDate = new Date();
 				if(!m_withTime) {
 					currentDate = DateUtil.truncateDate(currentDate);
@@ -115,9 +115,9 @@ public class DateInput2 extends Text2<Date> {
 				//modified flag must be set externaly
 				DomUtil.setModifiedFlag(DateInput2.this);
 				DateInput2.this.setValue(currentDate);
-				IValueChanged<?> ovc = getOnValueChanged();
+				IExecute ovc = getOnValueChanged();
 				if(ovc != null) {
-					((IValueChanged<NodeBase>) ovc).onValueChanged(DateInput2.this);
+					ovc.execute();
 				}
 			});
 			m_todayButton = todayBtn;

@@ -5,17 +5,16 @@ import to.etc.domui.component.menu.PopupMenu.Item;
 import to.etc.domui.component.menu.PopupMenu.Submenu;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.function.IExecute;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import to.etc.function.IExecute;
 
 /**
  * EXPERIMENTAL, INCOMPLETE A popup menu.
@@ -174,15 +173,15 @@ public class SimplePopupMenu extends Div {
 		final Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
 		Img img = new Img("THEME/pmnu-submenu-open.png");
 		d.add(img);
-		d.setClicked(clickednode -> submenuClicked(d, a));
+		d.setClicked(()-> submenuClicked(d, a));
 	}
 
 	protected void renderItem(@NonNull NodeContainer into, final Item a) {
 		Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
-		d.setClicked(clickednode -> {
+		d.setClicked(()-> {
 			closeMenu();
 			if(null != a.getClicked())
-				a.getClicked().clicked(SimplePopupMenu.this);
+				a.getClicked().execute();
 		});
 	}
 
@@ -201,7 +200,7 @@ public class SimplePopupMenu extends Div {
 		return d;
 	}
 
-	protected void renderAction(@NonNull NodeContainer into, final IUIAction action) throws Exception {
+	protected <T> void renderAction(@NonNull NodeContainer into, final IUIAction action) throws Exception {
 		String disa = action.getDisableReason();
 		if(null != disa) {
 			renderItem(into, action.getName(), disa, action.getIcon(), true);
@@ -209,7 +208,7 @@ public class SimplePopupMenu extends Div {
 		}
 
 		Div d = renderItem(into, action.getName(), action.getTitle(), action.getIcon(), false);
-		d.setClicked(clickednode -> {
+		d.setClicked(()-> {
 			closeMenu();
 			action.execute(getRelativeTo());
 		});
@@ -236,20 +235,12 @@ public class SimplePopupMenu extends Div {
 		getActionList().add(new Item(action));
 	}
 
-	public void addItem(String caption, IIconRef icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+	public void addItem(String caption, IIconRef icon, String hint, boolean disabled, IExecute clk) {
 		getActionList().add(new Item(icon, caption, hint, disabled, clk, null));
 	}
 
-	public void addItem(String caption, IIconRef icon, IClicked<NodeBase> clk) {
-		getActionList().add(new Item(icon, caption, null, false, clk, null));
-	}
-
-	public void addItem(String caption, IIconRef icon, String hint, boolean disabled, IExecute clk) {
-		addItem(caption, icon, hint, disabled, IClicked.<NodeBase>wrap(clk));
-	}
-
 	public void addItem(String caption, IIconRef icon, IExecute clk) {
-		addItem(caption, icon, IClicked.<NodeBase>wrap(clk));
+		getActionList().add(new Item(icon, caption, null, false, clk, null));
 	}
 
 	@Override

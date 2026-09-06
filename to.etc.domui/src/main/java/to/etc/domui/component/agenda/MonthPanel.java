@@ -26,12 +26,12 @@ package to.etc.domui.component.agenda;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
+import to.etc.function.IExecute;
 import to.etc.util.DateUtil;
 import to.etc.webapp.nls.NlsContext;
 
@@ -60,8 +60,6 @@ public class MonthPanel extends Div {
 
 	private Date m_firstDayDate;
 
-	private IClicked<TD> m_clickHandler;
-
 	private TBody m_body;
 
 	@Override
@@ -82,16 +80,6 @@ public class MonthPanel extends Div {
 
 		//-- Create the top row (day labels)
 		createTopRow(b);
-
-		//-- If we need to act on clicks add a clickhandler for dayclicks.
-		if(getDayClicked() != null && m_clickHandler == null) {
-			m_clickHandler = new IClicked<TD>() {
-				@Override
-				public void clicked(@NonNull TD bx) throws Exception {
-					handleClick(bx);
-				}
-			};
-		}
 
 		//-- Create rows of weeks. End when the current week ends on a new month.
 
@@ -153,8 +141,10 @@ public class MonthPanel extends Div {
 			int mn = cal.get(Calendar.MONTH);
 			td.setText(Integer.toString(dn));
 			td.setCssClass(mn == m_month ? cssinm : cssexm);
-			if(getDayClicked() != null)
-				td.setClicked(m_clickHandler);
+			if(getDayClicked() != null) {
+				TD cell = td;
+				td.setClicked(() -> handleClick(cell));
+			}
 			cal.add(Calendar.DATE, 1);
 		}
 	}

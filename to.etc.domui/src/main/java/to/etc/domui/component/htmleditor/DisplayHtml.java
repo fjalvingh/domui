@@ -28,10 +28,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IDisplayControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.XmlTextNode;
 import to.etc.domui.util.HtmlUtil;
+import to.etc.function.IExecute;
 
 /**
  * Mini component to display an HTML section.
@@ -118,12 +118,12 @@ public class DisplayHtml extends Div implements IDisplayControl<String> {
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return null;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		throw new UnsupportedOperationException("Display control");
 	}
 

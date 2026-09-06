@@ -201,7 +201,7 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 			li.addCssClass("ui-brcr2-a");
 		ATag a = new ATag();
 		li.add(a);
-		a.setClicked(v -> {
+		a.setClicked(()-> {
 			item.clicked(item);
 		});
 		NodeBase icon = item.getIcon();

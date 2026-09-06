@@ -36,7 +36,6 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.parts.ComponentPartRenderer;
 import to.etc.domui.server.RequestContextImpl;
@@ -47,6 +46,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.upload.FileUploadException;
 import to.etc.domui.util.upload.UploadItem;
+import to.etc.function.IExecute;
 import to.etc.util.FileTool;
 
 import java.io.File;
@@ -74,7 +74,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 
 	private FileInput m_input;
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	private boolean m_disabled;
 
@@ -189,7 +189,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		d.add(btn);
 		btn.add(Icon.faWindowCloseO.createNode());
 		d.add(uploadItem.getRemoteFileName());
-		btn.setClicked(a -> {
+		btn.setClicked(()-> {
 			m_value.remove(uploadItem);
 			FileTool.closeAll(uploadItem);
 			forceRebuild();
@@ -304,12 +304,12 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
@@ -357,7 +357,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		// We need this page reference since in onValueChanged() force rebuild might happen again
 		// and then we'll lose the page reference needed for renderOptimalDelta().
 		if(m_onValueChanged != null)
-			((IValueChanged<FileUploadMultiple>) m_onValueChanged).onValueChanged(this);
+			m_onValueChanged.execute();
 		return true;
 	}
 

@@ -18,7 +18,6 @@ import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.html.Col;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -30,6 +29,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QField;
@@ -217,7 +217,8 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				renderHeaderContent(cd, cellSpan);
 				cellSpan.setTitle(cd.getHint());
 				final ColumnDef<T, ?> scd = cd;
-				th.setClicked((IClicked<TH>) b -> handleSortClick(b, scd));
+				final TH sortTh = th;
+				th.setClicked(() -> handleSortClick(sortTh, scd));
 
 				//in order to apply correct positioning, we need to wrap Span around sort indicator image and label
 				String sortCss;
@@ -507,7 +508,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
 				 * provided it can calculate the row and cell data from the TR it is attached to.
 				 */
-				cell.setClicked((IClicked<TD>) b -> {
+				cell.setClicked(()-> {
 					ICellClicked<Object> clicked = (ICellClicked<Object>) cd.getCellClicked();
 					if(null != clicked)
 						clicked.cellClicked(instance);

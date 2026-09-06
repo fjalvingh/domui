@@ -6,11 +6,11 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HiddenInput;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasChangeListener;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.function.IExecute;
 
 /**
  * This is a Small button which shows a selected color, and which opens
@@ -23,7 +23,7 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 	private Input m_hidden = new HiddenInput();
 
 	private Div m_coldiv = new Div();
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	private boolean m_mandatory;
 
@@ -92,12 +92,12 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

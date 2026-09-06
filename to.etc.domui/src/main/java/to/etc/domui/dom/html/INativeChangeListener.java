@@ -1,5 +1,7 @@
 package to.etc.domui.dom.html;
 
+import to.etc.function.IExecute;
+
 /**
  * This interface is allowed on HTML nodes <b>only</b>, and controls whether a node renders an "onchange" handler.
  *
@@ -7,5 +9,5 @@ package to.etc.domui.dom.html;
  * Created on Jun 27, 2014
  */
 public interface INativeChangeListener {
-	IValueChanged< ? > getOnValueChanged();
+	IExecute getOnValueChanged();
 }

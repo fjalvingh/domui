@@ -47,7 +47,7 @@ public class ExpandCollapsePanel extends Div {
 	public void createContent() throws Exception {
 		Div header = new Div("ui-expcp-hdr");
 		add(header);
-		header.add(new LinkButton("", m_expanded ? Icon.faMinus : Icon.faPlus, a -> toggle()));
+		header.add(new LinkButton("", m_expanded ? Icon.faMinus : Icon.faPlus, ()-> toggle()));
 		header.add(" ");
 		NodeBase label = m_label;
 		if(null != label)

@@ -3,9 +3,9 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.dom.html.Checkbox;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
+import to.etc.function.IExecute;
 
 /**
  * This is a simple on/off switch button, like the CheckBoxButton but
@@ -48,13 +48,13 @@ public class SwitchButton extends AbstractDivControl<Boolean> {
 
 	@Deprecated
 	@Override
-	public IValueChanged<?> getOnValueChanged() {
-		IValueChanged<?> vc = m_cb.getOnValueChanged();
+	public IExecute getOnValueChanged() {
+		IExecute vc = m_cb.getOnValueChanged();
 		return vc;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_cb.setOnValueChanged(onValueChanged);
 	}
 

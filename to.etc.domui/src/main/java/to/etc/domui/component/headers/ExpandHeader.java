@@ -11,11 +11,11 @@ import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.Table;
+import to.etc.function.IExecute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,9 +90,9 @@ public class ExpandHeader extends Div {
 		Table table = body.getTable();
 		table.setTableWidth("100%");
 		table.setCssClass("ui-xphd-bar");
-		HoverButton sib = m_expandButton = new HoverButton(getImage(false), new IClicked<HoverButton>() {
+		HoverButton sib = m_expandButton = new HoverButton(getImage(false), new IExecute() {
 			@Override
-			public void clicked(@NonNull HoverButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				toggleExpansion();
 			}
 		});
@@ -116,9 +116,9 @@ public class ExpandHeader extends Div {
 			td = body.addCell("ui-xphd-menubutton");
 			td.setCellWidth("16");
 
-			m_hamburgerButton = sib = new HoverButton("THEME/btnHeaderHamburger.png", new IClicked<HoverButton>() {
+			m_hamburgerButton = sib = new HoverButton("THEME/btnHeaderHamburger.png", new IExecute() {
 				@Override
-				public void clicked(@NonNull HoverButton clickednode) throws Exception {
+				public void execute() throws Exception {
 					toggleMenu();
 				}
 			});

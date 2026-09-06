@@ -24,8 +24,12 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.function.IExecute;
+
 abstract public class InputNodeContainer extends NodeContainer implements IHasChangeListener {
-	private IValueChanged< ? > m_onValueChanged;
+	@Nullable
+	private IExecute m_onValueChanged;
 
 	private boolean m_readOnly;
 
@@ -40,23 +44,18 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 		super(tag);
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
-	 */
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
-		IValueChanged< ? > vc = m_onValueChanged;
+	@Nullable
+	public IExecute getOnValueChanged() {
+		IExecute vc = m_onValueChanged;
 		if(null == vc && isImmediate()) {
-			return IValueChanged.DUMMY;
+			return DUMMY;
 		}
 		return vc;
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
-	 */
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(@Nullable IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

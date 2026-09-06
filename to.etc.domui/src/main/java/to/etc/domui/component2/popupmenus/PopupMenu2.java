@@ -92,7 +92,7 @@ public class PopupMenu2 extends Div {
 			row.setTestID(testId);
 		}
 		if(null == disableReason) {
-			row.setClicked(a -> selectionMade(item));
+			row.setClicked(()-> selectionMade(item));
 		}
 		if(hasIcons) {
 			Div icd = new Div("ui-pome2-i");

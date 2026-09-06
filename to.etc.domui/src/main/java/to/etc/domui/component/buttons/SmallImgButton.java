@@ -30,7 +30,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.util.DomUtil;
 import to.etc.function.IExecute;
 
@@ -64,15 +63,6 @@ public class SmallImgButton extends Button {
 	 */
 	public SmallImgButton(IIconRef rurl) {
 		this();
-		setSrc(rurl);
-	}
-
-	/**
-	 * If the rurl is prefixed with THEME/ it specifies an image from the current THEME's directory.
-	 */
-	public SmallImgButton(IIconRef rurl, IClicked<SmallImgButton> cl) {
-		this();
-		setClicked(cl);
 		setSrc(rurl);
 	}
 

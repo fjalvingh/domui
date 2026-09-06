@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import to.etc.domui.component.image.Dimension;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IActionControl;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.server.DomApplication;
 import to.etc.function.IExecute;
 
@@ -58,15 +57,6 @@ final public class HoverButton extends Button implements IActionControl {
 	 * theme, or it can be an absolute image path to a web file.
 	 */
 	public HoverButton(@NonNull String rurl) {
-		setSrc(rurl);
-	}
-
-	/**
-	 * If the rurl is prefixed with THEME/ it specifies an image from the current THEME's directory.
-	 */
-	public HoverButton(@NonNull String rurl, @NonNull IClicked<HoverButton> cl) {
-		this();
-		setClicked(cl);
 		setSrc(rurl);
 	}
 

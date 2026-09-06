@@ -8,7 +8,6 @@ import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component2.lookupinput.LookupInputBase2.IPopupOpener;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.function.IExecute;
 
 import java.util.List;
@@ -53,13 +52,7 @@ public class DefaultPopupOpener<A, B> implements IPopupOpener {
 	@Override
 	public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(final L control, ITableModel<B> initialModel, final IExecute callOnWindowClose) {
 		DefaultLookupInputDialog<A, B> dlg = new DefaultLookupInputDialog<A, B>(control.getQueryMetaModel(), control.getOutputMetaModel(), control.getModelFactory());
-		dlg.setOnSelection(new IClicked<DefaultLookupInputDialog<A, B>>() {
-			@Override
-			public void clicked(DefaultLookupInputDialog<A, B> clickednode) throws Exception {
-				B value = clickednode.getValue();
-				control.setDialogSelection(value);
-			}
-		});
+		dlg.setOnSelection(() -> control.setDialogSelection(dlg.getValue()));
 
 		dlg.setSearchProperties(getSearchPropertyList());
 

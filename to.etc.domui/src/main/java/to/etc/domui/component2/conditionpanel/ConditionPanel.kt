@@ -19,9 +19,9 @@ import to.etc.domui.dom.html.IControl
 import to.etc.domui.dom.html.NodeBase
 import to.etc.domui.dom.html.Span
 import to.etc.domui.util.IRenderInto
+import to.etc.function.IExecute
 import to.etc.webapp.query.QOperation
 import java.util.function.Supplier
-import to.etc.function.IExecute
 
 interface IConditionModel<T, F> {
 	fun getFields(): List<F>
@@ -95,12 +95,12 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 		currentOperation = node.operation
 
 		//-- Listeners
-		fieldC.setOnValueChanged(IExecute {
+		fieldC.setOnValueChanged {
 			updateControls(valueContainer, operatorC, safeValue(fieldC))
-		})
-		operatorC.setOnValueChanged(IExecute {
+		}
+		operatorC.setOnValueChanged {
 			updateControls(valueContainer, operatorC, safeValue(fieldC))
-		})
+		}
 		updateControls(valueContainer, operatorC, node.field)
 
 		//-- Bindings
@@ -110,21 +110,21 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 		//-- Action
 		val acd = Div("ui-copa-cmp-ac")
 		triple.add(acd)
-		acd.add(LinkButton("Delete", Icon.faMinus, IExecute {
+		acd.add(LinkButton("Delete", Icon.faMinus) {
 			if(node.isEmpty()) {
 				deleteSimple()
 			} else {
-				MsgBox.yesNo(this, "Delete?", IExecute {
+				MsgBox.yesNo(this, "Delete?", IExecute {			// IExecute: yesNo also has an IAnswer overload
 					deleteSimple()
 				})
 			}
-		}))
+		})
 
 		val operator = if(node.parent!!.operation == QOperation.AND) QOperation.OR else QOperation.AND
 
-		acd.add(LinkButton(operator.name, Icon.faList, IExecute {
+		acd.add(LinkButton(operator.name, Icon.faList) {
 			addCompound(operator)
-		}))
+		})
 	}
 
 	private fun deleteSimple() {
@@ -222,9 +222,9 @@ open class CondUiCompound<T, F>(panel: ConditionPanel<T, F>, val node: CoCompoun
 		//-- We finish with the "add" action
 		val acd = Div("ui-copa-grp-ac")
 		container.add(acd)
-		acd.add(LinkButton("Add a condition", Icon.faPlus, IExecute {
+		acd.add(LinkButton("Add a condition", Icon.faPlus) {
 			addCondition()
-		}))
+		})
 
 		node.conditions.addChangeListener(IListChangeListener { event ->
 			for(change in event.getChanges()) {

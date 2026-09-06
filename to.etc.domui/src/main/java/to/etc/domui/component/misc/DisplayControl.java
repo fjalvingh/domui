@@ -35,11 +35,11 @@ import to.etc.domui.converter.IConverter;
 import to.etc.domui.converter.NumericUtil;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IDisplayControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.NlsContext;
 
 /**
@@ -257,12 +257,12 @@ public class DisplayControl<T> extends Div implements IDisplayControl<T>, IConve
 	/*	CODING:	IControl implementation.							*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public IValueChanged<?> getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return null;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		//FIXME 20120802 vmijic - currently we prevent exception throwing since it raises lot of issues in pages that are using this code, introduced by switching readonly instances of components by DisplayValue...
 		//throw new UnsupportedOperationException("Display control");
 	}

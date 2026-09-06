@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.NodeBase;
@@ -41,6 +40,7 @@ import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.util.FileTool;
 
 import java.io.ByteArrayOutputStream;
@@ -82,7 +82,7 @@ public class InternalParentTree extends Div {
 		Img img = new Img("THEME/close.png");
 		img.setAlign(ImgAlign.RIGHT);
 		ttl.add(img);
-		img.setClicked((IClicked<Img>) clickednode -> {
+		img.setClicked(()-> {
 			InternalParentTree.this.remove();
 		});
 		Div list = new Div();
@@ -148,14 +148,14 @@ public class InternalParentTree extends Div {
 			StackTraceElement morons = created;            // Pathetic.
 			td.addCssClass("ui-ipt-link");
 			td.setTitle("Open the location where the component is created");
-			td.setClicked(clickednode -> openSource(morons));
+			td.setClicked(()-> openSource(morons));
 		}
 
 		//-- Show component source code button.
 		td = body.addCell();
 		td.setCssClass("ui-ipt-btn");
 		td.setCellWidth("1%");
-		td.setClicked(clickednode -> openSource(clicked));
+		td.setClicked(()-> openSource(clicked));
 		td.setTitle("Open the component's source code");
 		//td.add(new Img("THEME/iptSourceCode.png"));
 		td.add(Icon.faCode.css("is-size-small is-info").createNode());
@@ -168,7 +168,7 @@ public class InternalParentTree extends Div {
 			List<StackTraceElement> stack = findStack(allocSt);
 			if(!stack.isEmpty()) {
 				td.setCssClass("ui-ipt-btn");
-				td.setClicked(clickednode -> showCreationTrace(clicked, stack));
+				td.setClicked(()-> showCreationTrace(clicked, stack));
 				td.setTitle("Show the stacktrace where the component was created");
 				td.add(Icon.faBars.css("is-danger is-size-small").createNode());
 				//td.add(new Img("THEME/iptLocation.png"));
@@ -216,7 +216,7 @@ public class InternalParentTree extends Div {
 
 		Div alt = new Div();
 		m_structure.add(alt);
-		LinkButton lb = new LinkButton("Back to structure", Icon.of("THEME/btnBack.png"), (IClicked<LinkButton>) clickednode -> {
+		LinkButton lb = new LinkButton("Back to structure", Icon.of("THEME/btnBack.png"), ()-> {
 			m_structure.removeAllChildren();
 			renderStructure(m_structure);
 		});
@@ -252,9 +252,9 @@ public class InternalParentTree extends Div {
 			td.setCssClass("ui-ipt-btn");
 			td.setCellWidth("1%");
 			final StackTraceElement cste = ste;
-			td.setClicked(new IClicked<NodeBase>() {
+			td.setClicked(new IExecute() {
 				@Override
-				public void clicked(@NonNull NodeBase clickednode) throws Exception {
+				public void execute() throws Exception {
 					openSource(cste);
 				}
 			});

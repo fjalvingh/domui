@@ -4,10 +4,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.tbl.TableModelTableBase;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.log.data.Filter;
+import to.etc.function.IExecute;
 import to.etc.log.handler.LogFilterType;
 
 public class FilterRowEditor extends RowEditorBase<Filter> {
@@ -34,9 +34,9 @@ public class FilterRowEditor extends RowEditorBase<Filter> {
 		// TODO Auto-generated method stub
 		super.afterCreateContent();
 		m_holder = new TextNode(m_keyCtl.getValueSafe());
-		m_typeCtl.setOnValueChanged(new IValueChanged<NodeBase>() {
+		m_typeCtl.setOnValueChanged(new IExecute() {
 			@Override
-			public void onValueChanged(@NonNull NodeBase component) throws Exception {
+			public void execute() throws Exception {
 				updateKeyByType(m_typeCtl, m_keyCtl, m_holder);
 			}
 		});

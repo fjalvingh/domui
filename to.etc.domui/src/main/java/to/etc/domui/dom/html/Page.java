@@ -735,9 +735,9 @@ import java.util.stream.Collectors;
 			window.internalSetHider(hider);
 
 			//-- Add a click handler which will close the floater when the hider div is clicked.
-			hider.setClicked(new IClicked<NodeBase>() {
+			hider.setClicked(new IExecute() {
 				@Override
-				public void clicked(@NonNull NodeBase clickednode) throws Exception {
+				public void execute() throws Exception {
 					if(window.isAutoClose())
 						window.closePressed();
 				}

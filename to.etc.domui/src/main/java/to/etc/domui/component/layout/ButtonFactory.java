@@ -7,15 +7,14 @@ import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.MsgBox;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.state.IShelvedEntry;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 
 import java.util.List;
-import to.etc.function.IExecute;
 
 /**
  * A thing creating all kinds of buttons all over the place, inside some kind of button
@@ -39,7 +38,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@Override
 	@NonNull
-	public DefaultButton addButton(final String txt, @Nullable final IIconRef icon, final IClicked<DefaultButton> click, int order) {
+	public DefaultButton addButton(final String txt, @Nullable final IIconRef icon, final IExecute click, int order) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
 		m_container.addButton(b, order);
 		return b;
@@ -47,7 +46,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public DefaultButton addButton(final String txt, @Nullable final IIconRef icon, final IClicked<DefaultButton> click) {
+	public DefaultButton addButton(final String txt, @Nullable final IIconRef icon, final IExecute click) {
 		return addButton(txt, icon, click, -1);
 	}
 
@@ -69,11 +68,11 @@ public class ButtonFactory implements IButtonBar {
 	}
 
 	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addButton(java.lang.String, to.etc.domui.dom.html.IClicked)
+	 * @see to.etc.domui.component.layout.IButtonBar#addButton(java.lang.String, to.etc.function.IExecute)
 	 */
 	@Override
 	@NonNull
-	public DefaultButton addButton(final String txt, final IClicked<DefaultButton> click, int order) {
+	public DefaultButton addButton(final String txt, final IExecute click, int order) {
 		DefaultButton b = new DefaultButton(txt, click);
 		m_container.addButton(b, order);
 		return b;
@@ -81,16 +80,16 @@ public class ButtonFactory implements IButtonBar {
 
 	@Override
 	@NonNull
-	public DefaultButton addButton(final String txt, final IClicked<DefaultButton> click) {
+	public DefaultButton addButton(final String txt, final IExecute click) {
 		return addButton(txt, click, -1);
 	}
 
 	@Override
 	@NonNull
 	public DefaultButton addBackButton(final String txt, final IIconRef icon, int order) {
-		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
+		DefaultButton b = new DefaultButton(txt, icon, new IExecute() {
 			@Override
-			public void clicked(final @NonNull DefaultButton bxx) throws Exception {
+			public void execute() throws Exception {
 				UIGoto.back();
 			}
 		});
@@ -136,9 +135,9 @@ public class ButtonFactory implements IButtonBar {
 	@Override
 	@NonNull
 	public DefaultButton addCloseButton(@NonNull String txt, @NonNull IIconRef icon, int order) {
-		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
+		DefaultButton b = new DefaultButton(txt, icon, new IExecute() {
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				m_container.getPage().getBody().closeWindow();
 			}
 		});
@@ -186,7 +185,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click, int order) {
+	public DefaultButton addConfirmedButton(final String txt, final String msg, final IExecute click, int order) {
 		DefaultButton b = MsgBox.areYouSureButton(txt, msg, click);
 		m_container.addButton(b, order);
 		return b;
@@ -194,13 +193,13 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(final String txt, final String msg, final IExecute click) {
 		return addConfirmedButton(txt, msg, click, -1);
 	}
 
 	@NonNull
 	@Override
-	public DefaultButton addConfirmedButton(final String txt, final IIconRef icon, final String msg, final IClicked<DefaultButton> click, int order) {
+	public DefaultButton addConfirmedButton(final String txt, final IIconRef icon, final String msg, final IExecute click, int order) {
 		DefaultButton b = MsgBox.areYouSureButton(txt, icon, msg, click);
 		m_container.addButton(b, order);
 		return b;
@@ -208,13 +207,13 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IExecute click) {
 		return addConfirmedButton(txt, icon, msg, click, -1);
 	}
 
 	@NonNull
 	@Override
-	public LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click, int order) {
+	public LinkButton addLinkButton(String txt, IIconRef img, IExecute click, int order) {
 		LinkButton b = new LinkButton(txt, img, click);
 		m_container.addButton(b, order);
 		return b;
@@ -222,30 +221,20 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public LinkButton addLinkButton(final String txt, final IIconRef img, final IClicked<LinkButton> click) {
+	public LinkButton addLinkButton(final String txt, final IIconRef img, final IExecute click) {
 		return addLinkButton(txt, img, click, -1);
 	}
 
 	@NonNull
-	public LinkButton addConfirmedLinkButton(final String txt, final IIconRef img, String msg, final IClicked<LinkButton> click, int order) {
+	public LinkButton addConfirmedLinkButton(final String txt, final IIconRef img, String msg, final IExecute click, int order) {
 		LinkButton b = MsgBox.areYouSureLinkButton(txt, img, msg, click);
 		m_container.addButton(b, order);
 		return b;
 	}
 
 	@NonNull
-	public LinkButton addConfirmedLinkButton(final String txt, final IIconRef img, String msg, final IClicked<LinkButton> click) {
-		return addConfirmedLinkButton(txt, img, msg, click, -1);
-	}
-
-	@NonNull
-	public LinkButton addConfirmedLinkButton(final String txt, final IIconRef img, String msg, final IExecute click, int order) {
-		return addConfirmedLinkButton(txt, img, msg, IClicked.wrap(click), order);
-	}
-
-	@NonNull
 	public LinkButton addConfirmedLinkButton(final String txt, final IIconRef img, String msg, final IExecute click) {
-		return addConfirmedLinkButton(txt, img, msg, IClicked.wrap(click), -1);
+		return addConfirmedLinkButton(txt, img, msg, click, -1);
 	}
 
 	@Override

@@ -39,9 +39,7 @@ import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.VisibilityType;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.TextArea;
@@ -82,10 +80,10 @@ public class CKEditor extends Div implements IControl<String> {
 	private IEditorFileSystem m_fileSystem; //not in use?
 
 	@Nullable
-	private IClicked<NodeBase> m_onDomuiImageClicked;
+	private IExecute m_onDomuiImageClicked;
 
 	@Nullable
-	private IClicked<NodeBase> m_onDomuiOddCharsClicked;
+	private IExecute m_onDomuiOddCharsClicked;
 
 	@NonNull
 	private static final String WEBUI_CK_DOMUIIMAGE_ACTION = "CKIMAGE";
@@ -102,7 +100,7 @@ public class CKEditor extends Div implements IControl<String> {
 	private String m_internalHeight;
 
 	@Nullable
-	private IValueChanged<?> m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	public CKEditor() {
 		setCssClass("ui-cked");
@@ -236,30 +234,24 @@ public class CKEditor extends Div implements IControl<String> {
 
 
 	@Nullable
-	public IClicked<NodeBase> getOnDomuiImageClicked() {
+	public IExecute getOnDomuiImageClicked() {
 		return m_onDomuiImageClicked;
 	}
 
-	public void setOnDomuiImageClicked(@NonNull IClicked<NodeBase> onDomuiImageClicked) {
+	public void setOnDomuiImageClicked(@NonNull IExecute onDomuiImageClicked) {
 		m_onDomuiImageClicked = onDomuiImageClicked;
 	}
 
-	public void setOnDomuiImageClicked(@NonNull IExecute onDomuiImageClicked) {
-		setOnDomuiImageClicked(IClicked.<NodeBase>wrap(onDomuiImageClicked));
-	}
 
 	@Nullable
-	public IClicked<NodeBase> getOnDomuiOddCharsClicked() {
+	public IExecute getOnDomuiOddCharsClicked() {
 		return m_onDomuiOddCharsClicked;
 	}
 
-	public void setOnDomuiOddCharsClicked(@NonNull IClicked<NodeBase> onDomuiOddCharsClicked) {
+	public void setOnDomuiOddCharsClicked(@NonNull IExecute onDomuiOddCharsClicked) {
 		m_onDomuiOddCharsClicked = onDomuiOddCharsClicked;
 	}
 
-	public void setOnDomuiOddCharsClicked(@NonNull IExecute onDomuiOddCharsClicked) {
-		setOnDomuiOddCharsClicked(IClicked.<NodeBase>wrap(onDomuiOddCharsClicked));
-	}
 
 	public boolean isToolbarStartExpanded() {
 		return m_toolbarStartExpanded;
@@ -327,17 +319,17 @@ public class CKEditor extends Div implements IControl<String> {
 		return null;
 	}
 
-	@Override public IValueChanged<?> getOnValueChanged() {
+	@Override public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
-	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	@Override public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 		if(onValueChanged == null) {
 			m_area.clearOnValueChanged();
 		} else {
-			m_area.setOnValueChanged(component -> {
-				((IValueChanged<CKEditor>)onValueChanged).onValueChanged(this);
+			m_area.setOnValueChanged(()-> {
+				onValueChanged.execute();
 			});
 		}
 	}
@@ -389,7 +381,7 @@ public class CKEditor extends Div implements IControl<String> {
 		}
 
 		private void selectImage(@NonNull RequestContextImpl ctx) throws Exception {
-			IClicked<NodeBase> clicked = m_onDomuiImageClicked;
+			IExecute clicked = m_onDomuiImageClicked;
 			if(clicked == null) {
 				MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
 					@Override
@@ -398,19 +390,19 @@ public class CKEditor extends Div implements IControl<String> {
 					}
 				});
 			} else {
-				clicked.clicked(this);
+				clicked.execute();
 			}
 		}
 
 		private void oddChars(@NonNull RequestContextImpl ctx) throws Exception {
-			IClicked<NodeBase> clicked = m_onDomuiOddCharsClicked;
+			IExecute clicked = m_onDomuiOddCharsClicked;
 			if(clicked == null) {
 				//if no other handler is specified we show framework default OddCharacters dialog
 				OddCharacters oddChars = new OddCharacters();
 				oddChars.setOnClose(closeReason -> renderCloseOddCharacters());
 				getPage().getBody().add(oddChars);
 			} else {
-				clicked.clicked(this);
+				clicked.execute();
 			}
 		}
 

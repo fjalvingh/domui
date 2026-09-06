@@ -48,10 +48,8 @@ import to.etc.domui.converter.ValidatorRegistry;
 import to.etc.domui.dom.css.TextAlign;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.parts.MarkerImagePart;
@@ -125,7 +123,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	private Class<T> m_inputClass;
 
 	@Nullable
-	private IValueChanged<?> m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	/**
 	 * If the value is to be converted use this converter for it.
@@ -566,17 +564,17 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	@Nullable
 	@Override
-	public IValueChanged<?> getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(@Nullable IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(@Nullable IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 		if(null == onValueChanged) {
 			m_input.clearOnValueChanged();
 		} else {
-			m_input.setOnValueChanged(a -> ((IValueChanged<Text2<T>>) onValueChanged).onValueChanged(this));
+			m_input.setOnValueChanged(()-> onValueChanged.execute());
 		}
 	}
 
@@ -693,24 +691,16 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		forceRebuild();
 	}
 
-	public DefaultButton addButton(IIconRef image, IClicked<DefaultButton> clicked) {
+	public DefaultButton addButton(IIconRef image, IExecute clicked) {
 		DefaultButton sib = new DefaultButton("", image, clicked);
 		addButton(sib);
 		return sib;
 	}
 
-	public SmallImgButton addButtonSmall(IIconRef image, IClicked<SmallImgButton> clicked) {
+	public SmallImgButton addButtonSmall(IIconRef image, IExecute clicked) {
 		SmallImgButton sib = new SmallImgButton(image, clicked);
 		addButton(sib);
 		return sib;
-	}
-
-	public DefaultButton addButton(IIconRef image, IExecute clicked) {
-		return addButton(image, IClicked.<DefaultButton>wrap(clicked));
-	}
-
-	public SmallImgButton addButtonSmall(IIconRef image, IExecute clicked) {
-		return addButtonSmall(image, IClicked.<SmallImgButton>wrap(clicked));
 	}
 
 	public void addButton(NodeBase button) {

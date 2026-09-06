@@ -28,7 +28,6 @@ import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.MsgBox;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.themes.Theme;
@@ -40,20 +39,20 @@ abstract public class ButtonMakerBase {
 	/**
 	 * Add a normal button.
 	 */
-	public DefaultButton addButton(final String txt, final IIconRef icon, final IClicked<DefaultButton> click) {
+	public DefaultButton addButton(final String txt, final IIconRef icon, final IExecute click) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
 		addButton(b);
 		return b;
 	}
 
-	public DefaultButton addButton(final String txt, final IClicked<DefaultButton> click) {
+	public DefaultButton addButton(final String txt, final IExecute click) {
 		DefaultButton b = new DefaultButton(txt, click);
 		addButton(b);
 		return b;
 	}
 
 	public DefaultButton addBackButton(final String txt, final IIconRef icon) {
-		DefaultButton b = new DefaultButton(txt, icon, bxx -> UIGoto.back());
+		DefaultButton b = new DefaultButton(txt, icon, ()-> UIGoto.back());
 		addButton(b);
 		return b;
 	}
@@ -62,55 +61,27 @@ abstract public class ButtonMakerBase {
 		return addBackButton("Terug", Theme.BTN_CANCEL);
 	}
 
-	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(final String txt, final String msg, final IExecute click) {
 		DefaultButton b = MsgBox.areYouSureButton(txt, msg, click);
 		addButton(b);
 		return b;
 	}
 
-	public DefaultButton addConfirmedButton(final String txt, final IIconRef icon, final String msg, final IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(final String txt, final IIconRef icon, final String msg, final IExecute click) {
 		DefaultButton b = MsgBox.areYouSureButton(txt, icon, msg, click);
 		addButton(b);
 		return b;
 	}
 
-	public LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click) {
+	public LinkButton addLinkButton(String txt, IIconRef img, IExecute click) {
 		LinkButton b = new LinkButton(txt, img, click);
 		addButton(b);
 		return b;
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, final IClicked<LinkButton> click) {
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, final IExecute click) {
 		LinkButton b = MsgBox.areYouSureLinkButton(txt, img, msg, click);
 		addButton(b);
 		return b;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Action handlers that do not need the clicked node.	*/
-	/*--------------------------------------------------------------*/
-
-	public DefaultButton addButton(final String txt, final IIconRef icon, final IExecute click) {
-		return addButton(txt, icon, IClicked.wrap(click));
-	}
-
-	public DefaultButton addButton(final String txt, final IExecute click) {
-		return addButton(txt, IClicked.wrap(click));
-	}
-
-	public DefaultButton addConfirmedButton(final String txt, final String msg, final IExecute click) {
-		return addConfirmedButton(txt, msg, IClicked.wrap(click));
-	}
-
-	public DefaultButton addConfirmedButton(final String txt, final IIconRef icon, final String msg, final IExecute click) {
-		return addConfirmedButton(txt, icon, msg, IClicked.wrap(click));
-	}
-
-	public LinkButton addLinkButton(String txt, IIconRef img, IExecute click) {
-		return addLinkButton(txt, img, IClicked.wrap(click));
-	}
-
-	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, final IExecute click) {
-		return addConfirmedLinkButton(txt, img, msg, IClicked.wrap(click));
 	}
 }

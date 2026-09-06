@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.tree;
 
+import to.etc.domui.dom.html.IClickedInfo;
+import to.etc.function.IExecute;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -32,8 +35,6 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TBody;
@@ -210,9 +211,9 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 			boolean expanded = isExpanded(item); // Expanded?
 			if(!expanded) {
 				img.setSrc(last ? "THEME/tree-closed-last.png" : "THEME/tree-closed.png");
-				img.setClicked(new IClicked<Img>() {
+				img.setClicked(new IExecute() {
 					@Override
-					public void clicked(@NonNull Img bxx) throws Exception {
+					public void execute() throws Exception {
 						expandNode(item);
 					}
 				});
@@ -231,9 +232,9 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 				Table tc = renderList(item, chvn); // Render item's expanded thingies
 				td.add(tc);
 
-				img.setClicked(new IClicked<Img>() {
+				img.setClicked(new IExecute() {
 					@Override
-					public void clicked(@NonNull Img bxx) throws Exception {
+					public void execute() throws Exception {
 						collapseNode(item);
 					}
 				});
@@ -308,9 +309,9 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 					img = new Img(last ? "THEME/tree-opened-last.png" : "THEME/tree-opened.png");
 					td.add(img);
 					img.setCssClass("ui-tr-act");
-					img.setClicked(new IClicked<Img>() {
+					img.setClicked(new IExecute() {
 						@Override
-						public void clicked(@NonNull Img bxx) throws Exception {
+						public void execute() throws Exception {
 							collapseNode(o);
 						}
 					});
@@ -330,9 +331,9 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 					Table tc = renderList(o, vn); // Render item's expanded thingies
 					td.add(tc);
 
-					img.setClicked(new IClicked<Img>() {
+					img.setClicked(new IExecute() {
 						@Override
-						public void clicked(@NonNull Img bxx) throws Exception {
+						public void execute() throws Exception {
 							collapseNode(o);
 						}
 					});
@@ -368,9 +369,9 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		img = new Img(last ? "THEME/tree-closed-last.png" : "THEME/tree-closed.png");
 		td.add(img);
 		img.setCssClass("ui-tr-act");
-		img.setClicked(new IClicked<Img>() {
+		img.setClicked(new IExecute() {
 			@Override
-			public void clicked(@NonNull Img bxx) throws Exception {
+			public void execute() throws Exception {
 				expandNode(item);
 			}
 		});
@@ -468,9 +469,9 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 			if(isSelected(value))
 				cell.addCssClass("ui-tr-selected");
 
-			cell.setClicked2(new IClicked2<TD>() {
+			cell.setClicked2(new IClickedInfo() {
 				@Override
-				public void clicked(@NonNull TD node, @NonNull ClickInfo clinfo) throws Exception {
+				public void clicked(@NonNull ClickInfo clinfo) throws Exception {
 					// FIXME This means null root nodes cannot be clicked
 					if(null != value) {
 						cellClicked(cell, value, clinfo);

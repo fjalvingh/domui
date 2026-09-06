@@ -32,18 +32,17 @@ import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.BundleRef;
 
 import java.util.ArrayList;
 import java.util.List;
-import to.etc.function.IExecute;
 
 /**
  * A pager component for a DataTable-based table. This gets attached
@@ -141,33 +140,33 @@ public class DataPager1 extends Div implements IDataTablePager {
 		redraw();
 
 		//-- Click handlers for paging.
-		m_firstBtn.setClicked(new IClicked<NodeBase>() {
+		m_firstBtn.setClicked(new IExecute() {
 			@Override
-			public void clicked(final @NonNull NodeBase b) throws Exception {
+			public void execute() throws Exception {
 				m_table.setCurrentPage(0);
 			}
 		});
-		m_lastBtn.setClicked(new IClicked<NodeBase>() {
+		m_lastBtn.setClicked(new IExecute() {
 			@Override
-			public void clicked(final @NonNull NodeBase b) throws Exception {
+			public void execute() throws Exception {
 				int pg = m_table.getPageCount();
 				if(pg == 0)
 					return;
 				m_table.setCurrentPage(pg - 1);
 			}
 		});
-		m_prevBtn.setClicked(new IClicked<NodeBase>() {
+		m_prevBtn.setClicked(new IExecute() {
 			@Override
-			public void clicked(final @NonNull NodeBase b) throws Exception {
+			public void execute() throws Exception {
 				int cp = m_table.getCurrentPage();
 				if(cp <= 0)
 					return;
 				m_table.setCurrentPage(cp - 1);
 			}
 		});
-		m_nextBtn.setClicked(new IClicked<NodeBase>() {
+		m_nextBtn.setClicked(new IExecute() {
 			@Override
-			public void clicked(final @NonNull NodeBase b) throws Exception {
+			public void execute() throws Exception {
 				int cp = m_table.getCurrentPage();
 				int mx = m_table.getPageCount();
 				cp++;
@@ -280,13 +279,11 @@ public class DataPager1 extends Div implements IDataTablePager {
 			if(m_showSelectionBtn == null) {
 				m_showSelectionBtn = new SmallImgButton(Icon.of("THEME/dpr-select-on.png"));
 				m_buttonDiv.add(4, m_showSelectionBtn); // Always after last navigation button
-				m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
-					@Override
-					public void clicked(@NonNull NodeBase clickednode) throws Exception {
-						dt.setShowSelection(true);
-						clickednode.remove();
-						m_showSelectionBtn = null;
-					}
+				SmallImgButton sib = m_showSelectionBtn;
+				sib.setClicked(() -> {
+					dt.setShowSelection(true);
+					sib.remove();
+					m_showSelectionBtn = null;
 				});
 				m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
 			}
@@ -303,11 +300,7 @@ public class DataPager1 extends Div implements IDataTablePager {
 	}
 
 	public void addButton(IIconRef image, final IExecute click, final BundleRef bundle, final String ttlkey) {
-		addButton(image, IClicked.<DataPager1>wrap(click), bundle, ttlkey);
-	}
-
-	public void addButton(IIconRef image, final IClicked<DataPager1> click, final BundleRef bundle, final String ttlkey) {
-		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager1.this));
+		SmallImgButton i = new SmallImgButton(image, click);
 		if(bundle != null)
 			i.setTitle(bundle.getString(ttlkey));
 		else if(ttlkey != null)
@@ -347,10 +340,6 @@ public class DataPager1 extends Div implements IDataTablePager {
 	public void addButton(@NonNull SmallImgButton sib) {
 		m_extraButtonList.add(sib);
 		forceRebuild();
-	}
-
-	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
-		addButton(new SmallImgButton(img, clicked));
 	}
 
 	public void addButton(@NonNull IIconRef img, @NonNull IExecute clicked) {

@@ -34,10 +34,8 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Select;
@@ -539,18 +537,11 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	 * Add a small image button after the combo.
 	 */
 	public void addExtraButton(IIconRef img, String title, final IExecute click) {
-		addExtraButton(img, title, click == null ? null : IClicked.<NodeBase>wrap(click));
-	}
-
-	/**
-	 * Add a small image button after the combo.
-	 */
-	public void addExtraButton(IIconRef img, String title, final IClicked<NodeBase> click) {
 		if(m_buttonList == Collections.EMPTY_LIST)
 			m_buttonList = new ArrayList<>();
 		SmallImgButton si = new SmallImgButton(img);
 		if(click != null) {
-			si.setClicked((IClicked<SmallImgButton>) b -> click.clicked(ComboComponentBase2.this));
+			si.setClicked(click);
 		}
 		if(title != null)
 			si.setTitle(title);
@@ -675,27 +666,27 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/*--------------------------------------------------------------*/
 
 	@Nullable
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		if(m_onValueChanged == onValueChanged)
 			return;
 		m_onValueChanged = onValueChanged;
 		if(null == onValueChanged) {
 			m_select.clearOnValueChanged();
 		} else {
-			m_select.setOnValueChanged(new IValueChanged<Select>() {
+			m_select.setOnValueChanged(new IExecute() {
 				@Override
-				public void onValueChanged(@NonNull Select component) throws Exception {
-					IValueChanged<ComboComponentBase2<T, V>> vc = (IValueChanged<ComboComponentBase2<T, V>>) m_onValueChanged;
+				public void execute() throws Exception {
+					IExecute vc = m_onValueChanged;
 					if(null != vc)
-						vc.onValueChanged(ComboComponentBase2.this);
+						vc.execute();
 				}
 			});
 		}

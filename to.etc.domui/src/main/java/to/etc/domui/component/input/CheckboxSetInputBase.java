@@ -8,10 +8,10 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.IRenderInto;
+import to.etc.function.IExecute;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -123,9 +123,9 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		cr.render(span, lv);
 		m_checkMap.put(listval, cb);
 
-		final IValueChanged<CheckboxSetInputBase<V, T>> ovc = (IValueChanged<CheckboxSetInputBase<V, T>>) getOnValueChanged();
+		final IExecute ovc = getOnValueChanged();
 		if(ovc != null) {
-			cb.setOnValueChanged(a -> ovc.onValueChanged(CheckboxSetInputBase.this));
+			cb.setOnValueChanged(()-> ovc.execute());
 		}
 	}
 

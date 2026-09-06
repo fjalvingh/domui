@@ -7,9 +7,9 @@ import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.CloseOnClickPanel;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
+import to.etc.function.IExecute;
 
 import java.util.List;
 
@@ -63,7 +63,7 @@ public class HamburgerMenu extends CloseOnClickPanel {
 			sel.addCssClass("ui-hmbrg-disabled ui-disabled");
 			sel.setTitle(disable);
 		} else {
-			sel.setClicked((IClicked<Div>) clickednode -> handleSelection(action));
+			sel.setClicked(()-> handleSelection(action));
 		}
 	}
 

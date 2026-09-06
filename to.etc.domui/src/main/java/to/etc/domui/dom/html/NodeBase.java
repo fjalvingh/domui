@@ -139,7 +139,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	private NodeContainer m_parent;
 
 	@Nullable
-	private IClickBase<?> m_clicked;
+	private IExecute m_clicked;
+
+	@Nullable
+	private IClickedInfo m_clicked2;
 
 	private boolean m_built;
 
@@ -297,13 +300,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Internal, do the proper run sequence for a clicked event.
 	 */
 	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
-		IClickBase<NodeBase> c = (IClickBase<NodeBase>) getClicked();
-		if(c instanceof IClicked<?>) {
-			((IClicked<NodeBase>) c).clicked(this);
-		} else if(c instanceof IClicked2<?>) {
-			((IClicked2<NodeBase>) c).clicked(this, cli);
-		} else if(c != null) {
-			throw new IllegalStateException("? Node " + getActualID() + " does not have a (valid) click handler??");
+		IExecute c = getClicked();
+		if(null != c) {
+			c.execute();
+			return;
+		}
+		IClickedInfo c2 = getClicked2();
+		if(null != c2) {
+			c2.clicked(cli);
 		}
 	}
 
@@ -883,21 +887,32 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Return the click handler for this node, or null if none is associated with it.
 	 */
 	@Nullable
-	public IClickBase<?> getClicked() {
+	public IExecute getClicked() {
 		return m_clicked;
 	}
 
 	/**
-	 * Set a click handler for this node. This will be attached to the Javascript "onclick" handler for
-	 * this node and will fire when the node is clicked. If more information around the click is needed
-	 * use {@link #setClicked2(IClicked2)}.
+	 * Return the click handler that wants the {@link ClickInfo}, or null if none is associated
+	 * with this node.
 	 */
-	public void setClicked(@Nullable final IClicked<?> clicked) {
-		if(m_clicked == clicked)
+	@Nullable
+	public IClickedInfo getClicked2() {
+		return m_clicked2;
+	}
+
+	/**
+	 * Set a click handler for this node. This will be attached to the Javascript "onclick" handler for
+	 * this node and will fire when the node is clicked. The handler is an action: the node it is set on
+	 * is a local variable of createContent() that the lambda already captures. If the details of the
+	 * click (its position, the modifier keys) are needed use {@link #setClicked2(IClickedInfo)}.
+	 * Use {@link #clearClicked()} to remove the handler again.
+	 */
+	public void setClicked(@Nullable final IExecute clicked) {
+		if(m_clicked == clicked && null == m_clicked2)
 			return;
 		m_clicked = clicked;
+		m_clicked2 = null;
 		changed();
-
 	}
 
 	/**
@@ -905,27 +920,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * structure containing the location of the click and the other modifier buttons pressed
 	 * at click time. Only one of setClicked / setClicked2 can be active at any one time.
 	 */
-	public void setClicked2(IClicked2<?> clicked) {
-		if(m_clicked == clicked)
+	public void setClicked2(@Nullable IClickedInfo clicked) {
+		if(m_clicked2 == clicked && null == m_clicked)
 			return;
-		m_clicked = clicked;
+		m_clicked2 = clicked;
+		m_clicked = null;
 		changed();
-	}
-
-	/**
-	 * Set a click handler as an action that does not need the clicked node: the normal way to
-	 * handle a click, because the node is a local variable of createContent() that the lambda
-	 * already captures. Use {@link #clearClicked()} to remove the handler again.
-	 */
-	public void setClicked(@NonNull IExecute clicked) {
-		setClicked(IClicked.wrap(clicked));
 	}
 
 	/**
 	 * Remove the click handler set on this node, if any.
 	 */
 	public void clearClicked() {
-		setClicked((IClicked<?>) null);
+		setClicked(null);
+	}
+
+	/**
+	 * Return T if this node has a click handler, either a plain one ({@link #setClicked(IExecute)}) or
+	 * one that wants the click's details ({@link #setClicked2(IClickedInfo)}).
+	 */
+	public boolean hasClicked() {
+		return getClicked() != null || getClicked2() != null;
 	}
 
 	/**
@@ -935,7 +950,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * is pressed.
 	 */
 	public boolean internalNeedClickHandler() {
-		return getClicked() != null;
+		return hasClicked();
 	}
 
 	/**
@@ -1627,9 +1642,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	public void internalOnValueChanged() throws Exception {
 		if(this instanceof IHasChangeListener chb) {
-			IValueChanged<NodeBase> vc = (IValueChanged<NodeBase>) chb.getOnValueChanged();
+			IExecute vc = chb.getOnValueChanged();
 			if(vc != null) { // Well, other listeners *could* have changed this one, you know
-				vc.onValueChanged(this);
+				vc.execute();
 			}
 		}
 	}

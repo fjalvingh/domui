@@ -30,9 +30,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IHasChangeListener;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.util.JavascriptUtil;
+import to.etc.function.IExecute;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,7 +50,7 @@ public class TreeSelectMulti<T> extends Tree<T> implements IHasChangeListener {
 	private Set<T> m_value = new HashSet<>();
 
 	@Nullable
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	public TreeSelectMulti() {}
 
@@ -140,12 +140,12 @@ public class TreeSelectMulti<T> extends Tree<T> implements IHasChangeListener {
 
 	@Nullable
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(@Nullable IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(@Nullable IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 }

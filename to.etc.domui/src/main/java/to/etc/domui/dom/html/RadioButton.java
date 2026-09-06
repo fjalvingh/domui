@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.RadioGroup.RadioButtonInstance;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.util.Arrays;
 
@@ -205,21 +206,12 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 
 	@Override
 	@Nullable
-	public IClickBase<?> getClicked() {
-		IClickBase<?> clicked = super.getClicked();
+	public IExecute getClicked() {
+		IExecute clicked = super.getClicked();
 		if(null != clicked)
 			return clicked;
 
-		final IClicked<RadioGroup<T>> c2 = (IClicked<RadioGroup<T>>) getGroup().getClicked();
-		if(c2 != null) {
-			return new IClicked<RadioButton<T>>() {
-				@Override
-				public void clicked(@NonNull RadioButton<T> clickednode) throws Exception {
-					c2.clicked(getGroup());
-				}
-			};
-		}
-		return c2;
+		return getGroup().getClicked();
 	}
 
 //	@Override

@@ -189,7 +189,7 @@ public class Dialog extends Window {
 	protected void createCancelButton(@NonNull String text, @Nullable IIconRef image) {
 		if(isNoIcons())
 			image = null;
-		DefaultButton b = getButtonBar().addButton(text, image, clickednode -> buttonCancel());
+		DefaultButton b = getButtonBar().addButton(text, image, ()-> buttonCancel());
 		b.setTestID("cancelButton");
 		b.addCssClass("is-primary is-outlined");
 	}
@@ -207,7 +207,7 @@ public class Dialog extends Window {
 	protected DefaultButton createSaveButton(String caption, IIconRef iconUrl) {
 		if(isNoIcons())
 			iconUrl = null;
-		DefaultButton b = getButtonBar().addButton(caption, iconUrl, clickednode -> buttonSave());
+		DefaultButton b = getButtonBar().addButton(caption, iconUrl, ()-> buttonSave());
 		b.setTestID("saveButton");
 		b.addCssClass("is-primary");
 		return b;

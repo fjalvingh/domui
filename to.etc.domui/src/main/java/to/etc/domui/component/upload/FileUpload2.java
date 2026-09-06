@@ -35,9 +35,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.parts.ComponentPartRenderer;
 import to.etc.domui.server.RequestContextImpl;
@@ -94,7 +92,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	private FileInput m_input;
 
-	private IValueChanged<?> m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	private boolean m_disabled;
 
@@ -113,7 +111,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	private IIconRef m_clearButtonIcon = Icon.faWindowClose;
 
 	@Nullable
-	private IClicked<FileUpload2> m_onClearClicked;
+	private IExecute m_onClearClicked;
 
 	public FileUpload2() {
 		m_allowedExtensions = new ArrayList<>();
@@ -265,9 +263,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	private void handleClearClicked() throws Exception {
 		if(m_value == null)
 			return;
-		IClicked<FileUpload2> onClearClicked = getOnClearClicked();
+		IExecute onClearClicked = getOnClearClicked();
 		if(null != onClearClicked) {
-			onClearClicked.clicked(this);
+			onClearClicked.execute();
 		} else {
 			clear();
 		}
@@ -281,9 +279,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 			return;
 		FileTool.closeAll(m_value.getFile());
 		setValue(null);
-		IValueChanged<FileUpload2> onValueChanged = (IValueChanged<FileUpload2>) getOnValueChanged();
+		IExecute onValueChanged = getOnValueChanged();
 		if(null != onValueChanged)
-			onValueChanged.onValueChanged(this);
+			onValueChanged.execute();
 	}
 
 	/**
@@ -323,12 +321,12 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	}
 
 	@Override
-	public IValueChanged<?> getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
@@ -376,7 +374,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		// We need this page reference since in onValueChanged() force rebuild might happen again
 		// and then we'll lose the page reference needed for renderOptimalDelta().
 		if(m_onValueChanged != null)
-			((IValueChanged<FileUpload2>) m_onValueChanged).onValueChanged(this);
+			m_onValueChanged.execute();
 		return true;
 	}
 
@@ -404,17 +402,14 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	 * set here should call clear() itself if the value is to be cleared.
 	 */
 	@Nullable
-	public IClicked<FileUpload2> getOnClearClicked() {
+	public IExecute getOnClearClicked() {
 		return m_onClearClicked;
 	}
 
-	public void setOnClearClicked(@Nullable IClicked<FileUpload2> onClearClicked) {
+	public void setOnClearClicked(@Nullable IExecute onClearClicked) {
 		m_onClearClicked = onClearClicked;
 	}
 
-	public void setOnClearClicked(@NonNull IExecute onClearClicked) {
-		setOnClearClicked(IClicked.<FileUpload2>wrap(onClearClicked));
-	}
 
 }
 

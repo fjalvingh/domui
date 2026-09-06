@@ -74,7 +74,7 @@ final public class FormBuilder {
 		NodeBase irNode = ir.createNode();
 		node.add(irNode);
 
-		irNode.setClicked(a -> {
+		irNode.setClicked(()-> {
 			Div content = new Div();
 			DomUtil.renderHtmlString(content, text);
 			MsgBox.info(node, content);

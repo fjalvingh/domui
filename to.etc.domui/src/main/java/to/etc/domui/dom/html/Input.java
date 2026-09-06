@@ -32,6 +32,7 @@ import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.util.Objects;
 
@@ -54,7 +55,7 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 
 	private String m_onKeyPressJS;
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	private ILookupTypingListener< ? > m_onLookupTyping;
 
@@ -284,16 +285,16 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
-		IValueChanged< ? > vc = m_onValueChanged;
+	public IExecute getOnValueChanged() {
+		IExecute vc = m_onValueChanged;
 		if(null == vc && isImmediate()) {
-			return IValueChanged.DUMMY;
+			return DUMMY;
 		}
 		return vc;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

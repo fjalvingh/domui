@@ -151,14 +151,14 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	protected void createCommitButton() {
-		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Theme.BTN_SAVE, b -> save());
+		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Theme.BTN_SAVE, ()-> save());
 		//hide by default, it would become visible if modifications on page are detected
 		m_saveButton.setDisabled(true);
 		m_saveButton.setTitle("no changes to save");
 	}
 
 	protected void createCancelButton() {
-		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Theme.BTN_CANCEL, b -> reloadPageData());
+		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Theme.BTN_CANCEL, ()-> reloadPageData());
 		//hide by default, it would become visible if modifications on page are detected
 		m_cancelButton.setDisabled(true);
 	}

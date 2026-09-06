@@ -4,10 +4,10 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Li;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Ul;
+import to.etc.function.IExecute;
 
 import java.util.Objects;
 
@@ -73,7 +73,7 @@ final public class Tree2Node<V> extends Li {
 		);
 	}
 
-	void setFoldingClicked(@Nullable IClicked<? extends NodeBase> clicked) {
+	void setFoldingClicked(@Nullable IExecute clicked) {
 		m_foldingIcon.setClicked(clicked);
 	}
 

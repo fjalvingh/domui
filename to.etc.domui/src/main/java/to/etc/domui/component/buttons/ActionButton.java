@@ -8,13 +8,12 @@ import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component2.popupmenus.PopupMenu2;
 import to.etc.domui.component2.popupmenus.PopupMenu2.Mode;
 import to.etc.domui.dom.html.HR;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.List;
-import to.etc.function.IExecute;
 
 /**
  * Button with additional actions.
@@ -27,12 +26,8 @@ public class ActionButton extends DefaultButton {
 
 	private final List<IUIAction> m_actions = new ArrayList<>();
 
-	public ActionButton(IUIAction action) throws Exception {
+	public <T> ActionButton(IUIAction action) throws Exception {
 		super(action);
-	}
-
-	public ActionButton(IBundleCode code, IIconRef icon, final IClicked<DefaultButton> clicked) {
-		super(code, icon, clicked);
 	}
 
 	public ActionButton(IBundleCode code, IIconRef icon, final IExecute clicked) {
@@ -79,7 +74,7 @@ public class ActionButton extends DefaultButton {
 		actionButton.addCssClass("act-btn");
 		if(!isDisabled()) {
 			actionButton.setTitle("");
-			actionButton.setClicked(c -> {
+			actionButton.setClicked(()-> {
 				PopupMenu2 p2 = new PopupMenu2(ActionButton.this);
 				if(m_mode == Mode.ABOVE) {
 					p2.above();

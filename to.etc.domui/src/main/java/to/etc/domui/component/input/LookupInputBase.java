@@ -42,7 +42,6 @@ import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component2.lookupinput.DefaultLookupInputDialog;
 import to.etc.domui.dom.errors.IErrorMessageListener;
 import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.NodeBase;
@@ -244,13 +243,13 @@ abstract public class LookupInputBase<Q, O> extends AbstractLookupInputBase<Q, O
 		rr.setRowClicked(val -> handleSetValue(val));
 		ks.setResultsHintPopupRowRenderer(rr);
 
-		ks.setOnLookupTyping(component -> {
-			ITableModel<O> keySearchModel = searchKeyWord(component.getKeySearchValue());
-			component.showResultsHintPopup(null);
+		ks.setOnLookupTyping(() -> {
+			ITableModel<O> keySearchModel = searchKeyWord(ks.getKeySearchValue());
+			ks.showResultsHintPopup(null);
 			if(keySearchModel == null) {
 				//in case of insufficient searchString data cancel search and return.
-				component.setResultsCount(-1);
-				component.setFocus(); //focus must be set manually.
+				ks.setResultsCount(-1);
+				ks.setFocus(); //focus must be set manually.
 				return;
 			}
 			if(keySearchModel.getRows() == 1) {
@@ -258,19 +257,19 @@ abstract public class LookupInputBase<Q, O> extends AbstractLookupInputBase<Q, O
 				handleSetValue(keySearchModel.getItems(0, 1).get(0));
 			} else {
 				//show results count info
-				component.setResultsCount(keySearchModel.getRows());
+				ks.setResultsCount(keySearchModel.getRows());
 				if((keySearchModel.getRows() > 0) && (keySearchModel.getRows() < 10)) {
-					component.showResultsHintPopup(keySearchModel);
+					ks.showResultsHintPopup(keySearchModel);
 				}
 			}
 		});
 
-		ks.setOnShowResults(component -> {
-			ITableModel<O> keySearchModel = searchKeyWord(component.getKeySearchValue());
-			component.showResultsHintPopup(null);
+		ks.setOnShowResults(() -> {
+			ITableModel<O> keySearchModel = searchKeyWord(ks.getKeySearchValue());
+			ks.showResultsHintPopup(null);
 			if(keySearchModel == null) {
 				//in case of insufficient searchString data cancel search and popup clean search dialog.
-				component.setResultsCount(-1);
+				ks.setResultsCount(-1);
 				toggleFloater(null);
 				return;
 			}
@@ -279,7 +278,7 @@ abstract public class LookupInputBase<Q, O> extends AbstractLookupInputBase<Q, O
 				handleSetValue(keySearchModel.getItems(0, 1).get(0));
 			} else {
 				//in case of more results show narrow result in search popup.
-				component.setResultsCount(keySearchModel.getRows());
+				ks.setResultsCount(keySearchModel.getRows());
 				toggleFloater(keySearchModel);
 			}
 		});
@@ -534,9 +533,10 @@ abstract public class LookupInputBase<Q, O> extends AbstractLookupInputBase<Q, O
 			m_result = null;
 		});
 
-		lf.setClicked((IClicked<SearchPanel<Q>>) b -> search(b));
+		SearchPanel<Q> panel = lf;
+		lf.setClicked(() -> search(panel));
 
-		lf.setOnCancel(b -> f.closePressed());
+		lf.setOnCancel(()-> f.closePressed());
 
 		if(keySearchModel != null && keySearchModel.getRows() > 0) {
 			setResultModel(keySearchModel);

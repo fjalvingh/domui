@@ -12,10 +12,10 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IRenderInto;
+import to.etc.function.IExecute;
 import to.etc.util.WrappedException;
 import to.etc.webapp.nls.NlsContext;
 
@@ -103,7 +103,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		//input.setCssClass("ui-esic-input");
 		input.setData(getData());
 
-		input.setOnValueChanged(a -> {
+		input.setOnValueChanged(()-> {
 			T value = input.getValue();
 			if(null != value) {
 				addItem(value);
@@ -148,7 +148,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			Button delBtn = new Button().css("ui-esic-del");
 			label.add(delBtn);
 			delBtn.add(Icon.faTimes.createNode());
-			delBtn.setClicked(a -> {
+			delBtn.setClicked(()-> {
 				removeItem(value);
 				SearchAsYouType<T> input = m_input;
 				if(input != null) {
@@ -204,9 +204,9 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 
 
 	private void valueHasChanged() throws Exception {
-		IValueChanged<EnumSetInput<T>> listener = (IValueChanged<EnumSetInput<T>>) getOnValueChanged();
+		IExecute listener = getOnValueChanged();
 		if(null != listener) {
-			listener.onValueChanged(this);
+			listener.execute();
 		}
 	}
 

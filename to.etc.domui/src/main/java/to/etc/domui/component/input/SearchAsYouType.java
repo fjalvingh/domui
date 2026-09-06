@@ -8,12 +8,12 @@ import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IObjectToStringConverter;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.function.FunctionEx;
+import to.etc.function.IExecute;
 import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.NlsContext;
@@ -47,7 +47,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	private String m_searchProperty;
 
 	@Nullable
-	private IValueChanged<?> m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	@Nullable
 	private IObjectToStringConverter<T> m_actualConverter;
@@ -217,9 +217,9 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		if(null != instance)
 			clearMessage();
 		m_value = instance;
-		IValueChanged<?> listener = getOnValueChanged();
+		IExecute listener = getOnValueChanged();
 		if(null != listener) {
-			((IValueChanged<SearchAsYouType<T>>) listener).onValueChanged(this);
+			listener.execute();
 		}
 	}
 
@@ -337,12 +337,12 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 
 	@Override
 	@Nullable
-	public IValueChanged<?> getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(@Nullable IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(@Nullable IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

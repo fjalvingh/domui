@@ -9,7 +9,6 @@ import to.etc.domui.component2.lookupinput.SelectOnePanel;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IForTarget;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
@@ -18,6 +17,7 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -208,15 +208,15 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		SelectOnePanel<T> pnl = m_selectPanel = new SelectOnePanel<T>(list, getActualRenderer());
 		add(pnl);
 
-		pnl.setOnValueChanged((IValueChanged<SelectOnePanel<T>>) component -> {
+		pnl.setOnValueChanged(() -> {
 			clearResultMessage();
 			clearResultPopup();
-			T selection = component.getValue();
+			T selection = pnl.getValue();
 			if(null != selection)
 				onRowSelected(selection);
 		});
 
-		pnl.setClicked(clickednode -> {
+		pnl.setClicked(()-> {
 			//we just need to deliver selected value here, that is why we have empty click handler
 		});
 	}

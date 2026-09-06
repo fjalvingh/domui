@@ -35,13 +35,12 @@ import to.etc.domui.component.layout.IButtonContainer;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.function.IExecute;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import to.etc.function.IExecute;
 
 public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	@NonNull
@@ -136,12 +135,12 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IClicked<DefaultButton> click, int order) {
+	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IExecute click, int order) {
 		return m_factory.addButton(txt, icon, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IExecute click) {
 		return m_factory.addButton(txt, icon, click);
 	}
 
@@ -156,12 +155,12 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, IClicked<DefaultButton> click, int order) {
+	public @NonNull DefaultButton addButton(String txt, IExecute click, int order) {
 		return m_factory.addButton(txt, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addButton(String txt, IExecute click) {
 		return m_factory.addButton(txt, click);
 	}
 
@@ -216,41 +215,33 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click, int order) {
+	public @NonNull DefaultButton addConfirmedButton(String txt, String msg, IExecute click, int order) {
 		return m_factory.addConfirmedButton(txt, msg, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addConfirmedButton(String txt, String msg, IExecute click) {
 		return m_factory.addConfirmedButton(txt, msg, click);
 	}
 
 	@Override
-	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IClicked<DefaultButton> click, int order) {
+	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IExecute click, int order) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IExecute click) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click);
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click, int order) {
+	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IExecute click, int order) {
 		return m_factory.addLinkButton(txt, img, click, order);
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click) {
+	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IExecute click) {
 		return m_factory.addLinkButton(txt, img, click);
-	}
-
-	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IClicked<LinkButton> click, int order) {
-		return m_factory.addConfirmedLinkButton(txt, img, msg, click, order);
-	}
-
-	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IClicked<LinkButton> click) {
-		return m_factory.addConfirmedLinkButton(txt, img, msg, click);
 	}
 
 	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IExecute click, int order) {

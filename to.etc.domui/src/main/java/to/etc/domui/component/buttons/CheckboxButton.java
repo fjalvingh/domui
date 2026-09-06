@@ -5,10 +5,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 
 /**
  * This is a button that acts like a checkbox. See <a href="https://1stwebdesigner.com/css-snippets-radio-toggles-switches/">here</a> for
@@ -82,12 +82,12 @@ public class CheckboxButton extends AbstractDivControl<Boolean> {
 
 	@Deprecated
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
-		IValueChanged< ? > vc = m_cb.getOnValueChanged();
+	public IExecute getOnValueChanged() {
+		IExecute vc = m_cb.getOnValueChanged();
 		return vc;
 	}
 
-	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	@Override public void setOnValueChanged(IExecute onValueChanged) {
 		m_cb.setOnValueChanged(onValueChanged);
 	}
 

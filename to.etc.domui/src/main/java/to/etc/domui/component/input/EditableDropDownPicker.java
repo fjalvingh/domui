@@ -6,7 +6,7 @@ import to.etc.domui.component.input.DropDownPicker.HAlign;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IObjectToStringConverter;
-import to.etc.domui.dom.html.IValueChanged;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.NlsContext;
 
 import java.util.List;
@@ -85,14 +85,14 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 			adjustSelection(combo, text);
 		});
 
-		m_picker.setOnValueChanged((IValueChanged<DropDownPicker<T>>) component -> {
-			T value = m_object = component.getValueSafe();
+		m_picker.setOnValueChanged(() -> {
+			T value = m_object = m_picker.getValueSafe();
 			setValue(convertObjectToString(NlsContext.getCurrencyLocale(), value));
 			setFocus();
 			//appendJavascript("$('#" + getActualID() + "').focus();");
-			IValueChanged<EditableDropDownPicker<T>> onValueChanged = (IValueChanged<EditableDropDownPicker<T>>) getOnValueChanged();
+			IExecute onValueChanged = getOnValueChanged();
 			if(onValueChanged != null) {
-				onValueChanged.onValueChanged(EditableDropDownPicker.this);
+				onValueChanged.execute();
 			}
 		});
 		m_picker.setFocusOnBlur(this);

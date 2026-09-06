@@ -11,7 +11,6 @@ import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
@@ -27,12 +26,12 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.bugs.Bug;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import to.etc.function.IExecute;
 
 import static to.etc.util.StringTool.isBlank;
 
@@ -42,7 +41,7 @@ import static to.etc.util.StringTool.isBlank;
  * Created by jal on 4/3/14.
  */
 final public class MsgBox2 extends Window {
-	private IClicked<MsgBox2> m_clicked;
+	private IExecute m_clicked;
 
 	private MsgBoxButton m_clickedButton;
 
@@ -541,9 +540,9 @@ final public class MsgBox2 extends Window {
 		String lbl = MetaManager.findEnumLabel(mbb);
 		if(lbl == null)
 			lbl = mbb.name();
-		DefaultButton btn = new DefaultButton(lbl, new IClicked<DefaultButton>() {
+		DefaultButton btn = new DefaultButton(lbl, new IExecute() {
 			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
+			public void execute() throws Exception {
 				answer(mbb);
 			}
 		});
@@ -562,28 +561,23 @@ final public class MsgBox2 extends Window {
 	/**
 	 * Add a non-answering button that executes some action.
 	 */
-	public MsgBox2 button(String title, IClicked<DefaultButton> clicked) {
+	public MsgBox2 button(String title, IExecute clicked) {
 		return button(title, MsgBoxButtonPrio.Default, false, clicked);
 	}
 
 	/**
 	 * Add a non-answering button that executes some action.
 	 */
-	public MsgBox2 button(String title, MsgBoxButtonPrio prio, IClicked<DefaultButton> clicked) {
+	public MsgBox2 button(String title, MsgBoxButtonPrio prio, IExecute clicked) {
 		return button(title, prio, false, clicked);
 	}
 
-	public MsgBox2 buttonDefault(String title, MsgBoxButtonPrio prio, IClicked<DefaultButton> clicked) {
+	public MsgBox2 buttonDefault(String title, MsgBoxButtonPrio prio, IExecute clicked) {
 		return button(title, prio, true, clicked);
 	}
 
-	public MsgBox2 button(String title, MsgBoxButtonPrio prio, boolean asDefault, IClicked<DefaultButton> clicked) {
-		DefaultButton btn = new DefaultButton(title, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				clicked.clicked(b);
-			}
-		});
+	public MsgBox2 button(String title, MsgBoxButtonPrio prio, boolean asDefault, IExecute clicked) {
+		DefaultButton btn = new DefaultButton(title, clicked);
 		BoxButton bb = new BoxButton(btn, null, prio);
 		m_theButtons.add(bb);
 		if(asDefault) {
@@ -595,13 +589,8 @@ final public class MsgBox2 extends Window {
 	/**
 	 * Add a non-answering button that executes some action.
 	 */
-	public MsgBox2 button(String title, IIconRef icon, IClicked<DefaultButton> clicked) {
-		DefaultButton btn = new DefaultButton(title, icon, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				clicked.clicked(b);
-			}
-		});
+	public MsgBox2 button(String title, IIconRef icon, IExecute clicked) {
+		DefaultButton btn = new DefaultButton(title, icon, clicked);
 		BoxButton bb = new BoxButton(btn, null, MsgBoxButtonPrio.Default);
 		m_theButtons.add(bb);
 		return this;
@@ -628,9 +617,9 @@ final public class MsgBox2 extends Window {
 
 	@NonNull
 	public MsgBox2 button(String lbl, IIconRef icon, final Object selval) {
-		DefaultButton btn = new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
+		DefaultButton btn = new DefaultButton(lbl, icon, new IExecute() {
 			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
+			public void execute() throws Exception {
 				answer(selval);
 			}
 		});
@@ -663,50 +652,9 @@ final public class MsgBox2 extends Window {
 	 * lambda's</b>
 	 */
 	@NonNull
-	public MsgBox2 onClicked(@NonNull IClicked<MsgBox2> clicked) {
+	public MsgBox2 onClicked(@NonNull IExecute clicked) {
 		m_clicked = clicked;
 		return this;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Action handlers that do not need the clicked node.	*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * Add a non-answering button that executes some action.
-	 */
-	public MsgBox2 button(String title, IExecute clicked) {
-		return button(title, MsgBoxButtonPrio.Default, false, IClicked.wrap(clicked));
-	}
-
-	/**
-	 * Add a non-answering button that executes some action.
-	 */
-	public MsgBox2 button(String title, MsgBoxButtonPrio prio, IExecute clicked) {
-		return button(title, prio, false, IClicked.wrap(clicked));
-	}
-
-	public MsgBox2 buttonDefault(String title, MsgBoxButtonPrio prio, IExecute clicked) {
-		return button(title, prio, true, IClicked.wrap(clicked));
-	}
-
-	public MsgBox2 button(String title, MsgBoxButtonPrio prio, boolean asDefault, IExecute clicked) {
-		return button(title, prio, asDefault, IClicked.wrap(clicked));
-	}
-
-	/**
-	 * Add a non-answering button that executes some action.
-	 */
-	public MsgBox2 button(String title, IIconRef icon, IExecute clicked) {
-		return button(title, icon, IClicked.wrap(clicked));
-	}
-
-	/**
-	 * This handles the usual "confirmation" button and ignores all other type of responses.
-	 */
-	@NonNull
-	public MsgBox2 onClicked(@NonNull IExecute clicked) {
-		return onClicked(IClicked.wrap(clicked));
 	}
 
 	public MsgBox2 autoClose(boolean auto) {
@@ -741,10 +689,10 @@ final public class MsgBox2 extends Window {
 			if(m_onAnswer2 != null) {
 				m_onAnswer2.onAnswer(m_selectedChoice);
 			}
-			IClicked<MsgBox2> clicked = m_clicked;
+			IExecute clicked = m_clicked;
 			if(clicked != null) {
 				if(sel == m_assumedOkButton) {
-					clicked.clicked(this);
+					clicked.execute();
 				}
 			}
 

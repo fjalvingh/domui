@@ -27,6 +27,7 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.util.Objects;
 
@@ -193,7 +194,7 @@ public class Img extends NodeBase implements IActionControl {
 	}
 
 	@Override
-	public void setClicked(@Nullable IClicked<?> clicked) {
+	public void setClicked(@Nullable IExecute clicked) {
 		super.setClicked(clicked);
 		if(null != clicked) {
 			addCssClass("ui-clickable");
@@ -203,7 +204,7 @@ public class Img extends NodeBase implements IActionControl {
 	}
 
 	@Override
-	public void setClicked2(IClicked2<?> clicked) {
+	public void setClicked2(IClickedInfo clicked) {
 		super.setClicked2(clicked);
 		if(null != clicked) {
 			addCssClass("ui-clickable");

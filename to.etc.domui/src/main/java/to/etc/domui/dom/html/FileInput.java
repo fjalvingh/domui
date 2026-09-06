@@ -29,9 +29,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.INodeErrorDelegate;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.function.ConsumerEx;
+import to.etc.function.IExecute;
 
 public class FileInput extends NodeBase implements IHasChangeListener, INodeErrorDelegate, IForTarget {
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	private boolean m_disabled;
 
@@ -58,15 +59,12 @@ public class FileInput extends NodeBase implements IHasChangeListener, INodeErro
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
-	 */
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

@@ -37,7 +37,6 @@ import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -53,11 +52,11 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.bugs.Bug;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.List;
-import to.etc.function.IExecute;
 
 public class MsgBox extends Window {
 	public interface IAnswer {
@@ -361,14 +360,14 @@ public class MsgBox extends Window {
 	}
 
 	/**
-	 * Ask a yes/no confirmation, and pass either YES or NO to the onAnswer delegate. Use this if you need the NO action too, else use the IClicked variant.
+	 * Ask a yes/no confirmation, and pass either YES or NO to the onAnswer delegate. Use this if you need the NO action too, else use the action variant.
 	 */
 	public static void yesNo(NodeBase dad, String string, IAnswer onAnswer) {
 		yesNo(dad, string, onAnswer, null);
 	}
 
 	/**
-	 * Ask a yes/no confirmation, and pass either YES or NO to the onAnswer delegate. Use this if you need the NO action too, else use the IClicked variant.
+	 * Ask a yes/no confirmation, and pass either YES or NO to the onAnswer delegate. Use this if you need the NO action too, else use the action variant.
 	 */
 	public static void yesNo(NodeBase dad, String string, IAnswer onAnswer, IRenderInto<String> msgRenderer) {
 		MsgBox box = create(dad);
@@ -385,14 +384,14 @@ public class MsgBox extends Window {
 	/**
 	 * Ask a yes/no confirmation; call the onAnswer handler if YES is selected and do nothing otherwise.
 	 */
-	public static void yesNo(NodeBase dad, String string, final IClicked<MsgBox> onAnswer) {
+	public static void yesNo(NodeBase dad, String string, final IExecute onAnswer) {
 		yesNo(dad, MsgBox.Type.DIALOG, string, onAnswer);
 	}
 
 	/**
 	 * Ask a yes/no confirmation; call the onAnswer handler if YES is selected and do nothing otherwise.
 	 */
-	public static void yesNo(NodeBase dad, Type msgtype, String string, final IClicked<MsgBox> onAnswer) {
+	public static void yesNo(NodeBase dad, Type msgtype, String string, final IExecute onAnswer) {
 		final MsgBox box = create(dad);
 		box.setType(msgtype);
 		box.setMessage(string);
@@ -403,7 +402,7 @@ public class MsgBox extends Window {
 			@Override
 			public void onAnswer(MsgBoxButton result) throws Exception {
 				if(result == MsgBoxButton.YES)
-					onAnswer.clicked(box);
+					onAnswer.execute();
 			}
 		});
 		box.construct();
@@ -478,9 +477,9 @@ public class MsgBox extends Window {
 	}
 
 	/**
-	 * Ask a continue/cancel confirmation, and call the IClicked handler for CONTINUE only.
+	 * Ask a continue/cancel confirmation, and call the handler for CONTINUE only.
 	 */
-	public static void continueCancel(NodeBase dad, String string, final IClicked<MsgBox> onAnswer) {
+	public static void continueCancel(NodeBase dad, String string, final IExecute onAnswer) {
 		final MsgBox box = create(dad);
 		box.setType(Type.DIALOG);
 		box.setMessage(string);
@@ -491,7 +490,7 @@ public class MsgBox extends Window {
 			@Override
 			public void onAnswer(MsgBoxButton result) throws Exception {
 				if(result == MsgBoxButton.CONTINUE)
-					onAnswer.clicked(box);
+					onAnswer.execute();
 			}
 		});
 		box.construct();
@@ -530,20 +529,9 @@ public class MsgBox extends Window {
 	 * @param ch        The delegate to call when the user is sure.
 	 */
 	@NonNull
-	public static DefaultButton areYouSureButton(String text, IIconRef icon, final String message, final IClicked<DefaultButton> ch) {
+	public static DefaultButton areYouSureButton(String text, IIconRef icon, final String message, final IExecute ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
-		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				yesNo(b, message, new IClicked<MsgBox>() {
-					@Override
-					public void clicked(@NonNull MsgBox bx) throws Exception {
-						ch.clicked(btn);
-					}
-				});
-			}
-		};
-		btn.setClicked(bch);
+		btn.setClicked(() -> yesNo(btn, message, ch));
 		return btn;
 	}
 
@@ -556,7 +544,7 @@ public class MsgBox extends Window {
 	 * @param ch        The delegate to call when the user is sure.
 	 */
 	@NonNull
-	public static DefaultButton areYouSureButton(String text, final String message, final IClicked<DefaultButton> ch) {
+	public static DefaultButton areYouSureButton(String text, final String message, final IExecute ch) {
 		return areYouSureButton(text, null, message, ch);
 	}
 
@@ -569,20 +557,9 @@ public class MsgBox extends Window {
 	 * @param ch        The delegate to call when the user is sure.
 	 */
 	@NonNull
-	public static LinkButton areYouSureLinkButton(String text, IIconRef icon, final String message, final IClicked<LinkButton> ch) {
+	public static LinkButton areYouSureLinkButton(String text, IIconRef icon, final String message, final IExecute ch) {
 		final LinkButton btn = new LinkButton(text, icon);
-		IClicked<LinkButton> bch = new IClicked<LinkButton>() {
-			@Override
-			public void clicked(@NonNull LinkButton b) throws Exception {
-				yesNo(b, message, new IClicked<MsgBox>() {
-					@Override
-					public void clicked(@NonNull MsgBox bx) throws Exception {
-						ch.clicked(btn);
-					}
-				});
-			}
-		};
-		btn.setClicked(bch);
+		btn.setClicked(() -> yesNo(btn, message, ch));
 		return btn;
 	}
 
@@ -595,53 +572,8 @@ public class MsgBox extends Window {
 	 * @param ch        The delegate to call when the user is sure.
 	 */
 	@NonNull
-	public static LinkButton areYouSureLinkButton(String text, final String message, final IClicked<LinkButton> ch) {
-		return areYouSureLinkButton(text, null, message, ch);
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Action handlers that do not need the clicked node.	*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * Ask a yes/no confirmation; run the action if YES is selected and do nothing otherwise.
-	 */
-	public static void yesNo(NodeBase dad, String string, final IExecute onAnswer) {
-		yesNo(dad, MsgBox.Type.DIALOG, string, IClicked.wrap(onAnswer));
-	}
-
-	/**
-	 * Ask a yes/no confirmation; run the action if YES is selected and do nothing otherwise.
-	 */
-	public static void yesNo(NodeBase dad, Type msgtype, String string, final IExecute onAnswer) {
-		yesNo(dad, msgtype, string, IClicked.wrap(onAnswer));
-	}
-
-	/**
-	 * Ask a continue/cancel confirmation, and run the action for CONTINUE only.
-	 */
-	public static void continueCancel(NodeBase dad, String string, final IExecute onAnswer) {
-		continueCancel(dad, string, IClicked.wrap(onAnswer));
-	}
-
-	@NonNull
-	public static DefaultButton areYouSureButton(String text, IIconRef icon, final String message, final IExecute ch) {
-		return areYouSureButton(text, icon, message, IClicked.wrap(ch));
-	}
-
-	@NonNull
-	public static DefaultButton areYouSureButton(String text, final String message, final IExecute ch) {
-		return areYouSureButton(text, null, message, IClicked.wrap(ch));
-	}
-
-	@NonNull
-	public static LinkButton areYouSureLinkButton(String text, IIconRef icon, final String message, final IExecute ch) {
-		return areYouSureLinkButton(text, icon, message, IClicked.wrap(ch));
-	}
-
-	@NonNull
 	public static LinkButton areYouSureLinkButton(String text, final String message, final IExecute ch) {
-		return areYouSureLinkButton(text, null, message, IClicked.wrap(ch));
+		return areYouSureLinkButton(text, null, message, ch);
 	}
 
 	//	/**
@@ -779,13 +711,13 @@ public class MsgBox extends Window {
 		else if(mbb == MsgBoxButton.CANCEL)
 			icon = Theme.BTN_CANCEL;
 
-		DefaultButton btn = new DefaultButton(lbl, icon, b -> answer(mbb));
+		DefaultButton btn = new DefaultButton(lbl, icon, ()-> answer(mbb));
 		btn.setTestID(mbb.name());
 		m_theButtons.add(new BoxButton(btn, mbb, MsgBoxButtonPrio.Default));
 	}
 
 	protected void addButton(final String lbl, final Object selval) {
-		DefaultButton btn = new DefaultButton(lbl, b -> answer(selval));
+		DefaultButton btn = new DefaultButton(lbl, ()-> answer(selval));
 		m_theButtons.add(new BoxButton(btn, null, MsgBoxButtonPrio.Default));
 	}
 

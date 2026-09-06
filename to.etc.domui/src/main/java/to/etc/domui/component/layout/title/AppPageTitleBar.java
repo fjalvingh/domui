@@ -32,7 +32,6 @@ import to.etc.domui.component.layout.ErrorMessageDiv;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.errors.IErrorFence;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.NodeBase;
@@ -46,9 +45,9 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IShelvedEntry;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.util.List;
-import to.etc.function.IExecute;
 
 /**
  * A page title bar. This consists of an image in the left corner, a string describing the
@@ -202,12 +201,12 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	}
 
 	private void addBackButton(@NonNull TD td) {
-		HoverButton backButton = new HoverButton("THEME/72x24_back.png", clickednode -> UIGoto.back());
+		HoverButton backButton = new HoverButton("THEME/72x24_back.png", ()-> UIGoto.back());
 		td.add(backButton);
 	}
 
 	private void addCloseButton(@NonNull TD td) {
-		HoverButton button = new HoverButton("THEME/72x24_close.png", clickednode -> getPage().getBody().closeWindow());
+		HoverButton button = new HoverButton("THEME/72x24_close.png", ()-> getPage().getBody().closeWindow());
 		td.add(button);
 	}
 
@@ -321,15 +320,11 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		}
 	}
 
-	public void addButton(IIconRef image, String hint, IClicked<NodeBase> handler) {
+	public void addButton(IIconRef image, String hint, IExecute handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		getButtonpart().add(ib);
 		ib.setTitle(hint);
 		ib.setClicked(handler);
-	}
-
-	public void addButton(IIconRef image, String hint, IExecute handler) {
-		addButton(image, hint, IClicked.<NodeBase>wrap(handler));
 	}
 
 	/**

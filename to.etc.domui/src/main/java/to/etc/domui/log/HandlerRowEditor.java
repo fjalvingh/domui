@@ -16,7 +16,6 @@ import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TD;
@@ -28,6 +27,7 @@ import to.etc.domui.log.data.Handler;
 import to.etc.domui.log.data.HandlerType;
 import to.etc.domui.log.data.Matcher;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.log.EtcLoggerFactory;
 import to.etc.log.EtcMDCAdapter;
 import to.etc.log.handler.LogFilterType;
@@ -90,7 +90,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 		formatCtl.setTitle(getFormatHelp());
 		fb.property(m_instance, Handler.pFORMAT).control(formatCtl);
 		final TextNode holder = new TextNode(nameCtl.getValueSafe());
-		typeCtl.setOnValueChanged((IValueChanged<NodeBase>) component -> updateNameByType(typeCtl, nameCtl, holder));
+		typeCtl.setOnValueChanged(()-> updateNameByType(typeCtl, nameCtl, holder));
 		if(HandlerType.STDOUT == typeCtl.getValue()) {
 			updateNameByType(typeCtl, nameCtl, holder);
 		}
@@ -115,7 +115,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 	}
 
 	private void addMatcherPart(NodeContainer container) throws Exception {
-		container.add(new LinkButton($("add.matcher"), clickednode -> m_tableMatchers.addNew(new Matcher("", EtcLoggerFactory.getSingleton().getDefaultLevel()))));
+		container.add(new LinkButton($("add.matcher"), ()-> m_tableMatchers.addNew(new Matcher("", EtcLoggerFactory.getSingleton().getDefaultLevel()))));
 		m_modelMatchers = new SimpleListModel<>(m_instance.getMatchers());
 		final String[] cols = new String[]{Matcher.pNAME, Matcher.pLEVEL};
 
@@ -142,7 +142,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 	}
 
 	private void addFilterPart(TD container) throws Exception {
-		container.add(new LinkButton($("add.filter"), clickednode -> m_tableFilters.addNew(new Filter(LogFilterType.MDC, EtcMDCAdapter.LOGINID, "USER1"))));
+		container.add(new LinkButton($("add.filter"), ()-> m_tableFilters.addNew(new Filter(LogFilterType.MDC, EtcMDCAdapter.LOGINID, "USER1"))));
 		m_modelFilters = new SimpleListModel<Filter>(m_instance.getFilters());
 		final String[] cols = new String[]{Filter.pTYPE, Filter.pKEY, Filter.pVALUE};
 

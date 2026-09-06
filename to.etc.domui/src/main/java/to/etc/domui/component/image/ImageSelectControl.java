@@ -15,7 +15,6 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.NodeBase;
@@ -29,6 +28,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.upload.FileUploadException;
 import to.etc.domui.util.upload.UploadItem;
+import to.etc.function.IExecute;
 import to.etc.util.FileTool;
 import to.etc.webapp.nls.BundleRef;
 
@@ -76,7 +76,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	private boolean m_readOnly;
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	public ImageSelectControl(@Nullable IUIImage value) {
 		m_value = value;
@@ -115,7 +115,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		}
 
 		if(!isDisabled() && ! isReadOnly()) {
-			DefaultButton btn = new DefaultButton("", Icon.faWindowClose, a -> {
+			DefaultButton btn = new DefaultButton("", Icon.faWindowClose, ()-> {
 				setValue(null);
 				forceRebuild();
 				setImageChanged();
@@ -210,7 +210,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	private void setImageChanged() throws Exception {
 		if(m_onValueChanged != null)
-			((IValueChanged<Object>) m_onValueChanged).onValueChanged(this);
+			m_onValueChanged.execute();
 	}
 
 	private void updateImage(@NonNull ConversationContext cc, @NonNull UploadItem ui) throws Exception {
@@ -254,12 +254,12 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

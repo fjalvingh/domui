@@ -27,6 +27,7 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -46,7 +47,7 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	private boolean m_modifiedByUser;
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	private boolean m_immediate;
 
@@ -190,10 +191,10 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	 */
 	@Deprecated
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
-		IValueChanged< ? > vc = m_onValueChanged;
+	public IExecute getOnValueChanged() {
+		IExecute vc = m_onValueChanged;
 		if(null == vc && isImmediate()) {
-			return IValueChanged.DUMMY;
+			return DUMMY;
 		}
 		return vc;
 	}
@@ -201,13 +202,13 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	/**
 	 * Do not use for Checkbox!!! There is a big bug in Internet Explorer where it does not
 	 * call onchange for checkboxes. A workaround has been added to DomUI, but it cannot be
-	 * made transparant. It is better to use {@link NodeBase#setClicked(IClicked)} to handle checkbox
+	 * made transparant. It is better to use {@link NodeBase#setClicked(to.etc.function.IExecute)} to handle checkbox
 	 * change events!
-	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.function.IExecute)
 	 */
 	@Deprecated
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

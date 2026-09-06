@@ -78,7 +78,7 @@ public class ChildFragment<P, C> extends Div {
 		if(onNew != null) {
 			ButtonBar2 bb = new ButtonBar2();
 			add(bb);
-			bb.addButton("Add", Theme.BTN_PLUS, a -> {
+			bb.addButton("Add", Theme.BTN_PLUS, ()-> {
 				C c = m_childClass.newInstance();
 				PropertyMetaModel<P> parentProperty = findParentProperty();
 				parentProperty.setValue(c, m_parent);

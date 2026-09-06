@@ -31,16 +31,15 @@ import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.IIconRef;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.Table;
+import to.etc.function.IExecute;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import to.etc.function.IExecute;
 
 @NonNullByDefault
 public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
@@ -146,12 +145,12 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public DefaultButton addButton(String txt, @Nullable IIconRef icon, IClicked<DefaultButton> click, int order) {
+	public DefaultButton addButton(String txt, @Nullable IIconRef icon, IExecute click, int order) {
 		return m_factory.addButton(txt, icon, click, order);
 	}
 
 	@Override
-	public DefaultButton addButton(String txt, @Nullable IIconRef icon, IClicked<DefaultButton> click) {
+	public DefaultButton addButton(String txt, @Nullable IIconRef icon, IExecute click) {
 		return m_factory.addButton(txt, icon, click);
 	}
 
@@ -166,12 +165,12 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public DefaultButton addButton(String txt, IClicked<DefaultButton> click, int order) {
+	public DefaultButton addButton(String txt, IExecute click, int order) {
 		return m_factory.addButton(txt, click, order);
 	}
 
 	@Override
-	public DefaultButton addButton(String txt, IClicked<DefaultButton> click) {
+	public DefaultButton addButton(String txt, IExecute click) {
 		return m_factory.addButton(txt, click);
 	}
 
@@ -228,41 +227,33 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click, int order) {
+	public DefaultButton addConfirmedButton(String txt, String msg, IExecute click, int order) {
 		return m_factory.addConfirmedButton(txt, msg, click, order);
 	}
 
 	@Override
-	public DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(String txt, String msg, IExecute click) {
 		return m_factory.addConfirmedButton(txt, msg, click);
 	}
 
 	@Override
-	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IClicked<DefaultButton> click, int order) {
+	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IExecute click, int order) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click, order);
 	}
 
 	@Override
-	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IExecute click) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click);
 	}
 
 	@Override
-	public LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click, int order) {
+	public LinkButton addLinkButton(String txt, IIconRef img, IExecute click, int order) {
 		return m_factory.addLinkButton(txt, img, click, order);
 	}
 
 	@Override
-	public LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click) {
+	public LinkButton addLinkButton(String txt, IIconRef img, IExecute click) {
 		return m_factory.addLinkButton(txt, img, click);
-	}
-
-	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IClicked<LinkButton> click, int order) {
-		return m_factory.addConfirmedLinkButton(txt, img, msg, click, order);
-	}
-
-	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IClicked<LinkButton> click) {
-		return m_factory.addConfirmedLinkButton(txt, img, msg, click);
 	}
 
 	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IExecute click, int order) {

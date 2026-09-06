@@ -204,7 +204,7 @@ public class ALink extends ATag {
 		}
 
 		WindowParameters wp = getNewWindowParameters();
-		if(getClicked() == null && wp != null) {
+		if(!hasClicked() && wp != null) {
 			//-- Generate an onclick javascript thingy to open the window to prevent popup blockers.
 
 			//-- Send a special JAVASCRIPT open command, containing the shtuff.
@@ -258,7 +258,7 @@ public class ALink extends ATag {
 
 	@Override
 	public boolean internalNeedClickHandler() {
-		return getClicked() != null || getNewWindowParameters() == null;
+		return hasClicked() || getNewWindowParameters() == null;
 	}
 
 	/**
@@ -267,7 +267,7 @@ public class ALink extends ATag {
 	 */
 	@Override
 	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
-		if(getClicked() != null) {
+		if(hasClicked()) {
 			super.internalOnClicked(cli);
 			return;
 		}
