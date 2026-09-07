@@ -67,8 +67,9 @@ Documentation site:
   the content is old and will be updated step by step - this plan is that work.
 - Screenshots are largely from 2017-2018 and show an old look and feel and old IDE
   versions.
-- `development-environment/ecj-in-maven` still describes 2017-era plugin and
-  compiler versions.
+- `look-and-feel/` is now a full styling chapter (themes, overriding the theme,
+  the winter theme, styling a component) written against the current source;
+  `components/rules` was rewritten to match. Done 2026-09-06, see the log.
 - `about/index.md` itself admits the pages are older than the code.
 
 Demo application (`to.etc.domui.demo`):
@@ -163,11 +164,18 @@ below, and what was verified against the source is in the log.
 
 ### Phase 2 - Correct the factual errors in the documentation
 
-- [ ] Verify every code sample against the current source; fix or delete the
-      ones that no longer compile conceptually.
-- [ ] Check every internal and external link. Internal links are checked by the
-      build, so this is about the external ones - which sit almost entirely on
-      the pages in the table below.
+Verifying the code samples is **done 2026-09-06**; see the log. Measured by
+`git blame` against the pre-project commits, only five pages carried code this
+project had not written; two needed nothing, one was deleted, and the other two
+were rewritten into the new styling chapter.
+
+- [ ] Check the external links. Internal links are checked by the build, so this
+      is about the external ones. There are 21 unique external URLs left, of
+      which most are illustrative (`localhost:*`, `example.com`, `somehost:4444`,
+      `demo.domui.org`); the ones to actually check are the nine github.com
+      links, three on `help.eclipse.org`, and singles on `ace.c9.io`,
+      `api.jquery.com`, `stackoverflow.com`, `flywaydb.org`, `www.domui.org`,
+      `gnu.org`, `maven.apache.org` and plotly.
 
 #### The 32 pages outside the rewritten sections
 
@@ -220,6 +228,28 @@ whose SPI machinery is not in the framework at all. See the log.
       the responsive layouter still uses (`ui-f4-mandatory`, `ui-f4-hinticon`,
       `ui-f4-ta`), which would be better named `ui-f5-*` while they are being
       moved. (Found writing the forms group, 2026-09-06.)
+- [ ] **Framework: the theme variant is parsed and then ignored.**
+      `SassThemeFactory` reads the fifth part of the theme name into a local
+      variable and constructs the `SassTheme` without it, so
+      `UrlPage.setThemeVariant()`, `IThemeVariant`, `CleanThemeVariant` and a
+      `-clean` theme name change nothing under the current scss theme. It is a
+      leftover from the `.frag.css` system that came before it. Either make the
+      variant reach the search path or remove the machinery; the documentation
+      currently warns the reader off it. The `simple` and `fragmented` theme
+      factories and the 152 `.frag.css` files in `resources/themes/css-domui-clean`
+      go with the same decision. (Found writing the styling chapter, 2026-09-06.)
+- [ ] **Framework: a dead `setDefaultThemeName` call.** `DomApplication` calls
+      `setDefaultThemeName("blue/domui/blue")` and then immediately
+      `setDefaultThemeFactory(SassThemeFactory.INSTANCE)`, which overwrites it
+      with `scss-winter-default-default`. The first line does nothing.
+- [ ] **Skeleton: the theme override example is the wrong pattern.**
+      `examples/skeleton/app-web/src/main/webapp/themes/scss/winter/_variables.scss`
+      is a wholesale copy of the framework's `_variables.scss` with the
+      `!default` flags stripped, so it shadows the framework file completely and
+      loses every variable added upstream later. The supported hook is
+      `_custominit.scss`, which `domui-skeleton` already has (empty, with the
+      right comment). Replace the copy. (Found writing the styling chapter,
+      2026-09-06.)
 - [ ] **Framework: `PropBtnPart` and `ButtonPartKey` are dead.** The part that
       painted a button image from a properties file has no live caller left -
       `ThemeCssUtils` only mentions it in commented-out code, and the demo page

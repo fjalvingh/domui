@@ -1237,6 +1237,82 @@ These were offered as input while the phase 0 items were being worked, and taken
 
 ## Decisions log
 
+### 2026-09-06 - The styling chapter, and the last unwritten code on the site
+
+Measuring what was left of the raw Confluence conversion by `git blame` against
+the pre-project commits rather than by file date: every page had been *touched*
+in 2026, but five still carried code fences nobody had written -
+`testing/70-mockito-pitfalls` (41 of 41 fenced lines), `ecj-in-maven` (26 of 64),
+`components/rules` (23 of 23), `sass-scss-support` (7 of 9) and `animations`
+(4 of 5). That is the whole of the "verify every code sample" item: everything
+else on the site was written by this project, out of the demo application.
+
+Two of the five needed nothing:
+
+- **`ecj-in-maven` was already correct.** Its XML matches the root pom exactly -
+  `maven-compiler-plugin` 3.14.0, `source`/`target` 21 via `jdk.version`,
+  `plexus-compiler-eclipse` 2.8.5, `ecj` 3.36.0, and `1.2-SNAPSHOT` really is the
+  project version. The blame count was a false positive: unchanged boilerplate
+  lines such as `<groupId>org.apache.maven.plugins</groupId>` are still credited
+  to the old commit even though the versions around them were rewritten. Blame
+  counts flag pages worth looking at; they do not decide anything.
+- **`mockito-pitfalls` was deleted** (user's decision): the framework no longer
+  uses it and it is not interesting in this context. It was one of the two
+  moves - relocated verbatim into the testing chapter, first-person rant and all,
+  without a word being checked. Its entry in `testing/index.md` went with it.
+
+The remaining three were symptoms of the real gap: **the site documented the
+stylesheet pipeline and the component naming rules, and nothing in between.**
+There was no page saying what a theme is, and no page saying how an application
+gives itself its own colours - the single most common thing anyone would want.
+`look-and-feel/` was split into a full chapter (user's choice among four
+structures):
+
+| Page | What it covers |
+| --- | --- |
+| `themes/` (new) | what a theme is; the `factory-style-icon-color-variant` name and the `scss-winter-default-default` default; the search path; the four-step resource lookup; a plantuml sequence of how `style.scss` reaches the browser; `ThemeManager` caching |
+| `overriding-the-theme/` (new) | `_custominit.scss` and `_userstyle.scss`, why `!default` makes them work, which to use when, and the variables worth setting |
+| `the-winter-theme/` (new) | the import order of `style.scss` as the theme's architecture; the `bulmaish` base layer; reset and the border-box model; one partial per component |
+| `styling-your-component/` (new) | writing a partial, wiring it in through `_userstyle.scss`, the `ui-` base name, class-only selectors, never borrowing another component's classes |
+| `sass-scss-support/` | unchanged; renumbered to 50 |
+
+What was verified in the source while writing them:
+
+- `DomApplication` sets `setDefaultThemeFactory(SassThemeFactory.INSTANCE)`,
+  whose default theme name is `scss-winter-default-default`. The
+  `setDefaultThemeName("blue/domui/blue")` on the line immediately before it is
+  overwritten by that call and is dead.
+- `SassThemeFactory` builds the search path from the style, icon and colour
+  parts; with the default name only `$themes/scss/winter` and
+  `$themes/scss/all` remain, which is why "the theme" and "winter" are the same
+  thing in practice. No `-color` or `-icons` directory ships.
+- The `$` prefix is stripped by `SimpleResourceFactory`, which calls
+  `DomApplication.getAppFileOrResource()`. That looks in the webapp directory
+  **first** and the classpath `/resources/` last, so an application file shadows
+  the framework's. This is what makes the whole override mechanism work, and it
+  was documented nowhere.
+- Every variable in `_color.scss` and `_variables.scss` is declared `!default`,
+  and `style.scss` imports `_custominit` *before* them and `_userstyle` *after*.
+  The two files carry comments saying they are meant for exactly this and must
+  stay empty in DomUI itself.
+- `SassTheme.getStyleSheetName()` emits `$THEME/<theme>/style.scss?$hash=<hash>`
+  with a hash of the compiled result, so the URL changes when the stylesheet
+  does.
+- `_form5.scss` (`ui-f5-*`, flexbox) is the current form layout and `_form4.scss`
+  (`ui-f4-*`, table) belongs to the dead `TableFormLayouter`, which matches the
+  open plan item about removing it.
+
+`components/rules` was rewritten to match the split: the stylesheet half moved to
+`styling-your-component`, and what stays is what a component may *do* - the two
+shapes, one containing node for an inline component, no padding of its own,
+behaving inside a form. That also removed the page's Confluence residue: six
+untagged code fences, an `[IMAGE HERE]` placeholder, a `</button` missing its
+`>`, an IE-8 aside, and the external `blog.teamtreehouse.com` link (which went
+with the box-model text, now on `the-winter-theme` without it).
+
+Site builds clean: 156 pages, the plantuml diagram rendered to SVG, no dangling
+links.
+
 ### 2026-09-06 - `to.etc.db`, the connection pool, is documented
 
 `common/to.etc.db` had no page anywhere on the site: the only mention of it was
