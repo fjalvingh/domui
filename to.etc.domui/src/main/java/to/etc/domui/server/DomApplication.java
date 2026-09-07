@@ -611,7 +611,6 @@ public abstract class DomApplication {
 			UIGoto.redirect(rurl);
 			return true;
 		});
-		setDefaultThemeName("blue/domui/blue");
 		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());
@@ -2478,7 +2477,7 @@ public abstract class DomApplication {
 	 */
 	//@OverridingMethodsMustInvokeSuper
 	public void augmentThemeMap(@NonNull IScriptScope ss) throws Exception {
-		ss.put("util", new ThemeCssUtils(ss));
+		ss.put("util", new ThemeCssUtils());
 		ss.eval(Object.class, "function url(x) { return util.url(x);};", "internal");
 
 		m_themeApplicationProperties.forEach((key, value) -> ss.put(key, value));

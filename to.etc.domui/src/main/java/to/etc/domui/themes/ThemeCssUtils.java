@@ -24,9 +24,7 @@
  */
 package to.etc.domui.themes;
 
-import to.etc.domui.parts.ButtonPartKey;
 import to.etc.domui.state.UIContext;
-import to.etc.domui.util.js.IScriptScope;
 
 /**
  * This helper class is passed to the theme factory, and can be used to augment
@@ -40,38 +38,12 @@ public class ThemeCssUtils {
 
 	static public final CssColor WHITE = new CssColor(255, 255, 255);
 
-	private IScriptScope m_scope;
-
-	public ThemeCssUtils(IScriptScope ss) {
-		m_scope = ss;
-	}
-
-	//	private DomApplication m_application;url("to.etc.domui.parts.PropBtnPart.part?src=/Itris_VO02/$THEME/1100000081/1719297387/defaultbutton.properties") no-repeat scroll 0 0 transparent
-	//
-	//	public ThemeCssUtils(DomApplication domApplication) {
-	//		m_application = domApplication;
-	//	}
-
 	public CssColor color(String hex) {
 		return new CssColor(hex);
 	}
 
 	public String url(String in) {
 		return UIContext.getRequestContext().getRelativePath(in);
-	}
-
-	public String buttonURL(String text) {
-		//		String s = "to.etc.domui.parts.PropBtnPart.part?src=$THEME/1100000081/1719297387/defaultbutton.properties&txt=%21Search&icon=$THEME%2f1100000081%2f1719297387%2fbtnFind.png";
-
-
-		ButtonPartKey k = new ButtonPartKey();
-		String s = m_scope.getValue(String.class, "themePath") + "defaultbutton.properties";
-		k.setPropFile(s);
-		k.setText(text);
-		StringBuilder sb = new StringBuilder();
-		sb.append("/").append(UIContext.getRequestContext().getRequestResponse().getWebappContext()).append("/");
-		k.append(sb);
-		return sb.toString();
 	}
 
 	public CssColor hsl(double h, double s, double l) {

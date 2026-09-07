@@ -204,6 +204,17 @@ Deleting the documentation pages that describe things which no longer exist is
 **done** (2026-09-06): six pages went, including `99-todo/spi-pages-and-logins`,
 whose SPI machinery is not in the framework at all. See the log.
 
+**DomUI is a library, and this workspace does not contain its callers.** Removing
+framework code therefore needs evidence that it is unusable or wrong, *not* the
+absence of a caller here. A commented-out construction and an empty grep say what
+this tree does not use; application code outside it can still reach any public
+type through a public constructor, any css class the framework emits, any part
+addressed by URL. `TableFormLayouter` was removed on exactly that mistaken
+reasoning on 2026-09-07 and restored the same day (see the log). What may go
+without asking is what no caller can reach at all: private dead ends, code whose
+only entry point is already gone, a value overwritten before anything can read
+it. Everything else on this list is a question for the user, not a deletion.
+
 - [ ] IGNORE: **Framework: restore JPA support.** `integrations/to.etc.domui.hibutil`
       ships a Hibernate (native) query executor and `to.etc.webapp.qsql` a JDBC
       one; the JPA executor sits in hibutil's unbuilt `removed/jpa/` directory, so
@@ -212,22 +223,31 @@ whose SPI machinery is not in the framework at all. See the log.
       as a limitation. Bring the JPA executor back, then say so on that page and
       in `70-implementation-details/qcriteria`, whose "What is not implemented"
       section states it now.
-- [ ] Remove the deprecated framework code that nothing (docs, demo, framework)
-      still needs, once phases 2-3 have stopped referring to it.
-      *Unblocked by phase 3*: nothing in the documentation or the demo refers to
+- [ ] **The Selenium baseline layout tests are all `@Ignore`d.** Every test in
+      `ITTestForm4Layout` and `ITTestText2Layout`, and the three
+      `labelMustBeAligned*` of `ITTestLookupInput2Layout`, carry
+      `@Ignore("While redesigning")`. They compare the baseline of a label with
+      that of its control inside the form row, and they were written for the
+      table layout; the redesign they were parked for is the responsive layouter,
+      which is what ships. Their helper was repaired on 2026-09-07 (it looked
+      only for a `tr.ui-f4-row`, which the demo's own form pages have not
+      contained since then; it now takes either that or a `div.ui-f5-pair`) but
+      nothing runs it. Decide: make
+      them run against `ui-f5-pair` markup, or delete them. They also need a
+      `ScreenInspector`, which is not available in every environment - the
+      surrounding code `Assume`s out when it is missing. (Found removing
+      `TableFormLayouter`, 2026-09-07.)
+
+- [ ] Decide what happens to the deprecated framework code that this project has
+      stopped teaching. Nothing in the documentation or the demo refers to
       `component.input.Text`, `LookupInput`, `ComboFixed`, `component.misc.MsgBox`,
       `DisplayValue` or `CaptionedHeader` any more, nor to the page object proxies
-      `CpText` and `CpComboFixed` that go with the first three. What still uses
-      them is the framework itself.
-- [ ] **Framework: `TableFormLayouter` is dead.** The `FormBuilder` constructor
-      makes a `ResponsiveFormLayouter`; the line that would make a
-      `TableFormLayouter` instead is commented out next to it, and nothing else
-      in the framework, the demo or the documentation names the class. It is the
-      only thing that emits the `ui-f4` table markup, so most of
-      `themes/scss/winter/_form4.scss` goes with it - all but the three classes
-      the responsive layouter still uses (`ui-f4-mandatory`, `ui-f4-hinticon`,
-      `ui-f4-ta`), which would be better named `ui-f5-*` while they are being
-      moved. (Found writing the forms group, 2026-09-06.)
+      `CpText` and `CpComboFixed` that go with the first three; what still uses
+      them is the framework itself. That is *not* a reason to delete them: they
+      are public classes that applications outside this workspace are built on,
+      and by the rule above only the user can decide whether a generation of
+      components is dropped, and with what deprecation period. Until then the
+      work here is to stop the docs and the demo teaching them, which is done.
 - [ ] **Framework: the theme variant is parsed and then ignored.**
       `SassThemeFactory` reads the fifth part of the theme name into a local
       variable and constructs the `SassTheme` without it, so
@@ -238,22 +258,6 @@ whose SPI machinery is not in the framework at all. See the log.
       currently warns the reader off it. The `simple` and `fragmented` theme
       factories and the 152 `.frag.css` files in `resources/themes/css-domui-clean`
       go with the same decision. (Found writing the styling chapter, 2026-09-06.)
-- [ ] **Framework: a dead `setDefaultThemeName` call.** `DomApplication` calls
-      `setDefaultThemeName("blue/domui/blue")` and then immediately
-      `setDefaultThemeFactory(SassThemeFactory.INSTANCE)`, which overwrites it
-      with `scss-winter-default-default`. The first line does nothing.
-- [ ] **Skeleton: the theme override example is the wrong pattern.**
-      `examples/skeleton/app-web/src/main/webapp/themes/scss/winter/_variables.scss`
-      is a wholesale copy of the framework's `_variables.scss` with the
-      `!default` flags stripped, so it shadows the framework file completely and
-      loses every variable added upstream later. The supported hook is
-      `_custominit.scss`, which `domui-skeleton` already has (empty, with the
-      right comment). Replace the copy. (Found writing the styling chapter,
-      2026-09-06.)
-- [ ] **Framework: `PropBtnPart` and `ButtonPartKey` are dead.** The part that
-      painted a button image from a properties file has no live caller left -
-      `ThemeCssUtils` only mentions it in commented-out code, and the demo page
-      that pointed a URL at it was deleted on 2026-09-06.
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
       that add nothing.
 

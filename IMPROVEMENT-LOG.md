@@ -1235,7 +1235,94 @@ These were offered as input while the phase 0 items were being worked, and taken
       `setClicked2()` takes the new `IClickedInfo` (the `ClickInfo`, no node).
       See the decisions log entry of that date.
 
+- [x] **Framework: `PropBtnPart` and `ButtonPartKey` are dead.** **Done
+      2026-09-07**: `PropBtnPart`, `ButtonPartKey` and `PropButtonRenderer` are
+      gone, and with them `ThemeCssUtils.buttonURL()`, the only code that still
+      built a URL for that part. A client stylesheet could name the part by URL,
+      so this was the user's call, not a grep's: the properties-file button
+      painter is obsolete and goes.
+- [x] **Framework: a dead `setDefaultThemeName` call.** **Done 2026-09-07**: the
+      `setDefaultThemeName("blue/domui/blue")` line in `DomApplication` is gone;
+      the `setDefaultThemeFactory(SassThemeFactory.INSTANCE)` on the next line
+      sets the same field to `scss-winter-default-default`.
+- [x] **Framework: `TableFormLayouter` is dead.** **Wrong, and closed 2026-09-07**:
+      it is not dead. The class is usable and used through the public
+      `FormBuilder(IFormLayouter)` constructor by application code outside this
+      workspace. It was removed and restored the same day, with `_form4.scss` and
+      the `ui-f4-*` class names. See the decisions log entry of that date for the
+      rule this produced for the rest of phase 4.
+- [x] **Skeleton: the theme override example is the wrong pattern.** **Nothing to
+      do, 2026-09-07**: the wholesale `_variables.scss` copy the item described
+      lived in `domui/examples/skeleton`, which "Delete obsolete examples package"
+      removed on 2026-09-07. `domui-skeleton` itself already overrides through an
+      empty `_custominit.scss`, which is the supported hook.
+
 ## Decisions log
+
+### 2026-09-07 - Phase 4, first batch, and what it got wrong about a library
+
+Three phase 4 items looked like code nothing called any more. Two of them were;
+the third was not, and the correction is the important part of this entry.
+
+**DomUI is a library. "Nothing in this tree calls it" is not evidence that
+nothing calls it.** `TableFormLayouter` was removed on the strength of exactly
+that reasoning - the `FormBuilder` constructor makes a `ResponsiveFormLayouter`
+and the line that would make a table layouter is commented out next to it,
+nothing in the framework, the demo or the site names the class - and it was
+wrong: the class is usable and used, through the public
+`FormBuilder(IFormLayouter)` constructor, by application code this workspace
+cannot see. It and `_form4.scss` were restored the same day, along with the
+`ui-f4-mandatory`, `ui-f4-hinticon` and `ui-f4-ta` names on the classes
+`FormBuilder` emits, which client stylesheets can target just as legitimately.
+
+The rule that follows from it, for the rest of phase 4: **a public type, method
+or css class may only be removed on evidence that it is unusable or wrong, not
+on the absence of a caller in this workspace.** A commented-out construction and
+an empty grep say what *we* do not use; they say nothing about what a client
+does. Application-facing surface - a public class a public constructor can be
+handed, a css class the framework emits into a client's pages, a part addressed
+by URL - is out of scope for "delete what nothing calls". What is in scope is
+what no caller can reach at all: private and package-private dead ends, code
+whose only entry point was already deleted, a value that is overwritten before
+anything can read it. The two removals that stand below are of that kind, and
+the third was not.
+
+**The button part** (removed; confirmed by the user after the correction, on the
+grounds that the thing itself is obsolete). `PropBtnPart` painted a button image
+from a properties file: a label, an icon and a `defaultbutton.properties`
+describing the borders, drawn into a png by `PropButtonRenderer` and cached by
+`ButtonPartKey`. Buttons have been css for years. The URL form a client
+stylesheet could still name it by is exactly the kind of invisible use the rule
+above is about, which is why this one was put to the user rather than decided
+here. `ThemeCssUtils.buttonURL()`, the only code that built such a URL, went with
+it; `ThemeCssUtils` keeps `color()`, `url()` and `hsl()`, and its constructor
+parameter went with the scope it no longer needs.
+
+**The dead default theme name** (removed). `DomApplication` called
+`setDefaultThemeName("blue/domui/blue")` and then
+`setDefaultThemeFactory(SassThemeFactory.INSTANCE)`, which assigns
+`themer.getDefaultThemeName()` to the same field. Both statements are in
+DomUI's own constructor and the second overwrites the first, so no client can
+observe that the first ever ran - it is dead in the strong sense the rule asks
+for. The field's initialiser (`""`) is untouched.
+
+**What the excursion did leave behind.** `ui-f4-row` is how the Selenium layout
+tests find the row a control sits in, and the demo's own form pages have not
+been built by the table layouter since the responsive one became the default -
+so `getParentTR(comp, "ui-f4-row")` finds nothing on them. That did not fail,
+because the guard is `Assert.assertNotNull("The form's parent row cannot be
+located ...")`, which asserts that the *message* is not null and therefore always
+passes, and then returns. The helper is now `getParentPair()`: it takes the
+enclosing `div.ui-f5-pair` **or** `tr.ui-f4-row`, whichever the form was built
+with, stops at `body`, and its two callers fail properly when there is none.
+
+It is compile-checked only. Every test that would exercise it is
+`@Ignore("While redesigning")` - all six of `ITTestForm4Layout`, both of
+`ITTestText2Layout` and the three `labelMustBeAligned*` of
+`ITTestLookupInput2Layout`; `mvn21 verify` on the three classes is green with 14
+of 16 skipped, and the two that do run touch neither helper. That is why an
+assert which cannot fail sat there unnoticed. What happens to that suite is a
+new plan item.
 
 ### 2026-09-06 - The styling chapter, and the last unwritten code on the site
 
