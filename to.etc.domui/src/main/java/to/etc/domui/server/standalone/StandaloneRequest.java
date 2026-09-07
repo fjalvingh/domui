@@ -16,7 +16,6 @@ import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeVariant;
-import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencies;
@@ -206,10 +205,6 @@ public class StandaloneRequest implements IRequestContext, AutoCloseable {
 			}
 
 			@NonNull @Override public IResourceRef getThemeResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
-				throw new IllegalStateException("Not implemented");
-			}
-
-			@NonNull @Override public IScriptScope getPropertyScope() {
 				throw new IllegalStateException("Not implemented");
 			}
 

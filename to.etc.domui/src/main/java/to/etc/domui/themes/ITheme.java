@@ -25,7 +25,6 @@
 package to.etc.domui.themes;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencies;
@@ -58,9 +57,6 @@ public interface ITheme {
 	 */
 	@NonNull
 	IResourceRef getThemeResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception;
-
-	@NonNull
-	IScriptScope getPropertyScope();
 
 	@NonNull
 	String translateResourceName(@NonNull String name);

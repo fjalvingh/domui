@@ -75,7 +75,6 @@ import to.etc.domui.login.ILoginAuthenticator;
 import to.etc.domui.login.ILoginDialogFactory;
 import to.etc.domui.login.ILoginListener;
 import to.etc.domui.login.IPageAccessChecker;
-import to.etc.domui.parts.SvgPartFactory;
 import to.etc.domui.parts.TempFileManager;
 import to.etc.domui.sass.SassPartFactory;
 import to.etc.domui.server.parts.IPartFactory;
@@ -97,14 +96,10 @@ import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
 import to.etc.domui.themes.IThemeVariant;
-import to.etc.domui.themes.ThemeCssUtils;
 import to.etc.domui.themes.ThemeManager;
-import to.etc.domui.themes.ThemePartFactory;
 import to.etc.domui.themes.ThemeResourceFactory;
-import to.etc.domui.themes.fragmented.FragmentedThemeFactory;
 import to.etc.domui.themes.sass.IThemeVariablesCalculator;
 import to.etc.domui.themes.sass.SassThemeFactory;
-import to.etc.domui.themes.simple.SimpleThemeFactory;
 import to.etc.domui.trouble.DataAccessViolationException;
 import to.etc.domui.trouble.DataAccessViolationPage;
 import to.etc.domui.trouble.ExpiredDataPage;
@@ -115,7 +110,6 @@ import to.etc.domui.util.ICachedListMaker;
 import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.Msgs;
-import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.ClassRefResourceFactory;
 import to.etc.domui.util.resources.ClasspathInventory;
 import to.etc.domui.util.resources.IModifyableResource;
@@ -702,8 +696,6 @@ public abstract class DomApplication {
 
 	protected void registerPartFactories() {
 		registerUrlPart(new SassPartFactory(), SassPartFactory.MATCHER);            // Support .scss SASS stylesheets
-		registerUrlPart(new ThemePartFactory(), ThemePartFactory.MATCHER);            // convert *.theme.* as a JSTemplate.
-		registerUrlPart(new SvgPartFactory(), SvgPartFactory.MATCHER);                // Converts .svg.png to png.
 		registerUrlPart(new InternalResourcePart(), InternalResourcePart.MATCHER);
 	}
 
@@ -2472,18 +2464,6 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * This method can be overridden to add extra stuff to the theme map, after
-	 * it has been loaded from properties or whatnot.
-	 */
-	//@OverridingMethodsMustInvokeSuper
-	public void augmentThemeMap(@NonNull IScriptScope ss) throws Exception {
-		ss.put("util", new ThemeCssUtils());
-		ss.eval(Object.class, "function url(x) { return util.url(x);};", "internal");
-
-		m_themeApplicationProperties.forEach((key, value) -> ss.put(key, value));
-	}
-
-	/**
 	 * Sets the application-default theme string. This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources. The string is used
 	 * as a "parameter" for the theme factory which will use it to decide on the "real"
@@ -2906,8 +2886,6 @@ public abstract class DomApplication {
 
 	static {
 		register(SassThemeFactory.INSTANCE);
-		register(SimpleThemeFactory.INSTANCE);
-		register(FragmentedThemeFactory.getInstance());
 	}
 
 	public synchronized void iconPackInitialized() {

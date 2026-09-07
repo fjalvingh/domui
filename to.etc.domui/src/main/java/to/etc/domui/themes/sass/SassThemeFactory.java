@@ -2,18 +2,14 @@ package to.etc.domui.themes.sass;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
 import to.etc.domui.themes.StyleException;
-import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.ResourceDependencyList;
 
-import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -90,40 +86,6 @@ final public class SassThemeFactory {
 		searchpath.add("$themes/scss/" + styleName);
 		searchpath.add("$themes/scss/all");							// 20130327 jal The "all" folder contains stuff shared for all themes
 
-		IScriptScope iss = new IScriptScope() {
-			@Nullable @Override public <T> T getValue(@NonNull Class<T> valueClass, @NonNull String name) {
-				return null;
-			}
-
-			@Override public <T> void put(@NonNull String name, @Nullable T instance) {
-
-			}
-
-			@NonNull @Override public <T> List<T> getProperties(@NonNull Class<T> filterClass) {
-				return Collections.EMPTY_LIST;
-			}
-
-			@NonNull @Override public IScriptScope addObjectProperty(@NonNull String name) {
-				return this;
-			}
-
-			@Nullable @Override public <T> T eval(@NonNull Class<T> targetType, @NonNull Reader r, @NonNull String sourceFileNameIndicator) throws Exception {
-				return null;
-			}
-
-			@Nullable @Override public <T> T eval(@NonNull Class<T> targetType, @NonNull String expression, @NonNull String sourceFileNameIndicator) throws Exception {
-				return null;
-			}
-
-			@NonNull @Override public IScriptScope newScope() {
-				return this;
-			}
-
-			@Nullable @Override public <T> T getAdapter(@NonNull Class<T> clz) {
-				return null;
-			}
-		};
-
-		return new SassTheme(m_application, m_themeName, styleName, iss, new ResourceDependencyList().createDependencies(), searchpath);
+		return new SassTheme(m_application, m_themeName, styleName, new ResourceDependencyList().createDependencies(), searchpath);
 	}
 }

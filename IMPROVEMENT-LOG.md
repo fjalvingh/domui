@@ -1266,7 +1266,57 @@ These were offered as input while the phase 0 items were being worked, and taken
       removed on 2026-09-07. `domui-skeleton` itself already overrides through an
       empty `_custominit.scss`, which is the supported hook.
 
+- [x] **Framework: remove the obsolete theme engines and the Rhino theme
+      templating.** Done 2026-09-07, at the user's direction, after an
+      investigation written up in `domui/THEMES.md`. DomUI carried three theme
+      engines; only the SCSS one has been selectable since 2017. Removed: the
+      `simple` and `fragmented` factories and their registrations; the Rhino
+      template machinery they shared (`ThemeManager.getThemeReplacedString()`,
+      the deprecated `getThemeMap()`, `ITheme.getPropertyScope()`,
+      `DomApplication.augmentThemeMap()`, `ThemeCssUtils`, `CssColor`);
+      `ThemePartFactory` (`*.theme.*`) and `SvgPartFactory` (`*.png.svg`);
+      `CleanThemeVariant`; `PartUtil.loadProperties()` and `PartUtil`'s
+      URL-parameter splitting; `TestRhino`, `extra/TestThemeExpander.java`,
+      `makeunsplit.xml` and the orphaned `extra/*.png.svg`; and every
+      `resources/themes/` directory except `scss/` - 152 `.frag.css` files among
+      them. 693 files, ~28,300 lines. `GrayscalerPart` and `MarkerImagePart` keep
+      SVG support, now without theme expansion and without `w`/`h` parameters.
+      Rhino stays: `HtmlFullRenderer.renderTemplatePage()` and `OopsFrameRenderer`
+      use `RhinoTemplate` for page and error-frame templates, which is not
+      theming. Docs: the "stylesheets that are not this theme" section of
+      `look-and-feel/the-winter-theme` was deleted and the variant callout in
+      `look-and-feel/themes` no longer names `-clean`. Verified: `mvn21 clean
+      install` green; `to.etc.domui` 57 unit tests, `to.etc.domui.demo` 9 unit
+      tests and 55 Selenium ITs all pass; site build 156 pages clean; against a
+      locally run demo `$THEME/<theme>/style.scss` returns 472 KB of CSS and
+      `btnCancel.png`, `GrayscalerPart` and `MarkerImagePart` all serve.
+
 ## Decisions log
+
+### 2026-09-07 - One theme engine, and what "library, not application" does not protect
+
+The three theme engines were not three choices; two of them were unreachable. The
+rule that public API is not removed just because nothing in this workspace calls
+it (see the `TableFormLayouter` entry) did not save them, and the difference is
+worth writing down: `TableFormLayouter` *worked* - an application outside this
+workspace could call it and get a form. `SimpleThemeFactory` and
+`FragmentedThemeFactory` could still be selected by name, but everything reached
+through them ran into `SassTheme.getPropertyScope()`, which throws. Code that
+cannot execute is not API. The test applied was reachability, not usage.
+
+`translateResourceName()` was kept for the opposite reason: it is a no-op in
+`SassTheme`, but an `ITheme` written outside this workspace can still implement
+it and have it called. It is a working extension point with no current user, which
+is exactly the case the rule protects.
+
+`GrayscalerPart` and `MarkerImagePart` kept SVG support because the user asked for
+it explicitly. Removing the theme expansion from it exposed that the Batik path
+throws `NoClassDefFoundError` on `org.w3c.dom.svg.SVGDocument` - `batik-ext` has
+been excluded from the build since 2019 because it duplicates the `org.w3c.dom`
+package. That is pre-existing: the old code threw in the template expander before
+it ever reached Batik. It is now an item in the plan rather than a silent
+dependency change, because re-adding `batik-ext` is a build-wide decision.
+
 
 ### 2026-09-07 - The external links, and the generator's runnable jar
 

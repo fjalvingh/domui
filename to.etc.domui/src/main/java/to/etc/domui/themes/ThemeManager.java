@@ -26,25 +26,13 @@ package to.etc.domui.themes;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
-import to.etc.domui.trouble.ThingyNotFoundException;
-import to.etc.domui.util.js.IScriptScope;
-import to.etc.domui.util.js.RhinoTemplateCompiler;
 import to.etc.domui.util.resources.IIsModified;
 import to.etc.domui.util.resources.IResourceDependencyList;
-import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencies;
-import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,8 +46,6 @@ import java.util.Map;
  * Created on Apr 27, 2011
  */
 final public class ThemeManager {
-	static private final Logger LOG = LoggerFactory.getLogger(ThemeManager.class);
-
 	static private final long OLD_THEME_TIME = 5L * 60 * 1000;
 
 	final private DomApplication m_application;
@@ -181,70 +167,6 @@ final public class ThemeManager {
 				list.remove(i);
 		}
 		m_themeNextReapTS = ts + OLD_THEME_TIME;
-	}
-
-	public String getThemeReplacedString(@NonNull IResourceDependencyList rdl, String rurl) throws Exception {
-		return getThemeReplacedString(rdl, rurl, null);
-	}
-
-	/**
-	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
-	 *
-	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
-	 * current theme's variable map. This map is either a "style.properties" file
-	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
-	 *
-	 * The result is returned as a string.
-	 */
-	public String getThemeReplacedString(@NonNull IResourceDependencyList rdl, @NonNull String resourceURL, @Nullable BrowserVersion bv) throws Exception {
-		long ts = System.nanoTime();
-		IResourceRef ires = m_application.getResource(resourceURL, rdl);			// Get the template source file
-		if(!ires.exists()) {
-			LOG.error(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
-			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + resourceURL + ", ref=" + ires);
-		}
-
-		String[] spl = ThemeResourceFactory.splitThemeResourceURL(resourceURL);
-		ITheme theme = getTheme(spl[0], null);					// Dependencies already added by get-resource call.
-		IScriptScope ss = theme.getPropertyScope();
-		ss = ss.newScope();
-
-		if(bv != null) {
-			ss.put("browser", bv);
-		}
-		m_application.augmentThemeMap(ss); // Provide a hook to let user code add stuff to the theme map
-
-		//-- 2. Get a reader.
-		InputStream is = ires.getInputStream();
-		if(is == null) {
-			LOG.error(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
-			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + resourceURL + ", ref=" + ires);
-		}
-		try(Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-			StringBuilder sb = new StringBuilder(65536);
-
-			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
-			rtc.execute(sb, r, resourceURL, ss);
-			ts = System.nanoTime() - ts;
-			if(bv != null)
-				LOG.debug("theme-replace: " + resourceURL + " for " + bv.getBrowserName() + ":" + bv.getMajorVersion() + " took " + StringTool.strNanoTime(ts));
-			else
-				LOG.debug("theme-replace: " + resourceURL + " for all browsers took " + StringTool.strNanoTime(ts));
-			return sb.toString();
-		}
-	}
-
-	/**
-	 * FIXME Variant kludge
-	 *
-	 * Return the current theme map (a readonly map), cached from the last
-	 * time. It will refresh automatically when the resource dependencies
-	 * for the theme are updated.
-	 */
-	@Deprecated
-	public IScriptScope getThemeMap(String themeName, @NonNull IThemeVariant variant, IResourceDependencyList rdlin) throws Exception {
-		ITheme ts = getTheme(themeName, variant, rdlin);
-		return ts.getPropertyScope();
 	}
 
 	/**

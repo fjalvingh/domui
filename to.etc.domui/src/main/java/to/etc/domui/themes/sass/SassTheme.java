@@ -8,7 +8,6 @@ import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.ThemeResourceFactory;
-import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencies;
@@ -33,27 +32,19 @@ final public class SassTheme implements ITheme {
 	final private ResourceDependencies m_rd;
 
 	@NonNull
-	final private IScriptScope m_propertyScope;
-
-	@NonNull
 	final private List<String> m_searchPath;
 
-	public SassTheme(@NonNull DomApplication da, String themeName, @NonNull String styleName, @NonNull IScriptScope themeProperties, @NonNull ResourceDependencies rd,
+	public SassTheme(@NonNull DomApplication da, String themeName, @NonNull String styleName, @NonNull ResourceDependencies rd,
 		@NonNull List<String> searchpath) {
 		m_da = da;
 		m_themeName = themeName;
 		m_styleName = styleName;
-		m_propertyScope = themeProperties;
 		m_rd = rd;
 		m_searchPath = searchpath;
 	}
 
 	@NonNull @Override public String getThemeName() {
 		return m_themeName;
-	}
-
-	@NonNull @Override public IScriptScope getPropertyScope() {
-		throw new IllegalStateException("Cannot do this as I'm not javascript based.");
 	}
 
 	@NonNull @Override public String translateResourceName(@NonNull String name) {

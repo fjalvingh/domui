@@ -1,8 +1,7 @@
-# DomUI theming: how it works today
+# DomUI theming
 
-An investigation of the theme subsystem as it stands in `to.etc.domui`, written as the
-basis for the planned removal of obsolete functionality. It describes what is there, what
-actually runs, and what is dead — with file/line references so every claim can be checked.
+How theming works, after the removal of the two obsolete theme engines and the Rhino
+template machinery. The last section records what was removed and what is still open.
 
 All paths are relative to `domui/to.etc.domui/src/main/java/to/etc/domui/` unless said
 otherwise; resources live under `domui/to.etc.domui/src/main/resources/resources/`.
@@ -11,30 +10,13 @@ otherwise; resources live under `domui/to.etc.domui/src/main/resources/resources
 
 ## 1. Summary
 
-Theming is three separate mechanisms grown on top of each other, of which **only the
-newest one is used**:
+There is **one** theme engine: the SCSS one. `DomApplication` sets it as the default
+(`server/DomApplication.java:611`), giving the theme name `scss-winter-default-default`,
+and it is the only entry in the `THEME_FACTORIES` registry.
 
-| Engine | Factory name | Introduced | Status |
-| --- | --- | --- | --- |
-| Fragmented | `fragmented` | 2011 | dead — nothing selects it, resources still shipped |
-| Simple | `s` | 2011 | dead — nothing selects it, resources still shipped, has a URL bug |
-| Sass/SCSS | `scss` | 2017 | **the one in use**; the framework default |
-
-`DomApplication` hard-codes `setDefaultThemeFactory(SassThemeFactory.INSTANCE)`
-(`server/DomApplication.java:614`), giving the default theme name
-`scss-winter-default-default`; both the demo (`to.etc.domui.demo/.../Application.java:53`)
-and the skeleton re-assert exactly that. All three factories are nevertheless registered
-in a static block (`server/DomApplication.java:2908-2911`) and all their machinery — Rhino
-JavaScript property scopes, `.frag.css` concatenation, `.color.js` / `icon.props.js`
-inheritance, style variants — is still compiled and shipped.
-
-Verified live against https://demo.domui.org/ :
-
-```
-GET /$THEME/scss-winter-default-default/style.scss     -> 200 text/css  472185 bytes
-GET /$THEME/scss-winter-default-default/btnCancel.png  -> 200 image/png     700 bytes
-GET /$THEME/scss-winter-default-default/nonexistent.png-> 404
-```
+A theme is a **search path of directories** holding one `style.scss` plus the images that
+stylesheet and the components refer to. Serving it is two things: compiling the SCSS to
+CSS on demand, and resolving `THEME/xxx` image references against that search path.
 
 ## 2. The two URL forms
 
@@ -42,25 +24,25 @@ There are two distinct spellings, and confusing them is the single most common m
 this code.
 
 **`THEME/xxx` (no dollar)** — what application and component code writes. It is a
-*logical* reference meaning "a resource from whatever theme is current". It only ever
-appears in Java source and in node properties (`Img.setSrc`, `setBackgroundImage`,
-`Icon.of(...)`).
+*logical* reference meaning "a resource from whatever theme is current". It appears in
+Java source and in node properties (`Img.setSrc`, `setBackgroundImage`, `Icon.of(...)`),
+and survives untranslated in the server-side DOM tree.
 
 **`$THEME/themeName/xxx` (with dollar)** — the *resolved* form. It names one concrete
 theme and is both a DomUI resource RURL and a browser-visible URL.
 
-The conversion happens in `ThemeManager.getThemedResourceRURL()`
-(`themes/ThemeManager.java:258-291`):
+The conversion happens at render time, in `ThemeManager.getThemedResourceRURL()`
+(`themes/ThemeManager.java:203-216`):
 
 ```java
 if(path.startsWith("THEME/"))       path = path.substring(6);
 else if(path.startsWith("ICON/"))   throw new IllegalStateException("Bad ROOT: ICON/...");
 else                                return path;              // not theme-relative
-String newicon = theme.translateResourceName(path);           // icon-name remapping
+String newicon = theme.translateResourceName(path);           // icon-name remapping hook
 return ThemeResourceFactory.PREFIX + theme.getThemeName() + "/" + newicon;
 ```
 
-`ICON/` is a third, fully removed form that survives only as this guard clause.
+`ICON/` is a third, long-removed form that survives only as this guard clause.
 
 The entry point used by components is `NodeBase.getThemedResourceRURL()`
 (`dom/html/NodeBase.java:1943`), which short-circuits absolute URLs and otherwise
@@ -87,12 +69,15 @@ factory - styleName - iconName - colorName [ - variant ]
 scss    - winter    - default  - default
 ```
 
-`DomApplication.getFactoryFromThemeName()` (`server/DomApplication.java:2763`) splits on
-the first `-` and looks the prefix up in the static `THEME_FACTORIES` map. Every factory
-re-splits the whole name itself and insists on 4 or 5 segments
-(`SassThemeFactory.java:76-83`, `SimpleThemeFactory.java:128-135`,
-`FragmentedThemeFactory.java:193-201`). A style, icon or colour name containing a dash is
-therefore impossible.
+`DomApplication.getFactoryFromThemeName()` (`server/DomApplication.java:2748`) splits on
+the first `-` and looks the prefix up in `THEME_FACTORIES`. `SassThemeFactory` re-splits
+the whole name itself and insists on 4 or 5 segments (`SassThemeFactory.java:70-77`), so a
+style, icon or colour name containing a dash is impossible.
+
+`iconName` and `colorName` only do something when they are *not* `default`: each prepends
+a directory to the search path, which is how a `_color.scss` or an icon file gets
+overridden (see §5). With one shipped style nothing uses that, so the last three segments
+are `winter-default-default` everywhere.
 
 ## 3. The interfaces
 
@@ -107,10 +92,8 @@ default String appendThemeVariant(String themeName, IThemeVariant variant) {
 }
 ```
 
-All three implementations are anonymous `IThemeFactory` singletons living inside the
-concrete factory class (`SassThemeFactory.INSTANCE`, `SimpleThemeFactory.INSTANCE`,
-`FragmentedThemeFactory.getInstance()`); the outer class is instantiated per theme
-construction and thrown away. `appendThemeVariant` is never overridden.
+`SassThemeFactory.INSTANCE` is an anonymous singleton inside the concrete factory class;
+the outer class is instantiated per theme construction and thrown away.
 
 ### `ITheme` (`themes/ITheme.java`)
 
@@ -118,47 +101,25 @@ construction and thrown away. `appendThemeVariant` is never overridden.
 String               getThemeName();                       // the name as it appears in URLs
 ResourceDependencies getDependencies();                    // for dev-mode reload
 IResourceRef         getThemeResource(String name, IResourceDependencyList rdl);
-IScriptScope         getPropertyScope();                   // Rhino scope — legacy only
-String               translateResourceName(String name);   // icon name remapping
+String               translateResourceName(String name);   // icon name remapping hook
 String               getStyleSheetName();                  // RURL of the main stylesheet
 ```
 
-Two of these six are legacy:
-
-- `getPropertyScope()` returns the JavaScript variable scope built from `.color.js` /
-  `.props.js` files. `SassTheme` cannot supply one and **throws**
-  (`themes/sass/SassTheme.java:53-55`). It is consumed only by
-  `ThemeManager.getThemeReplacedString()` and the deprecated `getThemeMap()`.
-- `translateResourceName()` maps an icon file name to another one through the JS `icon`
-  object. `SassTheme` returns the name unchanged (`SassTheme.java:57-59`);
-  `SimpleTheme.java:127-138` and `FragmentedThemeStore.java:95-106` share an identical
-  copy-pasted implementation.
+`translateResourceName` is a no-op in `SassTheme` (`SassTheme.java:51-53`). It is kept as
+the extension point it is — an `ITheme` of your own can still substitute one icon file for
+another — but nothing in the framework uses it any more.
 
 ### `IThemeVariant` (`themes/IThemeVariant.java`)
 
-A one-method interface (`getVariantName()`) with two implementations:
-`DefaultThemeVariant` ("default") and `CleanThemeVariant` ("clean").
-`CleanThemeVariant` is referenced by **nothing** outside its own file.
-
-Variants exist in three places that do not agree with each other:
-
-- `UrlPage.setThemeVariant()` (`dom/html/UrlPage.java:86`) pushes it into the request
-  context; the matching getter is commented out (`UrlPage.java:90-92`).
-- `RequestContextImpl` stores it (`server/RequestContextImpl.java:132,443-450`) — and then
-  `getCurrentTheme()` (line 408-417) calls `m_application.getTheme(getThemeName(), null)`,
-  **without the variant**. So setting a variant on a page changes nothing.
-- `ThemeManager.getTheme(name, variant, rdl)` (line 115-119) does apply it, but its only
-  callers are `DomApplication.getDefaultThemeInstance()` (itself unused inside the
-  framework) and the deprecated `getThemeMap()`.
-
-The variant mechanism is effectively inert.
+A one-method interface (`getVariantName()`) with one implementation, `DefaultThemeVariant`
+("default"). See open issue 1 in §9: the mechanism does not currently do anything.
 
 ## 4. `ThemeManager` — instantiation and caching
 
 `themes/ThemeManager.java` is a final class owned by `DomApplication`
 (`m_themeManager`, exposed via `internalGetThemeManager()`).
 
-`getTheme(key, rdl)` (line 121-160) is the workhorse:
+`getTheme(key, rdl)` (line 109-148) is the workhorse:
 
 1. resolve the factory from the name prefix;
 2. look `key` up in `m_themeMap`;
@@ -169,41 +130,10 @@ The variant mechanism is effectively inert.
    `ThemeModifiableResource` with a 3-second throttle (`themes/ThemeModifiableResource.java`)
    so a theme edit is picked up without re-stat-ing every fragment on every request.
 
-`checkReapThemes()` (line 166-185) is meant to drop themes unused for five minutes. It
-sorts a *copy* of the map's values and removes entries from that copy — `m_themeMap` is
-never touched. **The reaper does nothing.** It also skips index `size()-1` because of the
-`for(int i = list.size(); --i >= 0;)` / `list.remove(i)` combination.
-
-`getThemeReplacedString()` (line 199-238) is the Rhino template expander: load a resource
-as UTF-8, take the theme's property scope, add `browser` and whatever
-`DomApplication.augmentThemeMap()` contributes, run `RhinoTemplateCompiler` over it,
-return the string. It requires a `$THEME/...` URL because it calls
-`ThemeResourceFactory.splitThemeResourceURL()` on it.
-
-It has four call sites, and **none of them can be reached under the SCSS engine**:
-
-| Caller | Fires for | Why it never runs today |
-| --- | --- | --- |
-| `themes/ThemePartFactory.java:149` | `*.theme.*` URLs | `themes/scss/winter/` contains no `.theme.` resource at all |
-| `parts/SvgPartFactory.java:112` | `*.png.svg` URLs | no `.png.svg` resource ships (they sit in the non-packaged `extra/`) |
-| `parts/PartUtil.java:143` (`loadSvg`, from `GrayscalerPart` and `MarkerImagePart`) | image names ending in `svg` | the live theme contains no `.svg` file, and `ImageIconRef` routes `.svg` to the inlining `SvgIcon`, not to `<img>` |
-| `parts/PartUtil.java:69` (`loadProperties`) | — | no callers anywhere |
-
-The guarantee is structural rather than accidental: the first thing
-`getThemeReplacedString` does with the resolved theme is call
-`theme.getPropertyScope()` (line 209), and `SassTheme` **throws**
-`IllegalStateException("Cannot do this as I'm not javascript based.")` on that
-(`themes/sass/SassTheme.java:53-55`). Any of the four paths reached with an SCSS theme
-would blow up rather than render — which is exactly the evidence that they are not
-reached. (Reached with a non-`$THEME/` URL, `splitThemeResourceURL` throws first.)
-
-What the Rhino scope did for the old themes — inject theme variables into a text resource
-before serving it — is done for SCSS by the synthesised `_parameters.scss` (§7) instead.
-
 ## 5. Resource resolution: `$THEME/...` to bytes
 
 `ThemeResourceFactory` (`themes/ThemeResourceFactory.java`) is an `IResourceFactory`
-registered at `server/DomApplication.java:619`. Resource factories are scored by
+registered at `server/DomApplication.java:616`. Resource factories are scored by
 `accept()`; this one returns 30 for anything starting with `$THEME/`, beating
 `SimpleResourceFactory` (10 for any `$…`) and `ClassRefResourceFactory` (10 for `$RES/`).
 
@@ -216,21 +146,22 @@ $THEME/scss-winter-default-default/btnCancel.png
 delegates to `theme.getThemeResource(fileName, rdl)`, throwing `ThingyNotFoundException`
 when the result does not exist.
 
-Each `ITheme` implements `getThemeResource` as a **search path walk** — try
-`<dir>/<name>` for each directory in order, return the first that exists:
+`SassTheme.getThemeResource` (`SassTheme.java:79-92`) is a **search path walk** — try
+`<dir>/<name>` for each directory in order, return the first that exists. The path is
+built in `SassThemeFactory.createTheme()`:
 
-- `SassTheme.java:88-101`, forward order over `m_searchPath`
-- `SimpleTheme.java:100-125`, forward order, returns a bespoke non-existent ref instead of
-  the `IResourceRef.NONEXISTENT` constant that already exists
-- `FragmentedThemeStore.java:108-137`, **reverse** order over the inheritance stack, plus a
-  special case returning the pre-built stylesheet bytes for `style.theme.css`; also builds
-  its own non-existent ref
+```
+$themes/scss/<style>/<color>-color     (only when color   != "default")
+$themes/scss/<style>/<icon>-icons      (only when icon    != "default")
+$themes/scss/<style>
+$themes/scss/all
+```
 
-The search-path entries are themselves DomUI RURLs (`$themes/scss/winter`), so the walk
-recurses into `SimpleResourceFactory` → `DomApplication.getAppFileOrResource()`
-(`server/DomApplication.java:1677-1696`), which tries, in order: a file under the webapp
-directory, a reloading classpath ref under `META-INF/resources/` (dev mode only), a
-servlet-container fragment resource, and finally a classpath resource under `/resources/`.
+The entries are themselves DomUI RURLs, so the walk recurses into `SimpleResourceFactory`
+→ `DomApplication.getAppFileOrResource()` (`server/DomApplication.java:1674-1693`), which
+tries, in order: a file under the webapp directory, a reloading classpath ref under
+`META-INF/resources/` (dev mode only), a servlet-container fragment resource, and finally
+a classpath resource under `/resources/`.
 
 This is what makes a theme overridable: dropping `themes/scss/winter/btnCancel.png` into
 the webapp shadows the one in the DomUI jar.
@@ -238,17 +169,15 @@ the webapp shadows the one in the DomUI jar.
 ## 6. Serving: the request round trip
 
 Requests reach `PartRequestHandler` (priority 80, ahead of `ApplicationRequestHandler` at
-50 — `server/DomApplication.java:622-623`), which calls `PartService.render()`.
+50 — `server/DomApplication.java:619-620`), which calls `PartService.render()`.
 `PartService.findPart()` (`server/parts/PartService.java:145-155`) tries class-based parts
 (`xxx.part/…`) first, then URL matchers **in registration order**
-(`server/DomApplication.java:703-707`):
+(`server/DomApplication.java:697-700`):
 
 | # | Part factory | Matches | Purpose |
 | --- | --- | --- | --- |
 | 1 | `SassPartFactory` | `*.scss`, `*.sass` | compile SCSS → CSS |
-| 2 | `ThemePartFactory` | `*.theme.*` | Rhino-expand a themed text resource |
-| 3 | `SvgPartFactory` | `*.png.svg` | Batik-rasterise a themed SVG to PNG |
-| 4 | `InternalResourcePart` | path starts with `$` | serve a resource verbatim |
+| 2 | `InternalResourcePart` | path starts with `$` | serve a resource verbatim |
 
 Results are cached by `PartService` in a 16 MB LRU keyed on whatever the factory's
 `decodeKey()` returns, and re-checked against `ResourceDependencies` on every hit — in
@@ -256,7 +185,7 @@ production too, deliberately (`PartService.java:280-287`).
 
 ### 6.1 An icon: `$THEME/scss-winter-default-default/btnCancel.png`
 
-Matchers 1-3 miss, matcher 4 hits. `InternalResourcePart.decodeKey` refuses extension-less
+Matcher 1 misses, matcher 2 hits. `InternalResourcePart.decodeKey` refuses extension-less
 paths (403) and `.class` (404), then `generate()` calls `da.getResource(rurl, …)` — which
 lands in `ThemeResourceFactory` as described above, resolving to
 `resources/themes/scss/winter/btnCancel.png` in the DomUI jar. MIME from the extension,
@@ -271,12 +200,12 @@ lands in `ThemeResourceFactory` as described above, resolving to
 ```
 
 from `ITheme.getStyleSheetName()`. `SassTheme.getStyleSheetName()`
-(`themes/sass/SassTheme.java:63-75`) computes that hash by **compiling the sheet right
+(`themes/sass/SassTheme.java:54-66`) computes that hash by **compiling the sheet right
 there**, through `PartService.getData()`, and hashing the result. That warms the part
 cache, so the browser's follow-up request is a cache hit (`$hash` is stripped from the key
 by `SassPartFactory.decodeKey`, which drops every `$`-prefixed parameter). It reaches into
-`UIContext.getRequestContext()` for the browser version and is annotated `FIXME Fugly!!`
-in the source.
+`UIContext.getRequestContext()` for a browser version it then discards, and is annotated
+`FIXME Fugly!!` in the source (open issue 3).
 
 The compile itself: `SassPartFactory.generate()` → `SassCompilerFactory.createCompiler()`
 → `JSassCompiler` (libsass via jsass). Imports are resolved by `JSassResolver` /
@@ -302,14 +231,14 @@ contributor stylesheets, falling back to the webapp file and then a classpath re
 
 ## 7. Getting values *into* a stylesheet
 
-Under SCSS there is exactly one channel: the generated `_parameters.scss`
+There is exactly one channel: the generated `_parameters.scss`
 (`sass/AbstractSassResolver.java:243-270`). `style.scss` imports it first
 (`resources/themes/scss/winter/style.scss:5`). Its content is built from:
 
 1. every URL parameter of the request that does not start with `__`, as `$name: value;`
    (a name ending in `$` marks the value as a string to be quoted);
 2. `DomApplication.getThemeProperties()` — the map fed by `setThemeProperty(name, value)`
-   (`server/DomApplication.java:2508-2523`);
+   (`server/DomApplication.java:2489-2504`);
 3. whatever `IThemeVariablesCalculator.calculate(parameters)` returns
    (`themes/sass/IThemeVariablesCalculator.java`, plugged in via
    `setThemeVariablesCalculator`, default `parameters -> Map.of()`).
@@ -318,15 +247,9 @@ A physical `_parameters.scss` also exists in the theme directory but is never re
 resolver intercepts the name before any lookup. Its content says as much: *"its content
 serves as a reminder only"*.
 
-Two further override hooks are plain empty files in the theme, imported by `style.scss`
-and meant to be shadowed by a webapp copy: `_custominit.scss` (imported second, before the
+Two further override hooks are empty files in the theme, imported by `style.scss` and
+meant to be shadowed by a webapp copy: `_custominit.scss` (imported second, before the
 variables) and `_userstyle.scss` (imported after them).
-
-The legacy channel is `DomApplication.augmentThemeMap(IScriptScope)`
-(`server/DomApplication.java:2479-2484`), which injects a `ThemeCssUtils` helper as `util`
-plus the theme properties into the Rhino scope. `ThemeCssUtils` (`themes/ThemeCssUtils.java`)
-and the 541-line `themes/CssColor.java` exist purely to be called from `.color.js` files;
-no Java code constructs either.
 
 ## 8. Icons
 
@@ -344,13 +267,13 @@ an application re-point.
 - anything else → `ImgIcon`, a `<span>` wrapping an `<img src="THEME/…">` that
   `HtmlTagRenderer.visitImg` translates at render time.
 
-So the `THEME/` prefix in an icon path survives untranslated in the DOM tree and is only
-resolved during rendering. `translateResourceName()` gets its chance at that same moment —
-under SCSS it is a no-op, under the legacy engines it consulted the JS `icon` object, which
-is what let an icon set substitute one file for another.
+`GrayscalerPart` and `MarkerImagePart` are the two parts that load a themed image
+server-side, through `PartUtil.loadImage()`: GIF, JPEG and PNG via `ImaTool`, SVG via the
+Batik transcoder at the size the SVG itself declares. See open issue 4 — the SVG branch
+cannot currently run.
 
 A scan of every `"THEME/…"` literal in the framework and demo (93 distinct paths) against
-`resources/themes/scss/winter/` finds two genuinely dangling references:
+`resources/themes/scss/winter/` finds two dangling references:
 
 - `THEME/big-accessDenied.png` — `themes/Theme.java:140` (`BIG_ACCESS_DENIED`)
 - `THEME/btnBack.png` — `component/misc/InternalParentTree.java:219`
@@ -367,154 +290,18 @@ RequestContextImpl.getThemeName()            server/RequestContextImpl.java:423-
   └─ DomApplication.calculateUserTheme(ctx)  -> getDefaultThemeName()  (override point)
 ```
 
-`calculateUserTheme` (`server/DomApplication.java:2575`) is the documented hook for a
-per-user theme; it is not overridden anywhere in this workspace. `setDefaultThemeName` and
-`setDefaultThemeFactory` (line 2494 / 2534) set the application-wide default; the latter
-just assigns the factory's own default name — note it stores **only the name**, so the
-"default factory" is not remembered as such, it is re-derived from the name prefix on
-every lookup.
+`calculateUserTheme` (`server/DomApplication.java:2556`) is the documented hook for a
+per-user theme; nothing in this workspace overrides it. `setDefaultThemeName` and
+`setDefaultThemeFactory` set the application-wide default; the latter just assigns the
+factory's own default name — note it stores **only the name**, so the "default factory" is
+not remembered as such, it is re-derived from the name prefix on every lookup.
 
 The theme name is also carried in `IPageParameters`
 (`state/IBasicParameterContainer.java:47`, `state/MapParameterContainer.java:179`) and
 participates in `equals`/`hashCode` (`MapParameterContainer.java:120-150`), which is what
 keeps compiled parts of different themes apart in the part cache.
 
-## 10. The two legacy engines, briefly
-
-### Simple (`themes/simple/`, factory `s`, default `s-blue-blue-blue`)
-
-Name `s-<style>-<icon>-<color>`. Loads three JavaScript property files into one Rhino
-scope (`<color>.color.js`, `<icon>.icons.js`, `css-<style>/style.props.js`) and builds a
-four-entry search path: `<icon>-icons`, `<color>-colors`, `css-<style>`, `all`. The
-stylesheet is `style.theme.css`, served by `ThemePartFactory`.
-
-Its `getStyleSheetName()` has a **double-slash bug**:
-`PREFIX + m_themeName + "/" + "/style.theme.css"` (`themes/simple/SimpleTheme.java:81`).
-
-Of its default `s-blue-blue-blue`, `themes/blue.icons.js` is a zero-byte file,
-`themes/blue-icons/` does not exist, and neither does `themes/all/`.
-
-### Fragmented (`themes/fragmented/`, factory `fragmented`, default `fragmented-domui-orange-domui`)
-
-The most elaborate of the three, and the only one supporting variants meaningfully. Name
-`fragmented-<style>-<icon>-<color>[-<variant>]`. It:
-
-- loads colours from `themes/<color>.color.js`, icons from `themes/<icon>-icons/icon.props.js`,
-  style from `themes/css-<style>/style.props.js`, each of which may call `inherit('name')`
-  to pull in a parent set — implemented by evaluating
-  `function inherit(s) { collector.internalInheritXxx(s); }` in the Rhino scope and
-  calling back into Java (`FragmentedThemeFactory.java:346-352`);
-- builds the master stylesheet at theme-construction time by concatenating **all
-  `*.frag.css` files** found across the inheritance stack, sorted by file name, from both
-  the classpath (`ClasspathInventory.getPackageInventory`) and the webapp directory
-  (`FragmentedThemeFactory.java:452-500`);
-- appends `-<variant>` to the style directory name, which is what `css-domui-clean/` and
-  `domui-icons-clean/` are for;
-- carries a hard-coded customer workaround: `.replace("domui.", "orange.")` on the colour
-  file name, commented *"jsavic 20121107: reported workaround - temporary"*
-  (`FragmentedThemeFactory.java:319`).
-
-`Check.CHECK` in `appendFragment` compiles each fragment as a Rhino template purely to
-validate it, then appends the **unexpanded** source — the expanded result is discarded and
-`Check.NONE` is never used.
-
-## 11. Resources currently shipped
-
-`resources/themes/`:
-
-| Path | Files | Belongs to | Live? |
-| --- | --- | --- | --- |
-| `scss/winter/` (+ `input/`, `bulmaish/`) | 280 (114 `.scss`, 164 images) | sass | **yes** |
-| `css-blue/` | 166 | simple / fragmented | no |
-| `blue/` | 153 | simple (orphan: no factory builds this path) | no |
-| `domui-icons/` | 152 | fragmented | no |
-| `css-domui/` | 88 | fragmented | no |
-| `css-domui-clean/` | 88 | fragmented, `clean` variant | no |
-| `blue-colors/`, `green-colors/`, `orange-colors/` | 3 each | simple / fragmented | no |
-| `domui-icons-clean/` | 2 | fragmented, `clean` variant | no |
-| `blue.color.js`, `green.color.js`, `orange.color.js`, `blue.icons.js` (0 bytes) | 4 | simple / fragmented | no |
-
-152 `.frag.css` files in total. Only `scss/winter` is reachable from the default theme,
-and `scss/` contains no `all/` directory even though `SassThemeFactory` puts
-`$themes/scss/all` on the search path.
-
-## 12. Dead, broken and questionable — the cleanup list
-
-**Certainly dead**
-
-1. `themes/simple/` (2 classes) and its resources — no configuration selects factory `s`.
-2. `themes/fragmented/` (2 classes, ~730 lines) and its resources — likewise for
-   `fragmented`. It is `ClasspathInventory.getPackageInventory`'s only production caller
-   (the other is that class's own `main`), so that method becomes dead with it.
-3. `themes/ThemePartFactory.java` — matches `*.theme.*`; the only such resources are the
-   two legacy stylesheets. Its `Key` still carries a `BrowserVersion` and an `iv`
-   cache-buster.
-4. `parts/SvgPartFactory.java` — matches `*.png.svg`; the only `.png.svg` files in the
-   repo are in `to.etc.domui/extra/`, which is not a source or resource root, so none are
-   ever served. (This does **not** free the Batik dependency: `parts/PartUtil.java`
-   still uses the transcoder from `GrayscalerPart` and `MarkerImagePart`.)
-5. `ThemeManager.getThemeReplacedString()` (both overloads) — its four call sites are 3, 4
-   and the two in `parts/PartUtil.java`; none is reachable under SCSS (§4). Note this also
-   makes `PartUtil.loadProperties()` (no callers) dead, and reduces `PartUtil.loadSvg()`
-   to a plain resource read — or removes SVG support from `GrayscalerPart` /
-   `MarkerImagePart` altogether, which is a decision to take rather than assume.
-6. `ThemeManager.getThemeMap()` — already `@Deprecated`, no callers.
-7. `themes/CleanThemeVariant.java` — referenced nowhere.
-8. `themes/ThemeCssUtils.java` and `themes/CssColor.java` — reachable only from `.color.js`
-   files, which only the legacy engines load.
-9. `ITheme.getPropertyScope()` — `SassTheme` throws on it; after 3-6 nothing calls it.
-10. `ITheme.translateResourceName()` — a no-op under SCSS; after 1-2 the only remaining
-    implementation is `return name`.
-11. `DomApplication.augmentThemeMap()` — after 9 there is no scope to augment.
-    (`ThemeProperty` values reach SCSS through `_parameters.scss` instead, which is a
-    separate path and must stay.)
-12. `themes/ITheme.getDependencies()` — `SassTheme` always returns an empty
-    `ResourceDependencies` (`SassThemeFactory.java:127`), so the dev-mode reload it feeds
-    is a no-op for the only live engine. Note the SCSS reload people actually rely on comes
-    from `PartService`'s own dependency check, not from here.
-
-**Broken**
-
-13. `ThemeManager.checkReapThemes()` mutates a copy — themes are never reaped (§4).
-14. `SimpleTheme.getStyleSheetName()` emits a double slash (§10).
-15. `resources/css/jquery-ui.theme.css` matches `ThemePartFactory.MATCHER`; requesting it
-    would throw `IllegalArgumentException` from `splitThemeResourceURL` because it is not a
-    `$THEME/` URL. Nothing references it today, so it is latent — and it disappears with 3.
-16. `THEME/big-accessDenied.png` and `THEME/btnBack.png` do not exist in the live theme (§8).
-17. `SassPartFactory.decodeKey` and `SassTheme.getStyleSheetName` pin
-    `BrowserVersion.INSTANCE` (a hard-coded Chrome 60 UA string,
-    `server/BrowserVersion.java:46`) while `ThemePartFactory` keys on the real one. Browser
-    conditionals in stylesheets are therefore already effectively gone; `BrowserVersion` in
-    the theme path is vestigial.
-
-**Design questions for the rework**
-
-18. The variant mechanism is dead in the water (§3): `RequestContextImpl.getCurrentTheme()`
-    drops the variant that `UrlPage.setThemeVariant()` sets, and the getter is commented
-    out. Either wire it up or drop `IThemeVariant` entirely.
-19. The 4-segment theme name is over-parameterised for SCSS: `iconName` and `colorName` are
-    almost always `default`, and the SCSS `@import` override trick makes the search path a
-    better fit for them than a URL segment. With one style there is no reason for the name
-    to be more than `scss-winter`.
-20. `getStyleSheetName()` compiling the whole sheet to compute a cache-busting hash, from
-    inside a getter, reaching into `UIContext` for a browser version it then discards, is
-    the single ugliest part of the live path (its own `FIXME Fugly!!`).
-21. `SimpleTheme` and `FragmentedThemeStore` each carry a private copy of a non-existent
-    `IResourceRef` although `IResourceRef.NONEXISTENT` exists — moot once they are removed,
-    but the same pattern should not reappear.
-22. `IThemeFactory.getTheme()` is documented as "must not cache", yet `ThemeManager` is the
-    only caller and the only cache — worth stating in the interface as a contract rather
-    than a comment.
-23. Rhino (`org.mozilla:rhino`, `to.etc.domui/pom.xml:92-95`) **cannot** be dropped with the
-    themes: `dom/HtmlFullRenderer.java:134-164` and `server/OopsFrameRenderer.java` use
-    `RhinoTemplate` for the page body and error frame templates. Only the theme-side uses
-    (`RhinoExecutor`, `IScriptScope`, `RhinoScriptScope`) go away.
-24. `src/test/java/to/etc/domui/test/theme/TestRhino.java` tests the icon-remapping
-    behaviour of item 10 and goes with it.
-
-## 13. Live path, condensed
-
-Everything that actually runs today, end to end:
+## 10. Live path, condensed
 
 ```
 page render
@@ -539,4 +326,88 @@ browser GET /$THEME/<theme>/btnCancel.png
       -> /resources/themes/scss/winter/btnCancel.png
 ```
 
-Nine of the classes under `themes/` and one under `parts/` play no part in that diagram.
+## 11. What was removed
+
+The two pre-2017 engines and the Rhino template machinery they shared. All of it was
+unreachable under the SCSS engine — structurally so, because the first thing the template
+expander did was call `ITheme.getPropertyScope()`, on which `SassTheme` threw.
+
+**Theme engines**
+
+- `themes/simple/` — `SimpleTheme`, `SimpleThemeFactory` (factory prefix `s`)
+- `themes/fragmented/` — `FragmentedThemeFactory`, `FragmentedThemeStore` (prefix
+  `fragmented`), including the `.frag.css` concatenation, the `inherit()` callback into
+  Java, and the 2012 `.replace("domui.", "orange.")` customer workaround
+- their registration in `DomApplication`'s static block
+
+**Rhino template machinery**
+
+- `ThemeManager.getThemeReplacedString()` (both overloads) and the deprecated
+  `ThemeManager.getThemeMap()`
+- `ITheme.getPropertyScope()`, and the `IScriptScope` field/parameter it forced through
+  `SassTheme`'s constructor — plus the 40-line do-nothing `IScriptScope` that
+  `SassThemeFactory` had to build to satisfy it
+- `DomApplication.augmentThemeMap(IScriptScope)`
+- `themes/ThemeCssUtils.java` and `themes/CssColor.java`, which existed only to be called
+  from `.color.js` files
+
+**Parts**
+
+- `themes/ThemePartFactory.java` (`*.theme.*`) and `parts/SvgPartFactory.java`
+  (`*.png.svg`), with their registrations
+- `PartUtil.loadProperties()` (no callers) and `PartUtil`'s URL-parameter splitting.
+  `PartUtil.loadSvg()` now takes the resource stream and rasterises it at the size the SVG
+  declares, with no theme expansion and no `w`/`h` parameters.
+
+**Other**
+
+- `themes/CleanThemeVariant.java` — named the fragmented engine's `clean` style directory,
+  which is gone
+- `src/test/.../TestRhino.java`, `extra/TestThemeExpander.java`, `makeunsplit.xml` (an Ant
+  script that rebuilt `css-blue` from the now-deleted `css-domui`), and the orphaned
+  `extra/*.png.svg` + `extra/defaultbutton.properties`
+- every theme resource directory except `scss/`: `blue/`, `blue-colors/`, `css-blue/`,
+  `css-domui/`, `css-domui-clean/`, `domui-icons/`, `domui-icons-clean/`, `green-colors/`,
+  `orange-colors/` and the four `*.color.js` / `*.icons.js` files — 152 `.frag.css` files
+  among them
+
+Net: 693 files, ~28,300 lines. Rhino itself stays — `HtmlFullRenderer.renderTemplatePage()`
+and `OopsFrameRenderer` use `RhinoTemplate` for page and error-frame templates, which has
+nothing to do with theming.
+
+Verified after the change: full `mvn21 clean install` succeeds, and against a locally run
+demo `$THEME/<theme>/style.scss` (200, 472 KB of CSS), `$THEME/<theme>/btnCancel.png`,
+`GrayscalerPart` and `MarkerImagePart` all still serve.
+
+## 12. Still open
+
+1. **The variant mechanism is inert.** `UrlPage.setThemeVariant()`
+   (`dom/html/UrlPage.java:86`) pushes a variant into the request context and its getter is
+   commented out; `RequestContextImpl.getCurrentTheme()` (line 408-417) then calls
+   `getTheme(getThemeName(), null)` **without** it. The only caller of the variant-aware
+   `ThemeManager.getTheme(name, variant, rdl)` is
+   `DomApplication.getDefaultThemeInstance()`, itself unused in the framework. Either wire
+   it up or drop `IThemeVariant`.
+2. **The theme name is over-parameterised.** With one style and the SCSS `@import`
+   override trick doing the work of icon/colour sets, `scss-winter-default-default` carries
+   two segments that are always `default`. `scss-winter` would say the same thing.
+3. **`getStyleSheetName()` compiles the whole stylesheet** to compute a cache-busting hash,
+   from inside a getter, reaching into `UIContext` for a browser version it discards
+   (`SassTheme.java:54-66`, its own `FIXME Fugly!!`).
+4. **SVG rasterisation cannot run.** `PartUtil.loadSvg()` throws
+   `NoClassDefFoundError: org/w3c/dom/svg/SVGDocument`, because `to.etc.domui/pom.xml`
+   deliberately excludes `batik-ext` — commit e611a2382 (2019-02-10), *"exclude batik-ext
+   because it (partially) duplicates org.w3c.dom package"* for the Java 10 build. Nothing
+   else on the classpath provides those interfaces. This predates the cleanup: the old code
+   threw earlier (in the template expander) and never reached Batik at all. Fixing it means
+   either finding a JPMS-safe source for `org.w3c.dom.svg` or replacing Batik.
+5. **`ThemeManager.checkReapThemes()` does nothing.** It sorts a *copy* of the map's values
+   and removes entries from that copy; `m_themeMap` is never touched
+   (`ThemeManager.java:151-172`). It also skips the last element because of the
+   `for(int i = list.size()-1; --i >= 0;)` / `list.remove(i)` combination.
+6. **Two dangling icon references** — `THEME/big-accessDenied.png` and `THEME/btnBack.png`
+   (§8).
+7. **`$themes/scss/all` is on every search path** but does not exist; `scss/` holds only
+   `winter/`.
+8. **`translateResourceName()` is a no-op** in the only shipped `ITheme`. Kept as an
+   extension point; drop it if the rework decides `ITheme` should not carry one.

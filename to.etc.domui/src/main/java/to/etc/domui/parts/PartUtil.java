@@ -24,30 +24,24 @@
  */
 package to.etc.domui.parts;
 
-import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.state.IPageParameters;
-import to.etc.domui.state.PageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.sjit.ImaTool;
-import to.etc.util.StringInputStream;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
 public class PartUtil {
@@ -62,44 +56,9 @@ public class PartUtil {
 	}
 
 	/**
-	 * Loads a properties file from a resource string.
-	 */
-	@NonNull
-	static public Properties loadProperties(DomApplication da, String src, IResourceDependencyList rdl) throws Exception {
-		String svg = da.internalGetThemeManager().getThemeReplacedString(rdl, src);
-
-		try(InputStream is = new StringInputStream(svg, "utf-8")) {
-			Properties p = new Properties();
-			p.load(is);
-			return p;
-		}
-	}
-
-	static private String getURI(@NonNull String in) {
-		int pos = in.indexOf('?');
-		if(pos == -1)
-			return in;
-		return in.substring(0, pos);
-	}
-
-	@Nullable
-	static public IPageParameters getParameters(String in) {
-		if(in == null)
-			return null;
-		int pos = in.indexOf('?');
-		if(pos == -1)
-			return null;
-		return PageParameters.decodeParameters(in.substring(pos + 1));
-	}
-
-	/**
 	 * Load an image, either through a resource (when the part starts with RES) or as a webapp file.
 	 */
-	static public BufferedImage loadImage(DomApplication da, String in, @NonNull IResourceDependencyList rdl) throws Exception {
-		//-- Split input in URL and parameters (QD for generic retrieval of resources)
-		String image = getURI(in);
-		IPageParameters param = getParameters(in);
-
+	static public BufferedImage loadImage(DomApplication da, String image, @NonNull IResourceDependencyList rdl) throws Exception {
 		IResourceRef ref = da.getResource(image, rdl);
 //		if(ref == null)
 //			throw new ThingyNotFoundException("The image '" + image + "' was not found.");
@@ -115,10 +74,10 @@ public class PartUtil {
 				bi = ImaTool.loadJPEG(is);
 			else if(isa(image, "png"))
 				bi = ImaTool.loadPNG(is);
-			else if(image.endsWith("svg")) {
-				bi = loadSvg(da, rdl, image, param);
-			} else
-				throw new IllegalArgumentException("The image '" + image + "' must be .gif, .jpg or .jpeg");
+			else if(isa(image, "svg"))
+				bi = loadSvg(is);
+			else
+				throw new IllegalArgumentException("The image '" + image + "' must be .gif, .jpg, .jpeg, .png or .svg");
 
 			//			System.out.println("size of image is "+xy(m_src_bi.getWidth(), m_src_bi.getHeight()));
 
@@ -138,22 +97,12 @@ public class PartUtil {
 		}
 	}
 
-	private static BufferedImage loadSvg(DomApplication da, IResourceDependencyList rdl, String image, IPageParameters param) throws Exception {
-		//-- 1. Get the input as a theme-replaced resource
-		String svg = da.internalGetThemeManager().getThemeReplacedString(rdl, image);
-
-		//-- 2. Now generate the thingy using the Batik transcoder:
+	/**
+	 * Rasterize an svg image, at the size defined by the svg itself.
+	 */
+	private static BufferedImage loadSvg(InputStream is) throws Exception {
 		BufferedImageTranscoder bit = new BufferedImageTranscoder();
-		TranscoderInput in = new TranscoderInput(new StringReader(svg));
-
-		int w = param.getInt("w", -1);
-		int h = param.getInt("h", -1);
-
-		if(w != -1 && h != -1) {
-			bit.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, Float.valueOf(w));
-			bit.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, Float.valueOf(h));
-		}
-		bit.transcode(in, new TranscoderOutput());
+		bit.transcode(new TranscoderInput(is), new TranscoderOutput());
 		return bit.getRendered();
 	}
 

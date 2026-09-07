@@ -239,14 +239,23 @@ it. Everything else on this list is a question for the user, not a deletion.
       work here is to stop the docs and the demo teaching them, which is done.
 - [ ] **Framework: the theme variant is parsed and then ignored.**
       `SassThemeFactory` reads the fifth part of the theme name into a local
-      variable and constructs the `SassTheme` without it, so
-      `UrlPage.setThemeVariant()`, `IThemeVariant`, `CleanThemeVariant` and a
-      `-clean` theme name change nothing under the current scss theme. It is a
-      leftover from the `.frag.css` system that came before it. Either make the
-      variant reach the search path or remove the machinery; the documentation
-      currently warns the reader off it. The `simple` and `fragmented` theme
-      factories and the 152 `.frag.css` files in `resources/themes/css-domui-clean`
-      go with the same decision. (Found writing the styling chapter, 2026-09-06.)
+      variable and constructs the `SassTheme` without it, and
+      `RequestContextImpl.getCurrentTheme()` drops the variant that
+      `UrlPage.setThemeVariant()` sets, so `IThemeVariant` changes nothing.
+      Either make the variant reach the search path or remove the machinery;
+      the documentation currently warns the reader off it. (Found writing the
+      styling chapter, 2026-09-06. The old theme engines it was entangled with
+      were removed on 2026-09-07 - see the log - so only the variant decision
+      itself is left.)
+- [ ] **Framework: SVG rasterisation cannot run.** `PartUtil.loadSvg()`, used by
+      `GrayscalerPart` and `MarkerImagePart`, throws
+      `NoClassDefFoundError: org/w3c/dom/svg/SVGDocument`: `to.etc.domui/pom.xml`
+      excludes `batik-ext` (commit e611a2382, 2019-02-10, because it duplicates
+      the `org.w3c.dom` package on Java 10+) and nothing else on the classpath
+      supplies those interfaces. Pre-existing and invisible until now, because
+      the old code threw earlier. Either find a JPMS-safe source for
+      `org.w3c.dom.svg` or replace Batik. (Found 2026-09-07 removing the old
+      theme engines.)
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
       that add nothing.
 
