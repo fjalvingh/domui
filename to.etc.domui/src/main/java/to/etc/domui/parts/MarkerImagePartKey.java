@@ -27,6 +27,7 @@ package to.etc.domui.parts;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
 
@@ -72,7 +73,9 @@ final public class MarkerImagePartKey {
 		MarkerImagePartKey k = new MarkerImagePartKey();
 
 		String icon = info.getString(PARAM_ICON, null);
-		ITheme theme = da.internalGetThemeManager().getTheme(info.getThemeName(), null);
+		String variantName = info.getThemeVariantName();
+		IThemeVariant variant = null == variantName ? da.getThemeFactory().getDefaultVariant() : IThemeVariant.of(variantName);
+		ITheme theme = da.internalGetThemeManager().getTheme(variant, null);
 		String url = da.internalGetThemeManager().getThemedResourceRURL(theme, icon == null || DomUtil.isBlank(icon) ? DEFAULT_ICON : icon.trim());
 		k.setIcon(url);
 

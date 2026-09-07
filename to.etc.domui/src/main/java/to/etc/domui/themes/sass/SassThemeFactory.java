@@ -6,86 +6,59 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
-import to.etc.domui.themes.StyleException;
+import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.resources.ResourceDependencyList;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Sass based theming engine.
+ * Sass based theming engine. The theme is a directory below $themes/scss containing
+ * style.scss plus the partials and images that sheet and the components refer to; which
+ * directory is decided at application initialization time by constructing this factory
+ * with a style name.
  *
- * This basic theme engine does not use fragments. A sass theme resource has a path that is constructed
- * as follows:
+ * <p>The one thing that varies per user session is the {@link IThemeVariant}. A variant
+ * adds a directory <i>before</i> the style's own on the theme search path:</p>
  * <pre>
- * $themes/styleName/iconname/colorname/variant/xxxx
+ *	$themes/scss/[style]/[variant]		only when the variant is not "default"
+ *	$themes/scss/[style]
+ *	$themes/scss/all
  * </pre>
- * <p>The theme itself is mostly statically defined by using fragments that all must be included
- * using style.scss, the theme's main stylesheet. This includes all the fragments and refers
- * all resources which, by definition, also use that same path as the basis.</p>
- * <p>When the theme needs a file it searches the <em>theme search path</em>, which is constructed
- * in the following way:</p>
- * <ul>
- *	<li>If a color different from "default" is present: add the path $themes/scss/[styleName]/color-[colorName] to
- *		the search path</li>
- *	<li>If an icon set different from "default" is specified: add the path $themes/scss/[stylename]/icons-[iconname]
- * 		to the search path</li>
- * </ul>
- * <p>The theme.scss refers to _color.scss to include color variables; by putting this file in the different
- * color-xxx subdirectories the colors can be changed, because those directories are earlier in the path. The
- * same trick works for icons.
- * </p>
+ * <p>Because a resource is taken from the first directory on that path that has it, a
+ * variant overrides whatever it wants to and inherits the rest. A dark theme is a
+ * <code>dark</code> directory holding its own <code>_color.scss</code>, plus any image
+ * that needs to differ; <code>style.scss</code> keeps its plain
+ * <code>&#64;import 'color'</code>. The variant name is also passed to the sheet as the
+ * scss variable <code>$themeVariant</code>, so a single file can branch on it instead.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 17-4-17.
  */
 @NonNullByDefault
-final public class SassThemeFactory {
-	static public final IThemeFactory INSTANCE = new IThemeFactory() {
-		@NonNull
-		@Override
-		public ITheme getTheme(@NonNull DomApplication da, @NonNull String themeName) throws Exception {
-			SassThemeFactory stf = new SassThemeFactory(da, themeName);
-			return stf.createTheme();
-		}
+final public class SassThemeFactory implements IThemeFactory {
+	/** The factory for the theme that DomUI itself ships. */
+	static public final IThemeFactory INSTANCE = new SassThemeFactory("winter");
 
-		@NonNull @Override public String getFactoryName() {
-			return "scss";
-		}
+	private final String m_styleName;
 
-		@NonNull @Override public String getDefaultThemeName() {
-			return getFactoryName() + "-winter-default-default";
-		}
-	};
-
-	private final DomApplication m_application;
-
-	private final String m_themeName;
-
-	private SassThemeFactory(DomApplication application, String themeName) {
-		m_application = application;
-		m_themeName = themeName;
+	public SassThemeFactory(String styleName) {
+		m_styleName = styleName;
 	}
 
-	private ITheme createTheme() throws Exception {
-		//-- Split theme name into css/icons/color
-		String[] ar = m_themeName.split("-");
-		if(ar.length != 4 && ar.length != 5)
-			throw new StyleException("The theme name '" + m_themeName + "' is invalid for "+getClass()+": expecting factory-styleName-icon-color-variant");
-		String styleName = ar[1];
-		String iconName = ar[2];
-		String colorName = ar[3];
-		String variant = ar.length == 4 ? DefaultThemeVariant.INSTANCE.getVariantName() : ar[4];
+	public String getStyleName() {
+		return m_styleName;
+	}
 
-		//-- Check that the required files exist; this will throw an exception if not
+	@NonNull
+	@Override
+	public ITheme getTheme(@NonNull DomApplication da, @NonNull IThemeVariant variant) throws Exception {
 		List<String> searchpath = new ArrayList<>();
-		if(! "default".equals(colorName))
-			searchpath.add("$themes/scss/" + styleName + "/" + colorName + "-color");
-		if(!"default".equals(iconName))
-			searchpath.add("$themes/scss/" + styleName + "/" + iconName + "-icons");
-		searchpath.add("$themes/scss/" + styleName);
+		if(!DefaultThemeVariant.INSTANCE.getVariantName().equals(variant.getVariantName()))
+			searchpath.add("$themes/scss/" + m_styleName + "/" + variant.getVariantName());
+		searchpath.add("$themes/scss/" + m_styleName);
 		searchpath.add("$themes/scss/all");							// 20130327 jal The "all" folder contains stuff shared for all themes
 
-		return new SassTheme(m_application, m_themeName, styleName, new ResourceDependencyList().createDependencies(), searchpath);
+		return new SassTheme(da, variant.getVariantName(), new ResourceDependencyList().createDependencies(), searchpath);
 	}
 }

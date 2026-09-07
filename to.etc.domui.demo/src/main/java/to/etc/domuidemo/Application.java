@@ -50,7 +50,7 @@ public class Application extends DomApplication {
 		File imagecache = new File(FileTool.getTmpDir(), "imagecache");
 		ImageCache.initialize(32 * 1024L * 1024L, 5L * 1024L * 1024L * 1024L, imagecache);
 
-		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
+		setThemeFactory(SassThemeFactory.INSTANCE);
 		addDefaultHTTPHeader("X-Frame-Options", null);
 
 

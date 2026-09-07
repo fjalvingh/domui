@@ -39,9 +39,9 @@ public class ParameterInfoProxy implements IExtendedParameterInfo {
 		return null;
 	}
 
-	@Nullable @Override public String getThemeName() {
+	@Nullable @Override public String getThemeVariantName() {
 		if(m_delegate instanceof IExtendedParameterInfo)
-			return ((IExtendedParameterInfo) m_delegate).getThemeName();
+			return ((IExtendedParameterInfo) m_delegate).getThemeVariantName();
 		return null;
 	}
 }

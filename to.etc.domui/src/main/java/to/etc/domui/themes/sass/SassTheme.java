@@ -23,10 +23,7 @@ final public class SassTheme implements ITheme {
 	@NonNull
 	final private DomApplication m_da;
 
-	private final String m_themeName;
-
-	@NonNull
-	final private String m_styleName;
+	private final String m_variantName;
 
 	@NonNull
 	final private ResourceDependencies m_rd;
@@ -34,17 +31,16 @@ final public class SassTheme implements ITheme {
 	@NonNull
 	final private List<String> m_searchPath;
 
-	public SassTheme(@NonNull DomApplication da, String themeName, @NonNull String styleName, @NonNull ResourceDependencies rd,
+	public SassTheme(@NonNull DomApplication da, String variantName, @NonNull ResourceDependencies rd,
 		@NonNull List<String> searchpath) {
 		m_da = da;
-		m_themeName = themeName;
-		m_styleName = styleName;
+		m_variantName = variantName;
 		m_rd = rd;
 		m_searchPath = searchpath;
 	}
 
-	@NonNull @Override public String getThemeName() {
-		return m_themeName;
+	@NonNull @Override public String getVariantName() {
+		return m_variantName;
 	}
 
 	@NonNull @Override public String translateResourceName(@NonNull String name) {
@@ -53,9 +49,9 @@ final public class SassTheme implements ITheme {
 
 	@NonNull @Override public String getStyleSheetName() throws Exception {
 		BrowserVersion version = UIContext.getRequestContext().getPageParameters().getBrowserVersion();	// FIXME Fugly!!
-		String css = ThemeResourceFactory.PREFIX + m_themeName + "/style.scss";
+		String css = ThemeResourceFactory.PREFIX + m_variantName + "/style.scss";
 		PageParameters pp = new PageParameters()
-			.themeName(getThemeName())
+			.themeVariant(getVariantName())
 			.browserVersion(version)
 			.inputPath(css)
 			;

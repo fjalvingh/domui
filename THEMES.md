@@ -1,7 +1,8 @@
 # DomUI theming
 
 How theming works, after the removal of the two obsolete theme engines and the Rhino
-template machinery. The last section records what was removed and what is still open.
+template machinery, and the reduction to one theme with per-session variants. The last
+sections record what was removed and what is still open.
 
 All paths are relative to `domui/to.etc.domui/src/main/java/to/etc/domui/` unless said
 otherwise; resources live under `domui/to.etc.domui/src/main/resources/resources/`.
@@ -10,13 +11,20 @@ otherwise; resources live under `domui/to.etc.domui/src/main/resources/resources
 
 ## 1. Summary
 
-There is **one** theme engine: the SCSS one. `DomApplication` sets it as the default
-(`server/DomApplication.java:611`), giving the theme name `scss-winter-default-default`,
-and it is the only entry in the `THEME_FACTORIES` registry.
+An application has **one** theme, fixed at initialization time:
+
+```java
+setThemeFactory(SassThemeFactory.INSTANCE);      // DomApplication's own default
+```
+
+There is no registry and no theme name: `DomApplication` holds a single
+`IThemeFactory` field. The one thing that varies is the **theme variant**, which is
+per user session and is what a dark/light switch is built from.
 
 A theme is a **search path of directories** holding one `style.scss` plus the images that
-stylesheet and the components refer to. Serving it is two things: compiling the SCSS to
-CSS on demand, and resolving `THEME/xxx` image references against that search path.
+stylesheet and the components refer to; the variant, when it is not `default`, puts one
+more directory in front of that path. Serving it is two things: compiling the SCSS to CSS
+on demand, and resolving `THEME/xxx` image references against the search path.
 
 ## 2. The two URL forms
 
@@ -28,8 +36,9 @@ this code.
 Java source and in node properties (`Img.setSrc`, `setBackgroundImage`, `Icon.of(...)`),
 and survives untranslated in the server-side DOM tree.
 
-**`$THEME/themeName/xxx` (with dollar)** — the *resolved* form. It names one concrete
-theme and is both a DomUI resource RURL and a browser-visible URL.
+**`$THEME/variantName/xxx` (with dollar)** — the *resolved* form. Its first segment is the
+theme variant the reference was resolved in, and it is both a DomUI resource RURL and a
+browser-visible URL.
 
 The conversion happens at render time, in `ThemeManager.getThemedResourceRURL()`
 (`themes/ThemeManager.java:203-216`):
@@ -39,7 +48,7 @@ if(path.startsWith("THEME/"))       path = path.substring(6);
 else if(path.startsWith("ICON/"))   throw new IllegalStateException("Bad ROOT: ICON/...");
 else                                return path;              // not theme-relative
 String newicon = theme.translateResourceName(path);           // icon-name remapping hook
-return ThemeResourceFactory.PREFIX + theme.getThemeName() + "/" + newicon;
+return ThemeResourceFactory.PREFIX + theme.getVariantName() + "/" + newicon;
 ```
 
 `ICON/` is a third, long-removed form that survives only as this guard clause.
@@ -58,47 +67,37 @@ Call sites that perform the translation during rendering:
 - `parts/MarkerImagePartKey.java:75-77` — the marker-image part's icon parameter
 
 After translation `IRequestContext.getRelativePath()` (`server/RequestContextImpl.java:486`)
-prefixes the webapp URL, giving e.g. `/demo/$THEME/scss-winter-default-default/btnCancel.png`.
+prefixes the webapp URL, giving e.g. `/demo/$THEME/default/btnCancel.png`.
 
-### Theme name grammar
+### There is no theme name
 
-A theme name is dash-separated and the **first segment is the factory name**:
+The URL's first segment used to be a four- or five-part theme name whose leading word
+picked a factory out of a registry (`scss-winter-default-default`). That is gone: the
+factory is a field on `DomApplication`, and the segment is simply the variant name.
+`$THEME/default/btnCancel.png` and `$THEME/dark/btnCancel.png` are the same file in two
+variants.
 
-```
-factory - styleName - iconName - colorName [ - variant ]
-scss    - winter    - default  - default
-```
-
-`DomApplication.getFactoryFromThemeName()` (`server/DomApplication.java:2748`) splits on
-the first `-` and looks the prefix up in `THEME_FACTORIES`. `SassThemeFactory` re-splits
-the whole name itself and insists on 4 or 5 segments (`SassThemeFactory.java:70-77`), so a
-style, icon or colour name containing a dash is impossible.
-
-`iconName` and `colorName` only do something when they are *not* `default`: each prepends
-a directory to the search path, which is how a `_color.scss` or an icon file gets
-overridden (see §5). With one shipped style nothing uses that, so the last three segments
-are `winter-default-default` everywhere.
+Which style directory the factory reads is now the factory's own business —
+`SassThemeFactory` takes it as a constructor argument, defaulting to `winter` through
+`SassThemeFactory.INSTANCE`.
 
 ## 3. The interfaces
 
 ### `IThemeFactory` (`themes/IThemeFactory.java`)
 
 ```java
-String getFactoryName();                                  // URL prefix, e.g. "scss"
-ITheme getTheme(DomApplication da, String themeName);     // must NOT cache; caller caches
-String getDefaultThemeName();                             // INCLUDING the factory name
-default String appendThemeVariant(String themeName, IThemeVariant variant) {
-    return themeName + "-" + variant.getVariantName();
-}
+ITheme getTheme(DomApplication da, IThemeVariant variant);  // must NOT cache; caller caches
+default IThemeVariant getDefaultVariant();                  // DefaultThemeVariant.INSTANCE
 ```
 
-`SassThemeFactory.INSTANCE` is an anonymous singleton inside the concrete factory class;
-the outer class is instantiated per theme construction and thrown away.
+One instance is held by `DomApplication` and asked for one `ITheme` per variant.
+`SassThemeFactory` is a normal class taking the style directory name;
+`SassThemeFactory.INSTANCE` is the `winter` one DomUI ships.
 
 ### `ITheme` (`themes/ITheme.java`)
 
 ```java
-String               getThemeName();                       // the name as it appears in URLs
+String               getVariantName();                     // first URL segment: the variant
 ResourceDependencies getDependencies();                    // for dev-mode reload
 IResourceRef         getThemeResource(String name, IResourceDependencyList rdl);
 String               translateResourceName(String name);   // icon name remapping hook
@@ -111,24 +110,31 @@ another — but nothing in the framework uses it any more.
 
 ### `IThemeVariant` (`themes/IThemeVariant.java`)
 
-A one-method interface (`getVariantName()`) with one implementation, `DefaultThemeVariant`
-("default"). See open issue 1 in §9: the mechanism does not currently do anything.
+A name, and nothing more. `IThemeVariant.of("dark")` makes one (`DefaultThemeVariant.INSTANCE`
+is "default"); the name must survive in a URL path segment, which `of()` checks.
+
+An application declares its variants as constants and switches with
+`IRequestContext.setThemeVariant()`, which stores the name in the **session**, so the
+choice holds for every following request. `DomApplication.calculateUserThemeVariant()`
+is the override point for deciding it per user instead.
 
 ## 4. `ThemeManager` — instantiation and caching
 
 `themes/ThemeManager.java` is a final class owned by `DomApplication`
 (`m_themeManager`, exposed via `internalGetThemeManager()`).
 
-`getTheme(key, rdl)` (line 109-148) is the workhorse:
+`getTheme(variant, rdl)` is the workhorse; the map is keyed on the variant name, so it
+holds one entry per variant in use:
 
-1. resolve the factory from the name prefix;
-2. look `key` up in `m_themeMap`;
-3. a hit is returned only if its `IIsModified` says nothing changed — in production the
+1. look the variant name up in `m_themeMap`;
+2. a hit is returned only if its `IIsModified` says nothing changed — in production the
    dependency object is `null`, so a hit is always returned;
-4. otherwise `factory.getTheme(application, key)` builds a fresh `ITheme`;
-5. **in development mode only**, the theme's own `ResourceDependencies` are wrapped in a
+3. otherwise the application's one `IThemeFactory` builds a fresh `ITheme` for the variant;
+4. **in development mode only**, the theme's own `ResourceDependencies` are wrapped in a
    `ThemeModifiableResource` with a 3-second throttle (`themes/ThemeModifiableResource.java`)
-   so a theme edit is picked up without re-stat-ing every fragment on every request.
+   so a theme edit is picked up without re-stat-ing every file on every request.
+
+`getTheme(String variantName, rdl)` is the same thing for a name taken out of a URL.
 
 ## 5. Resource resolution: `$THEME/...` to bytes
 
@@ -138,24 +144,28 @@ registered at `server/DomApplication.java:616`. Resource factories are scored by
 `SimpleResourceFactory` (10 for any `$…`) and `ClassRefResourceFactory` (10 for `$RES/`).
 
 ```
-$THEME/scss-winter-default-default/btnCancel.png
-       └──────── theme name ─────┘ └ file name ┘   (split on the FIRST slash)
+$THEME/dark/btnCancel.png
+       └──┘ └ file name ┘   (split on the FIRST slash; [0] is the variant)
 ```
 
-`getResource()` then asks `DomApplication.getTheme(themeName, rdl)` for the `ITheme` and
+`getResource()` then asks `DomApplication.getTheme(variantName, rdl)` for the `ITheme` and
 delegates to `theme.getThemeResource(fileName, rdl)`, throwing `ThingyNotFoundException`
 when the result does not exist.
 
-`SassTheme.getThemeResource` (`SassTheme.java:79-92`) is a **search path walk** — try
-`<dir>/<name>` for each directory in order, return the first that exists. The path is
-built in `SassThemeFactory.createTheme()`:
+`SassTheme.getThemeResource` is a **search path walk** — try `<dir>/<name>` for each
+directory in order, return the first that exists. `SassThemeFactory.getTheme()` builds
+the path:
 
 ```
-$themes/scss/<style>/<color>-color     (only when color   != "default")
-$themes/scss/<style>/<icon>-icons      (only when icon    != "default")
+$themes/scss/<style>/<variant>     (only when the variant is not "default")
 $themes/scss/<style>
 $themes/scss/all
 ```
+
+This is the whole of the variant mechanism: a variant directory is consulted first, so it
+overrides the files it contains and inherits every file it does not. A dark theme is a
+`dark/` directory holding its own `_color.scss` plus whatever images must differ;
+`style.scss` keeps its plain `@import 'color'`.
 
 The entries are themselves DomUI RURLs, so the walk recurses into `SimpleResourceFactory`
 → `DomApplication.getAppFileOrResource()` (`server/DomApplication.java:1674-1693`), which
@@ -183,29 +193,33 @@ Results are cached by `PartService` in a 16 MB LRU keyed on whatever the factory
 `decodeKey()` returns, and re-checked against `ResourceDependencies` on every hit — in
 production too, deliberately (`PartService.java:280-287`).
 
-### 6.1 An icon: `$THEME/scss-winter-default-default/btnCancel.png`
+### 6.1 An icon: `$THEME/default/btnCancel.png`
 
 Matcher 1 misses, matcher 2 hits. `InternalResourcePart.decodeKey` refuses extension-less
 paths (403) and `.class` (404), then `generate()` calls `da.getResource(rurl, …)` — which
 lands in `ThemeResourceFactory` as described above, resolving to
-`resources/themes/scss/winter/btnCancel.png` in the DomUI jar. MIME from the extension,
+`resources/themes/scss/winter/btnCancel.png` in the DomUI jar (a `dark` request would
+have looked in `winter/dark/` first). MIME from the extension,
 `Expires` set from `getDefaultExpiryTime()` in production only.
 
-### 6.2 The stylesheet: `$THEME/scss-winter-default-default/style.scss`
+### 6.2 The stylesheet: `$THEME/default/style.scss`
 
 `HtmlFullRenderer.renderThemeCSS()` (`dom/HtmlFullRenderer.java:478-491`) emits
 
 ```html
-<link rel="stylesheet" type="text/css" href="<ctx>/$THEME/<theme>/style.scss?$hash=<hex>">
+<link rel="stylesheet" type="text/css" href="<ctx>/$THEME/<variant>/style.scss?$hash=<hex>">
 ```
 
-from `ITheme.getStyleSheetName()`. `SassTheme.getStyleSheetName()`
-(`themes/sass/SassTheme.java:54-66`) computes that hash by **compiling the sheet right
+from `ITheme.getStyleSheetName()`. `SassTheme.getStyleSheetName()` computes that hash by **compiling the sheet right
 there**, through `PartService.getData()`, and hashing the result. That warms the part
 cache, so the browser's follow-up request is a cache hit (`$hash` is stripped from the key
 by `SassPartFactory.decodeKey`, which drops every `$`-prefixed parameter). It reaches into
 `UIContext.getRequestContext()` for a browser version it then discards, and is annotated
 `FIXME Fugly!!` in the source (open issue 3).
+
+`SassPartFactory.decodeKey` takes the variant for the cache key **from the URL**, not from
+the requesting session: the URL is what decides which sheet this is, and two sessions in
+different variants asking for the same sheet must share one cache entry.
 
 The compile itself: `SassPartFactory.generate()` → `SassCompilerFactory.createCompiler()`
 → `JSassCompiler` (libsass via jsass). Imports are resolved by `JSassResolver` /
@@ -224,9 +238,8 @@ renderer sets it (`dom/HtmlFileRenderer.java:412`), the normal one does not.
 ### 6.3 The offline renderer differs
 
 `HtmlFileRenderer` (`dom/HtmlFileRenderer.java:402-425`) inlines the compiled CSS in a
-`<style>` block instead of linking it, and takes the theme from
-`DomApplication.getDefaultThemeName()` rather than from the request context — so a
-per-user theme is ignored there. `renderLoadCSS` (line 465-501) similarly inlines
+`<style>` block instead of linking it, and renders the factory's default variant rather
+than the session's — so a per-session variant is ignored there. `renderLoadCSS` (line 465-501) similarly inlines
 contributor stylesheets, falling back to the webapp file and then a classpath resource.
 
 ## 7. Getting values *into* a stylesheet
@@ -242,6 +255,10 @@ There is exactly one channel: the generated `_parameters.scss`
 3. whatever `IThemeVariablesCalculator.calculate(parameters)` returns
    (`themes/sass/IThemeVariablesCalculator.java`, plugged in via
    `setThemeVariablesCalculator`, default `parameters -> Map.of()`).
+
+On top of those, `$themeVariant` is always defined, holding the name of the variant the
+sheet is being compiled for. That is the alternative to a directory per variant: one file
+can `@if $themeVariant == "dark"` instead.
 
 A physical `_parameters.scss` also exists in the theme directory but is never read — the
 resolver intercepts the name before any lookup. Its content says as much: *"its content
@@ -281,49 +298,53 @@ A scan of every `"THEME/…"` literal in the framework and demo (93 distinct pat
 (The apparent misses `big-`, `mini-`, `btnHeaderCollapsed`, `btnHeaderExpanded` are
 prefixes concatenated at runtime and do resolve.)
 
-## 9. Where the theme name comes from
+## 9. Where the variant comes from
 
 ```
-RequestContextImpl.getThemeName()            server/RequestContextImpl.java:423-434
-  ├─ field m_themeName, if already computed
-  ├─ session attribute "ctx$themename", set by setThemeName()
-  └─ DomApplication.calculateUserTheme(ctx)  -> getDefaultThemeName()  (override point)
+RequestContextImpl.getThemeVariant()
+  ├─ field m_themeVariant, if already computed for this request
+  ├─ session attribute "ctx$themevariant", set by setThemeVariant()
+  └─ DomApplication.calculateUserThemeVariant(ctx)  -> factory's default   (override point)
 ```
 
-`calculateUserTheme` (`server/DomApplication.java:2556`) is the documented hook for a
-per-user theme; nothing in this workspace overrides it. `setDefaultThemeName` and
-`setDefaultThemeFactory` set the application-wide default; the latter just assigns the
-factory's own default name — note it stores **only the name**, so the "default factory" is
-not remembered as such, it is re-derived from the name prefix on every lookup.
+`setThemeVariant()` writes the session attribute, so a variant chosen on one page holds
+for every request after it — which is what makes a dark/light toggle a one-liner:
 
-The theme name is also carried in `IPageParameters`
-(`state/IBasicParameterContainer.java:47`, `state/MapParameterContainer.java:179`) and
-participates in `equals`/`hashCode` (`MapParameterContainer.java:120-150`), which is what
-keeps compiled parts of different themes apart in the part cache.
+```java
+UIContext.getRequestContext().setThemeVariant(DARK);
+```
+
+It also clears the request's cached `ITheme`, so the switch takes effect on the page that
+performs it. `UrlPage.setThemeVariant()` is the same call from inside a page.
+
+The variant name is carried in `IPageParameters`
+(`state/IBasicParameterContainer.java`, `state/MapParameterContainer.java`) and
+participates in `equals`/`hashCode`, which is what keeps compiled parts of different
+variants apart in the part cache.
 
 ## 10. Live path, condensed
 
 ```
 page render
   HtmlFullRenderer.renderThemeCSS()
-    RequestContextImpl.getCurrentTheme()          session / calculateUserTheme -> "scss-winter-default-default"
-      ThemeManager.getTheme(name, null)           cache; SassThemeFactory.INSTANCE.getTheme(...)
-        SassThemeFactory.createTheme()            search path: [$themes/scss/winter, $themes/scss/all]
+    RequestContextImpl.getCurrentTheme()          session variant / calculateUserThemeVariant -> "dark"
+      ThemeManager.getTheme(variant, null)        cache by variant name; the app's one IThemeFactory
+        SassThemeFactory.getTheme()               search path: [.../winter/dark, .../winter, .../all]
     SassTheme.getStyleSheetName()
-      PartService.getData($THEME/<theme>/style.scss)   -> compiles + caches, returns hash
-    <link href=".../$THEME/<theme>/style.scss?$hash=...">
+      PartService.getData($THEME/dark/style.scss)      -> compiles + caches, returns hash
+    <link href=".../$THEME/dark/style.scss?$hash=...">
 
-browser GET /$THEME/<theme>/style.scss?$hash=...
-  PartRequestHandler -> PartService.render -> SassPartFactory (cache hit)
+browser GET /$THEME/dark/style.scss?$hash=...
+  PartRequestHandler -> PartService.render -> SassPartFactory (cache hit; key's variant from the URL)
     JSassCompiler + JSassResolver
       imports resolve via DomApplication.getResource -> ThemeResourceFactory
-        -> SassTheme.getThemeResource -> search path -> classpath /resources/themes/scss/winter/...
-      "parameters" import -> synthesised from URL params + setThemeProperty + IThemeVariablesCalculator
+        -> SassTheme.getThemeResource -> search path -> winter/dark/_color.scss, else winter/_color.scss
+      "parameters" import -> $themeVariant + URL params + setThemeProperty + IThemeVariablesCalculator
 
-browser GET /$THEME/<theme>/btnCancel.png
+browser GET /$THEME/dark/btnCancel.png
   PartService.render -> InternalResourcePart ("$" prefix)
     DomApplication.getResource -> ThemeResourceFactory -> SassTheme.getThemeResource
-      -> /resources/themes/scss/winter/btnCancel.png
+      -> winter/dark/btnCancel.png if present, else /resources/themes/scss/winter/btnCancel.png
 ```
 
 ## 11. What was removed
@@ -379,18 +400,59 @@ Verified after the change: full `mvn21 clean install` succeeds, and against a lo
 demo `$THEME/<theme>/style.scss` (200, 472 KB of CSS), `$THEME/<theme>/btnCancel.png`,
 `GrayscalerPart` and `MarkerImagePart` all still serve.
 
-## 12. Still open
+## 12. One theme, and real variants
 
-1. **The variant mechanism is inert.** `UrlPage.setThemeVariant()`
-   (`dom/html/UrlPage.java:86`) pushes a variant into the request context and its getter is
-   commented out; `RequestContextImpl.getCurrentTheme()` (line 408-417) then calls
-   `getTheme(getThemeName(), null)` **without** it. The only caller of the variant-aware
-   `ThemeManager.getTheme(name, variant, rdl)` is
-   `DomApplication.getDefaultThemeInstance()`, itself unused in the framework. Either wire
-   it up or drop `IThemeVariant`.
-2. **The theme name is over-parameterised.** With one style and the SCSS `@import`
-   override trick doing the work of icon/colour sets, `scss-winter-default-default` carries
-   two segments that are always `default`. `scss-winter` would say the same thing.
+The second change: an application no longer has a *set* of themes selected by a name in
+the URL, but exactly one, with variants.
+
+**Gone**
+
+- the `THEME_FACTORIES` registry, `DomApplication.register(IThemeFactory)` and
+  `getFactoryFromThemeName()` — the leading word of a theme name no longer picks a factory
+- the theme name itself: `setDefaultThemeName()`, `getDefaultThemeName()`, the
+  `m_defaultTheme` field, and the four/five-part `factory-style-icon-color-variant` grammar
+- `IThemeFactory.getFactoryName()`, `getDefaultThemeName()` and `appendThemeVariant()`
+- `IRequestContext.getThemeName()` / `setThemeName()`, and
+  `DomApplication.calculateUserTheme()`
+- `DomApplication.getDefaultThemeInstance()`
+- the per-theme icon-set and colour-set search path entries; a variant directory replaces
+  both
+
+**New or changed**
+
+- `DomApplication.setThemeFactory(IThemeFactory)` / `getThemeFactory()` — one field, set
+  during initialization. `SassThemeFactory` is a normal class taking the style directory
+  name; `SassThemeFactory.INSTANCE` is the `winter` one.
+- `IThemeFactory.getTheme(DomApplication, IThemeVariant)` and `getDefaultVariant()`.
+- `IThemeVariant.of(String)` builds a variant; `ITheme.getThemeName()` became
+  `getVariantName()`.
+- `IRequestContext.setThemeVariant()` stores the name in the **session**, so the choice
+  holds across requests, and clears the request's cached `ITheme` so it takes effect
+  immediately. `DomApplication.calculateUserThemeVariant()` is the per-user override point.
+- The `themeName` carried by `IPageParameters` became `themeVariantName`, and
+  `SassPartFactory.decodeKey` now takes it **from the URL** rather than from the requesting
+  session, so two sessions in different variants share one cache entry per sheet.
+- The stylesheet gets `$themeVariant` as an scss variable, so a single file can branch on
+  the variant instead of needing a directory of its own.
+
+Verified against a locally run demo, with a `dark` variant dropped into the demo webapp as
+`themes/scss/winter/dark/_color.scss` (removed again afterwards):
+
+| Request | Result |
+| --- | --- |
+| `$THEME/default/style.scss` | 200, `$themeVariant` = `default`, framework colours |
+| `$THEME/dark/style.scss` | 200, `$themeVariant` = `dark`, the overridden colour present |
+| `$THEME/default/btnCancel.png`, `$THEME/dark/btnCancel.png` | both 200 — the variant inherits the image it does not replace |
+
+## 13. Still open
+
+1. **`UrlPage.getThemeVariant()` is still commented out** (`dom/html/UrlPage.java:90-92`),
+   though the setter next to it now works. Uncomment it, or drop the pair in favour of
+   `UIContext.getRequestContext()`.
+2. **DomUI ships no variant of its own.** The mechanism works, but `winter` has no `dark/`
+   directory, so an application that wants dark has to write the whole colour set. A
+   framework-supplied dark variant is the obvious next step, and is a design job rather
+   than a plumbing one.
 3. **`getStyleSheetName()` compiles the whole stylesheet** to compute a cache-busting hash,
    from inside a getter, reaching into `UIContext` for a browser version it discards
    (`SassTheme.java:54-66`, its own `FIXME Fugly!!`).

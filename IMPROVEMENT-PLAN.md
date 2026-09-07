@@ -237,16 +237,6 @@ it. Everything else on this list is a question for the user, not a deletion.
       and by the rule above only the user can decide whether a generation of
       components is dropped, and with what deprecation period. Until then the
       work here is to stop the docs and the demo teaching them, which is done.
-- [ ] **Framework: the theme variant is parsed and then ignored.**
-      `SassThemeFactory` reads the fifth part of the theme name into a local
-      variable and constructs the `SassTheme` without it, and
-      `RequestContextImpl.getCurrentTheme()` drops the variant that
-      `UrlPage.setThemeVariant()` sets, so `IThemeVariant` changes nothing.
-      Either make the variant reach the search path or remove the machinery;
-      the documentation currently warns the reader off it. (Found writing the
-      styling chapter, 2026-09-06. The old theme engines it was entangled with
-      were removed on 2026-09-07 - see the log - so only the variant decision
-      itself is left.)
 - [ ] **Framework: SVG rasterisation cannot run.** `PartUtil.loadSvg()`, used by
       `GrayscalerPart` and `MarkerImagePart`, throws
       `NoClassDefFoundError: org/w3c/dom/svg/SVGDocument`: `to.etc.domui/pom.xml`

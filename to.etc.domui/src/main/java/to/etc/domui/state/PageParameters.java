@@ -451,7 +451,7 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 			IPageParameters x = (IPageParameters) source;
 			browserVersion(x.getBrowserVersion());
 			inputPath(x.getInputPath());
-			themeName(x.getThemeName());
+			themeVariant(x.getThemeVariantName());
 		}
 	}
 
@@ -476,9 +476,9 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 		return this;
 	}
 
-	public PageParameters themeName(@Nullable String themeName) {
+	public PageParameters themeVariant(@Nullable String themeVariant) {
 		writeable();
-		getContainer().setThemeName(themeName);
+		getContainer().setThemeVariantName(themeVariant);
 		return this;
 	}
 }

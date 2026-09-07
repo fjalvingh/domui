@@ -233,6 +233,13 @@ abstract public class AbstractSassResolver<O> {
 	 */
 	protected String generateParameterFile() {
 		StringBuilder sb = new StringBuilder();
+
+		//-- The theme variant this sheet is being compiled for, so a sheet can branch on it.
+		String variant = m_params.getThemeVariantName();
+		if(null != variant) {
+			sb.append("$themeVariant: ").append(StringTool.strToJavascriptString(variant, true)).append(";\n");
+		}
+
 		for(String name : m_params.getParameterNames()) {
 			if(name.startsWith("__"))
 				continue;

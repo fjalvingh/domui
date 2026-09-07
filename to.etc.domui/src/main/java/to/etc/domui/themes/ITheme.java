@@ -36,8 +36,11 @@ import to.etc.domui.util.resources.ResourceDependencies;
  * Created on Jan 12, 2011
  */
 public interface ITheme {
-	/** The theme name: the part of the URL inside all theme resources that identifies the theme to take the resource from */
-	@NonNull String getThemeName();
+	/**
+	 * The variant this theme instance was built for. It is the part of the URL inside all
+	 * theme resources that identifies which variant to take the resource from.
+	 */
+	@NonNull String getVariantName();
 
 	/**
 	 * The dependencies for this theme instance. This will be used by the engine to check

@@ -38,7 +38,6 @@ import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.RequestContextParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
-import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.Constants;
@@ -123,13 +122,10 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	private ITheme m_currentTheme;
 
 	/**
-	 * The theme name for this user, lazily initialized.
+	 * The theme variant this session renders in, lazily initialized.
 	 */
 	@Nullable
-	private String m_themeName;
-
-	@NonNull
-	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
+	private IThemeVariant m_themeVariant;
 
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
@@ -400,53 +396,41 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_browserVersion;
 	}
 
-	/**
-	 * This should be replaced by getThemeName below as that uniquely identifies the theme.
-	 */
 	@NonNull
 	@Override
 	final public ITheme getCurrentTheme() {
 		ITheme currentTheme = m_currentTheme;
 		if(null == currentTheme) {
-			try {
-				currentTheme = m_currentTheme = m_application.getTheme(getThemeName(), null);
-			} catch(Exception x) {
-				throw WrappedException.wrap(x);
-			}
+			currentTheme = m_currentTheme = m_application.getTheme(getThemeVariant(), null);
 		}
 		return currentTheme;
 	}
 
-	static private final String THEMENAME = "ctx$themename";
+	static private final String THEMEVARIANT = "ctx$themevariant";
 
-	@NonNull
-	public String getThemeName() {
-		String themeName = m_themeName;
-		if(null == themeName) {
-			themeName = (String) getSession().getAttribute(THEMENAME);
-			if(null == themeName) {
-				themeName = m_application.calculateUserTheme(this);
-			}
-			m_themeName = themeName;
-		}
-		return themeName;
-	}
-
-	@Override
-	public void setThemeName(String userThemeName) {
-		m_themeName = userThemeName;
-		getSession().setAttribute(THEMENAME, userThemeName);
-	}
-
+	/**
+	 * The theme variant to render in. It is remembered for the duration of the session, so
+	 * a dark/light choice made on one page holds for all the next ones.
+	 */
 	@Override
 	@NonNull
 	public IThemeVariant getThemeVariant() {
-		return m_themeVariant;
+		IThemeVariant variant = m_themeVariant;
+		if(null == variant) {
+			String name = (String) getSession().getAttribute(THEMEVARIANT);
+			variant = null == name
+				? m_application.calculateUserThemeVariant(this)
+				: IThemeVariant.of(name);
+			m_themeVariant = variant;
+		}
+		return variant;
 	}
 
 	@Override
 	public void setThemeVariant(@NonNull IThemeVariant themeVariant) {
 		m_themeVariant = themeVariant;
+		m_currentTheme = null;
+		getSession().setAttribute(THEMEVARIANT, themeVariant.getVariantName());
 	}
 
 	public void flush() throws Exception {

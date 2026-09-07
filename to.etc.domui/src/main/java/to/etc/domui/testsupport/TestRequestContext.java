@@ -179,8 +179,8 @@ public class TestRequestContext implements IRequestContext {
 
 	@NonNull @Override public ITheme getCurrentTheme() {
 		return new ITheme() {
-			@NonNull @Override public String getThemeName() {
-				return "aa/bb";
+			@NonNull @Override public String getVariantName() {
+				return DefaultThemeVariant.INSTANCE.getVariantName();
 			}
 
 			@NonNull @Override public ResourceDependencies getDependencies() {
@@ -209,15 +209,6 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override public void setPersistedParameter(@NonNull String name, @NonNull String value) {
-
-	}
-
-	@Nullable
-	public String getThemeName() {
-		return getCurrentTheme().getThemeName();
-	}
-
-	@Override public void setThemeName(String userThemeName) {
 
 	}
 

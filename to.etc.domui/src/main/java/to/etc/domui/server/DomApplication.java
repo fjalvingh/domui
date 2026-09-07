@@ -173,8 +173,6 @@ public abstract class DomApplication {
 		{"3.7.1", "jquery-3.7.1", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 	};
 
-	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
-
 	public static final String HEADER_PREFIX = "header-";
 
 	public static final String HTTPHEADER_PREFIX = "httpheader-";
@@ -350,11 +348,9 @@ public abstract class DomApplication {
 	 */
 	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
 
-	/**
-	 * The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources.
-	 */
+	/** The application's one and only theme; the variant is what can differ per session. */
 	@NonNull
-	private volatile String m_defaultTheme = "";
+	private volatile IThemeFactory m_themeFactory = SassThemeFactory.INSTANCE;
 
 	private IThemeVariablesCalculator m_themeVariablesCalculator = parameters -> Map.of();
 
@@ -605,7 +601,6 @@ public abstract class DomApplication {
 			UIGoto.redirect(rurl);
 			return true;
 		});
-		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
@@ -2464,24 +2459,18 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * Sets the application-default theme string. This will become part of all themed resource URLs
-	 * and is interpreted by the theme factory to resolve resources. The string is used
-	 * as a "parameter" for the theme factory which will use it to decide on the "real"
-	 * theme to use.
-	 *
-	 * @param themeName The theme name, valid for the current theme engine. Cannot be null nor the empty string.
+	 * Set the application's theme. There is exactly one, and it must be set during
+	 * application initialization; it cannot change afterwards. What <i>can</i> differ per
+	 * user session is the {@link IThemeVariant}, see
+	 * {@link IRequestContext#setThemeVariant(IThemeVariant)}.
 	 */
-	final public void setDefaultThemeName(@NonNull String themeName) {
-		m_defaultTheme = themeName;
+	final public void setThemeFactory(@NonNull IThemeFactory factory) {
+		m_themeFactory = factory;
 	}
 
-	/**
-	 * Gets the application-default theme string. This will become part of all themed resource URLs
-	 * and is interpreted by the theme factory to resolve resources.
-	 */
 	@NonNull
-	final public String getDefaultThemeName() {
-		return m_defaultTheme;
+	final public IThemeFactory getThemeFactory() {
+		return m_themeFactory;
 	}
 
 	/**
@@ -2508,13 +2497,6 @@ public abstract class DomApplication {
 		return m_themeManager;
 	}
 
-	/**
-	 * Set the application-default theme factory, and make the factory set its default theme.
-	 */
-	final public void setDefaultThemeFactory(@NonNull IThemeFactory themer) {
-		m_defaultTheme = themer.getDefaultThemeName();
-	}
-
 	public IThemeVariablesCalculator getThemeVariablesCalculator() {
 		return m_themeVariablesCalculator;
 	}
@@ -2524,36 +2506,32 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Get an ITheme instance for the default theme manager and theme.
-	 */
-	@NonNull
-	public ITheme getDefaultThemeInstance() {
-		return m_themeManager.getTheme(getDefaultThemeName(), DefaultThemeVariant.INSTANCE, null);
-	}
-
-	/**
-	 * Get the theme store representing the specified theme name. This is the name as obtained
-	 * from the resource name which is the part between $THEME/ and the actual filename.
-	 */
-	final public ITheme getTheme(@NonNull String themeName, @NonNull IThemeVariant variant, @Nullable IResourceDependencyList rdl) throws Exception {
-		return m_themeManager.getTheme(themeName, variant, rdl);
-	}
-
-	/**
 	 * FIXME Get rid of rdl parameter
-	 * Get the theme store representing the specified theme name. This is the name as obtained
-	 * from the resource name which is the part between $THEME/ and the actual filename.
+	 * Get the theme for the variant passed.
 	 */
-	final public ITheme getTheme(@NonNull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
-		return m_themeManager.getTheme(themeName, rdl);
+	@NonNull
+	final public ITheme getTheme(@NonNull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
+		return m_themeManager.getTheme(variant, rdl);
 	}
 
 	/**
-	 * Called from the user session to detect the user's theme; override to assign per-user theme.
+	 * Get the theme for the variant name as obtained from a themed resource URL: the part
+	 * between $THEME/ and the actual filename.
 	 */
 	@NonNull
-	public String calculateUserTheme(IRequestContext ctx) {
-		return getDefaultThemeName();
+	final public ITheme getTheme(@NonNull String variantName, @Nullable IResourceDependencyList rdl) {
+		return m_themeManager.getTheme(variantName, rdl);
+	}
+
+	/**
+	 * Called from the user session to determine the theme variant to render in; override to
+	 * assign one per user, for instance from a stored dark/light preference. A page can
+	 * override the result for the session with
+	 * {@link IRequestContext#setThemeVariant(IThemeVariant)}.
+	 */
+	@NonNull
+	public IThemeVariant calculateUserThemeVariant(IRequestContext ctx) {
+		return getThemeFactory().getDefaultVariant();
 	}
 
 	/**
@@ -2735,22 +2713,6 @@ public abstract class DomApplication {
 		return "DomUI Application - " + body.getClass().getSimpleName();
 	}
 
-	public static void register(IThemeFactory factory) {
-		THEME_FACTORIES.put(factory.getFactoryName(), factory);
-	}
-
-	@NonNull
-	public static IThemeFactory getFactoryFromThemeName(String name) {
-		int pos = name.indexOf('-');
-		if(pos == -1)
-			throw new IllegalArgumentException("Missing - in theme name '" + name + "'");
-		String fn = name.substring(0, pos);
-		IThemeFactory factory = THEME_FACTORIES.get(fn);
-		if(null == factory)
-			throw new IllegalArgumentException("Undefined theme factory '" + fn + "'");
-		return factory;
-	}
-
 	public void addPersistedParameter(String name) {
 		if(!name.startsWith("_") && !name.startsWith("$"))
 			throw new IllegalStateException("Persisted parameters must start with _ or $");
@@ -2882,10 +2844,6 @@ public abstract class DomApplication {
 		DelayedActivitiesExecutor dx = new DelayedActivitiesExecutor();
 		dx.initialize(20);
 		return dx;
-	}
-
-	static {
-		register(SassThemeFactory.INSTANCE);
 	}
 
 	public synchronized void iconPackInitialized() {

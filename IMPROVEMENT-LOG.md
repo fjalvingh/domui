@@ -1291,7 +1291,63 @@ These were offered as input while the phase 0 items were being worked, and taken
       locally run demo `$THEME/<theme>/style.scss` returns 472 KB of CSS and
       `btnCancel.png`, `GrayscalerPart` and `MarkerImagePart` all serve.
 
+- [x] **Framework: one theme, with variants that actually work.** Done
+      2026-09-07, at the user's direction, straight after the theme-engine
+      removal. DomUI could hold several theme factories at once, registered in a
+      static map and selected by the leading word of a four/five-part theme name
+      embedded in every themed URL (`scss-winter-default-default`). That is gone:
+      `DomApplication` holds one `IThemeFactory`, set with `setThemeFactory()`
+      during initialization, and the first segment of a themed URL is now just the
+      **theme variant** (`$THEME/default/...`, `$THEME/dark/...`). Removed:
+      `THEME_FACTORIES`, `register(IThemeFactory)`, `getFactoryFromThemeName()`,
+      `setDefaultThemeName()`/`getDefaultThemeName()`, `getDefaultThemeInstance()`,
+      `IThemeFactory.getFactoryName()`/`getDefaultThemeName()`/`appendThemeVariant()`,
+      `IRequestContext.getThemeName()`/`setThemeName()`, `calculateUserTheme()`, and
+      the icon-set/colour-set search path entries. Added: `IThemeVariant.of(name)`,
+      `IThemeFactory.getTheme(da, variant)` + `getDefaultVariant()`,
+      `calculateUserThemeVariant()`, and `$themeVariant` as an scss variable.
+      `setThemeVariant()` now stores the name in the **session**, so a dark/light
+      choice holds across requests, and clears the request's cached `ITheme` so it
+      takes effect on the page that makes it. A variant puts one directory in front
+      of the theme search path, so `winter/dark/_color.scss` overrides colours and
+      every unreplaced file still comes from `winter`.
+      `SassPartFactory.decodeKey` takes the variant for its cache key from the URL
+      rather than the requesting session, so two sessions in different variants
+      share one entry per sheet. Docs: `look-and-feel/themes` rewritten around the
+      one-theme/variant model with a worked dark example, and the
+      `setDefaultThemeFactory` call in `getting-started/example-skeleton` updated.
+      Verified: `mvn21 clean install` green, 57 + 9 unit tests and 55 Selenium ITs
+      pass, site build 156 pages clean; and against a locally run demo with a
+      throwaway `themes/scss/winter/dark/_color.scss` in the demo webapp,
+      `$THEME/dark/style.scss` carried the overridden colour and `$themeVariant`
+      of `dark` while `$THEME/default/style.scss` carried neither, and
+      `btnCancel.png` resolved in both variants.
+
 ## Decisions log
+
+### 2026-09-07 - One theme, and the variant as the only axis
+
+Three axes of variation existed in the theme name - style, icon set, colour set -
+plus a factory prefix and a variant, and none of them were used: every DomUI
+application ever written says `scss-winter-default-default`. The user's call was
+to collapse all of it to one theme chosen at initialization plus a variant chosen
+per session, on the grounds that dark/light is the only variation anyone actually
+wants and it is exactly what the old machinery could not do.
+
+The variant is deliberately *just a name*. It is a directory in front of the theme
+search path and a string in the URL, and that is the whole mechanism: no registry
+of known variants, no validation beyond "usable in a URL segment". An unknown
+variant name therefore renders the base theme rather than failing, which is the
+right failure mode for something that can arrive from a stale session.
+
+Two things had to come from the URL rather than the session, and getting this
+wrong is subtle: `SassPartFactory`'s cache key and the `$themeVariant` scss
+variable. The session decides which URL a page *emits*; once a request for a
+themed resource arrives, the URL is what says which variant it is. Reading the
+session there would give two sessions different cache entries for identical
+content, and would have put the wrong `$themeVariant` in the sheet - which is how
+the bug was found, by a probe file that printed the variable back out.
+
 
 ### 2026-09-07 - One theme engine, and what "library, not application" does not protect
 

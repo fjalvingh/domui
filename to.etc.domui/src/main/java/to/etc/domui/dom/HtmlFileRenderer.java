@@ -403,11 +403,11 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	 * "theme directory", which is defined by the "currentTheme" in DomApplication.
 	 */
 	protected void renderThemeCSS() throws Exception {
-		String themeName = DomApplication.get().getDefaultThemeName();
+		String variant = DomApplication.get().getThemeFactory().getDefaultVariant().getVariantName();
 		BrowserVersion version = BrowserVersion.INSTANCE;
-		String css = ThemeResourceFactory.PREFIX + themeName + "/style.scss";
+		String css = ThemeResourceFactory.PREFIX + variant + "/style.scss";
 		PageParameters pp = new PageParameters()
-			.themeName(themeName)
+			.themeVariant(variant)
 			.browserVersion(version)
 			.inputPath(css)
 			.parameter("__nomap", "true")
@@ -466,11 +466,11 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		//path = ctx().getRelativePath(rurl);
 
-		String themeName = DomApplication.get().getDefaultThemeName();
+		String variant = DomApplication.get().getThemeFactory().getDefaultVariant().getVariantName();
 		BrowserVersion version = BrowserVersion.INSTANCE;
 
 		PageParameters pp = new PageParameters()
-			.themeName(themeName)
+			.themeVariant(variant)
 			.browserVersion(version)
 			.inputPath(rurl)
 			;

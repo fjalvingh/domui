@@ -56,14 +56,19 @@ public interface IRequestContext {
 	DomApplication getApplication();
 
 	/**
-	 * Get the theme for this user or, if nothing is set specifically the application-default theme.
+	 * Get the theme, in the variant this session renders in.
 	 */
 	@NonNull ITheme getCurrentTheme() throws Exception;
 
-	void setThemeName(String userThemeName);
-
+	/**
+	 * The theme variant this session renders in; the application default when the session
+	 * never chose one.
+	 */
 	@NonNull IThemeVariant getThemeVariant();
 
+	/**
+	 * Render in the variant passed, for this and every following request in the session.
+	 */
 	void setThemeVariant(@NonNull IThemeVariant variant);
 
 	/**

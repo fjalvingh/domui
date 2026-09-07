@@ -50,7 +50,7 @@ final public class ThemeManager {
 
 	final private DomApplication m_application;
 
-	/** Map of themes by theme name, as implemented by the current engine. */
+	/** Map of themes by variant name; the theme factory itself is fixed for the application. */
 	private final Map<String, ThemeRef> m_themeMap = new HashMap<>();
 
 	private int m_themeReapCount;
@@ -91,21 +91,13 @@ final public class ThemeManager {
 	}
 
 	/**
-	 * Cached get of a factory/theme ITheme instance.
+	 * Cached get of the ITheme for a variant. This code is fast once the theme is loaded
+	 * after the 1st call.
 	 * FIXME Get rid of rdl parameter
-	 *
-	 * Get the theme store representing the specified theme name. This is the name as obtained
-	 * from the resource name which is the part between $THEME/ and the actual filename. This
-	 * code is fast once the theme is loaded after the 1st call.
 	 */
 	@NonNull
-	public ITheme getTheme(@NonNull String themeName, @NonNull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
-		IThemeFactory factory = DomApplication.getFactoryFromThemeName(themeName);
-		return getTheme(factory.appendThemeVariant(themeName, variant), rdl);
-	}
-
-	public ITheme getTheme(String key, @Nullable IResourceDependencyList rdl) {
-		IThemeFactory factory = DomApplication.getFactoryFromThemeName(key);
+	public ITheme getTheme(@NonNull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
+		String key = variant.getVariantName();
 
 		synchronized(this) {
 			if(m_themeReapCount++ > 1000) {
@@ -125,7 +117,7 @@ final public class ThemeManager {
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
 			ITheme theme;
 			try {
-				theme = factory.getTheme(m_application, key);
+				theme = m_application.getThemeFactory().getTheme(m_application, variant);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -142,6 +134,14 @@ final public class ThemeManager {
 			m_themeMap.put(key, tr);
 			return theme;
 		}
+	}
+
+	/**
+	 * Get the ITheme for the variant name taken from a themed resource URL.
+	 */
+	@NonNull
+	public ITheme getTheme(@NonNull String variantName, @Nullable IResourceDependencyList rdl) {
+		return getTheme(IThemeVariant.of(variantName), rdl);
 	}
 
 	/**
@@ -207,7 +207,7 @@ final public class ThemeManager {
 			return path;										// Not theme-relative, so return as-is.
 		try {
 			String newicon = theme.translateResourceName(path);
-			return ThemeResourceFactory.PREFIX + theme.getThemeName() + "/" + newicon;
+			return ThemeResourceFactory.PREFIX + theme.getVariantName() + "/" + newicon;
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);
 		}

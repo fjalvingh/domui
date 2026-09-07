@@ -11,6 +11,7 @@ import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
+import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.StringTool;
 
@@ -38,8 +39,18 @@ public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
 	};
 
 	@NonNull @Override public IPageParameters decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
-		return new PageParameters(param, name -> ! name.startsWith("$"))	// Ignore DomUI system parameters
+		PageParameters pp = new PageParameters(param, name -> ! name.startsWith("$"))	// Ignore DomUI system parameters
 			.browserVersion(BrowserVersion.INSTANCE);
+
+		/*
+		 * For a themed sheet the variant is the one in the URL, not the one the requesting
+		 * session happens to render in: the URL is what decides which sheet this is.
+		 */
+		String inputPath = pp.getInputPath();
+		if(inputPath.startsWith(ThemeResourceFactory.PREFIX)) {
+			pp.themeVariant(ThemeResourceFactory.splitThemeResourceURL(inputPath)[0]);
+		}
+		return pp;
 	}
 
 	@Override public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception {

@@ -73,8 +73,8 @@ public class PageParameterWrapper implements IPageParameters {
 
 	@Nullable
 	@Override
-	public String getThemeName() {
-		return getContainer().getThemeName();
+	public String getThemeVariantName() {
+		return getContainer().getThemeVariantName();
 	}
 
 	@NonNull

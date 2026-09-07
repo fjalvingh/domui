@@ -196,8 +196,8 @@ public class StandaloneRequest implements IRequestContext, AutoCloseable {
 
 	@NonNull @Override public ITheme getCurrentTheme() {
 		return new ITheme() {
-			@NonNull @Override public String getThemeName() {
-				return "aa/bb";
+			@NonNull @Override public String getVariantName() {
+				return DefaultThemeVariant.INSTANCE.getVariantName();
 			}
 
 			@NonNull @Override public ResourceDependencies getDependencies() {
@@ -226,15 +226,6 @@ public class StandaloneRequest implements IRequestContext, AutoCloseable {
 	}
 
 	@Override public void setPersistedParameter(@NonNull String name, @NonNull String value) {
-
-	}
-
-	@Nullable
-	public String getThemeName() {
-		return getCurrentTheme().getThemeName();
-	}
-
-	@Override public void setThemeName(String userThemeName) {
 
 	}
 
