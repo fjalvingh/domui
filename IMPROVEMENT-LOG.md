@@ -1323,7 +1323,67 @@ These were offered as input while the phase 0 items were being worked, and taken
       of `dark` while `$THEME/default/style.scss` carried neither, and
       `btnCancel.png` resolved in both variants.
 
+- [x] **Framework + demo: a dark variant of the winter theme, and a switch for it.**
+      Done 2026-09-07, at the user's direction, on top of the one-theme/variant
+      rework of the same day. The dark theme is **two files** in
+      `resources/themes/scss/winter/dark/` and copies nothing: `_color.scss`
+      (imported in place of the theme's own, before `_variables.scss`, so its
+      values beat the `!default`s and `_derived-variables.scss` recomputes the
+      whole derived palette from them - mostly by turning the greyscale ramp
+      upside down) and `_variantstyle.scss` (the rules variables cannot reach).
+      The second file exists because measurement showed the theme writes most of
+      its colours literally: 231 hex literals across 48 partials plus 84 bare
+      `white` keywords, against ~60 uses of an overridable colour variable. To
+      make it possible `style.scss` gained one line as its **last** import,
+      `@import "variantstyle"`, with an empty `winter/_variantstyle.scss` beside
+      it - the same shape as the existing `_custominit`/`_userstyle` hooks but
+      for rules rather than variables, so a variant's rules land after the
+      component they correct and win on source order. Framework also gained
+      `DarkThemeVariant`. Demo: `ThemeVariantSwitch`, a sun/moon button added to
+      `SourceBreadCrumb` (so it is on every page), which sets the session variant
+      and calls `WebUI.refreshPage()` - needed because the stylesheet link is
+      written by the full renderer, and the refresh keeps the conversation so page
+      state survives. The demo's own stylesheet now imports `parameters` and
+      branches on `$themeVariant` for its own hardcoded colours
+      (`css/_darkstyle.scss`). Docs: `look-and-feel/themes` gained the dark
+      variant as its worked example. Verified: `mvn21 clean install` green, 57 + 9
+      unit tests and 55 Selenium ITs pass, site build 156 pages clean; and in a
+      running demo, switching to dark and back repainted the home page, the
+      CD-shop artist list (search panel, input, buttons, datatable header band,
+      row hover) and a tutorial page using the demo's own card/query-box styling,
+      with the light variant unchanged.
+
 ## Decisions log
+
+### 2026-09-07 - A dark theme by override, and the file the theme was missing
+
+The brief was a dark theme "not by copying all files but by switching some colour
+parameters file". The colour file gets most of the way, and for a theme written
+against variables it would have been the whole answer: `_color.scss` is imported
+before `_variables.scss`, everything there is `!default`, so overriding the
+greyscale ramp inverts the entire derived palette in one file.
+
+It was not the whole answer here, and the measurement is the reason to record
+this: winter has 231 hardcoded colour literals across 48 partials and 84 bare
+`white` keywords, against roughly 60 uses of a colour variable. No variable file
+can reach those. The choice was between quietly shipping a half-dark theme and
+adding a second override file, and the second file won - but it needed somewhere
+to go, because `_userstyle.scss` is imported among the *variables*, far too early
+for a rule to win, and a variant's copy of it would have shadowed an
+application's own.
+
+Hence `@import "variantstyle"` as the last line of `style.scss`, with an empty
+base copy. It costs the theme one line, it is the rules counterpart of the
+`_custominit`/`_userstyle` variable hooks that already existed, and it is what any
+application variant will want as well. The entries in
+`dark/_variantstyle.scss` are a list of the partials that still hardcode colours;
+each one deleted from that file is a partial that has been fixed properly.
+
+The switch reloads the page rather than doing an ajax delta, because the
+stylesheet `<link>` is only written by the full renderer. `WebUI.refreshPage()`
+rather than `UIGoto.reload()`, so the conversation - and whatever the user had
+typed - survives the switch.
+
 
 ### 2026-09-07 - One theme, and the variant as the only axis
 

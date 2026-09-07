@@ -163,9 +163,8 @@ $themes/scss/all
 ```
 
 This is the whole of the variant mechanism: a variant directory is consulted first, so it
-overrides the files it contains and inherits every file it does not. A dark theme is a
-`dark/` directory holding its own `_color.scss` plus whatever images must differ;
-`style.scss` keeps its plain `@import 'color'`.
+overrides the files it contains and inherits every file it does not. §13 is the shipped
+example of it.
 
 The entries are themselves DomUI RURLs, so the walk recurses into `SimpleResourceFactory`
 → `DomApplication.getAppFileOrResource()` (`server/DomApplication.java:1674-1693`), which
@@ -444,15 +443,65 @@ Verified against a locally run demo, with a `dark` variant dropped into the demo
 | `$THEME/dark/style.scss` | 200, `$themeVariant` = `dark`, the overridden colour present |
 | `$THEME/default/btnCancel.png`, `$THEME/dark/btnCancel.png` | both 200 — the variant inherits the image it does not replace |
 
-## 13. Still open
+## 13. The dark variant
+
+DomUI ships one variant of its own: `dark`, selected with `DarkThemeVariant.INSTANCE`. It
+is **two files** in `resources/themes/scss/winter/dark/`, and copies nothing:
+
+| File | Imported | Does |
+| --- | --- | --- |
+| `_color.scss` | in place of `winter/_color.scss`, early | the colour variables |
+| `_variantstyle.scss` | in place of `winter/_variantstyle.scss`, last | the rules variables cannot reach |
+
+**The variable half.** `style.scss` imports `color` *before* `variables`, and everything in
+`_variables.scss` carries `!default`. So a variable set in `dark/_color.scss` wins, and
+`_derived-variables.scss` recomputes the derived palette — `$text`, `$background`,
+`$border`, `$link`, the input colours — from it. Most of the work is done by turning the
+greyscale ramp upside down: `$white`/`$white-bis`/`$white-ter` become the three darkest
+surfaces and `$grey-darker`…`$grey-lighter` run from lightest text to darkest border. Every
+rule that reaches for "the light end of the ramp" then gets a dark colour without knowing
+it, and `findColorInvert()` picks readable text on its own.
+
+**The rules half, and why it is needed.** Variable overrides alone do not produce a dark
+theme, because the winter theme writes most of its colours literally: **231 hex literals
+across 48 partials, plus 84 uses of the bare `white` keyword**, against only ~60 uses of an
+overridable colour variable. `dark/_variantstyle.scss` repaints the ones that matter — the
+page ground, panels, popups, form controls, the calendar, the datatable row hovers.
+
+For that to be possible `style.scss` gained one line, its **last**:
+
+```scss
+@import "variantstyle";
+```
+
+with an empty `winter/_variantstyle.scss` next to it. Being last means a variant's rules
+come after the component they correct and win on source order — no `!important` except
+where the rule being corrected has one, and no invented specificity. It is the same shape
+as the existing `_custominit` / `_userstyle` hooks, but for rules rather than variables,
+and it is what an application's own variant uses too.
+
+**In the demo.** `ThemeVariantSwitch` (a sun/moon button in the page header) flips
+`IRequestContext.setThemeVariant()` and then calls `WebUI.refreshPage()`: the stylesheet
+link is written by the *full* renderer, so an ajax delta would leave the old sheet in
+place. The refresh keeps the conversation, so page state survives the switch. The demo's
+own stylesheet imports `parameters` and branches on `$themeVariant` for its own hardcoded
+colours (`css/_darkstyle.scss`) — the one-file alternative to a directory per variant.
+
+Verified in a running demo: switching to dark and back repaints the home page, the CD-shop
+list (search panel, inputs, buttons, datatable header, row hover), and a tutorial page
+using the demo's own card and query-box styling; the light variant is byte-for-byte what it
+was.
+
+## 14. Still open
 
 1. **`UrlPage.getThemeVariant()` is still commented out** (`dom/html/UrlPage.java:90-92`),
    though the setter next to it now works. Uncomment it, or drop the pair in favour of
    `UIContext.getRequestContext()`.
-2. **DomUI ships no variant of its own.** The mechanism works, but `winter` has no `dark/`
-   directory, so an application that wants dark has to write the whole colour set. A
-   framework-supplied dark variant is the obvious next step, and is a design job rather
-   than a plumbing one.
+2. **The dark variant is a repaint, not a design.** It is correct and readable everywhere
+   it was looked at, but it lives on top of a theme that hardcodes 231 colours; each of
+   those is an entry in `dark/_variantstyle.scss` waiting to happen. The real fix is to
+   move the literals in the partials onto variables, after which entries in that file can
+   be deleted one by one. Screens not exercised in the demo may still show a light patch.
 3. **`getStyleSheetName()` compiles the whole stylesheet** to compute a cache-busting hash,
    from inside a getter, reaching into `UIContext` for a browser version it discards
    (`SassTheme.java:54-66`, its own `FIXME Fugly!!`).

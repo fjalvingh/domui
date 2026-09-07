@@ -237,6 +237,14 @@ it. Everything else on this list is a question for the user, not a deletion.
       and by the rule above only the user can decide whether a generation of
       components is dropped, and with what deprecation period. Until then the
       work here is to stop the docs and the demo teaching them, which is done.
+- [ ] **Framework: the winter theme hardcodes its colours.** 231 hex literals
+      across 48 partials plus 84 bare `white` keywords, against ~60 uses of an
+      overridable colour variable. That is why the dark variant needs a rules file
+      (`winter/dark/_variantstyle.scss`) beside its colour file: variables alone
+      cannot reach a literal. Moving those literals onto variables, partial by
+      partial, lets entries in that file be deleted one by one - and makes any
+      future variant a colour file only. (Found 2026-09-07 building the dark
+      variant.)
 - [ ] **Framework: SVG rasterisation cannot run.** `PartUtil.loadSvg()`, used by
       `GrayscalerPart` and `MarkerImagePart`, throws
       `NoClassDefFoundError: org/w3c/dom/svg/SVGDocument`: `to.etc.domui/pom.xml`

@@ -1,0 +1,7 @@
+/*
+ * Rules for the theme variant being rendered, imported as the last thing in style.scss.
+ *
+ * This file is the "default" variant's copy and is deliberately empty: the plain winter
+ * theme needs no overrides of itself. A variant directory next to this one - winter/dark -
+ * holds its own version, which comes first on the theme search path and so replaces this.
+ */

@@ -139,3 +139,10 @@
 @import "logtailer";
 @import "popInPanel";
 @import "ace";
+
+/*
+ * Last of all: rules belonging to the theme *variant* being rendered. The theme's own copy
+ * is empty; a variant directory (winter/dark) puts its own in front of it on the search
+ * path. It is imported last so its rules win over the components above.
+ */
+@import "variantstyle";
