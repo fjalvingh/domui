@@ -1203,6 +1203,15 @@ These were offered as input while the phase 0 items were being worked, and taken
         the `rxjava` group with the note that it has no test of its own because
         what it checks is what happens when you walk away from the page.
 
+- [x] **Check the external links.** **Done 2026-09-07**: all eighteen real
+      external URLs answer 200 (the rest are illustrative `localhost`,
+      `example.com` and `somehost` addresses). One documented URL was wrong, and
+      it was a DomUI URL, not a foreign one - see the decisions log entry of that
+      date.
+- [x] **The hibernate generator has no runnable jar.** **Done 2026-09-07**: the
+      module now shades one, and `data/pojo-generator` documents `java -jar`
+      again. See the decisions log entry of that date.
+
 ### Phase 4 - Remove old and incorrect code and information
 
 - [x] Remove the Maven archetype (`archetypes/domui-hello`) from the framework and
@@ -1258,6 +1267,64 @@ These were offered as input while the phase 0 items were being worked, and taken
       empty `_custominit.scss`, which is the supported hook.
 
 ## Decisions log
+
+### 2026-09-07 - The external links, and the generator's runnable jar
+
+**The links.** Eighteen external URLs, all answering 200: the five github.com
+repositories (`domui`, `domui-skeleton`, `domui.github.io`,
+`domui-intellij-plugin` and `bonigarcia/webdrivermanager`), both
+`help.eclipse.org` topics (checked by their titles, "Using null annotations" and
+"Using the batch compiler", because that host answers 200 for anything), gnu.org,
+plotly twice, maven.apache.org, api.jquery.com, ace.c9.io, flywaydb.org,
+www.domui.org and the three on demo.domui.org. The rest of the `http` strings on
+the site are deliberate illustrations - `localhost:8088`, `localhost:8082`,
+`example.com`, `somehost:4444`. Two redirect: `flywaydb.org` to Red Gate's
+Flyway product page and `www.domui.org` to `domui.org`. Both were left as they
+are: the first is still Flyway's own domain and the second is inside a code
+sample about `ALink`, not a link a reader follows.
+
+The item expected the risk to be in the foreign links. It was not: **the one
+wrong URL on the site was a DomUI one.** `building-pages/10-first-page` explained
+`@UIPage` with
+
+    @UIPage("/welcome/hello")
+    public class HelloPage extends UrlPage
+
+and said that this puts the page at `https://demo.domui.org/welcome/hello`. The
+demo's `HelloPage` carries no such annotation - no demo page uses `@UIPage` at
+all - and that URL does not 404: DomUI falls through to `getRootPage()`, so the
+reader lands on the demo's `HomePage` and has no way to tell the documentation
+was wrong. Checked in the browser against the live demo, which is also how the
+class-name URL one section earlier was confirmed to be right. The example is now
+a `WelcomePage` and puts it "at `/welcome/hello` under the application's root
+URL", claiming nothing about the demo.
+
+That `@UIPage` has no live demonstration is worth fixing at some point - the
+annotation is documented but nothing on demo.domui.org shows it. It needs a demo
+page and a deploy, so it is not done here.
+
+**The runnable jar.** `utilities/hibernate-generator` now runs
+`maven-shade-plugin` in `package`, producing `target/hibernate-generator.jar`
+with the dependencies inside and `to.etc.domui.hibgen.HibernateGenerator` as its
+`Main-Class`. The plugin's `finalName` is set, which means the module's own
+artifact (`domui-hibernate-generator-1.2-SNAPSHOT.jar`, 84KB) is left exactly as
+it was and the fat jar (17MB) sits next to it - nothing that depends on the
+module sees a change, and nothing does today anyway. For the same reason the
+plugin's `dependency-reduced-pom.xml` is switched off - it would describe an
+artifact that is not being replaced, and it lands in the source directory. Signature files and
+`module-info.class` are filtered out and `META-INF/services` entries merged, as
+a shade of jdbc drivers needs.
+
+The root pom's unused `maven-shade-plugin.version` property was 2.4.3 (2016,
+ASM too old for Java 21 class files) and is now 3.6.0. Nothing else in the build
+uses shade.
+
+Verified: `mvn21 install` green, and `java -jar
+utilities/hibernate-generator/target/hibernate-generator.jar` with no arguments
+prints the args4j option list, which is what the page says it does.
+`data/pojo-generator` documents `mvn package` plus `java -jar` instead of the
+`mvn exec:java` workaround, and notes that a full `mvn install` makes the same
+jar.
 
 ### 2026-09-07 - Phase 4, first batch, and what it got wrong about a library
 

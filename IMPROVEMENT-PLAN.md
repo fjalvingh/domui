@@ -167,15 +167,10 @@ below, and what was verified against the source is in the log.
 Verifying the code samples is **done 2026-09-06**; see the log. Measured by
 `git blame` against the pre-project commits, only five pages carried code this
 project had not written; two needed nothing, one was deleted, and the other two
-were rewritten into the new styling chapter.
+were rewritten into the new styling chapter. The external links were checked on
+2026-09-07 and the one wrong URL repaired; the runnable jar the POJO generator
+page wanted now exists. What is left of this phase is the screenshots.
 
-- [ ] Check the external links. Internal links are checked by the build, so this
-      is about the external ones. There are 21 unique external URLs left, of
-      which most are illustrative (`localhost:*`, `example.com`, `somehost:4444`,
-      `demo.domui.org`); the ones to actually check are the nine github.com
-      links, three on `help.eclipse.org`, and singles on `ace.c9.io`,
-      `api.jquery.com`, `stackoverflow.com`, `flywaydb.org`, `www.domui.org`,
-      `gnu.org`, `maven.apache.org` and plotly.
 
 #### The 32 pages outside the rewritten sections
 
@@ -186,12 +181,6 @@ and all eleven rewrites are done; see the log. What that pass left open:
       itself works (checked by the user 2026-09-06), so the page's text stands;
       only the six images need retaking, which is part of the screenshot item in
       phase 4.
-- [ ] **The hibernate generator has no runnable jar.** `HibernateGenerator` has a
-      `main()`, but the module produces a plain jar - no `Main-Class`, no
-      dependencies - so it cannot be started with `java -jar`. The page now
-      documents the `mvn exec:java` invocation that does work; giving the module
-      a shade/assembly configuration would let the simpler command be true again.
-      (Found rewriting `data/pojo-generator`, 2026-09-06.)
 
 ### Phase 3 - Rework the demo/tutorial application
 
