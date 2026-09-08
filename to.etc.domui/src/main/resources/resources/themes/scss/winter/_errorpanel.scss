@@ -7,7 +7,7 @@
 }
 
 .ui-err-caption {
-	//border: 1px solid $errors_background;
+	//border: 1px solid $errors_wash;
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
 	background: url(bg-errors.png) repeat-x bottom;
@@ -15,7 +15,7 @@
 .ui-err-cont {
 	position: relative;
 	border: none;
-	color: red;
+	color: $errors_foreground;
 	padding: 2px;
 }
 

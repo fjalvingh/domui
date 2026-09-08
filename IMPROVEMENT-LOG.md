@@ -1405,7 +1405,131 @@ These were offered as input while the phase 0 items were being worked, and taken
       row hover) and a tutorial page using the demo's own card/query-box styling,
       with the light variant unchanged.
 
+- [x] **Framework: a ladder function for things that nest, and the popup menu on it.**
+      Done 2026-09-08 at the user's direction, after a side-by-side of the popup
+      menu in its own greys versus the ramp. Two findings drove it. First, the
+      popup menu is an *inverted* surface - dark in the light theme - so the
+      scan's headline "worst shift", `#999` disabled text -> `$grey-light`, is
+      actually a contrast *improvement* (3.4:1 -> 5.8:1) rather than a
+      degradation. Second, and the reason for the function: rounding each grey to
+      its own nearest ramp step is wrong when the greys are a **sequence**. The
+      menu's middle nesting levels were `#666` and `#888`, which both round to
+      `$grey` - a naive collapse would have turned a three-rung ladder into two.
+      Added `$grey-ramp` (`_variables.scss`), the greyscale as an ordered list,
+      and `ladder($from, $level)` (`functions.scss`), which walks it; negative
+      levels walk the other way for what sits under the surface, and both ends
+      clamp rather than failing. `$ladder-direction` inverts along with the ramp,
+      so a ladder steps away from the page ground in either variant - the dark
+      variant's whole entry for the popup menu is two lines
+      (`$ladder-direction: -1`, `$pmnu-bg: $white-ter`). `_popupmenu.scss` now
+      expresses every colour as an offset from `$pmnu-bg`, including its item text
+      via the theme's own `findColorInvert()`. Light-theme effect is exactly the
+      column the user picked, seven compiled lines, all inside `.ui-pmnu*`:
+      background `#444`->`#363636`, levels `#666`/`#888`/`#aaa` ->
+      `#4a4a4a`/`#7a7a7a`/`#b5b5b5`, disabled `#999`->`#b5b5b5`, title
+      `#222`->`#0a0a0a`, border `black`->`#0a0a0a`. Left alone deliberately, at
+      the user's direction: the deepest level puts light text on a mid grey in
+      both variants - the component's nesting scheme runs out of contrast before
+      it runs out of levels, and a real popup menu does not nest three deep.
+      Verified: `mvn21 clean install` green, 57 + 9 unit tests and 55 Selenium ITs
+      pass, site build 156 pages clean, and both variants rendered from the
+      compiled output.
+
+- [x] **Framework: the error colours go through the theme's own variables.** Done
+      2026-09-08 at the user's direction, as the first slice of the colour
+      collapse. Seven literals in six components wrote an error colour by hand
+      while `$errors_border` / `$errors_foreground` / `$errors_input_background`
+      already existed and were already used in fifteen other files - and were
+      already set correctly by the dark variant. Changed: `_ace` (`.ui-ace-error`
+      underline), `_asyio` (the async-IO failure dialog's border, title band and
+      surface), `_bugIndicator`, `_enumsetinput` (the delete button's cross),
+      `_errorpanel` (`.ui-err-cont`). One new variable, `$errors_wash`, for the
+      dialog's own red surface, defaulting to the `#ffaaaa` it replaced;
+      `$errors_background` was **not** pressed into service for it because that
+      variable is `#a9c5f1`, blue, which is plainly an old mistake and worth
+      leaving visible rather than papering over. **The light theme is
+      unchanged**: the compiled diff is five lines, every one of them the keyword
+      `red` respelled as `#ff0000` - the same colour, because that is exactly what
+      `$errors_border` and `$errors_foreground` are set to. The dark variant now
+      renders those six places in its own reds (`#e75555`, `#f28888`, `#5b2929`)
+      instead of pure `#ff0000`. Verified: `mvn21 clean install` green, 57 + 9
+      unit tests and 55 Selenium ITs pass, site build clean, and the six rules
+      read out of both compiled sheets.
+- [x] **Framework: `$errors_background` was blue; it is gone.** Done 2026-09-08 at
+      the user's direction, closing what the previous entry had only flagged.
+      `_errorMessageDiv` and `_flare` both paint a state with a bg/fg/border
+      triplet - `$info_bg`/`$info_fg`/`$info_border` for info, the `$warnings_*`
+      three for warning - and the error member's background was `#a9c5f1`, a
+      blue, which made an error message render blue in a component whose other
+      two states were correctly coloured. `$errors_background` is deleted, both
+      uses now take `$errors_wash`, and the dark variant loses its entry for it.
+      **This one does change the light theme**, deliberately. Seeing it on screen
+      then showed a second problem the variable rename had exposed rather than
+      caused: `$errors_wash` was `#ffaaaa` (L83%) while `$info_bg` and
+      `$warnings_background` are L95% and L97%, so an error band shouted over a
+      warning band sitting right under it - and the dark variant was off the same
+      way, its wash 6-8 points lighter than its two siblings. Both are levelled:
+      `#ffe5e5` in light, `hsl(0, 32%, 20%)` in dark, matching the other two
+      states. Net light-theme effect, three compiled lines: `.ui-emd`,
+      `.ui-flare-error` and `.ui-ioe-asy` go `#a9c5f1`/`#ffaaaa` -> `#ffe5e5`.
+      Seen on screen in both variants on the demo's ErrorDisplayPage, error and
+      warning together.
+- [x] **Framework: `_bugIndicator.scss` is imported.** Done 2026-09-08 at the
+      user's direction. `style.scss` gained `@import "bugIndicator"` next to the
+      other floating overlays, so the 26 lines that style
+      `DefaultBugListener`'s indicator now compile instead of being silently
+      dropped. Verified present in the compiled sheet; **not** seen rendered,
+      because nothing in the demo raises a bug - so the indicator's own colours
+      (a `black` border and a `yellow` count on the error red) have not been
+      looked at on screen and may want a second pass.
+
 ## Decisions log
+
+### 2026-09-08 - Hue is not semantics
+
+The colour scan grouped by hue, and the plan inherited that grouping: "error red,
+warning amber, info blue, success green", each with a use count. Working through
+them, only the reds survived contact. The "warning ambers" were a breadcrumb link
+colour and the digit colour on the bug indicator's badge; the "info blues" were a
+breadcrumb's selected-item background and a toggle's branding parameter; the
+"success greens" were a pop-in panel's ground and a menu title's tint. None of
+them is a state. They were grouped together because a machine measured their hue.
+
+The check that actually works is the selector, not the colour - though it is not
+sufficient either: grepping for selectors *named* for errors found two of the
+seven, because the rest hide behind names like `.ui-ioe-asy` and
+`button.ui-esic-del`. Both passes were needed, and both had to be read by hand.
+
+Two literals that a hue-driven pass would certainly have converted, and which must
+stay exactly as they are: the colour picker's three `#f00`, which are its sample
+swatches - it is *showing the user the colour red*, and theming them would make
+the widget lie - and `red($main_color)` in `_draganddrop`, which is not a colour
+at all but the SCSS channel function, caught by the scanner's keyword regex.
+
+### 2026-09-08 - Ladders are sequences, and a colour scan cannot see that
+
+The colour scan ranked its findings by perceptual distance, and by that measure the
+popup menu's disabled text was the biggest single shift in the theme. Seen on
+screen the ranking was almost meaningless: the menu is dark, so "lighter" there
+means *more* contrast, and the change the scan flagged hardest is an improvement.
+Distance from a colour says nothing about what the colour is doing.
+
+The real finding only appeared once the component was drawn: three of its greys
+are one *sequence*, not three independent choices. `#666` and `#888` are a rung
+apart, and both round to `$grey` - so the mechanical collapse would have silently
+merged two nesting levels. Any colour consolidation that works one literal at a
+time will do this wherever a component encodes depth, order or magnitude in
+colour, and it will look like a tidy-up in the diff.
+
+Hence `ladder()` rather than a lookup table: it makes the sequence explicit in the
+source, so the next person to touch it can see that the levels move together. The
+direction variable falls out of the same idea - a ladder is defined by where it
+starts and which way it goes, and a variant that inverts the ramp needs to invert
+the second thing too or every ladder in the theme runs backwards.
+
+The general rule this sets for the rest of the collapse: before mapping a
+component's greys, check whether they form a run. If they do, they take
+consecutive rungs from one base, not nearest-neighbour matches individually.
 
 ### 2026-09-07 - Variables in the partials, not rules in the variant
 

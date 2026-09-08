@@ -1,9 +1,24 @@
 /*** Popup menu ***/
+@import "variables";
+@import "functions";
+
+// The popup menu is an inverted surface: dark in the light theme, and a raised dark
+// surface in the dark one. Its nesting levels are a ladder - each submenu one step
+// further along the greyscale ramp than the one it opened from - so everything below is
+// expressed as an offset from $pmnu-bg rather than as a colour of its own. Moving
+// $pmnu-bg moves the whole menu coherently, which is all winter/dark has to do.
+$pmnu-bg: $grey-darker !default;					// rung 0: the menu itself
+$pmnu-color: findColorInvert($pmnu-bg) !default;	// item text, readable on that rung
+$pmnu-disabled-color: ladder($pmnu-bg, 3) !default;	// disabled item text: three rungs away
+$pmnu-frame: ladder($pmnu-bg, -3) !default;			// title band and border: under the menu
+$pmnu-title-color: #eeffee !default;
+$pmnu-hover-bg: #ff9436 !default;					// FIXME belongs to the theme's accent set
+
 .ui-pmnu {
 	display: none;
 	width: auto;
-	background-color: #444;
-	border: 1px dotted black;
+	background-color: ladder($pmnu-bg);
+	border: 1px dotted $pmnu-frame;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
@@ -13,18 +28,18 @@
 	padding: 4px 0px;
 }
 .ui-pmnu-disabled {
-	color: #999;
+	color: $pmnu-disabled-color;
 }
 .ui-pmnu-enabled {
-	color: white;
+	color: $pmnu-color;
 	cursor: pointer;
 }
 
 .ui-pmnu-ttl {
 	padding: 4px;
 	font-style: italic;
-	background-color: #222;
-	color: #eeffee;
+	background-color: $pmnu-frame;
+	color: $pmnu-title-color;
 }
 .ui-pmnu-action {
 	padding: 4px 4px 4px 20px;
@@ -35,10 +50,10 @@
 }
 
 .ui-pmnu-action:hover {
-	background-color: #ff9436;
+	background-color: $pmnu-hover-bg;
 }
 .ui-pmnu-subsel {
-	background-color: #ff9436;
+	background-color: $pmnu-hover-bg;
 }
 
 /*** Submenu's ***/
@@ -48,13 +63,18 @@
 	padding-bottom: 100%;
 	margin-bottom: -100%;
 }
+
+/*
+ * One rung per nesting level. The ramp gives these even steps and keeps them distinct,
+ * which hand-picked greys did not: the two middle levels used to be #666 and #888, close
+ * enough that rounding each to its own nearest ramp step collapsed them into one colour.
+ */
 .ui-pmnu-sm1 {
-	background-color: #666;
+	background-color: ladder($pmnu-bg, 1);
 }
 .ui-pmnu-sm2 {
-	background-color: #888;
+	background-color: ladder($pmnu-bg, 2);
 }
 .ui-pmnu-sm3 {
-	background-color: #aaa;
+	background-color: ladder($pmnu-bg, 3);
 }
-

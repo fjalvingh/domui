@@ -1,4 +1,6 @@
 /** EnumSetInput **/
+@import "variables";
+
 .ui-esic {
 	@include ui-input-base;
 	//padding-left: 1px;
@@ -28,7 +30,7 @@ button.ui-esic-del {
 	-webkit-appearance: none;
 	align-items: center;
 	background-color: transparent;
-	color: red;
+	color: $errors_foreground;
 	outline: none;
 	border: none;
 	margin: 1px 1px 1px 8px;

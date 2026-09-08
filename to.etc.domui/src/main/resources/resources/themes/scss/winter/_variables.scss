@@ -34,12 +34,18 @@ $highlight_bg: #ffbb43 !default; 	// row select: hard orange
 $highlight2_bg: lighten($highlight_bg, 20%) !default;
 
 /** Error, warning, info colors **/
-$errors_background: #a9c5f1 !default;
 $errors_border: #ff0000 !default; 			// red
 $errors_foreground: #ff0000 !default;		// red
 $errors_transparent: rgba(red($errors_border), green($errors_border), blue($errors_border), 0.25) !default;
 
 $errors_input_background: #ffe5e5 !default;	// error bg for input component
+
+// A surface that is itself an error: the message div, the flare, the async-IO dialog.
+// This is the error member of the same bg/fg/border triplet as $info_bg and
+// $warnings_background, and it is levelled with them - all three are a tint at the same
+// weight, so a red band does not shout over a yellow one saying something worse.
+// (It used to be $errors_background, which was #a9c5f1 - blue.)
+$errors_wash: #ffe5e5 !default;
 
 $warnings_background: #fffeee !default; // light yellow
 $warnings_foreground: #8a6100 !default;	// dark amber: yellow is unreadable on $warnings_background
@@ -236,3 +242,18 @@ $input-color: inherit !default;
 // A read-only input: a pale wash instead of a plain field.
 $input-ro-bg-top: #f2f9fe !default;
 $input-ro-bg-bottom: #d6f0fd !default;
+
+// --------------------------------------------------------------------------------------
+// The greyscale ramp as an ordered list, darkest first - the same eleven steps defined
+// above, in order.
+//
+// It exists so that anything which *nests* can walk the ramp instead of hand-picking a
+// grey per level: a submenu inside a submenu, a tree inside a tree, a panel inside a
+// panel. See ladder() in functions.scss.
+$grey-ramp: ($black, $black-bis, $black-ter, $grey-darker, $grey-dark, $grey,
+             $grey-light, $grey-lighter, $white-ter, $white-bis, $white) !default;
+
+// Which way along that list a ladder walks as it goes deeper. A variant that inverts the
+// ramp inverts this with it (winter/dark does), so every ladder in the theme keeps
+// stepping the same way *visually* - away from the page ground - in either variant.
+$ladder-direction: 1 !default;

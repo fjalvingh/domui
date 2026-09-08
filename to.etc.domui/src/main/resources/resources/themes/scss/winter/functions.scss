@@ -70,3 +70,31 @@
 }
 
 
+// One rung of a ladder: the step $level places along $grey-ramp from $from, walked in
+// whichever direction $ladder-direction says.
+//
+//	.ui-pmnu     { background-color: ladder($pmnu-bg);    }		// the ladder's own rung
+//	.ui-pmnu-sm1 { background-color: ladder($pmnu-bg, 1); }		// one level in
+//	.ui-pmnu-sm2 { background-color: ladder($pmnu-bg, 2); }		// two levels in
+//
+// A negative $level walks the other way, which is how something that belongs *under* the
+// ladder's own surface - a title band, a border - is expressed.
+//
+// Walking off either end of the ramp clamps rather than failing, so a component that
+// nests deeper than the ramp has steps degrades to a flat colour instead of breaking the
+// build. $from must be one of the ramp's own steps; anything else is a mistake worth
+// stopping for.
+@function ladder($from, $level: 0) {
+	$i: index($grey-ramp, $from);
+	@if $i == null {
+		@error "ladder(): #{$from} is not a step of $grey-ramp - pass one of $black ... $white";
+	}
+	$n: $i + $level * $ladder-direction;
+	@if $n < 1 {
+		$n: 1;
+	}
+	@if $n > length($grey-ramp) {
+		$n: length($grey-ramp);
+	}
+	@return nth($grey-ramp, $n);
+}

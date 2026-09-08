@@ -71,10 +71,10 @@ $form-label-color: hsl(220, 12%, 78%);
 $common-hdr-color-1: hsl(220, 10%, 40%);
 
 // --- Messages: keep the hue, drop the brightness ----------------------------------
-$errors_background:       hsl(0, 30%, 20%);
 $errors_border:           hsl(0, 75%, 62%);
 $errors_foreground:       hsl(0, 80%, 74%);
 $errors_input_background: hsl(0, 32%, 22%);
+$errors_wash:             hsl(0, 32%, 20%);	// levelled with $info_bg / $warnings_background
 
 $warnings_background:     hsl(45, 32%, 18%);
 $warnings_foreground:     hsl(45, 80%, 70%);
@@ -113,6 +113,15 @@ $data_tbl_cell_highlight_bg: hsl(271, 45%, 40%);
 $body-color:        hsl(220, 12%, 76%);
 
 $line-color:        hsl(220, 11%, 27%);
+
+// The ramp above is inverted, so a ladder has to walk it the other way to keep stepping
+// away from the page ground as it nests deeper. See ladder() in functions.scss.
+$ladder-direction: -1;
+
+// The popup menu is an inverted surface in the light theme; here it is a raised dark one,
+// so its ladder starts three rungs off the page ground instead of near the black end.
+// Everything else about the menu follows from this one value.
+$pmnu-bg: $white-ter;
 
 $surface-bg:        hsl(220, 13%, 14%);
 $surface-color:     hsl(220, 12%, 76%);

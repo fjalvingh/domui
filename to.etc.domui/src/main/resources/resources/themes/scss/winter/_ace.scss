@@ -1,6 +1,8 @@
+@import "variables";
+
 .ui-ace-error {
 	position: absolute;
-	border-bottom: solid 2px red;
+	border-bottom: solid 2px $errors_border;
 	z-index: 2;
 
 }

@@ -473,6 +473,7 @@ that mattered were changed to name what a colour is *for*:
 | `$input-ro-bg-top`/`-bottom` | the read-only wash in `ui-ro-base` |
 | `$row-hover-bg`, `$row-hover-outline`, `$row-select-hover-*` | `_datatable` row hovers |
 | `$cal-*` (28 of them) | the whole jscalendar popup |
+| `$grey-ramp` + `ladder()` | `_popupmenu`'s four nesting levels — see below |
 
 The calendar was vendor CSS (`calendar-theme.css`) and so could hold no variables at all;
 it is now `_calendarTheme.scss`, with one variable per distinct colour, each defaulting to
@@ -509,6 +510,42 @@ Note that controls are **not** part of this: inputs and buttons take `$border`, 
 from the greyscale ramp in `_derived-variables.scss` and so already followed a variant.
 `$line-color` is for everything else, and the two must not be confused.
 
+**Things that nest get a ladder, not a grey each.** `$grey-ramp` (`_variables.scss`) is
+the greyscale as an ordered list and `ladder($from, $level)` (`functions.scss`) walks it,
+so a component with nesting levels takes consecutive rungs instead of hand-picking a grey
+per level:
+
+```scss
+$pmnu-bg: $grey-darker !default;			// the component's own rung
+.ui-pmnu     { background-color: ladder($pmnu-bg);    }
+.ui-pmnu-sm1 { background-color: ladder($pmnu-bg, 1); }
+.ui-pmnu-sm2 { background-color: ladder($pmnu-bg, 2); }
+```
+
+Negative levels walk the other way, for what sits *under* the surface — the popup menu's
+title band and border are `ladder($pmnu-bg, -3)`. Off either end it clamps rather than
+failing, so nesting deeper than the ramp has steps degrades to a flat colour instead of
+breaking the build.
+
+This exists because rounding each grey to its own nearest ramp step is wrong when the
+greys are a *sequence*: the popup menu's middle levels were `#666` and `#888`, which both
+round to `$grey` and would have collapsed a three-rung ladder into two. `$ladder-direction`
+inverts along with the ramp, so a ladder keeps stepping away from the page ground in
+either variant — the dark variant's entire entry for the popup menu is
+`$ladder-direction: -1` and `$pmnu-bg: $white-ter`, and both menus then step the same way
+visually:
+
+| | rung 0 | 1 | 2 | 3 | frame `-3` |
+| --- | --- | --- | --- | --- | --- |
+| default | `#363636` | `#4a4a4a` | `#7a7a7a` | `#b5b5b5` | `#0a0a0a` |
+| dark | `#282c33` | `#3d424c` | `#535965` | `#89909f` | `#181b20` |
+
+The popup menu's item text is `findColorInvert($pmnu-bg)`, so it follows the base rather
+than being stated twice. Its deepest level puts light text on a mid grey and is poor
+contrast in both variants; that is the component's own nesting scheme running out of
+contrast before it runs out of levels, is unchanged by this work, and was left alone
+deliberately — a real popup menu does not nest three deep.
+
 **In the demo.** `ThemeVariantSwitch` (a sun/moon button in the page header) flips
 `IRequestContext.setThemeVariant()` and then calls `WebUI.refreshPage()`: the stylesheet
 link is written by the *full* renderer, so an ajax delta would leave the old sheet in
@@ -527,12 +564,37 @@ query-box styling.
 1. **`UrlPage.getThemeVariant()` is still commented out** (`dom/html/UrlPage.java:90-92`),
    though the setter next to it now works. Uncomment it, or drop the pair in favour of
    `UIContext.getRequestContext()`.
-2. **Not every literal is gone.** The partials the demo exercises now take their colours
-   from variables, but roughly 200 literals remain in partials that were not in the way —
-   `_colorpicker`, `_flare`, `_agenda`, the tab panels, and others. Each is a screen that
-   will show a light patch in a dark variant until it gets a variable too. The rule to
-   follow when one turns up: give the partial a variable, do not override it in the
-   variant.
+2. **Not every literal is gone, and a scan says what to do with them.** 233 colour
+   literals are still written in the partials, 137 of them distinct. Scanned and clustered
+   perceptually (CIE Lab) on 2026-09-08; the finding is in `IMPROVEMENT-PLAN.md`. In
+   short: **33 of them are near-neutral greys, and the theme already defines an 11-step
+   greyscale ramp that no partial uses** — `$grey`'s lightness band alone has eight
+   different greys competing (`#777777`, `#808080`, `#666666`, `#7c7c7c`, `#898989`,
+   `#888888`, `#727272`, `#998888`). Three partials even hardcode a value that *is* a ramp
+   step (`#363636` = `$grey-darker`, `#dbdbdb` = `$grey-lighter`, `#0a0a0a` = `$black`).
+   Mapping every grey onto the ramp collapses 150 occurrences onto 9 steps, with the
+   largest visible shift dE 10.5. Two slices are done: `_popupmenu` (on `ladder()`, §13)
+   and the **error colours** — seven literals in six components that wrote a red by hand
+   while `$errors_border`/`$errors_foreground` already existed, were already used in
+   fifteen other files, and were already set by the dark variant. That one was inert in
+   the light theme by construction: the compiled diff was five lines of the keyword `red`
+   respelled `#ff0000`. It also turned up a real bug and a real orphan, both since fixed:
+   `$errors_background` was `#a9c5f1` — a **blue** where `$info_bg` and
+   `$warnings_background` are correctly tinted, so an error message rendered blue; it is
+   deleted and its uses take `$errors_wash`, which is levelled with those two siblings
+   (all three a tint at the same weight, in both variants) so that a red band does not
+   shout over a yellow one saying something worse. And `_bugIndicator.scss` was never
+   imported by `style.scss`, so `DefaultBugListener`'s indicator rendered unstyled; it is
+   imported now.
+
+   Three rules the slices produced. **Give the partial a variable, never override it in
+   the variant.** **Check for a ladder first** — greys that form a sequence take
+   consecutive rungs from one base, not nearest-neighbour matches each. **Hue is not
+   semantics** — the scan's "warning", "info" and "success" families turned out to be a
+   breadcrumb link, a badge digit, a selected-item background, a toggle parameter, a
+   panel ground and a title tint; and two literals must stay literal for good, the colour
+   picker's `#f00` sample swatches and `red($main_color)` in `_draganddrop`, which is the
+   SCSS channel function rather than a colour.
 3. **`getStyleSheetName()` compiles the whole stylesheet** to compute a cache-busting hash,
    from inside a getter, reaching into `UIContext` for a browser version it discards
    (`SassTheme.java:54-66`, its own `FIXME Fugly!!`).
