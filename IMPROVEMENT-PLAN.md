@@ -237,14 +237,15 @@ it. Everything else on this list is a question for the user, not a deletion.
       and by the rule above only the user can decide whether a generation of
       components is dropped, and with what deprecation period. Until then the
       work here is to stop the docs and the demo teaching them, which is done.
-- [ ] **Framework: the winter theme hardcodes its colours.** 231 hex literals
-      across 48 partials plus 84 bare `white` keywords, against ~60 uses of an
-      overridable colour variable. That is why the dark variant needs a rules file
-      (`winter/dark/_variantstyle.scss`) beside its colour file: variables alone
-      cannot reach a literal. Moving those literals onto variables, partial by
-      partial, lets entries in that file be deleted one by one - and makes any
-      future variant a colour file only. (Found 2026-09-07 building the dark
-      variant.)
+- [ ] **Framework: colour literals remain in the partials the demo does not show.**
+      The partials the demo exercises now take their colours from variables (see
+      the log entry of 2026-09-07), but roughly 200 literals are left in ones that
+      were not in the way - `_colorpicker`, `_flare`, `_agenda`, the tab panels and
+      others. Each is a screen that will show a light patch under a dark theme
+      variant. The rule when one turns up: give the partial a variable, never a
+      rule in the variant. Related: three near-identical border greys (#8c8c8c,
+      #aaa, #BBB) kept separate variables rather than being collapsed, because
+      collapsing them changes the light theme - worth doing deliberately.
 - [ ] **Framework: SVG rasterisation cannot run.** `PartUtil.loadSvg()`, used by
       `GrayscalerPart` and `MarkerImagePart`, throws
       `NoClassDefFoundError: org/w3c/dom/svg/SVGDocument`: `to.etc.domui/pom.xml`

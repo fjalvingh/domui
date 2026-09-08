@@ -186,3 +186,53 @@ $input-border-color: #dbdbdb !default;
 $esic-label-color: #d4f94e !default;
 $esic-label-border: darken($esic-label-color, 20%) !default;
 $esic-text-color: findColorInvert($esic-label-color) !default;
+
+// --------------------------------------------------------------------------------------
+// Surfaces and text.
+// These name what a colour is *for* instead of what it is, and every partial that used to
+// write "background: white" uses one of them. That is what makes a theme variant a
+// colour file and nothing else: set these in a variant's _color.scss and the whole theme
+// follows, without a single rule having to be repeated to override it.
+// The defaults below are the light theme, so the plain winter theme renders exactly as it
+// did when these were literals.
+// --------------------------------------------------------------------------------------
+
+// The page itself.
+$body-color: inherit !default;					// text on $bg_color
+
+// Every line the theme draws that is not part of a control: the edge of a panel, floating
+// window, layout pane or menu, and the rules between table cells. The theme used four
+// near-identical greys for these; they are one colour.
+//
+// Controls do not use this - inputs and buttons take $border, which comes from the
+// greyscale ramp and so already follows a variant.
+$line-color: #aaa !default;
+
+// A surface raised off the page: panels, popups, floating windows, menus. Its edge is
+// $line-color, like every other line the theme draws.
+$surface-bg: $white !default;
+$surface-color: $body-color !default;
+
+// Row hover in a table: a wash plus the outline drawn over it.
+$row-hover-bg: #fff4d3 !default;
+$row-hover-outline: #ffd55a !default;
+$row-select-hover-bg: #f1f9e1 !default;
+$row-select-hover-outline: #c3df8a !default;
+
+// A floating window has its own, slightly grey, ground.
+$window-bg: #f5f6f7 !default;
+
+// A menu floating over the page.
+$menu-hover-bg: $row-hover-bg !default;
+$menu-hover-border: #ffde7f !default;
+
+// A second step up, or a band inside a surface: menu hovers, table headers.
+$surface-alt-bg: #eee !default;
+
+// Input controls that the theme colours itself.
+$input-bg: $white !default;
+$input-color: inherit !default;
+
+// A read-only input: a pale wash instead of a plain field.
+$input-ro-bg-top: #f2f9fe !default;
+$input-ro-bg-bottom: #d6f0fd !default;

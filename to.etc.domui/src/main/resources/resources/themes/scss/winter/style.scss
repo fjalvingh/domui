@@ -5,8 +5,6 @@
 @import 'parameters';					// This must be present for all that follows
 @import "_custominit.scss";				// Meant for customers to override stylesheet data.
 
-@import "calendar-theme.css";
-
 //-- Variable and mixing common imports
 @import 'color';
 @import 'variables';
@@ -24,6 +22,7 @@
 
 @import 'reset';
 @import 'core';
+@import "calendarTheme";				// The jscalendar popup: after the variables, so a variant can recolour it
 @import "helperclasses";
 @import "ioHiderOverlay";
 
@@ -139,10 +138,3 @@
 @import "logtailer";
 @import "popInPanel";
 @import "ace";
-
-/*
- * Last of all: rules belonging to the theme *variant* being rendered. The theme's own copy
- * is empty; a variant directory (winter/dark) puts its own in front of it on the search
- * path. It is imported last so its rules win over the components above.
- */
-@import "variantstyle";

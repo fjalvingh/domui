@@ -446,62 +446,93 @@ Verified against a locally run demo, with a `dark` variant dropped into the demo
 ## 13. The dark variant
 
 DomUI ships one variant of its own: `dark`, selected with `DarkThemeVariant.INSTANCE`. It
-is **two files** in `resources/themes/scss/winter/dark/`, and copies nothing:
+is **one file** — `resources/themes/scss/winter/dark/_color.scss` — and it repeats no rule
+of the theme and copies no partial.
 
-| File | Imported | Does |
-| --- | --- | --- |
-| `_color.scss` | in place of `winter/_color.scss`, early | the colour variables |
-| `_variantstyle.scss` | in place of `winter/_variantstyle.scss`, last | the rules variables cannot reach |
+**How one file can be enough.** `style.scss` imports `color` *before* `variables`, and
+everything in `_variables.scss` carries `!default`. So a variable set in `dark/_color.scss`
+wins, and `_derived-variables.scss` recomputes the derived palette — `$text`,
+`$background`, `$border`, `$link`, the input colours — from it. Most of the work is done by
+turning the greyscale ramp upside down: `$white`/`$white-bis`/`$white-ter` become the three
+darkest surfaces and `$grey-darker`…`$grey-lighter` run from lightest text to darkest
+border. Every rule that reaches for "the light end of the ramp" then gets a dark colour
+without knowing it, and `findColorInvert()` picks readable text on its own.
 
-**The variable half.** `style.scss` imports `color` *before* `variables`, and everything in
-`_variables.scss` carries `!default`. So a variable set in `dark/_color.scss` wins, and
-`_derived-variables.scss` recomputes the derived palette — `$text`, `$background`,
-`$border`, `$link`, the input colours — from it. Most of the work is done by turning the
-greyscale ramp upside down: `$white`/`$white-bis`/`$white-ter` become the three darkest
-surfaces and `$grey-darker`…`$grey-lighter` run from lightest text to darkest border. Every
-rule that reaches for "the light end of the ramp" then gets a dark colour without knowing
-it, and `findColorInvert()` picks readable text on its own.
+**What had to change for that to hold.** A rule can only follow a variant if it takes its
+colour from a variable, and the theme wrote most of its colours literally. The partials
+that mattered were changed to name what a colour is *for*:
 
-**The rules half, and why it is needed.** Variable overrides alone do not produce a dark
-theme, because the winter theme writes most of its colours literally: **231 hex literals
-across 48 partials, plus 84 uses of the bare `white` keyword**, against only ~60 uses of an
-overridable colour variable. `dark/_variantstyle.scss` repaints the ones that matter — the
-page ground, panels, popups, form controls, the calendar, the datatable row hovers.
+| Variable | Replaces, in |
+| --- | --- |
+| `$body-color` | `_core.scss` (the page had no text colour at all) |
+| `$line-color` | every line the theme draws that is not part of a control: the edges of `_floatingWindow`, `_layout` panes and `_hamburgermenu`, and the cell rules in `.listtbl` |
+| `$surface-bg`, `$surface-color` | `_panel`, `_captionedpanel`, `_labelselector`, `_floatingWindow`, `_hamburgermenu`, `_popupmenu2`, `_layout`, `.listtbl` in `_core` |
+| `$surface-alt-bg` | `_popupmenu2` hover |
+| `$window-bg`, `$menu-hover-bg`, `$menu-hover-border` | the floating window's ground and the hamburger hover |
+| `$input-bg`, `$input-color` | `select` in `_core`, and `ui-input-base` in `bulmaish/_core_defs` |
+| `$input-ro-bg-top`/`-bottom` | the read-only wash in `ui-ro-base` |
+| `$row-hover-bg`, `$row-hover-outline`, `$row-select-hover-*` | `_datatable` row hovers |
+| `$cal-*` (28 of them) | the whole jscalendar popup |
 
-For that to be possible `style.scss` gained one line, its **last**:
+The calendar was vendor CSS (`calendar-theme.css`) and so could hold no variables at all;
+it is now `_calendarTheme.scss`, with one variable per distinct colour, each defaulting to
+the literal it replaced. It also had to move down `style.scss`, below the variable imports,
+or its own `!default`s would win over a variant's.
 
-```scss
-@import "variantstyle";
+Two of these are additions rather than substitutions: the theme never gave `body` a text
+colour, and never gave text inputs a background — both relied on the browser default. A
+variant cannot override a colour nobody wrote, so the theme now states them.
+
+**The light theme changed in exactly one deliberate way.** Verified throughout by compiling
+`$THEME/default/style.scss` before and after each step and diffing.
+
+The variabilisation itself changed **no colour value at all**: its differences were
+`#FFF`/`#fff`/`#FFFFFF` respelled as `white`; the calendar block moving position; 20 added
+`color: inherit` (a no-op — `inherit` is what `color` already does); 12 added
+`background-color: white` where the browser already painted white; and three
+`border: 1px solid white` becoming `transparent` on hamburger items, which is what that
+invisible 1px spacer actually means.
+
+Then, deliberately, **the border greys were collapsed**. The theme drew its lines in four
+near-identical greys — `#8c8c8c` (hamburger menu), `#aaa` (floating window), `#BBB` (layout
+pane) and `#aaaaaa` (table cell rules) — which had become four variables saying the same
+thing. They are now one, `$line-color`, defaulting to the median `#aaa`. The whole effect
+on the compiled light sheet is three lines:
+
+```
+.listtbl TD      border-left: 1px solid #aaaaaa   ->  #aaa      (the same colour, respelled)
+.ui-hmbrg-menu   border: 2px groove #8c8c8c       ->  #aaa      (lighter)
+.ui-layout-pane  border: 1px solid #BBB           ->  #aaa      (slightly darker)
 ```
 
-with an empty `winter/_variantstyle.scss` next to it. Being last means a variant's rules
-come after the component they correct and win on source order — no `!important` except
-where the rule being corrected has one, and no invented specificity. It is the same shape
-as the existing `_custominit` / `_userstyle` hooks, but for rules rather than variables,
-and it is what an application's own variant uses too.
+Note that controls are **not** part of this: inputs and buttons take `$border`, which comes
+from the greyscale ramp in `_derived-variables.scss` and so already followed a variant.
+`$line-color` is for everything else, and the two must not be confused.
 
 **In the demo.** `ThemeVariantSwitch` (a sun/moon button in the page header) flips
 `IRequestContext.setThemeVariant()` and then calls `WebUI.refreshPage()`: the stylesheet
 link is written by the *full* renderer, so an ajax delta would leave the old sheet in
 place. The refresh keeps the conversation, so page state survives the switch. The demo's
 own stylesheet imports `parameters` and branches on `$themeVariant` for its own hardcoded
-colours (`css/_darkstyle.scss`) — the one-file alternative to a directory per variant.
+colours (`css/_darkstyle.scss`) — an application has no theme variables to set, so that is
+the right tool there.
 
 Verified in a running demo: switching to dark and back repaints the home page, the CD-shop
-list (search panel, inputs, buttons, datatable header, row hover), and a tutorial page
-using the demo's own card and query-box styling; the light variant is byte-for-byte what it
-was.
+list (search panel, inputs, buttons, datatable header, row hover), the DateInput2 page
+(including read-only and disabled fields) and a tutorial page using the demo's own card and
+query-box styling.
 
 ## 14. Still open
 
 1. **`UrlPage.getThemeVariant()` is still commented out** (`dom/html/UrlPage.java:90-92`),
    though the setter next to it now works. Uncomment it, or drop the pair in favour of
    `UIContext.getRequestContext()`.
-2. **The dark variant is a repaint, not a design.** It is correct and readable everywhere
-   it was looked at, but it lives on top of a theme that hardcodes 231 colours; each of
-   those is an entry in `dark/_variantstyle.scss` waiting to happen. The real fix is to
-   move the literals in the partials onto variables, after which entries in that file can
-   be deleted one by one. Screens not exercised in the demo may still show a light patch.
+2. **Not every literal is gone.** The partials the demo exercises now take their colours
+   from variables, but roughly 200 literals remain in partials that were not in the way —
+   `_colorpicker`, `_flare`, `_agenda`, the tab panels, and others. Each is a screen that
+   will show a light patch in a dark variant until it gets a variable too. The rule to
+   follow when one turns up: give the partial a variable, do not override it in the
+   variant.
 3. **`getStyleSheetName()` compiles the whole stylesheet** to compute a cache-busting hash,
    from inside a getter, reaching into `UIContext` for a browser version it discards
    (`SassTheme.java:54-66`, its own `FIXME Fugly!!`).

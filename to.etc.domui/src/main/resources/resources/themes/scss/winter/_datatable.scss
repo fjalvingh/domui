@@ -195,16 +195,16 @@ tr.ui-rowsel {
 }
 tr.ui-dt-row:hover {
 	/*	border: 1px solid #ffd55a !important; */
-	outline: 1px solid #ffd55a;
+	outline: 1px solid $row-hover-outline;
 	outline-offset: -1px;
-	background-color: #fff4d3 !important;
+	background-color: $row-hover-bg !important;
 	border-bottom: 1px solid transparent;
 }
 
 .ui-dt.ui-dd-rowsel tbody > tr:hover {
-	outline: 1px solid #c3df8a;
+	outline: 1px solid $row-select-hover-outline;
 	outline-offset: -1px;
-	background-color: #f1f9e1 !important;
+	background-color: $row-select-hover-bg !important;
 	border-bottom: 1px solid transparent;
 }
 

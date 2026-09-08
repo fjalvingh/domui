@@ -1,21 +1,19 @@
-/*
- * The dark variant of the winter theme - the colour half.
- *
- * This file replaces winter/_color.scss for sessions rendering in the "dark" variant,
- * because winter/dark comes first on the theme search path. Nothing else of the theme is
- * copied: every partial, image and rule still comes from winter itself.
- *
- * It works because _color.scss is imported *before* _variables.scss, and everything in
- * _variables.scss carries !default. So anything set here wins, and _derived-variables.scss
- * recomputes the whole derived palette (text, backgrounds, borders, links, inputs) from
- * the values below.
- *
- * The trick for the greyscale ramp is to turn it upside down: $white* become the darkest
- * surfaces and $grey-darker becomes the lightest text. Every rule in the theme that says
- * "use the light end of the ramp" then reaches for a dark colour without knowing it.
- */
+// The dark variant of the winter theme.
+//
+// This is the whole variant: one file. No rule of the theme is repeated here and no
+// partial is copied - the theme's own partials take their colours from the variables
+// below, and this file says what those colours are.
+//
+// It works because _color.scss is imported *before* _variables.scss, and everything in
+// _variables.scss carries !default. So anything set here wins, and _derived-variables.scss
+// recomputes the whole derived palette (text, backgrounds, borders, links, inputs) from
+// the values below.
+//
+// The trick for the greyscale ramp is to turn it upside down: $white* become the darkest
+// surfaces and $grey-darker becomes the lightest text. Every rule in the theme that says
+// "use the light end of the ramp" then reaches for a dark colour without knowing it.
 
-/*--- The greyscale ramp, inverted -------------------------------------------------*/
+// The greyscale ramp, inverted
 $white:        hsl(220, 13%, 11%);		// page background
 $white-bis:    hsl(220, 13%, 14%);		// one step up: cards, panels
 $white-ter:    hsl(220, 12%, 18%);		// two steps up: headers, striped rows
@@ -30,7 +28,7 @@ $grey:         hsl(220, 10%, 58%);		// $text-light
 $grey-light:   hsl(220, 10%, 36%);		// hover borders
 $grey-lighter: hsl(220, 11%, 27%);		// $border - normal borders
 
-/*--- Named colours that need to lift off a dark ground ----------------------------*/
+// --- Named colours that need to lift off a dark ground ----------------------------
 $blue:         hsl(210, 90%, 68%);
 $purple:       hsl(271, 80%, 76%);
 $cyan:         hsl(204, 80%, 62%);
@@ -39,7 +37,7 @@ $red:          hsl(348, 85%, 68%);
 $yellow:       hsl(48, 90%, 62%);
 $orange:       hsl(14, 90%, 62%);
 
-/*--- The theme's own colour variables ---------------------------------------------*/
+// --- The theme's own colour variables ---------------------------------------------
 $background-color: hsl(220, 13%, 11%);
 $bg_color:         hsl(220, 13%, 11%);
 
@@ -72,7 +70,7 @@ $form-label-color: hsl(220, 12%, 78%);
 
 $common-hdr-color-1: hsl(220, 10%, 40%);
 
-/*--- Messages: keep the hue, drop the brightness ----------------------------------*/
+// --- Messages: keep the hue, drop the brightness ----------------------------------
 $errors_background:       hsl(0, 30%, 20%);
 $errors_border:           hsl(0, 75%, 62%);
 $errors_foreground:       hsl(0, 80%, 74%);
@@ -86,7 +84,7 @@ $info_bg:                 hsl(215, 35%, 20%);
 $info_fg:                 hsl(215, 85%, 74%);
 $info_border:             hsl(215, 60%, 52%);
 
-/*--- LookupInput result/warning popups --------------------------------------------*/
+// --- LookupInput result/warning popups --------------------------------------------
 $lui-warning-color:        hsl(14, 55%, 30%);
 $lui-warning-color-border: hsl(14, 65%, 46%);
 $lui-result-color:         hsl(80, 32%, 26%);
@@ -95,7 +93,7 @@ $lui-result-color-border:  hsl(80, 40%, 42%);
 $multiple_lookup_label_color:  hsl(33, 60%, 40%);
 $multiple_lookup_label_border: hsl(50, 55%, 46%);
 
-/*--- Tabs -------------------------------------------------------------------------*/
+// --- Tabs -------------------------------------------------------------------------
 $tab_pnl_inactive_col:       hsl(0, 0%, 80%);
 $tab_pnl_hover_inactive_col: hsl(0, 0%, 96%);
 $tab_pnl_active_col:         hsl(271, 70%, 76%);
@@ -104,9 +102,63 @@ $tab_pnl_img:                "";
 
 $esic-label-color: hsl(68, 45%, 32%);
 
-/*--- DataTable: the header band and the row washes --------------------------------*/
+// --- DataTable: the header band and the row washes --------------------------------
 $data_tbl_header_bg:        hsl(215, 30%, 26%);
 $data_tbl_header_text_color: hsl(0, 0%, 92%);
 $data_tbl_selected_bg:      hsl(215, 40%, 30%);
 $data_tbl_even_row_bg:      hsl(220, 12%, 16%);
 $data_tbl_cell_highlight_bg: hsl(271, 45%, 40%);
+
+// --- Surfaces and text ------------------------------------------------------------
+$body-color:        hsl(220, 12%, 76%);
+
+$line-color:        hsl(220, 11%, 27%);
+
+$surface-bg:        hsl(220, 13%, 14%);
+$surface-color:     hsl(220, 12%, 76%);
+$surface-alt-bg:    hsl(220, 12%, 18%);
+
+$input-bg:          hsl(220, 13%, 14%);
+$input-color:       hsl(220, 14%, 88%);
+$input-ro-bg-top:   hsl(215, 22%, 20%);
+$input-ro-bg-bottom: hsl(215, 26%, 16%);
+
+$row-hover-bg:              hsl(38, 30%, 22%);
+$row-hover-outline:         hsl(38, 60%, 42%);
+$row-select-hover-bg:       hsl(90, 22%, 20%);
+$row-select-hover-outline:  hsl(90, 35%, 40%);
+
+
+// --- The jscalendar popup (DateInput2) --------------------------------------------
+$cal-bg:               hsl(220, 13%, 14%);
+$cal-body-bg:          hsl(220, 13%, 14%);
+$cal-text:             hsl(220, 12%, 80%);
+$cal-white:            hsl(220, 14%, 90%);
+$cal-border:           hsl(220, 11%, 30%);
+$cal-band-bg:          hsl(220, 12%, 20%);
+$cal-band-active-bg:   hsl(220, 12%, 26%);
+$cal-title-bg:         hsl(220, 12%, 22%);
+$cal-hover-bg:         hsl(220, 12%, 24%);
+$cal-hover-active-bg:  hsl(220, 12%, 28%);
+$cal-hilite-bg:        hsl(215, 28%, 26%);
+$cal-hilite2-bg:       hsl(140, 20%, 22%);
+$cal-selected-bg:      hsl(38, 45%, 30%);
+$cal-today-bg:         hsl(0, 35%, 30%);
+$cal-today-border:     hsl(14, 70%, 50%);
+$cal-today-active-bg:  hsl(0, 30%, 38%);
+$cal-weekend:          hsl(0, 75%, 66%);
+$cal-weekend-dim:      hsl(0, 35%, 48%);
+$cal-dim:              hsl(220, 10%, 48%);
+$cal-disabled:         hsl(220, 10%, 42%);
+$cal-status-bg:        hsl(220, 12%, 20%);
+$cal-status-text:      hsl(38, 70%, 62%);
+$cal-tooltip-bg:       hsl(220, 12%, 20%);
+$cal-combo-hover-bg:   hsl(38, 45%, 32%);
+$cal-combo-text:       hsl(30, 55%, 66%);
+$cal-combo-dim:        hsl(220, 10%, 50%);
+$cal-combo-border:     hsl(220, 11%, 32%);
+$cal-drag:             hsl(120, 60%, 55%);
+
+$window-bg:         hsl(220, 13%, 16%);
+$menu-hover-bg:     hsl(220, 12%, 22%);
+$menu-hover-border: hsl(220, 11%, 34%);

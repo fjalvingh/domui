@@ -1,5 +1,8 @@
+@import "variables";
+
 /*** Panel ***/
 .ui-spnl {
-	background-color: white;
+	background-color: $surface-bg;
+	color: $surface-color;
 	padding: 7px;
 }

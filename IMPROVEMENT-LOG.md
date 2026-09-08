@@ -1323,6 +1323,58 @@ These were offered as input while the phase 0 items were being worked, and taken
       of `dark` while `$THEME/default/style.scss` carried neither, and
       `btnCancel.png` resolved in both variants.
 
+- [x] **Framework: the winter theme takes its colours from variables.** Done
+      2026-09-07, immediately after the dark variant, at the user's direction: the
+      dark variant needed a second file (`dark/_variantstyle.scss`) full of rules
+      only because the partials wrote their colours literally, and replacing those
+      literals with variables should remove the need for it. It did. The variant is
+      now **one file** and `_variantstyle.scss`, its empty base copy and the
+      `@import "variantstyle"` hook added earlier that day are all gone again.
+      New semantic variables in `_variables.scss`: `$body-color`, `$surface-bg`/
+      `-color`/`-border`, `$surface-alt-bg`, `$window-bg`, `$pane-border`,
+      `$menu-border`/`-hover-bg`/`-hover-border`, `$input-bg`/`-color`,
+      `$input-ro-bg-top`/`-bottom`, `$row-hover-bg`/`-outline`,
+      `$row-select-hover-bg`/`-outline`, and `$line-color`. Changed to use them:
+      `_core` (body, select, .listtbl), `_panel`, `_captionedpanel`,
+      `_labelselector`, `_floatingWindow`, `_hamburgermenu`, `_popupmenu2`,
+      `_layout`, `_datatable`, and `ui-input-base`/`ui-ro-base` in
+      `bulmaish/_core_defs`. The vendor `calendar-theme.css` became
+      `_calendarTheme.scss` with 28 `$cal-*` variables, each defaulting to the
+      literal it replaced, and moved below the variable imports in `style.scss` so
+      its own !defaults no longer beat a variant's values. Two of the changes are
+      additions, not substitutions: the theme never set a text colour on `body` nor
+      a background on text inputs, both relying on the browser default - and a
+      variant cannot override a colour nobody wrote. **The light theme is
+      unchanged**, verified by compiling `$THEME/default/style.scss` before and
+      after and diffing: no colour value differs; the only differences are
+      `#FFF`/`#fff`/`#FFFFFF` respelled `white`, the calendar block moving
+      position, 20 no-op `color: inherit`, 12 `background-color: white` where the
+      browser already painted white, and three white-on-white borders becoming
+      `transparent`. Verified: `mvn21 clean install` green, 57 + 9 unit tests and
+      55 Selenium ITs pass, site build clean; and in a running demo light and dark
+      both correct on the home page, the CD-shop artist list, the DateInput2 page
+      (read-only and disabled fields included) and a tutorial page.
+- [x] **Framework: the theme's border greys are one colour.** Done 2026-09-08 at
+      the user's direction, closing the item the previous entry deliberately left
+      open. The theme drew its lines in four near-identical greys - `#8c8c8c`
+      (hamburger menu), `#aaa` (floating window), `#BBB` (layout pane) and
+      `#aaaaaa` (table cell rules) - which the variabilisation had turned into four
+      variables saying the same thing (`$surface-border`, `$pane-border`,
+      `$menu-border`, `$separator-color`). All four are now `$line-color`,
+      defaulting to the median `#aaa`; the other three names are gone rather than
+      kept as aliases, so there is one name as well as one colour. The dark variant
+      loses three of its four values with them. `$line-color` is deliberately
+      distinct from the existing `$border` (`_derived-variables.scss`), which is
+      the *control* border and comes from the greyscale ramp - the comment on it
+      says so. Unlike the variabilisation, this **does** change the light theme, in
+      exactly three compiled lines: `.listtbl TD` #aaaaaa -> #aaa (the same colour
+      respelled), `.ui-hmbrg-menu` #8c8c8c -> #aaa (lighter) and `.ui-layout-pane`
+      #BBB -> #aaa (slightly darker). Verified by diffing the compiled light sheet
+      before and after - those three lines and nothing else - and by reading the
+      computed border colour of all four selectors out of the running demo in both
+      variants: one value each. `mvn21 clean install` green, 57 + 9 unit tests and
+      55 Selenium ITs pass, site build 156 pages clean.
+
 - [x] **Framework + demo: a dark variant of the winter theme, and a switch for it.**
       Done 2026-09-07, at the user's direction, on top of the one-theme/variant
       rework of the same day. The dark theme is **two files** in
@@ -1354,6 +1406,34 @@ These were offered as input while the phase 0 items were being worked, and taken
       with the light variant unchanged.
 
 ## Decisions log
+
+### 2026-09-07 - Variables in the partials, not rules in the variant
+
+The dark variant shipped with two files: a colour file and a rules file that
+repainted the colours the partials wrote literally. The user's question - could
+the second file go away by replacing those literals - was the right one, and the
+answer is yes, with one condition worth recording: **a variant can only override a
+colour that some rule asks a variable for.** Where the theme wrote `background:
+white` there was nothing to override; worse, where the theme wrote *nothing at
+all* - `body` had no text colour, text inputs had no background, both leaning on
+the browser default - there was not even a rule to correct. Those two had to be
+added, not substituted.
+
+The discipline that follows: when a screen shows a light patch under a variant,
+the fix is a variable in the partial, never a rule in the variant. That is why the
+`variantstyle` hook was removed again rather than left as an escape hatch - an
+escape hatch would have been used.
+
+Where partials used *different* values for the same idea - four near-identical
+border greys, #8c8c8c, #aaa, #BBB and #aaaaaa - each first kept its own variable
+rather than being collapsed into one, so that the claim "the light theme is
+unchanged" stayed literally true and checkable. The check that made it safe was
+mechanical: compile the light sheet before and after and census every colour value
+in it. The collapse then happened as its own step the next day, at the user's
+direction, where its three-line effect on the light theme could be stated on its
+own rather than hidden inside a hundred other edits. Separating the two was worth
+the extra round: one change was provably inert, the other is a deliberate design
+change, and mixing them would have made neither claim verifiable.
 
 ### 2026-09-07 - A dark theme by override, and the file the theme was missing
 

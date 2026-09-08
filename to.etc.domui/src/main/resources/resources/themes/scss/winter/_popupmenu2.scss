@@ -1,4 +1,5 @@
 /*** PopupMenu2 ***/
+@import "variables";
 
 .ui-pome2 {
 	position: absolute;
@@ -10,7 +11,8 @@
 	padding: 8px 16px;
 	border-radius: 8px;
 	box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.1), 0 2px 4px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.16);
-	background-color: #fff;
+	background-color: $surface-bg;
+	color: $surface-color;
 
 	//.ui-pome2-t {
 	//	padding: 0 10px;
@@ -31,7 +33,7 @@
 		height: 28px;
 		white-space: nowrap;
 		&:hover {
-			background-color: #eee;
+			background-color: $surface-alt-bg;
 		}
 
 		border: 1px solid transparent;

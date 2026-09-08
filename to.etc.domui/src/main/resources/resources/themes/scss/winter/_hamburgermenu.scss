@@ -1,30 +1,31 @@
 /*** HamburgerMenu fragment ***/
+@import "variables";
 .ui-hmbrg-menu {
 	position: absolute;
 	right: 0px;
 	z-index: 100;
 	width: auto;
-	background: white;
-	border: 2px groove #8c8c8c;
+	background: $surface-bg;
+	border: 2px groove $line-color;
 	font-size: 11px;
-	color: black;
+	color: $surface-color;
 }
 .ui-hmbrg-item {
-	border: 1px solid white;
+	border: 1px solid transparent;
 	padding: 2px 5px;
 }
 .ui-hmbrg-item:hover {
-	background-color: #fff4d3;
-	border: 1px solid #ffde7f;
+	background-color: $menu-hover-bg;
+	border: 1px solid $menu-hover-border;
 	cursor: pointer;
 }
 .ui-hmbrg-disabled {
-	border: 1px solid white;
+	border: 1px solid transparent;
 	padding: 2px 5px;
 	color: grey;
 }
 .ui-hmbrg-disabled:hover {
-	background-color: white;
-	border: 1px solid white;
+	background-color: $surface-bg;
+	border: 1px solid transparent;
 	cursor: auto;
 }

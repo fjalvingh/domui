@@ -3,7 +3,8 @@
 
 .ui-lsel {
 	display: inline-block;
-	background: white;
+	background: $surface-bg;
+	color: $surface-color;
 	margin-right: 2px;
 	margin-bottom: 2px;
 	border: 1px solid $bevel_down;

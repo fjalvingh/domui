@@ -2,7 +2,8 @@
 @import "variables";
 
 .ui-pnl-outer {
-	background-color: white;
+	background-color: $surface-bg;
+	color: $surface-color;
 }
 
 .ui-pnl-caption {

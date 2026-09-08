@@ -16,6 +16,7 @@ body, html {
 	height: 100%;
 	margin: 0;
 	background: $bg_color;
+	color: $body-color;
 }
 
 body {
@@ -90,7 +91,8 @@ input[type=checkbox] {
 //}
 
 select {
-	background-color: #FFFFFF;
+	background-color: $input-bg;
+	color: $input-color;
 	height: 18px;
 }
 
@@ -192,12 +194,13 @@ i, em {
 }
 
 .listtbl {
-	background: white;
+	background: $surface-bg;
+	color: $surface-color;
 }
 
 .listtbl TD {
 	padding: 1px 2px;
-	border-left: 1px solid #aaaaaa;
+	border-left: 1px solid $line-color;
 	vertical-align: top;
 	//line-height: 130%; 20240417 Causes lines to overlap
 }
