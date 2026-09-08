@@ -1,9 +1,11 @@
-$tabpanel-header-bg: #7c7c7c !default;					// The header part containing the tabs
-$tabpanel-tab-bg: #aaa !default;
-$tabpanel-tab-border: #555 !default;
-$tabpanel-content-bg: white !default;
+@import "derived-variables";
 
-$tabpanel-selected-color: $tabpanel-tab-bg !default;
+$tab-hdr-bg: $grey !default;					// The header part containing the tabs
+$tab-bg: $grey-light !default;
+$tab-border: $grey-dark !default;
+$tab-content-bg: $surface-bg !default;
+
+$tab-selected-color: $tab-bg !default;
 
 // See https://codepen.io/torbencolding/pen/dPvNBJ
 .ui-tab-c {
@@ -16,7 +18,7 @@ $tabpanel-selected-color: $tabpanel-tab-bg !default;
 	justify-content: flex-start;
 	padding: .5em 0 0 25px;
 	margin: 0;
-	background: $tabpanel-header-bg;
+	background: $tab-hdr-bg;
 
 	& > li {
 		cursor: pointer;
@@ -24,12 +26,12 @@ $tabpanel-selected-color: $tabpanel-tab-bg !default;
 		padding: 0;
 
 		&.ui-tab-err > .ui-tab-div {
-			color: $errors_foreground !important;
+			color: $errors-color !important;
 		}
 
 		& > .ui-tab-div {
-			color: #fff;
-			background: $tabpanel-tab-bg;
+			color: $tab-color;
+			background: $tab-bg;
 			position: relative;
 			display: inline-block;
 			margin: 0 22px;
@@ -46,40 +48,40 @@ $tabpanel-selected-color: $tabpanel-tab-bg !default;
 				top: 0;
 				width: 23px;
 				height: 100%;
-				background-color: $tabpanel-tab-bg;
+				background-color: $tab-bg;
 			}
 
 			&:before {
 				border-radius: 16px 0 0 0;
 				transform: skew(-16deg);
 				left: -16px;
-				border-left: 1px solid $tabpanel-tab-border;
+				border-left: 1px solid $tab-border;
 			}
 			&:after {
 				border-radius: 0 16px 0 0;
 				transform: skew(16deg);
 				right: -16px;
-				border-right: 1px solid $tabpanel-tab-border;
+				border-right: 1px solid $tab-border;
 				z-index: 1;
 			}
 		}
 
 		&.ui-tab-sel .ui-tab-div {
 			cursor: default;
-			color: $tabpanel-selected-color;
-			background: $tabpanel-content-bg;
+			color: $tab-selected-color;
+			background: $tab-content-bg;
 			font-weight: bold;
 
 			&:before, &:after {
 				z-index: 1;
-				background: $tabpanel-content-bg;
+				background: $tab-content-bg;
 			}
 		}
 	}
 }
 
 .ui-tab-bg {
-	background-color: $tabpanel-header-bg;
+	background-color: $tab-hdr-bg;
 }
 
 /*** Close button ***/
@@ -106,5 +108,5 @@ $tabpanel-selected-color: $tabpanel-tab-bg !default;
 
 .ui-tab-content {
 	padding: 10px;
-	background-color: $tabpanel-content-bg;
+	background-color: $tab-content-bg;
 }

@@ -1,5 +1,7 @@
 /*** 205_colorpicker.frag.css ***/
 /*** Color picker ***/
+@import "derived-variables";
+
 .colorpicker {
 	width: 356px;
 	height: 176px;
@@ -74,7 +76,7 @@
 	border: 1px solid transparent;
 	position: absolute;
 	font-size: 10px;
-	color: #898989;
+	color: $cpick-label-color;
 	top: 4px;
 	right: 11px;
 	text-align: right;
@@ -188,7 +190,7 @@
 .ui-cpin-div {
         display: inline-block;
         margin-top: 5px;
-        border: 1px solid grey;
+        border: 1px solid $cpick-border;
         height: 11px;
         width: 20px;
 }

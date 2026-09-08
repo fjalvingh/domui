@@ -1,13 +1,12 @@
 /*** 160_errorpanel.frag.css ***/
 @import "variables";
 
-.ui-err-outer { /*	background-color: #ffe5e5; */
+.ui-err-outer {
 	padding: 1px;
 	margin-bottom: 5px;
 }
 
 .ui-err-caption {
-	//border: 1px solid $errors_wash;
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
 	background: url(bg-errors.png) repeat-x bottom;
@@ -15,10 +14,10 @@
 .ui-err-cont {
 	position: relative;
 	border: none;
-	color: $errors_foreground;
+	color: $errors-color;
 	padding: 2px;
 }
 
 .ui-input-err, .ui-input-err textarea {
-	background-color: $errors_input_background !important;
+	background-color: $errors-input-bg !important;
 }

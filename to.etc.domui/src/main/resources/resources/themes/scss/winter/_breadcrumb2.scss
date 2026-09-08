@@ -1,10 +1,6 @@
 /** Breadcrumb2, see http://cssmenumaker.com/blog/fancy-breadcrumb-navigation-tutorial-example/ **/
-$brcr2-bg: $alt-button-color !default;						// Item bg color
-$brcr2-color: white !default;						// Item color
-$brcr2-hover: lighten($brcr2-bg, 20%) !default; 	// Hover color
+@import "derived-variables";
 
-$brcr2-sel-bg: #eef5ff !default;					// selected item's bg
-$brcr2-sel-color: $brcr2-bg !default;
 
 .ui-brcr2 {
 	display: inline-block;
@@ -37,7 +33,7 @@ $brcr2-sel-color: $brcr2-bg !default;
 				white-space: nowrap;
 				font-variant: small-caps;
 				border-radius: 0 100px 100px 0; /* Get the right side rounded */
-				box-shadow: 0 0 20px rgba(0, 0, 0, 0.4); /* Apply the shadow */
+				box-shadow: 0 0 20px rgba($brcr2-shadow, 0.4); /* Apply the shadow */
 
 				.ui-brcr2-i {
 					padding-right: 0.5em;
@@ -50,7 +46,7 @@ $brcr2-sel-color: $brcr2-bg !default;
 
 		/* active */
 		li:hover a {
-			background-color: $brcr2-hover;
+			background-color: $brcr2-hover-bg;
 		}
 
 		li:first-child a {

@@ -1,7 +1,9 @@
 /*** Cookie idiocy ***/
+@import "derived-variables";
+
 :root {
-	--purple: #3B3646;
-	--red: #EE4B5A;
+	--purple: #{$ckc-bg};
+	--red: #{$ckc-accent};
 }
 #gdpr-cookie-message {
 	position: fixed;
@@ -11,7 +13,7 @@
 	background-color: var(--purple);
 	padding: 20px;
 	border-radius: 5px;
-	box-shadow: 0 6px 6px rgba(0,0,0,0.25);
+	box-shadow: 0 6px 6px rgba($ckc-shadow,0.25);
 	margin-left: 30px;
 	font-family: system-ui;
 }
@@ -30,7 +32,7 @@
 	margin-bottom: 10px;
 }
 #gdpr-cookie-message p, #gdpr-cookie-message ul {
-	color: white;
+	color: $ckc-color;
 	font-size: 15px;
 	line-height: 1.5em;
 }
@@ -47,11 +49,11 @@
 	text-decoration: none;
 	font-size: 15px;
 	padding-bottom: 2px;
-	border-bottom: 1px dotted rgba(255,255,255,0.75);
+	border-bottom: 1px dotted rgba($ckc-rule-color,0.75);
 	transition: all 0.3s ease-in;
 }
 #gdpr-cookie-message a:hover {
-	color: white;
+	color: $ckc-color;
 	border-bottom-color: var(--red);
 	transition: all 0.3s ease-in;
 }
@@ -59,7 +61,7 @@
 button#ihavecookiesBtn {
 	border: none;
 	background: var(--red);
-	color: white;
+	color: $ckc-color;
 	font-family: 'Quicksand', sans-serif;
 	font-size: 15px;
 	padding: 7px;
@@ -69,12 +71,12 @@ button#ihavecookiesBtn {
 	transition: all 0.3s ease-in;
 }
 #gdpr-cookie-message button:hover {
-	background: white;
+	background: $ckc-surface-bg;
 	color: var(--red);
 	transition: all 0.3s ease-in;
 }
 button#gdpr-cookie-advanced {
-	background: white;
+	background: $ckc-surface-bg;
 	color: var(--red);
 }
 #gdpr-cookie-message button:disabled {

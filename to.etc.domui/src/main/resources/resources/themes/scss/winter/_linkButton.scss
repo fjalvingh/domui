@@ -1,4 +1,6 @@
 /*** LinkButton component. ***/
+@import "derived-variables";
+
 @import "variables";
 
 .ui-lbtn {
@@ -10,7 +12,7 @@
 
 	.ui-lnkb-icon {
 		padding-right: 5px;
-		color: black;
+		color: $lnkb-icon-color;
 	}
 
 	&.ui-disabled {
@@ -18,10 +20,10 @@
 			text-decoration: none !important;
 			font-style: italic;
 			cursor: default;
-			color: gray;
+			color: $lnkb-disabled-color;
 		}
 		& .ui-lbtn-icon {
-			color: gray;
+			color: $lnkb-disabled-color;
 		}
 
 		& img {
@@ -34,7 +36,7 @@
 	}
 	.ui-lbtn-icon {
 		padding-right: 5px;
-		color: black;
+		color: $lnkb-icon-color;
 	}
 
 	.ui-lbtn-txt {
@@ -43,7 +45,7 @@
 		&:hover {
 			text-decoration: underline;
 		}
-		font-size: $font_size;
+		font-size: $font-size;
 		height: 16px;
 	}
 }

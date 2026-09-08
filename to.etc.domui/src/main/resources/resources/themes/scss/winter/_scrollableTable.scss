@@ -1,20 +1,7 @@
-@import "_variables";
-@import "_color";
+@import "derived-variables";
 
-$data_tbl_selected_bg: #bed6f8 !default;	// blue
-$data_tbl_even_row_bg: #E5E5E5 !default; //greyish
-$data_tbl_cell_highlight_bg: #67267f !default;	// cell select: purple
-$data_tbl_cell_highlight_link_color_bg: #ffffff !default;	// link color of cell select: white
-$data_tbl_font_size: 12px !default;
-$data_tbl_expanding_row_bg: lighten($main_color, 20%) !default;
-
-$data_tbl_header_bg: #99bfe6 !default;
-$data_tbl_header_text_color: black !default;
-$data_tbl_header_bg_img: "" !default; //-- Table header doesn't have background image
-$data_tbl_header_btm_border: undefined !default;
-
-$data_tbl_border_color: $data_tbl_header_bg;
-$data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
+// Every colour here is the DataTable palette, in _derived-variables.scss. This file used
+// to redeclare the whole of it, identically.
 
 //
 // https://css-tricks.com/position-sticky-and-table-headers/
@@ -22,7 +9,7 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
 .ui-sdt {
     overflow: auto;
     position: relative;
-    font-size: $data_tbl_font_size;
+    font-size: $dt-font-size;
     /*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
 
 
@@ -32,7 +19,7 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
     }
 
     .mselected, .selected {
-        background-color: $highlight2_bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+        background-color: $highlight2-bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
     }
     & > table > tr > td {
         border: 0;
@@ -50,7 +37,7 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
         border-collapse: collapse;
         border-spacing: 2px;
         //width: 100%; jal 20171023 Let table default to 100% in Java, so that we can easily override it
-        border: 1px solid $data_tbl_border_color;
+        border: 1px solid $dt-border;
 
         margin: 0;
         padding: 0;
@@ -67,7 +54,7 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
         text-align: left;
         //height: calc(2.25em + 4px);
 
-        //background: $data_tbl_header_bg;
+        //background: $dt-hdr-bg;
         border-left: none !important;
         border-right: none;
         border-bottom: none;
@@ -80,7 +67,7 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
         //line-height: 1.5em;
         padding: 0;
         //padding: calc(0.375em + 1px) 4px;
-        color: $data_tbl_header_text_color;
+        color: $dt-hdr-color;
         text-align: left;
         height: 2.25em;
         vertical-align: middle;
@@ -89,7 +76,7 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
 
         @include overflow-ellipsis();
 
-        //background: $data_tbl_header_bg;
+        //background: $dt-hdr-bg;
         border-left: none !important;
         border-right: none;
         border-bottom: none;
@@ -97,12 +84,12 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
     }
 
     .ui-sdt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
-        border-left: 1px solid $data_tbl_header_btm_border !important;
-        border-top: 1px solid $data_tbl_header_btm_border !important;
+        border-left: 1px solid $dt-hdr-btm-border !important;
+        border-top: 1px solid $dt-hdr-btm-border !important;
     }
 
     .ui-sdt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
-        border-right: 1px solid $data_tbl_header_btm_border;
+        border-right: 1px solid $dt-hdr-btm-border;
     }
 
     th.ui-sortable {
@@ -149,7 +136,7 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
     /*** Rows and columns ***/
     tbody tr {
         height: 30px;
-        border-bottom: 1px solid $data_tbl_lines_color;
+        border-bottom: 1px solid $dt-lines-border;
     }
 
     tbody tr > td.ui-f-lbl:first-child {
@@ -177,28 +164,28 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
     }
     tr.ui-dt-row:hover {
         /*	border: 1px solid #ffd55a !important; */
-        outline: 1px solid #ffd55a;
+        outline: 1px solid $row-hover-outline;
         outline-offset: -1px;
-        background-color: #fff4d3 !important;
+        background-color: $row-hover-bg !important;
         border-bottom: 1px solid transparent;
     }
 
     &.ui-dd-rowsel tbody > tr:hover {
-        outline: 1px solid #c3df8a;
+        outline: 1px solid $row-select-hover-outline;
         outline-offset: -1px;
-        background-color: #f1f9e1 !important;
+        background-color: $row-select-hover-bg !important;
         border-bottom: 1px solid transparent;
     }
 
     td.ui-cellsel {
         cursor: pointer;
-        color: $link_color;
+        color: $link-color;
     }
 
     td.ui-cellsel:hover {
         text-decoration: underline;
-        background-color: $data_tbl_cell_highlight_bg !important;
-        color: $data_tbl_cell_highlight_link_color_bg;
+        background-color: $dt-cell-highlight-bg !important;
+        color: $dt-cell-highlight-link-bg;
     }
 
 

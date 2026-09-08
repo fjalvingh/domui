@@ -44,19 +44,19 @@
 //}
 
 .ui-flare-error {
-	background: $errors_wash;
-	color: $errors_foreground;
-	border: 1px solid $errors_border;
+	background: $errors-wash;
+	color: $errors-color;
+	border: 1px solid $errors-border;
 }
 .ui-flare-info {
-	background: $info_bg;
-	color: $info_fg;
-	border: 1px solid $info_border;
+	background: $info-bg;
+	color: $info-color;
+	border: 1px solid $info-border;
 }
 .ui-flare-warning {
-	background: $warnings_background;
-	color: $warnings_foreground;
-	border: 1px solid $warnings_border;
+	background: $warnings-bg;
+	color: $warnings-color;
+	border: 1px solid $warnings-border;
 }
 .ui-flare-msg img {
 	margin-right: 20px;

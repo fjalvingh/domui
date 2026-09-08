@@ -1,8 +1,10 @@
 /*** EmbeddedCode ***/
+@import "derived-variables";
+
 .ui-embcd {
 	display: inline-block;
 	vertical-align: baseline;
-	border: 1px dotted #eee;
+	border: 1px dotted $embc-border;
 	padding: 1px;
 
 	font-family: "Courier New", Courier, "Lucida Console", Monaco, monospace;

@@ -138,6 +138,18 @@ for now. They are recorded so they are not re-discovered as news.
   `createFromEnum(Class, ignored...)` - the last being a duplicate of the second.
   Only the first two are documented; `createFromEnum` is a candidate for removal.
 
+- IGNORE: **`$data_tbl_header_btm_border` is `undefined`**, which is not a colour, so the
+  two rules that use it emit invalid CSS and the data table header's left and top
+  borders have never rendered. Left as it is: giving it a colour makes borders
+  appear that no version of DomUI has ever drawn, which is a restyle rather than a
+  repair. (Found 2026-09-08 de-duplicating the `$data_tbl_*` palette.)
+
+- IGNORE: **`$errors_wash` and `$errors_input_background` are now the same colour**
+  (`#ffe5e5`) reached by two names - one is the ground of an error message, the
+  other the ground of a field that failed validation. They are the same idea at the
+  same weight and could collapse to one variable, but the dark variant sets them
+  separately and the two roles may yet want to differ. (Noted 2026-09-08.)
+
 - IGNORE: DomUI's own message bundles have **Dutch** as their default language: the
   base `to/etc/domui/util/messages.properties`, `YesNoType.properties`,
   `MsgBoxButton.properties` and the rest are Dutch, with English in the `_en`
@@ -237,65 +249,6 @@ it. Everything else on this list is a question for the user, not a deletion.
       and by the rule above only the user can decide whether a generation of
       components is dropped, and with what deprecation period. Until then the
       work here is to stop the docs and the demo teaching them, which is done.
-- [ ] **Framework: collapse the theme's colours onto a set.** A perceptual scan of
-      every literal in `themes/scss/winter` (2026-09-08) found 233 occurrences,
-      137 of them distinct, and enough near-duplicates to make a set worth
-      defining. The evidence, in order of how much it buys:
-      - **The greyscale ramp already exists and no partial uses it.**
-        `_variables.scss` defines 11 steps (`$black` … `$white`); only
-        `_derived-variables.scss` consumes them. The partials instead hand-pick
-        **33 distinct greys over 178 occurrences**. The `$grey` band (L~48%) has
-        eight of them - `#777777`, `#808080`, `#666666`, `#7c7c7c`, `#898989`,
-        `#888888`, `#727272`, `#998888` - which nobody can tell apart. Three
-        partials hardcode a value that *is* a ramp step: `#363636` (`_form5`) =
-        `$grey-darker`, `#dbdbdb` (`_genericheader`) = `$grey-lighter`, `#0a0a0a`
-        (`bulmaish/_core_defs`) = `$black`. Mapping all of them onto the ramp
-        gives 150 occurrences on 9 steps; the largest visible shift is dE 10.5
-        (`#999999` -> `$grey-light`), and only 11 colours shift by more than dE 3.
-      - **`_popupmenu` is done** (2026-09-08): it is on `ladder()` and carries no
-        colour literal except the accent orange.
-      - **The error colours are done** (2026-09-08). The other three state
-        families turned out not to exist: the "warning ambers", "info blues" and
-        "success greens" the scan grouped by hue are a breadcrumb link, a badge
-        digit, a selected-item background, a toggle's branding parameter, a
-        pop-in panel's ground and a menu title's tint - not states. Hue grouping
-        found them; reading the selectors dismissed them. Two literals must stay
-        literal forever: the colour picker's three `#f00` sample swatches, and
-        `red($main_color)` in `_draganddrop`, which is the SCSS channel function
-        and not a colour at all.
-      - **The greys split cleanly by role**, which is what the semantic names
-        should be built from: text (7 greys / 32 uses), line (16 / 44), surface
-        (14 / 37), shadow (4 / 13).
-      - **"Disabled" is invented four times.** `_popupmenu` uses `#999`,
-        `_datapager2` `#777`, `_hamburgermenu` the `grey` keyword, `_radiobutton`
-        `#ddd` - and `$button-disabled-color: #999999` already exists, used by
-        `_radiobutton` alone. One `$text-disabled` would cover all of them.
-      - **`_scrollableTable` is a copy of `_datatable`'s palette.** It redeclares
-        the same five `$data_tbl_*` variables with identical values, and hardcodes
-        the four row-hover colours that `_datatable` now takes from
-        `$row-hover-*`/`$row-select-hover-*`.
-      - **The oranges are the second-worst family**: 24 of them over 33 uses,
-        including `#ff9436` and `#f69231` (dE ~4, indistinguishable) used for the
-        same "active/highlight" idea in different components.
-      **Check for ladders before mapping anything.** Where a component's greys form
-      a *sequence* - nesting depth, striping, magnitude - they take consecutive
-      rungs from one base via `ladder()` (see the log entry of 2026-09-08), not
-      nearest-neighbour matches one at a time: the popup menu's `#666`/`#888` both
-      round to `$grey` and would have lost a nesting level. Checked 2026-09-08:
-      the popup menu is the theme's **only** true depth ladder - the trees encode
-      indentation with images and have no per-level colour at all, and the tab
-      panel's header/tab/content is a three-surface stack rather than a nesting
-      sequence (it could use `ladder()`, but nothing breaks if it does not).
-      Proposed shape: keep the ramp as the base, add semantic names on top of it
-      (`$text`, `$text-disabled`, `$line-color` (done), `$surface-*` (done),
-      `$shadow-color`), and one accent/state set fed by the `$errors_*`,
-      `$warnings_*`, `$info_*` variables that already exist but that components
-      bypass. Note this **does** change the light theme, unlike the earlier
-      variabilisation - the shifts above are real and want reviewing on screen.
-- [ ] **Framework: `_old_defaultbutton.scss` is orphaned.** The only partial
-      `style.scss` does not import, and correctly so - it is superseded. It should
-      probably just be deleted. (Noted 2026-09-08 when `_bugIndicator.scss`, the
-      other orphan, turned out to be an accident and was imported.)
 - [ ] **Framework: the bug indicator's own colours are unreviewed.** Now that
       `_bugIndicator.scss` compiles, its `border: 2px solid black` and
       `color: yellow` are live. Nothing in the demo raises a bug, so they have

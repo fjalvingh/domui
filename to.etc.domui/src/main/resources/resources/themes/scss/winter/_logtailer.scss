@@ -1,4 +1,6 @@
 /*** Log tailer fragment ***/
+@import "derived-variables";
+
 .ui-tlf-line {
 	font-family: Consolas, Liberation Mono, Courier, monospace;
 }
@@ -6,14 +8,14 @@
 	font: inherit;
 	width: 50px;
 	text-align: right;
-	background-color: #ccc;
+	background-color: $tlf-gutter-bg;
 }
 .ui-tlf-l {
 	font: inherit;
 }
 .ui-tlf-hdr {
 	height: 2em;
-	background-color: #ff9436;
+	background-color: $tlf-hdr-bg;
 }
 .ui-tlf-hdr img {
 }

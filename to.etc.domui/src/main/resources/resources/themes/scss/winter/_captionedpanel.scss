@@ -10,12 +10,12 @@
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
 	font-size: 120%;
-	color: $bg_ttl_text;
-	background: $header_bg;
+	color: $title-color;
+	background: $header-bg;
 }
 
 .ui-pnl-cont {
 	position: relative;
 	padding: 5px;
-	border: 1px solid $header_bg;
+	border: 1px solid $header-bg;
 }

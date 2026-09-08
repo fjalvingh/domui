@@ -1,4 +1,6 @@
 /*** 130_imagebutton.frag.css ***/
+@import "derived-variables";
+
 .ui-ib {
 /*	width: 124px; 20110118 jal make the image scale the button automatically; fixes decade bug# 1029.
 	height: 24px; */
@@ -19,5 +21,5 @@ td .ui-ib[class] {
 /* end fix */
 
 .ui-ib:hover {
-	background: #cccccc;
+	background: $ibtn-disabled-bg;
 }

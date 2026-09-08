@@ -1,10 +1,12 @@
 /*** 180_percentageprogress.frag.css ***/
+@import "derived-variables";
+
 .ui-pct-rlr {
 	display: inline-block;
 	width: 50px;
 	background: url(bg-progress.png) no-repeat -375px 0px;
 	/*border-collapse: separate; */
-	border: 1px solid black;
+	border: 1px solid $pct-border;
 	border-radius: 4px;
 }
 
@@ -14,13 +16,13 @@
 	justify-content: flex-start;
 	position: relative;
 	height: 20px;
-	border: 1px solid #B0BEC5;
+	border: 1px solid $pct-rlr2-border;
 	border-radius: 6px;
 	overflow: hidden;
 
 	.ui-pct-rlr2-bar {
 		margin: 2px;
-		background-color: red;
+		background-color: $pct-bar-bg;
 		border: 1px solid transparent;
 		border-radius: 6px;
 		border-top-right-radius: 0;

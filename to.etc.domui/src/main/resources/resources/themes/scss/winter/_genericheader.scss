@@ -1,4 +1,6 @@
 /*** GenericHeader component ***/
+@import "derived-variables";
+
 @import "variables";
 
 .ui-generichd {
@@ -6,35 +8,35 @@
 }
 .ui-generichd-simple {
 	font-size: 14px;
-	color: black;
+	color: $generichd-color;
 }
 .ui-generichd-blue {
 	font-size: 18px;
-	color: #4c5a6f;
+	color: $generichd-blue-color;
 }
 .ui-generichd-header-1 {
-	font-family: $font_family;
+	font-family: $font-family;
 	font-weight: bold;
 	font-size: 16px;
-	color: black;
+	color: $generichd-color;
 }
 .ui-generichd-header-2 {
-	font-family: $font_family;
+	font-family: $font-family;
 	font-size: 16px;
-	color: #297bc0;
-	border-bottom: 1px solid #dbdbdb;
+	color: $generichd-h2-color;
+	border-bottom: 1px solid $generichd-border;
 }
 .ui-generichd-header-3 {
-	font-family: $font_family;
+	font-family: $font-family;
 	font-size: 12px;
-	color: #013686;
-	border-bottom: 1px solid #ccc;
+	color: $generichd-h3-color;
+	border-bottom: 1px solid $generichd-border;
 	margin-bottom: 5px;
 }
 .ui-generichd-header-4 {
-	font-family: $font_family;
+	font-family: $font-family;
 	font-size: 12px;
-	color: black;
+	color: $generichd-color;
 	font-weight: bold;
 }
 

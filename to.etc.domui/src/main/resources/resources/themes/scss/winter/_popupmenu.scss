@@ -1,24 +1,11 @@
 /*** Popup menu ***/
-@import "variables";
-@import "functions";
-
-// The popup menu is an inverted surface: dark in the light theme, and a raised dark
-// surface in the dark one. Its nesting levels are a ladder - each submenu one step
-// further along the greyscale ramp than the one it opened from - so everything below is
-// expressed as an offset from $pmnu-bg rather than as a colour of its own. Moving
-// $pmnu-bg moves the whole menu coherently, which is all winter/dark has to do.
-$pmnu-bg: $grey-darker !default;					// rung 0: the menu itself
-$pmnu-color: findColorInvert($pmnu-bg) !default;	// item text, readable on that rung
-$pmnu-disabled-color: ladder($pmnu-bg, 3) !default;	// disabled item text: three rungs away
-$pmnu-frame: ladder($pmnu-bg, -3) !default;			// title band and border: under the menu
-$pmnu-title-color: #eeffee !default;
-$pmnu-hover-bg: #ff9436 !default;					// FIXME belongs to the theme's accent set
+@import "derived-variables";
 
 .ui-pmnu {
 	display: none;
 	width: auto;
 	background-color: ladder($pmnu-bg);
-	border: 1px dotted $pmnu-frame;
+	border: 1px dotted $pmnu-border;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
@@ -38,7 +25,7 @@ $pmnu-hover-bg: #ff9436 !default;					// FIXME belongs to the theme's accent set
 .ui-pmnu-ttl {
 	padding: 4px;
 	font-style: italic;
-	background-color: $pmnu-frame;
+	background-color: $pmnu-border;
 	color: $pmnu-title-color;
 }
 .ui-pmnu-action {

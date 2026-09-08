@@ -1,12 +1,14 @@
 /*** DisplayRadiobutton ***/
+@import "derived-variables";
+
 .ui-dsprb {
 	&:hover {
 		filter: brightness(150%);
 	}
 
 	.icon {
-		color: black;
-		background: linear-gradient(0deg, lightgray, transparent);
+		color: $drbb-icon-color;
+		background: linear-gradient(0deg, $drbb-gradient-from, transparent);
 		border-radius: 8px;
 	}
 }

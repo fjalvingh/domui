@@ -1,17 +1,19 @@
 /*
  * The SwitchButton class's CSS.
  */
-$ui-swtch-brdr: 2px;
-$ui-swtch-w: 44px;			/* 60px */
-$ui-swtch-h: 25px;
-$ui-swtch-isz: $ui-swtch-h - 2 * $ui-swtch-brdr;		/* 26px */
-$ui-swtch-pan: $ui-swtch-w / 2 - 2 * $ui-swtch-brdr;
+@import "derived-variables";
+
+$swtch-border-width: 2px;
+$swtch-width: 44px;			/* 60px */
+$swtch-height: 25px;
+$swtch-knob-size: $swtch-height - 2 * $swtch-border-width;		/* 26px */
+$swtch-travel: $swtch-width / 2 - 2 * $swtch-border-width;
 
 .ui-swtch {
 	position: relative;
 	display: inline-block;
-	width: $ui-swtch-w;
-	height: $ui-swtch-h;
+	width: $swtch-width;
+	height: $swtch-height;
 }
 
 .ui-swtch input {
@@ -27,7 +29,7 @@ $ui-swtch-pan: $ui-swtch-w / 2 - 2 * $ui-swtch-brdr;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: #ccc;
+	background-color: $swtch-off-bg;
 	-webkit-transition: .4s;
 	transition: .4s;
 }
@@ -35,36 +37,36 @@ $ui-swtch-pan: $ui-swtch-w / 2 - 2 * $ui-swtch-brdr;
 .ui-swtch-sl:before {
 	position: absolute;
 	content: "";
-	height: $ui-swtch-isz;
-	width: $ui-swtch-isz;
-	left: $ui-swtch-brdr;
-	bottom: $ui-swtch-brdr;
-	background-color: white;
+	height: $swtch-knob-size;
+	width: $swtch-knob-size;
+	left: $swtch-border-width;
+	bottom: $swtch-border-width;
+	background-color: $swtch-knob-bg;
 	-webkit-transition: .4s;
 	transition: .4s;
 }
 
 input:checked + .ui-swtch-sl {
-	background-color: #2196F3;
+	background-color: $swtch-on-bg;
 }
 
 input:focus + .ui-swtch-sl {
-	box-shadow: 0 0 1px #2196F3;
+	box-shadow: 0 0 1px $swtch-on-bg;
 }
 
 input:checked + .ui-swtch-sl:before {
-	//-webkit-transform: translateX($ui-swtch-isz);
-	//-ms-transform: translateX($ui-swtch-isz);
-	//transform: translateX($ui-swtch-isz);
+	//-webkit-transform: translateX($swtch-knob-size);
+	//-ms-transform: translateX($swtch-knob-size);
+	//transform: translateX($swtch-knob-size);
 
-	-webkit-transform: translateX($ui-swtch-pan);
-	-ms-transform: translateX($ui-swtch-pan);
-	transform: translateX($ui-swtch-pan);
+	-webkit-transform: translateX($swtch-travel);
+	-ms-transform: translateX($swtch-travel);
+	transform: translateX($swtch-travel);
 }
 
 /* Rounded sliders */
 .ui-swtch-sl.ui-swtch-rounded {
-	border-radius: $ui-swtch-h;
+	border-radius: $swtch-height;
 }
 
 .ui-swtch-sl.ui-swtch-rounded:before {

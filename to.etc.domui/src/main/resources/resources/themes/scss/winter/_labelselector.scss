@@ -7,18 +7,18 @@
 	color: $surface-color;
 	margin-right: 2px;
 	margin-bottom: 2px;
-	border: 1px solid $bevel_down;
-	border-top-color: $bevel_up;
+	border: 1px solid $bevel-down;
+	border-top-color: $bevel-up;
 }
 .ui-lsel-item {
 	display: inline-block;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
 	-webkit-border-radius: 3px;
-	border: 1px solid $multiple_lookup_label_color;
+	border: 1px solid $mli-label-border;
 	margin: 1px;
 	padding: 2px;
-	background-color: $multiple_lookup_label_border;
+	background-color: $mli-label-bg;
 }
 .ui-lsel-btn {
 	display: inline-block;

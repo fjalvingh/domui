@@ -7,8 +7,8 @@
 	left: 300px;
 	width: 400px;
 	height: auto;
-	border: 1px solid $errors_border;
-	background-color: $errors_wash;
+	border: 1px solid $errors-border;
+	background-color: $errors-wash;
 	z-index: 2000;
 
 	border-radius: 5px;
@@ -17,7 +17,7 @@
 }
 .ui-ioe-ttl {
 	padding: 5px;
-	background-color: $errors_border;
+	background-color: $errors-border;
 	font-weight: bold;
 }
 .ui-ioe-msg {

@@ -1,4 +1,6 @@
 /** tree2 **/
+@import "derived-variables";
+
 ul.ui-tree2-list {
 	list-style: none;
 }
@@ -76,10 +78,10 @@ li.ui-tree2-item {
 }
 /* tree2 hover states */
 .ui-tree2-val:hover {
-	background: #f4f7f9;
-	color: #f69231;
+	background: $tree2-hover-bg;
+	color: $tree2-hover-color;
 	border-radius: 2px;
-	box-shadow: inset 0 0 1px #ccc;
+	box-shadow: inset 0 0 1px $tree2-shadow;
 	border: none;
 }
 .ui-tree2-val {

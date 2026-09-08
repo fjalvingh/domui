@@ -1,10 +1,12 @@
+@import "derived-variables";
+
 @mixin can-toggle-branding (
-	$can-toggle-off-color: #777,
-	$can-toggle-button-off-color: rgba(#eef5ff, 0.9),
-	$can-toggle-off-inactive-text: rgba(white, 0.5),
-	$can-toggle-on-color: #eef5ff,
+	$can-toggle-off-color: $ckb-off-color,
+	$can-toggle-button-off-color: rgba($ckb-on-bg, 0.9),
+	$can-toggle-off-inactive-text: rgba($ckb-knob-bg, 0.5),
+	$can-toggle-on-color: $ckb-on-bg,
 	$can-toggle-button-on-color: $alt-button-color,
-	$can-toggle-on-inactive-text: rgba(black, 1),
+	$can-toggle-on-inactive-text: rgba($shadow-color, 1),
 	$can-toggle-transition: cubic-bezier(0,1,0.5,1)
 ) {
 	input[type="checkbox"] {
@@ -80,7 +82,7 @@
 	$can-toggle-correction: 1px,
 	$can-toggle-label-font-size: 14px,
 	$can-toggle-switch-font-size: 12px,
-	$can-toggle-shadow: 0 2px 2px rgba(black, 0.4)
+	$can-toggle-shadow: 0 2px 2px rgba($shadow-color, 0.4)
 ) {
 	$can-toggle-switch-width: ($can-toggle-width) / 2 - $can-toggle-offset;
 
@@ -204,7 +206,7 @@
 				z-index: 5;
 				text-transform: uppercase;
 				text-align: center;
-				background: white;
+				background: $ckb-knob-bg;
 				transform: translate3d(0,0,0);
 			}
 		}
@@ -225,7 +227,7 @@
 			1px,   // Correction of checked button
 			10px,  // Label font size
 			8px,  // Switch font size
-			0 1px 1px rgba(black, 0.4) // Switch shadow on hover/focus
+			0 1px 1px rgba($shadow-color, 0.4) // Switch shadow on hover/focus
 		);
 	}
 
@@ -239,7 +241,7 @@
 			1px,   // Correction of checked button
 			14px,  // Label font size
 			12px,  // Switch font size
-			0 2px 2px rgba(black, 0.4) // Switch shadow on hover/focus
+			0 2px 2px rgba($shadow-color, 0.4) // Switch shadow on hover/focus
 		);
 	}
 
@@ -253,7 +255,7 @@
 			0px,   // No correction needed
 			14px,  // Label font size
 			14px,  // Switch font size
-			0 3px 3px rgba(black, 0.4) // Switch shadow on hover/focus
+			0 3px 3px rgba($shadow-color, 0.4) // Switch shadow on hover/focus
 		);
 	}
 
@@ -267,7 +269,7 @@
 			0px,   // No correction needed
 			14px,  // Label font size
 			14px,  // Switch font size
-			0 4px 4px rgba(black, 0.4) // Switch shadow on hover/focus
+			0 4px 4px rgba($shadow-color, 0.4) // Switch shadow on hover/focus
 		);
 	}
 }

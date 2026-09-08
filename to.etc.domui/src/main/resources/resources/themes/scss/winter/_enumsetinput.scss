@@ -13,8 +13,8 @@
 	display: inline-block;
 	@include border-radius(3px);
 	border: 1px solid $esic-label-border;
-	background-color: $esic-label-color;
-	color: $esic-text-color;
+	background-color: $esic-label-bg;
+	color: $esic-label-color;
 	margin: 2px 1px 1px 6px;
 	padding: 2px;
 }
@@ -30,7 +30,7 @@ button.ui-esic-del {
 	-webkit-appearance: none;
 	align-items: center;
 	background-color: transparent;
-	color: $errors_foreground;
+	color: $errors-color;
 	outline: none;
 	border: none;
 	margin: 1px 1px 1px 8px;

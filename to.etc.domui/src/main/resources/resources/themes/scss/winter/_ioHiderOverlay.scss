@@ -1,4 +1,6 @@
 /*** IO hider overlay ***/
+@import "derived-variables";
+
 @import "variables";
 
 .ui-io-blk {
@@ -18,7 +20,7 @@
 	position: fixed;
 	top: 0px;
 	left: 0px;
-	background: black url($io_blk_wait) no-repeat center center;
+	background: $io-blk-bg url($io-blk-wait-img) no-repeat center center;
 	filter:alpha(opacity=50);
 	z-index: 1000;
 }

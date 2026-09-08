@@ -1,115 +1,164 @@
-$body-image: "" !default;
-$bg_color: #ffffff !default;
+// =======================================================================================
+// How colours are named in this theme.
+//
+// Colours live in two tiers.
+//
+//	The MAIN SET is in this file. Its names say what a colour is in the theme's own
+//	vocabulary and never mention a component: $primary, $line-color, $surface-bg,
+//	$input-bg, the $errors-* / $warnings-* / $info-* states, and the $black .. $white
+//	greyscale ramp.
+//
+//	COMPONENT COLOURS are in _derived-variables.scss - one variable for each colour a
+//	component paints, each defaulting to a main-set value. A component's own stylesheet
+//	then reads only its own variables: never a literal, and never a main-set value
+//	directly. That is what lets an application restyle one component, or a variant
+//	restyle everything, without either of them editing a component.
+//
+// Both tiers name variables the same way, in kebab-case:
+//
+//		$<component>-<part>-<role>
+//
+//	<component>	the component's CSS class prefix with ui- removed - tlf for .ui-tlf-*,
+//			pmnu for .ui-pmnu-*. Omitted by the main set, which belongs to no
+//			component.
+//	<part>		the element inside it, where a component paints more than one thing:
+//			hdr, title, item. Omitted where it paints one.
+//	<role>		what the colour does. This is the part that must not vary:
+//				-bg		a background
+//				-color		text - the word CSS itself uses, and never
+//						used for a background
+//				-border		a border
+//				-outline	an outline
+//				-shadow		a shadow
+//
+// So the background of .ui-tlf-hdr is $tlf-hdr-bg, and the text of .ui-pmnu is
+// $pmnu-color.
+//
+// Underscores and hyphens are the same character to SCSS - $link_color and $link-color are
+// one variable - so an application that still writes the old spelling keeps working, and
+// the rename that brought the last 79 names here was byte-for-byte inert.
+// =======================================================================================
+
+$body-bg-img: "" !default;
+$body-bg: #ffffff !default;
 
 $font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif !default;
 //$font-family: 'Arial', 'Helvetica', sans-serif !default;
 //$font-family: 'Lato', 'Arial', 'Helvetica', sans-serif !default;
 $font-size: 14px !default;
-$fixed_font_family: 'Courier New, Courier, monospace' !default;
-$fixed_font_size: 11px !default;
-$hdr_font_size: 14px !default;
+$fixed-font-family: 'Courier New, Courier, monospace' !default;
+$fixed-font-size: 11px !default;
+$hdr-font-size: 14px !default;
 
 // Core padding
 $horizontal-padding: 10px !default;
 $vertical-padding: 10px !default;
 
 /** colors **/
-$link_color: #2200cc !default;	// dark blue
 
-$bevel_up: #ABADB3 !default;
-$bevel_down: #BFCDD9 !default;
-$bevel_hover_up: #5794BF !default;
-$bevel_hover_down: #D7E8F8 !default;
+// The theme's accent: the colour of a default button, of a selected row, of a hovered
+// menu entry. Everything that means "this one" takes it, directly or through $selected-bg.
+//
+// It used to be called $turquoise - a leftover from the bulma palette this section
+// borrows, where someone overrode the real turquoise with an orange in place rather than
+// renaming it, so the theme's brand colour was a variable named for a cyan.
+$primary: #f69231 !default;
 
-$readonly_bg: transparent !default;
-$readonly_border: #EEEEEF !default;        // bit darker grey
+$link-color: #2200cc !default;	// dark blue
 
-$bg_ttl_gradient: "bg-ttl-domui.png" !default;
-$bg_ttl_end:  #7c7c7c !default;
-$bg_ttl_text: #ffffff !default;
+$bevel-up: #ABADB3 !default;
+$bevel-down: #BFCDD9 !default;
+$bevel-hover-up: #5794BF !default;
+$bevel-hover-down: #D7E8F8 !default;
 
-$selected_bg: #ff9436 !default;
+$readonly-bg: transparent !default;
+$readonly-border: #EEEEEF !default;        // bit darker grey
 
-$highlight_bg: #ffbb43 !default; 	// row select: hard orange
-$highlight2_bg: lighten($highlight_bg, 20%) !default;
+$title-bg-img: "bg-ttl-domui.png" !default;
+$title-bg:  #7c7c7c !default;
+$title-color: #ffffff !default;
+
+$selected-bg: $primary !default;			// selection follows the accent
+
+$highlight-bg: #ffbb43 !default; 	// row select: hard orange
+$highlight2-bg: lighten($highlight-bg, 20%) !default;
 
 /** Error, warning, info colors **/
-$errors_border: #ff0000 !default; 			// red
-$errors_foreground: #ff0000 !default;		// red
-$errors_transparent: rgba(red($errors_border), green($errors_border), blue($errors_border), 0.25) !default;
+$errors-border: #ff0000 !default; 			// red
+$errors-color: #ff0000 !default;		// red
+$errors-transparent: rgba(red($errors-border), green($errors-border), blue($errors-border), 0.25) !default;
 
-$errors_input_background: #ffe5e5 !default;	// error bg for input component
+$errors-input-bg: #ffe5e5 !default;	// error bg for input component
 
 // A surface that is itself an error: the message div, the flare, the async-IO dialog.
-// This is the error member of the same bg/fg/border triplet as $info_bg and
-// $warnings_background, and it is levelled with them - all three are a tint at the same
+// This is the error member of the same bg/fg/border triplet as $info-bg and
+// $warnings-bg, and it is levelled with them - all three are a tint at the same
 // weight, so a red band does not shout over a yellow one saying something worse.
-// (It used to be $errors_background, which was #a9c5f1 - blue.)
-$errors_wash: #ffe5e5 !default;
+// (It used to be $errors-background, which was #a9c5f1 - blue.)
+$errors-wash: #ffe5e5 !default;
 
-$warnings_background: #fffeee !default; // light yellow
-$warnings_foreground: #8a6100 !default;	// dark amber: yellow is unreadable on $warnings_background
-$warnings_border: goldenrod !default;
-$warnings_transparent: rgba(red($warnings_border), green($warnings_border), blue($warnings_border), 0.25) !default;
+$warnings-bg: #fffeee !default; // light yellow
+$warnings-color: #8a6100 !default;	// dark amber: yellow is unreadable on $warnings-bg
+$warnings-border: goldenrod !default;
+$warnings-transparent: rgba(red($warnings-border), green($warnings-border), blue($warnings-border), 0.25) !default;
 
-$info_bg: #e4eeff !default;		// blueish light
-$info_fg: #4075db !default;
-$info_border: #4075db !default;
-$info_transparent: rgba(red($info_border), green($info_border), blue($info_border), 0.25) !default;
+$info-bg: #e4eeff !default;		// blueish light
+$info-color: #4075db !default;
+$info-border: #4075db !default;
+$info-transparent: rgba(red($info-border), green($info-border), blue($info-border), 0.25) !default;
 
-$white_transparent: rgba(255, 255, 255, 0.25) !default;
+$white-transparent: rgba(255, 255, 255, 0.25) !default;
 
-$header_bg: #7c7c7c !default;
-$main_color: #43b761 !default; 				//Main green
+$header-bg: #7c7c7c !default;
+$green-accent: #43b761 !default; 				//Main green
 
-$succesful-color: #84C000 !default;			// Green for checkmark
+$sayt-ok-color: #84C000 !default;			// Green for checkmark
 
-$common-hdr-color-1: #aeaeae !default;
 
 /** data table? **/
-//$data_tbl_selected_bg: #bed6f8;	// blue
-//$data_tbl_even_row_bg: #E5E5E5; //greyish
-//$data_tbl_cell_highlight_bg: #67267f;	// cell select: purple
-//$data_tbl_cell_highlight_link_color_bg: #ffffff;	// link color of cell select: white
-//$data_tbl_font_size: 12px;
-//$data_tbl_expanding_row_bg: lighten($main_color, 20%);
+//$dt-selected-bg: #bed6f8;	// blue
+//$dt-even-row-bg: #E5E5E5; //greyish
+//$dt-cell-highlight-bg: #67267f;	// cell select: purple
+//$dt-cell-highlight-link-bg: #ffffff;	// link color of cell select: white
+//$dt-font-size: 12px;
+//$dt-expanding-row-bg: lighten($green-accent, 20%);
 //
-//$data_tbl_header_bg: #7c7c7c;
-//$data_tbl_header_text_color: #ffffff;
-//$data_tbl_header_bg_img: ""; //-- Table header doesn't have background image
-//$data_tbl_header_btm_border: undefined;
+//$dt-hdr-bg: #7c7c7c;
+//$dt-hdr-color: #ffffff;
+//$dt-hdr-bg-img: ""; //-- Table header doesn't have background image
+//$dt-hdr-btm-border: undefined;
 
 /** LookupInput and LookupInput2 **/
-$lui-warning-color: #ff4f27 !default;				// Popup that shows 'no results'
-$lui-warning-color-border: #ff8d60 !default;			// Border of that popup
-$lui-result-color: #d4ee9f !default;					// Popup showing "xxxx records"
-$lui-result-color-border: #a5c663 !default;			// Border of that
+$lui-warning-bg: #ff4f27 !default;				// Popup that shows 'no results'
+$lui-warning-border: #ff8d60 !default;			// Border of that popup
+$lui-result-bg: #d4ee9f !default;					// Popup showing "xxxx records"
+$lui-result-border: #a5c663 !default;			// Border of that
 
 /** Misc **/
-$io_blk_wait: "io-blk-wait.gif";			/* Icon definition for DomUI icons */
+$io-blk-wait-img: "io-blk-wait.gif";			/* Icon definition for DomUI icons */
 
 
 //multiple lookup labels
-$multiple_lookup_label_color: #ffa21e !default;
-$multiple_lookup_label_border: #fff2ab !default;
+$mli-label-border: #ffa21e !default;
+$mli-label-bg: #fff2ab !default;
 
 //-- ScrollableTabPanel FIXME REMOVE
-$tab_pnl_inactive_col: #ffffff !default;
-$tab_pnl_hover_inactive_col: #ffffff !default;
-$tab_pnl_active_col: #67267f !default;
-$tab_pnl_btm_border: 0px !default;
-$tab_pnl_img: "tab-all-domui.png" !default;
-$tab_pnl_close: "tab-pnl-close.png" !default;
-$tab_pnl_close_hover: "tab-pnl-close-hover.png" !default;
-$tab_pnl_sep_bg: #7c7c7c !default;
-$tab_pnl_arrows: url(tab-scrl-icon.png) !default;
+$tab-inactive-color: #ffffff !default;
+$tab-hover-inactive-color: #ffffff !default;
+$tab-active-color: #67267f !default;
+$tab-btm-border-width: 0px !default;
+$tab-img: "tab-all-domui.png" !default;
+$tab-close-img: "tab-pnl-close.png" !default;
+$tab-close-hover-img: "tab-pnl-close-hover.png" !default;
+$tab-sep-bg: #7c7c7c !default;
+$tab-arrows-img: url(tab-scrl-icon.png) !default;
 
 // TabPanel
-//$tabpanel-header-bg: #7c7c7c !default;					// The header part containing the tabs
-//$tabpanel-tab-bg: #aaa !default;
-//$tabpanel-tab-border: #555 !default;
-//$tabpanel-content-bg: white !default;
-//$tabpanel-selected-color: #444 !default;
+//$tab-hdr-bg: #7c7c7c !default;					// The header part containing the tabs
+//$tab-bg: #aaa !default;
+//$tab-border: #555 !default;
+//$tab-content-bg: white !default;
+//$tab-selected-color: #444 !default;
 
 //-- Buttons
 $button-top-color: #f69231 !default;
@@ -118,14 +167,13 @@ $button-focus-top-color: #f6c381 !default;
 $button-focus-bot-color: #f69231 !default;
 $button-focus-glow-color: rgba($button-focus-top-color, .7) !default;
 $button-disabled-color: #999999 !default;
-$button_height: 24px !default;
 $button-font-size: 15px !default;
-$button-icon-fontsize: 15px !default;
+$button-icon-font-size: 15px !default;
 
 /*** Data Pager buttons ***/
-$data_pager_icons: "data-pager-icons.png" !default;
-$data_pager_icon_size_x: 32px !default;
-$data_pager_icon_size_y: 19px !default;
+$dp-icons-img: "data-pager-icons.png" !default;
+$dp-icon-size-x: 32px !default;
+$dp-icon-size-y: 19px !default;
 
 /*** Forms ***/
 $form-line-height:	1.5em !default;
@@ -141,8 +189,6 @@ $form-label-width-wide: 230px !default;
 $orange:       hsl(14,  100%, 53%) !default;
 $yellow:       hsl(48,  100%, 67%) !default;
 $green:        hsl(141, 71%,  48%) !default;
-//$turquoise:    hsl(171, 100%, 41%) !default;
-$turquoise:    #f69231				 !default;
 $cyan:         hsl(204, 86%,  53%) !default;
 $blue:         hsl(217, 71%,  53%) !default;
 $purple:       hsl(271, 100%, 71%) !default;
@@ -189,9 +235,9 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 $input-border-color: #dbdbdb !default;
 
 //-- enumsetinput label colors
-$esic-label-color: #d4f94e !default;
-$esic-label-border: darken($esic-label-color, 20%) !default;
-$esic-text-color: findColorInvert($esic-label-color) !default;
+$esic-label-bg: #d4f94e !default;
+$esic-label-border: darken($esic-label-bg, 20%) !default;
+$esic-label-color: findColorInvert($esic-label-bg) !default;
 
 // --------------------------------------------------------------------------------------
 // Surfaces and text.
@@ -204,7 +250,7 @@ $esic-text-color: findColorInvert($esic-label-color) !default;
 // --------------------------------------------------------------------------------------
 
 // The page itself.
-$body-color: inherit !default;					// text on $bg_color
+$body-color: inherit !default;					// text on $body-bg
 
 // Every line the theme draws that is not part of a control: the edge of a panel, floating
 // window, layout pane or menu, and the rules between table cells. The theme used four
@@ -213,6 +259,22 @@ $body-color: inherit !default;					// text on $bg_color
 // Controls do not use this - inputs and buttons take $border, which comes from the
 // greyscale ramp and so already follows a variant.
 $line-color: #aaa !default;
+
+// The same idea one step darker, for a line that has to carry weight: the rule under an
+// h1, the divider between table header cells.
+$line-strong: $grey !default;
+
+// And the hardest of the three: a frame that has to read as an edge - a selected cell, an
+// alert badge, the outline of a control. The theme wrote plain black for all of these.
+$line-hard: $black !default;
+
+// Text that is present but is not the main thing: a label, a hint, an item that cannot
+// be used. The theme reached for #666, #777, #808080 and #999 for this; they are one idea.
+$text-muted: $grey !default;
+
+// What a shadow is made of. Shadows take it through rgba(), so this is a colour and the
+// alpha stays at the point of use.
+$shadow-color: #000 !default;
 
 // A surface raised off the page: panels, popups, floating windows, menus. Its edge is
 // $line-color, like every other line the theme draws.

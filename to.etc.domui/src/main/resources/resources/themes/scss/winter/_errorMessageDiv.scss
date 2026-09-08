@@ -2,9 +2,9 @@
 @import "variables";
 
 .ui-emd {
-	background-color: $errors_wash;
-	color: $errors_foreground;
-	border-color: 1px solid $errors_border;
+	background-color: $errors-wash;
+	color: $errors-color;
+	border-color: 1px solid $errors-border;
 }
 .ui-emd-msg {
 	background: no-repeat 10px;
@@ -12,16 +12,16 @@
 	background-size: 11px 11px;
 }
 .ui-emd-info {
-	background-color: $info_bg;
+	background-color: $info-bg;
 	background-image: url(mini-info.png);
-	color: $info_fg;
-	border-color: 1px solid $info_border;
+	color: $info-color;
+	border-color: 1px solid $info-border;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
 }
 .ui-emd-warning {
-	background-color: $warnings_background;
+	background-color: $warnings-bg;
 	background-image: url(mini-warning.png);
-	color: $warnings_foreground;
+	color: $warnings-color;
 }

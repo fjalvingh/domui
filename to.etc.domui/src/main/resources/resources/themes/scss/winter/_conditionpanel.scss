@@ -1,3 +1,5 @@
+@import "derived-variables";
+
 .ui-copa {
 	padding: 0 10px;
 }
@@ -44,16 +46,8 @@
 	}
 }
 
-$pastels: (
- 	#aff8a8, #dcd3ff
-	, #85e3ff, #b5b9ff
-	, #ffb5e8, #b28dff
-	, #ff9cee, #c5a3ff
-	, #ffccf9, #d5aaff
-);
-
-@for $i from 1 through length($pastels) {
-	$color: nth($pastels, $i);
+@for $i from 1 through length($copa-level-bgs) {
+	$color: nth($copa-level-bgs, $i);
 	.ui-copa-grp-l#{$i - 1} {
 		background-color: $color;
 	}

@@ -2,7 +2,7 @@
 @import 'variables';
 
 .ui-atl {
-  background: $bg_ttl_end url($bg_ttl_gradient) repeat-y;
+  background: $title-bg url($title-bg-img) repeat-y;
 }
 
 .ui-atl table{
@@ -31,9 +31,9 @@
   width: 10%;
   height: 40px;
   white-space: nowrap;
-  color: $bg_ttl_text;
+  color: $title-color;
   font-weight: bold;
-  font-size: $hdr_font_size;
+  font-size: $hdr-font-size;
   padding-left: 9px;
   vertical-align: middle;
 }

@@ -1,3 +1,5 @@
+@import "derived-variables";
+
 @import "variables";
 
 /*** Window and FloatingDiv styles. ***/
@@ -18,7 +20,7 @@
 	align-items: center;
 	height: 2.5em;
 	padding: 3px 13px 3px 8px;
-	border-bottom: 1px solid #eee;
+	border-bottom: 1px solid $flw-divider-border;
 	font-size: 140%;
 	line-height: 20px;
 }
@@ -29,7 +31,6 @@
 
 .ui-flw-c {
 	padding: $vertical-padding $horizontal-padding;
-	/*?  padding: <%= margins_main %>; */
 	margin: 0;
 	overflow: auto;
 	background-color: $surface-bg;
@@ -52,7 +53,6 @@
 }
 
 .ui-flw-tc .ui-buttonbar {
-	/*?  margin: <%= margins_main %>; */
 	margin-bottom: 0px;
 }
 
@@ -79,7 +79,6 @@
 }
 
 .ui-flw-bc .ui-bb-middle {
-	/*?  padding: 5px <%= margins_main %> <%= margins_main %> <%= margins_main %>; */
 	text-align: right;
 }
 
@@ -89,7 +88,7 @@
 	position: fixed;
 	top: 0px;
 	left: 0px;
-	background-color: black;
+	background-color: $flw-hider-bg;
 	opacity: 0.3;
 	filter: alpha(opacity=30);
 }
@@ -100,9 +99,8 @@
 }
 
 .ui-flw .ui-emd {
-	/*?<%= margins_neutralize %>*/
 }
 
 .ui-flw .ui-f4-lbl {
-	color: #666666;
+	color: $flw-label-color;
 }

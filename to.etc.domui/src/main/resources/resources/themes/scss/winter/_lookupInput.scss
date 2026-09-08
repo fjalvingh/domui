@@ -15,7 +15,7 @@ $lui-min-width: 14em;
 	}
 
 	&.ui-input-err input {
-		background-color: $errors_input_background;
+		background-color: $errors-input-bg;
 	}
 }
 
@@ -28,7 +28,7 @@ $lui-min-width: 14em;
 //}
 
 .ui-lui-selected-ro tbody {
-	background-color: $readonly_bg;
+	background-color: $readonly-bg;
 }
 
 .ui-lui-v {
@@ -64,8 +64,8 @@ $lui-min-width: 14em;
 //	text-align: left;
 //	white-space: nowrap;
 //
-//	border: 1px solid $bevel_down;
-//	border-top: 1px solid $bevel_up;
+//	border: 1px solid $bevel-down;
+//	border-top: 1px solid $bevel-up;
 //	border-left: none;
 //
 //	padding: 3px 2px;
@@ -84,12 +84,12 @@ $lui-min-width: 14em;
 
 .ui-lui.ui-input-err {
 	.ui-lui-empty, .ui-lui-v, .ui-lui-keyword, .ui-srip-keyword {
-		background: $errors_input_background;
+		background: $errors-input-bg;
 	}
 }
 
 div.ui-lui-selected-ro {
-	//border: $readonly_border solid 1px; /* same border color as one used for ui-dspv fields */
+	//border: $readonly-border solid 1px; /* same border color as one used for ui-dspv fields */
 	border: none !important;
 	margin-bottom: 0;
 }
@@ -167,20 +167,20 @@ img.ui-lui-waiting {
 	z-index: 10;
 }
 .ui-lui-result-none, .ui-lui-result-large {
-	background-color: $lui-warning-color;
-	border: 1px solid $lui-warning-color-border;
+	background-color: $lui-warning-bg;
+	border: 1px solid $lui-warning-border;
 }
 .ui-lui-result-count {
-	background-color: $lui-result-color;
-	border: 1px solid $lui-result-color-border;
+	background-color: $lui-result-bg;
+	border: 1px solid $lui-result-border;
 }
 
 .ui-lui-keyword-popup {
 	position: absolute;
 	left: 0px;
 	top: 18px;
-	background-color: white;
-	border: 1px solid gray;
+	background-color: $lui-popup-bg;
+	border: 1px solid $lui-popup-border;
 	width: 402px;
 	overflow: hidden;
 	margin-bottom: 10px;
@@ -188,11 +188,11 @@ img.ui-lui-waiting {
 
 tr.ui-keyword-popop-rowsel {
 	cursor: pointer;
-	background-color: $highlight2_bg !important;
+	background-color: $highlight2-bg !important;
 }
 
 tr.ui-keyword-popop-rowsel:hover {
-	background-color: $highlight2_bg !important;
+	background-color: $highlight2-bg !important;
 }
 
 tr.ui-keyword-popup-row {
@@ -209,8 +209,8 @@ tr.ui-keyword-popup-row {
 	position: absolute;
 	left: 0px;
 	top: 18px;
-	background-color: white;
-	border: 1px solid gray;
+	background-color: $lui-popup-bg;
+	border: 1px solid $lui-popup-border;
 	width: 402px;
 	overflow: hidden;
 }
@@ -222,11 +222,11 @@ tr.ui-keyword-popup-row {
 
 tr.uixx-keyword-popop-rowsel {
 	cursor: pointer;
-	background-color: $highlight2_bg !important;
+	background-color: $highlight2-bg !important;
 }
 
 tr.uixx-keyword-popop-rowsel:hover {
-	background-color: $highlight2_bg !important;
+	background-color: $highlight2-bg !important;
 }
 
 tr.uixx-keyword-popup-row {
@@ -254,7 +254,7 @@ tr.uixx-keyword-popup-row {
 	left: 0px;
 	width: 32px;
 	height: 32px;
-	background-color: white;
+	background-color: $lui-popup-bg;
 }
 
 .ui-srip-waiting div {

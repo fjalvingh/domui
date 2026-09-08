@@ -1,4 +1,6 @@
 /*** 400_datacelltable.frag.css ***/
+@import "derived-variables";
+
 .ui-dct {
 }
 
@@ -8,7 +10,7 @@
 
 .ui-dct-selected {
 	background-color: cyan;
-	border: 1px solid black;
+	border: 1px solid $dct-selected-border;
 }
 .ui-dct td {
 	vertical-align: top;

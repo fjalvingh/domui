@@ -1,5 +1,7 @@
 // https://codepen.io/bisserof/pen/fdtBm
 
+@import "derived-variables";
+
 .ui-tree3 {
 	margin: 1em;
 	list-style: none;
@@ -32,8 +34,8 @@ ul.ui-tree3-list > li:last-child {
 
 // Fold/unfold button
 .ui-tree3-fbtn {
-	background: #000;
-	color: #fff;
+	background: $tree3-fbtn-bg;
+	color: $tree3-color;
 	position: relative;
 	z-index: 1;
 	float: left;
@@ -77,11 +79,11 @@ ul.ui-tree3-list > li:last-child {
 	cursor: pointer;
 
 	&:hover {
-		outline: 1px solid #ffd55a;
+		outline: 1px solid $tree3-hover-outline;
 		outline-offset: -1px;
 	}
 	&.ui-tree3-selected {
-		background-color: $highlight2_bg;
+		background-color: $highlight2-bg;
 	}
 }
 
@@ -93,7 +95,7 @@ ul.ui-tree3-list li:before { // Line before entire li.
 	left: -.5em;
 	display: block;
 	width: 0;
-	border-left: 1px solid #777;
+	border-left: 1px solid $tree3-border;
 	content: "";
 }
 
@@ -104,8 +106,8 @@ ul.ui-tree3-list li:before { // Line before entire li.
 	display: block;
 	height: 0.5em;
 	width: 1em;
-	border-bottom: 1px solid #777;
-	border-left: 1px solid #777;
+	border-bottom: 1px solid $tree3-border;
+	border-left: 1px solid $tree3-border;
 	border-radius: 0 0 0 .3em;
 	content: '';
 }
@@ -115,8 +117,8 @@ ul.ui-tree3-list li:before { // Line before entire li.
 
 .ui-tree3-opened > .ui-tree3-label:after {		// --\ line from opened level to children
 	border-radius: 0 .3em 0 0;
-	border-top: 1px solid #777;
-	border-right: 1px solid #777;
+	border-top: 1px solid $tree3-border;
+	border-right: 1px solid $tree3-border;
 	border-bottom: 0;
 	border-left: 0;
 	bottom: 0;

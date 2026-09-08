@@ -1,4 +1,6 @@
 /*** PopupMenu2 ***/
+@import "derived-variables";
+
 @import "variables";
 
 .ui-pome2 {
@@ -10,7 +12,7 @@
 
 	padding: 8px 16px;
 	border-radius: 8px;
-	box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.1), 0 2px 4px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.16);
+	box-shadow: 0 1px 8px 0 rgba($shadow-color, 0.1), 0 2px 4px 0 rgba($shadow-color, 0.12), 0 1px 2px 0 rgba($shadow-color, 0.16);
 	background-color: $surface-bg;
 	color: $surface-color;
 
@@ -41,7 +43,7 @@
 		padding: 0 10px;
 
 		&.disabled {
-			background-color: lightgrey;
+			background-color: $pome2-disabled-bg;
 			font-style: italic;
 			cursor: default;
 		}

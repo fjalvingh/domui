@@ -1,5 +1,7 @@
 /*** 085_breadcrumb.frag.css ***/
 /*** BreadCrumb ***/
+@import "derived-variables";
+
 .ui-brc {
 	padding: 0; margin: 0;
 }
@@ -21,11 +23,11 @@
 	height: 36px;
 }
 a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
-	color: #ffff99;
+	color: $brc-link-color;
 	font-weight: bolder;
 	text-decoration: none;
 }
 .ui-brc-c {
-	color: white;
+	color: $brc-color;
 	font-weight: bolder;
 }

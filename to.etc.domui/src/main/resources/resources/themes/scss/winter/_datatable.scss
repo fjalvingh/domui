@@ -1,22 +1,11 @@
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
-@import "_variables";
-@import "_color";
+@import "derived-variables";
 
-$data_tbl_selected_bg: #bed6f8 !default;	// blue
-$data_tbl_even_row_bg: #E5E5E5 !default; //greyish
-$data_tbl_cell_highlight_bg: #67267f !default;	// cell select: purple
-$data_tbl_cell_highlight_link_color_bg: #ffffff !default;	// link color of cell select: white
-$data_tbl_font_size: 12px !default;
-$data_tbl_expanding_row_bg: lighten($main_color, 20%) !default;
-
-$data_tbl_header_bg: #99bfe6 !default;
-$data_tbl_header_text_color: black !default;
-$data_tbl_header_bg_img: "" !default; //-- Table header doesn't have background image
-$data_tbl_header_btm_border: undefined !default;
-
-$data_tbl_border_color: $data_tbl_header_bg;
-$data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
+// The colours are in _derived-variables.scss - shared with _scrollableTable and three
+// others. What stays here is what is not a colour.
+$dt-font-size: 12px !default;
+$dt-hdr-bg-img: "" !default; //-- Table header doesn't have background image
 
 div.ui-dt {
 	overflow: auto;
@@ -24,9 +13,9 @@ div.ui-dt {
 }
 
 .ui-dt {
-	font-size: $data_tbl_font_size;
+	font-size: $dt-font-size;
 	.ui-button {
-		font-size: $data_tbl_font_size !important;
+		font-size: $dt-font-size !important;
 	}
 	/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
 }
@@ -37,7 +26,7 @@ div.ui-dt {
 }
 
 .ui-dt .mselected, .ui-dt .selected {
-	background-color: $highlight2_bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: $highlight2-bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
 div.ui-dt > table > tr > td {
 	border: 0;
@@ -55,7 +44,7 @@ div.ui-dt > table {
 	border-collapse: collapse;
 	border-spacing: 2px;
 	//width: 100%; jal 20171023 Let table default to 100% in Java, so that we can easily override it
-	border: 1px solid $data_tbl_border_color;
+	border: 1px solid $dt-border;
 
 	margin: 0;
 	padding: 0;
@@ -72,7 +61,7 @@ div.ui-dt > table {
 	text-align: left;
 	//height: calc(2.25em + 4px);
 
-	background: $data_tbl_header_bg;
+	background: $dt-hdr-bg;
 	border-left: none !important;
 	border-right: none;
 	border-bottom: none;
@@ -82,7 +71,7 @@ div.ui-dt > table {
 	white-space: nowrap;
 	//line-height: 1.5em;
 	padding: calc(0.375em + 1px) 4px;
-	color: $data_tbl_header_text_color;
+	color: $dt-hdr-color;
 	text-align: left;
 	height: 2.25em;
 	vertical-align: middle;
@@ -91,7 +80,7 @@ div.ui-dt > table {
 
 	@include overflow-ellipsis();
 
-	//background: $data_tbl_header_bg;
+	//background: $dt-hdr-bg;
 	border-left: none !important;
 	border-right: none;
 	border-bottom: none;
@@ -99,12 +88,12 @@ div.ui-dt > table {
 }
 
 .ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
-	border-left: 1px solid $data_tbl_header_btm_border !important;
-	border-top: 1px solid $data_tbl_header_btm_border !important;
+	border-left: 1px solid $dt-hdr-btm-border !important;
+	border-top: 1px solid $dt-hdr-btm-border !important;
 }
 
 .ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
-	border-right: 1px solid $data_tbl_header_btm_border;
+	border-right: 1px solid $dt-hdr-btm-border;
 }
 
 th.ui-sortable {
@@ -163,7 +152,7 @@ th.ui-dt-th.ui-numeric {
 /*** Rows and columns ***/
 .ui-dt tbody tr {
 	height: 30px;
-	border-bottom: 1px solid $data_tbl_lines_color;
+	border-bottom: 1px solid $dt-lines-border;
 }
 
 .ui-dt tbody tr > td.ui-f-lbl:first-child {
@@ -210,11 +199,11 @@ tr.ui-dt-row:hover {
 
 td.ui-cellsel {
 	cursor: pointer;
-	color: $link_color;
+	color: $link-color;
 }
 
 td.ui-cellsel:hover {
 	text-decoration: underline;
-	background-color: $data_tbl_cell_highlight_bg !important;
-	color: $data_tbl_cell_highlight_link_color_bg;
+	background-color: $dt-cell-highlight-bg !important;
+	color: $dt-cell-highlight-link-bg;
 }

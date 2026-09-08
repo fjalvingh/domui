@@ -1483,7 +1483,374 @@ These were offered as input while the phase 0 items were being worked, and taken
       (a `black` border and a `yellow` count on the error red) have not been
       looked at on screen and may want a second pass.
 
+- [x] **Framework: the theme's accent is `$primary`, and it is one colour.** Done
+      2026-09-08 at the user's direction, after an investigation of the warm
+      family (32 distinct colours over 41 uses). Two findings drove it. The brand
+      colour was called **`$turquoise`** and held `#f69231`, an orange: the
+      commented-out line above it, `//$turquoise: hsl(171, 100%, 41%)`, shows
+      someone overrode bulma's real turquoise in place rather than renaming it, so
+      the theme's accent was a variable named for a cyan - and it had almost no
+      uptake, `$turquoise` reaching nothing but `$primary` and `$primary` reaching
+      one component. And `#ff9436` had three spellings: `$selected_bg`,
+      `$pmnu-hover-bg` and a raw literal in `_logtailer`, sitting dE 3.2 from the
+      brand orange - close enough to be indistinguishable while doing a different
+      job. `$turquoise` is deleted; `$primary: #f69231` is defined at the head of
+      the colours in `_variables.scss`, before anything derives from it;
+      `$turquoise-invert` is gone and `$primary-invert` computes
+      `findColorInvert($primary)` directly; and `$selected_bg` and
+      `$pmnu-hover-bg` now take `$primary`, which is the user's call that the
+      accent and the selection highlight are one colour rather than two. Light
+      theme: **four compiled lines**, the tree's selected row and the popup menu's
+      hover/subsel going `#ff9436` -> `#f69231`; `.ui-button.is-primary` is
+      byte-identical, which is the check that the rename and the invert rewiring
+      are inert. Verified: `mvn21 clean install` green, 57 + 9 unit tests and 55
+      Selenium ITs pass, site build clean.
+
+- [x] **Framework: a two-tier colour architecture and a naming convention.** Done
+      2026-09-08 at the user's direction, generalising what the accent slice had
+      arrived at case by case. Colours now live in two tiers: the **main set** in
+      `_variables.scss`, whose names say what a colour is in the theme's
+      vocabulary and never name a component; and **component colours** in
+      `_derived-variables.scss`, one variable per colour a component paints, each
+      defaulting to a main-set value. A component's stylesheet reads only its own
+      variables - never a literal, never a main-set value directly - which is what
+      lets an application restyle one component and a variant move the whole theme
+      without either editing a component. The convention, in kebab-case, is
+      `$<component>-<part>-<role>`: component is the CSS class prefix with `ui-`
+      removed (`tlf` for `.ui-tlf-*`), part is the element inside it where there is
+      more than one, and role is `-bg` / `-color` (text, never a background) /
+      `-border` / `-outline` / `-shadow`. It is written at the top of
+      `_variables.scss` and in the `look-and-feel/themes` chapter.
+      This **codifies rather than invents**: a survey found kebab-case already
+      dominant 223 to 69, and the component-prefix pattern already in use by
+      `$brcr2-*`, `$esic-*`, `$rbb-*`, `$lui-*` and the `$cal-*` set. The 69
+      snake_case holdouts are concentrated in four files (`_datatable`,
+      `_monthpanel`, `_draganddrop` and older names in `_variables.scss`) and are
+      left to be renamed as each component is worked on.
+      Seeded with two components: `_logtailer` gains `$tlf-hdr-bg: $primary`,
+      which was the user's specific ask and the last of the three spellings of the
+      old selection orange - **one compiled line**, `#ff9436` -> `#f69231`; and
+      the `$pmnu-*` block moves out of `_popupmenu.scss` into the new section as a
+      worked example, which compiled **byte-identical** and is the proof the move
+      is inert. Verified: `mvn21 clean install` green, 57 + 9 unit tests and 55
+      Selenium ITs pass, site build 156 pages clean.
+
+- [x] **Framework: collapse the theme's colours onto a set.** **Done 2026-09-08.** A perceptual scan of
+      every literal in `themes/scss/winter` (2026-09-08) found 233 occurrences,
+      137 of them distinct, and enough near-duplicates to make a set worth
+      defining. The evidence, in order of how much it buys:
+      - **The greyscale ramp already exists and no partial uses it.**
+        `_variables.scss` defines 11 steps (`$black` … `$white`); only
+        `_derived-variables.scss` consumes them. The partials instead hand-pick
+        **33 distinct greys over 178 occurrences**. The `$grey` band (L~48%) has
+        eight of them - `#777777`, `#808080`, `#666666`, `#7c7c7c`, `#898989`,
+        `#888888`, `#727272`, `#998888` - which nobody can tell apart. Three
+        partials hardcode a value that *is* a ramp step: `#363636` (`_form5`) =
+        `$grey-darker`, `#dbdbdb` (`_genericheader`) = `$grey-lighter`, `#0a0a0a`
+        (`bulmaish/_core_defs`) = `$black`. Mapping all of them onto the ramp
+        gives 150 occurrences on 9 steps; the largest visible shift is dE 10.5
+        (`#999999` -> `$grey-light`), and only 11 colours shift by more than dE 3.
+      - **`_popupmenu` is done** (2026-09-08): it is on `ladder()` and carries no
+        colour literal except the accent orange.
+      - **The error colours are done** (2026-09-08). The other three state
+        families turned out not to exist: the "warning ambers", "info blues" and
+        "success greens" the scan grouped by hue are a breadcrumb link, a badge
+        digit, a selected-item background, a toggle's branding parameter, a
+        pop-in panel's ground and a menu title's tint - not states. Hue grouping
+        found them; reading the selectors dismissed them. Two literals must stay
+        literal forever: the colour picker's three `#f00` sample swatches, and
+        `red($main_color)` in `_draganddrop`, which is the SCSS channel function
+        and not a colour at all.
+      - **The greys split cleanly by role**, which is what the semantic names
+        should be built from: text (7 greys / 32 uses), line (16 / 44), surface
+        (14 / 37), shadow (4 / 13).
+      - **"Disabled" is invented four times.** `_popupmenu` uses `#999`,
+        `_datapager2` `#777`, `_hamburgermenu` the `grey` keyword, `_radiobutton`
+        `#ddd` - and `$button-disabled-color: #999999` already exists, used by
+        `_radiobutton` alone. One `$text-disabled` would cover all of them.
+      - **`_scrollableTable` is a copy of `_datatable`'s palette.** It redeclares
+        the same five `$data_tbl_*` variables with identical values, and hardcodes
+        the four row-hover colours that `_datatable` now takes from
+        `$row-hover-*`/`$row-select-hover-*`.
+      - **The accent is done** (2026-09-08): `$turquoise` - a variable named for
+        a cyan that held the brand orange - is gone, `$primary` holds `#f69231`
+        directly, and `$selected_bg`/`$pmnu-hover-bg` take it, so the accent and
+        the selection highlight are one colour. What is left of the warm family:
+        `_logtailer` still writes `#ff9436` raw for its header band (the third
+        spelling of the old selection orange, and now the only thing not on the
+        accent); `_tree2` writes `#f69231` raw where it means `$primary`;
+        `_tree3` and `_scrollableTable` write `#ffd55a`/`#fff4d3` raw where they
+        mean `$row-hover-outline`/`$row-hover-bg`; and the button ramp
+        (`$button-top-color` `#f69231`, `$button-bottom-color` `#f6ac3d`,
+        `$button-focus-top-color` `#f6c381`) is three hand-mixed shades whose hue
+        drifts 30 -> 36 -> 34 where a `lighten()` chain off `$primary` would not.
+        The amber hover set is already correct - one hue at three weights.
+      **Check for ladders before mapping anything.** Where a component's greys form
+      a *sequence* - nesting depth, striping, magnitude - they take consecutive
+      rungs from one base via `ladder()` (see the log entry of 2026-09-08), not
+      nearest-neighbour matches one at a time: the popup menu's `#666`/`#888` both
+      round to `$grey` and would have lost a nesting level. Checked 2026-09-08:
+      the popup menu is the theme's **only** true depth ladder - the trees encode
+      indentation with images and have no per-level colour at all, and the tab
+      panel's header/tab/content is a three-surface stack rather than a nesting
+      sequence (it could use `ladder()`, but nothing breaks if it does not).
+      Proposed shape: keep the ramp as the base, add semantic names on top of it
+      (`$text`, `$text-disabled`, `$line-color` (done), `$surface-*` (done),
+      `$shadow-color`), and one accent/state set fed by the `$errors_*`,
+      `$warnings_*`, `$info_*` variables that already exist but that components
+      bypass. Note this **does** change the light theme, unlike the earlier
+      variabilisation - the shifts above are real and want reviewing on screen.
+      **The architecture and the naming convention are settled** (2026-09-08, see
+      the log): a component's colours go in `_derived-variables.scss` as
+      `$<component>-<part>-<role>`, defaulting to a main-set value, and the
+      component reads only those.
+      **The sweep is under way, batches 1 and 2 done** (2026-09-08): 214 literals
+      in 55 component files at the start, **47 left**. The main set gained the
+      values the sweep keeps reaching for: `$line-strong` (the darker line - an h1
+      rule, a table header divider), `$text-muted` (a label, a hint, an item that
+      cannot be used - the theme wrote #666, #777, #808080 and #999 for this one
+      idea) and `$shadow-color`.
+      Two exceptions to "default to a main-set value" are settled and documented:
+      a component with a **categorical** palette keeps its own values, because the
+      entries have to stay apart from each other and the theme's semantics cannot
+      say that. `$copa-level-bgs` (ConditionPanel, one colour per nesting depth -
+      the same ladder shape as the popup menu but with a palette instead of the
+      ramp) and the jquery-layout resizer's green/red/amber feedback set are both
+      of that kind. `_devmode` is skipped entirely at the user's direction: its
+      near-black purples are a deliberate "this is not production" signal.
+      Also fixed: the `$data_tbl_*` palette was declared twice, identically, in
+      `_datatable.scss` and `_scrollableTable.scss` - and it is not one component's
+      anyway, five files read it (`_datatable`, `_scrollableTable`,
+      `_expandingtable`, `_monthpanel`, `_dateinput`). It now lives once, in
+      `_derived-variables.scss`, and neither component declares anything. Removing
+      it was inert. Two things it surfaced: `$data_tbl_header_btm_border` is
+      `undefined`, which is not a colour, so the two rules using it emit invalid
+      CSS and the header's left and top borders have never rendered - left alone,
+      since giving it a colour makes borders appear that never have; and
+      `$data_tbl_header_text_color` stays **black** rather than becoming `$text`,
+      because the header sits on its own coloured band where `$text` drops the
+      contrast from 10.9:1 to 4.6:1, on the AA threshold for bold text people
+      scan.
+      Batch 3 (2026-09-08) took the greys, whites and shadows together - 63 of
+      them across 26 files - because every target already existed and none of it
+      needed a decision. Biggest shift dE 8 (`#666` -> `$text-muted`, three
+      places); about half was literally inert (`#eeeeee`->`#eee`, `white`->`#fff`,
+      `#AAA`->`#aaa`) and twenty were `rgba(10,10,10,.1)` -> `rgba($shadow-color,
+      .1)` at 10% alpha.
+      **68 left**, and they need judgement rather than mapping:
+      - **blacks: done** (2026-09-08). Three roles, read one at a time. Eight
+        hard borders and one inverted background became `$line-hard`, a new third
+        step of the line scale (`$line-color` #aaa, `$line-strong` #7a7a7a,
+        `$line-hard` $black) - a hairline shift, dE 2.7. Nine `color: black`
+        became `$text`: each was checked against the ground it sits on first,
+        21:1 -> 8.9:1 on page white and 19.8:1 -> 8.3:1 on the readonly input
+        wash, both comfortably above AA. Two MonthPanel dims written as
+        `lighten(#000000, 55%/65%)` became `$text-muted` and `$grey-light`. One
+        black stayed black on purpose - see the bug below.
+      - **blues, about 14.** A family needing one decision, exactly as the
+        oranges did. The theme already has *two* link colours (`$link_color:
+        #2200cc` and `$link: $blue`) while components separately reach for
+        `#013686`, `#051cac`, `#297bc0`, `#1700ee`, `#3273dc` and `#2196f3` for
+        "a link, a header, an active thing". Someone has to say which blue.
+      - **other hues, 17.** Mostly genuinely component-specific by now: the
+        colour picker's `#f00` swatches (stay literal), `_popInPanel`'s greens,
+        `_oddcharacters`, `_breadcrumb` (superseded), `_bugIndicator`'s yellow.
+      - `_devmode` (8), skipped, and `_old_defaultbutton` (2), which is not
+        imported and should be deleted rather than fixed.
+      **Batch 5, the blues and the last of the hues, finished the sweep**
+      (2026-09-08). Which blue is *the* blue turned out not to need answering,
+      because the family split cleanly in two on measurement. The violet-leaning
+      link blues (hue 232-250) are `$link_color` and three near neighbours; the
+      cyan-leaning accent blues (hue 207-218) are `$blue`/`$link` and four more.
+      Nothing in the second group is within dE 16 of `$blue`, so calling them all
+      one colour would have been a restyle wearing a dedup's clothes.
+      What was actually collapsed, and by how much: `bulmaish`'s focus ring wrote
+      `#3273dc` and `rgba(50, 115, 220, 0.25)` raw where `$link` and
+      `$input-focus-box-shadow-color` already said the same thing (**dE 0**, and
+      the reason the dark diff is four times the light one - eleven focus rings
+      across the theme were pinned to a light-mode blue and now follow the
+      variant); `_tree2`'s hover wrote `#f69231` where it meant `$primary` (dE 0)
+      and `#f4f7f9` where `$white-ter` was already the surface (dE 1.5);
+      `_tree3`'s hover outline wrote `#ffd55a` where `$row-hover-outline` said it
+      (dE 0); `_oddcharacters`' hover took `$row-hover-bg` (**dE 9.1**) and
+      `_percentageprogress`' second bar took `$line-color` (**dE 9.0**) - both on
+      the strength of decisions already made, one hover wash and one line colour;
+      and `_expandingtable`'s expand cell, which is underlined and takes a
+      pointer, took `$link_color` (**dE 15.3**) because it is a link and because
+      it was unreadable in the dark variant while `$link_color` is corrected
+      there. Two headers were found to share one colour, `#297bc0` in
+      `_genericheader`'s level 2 and `_expandingheader`'s bar; it is now
+      `$header-accent-color` with both components defaulting to it.
+      Everything else got a variable holding its own value, which is the point of
+      the derived tier rather than a failure of it: the schedule's
+      `$wa-item-bg`/`$wa-note-bg`, `_popInPanel`'s two greens, the switch's on
+      colour, `_breadcrumb`'s `#ffff99`, the bug badge's yellow, the cookie
+      panel's `#EE4B5A`, `_forms`' read-only wash, GenericHeader's slate and deep
+      blues, DataPager2's hover, and Ace's navy rule. `_breadcrumb2`'s five
+      `$brcr2-*` declarations moved out of the partial into the derived tier with
+      them. One line was deleted rather than variabilised: `_expandingtable`'s
+      `filter: progid:DXImageTransform.Microsoft.Shadow(...)`, an IE<=9 shadow
+      that no browser DomUI supports has read for a decade.
+      **The sweep is finished.** 214 literals in 55 component files at the start;
+      what is left is nine occurrences that are all deliberate - the colour
+      picker's three `#f00` sample swatches, `_draganddrop`'s
+      `red()`/`green()`/`blue()` (SCSS channel functions, not colours), two hex
+      values quoted inside a comment in `_popupmenu.scss`, and `_devmode`, which
+      is skipped by direction. Total effect on the light theme across all five
+      batches: every change measured, the largest single shift dE 15.3, and the
+      dark variant now reaches colours that were previously nailed to light mode.
+      Verified: `mvn21 clean install` green.
+
+
+- [x] **Framework: `findColorInvert()` picked white where black was needed.**
+      **Done 2026-09-08.** The helper answers "what text colour goes ON this
+      colour", and it decided with a single luminance cut - the theme's softened
+      black above 0.55, white below - which is not what legibility depends on. A
+      mid-tone got white however badly white performed on it. `$primary`
+      (#f69231) measures 0.456 and so took white, at **2.3:1** against the 4.5:1
+      AA floor, where black gives 5.5:1; it is why `_cookiewarning` hand-wrote
+      `color: black` for its accept button instead of asking the helper.
+      It now compares the two candidates and returns the one that wins. A new
+      `contrastRatio()` in `functions.scss` does the WCAG arithmetic on the
+      existing `colorLuminance()`, and `findColorInvert()` measures white against
+      `mix(#000, $color, 70%)` - what `rgba(#000, 0.7)` actually composites to
+      over the colour, so the softening is part of the comparison rather than
+      ignored by it.
+      The effect is confined to the eight `.ui-button.is-*` colour classes and
+      their `.ui-sib` equivalents, and it is not a blanket flip to black: **`link`
+      keeps white**, because on `$blue` white genuinely wins (4.5:1 against
+      3.5:1), which is the evidence that the function is measuring rather than
+      inverting. Light variant, four changed: `primary` 2.3 -> 5.5, `info` 3.0 ->
+      4.7, `success` 2.0 -> 5.9, `danger` 3.5 -> 4.3. Dark variant, five: the same
+      four plus `link`, whose blue lifts to #64adf7 there and no longer supports
+      white (2.4 -> 5.4). `warning`, `light` and `dark` were already right in both.
+      `$text-invert` does not move: white on `$text` is correct in the light
+      variant and the old rule already gave black in the dark one.
+      With the helper fixed, `$ckw-accept-color` drops its hand-written `black`
+      and takes `$primary-invert` like every other coloured surface.
+      Two things left alone deliberately. `colorLuminance()` squares the
+      linearised channels where sRGB raises them to 2.4 - inherited from bulma,
+      and it reads light (0.456 for #f69231 rather than 0.404) - but the error
+      goes the same way for both colours of a pair and every comparison above
+      comes out identical either way; `powerNumber()` only takes integer
+      exponents, so fixing it means writing a fractional power in SCSS for no
+      change in output. And `findColorHighlight()` still cuts at 0.30; it chooses
+      between `lighten` and `darken`, not between two contrasts, so the same
+      argument does not apply to it.
+      Verified on screen in both variants, and `mvn21 clean install` green.
+
+
+- [x] **Framework: the theme's variable names are all kebab-case now.**
+      **Done 2026-09-08.** 79 names still spelled with underscores - `$data_tbl_*`,
+      `$month_panel_*`, `$dnd_*`, `$tab_pnl_*`, the `$errors_*` / `$warnings_*` /
+      `$info_*` states and a group of older names in `_variables.scss` - across 366
+      occurrences in 46 files, including the dark variant. Kebab-case had already
+      won 223 to 69 and is the written convention.
+      The plan had said to do these per component rather than in one sweep, on the
+      grounds that a sweep is a big diff that hides the changes which are not
+      inert. That objection is answerable rather than permanent: the sweep was done
+      in one pass and then **proved** inert by compiling both variants before and
+      after and diffing. The compiled stylesheets came back **byte-identical** in
+      the light variant and in the dark one, and every component had been worked on
+      by then anyway, which was the other half of the reason to wait.
+      The one line that did change was not a rule: `_errorpanel.scss` carried a
+      commented-out `background-color` inside a `/* */` comment, which libsass
+      copies into the output, so the theme shipped a dead declaration to every
+      browser. That comment and the `//` one under it are deleted.
+      **Why it is free.** SCSS treats `-` and `_` as the same character in an
+      identifier: `$link_color` and `$link-color` are one variable, not two. An
+      application that overrides a theme variable by its old spelling therefore
+      keeps working untouched, which is what separates this rename from the ones
+      still open - those change the identifier and would break such an override.
+      Documentation brought along: `look-and-feel/themes`,
+      `look-and-feel/overriding-the-theme` and
+      `look-and-feel/styling-your-component` all spelled variables the old way in
+      their tables and samples; so did `THEMES.md`. The callout warning readers that
+      69 names had not been converted is replaced by the fact that matters to them -
+      that the two spellings are the same variable.
+
+- [x] **Framework: `_old_defaultbutton.scss` deleted.** The one partial `style.scss`
+      did not import, superseded by `_defaultbutton.scss`. Deleted by the user
+      2026-09-08.
+
+
+- [x] **Framework: every theme variable is now in the convention's shape.**
+      **Done 2026-09-08**, the second half of the naming work and, unlike the first,
+      not free: 104 variables changed identifier, so an application overriding one of
+      them by its old name has to be updated. The complete old -> new table, with a
+      reason per row, is section 15 of `THEMES.md`. All of it compiled
+      **byte-identical in both variants** - only names moved.
+      Four kinds of wrong name, and the first is the one worth remembering.
+      **Three components had two prefixes each.** The tab panel was styled through
+      `$tabpanel-*` (six names, in the derived tier) *and* `$tab-pnl-*` (nine, in
+      `_variables.scss`); the switch through `$switch-*` and `$ui-swtch-*`; DataPager2
+      through `$dp2-*` and `$pager2-*`. Each pair had drifted into two homes with no
+      hint in either that the other existed, which is exactly the failure the
+      convention prevents. They are now `$tab-*`, `$swtch-*` and `$dp2-*`.
+      **Prefixes that were not the component's CSS class**: `$data-tbl-*` styles
+      `.ui-dt-*`, `$month-panel-*` styles `.ui-mp-*` (and the derived tier's section
+      header claimed `.ui-mpnl-*`, which does not exist), `$ghdr-*` styles
+      `.ui-generichd-*`, `$ddtbl-*` styles `.ui-dd-table`, `$dnd-*` styles
+      `.ui-drp-*`, `$multiple-lookup-label-*` styles `.ui-mli-*`. Four stale section
+      headers in `_derived-variables.scss` were corrected against the partials at the
+      same time.
+      **Role words that were not roles**: `-foreground`, `-background`, `-fg`, `-col`,
+      `-rule`, `-frame`, `-divider`, and names with no role at all. Two said the role
+      twice (`$data-tbl-border-color`, `$data-tbl-header-text-color`) and one said two
+      roles at once (`$data-tbl-cell-highlight-link-color-bg`).
+      **Names that were lying**, which is what makes this more than tidying.
+      `$multiple-lookup-label-color` painted the border and
+      `$multiple-lookup-label-border` painted the background - the two were swapped, and
+      are now `$mli-label-border` and `$mli-label-bg`. `$esic-label-color` was the
+      label's *background* while `$esic-text-color` was its text; they are now
+      `$esic-label-bg` and `$esic-label-color`. `$lui-warning-color` and
+      `$lui-result-color` were both backgrounds. `$succesful-color` was misspelled,
+      belonged to one component, and is `$sayt-ok-color`.
+      Two variables were deleted rather than renamed: `$common-hdr-color-1`, declared
+      in both variants and read by nothing, and `$button-height`, declared and read by
+      nothing.
+      Left alone deliberately: the vocabulary inherited from bulma (`$link`,
+      `$button-*`, `$input-*`, `$size-*`, `$text*`, `$colors`, `$shades`), which is
+      kept as upstream spells it, and `$can-toggle-*`, which are a vendor mixin's
+      parameters rather than theme variables. `$main-color` did have to go - it is a
+      palette entry, not text - and became `$green-accent`; it is the theme's second
+      green, read by exactly two rules that have nothing to do with each other, and a
+      candidate for collapsing into `$green`.
+      Cleared out with it: the last eleven `<%= ... %>` references to the Rhino
+      template mechanism removed on 2026-09-07. All were inside comments, and libsass
+      copies a `/* */` comment into its output - so the theme was shipping 41 lines of
+      dead template syntax to every browser, including four rules
+      (`body.ui-stretch-body`, `.dso-add-bottom-margin`, `.ui-flw .ui-emd`,
+      `.ui-stab-c`) that contained nothing else and are now gone as empty, and a
+      commented-out `.ui-ro` block carrying a dated 2016 explanation of why it was
+      commented out. The compiled diff for that removal is deletions only.
+      Verified: both stylesheets byte-identical across the renames, `mvn21 clean
+      install` green, site build clean.
+
+
 ## Decisions log
+
+### 2026-09-08 - Two tiers, because one indirection is the whole point
+
+The rule that a component may not read a main-set value directly looks like
+ceremony - `$tlf-hdr-bg: $primary` then `background-color: $tlf-hdr-bg` is two
+lines where one would do. It earns itself the moment anyone wants the log tailer's
+header to stop following the accent: with the indirection that is one variable in
+`_derived-variables.scss`, without it it is an edit to a component, and an
+application that has to patch a component's stylesheet is an application that
+cannot upgrade.
+
+It also gives the variant mechanism somewhere to stand. `winter/dark` sets main-set
+values and gets the whole theme; it can also set a single component variable when
+one component needs special handling, which is what `$pmnu-bg` already does. Both
+work because there is a layer between "what the theme's colours are" and "what
+this component paints".
+
+The convention was surveyed before being written: kebab-case led 223 to 69, and
+component prefixes taken from the CSS class were already the habit in five
+component families. Writing down what the code mostly already does costs an
+argument nobody needs to have; inventing a new scheme would have made 223
+variables wrong overnight.
 
 ### 2026-09-08 - Hue is not semantics
 

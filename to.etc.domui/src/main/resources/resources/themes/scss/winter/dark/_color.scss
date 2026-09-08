@@ -39,75 +39,74 @@ $orange:       hsl(14, 90%, 62%);
 
 // --- The theme's own colour variables ---------------------------------------------
 $background-color: hsl(220, 13%, 11%);
-$bg_color:         hsl(220, 13%, 11%);
+$body-bg:         hsl(220, 13%, 11%);
 
 $alt-button-color: hsl(210, 90%, 72%);
 $alt-button-bg:    hsl(220, 13%, 18%);
 
-$link_color:       hsl(210, 90%, 72%);
+$link-color:       hsl(210, 90%, 72%);
 
-$bevel_up:         hsl(220, 11%, 30%);
-$bevel_down:       hsl(220, 11%, 24%);
-$bevel_hover_up:   hsl(210, 45%, 46%);
-$bevel_hover_down: hsl(220, 13%, 22%);
+$bevel-up:         hsl(220, 11%, 30%);
+$bevel-down:       hsl(220, 11%, 24%);
+$bevel-hover-up:   hsl(210, 45%, 46%);
+$bevel-hover-down: hsl(220, 13%, 22%);
 
-$readonly_bg:      transparent;
-$readonly_border:  hsl(220, 11%, 24%);
+$readonly-bg:      transparent;
+$readonly-border:  hsl(220, 11%, 24%);
 
-$bg_ttl_gradient:  "";					// the title gradient image is a light one
-$bg_ttl_end:       hsl(220, 12%, 22%);
-$bg_ttl_text:      hsl(0, 0%, 93%);
+$title-bg-img:  "";					// the title gradient image is a light one
+$title-bg:       hsl(220, 12%, 22%);
+$title-color:      hsl(0, 0%, 93%);
 
-$header_bg:        hsl(220, 12%, 20%);
+$header-bg:        hsl(220, 12%, 20%);
 
-$selected_bg:      hsl(28, 80%, 44%);
-$highlight_bg:     hsl(38, 75%, 42%);
-$highlight2_bg:    hsl(38, 60%, 32%);
+$selected-bg:      hsl(28, 80%, 44%);
+$highlight-bg:     hsl(38, 75%, 42%);
+$highlight2-bg:    hsl(38, 60%, 32%);
 
 $input-border-color: hsl(220, 11%, 30%);
 
 $form-label-color: hsl(220, 12%, 78%);
 
-$common-hdr-color-1: hsl(220, 10%, 40%);
 
 // --- Messages: keep the hue, drop the brightness ----------------------------------
-$errors_border:           hsl(0, 75%, 62%);
-$errors_foreground:       hsl(0, 80%, 74%);
-$errors_input_background: hsl(0, 32%, 22%);
-$errors_wash:             hsl(0, 32%, 20%);	// levelled with $info_bg / $warnings_background
+$errors-border:           hsl(0, 75%, 62%);
+$errors-color:       hsl(0, 80%, 74%);
+$errors-input-bg: hsl(0, 32%, 22%);
+$errors-wash:             hsl(0, 32%, 20%);	// levelled with $info-bg / $warnings-bg
 
-$warnings_background:     hsl(45, 32%, 18%);
-$warnings_foreground:     hsl(45, 80%, 70%);
-$warnings_border:         hsl(43, 65%, 50%);
+$warnings-bg:     hsl(45, 32%, 18%);
+$warnings-color:     hsl(45, 80%, 70%);
+$warnings-border:         hsl(43, 65%, 50%);
 
-$info_bg:                 hsl(215, 35%, 20%);
-$info_fg:                 hsl(215, 85%, 74%);
-$info_border:             hsl(215, 60%, 52%);
+$info-bg:                 hsl(215, 35%, 20%);
+$info-color:                 hsl(215, 85%, 74%);
+$info-border:             hsl(215, 60%, 52%);
 
 // --- LookupInput result/warning popups --------------------------------------------
-$lui-warning-color:        hsl(14, 55%, 30%);
-$lui-warning-color-border: hsl(14, 65%, 46%);
-$lui-result-color:         hsl(80, 32%, 26%);
-$lui-result-color-border:  hsl(80, 40%, 42%);
+$lui-warning-bg:        hsl(14, 55%, 30%);
+$lui-warning-border: hsl(14, 65%, 46%);
+$lui-result-bg:         hsl(80, 32%, 26%);
+$lui-result-border:  hsl(80, 40%, 42%);
 
-$multiple_lookup_label_color:  hsl(33, 60%, 40%);
-$multiple_lookup_label_border: hsl(50, 55%, 46%);
+$mli-label-border:  hsl(33, 60%, 40%);
+$mli-label-bg: hsl(50, 55%, 46%);
 
 // --- Tabs -------------------------------------------------------------------------
-$tab_pnl_inactive_col:       hsl(0, 0%, 80%);
-$tab_pnl_hover_inactive_col: hsl(0, 0%, 96%);
-$tab_pnl_active_col:         hsl(271, 70%, 76%);
-$tab_pnl_sep_bg:             hsl(220, 11%, 30%);
-$tab_pnl_img:                "";
+$tab-inactive-color:       hsl(0, 0%, 80%);
+$tab-hover-inactive-color: hsl(0, 0%, 96%);
+$tab-active-color:         hsl(271, 70%, 76%);
+$tab-sep-bg:             hsl(220, 11%, 30%);
+$tab-img:                "";
 
-$esic-label-color: hsl(68, 45%, 32%);
+$esic-label-bg: hsl(68, 45%, 32%);
 
 // --- DataTable: the header band and the row washes --------------------------------
-$data_tbl_header_bg:        hsl(215, 30%, 26%);
-$data_tbl_header_text_color: hsl(0, 0%, 92%);
-$data_tbl_selected_bg:      hsl(215, 40%, 30%);
-$data_tbl_even_row_bg:      hsl(220, 12%, 16%);
-$data_tbl_cell_highlight_bg: hsl(271, 45%, 40%);
+$dt-hdr-bg:        hsl(215, 30%, 26%);
+$dt-hdr-color: hsl(0, 0%, 92%);
+$dt-selected-bg:      hsl(215, 40%, 30%);
+$dt-even-row-bg:      hsl(220, 12%, 16%);
+$dt-cell-highlight-bg: hsl(271, 45%, 40%);
 
 // --- Surfaces and text ------------------------------------------------------------
 $body-color:        hsl(220, 12%, 76%);
@@ -141,8 +140,8 @@ $row-select-hover-outline:  hsl(90, 35%, 40%);
 // --- The jscalendar popup (DateInput2) --------------------------------------------
 $cal-bg:               hsl(220, 13%, 14%);
 $cal-body-bg:          hsl(220, 13%, 14%);
-$cal-text:             hsl(220, 12%, 80%);
-$cal-white:            hsl(220, 14%, 90%);
+$cal-color:             hsl(220, 12%, 80%);
+$cal-invert:            hsl(220, 14%, 90%);
 $cal-border:           hsl(220, 11%, 30%);
 $cal-band-bg:          hsl(220, 12%, 20%);
 $cal-band-active-bg:   hsl(220, 12%, 26%);
@@ -155,18 +154,18 @@ $cal-selected-bg:      hsl(38, 45%, 30%);
 $cal-today-bg:         hsl(0, 35%, 30%);
 $cal-today-border:     hsl(14, 70%, 50%);
 $cal-today-active-bg:  hsl(0, 30%, 38%);
-$cal-weekend:          hsl(0, 75%, 66%);
-$cal-weekend-dim:      hsl(0, 35%, 48%);
-$cal-dim:              hsl(220, 10%, 48%);
-$cal-disabled:         hsl(220, 10%, 42%);
+$cal-weekend-color:          hsl(0, 75%, 66%);
+$cal-weekend-dim-color:      hsl(0, 35%, 48%);
+$cal-dim-color:              hsl(220, 10%, 48%);
+$cal-disabled-color:         hsl(220, 10%, 42%);
 $cal-status-bg:        hsl(220, 12%, 20%);
-$cal-status-text:      hsl(38, 70%, 62%);
+$cal-status-color:      hsl(38, 70%, 62%);
 $cal-tooltip-bg:       hsl(220, 12%, 20%);
 $cal-combo-hover-bg:   hsl(38, 45%, 32%);
-$cal-combo-text:       hsl(30, 55%, 66%);
-$cal-combo-dim:        hsl(220, 10%, 50%);
+$cal-combo-color:       hsl(30, 55%, 66%);
+$cal-combo-dim-color:        hsl(220, 10%, 50%);
 $cal-combo-border:     hsl(220, 11%, 32%);
-$cal-drag:             hsl(120, 60%, 55%);
+$cal-drag-bg:             hsl(120, 60%, 55%);
 
 $window-bg:         hsl(220, 13%, 16%);
 $menu-hover-bg:     hsl(220, 12%, 22%);

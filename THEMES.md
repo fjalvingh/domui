@@ -559,42 +559,171 @@ list (search panel, inputs, buttons, datatable header, row hover), the DateInput
 (including read-only and disabled fields) and a tutorial page using the demo's own card and
 query-box styling.
 
-## 14. Still open
+## 14. The names that changed
+
+Every theme variable now follows `$<component>-<part>-<role>` (section 12 of the
+documentation site's *Themes* page, and the header of `_variables.scss`). Two passes got
+them there. The first turned 79 `snake_case` names into kebab-case and was **free**: SCSS
+treats `-` and `_` as the same character in an identifier, so `$link_color` and
+`$link-color` are one variable and an application setting either still sets the theme's.
+
+The second pass, below, changes the identifiers, so an application that overrides one of
+these by its old name **must be updated**. Every one of them compiled byte-identical in
+both variants - only the names moved.
+
+Names not in this table did not change. That includes the vocabulary inherited from bulma
+(`$link`, `$button-*`, `$input-*`, `$size-*`, `$text*`, `$colors`, `$shades`), which is
+deliberately left as upstream spells it, and the `$can-toggle-*` set, which are the
+parameters of a vendor mixin rather than theme variables.
+
+
+### One prefix per component
+
+| was | is | why |
+| --- | --- | --- |
+| `$io-blk-wait` | `$io-blk-wait-img` | ioHiderOverlay: say it is an image |
+| `$iohide-bg` | `$io-blk-bg` | ioHiderOverlay: the class is .ui-io-blk*, and it had two prefixes |
+| `$pager2-button-bg` | `$dp2-button-bg` | DataPager2: the class is .ui-dp2-* |
+| `$pager2-button-color` | `$dp2-button-color` | DataPager2: the class is .ui-dp2-* |
+| `$pager2-padding` | `$dp2-padding` | DataPager2: the class is .ui-dp2-* |
+| `$switch-knob-bg` | `$swtch-knob-bg` | Switch: the class is .ui-swtch-* |
+| `$switch-off-bg` | `$swtch-off-bg` | Switch: the class is .ui-swtch-* |
+| `$switch-on-bg` | `$swtch-on-bg` | Switch: the class is .ui-swtch-* |
+| `$tab-pnl-active-col` | `$tab-active-color` | TabPanel: -col is not a role |
+| `$tab-pnl-arrows` | `$tab-arrows-img` | TabPanel: say it is an image |
+| `$tab-pnl-btm-border` | `$tab-btm-border-width` | TabPanel: it is a width, not a colour |
+| `$tab-pnl-close` | `$tab-close-img` | TabPanel: say it is an image |
+| `$tab-pnl-close-hover` | `$tab-close-hover-img` | TabPanel: say it is an image |
+| `$tab-pnl-hover-inactive-col` | `$tab-hover-inactive-color` | TabPanel: -col is not a role |
+| `$tab-pnl-img` | `$tab-img` | TabPanel: one prefix |
+| `$tab-pnl-inactive-col` | `$tab-inactive-color` | TabPanel: -col is not a role |
+| `$tab-pnl-sep-bg` | `$tab-sep-bg` | TabPanel: one prefix |
+| `$tabpanel-content-bg` | `$tab-content-bg` | TabPanel: two prefixes for .ui-tab-* |
+| `$tabpanel-header-bg` | `$tab-hdr-bg` | TabPanel: two prefixes for .ui-tab-* |
+| `$tabpanel-selected-color` | `$tab-selected-color` | TabPanel: two prefixes for .ui-tab-* |
+| `$tabpanel-tab-bg` | `$tab-bg` | TabPanel: two prefixes for .ui-tab-* |
+| `$tabpanel-tab-border` | `$tab-border` | TabPanel: two prefixes for .ui-tab-* |
+| `$tabpanel-tab-color` | `$tab-color` | TabPanel: two prefixes for .ui-tab-* |
+| `$ui-swtch-brdr` | `$swtch-border-width` | Switch: the prefix keeps ui-, and brdr is a width |
+| `$ui-swtch-h` | `$swtch-height` | Switch: the prefix keeps ui- |
+| `$ui-swtch-isz` | `$swtch-knob-size` | Switch: the prefix keeps ui- |
+| `$ui-swtch-pan` | `$swtch-travel` | Switch: the prefix keeps ui- |
+| `$ui-swtch-w` | `$swtch-width` | Switch: the prefix keeps ui- |
+
+### The prefix is the component's CSS class
+
+| was | is | why |
+| --- | --- | --- |
+| `$data-pager-icon-size-x` | `$dp-icon-size-x` | DataPager: the class is .ui-dp-* |
+| `$data-pager-icon-size-y` | `$dp-icon-size-y` | DataPager: the class is .ui-dp-* |
+| `$data-pager-icons` | `$dp-icons-img` | DataPager: the class is .ui-dp-* |
+| `$data-tbl-border-color` | `$dt-border` | DataTable: -border-color says the role twice |
+| `$data-tbl-cell-highlight-bg` | `$dt-cell-highlight-bg` | DataTable: the class is .ui-dt-* |
+| `$data-tbl-cell-highlight-link-color-bg` | `$dt-cell-highlight-link-bg` | DataTable: -color-bg said two roles at once |
+| `$data-tbl-even-row-bg` | `$dt-even-row-bg` | DataTable: the class is .ui-dt-* |
+| `$data-tbl-expanding-row-bg` | `$dt-expanding-row-bg` | DataTable: the class is .ui-dt-* |
+| `$data-tbl-font-size` | `$dt-font-size` | DataTable: the class is .ui-dt-* |
+| `$data-tbl-header-bg` | `$dt-hdr-bg` | DataTable: the class is .ui-dt-* |
+| `$data-tbl-header-bg-img` | `$dt-hdr-bg-img` | DataTable: the class is .ui-dt-* |
+| `$data-tbl-header-btm-border` | `$dt-hdr-btm-border` | DataTable: the class is .ui-dt-* |
+| `$data-tbl-header-text-color` | `$dt-hdr-color` | DataTable: -text-color says the role twice |
+| `$data-tbl-lines-color` | `$dt-lines-border` | DataTable: it is a border, not text |
+| `$data-tbl-selected-bg` | `$dt-selected-bg` | DataTable: the class is .ui-dt-* |
+| `$ddtbl-border` | `$dd-table-border` | drag-and-drop table: the class is .ui-dd-table |
+| `$ddtbl-header-bg` | `$dd-table-hdr-bg` | drag-and-drop table: the class is .ui-dd-table |
+| `$ddtbl-header-border` | `$dd-table-hdr-border` | drag-and-drop table: the class is .ui-dd-table |
+| `$ddtbl-header-color` | `$dd-table-hdr-color` | drag-and-drop table: the class is .ui-dd-table |
+| `$ddtbl-stripe-bg` | `$dd-table-stripe-bg` | drag-and-drop table: the class is .ui-dd-table |
+| `$divider-bg` | `$hor-divider-bg` | the class is .ui-hor-divider |
+| `$dnd-hover-bg` | `$drp-hover-bg` | Drag and drop: the class is .ui-drp-* |
+| `$dnd-hover-border` | `$drp-hover-border` | Drag and drop: the class is .ui-drp-* |
+| `$ghdr-blue-color` | `$generichd-blue-color` | GenericHeader: the class is .ui-generichd-* |
+| `$ghdr-color` | `$generichd-color` | GenericHeader: the class is .ui-generichd-* |
+| `$ghdr-h2-color` | `$generichd-h2-color` | GenericHeader: the class is .ui-generichd-* |
+| `$ghdr-h3-color` | `$generichd-h3-color` | GenericHeader: the class is .ui-generichd-* |
+| `$month-panel-bg` | `$mp-bg` | MonthPanel: the class is .ui-mp-* |
+| `$month-panel-border` | `$mp-border` | MonthPanel: the class is .ui-mp-* |
+| `$month-panel-header-bg` | `$mp-hdr-bg` | MonthPanel: the class is .ui-mp-* |
+| `$month-panel-marked-bg` | `$mp-marked-bg` | MonthPanel: the class is .ui-mp-* |
+| `$month-panel-othermonth-color` | `$mp-othermonth-color` | MonthPanel: the class is .ui-mp-* |
+| `$month-panel-weeknr-color` | `$mp-weeknr-color` | MonthPanel: the class is .ui-mp-* |
+| `$multiple-lookup-label-border` | `$mli-label-bg` | MultipleLookupInput: .ui-mli-*, and it paints the background |
+| `$multiple-lookup-label-color` | `$mli-label-border` | MultipleLookupInput: .ui-mli-*, and it paints the border |
+| `$succesful-color` | `$sayt-ok-color` | SearchAsYouType's own: it is one component's, and the name was misspelled |
+
+### The role word is one of -bg / -color / -border / -outline / -shadow
+
+| was | is | why |
+| --- | --- | --- |
+| `$bg-color` | `$body-bg` | -color means text; this is the page's background |
+| `$bg-ttl-end` | `$title-bg` | the page title bar; bg-ttl reads backwards |
+| `$bg-ttl-gradient` | `$title-bg-img` | the page title bar; bg-ttl reads backwards |
+| `$bg-ttl-text` | `$title-color` | the page title bar; text is -color |
+| `$body-image` | `$body-bg-img` | say what it is an image of |
+| `$brcr2-hover` | `$brcr2-hover-bg` | no role at all |
+| `$button-icon-fontsize` | `$button-icon-font-size` | spelling, to match $button-font-size |
+| `$cal-combo-dim` | `$cal-combo-dim-color` | no role |
+| `$cal-combo-text` | `$cal-combo-color` | text is -color |
+| `$cal-dim` | `$cal-dim-color` | no role |
+| `$cal-disabled` | `$cal-disabled-color` | no role |
+| `$cal-drag` | `$cal-drag-bg` | no role |
+| `$cal-status-text` | `$cal-status-color` | text is -color |
+| `$cal-text` | `$cal-color` | text is -color |
+| `$cal-weekend` | `$cal-weekend-color` | no role |
+| `$cal-weekend-dim` | `$cal-weekend-dim-color` | no role |
+| `$cal-white` | `$cal-invert` | named for its hue; it is the colour that reads against the calendar |
+| `$ckc-purple` | `$ckc-bg` | named for its hue, not its role |
+| `$ckc-red` | `$ckc-accent` | named for its hue, not its role |
+| `$code-background` | `$code-bg` | -background is not a role |
+| `$errors-foreground` | `$errors-color` | -foreground is not a role; text is -color |
+| `$errors-input-background` | `$errors-input-bg` | -background is not a role |
+| `$esic-label-color` | `$esic-label-bg` | it paints the background |
+| `$esic-text-color` | `$esic-label-color` | it paints the label's text - so the two swapped places, and `$esic-label-color` now means what its name says |
+| `$flw-divider` | `$flw-divider-border` | a divider is a border |
+| `$ghdr-rule` | `$generichd-border` | a rule is a border, and the class is .ui-generichd-* |
+| `$info-fg` | `$info-color` | -fg is not a role |
+| `$lui-result-color` | `$lui-result-bg` | it paints the background |
+| `$lui-result-color-border` | `$lui-result-border` | -color-border says two roles |
+| `$lui-warning-color` | `$lui-warning-bg` | it paints the background |
+| `$lui-warning-color-border` | `$lui-warning-border` | -color-border says two roles |
+| `$main-color` | `$green-accent` | -color means text; this is a palette entry, the theme's second green |
+| `$pmnu-frame` | `$pmnu-border` | a frame is a border |
+| `$pre-background` | `$pre-bg` | -background is not a role |
+| `$stbp-pager-rule` | `$stbp-pager-border` | a rule is a border |
+| `$stbp-rule` | `$stbp-border` | a rule is a border |
+| `$tree3-rule` | `$tree3-border` | a rule is a border |
+| `$warnings-background` | `$warnings-bg` | -background is not a role |
+| `$warnings-foreground` | `$warnings-color` | -foreground is not a role; text is -color |
+
+### Deleted
+
+| was | why |
+| --- | --- |
+| `$common-hdr-color-1` | declared in both variants, read by nothing |
+| `$button-height` | declared, read by nothing |
+
+## 15. Still open
 
 1. **`UrlPage.getThemeVariant()` is still commented out** (`dom/html/UrlPage.java:90-92`),
    though the setter next to it now works. Uncomment it, or drop the pair in favour of
    `UIContext.getRequestContext()`.
-2. **Not every literal is gone, and a scan says what to do with them.** 233 colour
-   literals are still written in the partials, 137 of them distinct. Scanned and clustered
-   perceptually (CIE Lab) on 2026-09-08; the finding is in `IMPROVEMENT-PLAN.md`. In
-   short: **33 of them are near-neutral greys, and the theme already defines an 11-step
-   greyscale ramp that no partial uses** — `$grey`'s lightness band alone has eight
-   different greys competing (`#777777`, `#808080`, `#666666`, `#7c7c7c`, `#898989`,
-   `#888888`, `#727272`, `#998888`). Three partials even hardcode a value that *is* a ramp
-   step (`#363636` = `$grey-darker`, `#dbdbdb` = `$grey-lighter`, `#0a0a0a` = `$black`).
-   Mapping every grey onto the ramp collapses 150 occurrences onto 9 steps, with the
-   largest visible shift dE 10.5. Two slices are done: `_popupmenu` (on `ladder()`, §13)
-   and the **error colours** — seven literals in six components that wrote a red by hand
-   while `$errors_border`/`$errors_foreground` already existed, were already used in
-   fifteen other files, and were already set by the dark variant. That one was inert in
-   the light theme by construction: the compiled diff was five lines of the keyword `red`
-   respelled `#ff0000`. It also turned up a real bug and a real orphan, both since fixed:
-   `$errors_background` was `#a9c5f1` — a **blue** where `$info_bg` and
-   `$warnings_background` are correctly tinted, so an error message rendered blue; it is
-   deleted and its uses take `$errors_wash`, which is levelled with those two siblings
-   (all three a tint at the same weight, in both variants) so that a red band does not
-   shout over a yellow one saying something worse. And `_bugIndicator.scss` was never
-   imported by `style.scss`, so `DefaultBugListener`'s indicator rendered unstyled; it is
-   imported now.
+2. **The colour literals are gone.** 214 of them were written in the partials when the
+   sweep started; nine occurrences remain and all are deliberate - the colour picker's
+   three `#f00` sample swatches, `red()`/`green()`/`blue()` in `_draganddrop` (SCSS
+   channel functions, not colours), two hex values quoted inside a comment in
+   `_popupmenu.scss`, and `_devmode`, skipped by direction. The account of the five
+   batches is in `IMPROVEMENT-LOG.md`; the architecture it settled on is a main set in
+   `_variables.scss`, component colours in `_derived-variables.scss` as
+   `$<component>-<part>-<role>` defaulting to a main-set value, and a partial that reads
+   only its own variables.
 
-   Three rules the slices produced. **Give the partial a variable, never override it in
-   the variant.** **Check for a ladder first** — greys that form a sequence take
+   Three rules the work produced. **Give the partial a variable, never override it in
+   the variant.** **Check for a ladder first** - greys that form a sequence take
    consecutive rungs from one base, not nearest-neighbour matches each. **Hue is not
-   semantics** — the scan's "warning", "info" and "success" families turned out to be a
+   semantics** - the scan's "warning", "info" and "success" families turned out to be a
    breadcrumb link, a badge digit, a selected-item background, a toggle parameter, a
-   panel ground and a title tint; and two literals must stay literal for good, the colour
-   picker's `#f00` sample swatches and `red($main_color)` in `_draganddrop`, which is the
-   SCSS channel function rather than a colour.
+   panel ground and a title tint.
+
 3. **`getStyleSheetName()` compiles the whole stylesheet** to compute a cache-busting hash,
    from inside a getter, reaching into `UIContext` for a browser version it discards
    (`SassTheme.java:54-66`, its own `FIXME Fugly!!`).

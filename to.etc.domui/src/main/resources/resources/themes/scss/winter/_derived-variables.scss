@@ -1,8 +1,6 @@
 @import "variables";
 @import "functions.scss";
 
-$primary: $turquoise !default;
-
 $info: $cyan !default;
 $success: $green !default;
 $warning: $yellow !default;
@@ -16,13 +14,12 @@ $dark: $grey-darker !default;
 $orange-invert: findColorInvert($orange) !default;
 $yellow-invert: findColorInvert($yellow) !default;
 $green-invert: findColorInvert($green) !default;
-$turquoise-invert: findColorInvert($turquoise) !default;
 $cyan-invert: findColorInvert($cyan) !default;
 $blue-invert: findColorInvert($blue) !default;
 $purple-invert: findColorInvert($purple) !default;
 $red-invert: findColorInvert($red) !default;
 
-$primary-invert: $turquoise-invert !default;
+$primary-invert: findColorInvert($primary) !default;
 $info-invert: $cyan-invert !default;
 $success-invert: $green-invert !default;
 $warning-invert: $yellow-invert !default;
@@ -46,10 +43,10 @@ $text-strong: $grey-darker !default;
 
 // Code colors
 $code: $red !default;
-$code-background: $background !default;
+$code-bg: $background !default;
 
 $pre: $text !default;
-$pre-background: $background !default;
+$pre-bg: $background !default;
 
 // Link colors
 
@@ -118,3 +115,277 @@ $input-disabled-background-color: $background !default;
 $input-disabled-border-color: $background !default;
 
 $input-arrow: $link !default;
+
+
+// =======================================================================================
+// Component colours.
+//
+// One variable for each colour a component paints, each defaulting to a value from the
+// main set in _variables.scss. Components read these and nothing else - see the naming
+// note at the top of that file.
+//
+// This section is filled in as components are worked on; a component whose colours are
+// not here yet still writes them itself, and moving it here is the work.
+// =======================================================================================
+
+//-- LogTailer (.ui-tlf-*)
+$tlf-hdr-bg: $primary !default;
+
+//-- SimplePopupMenu (.ui-pmnu-*). An inverted surface whose nesting levels are a ladder:
+//-- everything is an offset from $pmnu-bg, so moving that moves the menu coherently.
+$pmnu-bg: $grey-darker !default;					// rung 0: the menu itself
+$pmnu-color: findColorInvert($pmnu-bg) !default;	// item text, readable on that rung
+$pmnu-disabled-color: ladder($pmnu-bg, 3) !default;	// disabled item text: three rungs away
+$pmnu-border: ladder($pmnu-bg, -3) !default;			// title band and border: under the menu
+$pmnu-title-color: #eeffee !default;
+$pmnu-hover-bg: $primary !default;
+
+//-- LogTailer (.ui-tlf-*)
+$tlf-gutter-bg: $grey-lighter !default;				// the line-number gutter
+
+//-- FloatingWindow (.ui-flw-*)
+$flw-divider-border: $surface-alt-bg !default;				// the line under the title bar
+$flw-hider-bg: $shadow-color !default;				// the overlay that blocks the page behind
+$flw-label-color: $text-muted !default;
+
+//-- EmbeddedCode (.ui-embc-*)
+$embc-border: $surface-alt-bg !default;
+
+//-- RadioButton (.ui-rbb-*)
+$rbb-disabled-bg: $grey-lighter !default;
+
+//-- HtmlEditor (.wysiwyg)
+$htmled-bg: $surface-bg !default;
+
+//-- HamburgerMenu (.ui-hmbrg-*)
+$hmbrg-disabled-color: $text-muted !default;
+
+//-- ioHiderOverlay (.ui-io-blk-*)
+$io-blk-bg: $shadow-color !default;
+
+//-- PopupMenu2 (.ui-pome2-*)
+$pome2-disabled-bg: $grey-lighter !default;
+
+//-- SearchAsYouType (.ui-sayt-*)
+$sayt-popup-bg: $surface-bg !default;
+$sayt-popup-border: $line-strong !default;
+
+//-- SelectOnePanel (.ui-ssop-*)
+$ssop-bg: $surface-bg !default;
+$ssop-border: $line-strong !default;
+
+//-- LinkButton (.ui-lnkb-* / .ui-lbtn-*)
+$lnkb-disabled-color: $text-muted !default;
+
+//-- FileUpload2 (.ui-fupl-*)
+$fupl-bg: $surface-bg !default;
+
+//-- Inline code, and the rule under a heading: base elements, not components, so these
+//-- take main-set values directly in _core.scss.
+
+//-- ConditionPanel (.ui-copa-*). A nested set of panels where each depth takes the next
+//-- colour, the same shape as the popup menu's ladder but with a palette instead of the
+//-- greyscale ramp. This is the documented exception to "default to a main-set value":
+//-- the levels have to stay apart from *each other*, which is not something the theme's
+//-- semantics can express. An application replaces the list to restyle all of them.
+$copa-level-bgs: (
+	#aff8a8, #dcd3ff, #85e3ff, #b5b9ff, #ffb5e8,
+	#b28dff, #ff9cee, #c5a3ff, #ffccf9, #d5aaff
+) !default;
+
+//-- jquery-layout (.ui-layout-*). The resizer's feedback colours are a set of their own -
+//-- green you may drag, red at the size limit, amber click-to-open - so they keep their
+//-- own values for the same reason the panel levels above do.
+$layout-resizer-bg: $grey-lighter !default;
+$layout-resizer-hover-bg: #C4E1A4 !default;
+$layout-resizer-limit-bg: #E1A4A4 !default;
+$layout-resizer-closed-bg: #EBD5AA !default;
+$layout-toggler-hover-bg: #FC6 !default;
+$layout-ghost-bg: $line-color !default;
+$layout-content-color: $text-muted !default;
+
+//-- CheckboxButton, the can-toggle switch (.ui-ckb-*)
+$ckb-off-color: $text-muted !default;
+$ckb-on-bg: $alt-button-bg !default;
+$ckb-knob-bg: $surface-bg !default;
+
+//-- InfoPanel (.ui-ipa) / ExplanationPanel (.ui-expl) / .ui-hor-divider /
+//-- the drag-drop table (.ui-dd-table), all in _misc.scss
+$ipa-border: $grey-lighter !default;
+$expl-border: $line-strong !default;
+$expl-color: $text !default;
+$hor-divider-bg: $grey-lighter !default;
+$dd-table-border: $line-color !default;
+$dd-table-hdr-border: $line-strong !default;
+$dd-table-hdr-bg: #0F3C2C !default;					// a deliberate dark green, not a theme colour
+$dd-table-hdr-color: #77F6C9 !default;
+
+//-- CookieConfirm (#gdpr-cookie-message)
+$ckc-surface-bg: $surface-bg !default;
+$ckc-color: $text-invert !default;
+
+//-- The DataTable palette (.ui-dt-*). Shared, not one component's: _datatable,
+//-- _scrollableTable, _expandingtable, _monthpanel and _dateinput all read it. It used to
+//-- be declared in _datatable.scss AND again, identically, in _scrollableTable.scss.
+$dt-selected-bg: #bed6f8 !default;			// blue
+$dt-even-row-bg: #E5E5E5 !default;			// greyish
+$dt-cell-highlight-bg: #67267f !default;		// cell select: purple
+$dt-cell-highlight-link-bg: $surface-bg !default;
+$dt-expanding-row-bg: lighten($green-accent, 20%) !default;
+$dt-hdr-bg: #99bfe6 !default;
+// Deliberately black rather than $text: the header sits on its own coloured band, where
+// $text drops the contrast from 10.9:1 to 4.6:1 - on the AA threshold, for bold text
+// people scan.
+$dt-hdr-color: black !default;
+
+// FIXME This is used as a colour - "border-left: 1px solid $dt-hdr-btm-border" -
+// but "undefined" is not one, so those two rules emit invalid CSS and the browser drops
+// them. The header's left and top borders have therefore never rendered. Left as it is
+// rather than fixed in passing: giving it a colour makes borders appear that never have.
+$dt-hdr-btm-border: undefined !default;
+
+$dt-border: $dt-hdr-bg !default;
+$dt-lines-border: lighten($dt-border, 20%) !default;
+
+//-- Calendar schedule (.ui-wa-*) - the week/day grid, not the date-picker popup
+$wa-band-bg: $surface-alt-bg !default;
+$wa-hour-bg: $grey-lighter !default;
+$wa-slot-bg: $surface-bg !default;
+$wa-item-bg: #00ffcc !default;					// an appointment's block
+$wa-note-bg: #ff4d00 !default;					// a note pinned to the grid
+$wa-time-color: $link-color !default;			// blue text; not a link, but it takes the
+												// theme's blue so the variant corrects it
+
+//-- ColorPicker (.colorpicker*). Its #f00 swatches are samples and stay literal.
+$cpick-label-color: $text-muted !default;
+$cpick-border: $line-strong !default;
+
+//-- CookieWarning (#cookie-msg)
+$ckw-bg: $grey !default;
+$ckw-color: $text-invert !default;
+
+//-- DataPager2 (.ui-dp2-*)
+$dp2-bg: $surface-bg !default;
+$dp2-disabled-bg: $grey-lighter !default;
+$dp2-disabled-color: $text-muted !default;
+$dp2-button-hover-color: #051cac !default;		// a button's text while hovered
+
+//-- DefaultButton (.ui-button)
+$button-text-invert: $text-invert !default;
+
+//-- DisplayRadiobutton (.ui-drbb-*)
+$drbb-gradient-from: $grey-lighter !default;
+
+//-- ExpandingTable (.ui-xdt-*)
+$xdt-border: $line-color !default;
+$xdt-shadow: $line-color !default;
+$xdt-ix-color: $link-color !default;			// the expand/collapse cell, an underlined link
+
+//-- The header blue: GenericHeader's level-2 title and ExpandingHeader's bar are one
+//-- colour used by two components, so both default to it rather than repeating it.
+$header-accent-color: #297bc0 !default;
+$xphd-bar-color: $header-accent-color !default;
+
+//-- GenericHeader (.ui-generichd-*)
+$generichd-border: $grey-lighter !default;
+$generichd-blue-color: #4c5a6f !default;				// .ui-generichd-blue, a slate title
+$generichd-h2-color: $header-accent-color !default;
+$generichd-h3-color: #013686 !default;
+
+//-- ImageButton (.ui-ibtn-*)
+$ibtn-disabled-bg: $grey-lighter !default;
+
+//-- LookupInput (.ui-lui-*)
+$lui-popup-bg: $surface-bg !default;
+$lui-popup-border: $line-strong !default;
+
+//-- MonthPanel (.ui-mp-*)
+$mp-bg: $surface-bg !default;
+
+//-- Drag-and-drop table striping (.ui-dd-table), in _misc.scss
+$dd-table-stripe-bg: rgba(160, 160, 160, 0.2) !default;
+
+//-- PopInPanel (.ui-popin-*)
+$popin-border: $grey-darker !default;
+$popin-bg: #b8e59d !default;
+$popin-title-bg: #6af218 !default;
+
+//-- ScrollableTabPanel (.ui-stbp-*)
+$stbp-border: $line-strong !default;
+
+//-- Switch (.ui-swtch-*)
+$swtch-off-bg: $grey-lighter !default;
+$swtch-knob-bg: $surface-bg !default;
+$swtch-on-bg: #2196f3 !default;					// the track once the switch is on
+
+//-- TabPanel (.ui-tab-*)
+$tab-hdr-bg: $grey !default;
+$tab-bg: $grey-light !default;
+$tab-border: $grey-dark !default;
+$tab-content-bg: $surface-bg !default;
+$tab-color: $text-invert !default;
+
+//-- Tree2 / Tree3 (.ui-tree2-* / .ui-tree3-*)
+$tree2-shadow: $grey-lighter !default;
+$tree3-border: $line-strong !default;
+$tree3-color: $text-invert !default;
+$tree2-hover-bg: $white-ter !default;
+$tree2-hover-color: $primary !default;
+$tree3-hover-outline: $row-hover-outline !default;
+
+//-- Breadcrumb (.ui-brc-* and .ui-brcr2-*)
+$brc-color: $text-invert !default;
+$brcr2-shadow: $shadow-color !default;
+$brc-link-color: #ffff99 !default;				// a crumb that is still a link
+$brcr2-bg: $alt-button-color !default;			// item bg colour
+$brcr2-color: $brc-color !default;
+$brcr2-hover-bg: lighten($brcr2-bg, 20%) !default;
+$brcr2-sel-bg: #eef5ff !default;				// the selected item's bg
+$brcr2-sel-color: $brcr2-bg !default;
+
+//-- Ace editor bar (.ui-acedit-*)
+$acedit-bar-bg: $black-ter !default;
+$acedit-border: #000088 !default;				// the navy rule under the editor
+
+//-- CookieConfirm (#gdpr-cookie-message) - its own two-colour palette
+$ckc-bg: #3B3646 !default;
+$ckc-shadow: $shadow-color !default;
+$ckc-rule-color: $text-invert !default;
+$ckc-accent: #EE4B5A !default;
+
+//-- Hard frames: components that drew a plain black border, now the third step of the
+//-- line scale. $line-hard is $black (#0a0a0a) rather than #000, hence the hairline shift.
+$bug-ind-border: $line-hard !default;			// the bug badge's frame
+$wa-item-border: $line-hard !default;			// an appointment in the schedule grid
+$dct-selected-border: $line-hard !default;		// a selected cell
+$oddchars-border: $line-hard !default;
+$pct-border: $line-hard !default;				// the progress bar's outline
+$popin-title-border: $line-hard !default;
+$stbp-pager-border: $line-hard !default;
+$tree3-fbtn-bg: $black !default;				// the fold button is an inverted square
+
+//-- Forms, and the odd remaining component colour that is genuinely its own
+$f-display-bg: #eff7ff !default;				// .ui-f-display, the read-only field wash
+$bug-count-color: yellow !default;				// the count on the red bug badge
+$oddchars-hover-bg: $row-hover-bg !default;
+$pct-rlr2-border: $line-color !default;
+$pct-bar-bg: red !default;						// the filled part of the progress bar
+
+//-- Text that was written as plain black and is the theme's ordinary text colour
+$generichd-color: $text !default;					// header levels 1, 4 and "simple"
+$di-readonly-color: $text !default;
+$drbb-icon-color: $text !default;
+$xphd-color: $text !default;
+$f4-readonly-color: $text !default;
+$lnkb-icon-color: $text !default;
+
+//-- The cookie warning's accept button sits on $primary. It used to hand-write `black`
+//-- because findColorInvert($primary) returned #fff, at 2.3:1 on that orange; now that the
+//-- helper compares contrast rather than cutting on luminance it answers correctly, so the
+//-- button asks it like every other coloured surface does.
+$ckw-accept-color: $primary-invert !default;
+
+//-- MonthPanel dims, which were written as lighten(#000000, 55%) and 65%
+$mp-weeknr-color: $text-muted !default;
+$mp-othermonth-color: $grey-light !default;
+

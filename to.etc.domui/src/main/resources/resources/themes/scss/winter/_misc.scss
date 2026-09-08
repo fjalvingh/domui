@@ -1,4 +1,6 @@
 /*** Miscellaneous components styles ***/
+@import "derived-variables";
+
 @import "variables";
 
 /* AccessDeniedPage */
@@ -9,7 +11,7 @@
 	padding: 4px;
 	margin: 4px;
 	@include border-radius(5px);
-	border: 1px solid #d0d0d0;
+	border: 1px solid $ipa-border;
 	font-style: italic;
 	vertical-align: top;
 	min-height: 48px;
@@ -23,13 +25,13 @@ div.ui-ipa img {
 
 /* Explanation box */
 .ui-expl {
-	border: 2px solid #777777;
+	border: 2px solid $expl-border;
 	padding: 5px;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 	-webkit-border-radius: 10px;
 	//background: linear-gradient(0deg, rgba(218,239,244,1) 0%, rgba(151,212,233,1) 100%);
-	color: black;
+	color: $expl-color;
 	max-width: 600px;
 
 	img {
@@ -37,19 +39,19 @@ div.ui-ipa img {
 	}
 
 	&.ui-warning {
-		border-color: $warnings_border;
-		background: $warnings_transparent; /* Old browsers */
-		background: linear-gradient(to bottom, $warnings_transparent 0%, $white_transparent 100%);
+		border-color: $warnings-border;
+		background: $warnings-transparent; /* Old browsers */
+		background: linear-gradient(to bottom, $warnings-transparent 0%, $white-transparent 100%);
 	}
 	&.ui-info {
-		border-color: $info_border;
-		background: $info_transparent; /* Old browsers */
-		background: linear-gradient(to bottom, $info_border 0%, $white_transparent 100%);
+		border-color: $info-border;
+		background: $info-transparent; /* Old browsers */
+		background: linear-gradient(to bottom, $info-border 0%, $white-transparent 100%);
 	}
 	&.ui-error {
-		border-color: $errors_border;
-		background: $errors_transparent; /* Old browsers */
-		background: linear-gradient(to bottom, $errors_transparent 0%, $white_transparent 100%);
+		border-color: $errors-border;
+		background: $errors-transparent; /* Old browsers */
+		background: linear-gradient(to bottom, $errors-transparent 0%, $white-transparent 100%);
 	}
 }
 
@@ -100,8 +102,8 @@ div.ui-asc div {
 	min-width: 0px;
 	max-width: 0px;
 	width: 0px;
-	border-left: 2px dotted $header_bg; /*#6b99e8;*/
-	background-color: #e5e5e5;
+	border-left: 2px dotted $header-bg; /*#6b99e8;*/
+	background-color: $hor-divider-bg;
 }
 
 /** Sizeless item */
@@ -112,32 +114,29 @@ div.ui-asc div {
 
 /* We to ensure that body is taking whole page and we have to neutralize negative margins */
 body.ui-stretch-body {
-/*?	height: calc(100% - 2 * <%= margins_main %>); */
 }
 
 /*** Display data table ***/
 .ui-dd-table {
-/*?	font-size: <%= data_tbl_font_size %>; */
-/*?	margin-bottom: <%= margins_main %>; */
-	border: 1px solid #aaaaaa;
+	border: 1px solid $dd-table-border;
 	border-left: 0px;
 }
 
 .ui-dd-table > TBODY > TR > TD {
 	padding: 4px 8px;
 	vertical-align: top;
-	border-left: 1px solid #aaaaaa;
+	border-left: 1px solid $dd-table-border;
 }
 
 .ui-dd-table > tbody > tr:nth-child(even) {
-	background-color: rgba(160, 160, 160, 0.2);
+	background-color: $dd-table-stripe-bg;
 }
 .ui-dd-table THEAD TH {
 	font-weight: bold;
 	padding: 3px;
-	border-left: 1px solid #7c7c7c;
-	background: #0F3C2C; // $data_tbl_header_bg;
-	color: #77F6C9;
+	border-left: 1px solid $dd-table-hdr-border;
+	background: $dd-table-hdr-bg;
+	color: $dd-table-hdr-color;
 	text-align: left;
 }
 
@@ -154,7 +153,6 @@ table.ui-tbl-spaced td, tbody.ui-tbl-spaced td {
 	margin-bottom: 0px !important;
 }
 .dso-add-bottom-margin {
-/*?	margin-bottom: <%= margins_main %> !important; */
 }
 .dso-remove-top-margin {
 	margin-top: 0px !important;
@@ -166,5 +164,5 @@ table.ui-tbl-spaced td, tbody.ui-tbl-spaced td {
 	cursor: default !important;
 }
 .ui-color-link {
-	color: $link_color !important;
+	color: $link-color !important;
 }

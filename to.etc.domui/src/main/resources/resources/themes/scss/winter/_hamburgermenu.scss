@@ -1,4 +1,6 @@
 /*** HamburgerMenu fragment ***/
+@import "derived-variables";
+
 @import "variables";
 .ui-hmbrg-menu {
 	position: absolute;
@@ -22,7 +24,7 @@
 .ui-hmbrg-disabled {
 	border: 1px solid transparent;
 	padding: 2px 5px;
-	color: grey;
+	color: $hmbrg-disabled-color;
 }
 .ui-hmbrg-disabled:hover {
 	background-color: $surface-bg;

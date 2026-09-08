@@ -1,8 +1,10 @@
+@import "derived-variables";
+
 $rbb-common-color: $alt-button-color !default;
 $rbb-common-bg: $alt-button-bg !default;
 $rbb-border-color: darken($rbb-common-color, 10%) !default;
 $rbb-border-width: 1px !default;
-$rbb-disabled-color: #ddd;
+$rbb-disabled-color: $rbb-disabled-bg;
 $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 
 .ui-rbb-buttons {
@@ -88,7 +90,7 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 	}
 }
 .ui-rbb-buttons.ui-input-err label {
-	background-color: $errors_input_background;
+	background-color: $errors-input-bg;
 }
 
 /*** On/Off single state label that looks like an checkbox button ***/

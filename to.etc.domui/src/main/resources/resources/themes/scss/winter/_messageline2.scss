@@ -6,19 +6,19 @@
 	margin-top: 10px;
 	margin-bottom: 4px;
 	&.ui-msgln2-warn {
-		border-color: $warnings_border;
-		background: $warnings_transparent; /* Old browsers */
-		background: linear-gradient(to bottom, $warnings_transparent 0%, $white_transparent 100%);
+		border-color: $warnings-border;
+		background: $warnings-transparent; /* Old browsers */
+		background: linear-gradient(to bottom, $warnings-transparent 0%, $white-transparent 100%);
 	}
 	&.ui-msgln2-info {
-		border-color: $info_border;
-		background: $info_transparent; /* Old browsers */
-		background: linear-gradient(to bottom, $info_border 0%, $white_transparent 100%);
+		border-color: $info-border;
+		background: $info-transparent; /* Old browsers */
+		background: linear-gradient(to bottom, $info-border 0%, $white-transparent 100%);
 	}
 	&.ui-msgln2-err {
-		border-color: $errors_border;
-		background: $errors_transparent; /* Old browsers */
-		background: linear-gradient(to bottom, $errors_transparent 0%, $white_transparent 100%);
+		border-color: $errors-border;
+		background: $errors-transparent; /* Old browsers */
+		background: linear-gradient(to bottom, $errors-transparent 0%, $white-transparent 100%);
 	}
 	.ui-msgln2-icon {
 		float: left;

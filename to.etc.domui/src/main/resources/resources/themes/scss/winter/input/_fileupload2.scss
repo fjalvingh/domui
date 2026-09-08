@@ -3,7 +3,7 @@
 	display: inline-block;
 	font-size: 1rem;
 	&.ui-input-err > div {
-		background-color: $errors_input_background;
+		background-color: $errors-input-bg;
 	}
 }
 .ui-fup2-value-empty, .ui-fup2-value {
@@ -19,7 +19,7 @@
 	//font-size: 1rem;
 	//padding: $control-padding-vertical $control-padding-horizontal;
 	//border-radius: 0.25rem 0 0 0.25rem;
-	background-color: white;
+	background-color: $fupl-bg;
 }
 .ui-fup2-value {
 	max-height: 9em;

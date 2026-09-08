@@ -1,49 +1,14 @@
-// The jscalendar popup used by DateInput2 (calendar.js), converted from the vendor's
-// calendar-theme.css so its colours can come from variables like the rest of the theme.
-//
-// Every variable below defaults to the literal it replaced, so the light theme compiles to
-// exactly what it did before. A theme variant sets them in its own _color.scss.
-
-$cal-band-active-bg:       #654 !default;
-$cal-band-bg:              #edc !default;
-$cal-bg:                   #ffd !default;
-$cal-body-bg:              #fed !default;
-$cal-border:               #655 !default;
-$cal-combo-border:         #866 !default;
-$cal-combo-dim-color:            #a88 !default;
-$cal-combo-hover-bg:       #fc8 !default;
-$cal-combo-color:           #a64 !default;
-$cal-dim-color:                  #bbb !default;
-$cal-disabled-color:             #999 !default;
-$cal-drag-bg:                 #0f0 !default;
-$cal-hilite-bg:            #ddf !default;
-$cal-hilite2-bg:           #efe !default;
-$cal-hover-active-bg:      #ddc !default;
-$cal-hover-bg:             #ffe !default;
-$cal-selected-bg:          #fea !default;
-$cal-status-bg:            #dcb !default;
-$cal-status-color:          #840 !default;
-$cal-color:                 #000 !default;
-$cal-title-bg:             #988 !default;
-$cal-today-active-bg:      #c77 !default;
-$cal-today-bg:             #faa !default;
-$cal-today-border:         #f40 !default;
-$cal-tooltip-bg:           #fee !default;
-$cal-weekend-color:              #f00 !default;
-$cal-weekend-dim-color:          #fbb !default;
-$cal-invert:                #fff !default;
-
 /* The main calendar widget.  DIV containing a table. */
 
 div.calendar { position: relative; }
 
 .calendar, .calendar table {
     width: 220px;
-    border: 1px solid $cal-border;
+    border: 1px solid #655;
     font-size: 11px;
-    color: $cal-color;
+    color: #000;
     cursor: default;
-    background: $cal-bg;
+    background: #ffd;
     font-family: tahoma,verdana,sans-serif;
     z-index: 800;
 }
@@ -56,47 +21,47 @@ div.calendar { position: relative; }
 }
 
 .calendar .nav {
-    background: $cal-band-bg url(menuarrow2.gif) no-repeat 100% 100%;
+    background: #edc url(menuarrow2.gif) no-repeat 100% 100%;
 }
 
 .calendar thead .title { /* This holds the current "month, year" */
     font-weight: bold;      /* Pressing it will take you to the current date */
     text-align: center;
-    background: $cal-band-active-bg;
-    color: $cal-body-bg;
+    background: #654;
+    color: #fed;
     padding: 2px;
 }
 
 .calendar thead .headrow { /* Row <TR> containing navigation buttons */
-    background: $cal-band-bg;
-    color: $cal-color;
+    background: #edc;
+    color: #000;
 }
 
 .calendar thead .name { /* Cells <TD> containing the day names */
-    border-bottom: 1px solid $cal-border;
+    border-bottom: 1px solid #655;
     padding: 2px;
     text-align: center;
-    color: $cal-color;
+    color: #000;
 }
 
 .calendar thead .weekend { /* How a weekend day name shows in header */
-    color: $cal-weekend-color;
+    color: #f00;
 }
 
 .calendar thead .hilite { /* How do the buttons in header appear when hover */
-    background-color: $cal-today-bg;
-    color: $cal-color;
-    border: 1px solid $cal-today-border;
+    background-color: #faa;
+    color: #000;
+    border: 1px solid #f40;
     padding: 1px;
 }
 
 .calendar thead .active { /* Active (pressed) buttons in header */
-    background-color: $cal-today-active-bg;
+    background-color: #c77;
     padding: 2px 0px 0px 2px;
 }
 
 .calendar thead .daynames { /* Row <TR> containing the day names */
-    background: $cal-body-bg;
+    background: #fed;
 }
 
 /* The body part -- contains all the days in month. */
@@ -108,51 +73,51 @@ div.calendar { position: relative; }
 }
 .calendar tbody .day.othermonth {
     font-size: 80%;
-    color: $cal-dim-color;
+    color: #bbb;
 }
 .calendar tbody .day.othermonth.oweekend {
-    color: $cal-weekend-dim-color;
+    color: #fbb;
 }
 
 .calendar table .wn {
     padding: 2px 3px 2px 2px;
-    border-right: 1px solid $cal-color;
-    background: $cal-body-bg;
+    border-right: 1px solid #000;
+    background: #fed;
 }
 
 .calendar tbody .rowhilite td {
-    background: $cal-hilite-bg;
+    background: #ddf;
 }
 
 .calendar tbody .rowhilite td.wn {
-    background: $cal-hilite2-bg;
+    background: #efe;
 }
 
 .calendar tbody td.hilite { /* Hovered cells <TD> */
-    background: $cal-hover-bg;
+    background: #ffe;
     padding: 1px 3px 1px 1px;
-    border: 1px solid $cal-dim-color;
+    border: 1px solid #bbb;
 }
 
 .calendar tbody td.active { /* Active (pressed) cells <TD> */
-    background: $cal-hover-active-bg;
+    background: #ddc;
     padding: 2px 2px 0px 2px;
 }
 
 .calendar tbody td.selected { /* Cell showing today date */
     font-weight: bold;
-    border: 1px solid $cal-color;
+    border: 1px solid #000;
     padding: 1px 3px 1px 1px;
-    background: $cal-selected-bg;
+    background: #fea;
 }
 
 .calendar tbody td.weekend { /* Cells showing weekend days */
-    color: $cal-weekend-color;
+    color: #f00;
 }
 
 .calendar tbody td.today { font-weight: bold; }
 
-.calendar tbody .disabled { color: $cal-disabled-color; }
+.calendar tbody .disabled { color: #999; }
 
 .calendar tbody .emptycell { /* Empty cells (the best is to hide them) */
     visibility: hidden;
@@ -166,24 +131,24 @@ div.calendar { position: relative; }
 
 .calendar tfoot .footrow { /* The <TR> in footer (only one right now) */
     text-align: center;
-    background: $cal-title-bg;
-    color: $cal-color;
+    background: #988;
+    color: #000;
 }
 
 .calendar tfoot .ttip { /* Tooltip (status bar) cell <TD> */
-    border-top: 1px solid $cal-border;
-    background: $cal-status-bg;
-    color: $cal-status-color;
+    border-top: 1px solid #655;
+    background: #dcb;
+    color: #840;
 }
 
 .calendar tfoot .hilite { /* Hover style for buttons in footer */
-    background: $cal-today-bg;
-    border: 1px solid $cal-today-border;
+    background: #faa;
+    border: 1px solid #f40;
     padding: 1px;
 }
 
 .calendar tfoot .active { /* Active (pressed) style for buttons in footer */
-    background: $cal-today-active-bg;
+    background: #c77;
     padding: 2px 0px 0px 2px;
 }
 
@@ -196,9 +161,9 @@ div.calendar { position: relative; }
     left: 0px;
     width: 4em;
     cursor: default;
-    border: 1px solid $cal-border;
-    background: $cal-hover-bg;
-    color: $cal-color;
+    border: 1px solid #655;
+    background: #ffe;
+    color: #000;
     font-size: 90%;
     z-index: 999;
 }
@@ -214,30 +179,30 @@ div.calendar { position: relative; }
 }
 
 .calendar .combo .hilite {
-    background: $cal-combo-hover-bg;
+    background: #fc8;
 }
 
 .calendar .combo .active {
-    border-top: 1px solid $cal-combo-color;
-    border-bottom: 1px solid $cal-combo-color;
-    background: $cal-tooltip-bg;
+    border-top: 1px solid #a64;
+    border-bottom: 1px solid #a64;
+    background: #fee;
     font-weight: bold;
 }
 
 .calendar td.time {
-    border-top: 1px solid $cal-combo-dim-color;
+    border-top: 1px solid #a88;
     padding: 1px 0px;
     text-align: center;
-    background-color: $cal-body-bg;
+    background-color: #fed;
 }
 
 .calendar td.time .hour,
 .calendar td.time .minute,
 .calendar td.time .ampm {
     padding: 0px 3px 0px 4px;
-    border: 1px solid $cal-title-bg;
+    border: 1px solid #988;
     font-weight: bold;
-    background-color: $cal-invert;
+    background-color: #fff;
 }
 
 .calendar td.time .ampm {
@@ -250,13 +215,13 @@ div.calendar { position: relative; }
 }
 
 .calendar td.time span.hilite {
-    border-color: $cal-color;
-    background-color: $cal-combo-border;
-    color: $cal-invert;
+    border-color: #000;
+    background-color: #866;
+    color: #fff;
 }
 
 .calendar td.time span.active {
-    border-color: $cal-weekend-color;
-    background-color: $cal-color;
-    color: $cal-drag-bg;
+    border-color: #f00;
+    background-color: #000;
+    color: #0f0;
 }

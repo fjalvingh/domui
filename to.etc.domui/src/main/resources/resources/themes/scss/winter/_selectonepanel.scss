@@ -1,14 +1,16 @@
 /*** SelectOnePanel (part of new combobox and lookupinput2) ***/
+@import "derived-variables";
+
 @import "variables";
 
 .ui-ssop {
-    background-color: white;
+    background-color: $ssop-bg;
     position: absolute;
     //top: 2.25em;
     left: 0px;
     width: auto;
     height: auto;
-    border: 1px solid #666;
+    border: 1px solid $ssop-border;
     max-height: 300px;
     overflow-y: auto;
     -moz-border-radius: 0px 0px 4px 4px;
@@ -25,7 +27,7 @@ tr.ui-ssop-row:hover {
 }
 
 tr.ui-ssop-selected {
-    background-color: $highlight2_bg !important;
+    background-color: $highlight2-bg !important;
 }
 
 tr.ui-ssop-row {

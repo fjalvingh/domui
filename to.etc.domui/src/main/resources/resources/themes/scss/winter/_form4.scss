@@ -1,4 +1,6 @@
 /*** 500_form4 styles and repair styles for components. ***/
+@import "derived-variables";
+
 @import "_variables";
 
 /*
@@ -15,7 +17,7 @@ table.ui-f4 td.ui-lui-v {
 
 .ui-f4-lbl {
 	white-space: nowrap;
-	color: #666666;
+	color: $text-muted;
 }
 td.ui-f4-lbl-v {
 	text-align: left;
@@ -77,7 +79,7 @@ td.ui-f4-lbl-v {
 /*-- overrides --*/
 .ui-f4 .ui-ro {
 	border: none;
-	color: black;
+	color: $f4-readonly-color;
 }
 .ui-f4 select {
 	text-indent: 0px;

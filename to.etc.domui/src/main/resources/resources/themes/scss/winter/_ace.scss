@@ -1,8 +1,8 @@
-@import "variables";
+@import "derived-variables";
 
 .ui-ace-error {
 	position: absolute;
-	border-bottom: solid 2px $errors_border;
+	border-bottom: solid 2px $errors-border;
 	z-index: 2;
 
 }
@@ -15,7 +15,7 @@
 }
 
 .ui-acedit {
-	border-bottom: 1px solid #000088;
+	border-bottom: 1px solid $acedit-border;
 	.ace_editor {
 		width: 100%;
 		height: 100%;
@@ -23,7 +23,7 @@
 }
 
 .ui-acedit-b {
-	background-color: #222222;
+	background-color: $acedit-bar-bg;
 	width: 100%;
 	height: 2px;
 	cursor: row-resize;

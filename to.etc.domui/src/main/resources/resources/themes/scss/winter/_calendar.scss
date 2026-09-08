@@ -1,4 +1,6 @@
 /*** Calendar schedule ***/
+@import "derived-variables";
+
 .ui-wa {
 	
 }
@@ -8,7 +10,7 @@
 	font-weight: bold;
 	vertical-align: top;
 	text-align: center;
-	background-color: #eeeeee;
+	background-color: $wa-band-bg;
 	height: 20px;
 }
 
@@ -30,12 +32,12 @@ div.ui-wa-f {
 
 /* IMPORTANT: this color together with "cellspacing=1" creates the lines between the cells!!!! */
 table.ui-wa-bgtbl {
-	background-color: #cccccc;
+	background-color: $wa-hour-bg;
 	font-size: 10px;
 }
 
 .ui-wa-gt {
-	background-color: #eeeeee;
+	background-color: $wa-band-bg;
 	text-align: right;
 	white-space: nowrap;
 }
@@ -53,14 +55,14 @@ table.ui-wa-bgtbl {
 }
 
 .ui-wa-cell {
-	background-color: #ffffff;
+	background-color: $wa-slot-bg;
 }
 
 /* schedule item */
 .ui-wa-it {
 	overflow: hidden;
-	border: 1px solid black;
-	background-color: #00ffcc;
+	border: 1px solid $wa-item-border;
+	background-color: $wa-item-bg;
 	font-size: 10px;
 }
 
@@ -85,10 +87,10 @@ table.ui-wa-bgtbl {
 
 .ui-wa-tm {
 	font-size: 7px;
-	color: blue;
+	color: $wa-time-color;
 	margin-left: 5px;
 }
 
 .ui-wa-nt {
-	background-color: #ff4d00;
+	background-color: $wa-note-bg;
 }

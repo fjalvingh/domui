@@ -2,10 +2,10 @@
 @import 'variables';
 
 .ui-tree .selected {
-	background: $selected_bg !important;
+	background: $selected-bg !important;
 }
 TD .ui-tree .selected:hover {
-	background: $selected_bg !important;
+	background: $selected-bg !important;
 }
 
 .ui-tree TD {
@@ -25,13 +25,13 @@ TD .ui-tree .selected:hover {
 	vertical-align: middle;
 }
 td.ui-tr-sel:hover {
-	background-color: $highlight_bg !important;
+	background-color: $highlight-bg !important;
 }
 td.ui-tr-sel {
 	cursor: pointer;
 }
 td.ui-tr-selected {
-	background-color: $bg_ttl_end !important;
+	background-color: $title-bg !important;
 }
 
 .ui-tree {

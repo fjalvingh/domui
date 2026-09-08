@@ -1,4 +1,6 @@
 /*** ExpandingHeader component ***/
+@import "derived-variables";
+
 .ui-xphd {
 	font-family: 'Tahoma', 'Geneva', 'Verdana', sans-serif;
 	padding-top: 4px;
@@ -10,10 +12,10 @@ td.ui-xphd-ttl {
 	padding-left: 4px !important;
 }
 .ui-xphd-normal .ui-xphd-bar {
-	color: #297bc0;
+	color: $xphd-bar-color;
 }
 .ui-xphd-small .ui-xphd-bar {
-	color: black;
+	color: $xphd-color;
 	font-weight: bold;
 	font-size: 12px;
 }

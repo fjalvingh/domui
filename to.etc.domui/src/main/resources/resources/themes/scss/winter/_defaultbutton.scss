@@ -1,3 +1,5 @@
+@import "derived-variables";
+
 @import "variables";
 
 /** MOST BUTTON PARTS ARE DEFINED IN _button_common.scss **/
@@ -13,7 +15,7 @@
 	vertical-align: top;
 	cursor: pointer;
 	overflow: visible; /* remove extra padding in IE */
-	//background: transparent url($button_img) no-repeat -7px -4px;
+	//background: transparent url($button-img) no-repeat -7px -4px;
 	outline: none;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
@@ -40,7 +42,7 @@
 	white-space: nowrap;
 	height: 16px;
 	padding: 0 0 0 6px;
-	color: white;
+	color: $button-text-invert;
 	font-weight: bold;
 	vertical-align: middle;
 	text-align: left;
@@ -124,7 +126,7 @@
 //	height: 16px;
 //}
 //.ui-sdbtn-icon {
-//	font-size: $button-icon-fontsize !important;
+//	font-size: $button-icon-font-size !important;
 //	padding-right: 3px;
 //}
 //.ui-sdbtn::-moz-focus-inner {
