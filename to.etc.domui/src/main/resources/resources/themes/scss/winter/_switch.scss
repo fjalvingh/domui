@@ -3,11 +3,11 @@
  */
 @import "derived-variables";
 
-$swtch-border-width: 2px;
-$swtch-width: 44px;			/* 60px */
-$swtch-height: 25px;
-$swtch-knob-size: $swtch-height - 2 * $swtch-border-width;		/* 26px */
-$swtch-travel: $swtch-width / 2 - 2 * $swtch-border-width;
+$swtch-border-width: 2px !default;
+$swtch-width: 44px !default;			/* 60px */
+$swtch-height: 25px !default;
+$swtch-knob-size: $swtch-height - 2 * $swtch-border-width !default;		/* 26px */
+$swtch-travel: $swtch-width / 2 - 2 * $swtch-border-width !default;
 
 .ui-swtch {
 	position: relative;

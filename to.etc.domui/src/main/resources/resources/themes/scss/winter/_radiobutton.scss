@@ -4,8 +4,8 @@ $rbb-common-color: $alt-button-color !default;
 $rbb-common-bg: $alt-button-bg !default;
 $rbb-border-color: darken($rbb-common-color, 10%) !default;
 $rbb-border-width: 1px !default;
-$rbb-disabled-color: $rbb-disabled-bg;
-$rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
+$rbb-disabled-color: $rbb-disabled-bg !default;
+$rbb-disabled-border-color: darken($rbb-disabled-color, 15%) !default;
 
 .ui-rbb-buttons {
 	&.ui-rbb-empty.ui-ro {
