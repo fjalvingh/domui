@@ -124,6 +124,7 @@
 
         <bouncy.version>1.84</bouncy.version>
         <org.slf4j.version>1.7.36</org.slf4j.version>
+        <sass-embedded.version>4.4.0</sass-embedded.version>
         <cglib.version>2.2</cglib.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-fileupload.version>1.3.3</commons-fileupload.version>
@@ -756,6 +757,17 @@
                 <groupId>io.bit3</groupId>
                 <artifactId>jsass</artifactId>
                 <version>5.10.5-PATCH</version>
+            </dependency>
+
+            <!-- Dart Sass, spoken to over the sass embedded protocol; replaces the end-of-life libsass in jsass.
+                 sass-embedded-host pulls in sass-embedded-bundled, which carries the dart-sass binaries for all
+                 common platforms (~47MB). Exclude that artifact and set the "domui.sass.executable" option to use
+                 a dart-sass installed on the machine instead.
+                 https://mvnrepository.com/artifact/de.larsgrefer.sass/sass-embedded-host -->
+            <dependency>
+                <groupId>de.larsgrefer.sass</groupId>
+                <artifactId>sass-embedded-host</artifactId>
+                <version>${sass-embedded.version}</version>
             </dependency>
 
             <!-- Source: https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->

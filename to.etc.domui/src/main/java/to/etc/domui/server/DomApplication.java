@@ -76,6 +76,7 @@ import to.etc.domui.login.ILoginDialogFactory;
 import to.etc.domui.login.ILoginListener;
 import to.etc.domui.login.IPageAccessChecker;
 import to.etc.domui.parts.TempFileManager;
+import to.etc.domui.sass.SassCompilerFactory;
 import to.etc.domui.sass.SassPartFactory;
 import to.etc.domui.server.parts.ColorSchemePart;
 import to.etc.domui.server.parts.IPartFactory;
@@ -885,6 +886,8 @@ public abstract class DomApplication {
 		} catch(Throwable x) {
 			AppFilter.LOG.error("Exception when destroying Application", x);
 		}
+
+		SassCompilerFactory.terminate();					// Stop the sass compiler processes, if any were started.
 
 		ServiceLoader<IApplicationInitializer> initLoader = ServiceLoader.load(IApplicationInitializer.class);
 		for(IApplicationInitializer ai : initLoader) {

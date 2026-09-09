@@ -27,6 +27,15 @@ node
 node_modules
 domui-combined.js*
 
+# Eclipse mess from java claude plugin
+.project
+.classpath
+org.eclipse.m2e.core.prefs
+org.eclipse.core.resources.prefs
+org.eclipse.jdt.apt.core.prefs
+
+
+
 out
 target
 *.log

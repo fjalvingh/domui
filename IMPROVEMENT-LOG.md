@@ -1945,6 +1945,59 @@ These were offered as input while the phase 0 items were being worked, and taken
 
 ## Decisions log
 
+### 2026-09-09 - The sass compiler is Dart Sass; the stylesheets still are not
+
+`io.bit3:jsass` wraps libsass, which was declared end of life in 2020 and never got
+the module system, the `sass:` built-in modules or anything else the language gained
+since. Sass's own advice for a libsass wrapper is to become a host for the *embedded
+protocol*, which is how Dart Sass - the reference implementation - is spoken to from
+another language: the compiler is a subprocess and the host talks protobuf to it over
+stdio. `de.larsgrefer.sass:sass-embedded-host` is that host for Java, and it is what
+DomUI uses now.
+
+It fits because it has **custom importers**. `SassPartFactory` compiles per request
+with variables that come from the URL, and the sheets it imports are DomUI webapp
+resources rather than files, so anything that only compiles from the filesystem - the
+sass CLI, a build-time Maven plugin - was never an option. The three new classes in
+`to.etc.domui.sass` are `DartSassCompiler` (an `ISassCompiler` over a pool of
+dart-sass processes), `DartSassResolver` (an `AbstractSassResolver<ImportSuccess>`)
+and `DartSassImporter` (the importer registered on a process). Every DomUI resource is
+presented to dart-sass as `domui:/<resource name>`, which means dart-sass resolves the
+relative paths itself and only the partial (`_name`) and suffix conventions are left
+to the resolver; the virtual `_parameters.scss` is matched on its basename, so it
+resolves to one canonical url from whatever directory imports it.
+
+`SassCompilerFactory` registers it ahead of `JSassCompiler` and takes the first
+compiler whose `available()` says yes, so libsass stays as the fallback for as long as
+it is still here. The processes are pooled - starting one is expensive and one process
+compiles one sheet at a time - and `DomApplication.internalDestroy()` now closes the
+pool through `SassCompilerFactory.terminate()`. By default the dart-sass binaries
+bundled in `sass-embedded-bundled` are used, which covers linux x64/arm/arm64/riscv64
+(glibc and musl), macos x64/arm64 and windows x64; that is 47MB of jar, and the
+developer option `domui.sass.executable` points at a dart-sass installed on the
+machine instead. It also ends the reason `binary-dependencies/jsass` exists: a
+hand-patched jsass jar for ARM.
+
+Verified by running the demo: `$THEME/default/style.scss` and `$THEME/dark/style.scss`
+both compile through the resolver (208KB and 212KB of css, ~2.5s cold including
+starting the process), the pages render styled in the browser, the unit tests pass,
+and pointing `domui.sass.executable` at a path that does not exist falls back to
+libsass as designed. The Selenium ITs were not run: they bind port 8088, which was in
+use.
+
+Dart Sass found two defects that libsass had swallowed: `_derived-variables.scss` 67-73
+and `_datapager2.scss` 5 declare variables without the terminating `;`. Both are fixed.
+The css it emits differs from libsass only in normalisations - colours as
+`hsl(0, 0%, 100%)` rather than `white`, `[type=checkbox]` unquoted,
+`[disabled]:hover` written as `:hover[disabled]`, and nine rules split where
+declarations follow a nested rule, which is the correct cascade order. 1353 rules
+against 1344.
+
+What is *not* done is the language: the sheets are still libsass-era, and the four
+deprecations that follow from that are silenced rather than fixed. That is the plan
+item in phase 4, and it is deliberately separate - migrating to `@use` would break the
+libsass fallback the same day it was put in place.
+
 ### 2026-09-09 - A themed image with a fixed-colour glyph is a dark-variant bug
 
 The bug report's expand marker was `xdt-collapsed.png`: 16x22, transparent, a grey

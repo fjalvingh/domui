@@ -249,6 +249,23 @@ it. Everything else on this list is a question for the user, not a deletion.
       and by the rule above only the user can decide whether a generation of
       components is dropped, and with what deprecation period. Until then the
       work here is to stop the docs and the demo teaching them, which is done.
+- [ ] **Move the stylesheets to the Sass module system, and then drop libsass.**
+      The scss/sass compiler is Dart Sass since 2026-09-09 (see the decisions log),
+      but the sheets are still written for libsass: 208 `@import`s instead of
+      `@use`/`@forward`, slash division instead of `math.div()`, and the global
+      colour functions (`lighten()`, `darken()`) instead of the `sass:color`
+      module. All four are deprecated in Dart Sass and together they warn about 130
+      times per compiled sheet, so `DartSassCompiler` silences them at process
+      creation; those four `addSilenceDeprecation()` calls are the marker for this
+      work. It is not a mechanical rewrite: the theme is built on `!default`
+      variables overridden from the generated `_parameters.scss`, and `@use` does
+      not leak variables the way `@import` does, so the parameter file has to
+      become a configured module (`@use "..." with (...)`) or the variables have to
+      be reached another way. When it is done, remove the silencing, and then the
+      libsass fallback with it: `JSassCompiler`, `JSassResolver`, the `io.bit3:jsass`
+      dependency in both poms, and the `binary-dependencies/jsass` module with the
+      hand-patched ARM jar it exists for.
+
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
       that add nothing.
 

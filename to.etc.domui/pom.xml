@@ -133,6 +133,12 @@
 			<artifactId>jsass</artifactId>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/de.larsgrefer.sass/sass-embedded-host -->
+		<dependency>
+			<groupId>de.larsgrefer.sass</groupId>
+			<artifactId>sass-embedded-host</artifactId>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.owasp.esapi/esapi -->
 		<!--        <dependency>-->
 		<!--            <groupId>org.owasp.esapi</groupId>-->
