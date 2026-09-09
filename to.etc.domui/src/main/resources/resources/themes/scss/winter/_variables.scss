@@ -64,6 +64,8 @@ $vertical-padding: 10px !default;
 // renaming it, so the theme's brand colour was a variable named for a cyan.
 $primary: #f69231 !default;
 
+$color-scheme: light !default;	// what the browser paints its canvas, scrollbars and native controls in
+
 $link-color: #2200cc !default;	// dark blue
 $link-visited-color: #551a8b !default;	// the browser's own visited purple
 

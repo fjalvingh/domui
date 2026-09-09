@@ -66,6 +66,16 @@ public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
 		String rurl = params.getInputPath();
 		ISassCompiler compiler = SassCompilerFactory.createCompiler();
 
+		/*
+		 * Let the browser cache the compiled sheet, as every other part does. Without this
+		 * the theme's stylesheet - half a megabyte of it - is refetched on every single page
+		 * load, render blocking, which is why a page switch shows an unstyled page first.
+		 * In development mode nothing is cached, so an edit to a .scss shows up on a reload.
+		 */
+		if(!da.inDevelopmentMode()) {
+			pr.setCacheTime(da.getDefaultExpiryTime());
+		}
+
 		pr.setMime("text/css");
 		try(OutputStream outputStream = pr.getOutputStream()) {
 			OutputStreamWriter osw = new OutputStreamWriter(outputStream, "utf-8");

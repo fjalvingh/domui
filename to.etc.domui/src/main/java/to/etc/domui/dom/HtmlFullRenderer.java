@@ -272,6 +272,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	 * Called from template.
 	 */
 	public void renderHeadContent() throws Exception {
+		renderColorScheme();
 		o().writeRaw("<script>");
 		if(!isXml())
 			o().writeRaw("<!--\n");
@@ -477,6 +478,19 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 					"""    //
 			);
 		}
+	}
+
+	/**
+	 * Tell the browser which colour scheme this page renders in, as the very first thing in
+	 * the head. The stylesheet is render blocking: between committing the new document and
+	 * parsing that sheet the browser has nothing to go on and paints its default white
+	 * canvas, which is what makes a page switch flash white on a dark theme. The meta tag is
+	 * seen by the parser immediately, so the canvas is dark right away.
+	 */
+	protected void renderColorScheme() throws Exception {
+		o().writeRaw("<meta name=\"color-scheme\" content=\"");
+		o().writeRaw(m_ctx.getThemeVariant().getColorScheme());
+		o().writeRaw(isXml() ? "\"/>\n" : "\">\n");
 	}
 
 	/**

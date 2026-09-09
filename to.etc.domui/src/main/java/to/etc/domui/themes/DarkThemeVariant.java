@@ -20,4 +20,10 @@ final public class DarkThemeVariant implements IThemeVariant {
 	public String getVariantName() {
 		return "dark";
 	}
+
+	@NonNull
+	@Override
+	public String getColorScheme() {
+		return "dark";
+	}
 }

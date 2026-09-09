@@ -18,10 +18,27 @@ public interface IThemeVariant {
 	@NonNull String getVariantName();
 
 	/**
+	 * The CSS <code>color-scheme</code> this variant renders in: "light" or "dark". It is
+	 * written into the page head as a meta tag, before the stylesheet link, so that the
+	 * browser paints the right canvas - and picks the right scrollbars and native control
+	 * colours - from the moment the document is committed, instead of showing its default
+	 * white until the theme's stylesheet has arrived and been parsed.
+	 */
+	@NonNull
+	default String getColorScheme() {
+		return "light";
+	}
+
+	/**
 	 * Create a variant with the name passed. Define these as constants:
 	 * <pre>
 	 *	static public final IThemeVariant DARK = IThemeVariant.of("dark");
 	 * </pre>
+	 *
+	 * <p>The two variants that DomUI itself ships map back onto their instances: a variant
+	 * survives a session as its name only ({@link to.etc.domui.server.IRequestContext#getThemeVariant()}
+	 * reconstructs it with this method), so anything a variant knows besides its name - its
+	 * colour scheme - would be lost on the next request otherwise.</p>
 	 */
 	@NonNull
 	static IThemeVariant of(@NonNull String name) {
@@ -29,6 +46,8 @@ public interface IThemeVariant {
 			throw new IllegalArgumentException("Bad theme variant name: '" + name + "'");
 		if(DefaultThemeVariant.INSTANCE.getVariantName().equals(name))
 			return DefaultThemeVariant.INSTANCE;
+		if(DarkThemeVariant.INSTANCE.getVariantName().equals(name))
+			return DarkThemeVariant.INSTANCE;
 		return () -> name;
 	}
 }

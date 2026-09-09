@@ -2,6 +2,10 @@
 
 //-- Everything uses border-box model
 html {
+	//-- The browser's own canvas, scrollbars and native controls follow this; without it a
+	//-- dark page keeps light scrollbars and a white canvas until this sheet is parsed.
+	color-scheme: $color-scheme;
+
 	font-family: $font-family;
 	font-size: $font-size;
 	box-sizing: border-box;
