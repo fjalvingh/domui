@@ -1405,6 +1405,42 @@ These were offered as input while the phase 0 items were being worked, and taken
       row hover) and a tutorial page using the demo's own card/query-box styling,
       with the light variant unchanged.
 
+- [x] **Framework: the dark/light choice survives the session, and starts from what
+      the browser prefers.** Done 2026-09-09 at the user's request. Two halves.
+      *Persisting:* `RequestContextImpl.setThemeVariant()` writes a
+      `domui-theme-variant` cookie (webapp path, a year, HttpOnly) beside the
+      session attribute it already set, and `getThemeVariant()` reads session,
+      then cookie, then the application. The cookie is marked `Secure` when the
+      session cookie is - a new `IRequestResponse.isSecureCookies()`, which
+      `HttpServerRequestResponse` answers from the servlet context's
+      `SessionCookieConfig` - so an application that spells its session cookie for
+      cross-site frames (as the demo does, see `SessionCookieSetup`) gets the theme
+      cookie spelled the same way for free, and the container's `CookieProcessor`
+      adds `SameSite`/`Partitioned` to both alike.
+      *Starting from the browser:* a session with nothing stored gets one line of
+      script at the very top of the page head (`HtmlFullRenderer.renderColorSchemeDetection`,
+      right after the `color-scheme` meta and before the render blocking
+      stylesheet); when `matchMedia` says the browser wants the *other* scheme it
+      replaces the location with the new `ColorSchemePart` (`$colorscheme`), which
+      stores the variant and 302s back to the page the request came from.
+      `DomApplication.getThemeVariantForColorScheme()` maps "light"/"dark" onto
+      variants and returning null from it switches the question off, which is what
+      a theme with no dark variant must do. Two things make it safe: the target
+      travels as a webapp relative path and anything host relative or carrying a
+      scheme is refused, so the part cannot be an open redirect; and the answer is
+      stored in the session as well as the cookie, so a browser that drops the
+      cookie still stops asking after one round trip instead of bouncing forever.
+      The conversation id is stripped from the return path - keeping it brought
+      back the page built for the old variant, which showed as the sun/moon switch
+      returning with the wrong icon (found while verifying, and fixed).
+      Docs: `look-and-feel/themes` gained a "The first visit" section with the
+      round trip as a sequence diagram. Verified: full `mvn21 install` green, 9
+      unit tests and 55 Selenium ITs pass, site build 156 pages clean; and against
+      a running demo in a dark-preferring Chrome - first visit lands in dark with
+      no flash, the switch to light survives a server restart (so, a new session)
+      and beats the browser preference, a `default` cookie renders light, and a
+      garbage cookie value falls back to the default instead of failing.
+
 - [x] **Framework: a ladder function for things that nest, and the popup menu on it.**
       Done 2026-09-08 at the user's direction, after a side-by-side of the popup
       menu in its own greys versus the ramp. Two findings drove it. First, the
@@ -4492,6 +4528,30 @@ Each of them showed something that no longer exists: a module tree containing
 and `to.etc.domui.formbuilder`; a 2017 build-success terminal; and an IntelliJ
 import flow that has since changed. Phase 4 can add current screenshots if any
 are worth having; none of these were.
+
+### 2026-09-09 - The browser is asked for its colour scheme once, by redirect
+
+The dark/light preference lives in the browser and the theme is a server side
+stylesheet, so the two have to meet somewhere. Of the ways to do that, the one
+chosen is a script at the top of the page head that navigates to `$colorscheme`
+and comes back by 302.
+
+Rejected, and why: **client hints** (`Accept-CH`/`Critical-CH` and
+`Sec-CH-Prefers-Color-Scheme`) are the tidiest - no script at all - but Firefox
+and Safari do not send them, so a large part of the users would never be asked.
+**Letting the script write the cookie itself** would need the script to know the
+`SameSite` spelling the container gives DomUI's cookies, which the servlet API
+does not expose; and a browser that silently drops the cookie would then be asked
+again on every page. **Reporting the answer on a URL parameter of the page
+itself** would put a parameter into the page's own identity and leave it in the
+address bar. The redirect has none of those problems: the server writes the
+cookie, so it is spelled like the session cookie; the answer also lands in the
+session, so one round trip ends the question whatever the browser does with
+cookies; and the address bar ends up on the URL that was asked for.
+
+Asking before the stylesheet is fetched is the point of putting the script where
+it is: nothing has been painted when the browser leaves, so the user sees the
+scheme they wanted rather than a flash of the other one.
 
 ### 2026-08-30 - Documentation style, and components are never fields
 

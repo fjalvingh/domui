@@ -95,6 +95,17 @@ public interface IRequestResponse {
 
 	@NonNull Cookie[] getCookies();
 
+	/**
+	 * T when the session cookie is marked Secure. Cookies that DomUI sets itself copy that
+	 * flag, so that they are accepted in exactly the contexts the session cookie is: an
+	 * application that marks its session cookie Secure does that to be allowed to say
+	 * SameSite=None as well, and a cookie of ours without the flag would be dropped inside
+	 * the very frames such an application is made to work in.
+	 */
+	default boolean isSecureCookies() {
+		return false;
+	}
+
 	void setExpiry(int cacheTime);
 
 	/**

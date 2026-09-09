@@ -46,6 +46,8 @@ import to.etc.domui.util.upload.UploadItem;
 import to.etc.util.WrappedException;
 import to.etc.webapp.crawlers.Crawlers;
 
+import jakarta.servlet.http.Cookie;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -126,6 +128,11 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	@Nullable
 	private IThemeVariant m_themeVariant;
+
+	/**
+	 * T once {@link #m_themeVariant} holds a stored choice instead of the application's default.
+	 */
+	private boolean m_themeVariantStored;
 
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
@@ -408,9 +415,17 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	static private final String THEMEVARIANT = "ctx$themevariant";
 
+	/** The cookie that keeps the dark/light choice, so that it outlives the session. */
+	static public final String THEMEVARIANT_COOKIE = "domui-theme-variant";
+
+	/** How long the browser keeps that cookie: a year. */
+	static private final int THEMEVARIANT_COOKIE_MAXAGE = 365 * 24 * 60 * 60;
+
 	/**
-	 * The theme variant to render in. It is remembered for the duration of the session, so
-	 * a dark/light choice made on one page holds for all the next ones.
+	 * The theme variant to render in. A choice made on one page holds for every page after
+	 * it: it is remembered in the session, and in a cookie so that it survives the session
+	 * too. When neither holds one the application decides, which by default means asking the
+	 * browser for its dark/light preference (see {@link #isThemeVariantDefaulted()}).
 	 */
 	@Override
 	@NonNull
@@ -418,19 +433,62 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		IThemeVariant variant = m_themeVariant;
 		if(null == variant) {
 			String name = (String) getSession().getAttribute(THEMEVARIANT);
-			variant = null == name
-				? m_application.calculateUserThemeVariant(this)
-				: IThemeVariant.of(name);
+			if(null == name)
+				name = findThemeVariantCookie();
+			if(null == name) {
+				variant = m_application.calculateUserThemeVariant(this);
+			} else {
+				variant = IThemeVariant.of(name);
+				m_themeVariantStored = true;
+			}
 			m_themeVariant = variant;
 		}
 		return variant;
 	}
 
+	/**
+	 * The variant name in the theme cookie, or null when there is no cookie or its content is
+	 * not a variant name - it comes from the browser, so it can be anything at all.
+	 */
+	@Nullable
+	private String findThemeVariantCookie() {
+		Cookie[] car = getRequestResponse().getCookies();
+		if(null == car)
+			return null;
+		for(Cookie c : car) {
+			if(THEMEVARIANT_COOKIE.equals(c.getName())) {
+				String value = c.getValue();
+				return null == value || value.isEmpty() || value.indexOf('/') != -1 ? null : value;
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public void setThemeVariant(@NonNull IThemeVariant themeVariant) {
 		m_themeVariant = themeVariant;
+		m_themeVariantStored = true;
 		m_currentTheme = null;
 		getSession().setAttribute(THEMEVARIANT, themeVariant.getVariantName());
+
+		Cookie k = new Cookie(THEMEVARIANT_COOKIE, themeVariant.getVariantName());
+		k.setPath("/" + getRequestResponse().getWebappContext());
+		k.setMaxAge(THEMEVARIANT_COOKIE_MAXAGE);
+		k.setHttpOnly(true);
+		k.setSecure(getRequestResponse().isSecureCookies());
+		getRequestResponse().addCookie(k);
+	}
+
+	/**
+	 * T when nothing chose the variant we render in: no {@link #setThemeVariant(IThemeVariant)}
+	 * earlier in this session, and no cookie from an earlier one. The page renderer asks the
+	 * browser for its dark/light preference in that case, and only then - which is also what
+	 * keeps that question from being asked twice, because answering it stores the choice.
+	 */
+	@Override
+	public boolean isThemeVariantDefaulted() {
+		getThemeVariant();
+		return !m_themeVariantStored;
 	}
 
 	public void flush() throws Exception {

@@ -336,6 +336,11 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Override
+	public boolean isSecureCookies() {
+		return getRequest().getServletContext().getSessionCookieConfig().isSecure();
+	}
+
+	@Override
 	@Nullable
 	public String getRemoteUser() {
 		return getRequest().getRemoteUser();

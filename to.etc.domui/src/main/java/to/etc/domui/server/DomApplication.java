@@ -77,6 +77,7 @@ import to.etc.domui.login.ILoginListener;
 import to.etc.domui.login.IPageAccessChecker;
 import to.etc.domui.parts.TempFileManager;
 import to.etc.domui.sass.SassPartFactory;
+import to.etc.domui.server.parts.ColorSchemePart;
 import to.etc.domui.server.parts.IPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.InternalResourcePart;
@@ -92,6 +93,7 @@ import to.etc.domui.state.UIGotoContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.subinjector.ISubPageInjector;
 import to.etc.domui.subinjector.SubPageInjector;
+import to.etc.domui.themes.DarkThemeVariant;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
@@ -691,6 +693,7 @@ public abstract class DomApplication {
 
 	protected void registerPartFactories() {
 		registerUrlPart(new SassPartFactory(), SassPartFactory.MATCHER);            // Support .scss SASS stylesheets
+		registerUrlPart(new ColorSchemePart(), ColorSchemePart.MATCHER);            // Accepts the browser's dark/light preference
 		registerUrlPart(new InternalResourcePart(), InternalResourcePart.MATCHER);
 	}
 
@@ -2532,6 +2535,27 @@ public abstract class DomApplication {
 	@NonNull
 	public IThemeVariant calculateUserThemeVariant(IRequestContext ctx) {
 		return getThemeFactory().getDefaultVariant();
+	}
+
+	/**
+	 * The variant to render in for a browser that says it prefers the CSS color-scheme passed
+	 * ("light" or "dark"). A session that never chose a variant of its own is asked this once,
+	 * by the script {@link to.etc.domui.dom.HtmlFullRenderer} writes into the page head, and the
+	 * answer becomes that session's choice - so a user gets the dark theme when their desktop is
+	 * dark, without having to say so.
+	 *
+	 * <p>The default maps onto the two variants DomUI itself ships, which is right for the theme
+	 * it ships too. A theme that has no dark variant must override this to return null, which
+	 * switches the whole question off; so must an application that decides the variant itself in
+	 * {@link #calculateUserThemeVariant(IRequestContext)}, because the browser would otherwise
+	 * overrule it.</p>
+	 */
+	@Nullable
+	public IThemeVariant getThemeVariantForColorScheme(@NonNull String colorScheme) {
+		IThemeVariant def = getThemeFactory().getDefaultVariant();
+		if(def.getColorScheme().equals(colorScheme))
+			return def;
+		return "dark".equals(colorScheme) ? DarkThemeVariant.INSTANCE : DefaultThemeVariant.INSTANCE;
 	}
 
 	/**

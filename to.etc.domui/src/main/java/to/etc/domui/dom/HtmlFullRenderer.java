@@ -41,9 +41,11 @@ import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.parts.ColorSchemePart;
 import to.etc.domui.server.parts.PartData;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.js.RhinoExecutor;
@@ -488,9 +490,40 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	 * seen by the parser immediately, so the canvas is dark right away.
 	 */
 	protected void renderColorScheme() throws Exception {
+		String scheme = m_ctx.getThemeVariant().getColorScheme();
 		o().writeRaw("<meta name=\"color-scheme\" content=\"");
-		o().writeRaw(m_ctx.getThemeVariant().getColorScheme());
+		o().writeRaw(scheme);
 		o().writeRaw(isXml() ? "\"/>\n" : "\">\n");
+		renderColorSchemeDetection(scheme);
+	}
+
+	/**
+	 * Ask the browser, once, whether it would rather have the other colour scheme than the one
+	 * this page renders in - and if so leave for {@link ColorSchemePart}, which stores that
+	 * answer and sends the browser straight back here.
+	 *
+	 * <p>Only a session that never chose a variant is asked, so the question is put once per
+	 * browser: the answer becomes a stored choice, and a stored choice is what the user's own
+	 * dark/light switch writes too, so choosing by hand ends the question as well.</p>
+	 *
+	 * <p>The script sits at the top of the head, before the render blocking stylesheet, so the
+	 * browser leaves before it has painted anything: what the user sees is the page in the
+	 * scheme they wanted, not a flash of the other one.</p>
+	 */
+	protected void renderColorSchemeDetection(String scheme) throws Exception {
+		if(!m_ctx.isThemeVariantDefaulted())
+			return;
+		String other = "dark".equals(scheme) ? "light" : "dark";
+		IThemeVariant variant = m_application.getThemeVariantForColorScheme(other);
+		if(null == variant || variant.getVariantName().equals(m_ctx.getThemeVariant().getVariantName()))
+			return;
+
+		//-- No && and no < in the script: this is written raw, and the page may be XHTML.
+		o().writeRaw("<script>if(window.matchMedia) if(window.matchMedia(\"(prefers-color-scheme: ");
+		o().writeRaw(other);
+		o().writeRaw(")\").matches) window.location.replace(");
+		o().writeRaw(StringTool.strToJavascriptString(m_ctx.getRelativePath(ColorSchemePart.getRedirectURL(m_ctx, other)), true));
+		o().writeRaw(");</script>\n");
 	}
 
 	/**

@@ -67,9 +67,19 @@ public interface IRequestContext {
 	@NonNull IThemeVariant getThemeVariant();
 
 	/**
-	 * Render in the variant passed, for this and every following request in the session.
+	 * Render in the variant passed, for this and every following request in the session, and -
+	 * through a cookie - in the sessions after it.
 	 */
 	void setThemeVariant(@NonNull IThemeVariant variant);
+
+	/**
+	 * T when {@link #getThemeVariant()} is only the application's default, because neither this
+	 * session nor a cookie from an earlier one holds a choice. The page renderer then asks the
+	 * browser for its dark/light preference; contexts that cannot render a page say F.
+	 */
+	default boolean isThemeVariantDefaulted() {
+		return false;
+	}
 
 	/**
 	 * Get the generic server request/response object for this context.
