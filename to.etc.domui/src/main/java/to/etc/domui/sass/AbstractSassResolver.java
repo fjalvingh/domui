@@ -192,7 +192,7 @@ abstract public class AbstractSassResolver<O> {
 			}
 			O imp = createInput(name, content);
 			m_map.put(name, new Line<>(name, imp));
-			d("resolved " + name + " to " + imp + " (now cached)");
+			d("resolved " + name + " to " + imp + " (now cached), ref=" + ref);
 			return imp;
 		} catch(ThingyNotFoundException tnf) {				// Normal exception if resource cannot be located.
 			return null;
