@@ -27,6 +27,30 @@
 	padding-left: 20px;
 }
 
+.d-sbc-r {
+	flex: none;
+	display: flex;
+	align-items: center;
+}
+
+/*
+ * The bar keeps its dark ground in both theme variants, so its buttons cannot take the
+ * theme's button colour: in the light variant that is near-black, which makes the theme
+ * switch icon invisible on the bar. Paint them with the bar's own foreground instead.
+ */
+.d-sbc .ui-button {
+	&,
+	&:hover,
+	&:focus {
+		color: rgba(255, 255, 255, 0.75);
+	}
+
+	&:hover,
+	&:focus {
+		color: #fff;
+	}
+}
+
 .d-expl {
 	font-family: 'Lato', Arial, Helvetica, sans-serif;
 	font-size: 14px;

@@ -27,6 +27,19 @@ body {
 	height: 100%;
 }
 
+//-- A link that no component styles itself falls back to the browser's own blue and
+//-- purple, and those are unreadable on the dark variant's near-black ground. Give it the
+//-- theme's link colours instead. Wrapped in :where() so the rule carries no specificity
+//-- of its own: any component that colours its own anchors still wins, exactly as it did
+//-- when the colour came from the browser.
+:where(a) {
+	color: $link-color;
+
+	&:visited {
+		color: $link-visited-color;
+	}
+}
+
 button img {
 	vertical-align: bottom;
 }
