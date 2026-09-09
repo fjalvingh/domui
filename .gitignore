@@ -26,6 +26,11 @@ release.properties
 node
 node_modules
 domui-combined.js*
+domui-combined-min.js*
+
+# Per-file tsc output; the build produces the combined bundle only.
+to.etc.domui/src/main/resources/resources/ts/domui.*.js
+to.etc.domui/src/main/resources/resources/ts/domui.*.js.map
 
 # Eclipse mess from java claude plugin
 .project

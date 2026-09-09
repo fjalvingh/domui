@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "description": "DomUI TypeScript",
   "scripts": {
-    "compile-typescript": "tsc --allowjs --project src/main/resources/resources/ts/tsconfig.json"
+    "compile-typescript": "npm run tsc && npm run minify",
+    "tsc": "tsc --allowjs --project src/main/resources/resources/ts/tsconfig.json",
+    "minify": "esbuild src/main/resources/resources/ts/domui-combined.js --minify --sourcemap --outfile=src/main/resources/resources/ts/domui-combined-min.js"
   },
   "author": "",
   "license": "LGPL-2.1 License",
-  "dependencies": {
-    "@types/jquery": "^2.0.56",
-    "@types/jqueryui": "^1.12.15"
-  },
   "devDependencies": {
-    "typescript": "^4.2.3"
+    "@types/jquery": "^3.5.32",
+    "@types/jqueryui": "^1.12.24",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.0"
   }
 }

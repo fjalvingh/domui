@@ -4,7 +4,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
 
 /**
- * Handle $js/xxx resources, which are versionable.
+ * Handle $js/xxx and $ts/xxx resources, which are versionable. Outside development
+ * mode a "-min" sibling of the resource is used when it exists.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 14, 2011
@@ -12,7 +13,7 @@ import to.etc.domui.server.DomApplication;
 public class VersionedJsResourceFactory implements IResourceFactory {
 	@Override
 	public int accept(@NonNull String name) {
-		if(name.startsWith("$js/"))
+		if(name.startsWith("$js/") || name.startsWith("$ts/"))
 			return 15;
 		return -1;
 	}
@@ -21,7 +22,8 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 	@Override
 	public IResourceRef getResource(@NonNull DomApplication da, @NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Create a 'min version of the name
-		name = name.substring(3); 							// Strip $js, leave leading /.
+		String root = name.substring(1, 3);					// "js" or "ts": the resource directory.
+		name = name.substring(3); 							// Strip $js/$ts, leave leading /.
 		int pos = name.lastIndexOf('.');
 		String min = pos < 0 ? null : name.substring(0, pos) + "-min" + name.substring(pos);
 
@@ -29,12 +31,12 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 		IResourceRef r;
 		if(!da.inDevelopmentMode() && min != null) {
 			//-- Try all min versions in production, first
-			sb.append("js/").append(da.getScriptVersion()).append(min);
+			sb.append(root).append("/").append(da.getScriptVersion()).append(min);
 			r = tryVersionedResource(da, sb.toString());
 			if(r != null)
 				return r;
 			sb.setLength(0);
-			sb.append("js").append(min);
+			sb.append(root).append(min);
 			r = tryVersionedResource(da, sb.toString());
 			if(r != null) {
 				if(null != rdl)
@@ -45,12 +47,12 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 
 		//-- Try normal versions only in development.
 		sb.setLength(0);
-		sb.append("js/").append(da.getScriptVersion()).append(name);
+		sb.append(root).append("/").append(da.getScriptVersion()).append(name);
 		r = tryVersionedResource(da, sb.toString());
 		if(r == null) {
-			r = tryVersionedResource(da, "js" + name);
+			r = tryVersionedResource(da, root + name);
 			if(null == r)
-				r = da.getAppFileOrResource("js" + name);
+				r = da.getAppFileOrResource(root + name);
 		}
 		if(null != rdl)
 			rdl.add(r);

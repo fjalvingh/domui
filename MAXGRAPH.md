@@ -1,0 +1,415 @@
+# maxGraph as a DomUI component
+
+Plan for wrapping the [maxGraph](https://github.com/maxGraph/maxGraph) TypeScript
+diagramming library in a DomUI component with a Java-side "content model" for the
+drawing, growing from "render a drawing" to "the Java model and the Javascript
+instance stay in sync in both directions".
+
+Nothing of this exists yet; this file is the plan and the record of what the
+investigation found.
+
+## 1. What is being built
+
+A component, `MaxGraphPanel`, that renders a diagram described by a Java model
+(`GraphModel`, holding `GraphNode` and `GraphEdge` cells), and - in later phases -
+keeps that Java model and the browser-side maxGraph instance synchronised:
+
+- changes made to the Java model during a server round trip are pushed to the
+  browser as a change list, without re-rendering the drawing;
+- changes made by the user in the browser (moving a node, drawing an edge,
+  renaming, deleting) are sent to the server and applied to the Java model, where
+  page code can react to them, and refuse them.
+
+The Java model is the thing application code programs against. maxGraph's own API
+is reachable from nowhere but the component's own Typescript file - see the
+versioning risk in §9.
+
+## 2. What maxGraph is, and what wrapping it costs
+
+- `@maxgraph/core`, currently **0.24.0** (2026-07-08), Apache-2.0, the maintained
+  successor of the archived mxGraph. Written in TypeScript, renders to SVG + HTML.
+- Core API: `Graph` (the widget, takes a container element), `GraphDataModel`
+  (`graph.getDataModel()`), `Cell` (vertex or edge, has an `id`, a `value`, a
+  `Geometry` and a `CellStyle`), `graph.insertVertex()/insertEdge()`,
+  `graph.batchUpdate(fn)` for transactions.
+- Change notification: the model fires `InternalEvent.CHANGE` at the end of an
+  undoable edit, carrying an `edit` whose `changes` array holds typed change
+  objects - `ChildChange` (add/remove), `GeometryChange`, `StyleChange`,
+  `ValueChange`, `TerminalChange`, `CollapseChange`, `VisibleChange`. `EXECUTE`
+  fires per atomic change. **This is the hook the browser -> server direction is
+  built on**, and it is rich enough that we never have to diff whole models.
+- **It ships no UMD or IIFE bundle**: the UMD build was removed from the npm
+  package in 0.5.0, and the README states that using it in a web page without a
+  build tool is unsupported. The package is ESM + CJS plus type definitions, and
+  additionally ships `css`, `images`, `i18n` and `xsd` directories. `Client.setBasePath()`
+  and `Client.setImageBasePath()` tell it where the images live.
+  **So we must bundle it ourselves** (§6). This is the single largest piece of new
+  infrastructure in this plan.
+- It moves fast and breaks its API on nearly every minor release (0.20 removed all
+  enums, 0.21 moved `fit` into a plugin, 0.23 and 0.24 moved tooltip and image-bundle
+  handling into plugins). Pin the version, and keep every maxGraph type inside the
+  wrapper's own Typescript.
+
+## 3. What DomUI already gives us
+
+Everything the sync needs exists; nothing in the framework has to be extended for
+phases 1-3. Verified against the source:
+
+| Need | Mechanism |
+| --- | --- |
+| Load the library on pages that use it | `HeaderContributor.loadJavascript("$js/...")`, added by a static `initialize(NodeContainer)` on the component, as `PlotlyGraph` does |
+| Create the widget when the node is rendered | `NodeBase.appendCreateJS()` - runs on create *and* on every full page refresh, and may not carry state |
+| Restore browser state after a full page refresh | `NodeBase.renderJavascriptState(JavascriptStmt)` (`CKEditor`, `AceEditor` do this) |
+| Push a change list to an existing widget | `NodeBase.changedJavascriptState()` marks the node; `renderJavascriptDelta(JavascriptStmt)` then emits the Javascript into the delta response. `AceEditor` markers are the working example |
+| Fetch the model as JSON from the browser | `WebUI.jsoncall(id, fields, cb)` -> `IComponentJsonProvider.provideJsonData()`; the response may be a `StringBufferDataFactory` filled by `JsonBuilder`, which is how `PlotlyGraph` ships its dataset |
+| Send structured data to the server as a normal page action | `WebUI.sendJsonAction(id, action, json)` - posts `json` as a string field, dispatches to `NodeBase.componentHandleWebAction(ctx, action)`, and returns the normal page delta. **It exists and nothing uses it yet** |
+| Send structured data out of band (no UI state change, JSON reply) | action prefixed `#` -> `componentHandleWebDataRequest()` |
+| Build/parse JSON | `to.etc.domui.util.javascript.JsonBuilder` (streaming, used by plotly), `to.etc.json.JSON` (bean mapping), and Jackson 2.21 is already a dependency |
+
+Two framework rules shape the design:
+
+- **DomUI must never own the DOM maxGraph draws into.** The component renders one
+  empty `div`; maxGraph fills it. As long as the component has no server-side
+  children and is not rebuilt, the delta renderer leaves that subtree alone. A
+  `forceRebuild()` (of it or any ancestor) throws the widget away - which is why
+  the whole drawing must be restorable from the Java model at any time.
+- **Components are never kept in fields** (workspace rule). `GraphModel` is state
+  and belongs in a page field; `MaxGraphPanel` is a local variable of
+  `createContent()`.
+
+## 4. Where the code goes
+
+A new Maven module, **`integrations/to.etc.domui.maxgraph`**, modelled on
+`integrations/fontawesome6free`:
+
+```
+integrations/to.etc.domui.maxgraph/
+  pom.xml                                  depends on to.etc.domui
+  package.json  tsconfig.json              the bundle build (§6)
+  src/main/frontend/domui-maxgraph.ts      the wrapper, the only file that imports @maxgraph/core
+  src/main/java/to/etc/domui/maxgraph/**   the component and the model
+  src/main/resources/META-INF/web-fragment.xml
+  src/main/resources/META-INF/resources/js/maxgraph/
+        domui-maxgraph.js  domui-maxgraph-min.js  domui-maxgraph.css  images/*
+```
+
+Why a separate module and not `to.etc.domui/component/maxgraph`:
+
+- the bundle is roughly a megabyte of third-party Javascript; it has no business in
+  the core jar that every DomUI application loads;
+- it is Apache-2.0 next to an LGPL core - cleaner kept apart;
+- it needs a modern node toolchain, which the core module's frontend build cannot
+  provide (§6);
+- `fontawesome*` already establishes the pattern for "an integration module that
+  ships web resources", including how they are found: `getAppFileOrResource()`
+  resolves through servlet-3 web fragments (`META-INF/resources/...`) and through
+  `/resources/...` on the classpath, so `$js/maxgraph/domui-maxgraph.js` resolves
+  from the module's jar with no registration at all. Note that
+  `VersionedJsResourceFactory` prefers a `-min` sibling outside development mode,
+  so emit both files.
+
+The demo module gains a dependency on it; `to.etc.domui` itself does not.
+
+## 5. The Java content model
+
+Package `to.etc.domui.maxgraph`, model in `to.etc.domui.maxgraph.model`.
+
+```
+GraphModel                  the drawing: cells by id, insertion order, version counter, listeners
+ +- GraphCell (abstract)    id, label, style, parent, userObject (server-side only, never sent)
+     +- GraphNode           geometry (x, y, w, h), collapsed, visible, children (grouping)
+     +- GraphEdge           source, target, waypoints
+GraphStyle                  typed subset of maxGraph's CellStyle + raw(name, value) escape hatch
+GraphGeometry               x, y, width, height
+IGraphModelListener         onModelChanged(List<GraphOp>)
+GraphOp / GraphOpType       one change, the unit of the wire protocol (§7)
+IGraphChangeHandler         page callback for browser-originated changes; may reject
+```
+
+Decisions that matter:
+
+- **Ids are server-assigned, stable, opaque strings** and are used verbatim as
+  maxGraph `Cell` ids. They are the only correlation key between the two sides.
+  `GraphModel` allocates them (`n1`, `e1`, ...) unless the caller supplies one.
+- **`userObject` never crosses the wire.** Application code hangs its own entity on
+  a cell; only `label` and the typed properties are serialised. This keeps the
+  protocol small and stops entity graphs leaking into the browser.
+- **`GraphStyle` is a typed subset** (`shape`, `fillColor`, `strokeColor`,
+  `strokeWidth`, `rounded`, `fontSize`, `fontColor`, `edgeStyle`, `startArrow`,
+  `endArrow`, `dashed`, ...) with a `raw()` escape hatch, exactly as
+  `to.etc.domui.component.plotly.layout` wraps plotly's layout options. Typed
+  where it pays, open where it does not.
+- **The model carries a version counter**, bumped on every applied change. It is
+  what makes conflict handling trivial (§7.3).
+- The model is **usable standalone**: building one and rendering it to JSON has no
+  dependency on a page, which makes it unit-testable without a browser.
+
+## 6. The Javascript build: upgrade the existing pipeline first
+
+The core module's Typescript pipeline cannot bundle maxGraph, and it should not be
+left as it is either. What is there today:
+
+- `to.etc.domui/pom.xml` runs `frontend-maven-plugin` 1.11.0, which downloads and
+  pins **node v8.11.1 and npm 5.6.0** - a 2018 runtime, end-of-life since 2019 -
+  and runs `npm install` + `tsc` on every build.
+- `tsconfig.json` compiles with `"module": "system"` and `"outFile"` into one
+  `domui-combined.js` from a hand-maintained, order-sensitive `files` list, because
+  the code is one `WebUI` namespace spread over 16 files. There are no ES modules
+  and no npm dependencies in the source at all.
+- Installed: typescript 4.3.2, and `@types/jquery` **2.0.56** while the framework
+  actually serves jQuery 3.7.1 - the type definitions describe a different jQuery
+  than the one that runs.
+- `domui-combined.js` (166KB, unminified) is gitignored and built; it is served as
+  `$ts/domui-combined.js?v=2`, which goes through `SimpleResourceFactory` - so,
+  unlike `$js/`, it has **no `-min` resolution**: every page loads the full
+  unminified bundle.
+- The per-file `.js` and `.js.map` outputs *are* committed (about 40 files) even
+  though nothing serves them. They are stale IDE build products.
+
+This splits into two upgrades of very different size.
+
+### 6.1 The toolchain upgrade - DONE
+
+Node 8 cannot run esbuild, or any other modern bundler, so this had to happen before
+any maxGraph work; otherwise the build would carry two node installations. What was
+done:
+
+1. `frontend-maven-plugin` 1.11.0 -> 1.15.1, node **v8.11.1 -> v22.22.1**, and the
+   separate `npmVersion` pin dropped so the npm bundled with node is used.
+2. `typescript` 4.3 -> 5.9, `@types/jquery` ^2.0.56 -> ^3.5.32 (the jQuery that is
+   actually served), `@types/jqueryui` -> ^1.12.24, all moved to `devDependencies`.
+3. `esbuild` added; `npm run compile-typescript` is now `tsc` followed by `minify`.
+   The core bundle went from 163KB to **74KB** minified, with a source map.
+4. `VersionedJsResourceFactory` now accepts `$ts/` as well as `$js/`, so
+   `$ts/domui-combined.js` resolves to `domui-combined-min.js` outside development
+   mode and to the full bundle inside it - one URL, no change to `DomApplication`.
+   Header contributors are registered in the constructor, before development mode is
+   known, so the choice has to be made at resource-resolution time.
+5. An explicit `"target": "es2017"` in `tsconfig.json`. There was none, so the output
+   was downlevelled ES3/ES5 - which meant `class BodyTooLargeException extends Error`
+   emitted the `__extends` shim whose constructor returns the `Error` it built, so
+   **`x instanceof BodyTooLargeException` in `domui.fileupload.ts` was always false**.
+   ES2017 emits native classes and the check now works.
+6. Two errors the new types and compiler found, both fixed: `expr: any` in
+   `domui.jquery.d.ts` conflicting with the real `JQueryStatic.expr`, and
+   `maxSize === NaN` in `domui.fileupload.ts` - always false, so a garbage
+   `fumaxsize` attribute silently disabled the upload size check. Now `isNaN()`.
+7. The ~40 committed per-file `.js`/`.js.map` outputs and the duplicate
+   `resources/ts/package.json` (which was being packaged into the jar) removed, and
+   `.gitignore` extended to keep them out.
+
+*Verified*: `mvn21 clean install -pl to.etc.domui -am` downloads node 22, runs npm
+install, tsc and esbuild, and produces both bundles plus their maps in the jar; the
+demo served from jetty returns the 75825-byte minified bundle with
+`-Ddeveloper.properties=false` and the 162903-byte full bundle in development mode,
+at the same URL; the demo unit and Selenium integration suites pass.
+
+### 6.2 The source modernization - `WebUI` namespace to ES modules
+
+This is the expensive one, and **maxGraph does not need it**. Measured:
+
+- 16 files declare `namespace WebUI`, exporting **203 functions**, with **130
+  internal `WebUI.x()` cross-file calls** and 198 `this.` uses - and a `this.` inside
+  a namespace function silently means something else once the file becomes a module.
+- The external contract is harder: **72 distinct `WebUI.*` functions are emitted as
+  Javascript from 41 Java classes**, a good number of them as inline HTML attributes
+  from `HtmlTagRenderer` (`onclick="return WebUI.clicked(this, 'id', event)"`,
+  `onchange`, `onkeypress`, `onunload`). Those globals - `WebUI` and its alias
+  `DomUI` - must survive the conversion exactly.
+
+So it is doable but it is a project: a mechanical conversion plus a generated
+`window.WebUI = {...}` facade, and it wants an IT test that exercises the 72
+functions before anyone trusts it.
+
+**Recommendation: do 6.1 now, and leave 6.2 out of the maxGraph work entirely.**
+The one thing that would force 6.2 is a decision that new component Typescript in
+the *core* module must be able to `import` npm packages - which the namespace +
+`outFile` setup cannot do at all. maxGraph does not force it, because it lives in
+its own module with its own bundle and its own global.
+
+### 6.3 What the maxGraph module then does
+
+With 6.1 in place:
+
+- the new module gets its own `package.json` pinning `@maxgraph/core` and using the
+  same esbuild, and an `npm run bundle` script producing an **IIFE** bundle exposing
+  one global, `window.DomUIMaxGraph`, plus a minified sibling and source maps;
+- **the built bundle is committed to git.** The core's generated bundle is *not*
+  committed, but it is regenerated by every Maven build from sources in the same
+  module; a megabyte of third-party Javascript is a different thing - committing it
+  keeps node off the critical path of a normal `mvn21 clean install` and makes every
+  maxGraph upgrade an explicit, reviewable commit. (The alternative - a `node`
+  profile that rebuilds it - is a reasonable second choice if you would rather have
+  no generated artifacts in git at all.)
+- `npm run bundle` also copies `@maxgraph/core`'s `css/common.css` and its `images/`
+  into `META-INF/resources/js/maxgraph/`, and the create-JS calls
+  `Client.setImageBasePath()` at that URL. Forgetting this is the classic
+  mxGraph-family failure: handles and folding icons silently disappear;
+- the node version used for a bundle is recorded in the module's README so a rebuild
+  is reproducible.
+
+## 7. The wire protocol
+
+One vocabulary of operations serves the initial load, the server -> browser delta
+and the browser -> server delta. This is the heart of the design; get it right
+once and the three phases below are mechanical.
+
+### 7.1 The model document (initial load and after a full refresh)
+
+`GET`-equivalent via `WebUI.jsoncall` -> `provideJsonData()`, rendered with
+`JsonBuilder`:
+
+```json
+{ "version": 12,
+  "options": { "editable": true, "grid": true, "gridSize": 10, "rubberband": true },
+  "cells": [
+    { "id": "n1", "kind": "node", "parent": null, "label": "Start",
+      "x": 20, "y": 20, "w": 120, "h": 40, "style": { "shape": "ellipse", "fillColor": "#ddeeff" } },
+    { "id": "e1", "kind": "edge", "source": "n1", "target": "n2", "label": "yes",
+      "style": { "edgeStyle": "orthogonalEdgeStyle" }, "points": [[80, 140]] }
+  ] }
+```
+
+### 7.2 The operation list (both directions)
+
+```json
+{ "base": 12, "version": 13, "ops": [
+  { "op": "addNode",  "id": "n7", "parent": null, "label": "x", "x": 0, "y": 0, "w": 80, "h": 40, "style": {} },
+  { "op": "addEdge",  "id": "e3", "source": "n1", "target": "n7" },
+  { "op": "remove",   "id": "n3" },
+  { "op": "geometry", "id": "n1", "x": 40, "y": 60, "w": 120, "h": 40 },
+  { "op": "style",    "id": "n1", "style": { "fillColor": "#f88" } },
+  { "op": "label",    "id": "n1", "label": "Begin" },
+  { "op": "terminal", "id": "e1", "source": "n2", "target": null },
+  { "op": "points",   "id": "e1", "points": [[80, 140]] },
+  { "op": "reload" }
+] }
+```
+
+Every op is **id-addressed and idempotent**, so applying the same list twice is
+harmless and order within a list is the only thing that matters.
+
+### 7.3 Conflicts
+
+The browser stamps its op list with `base` - the model version it was at. If that
+does not equal the server's current version, the server discards the list and
+answers with a single `{"op":"reload"}`, which makes the browser re-fetch the model
+document. Given DomUI serialises requests within a window session this is a rare
+path; making it correct is one `if`, and it removes every merge question.
+
+### 7.4 Echo suppression
+
+Both sides set a flag while applying a received op list, so applying it does not
+generate a change list back. On the browser this means applying inside
+`graph.batchUpdate()` with the model listener suppressed.
+
+## 8. Phases
+
+### Phase -1 - upgrade the existing Typescript build (§6.1) - DONE
+
+Node 22, typescript 5.9, jQuery 3 types, esbuild in the build, the core bundle
+minified and served as such outside development mode, two latent Javascript bugs
+fixed, stale committed build artifacts gone.
+
+### Phase 0 - toolchain spike
+
+Bundle maxGraph with esbuild and render a hard-coded two-node graph on a scratch
+DomUI page.
+
+*Done when*: the page draws, the bundle size is measured and recorded, images and
+CSS load, and nothing in `mvn21 clean install` needs node.
+
+### Phase 1 - render a drawing (the initial version asked for)
+
+- `MaxGraphPanel extends Div implements IComponentJsonProvider`. `createContent()`
+  adds the css class, leaves the div empty, and emits
+  `appendCreateJS("DomUIMaxGraph.create('<id>', <options>)")`.
+- The Typescript `create()` builds the `Graph`, then does `WebUI.jsoncall(id, ...)`
+  and builds all cells from the model document inside one `batchUpdate()` - the
+  `PlotlyGraph` pattern, which keeps the create-JS state-free as `appendCreateJS`
+  requires.
+- `renderJavascriptState()` re-issues the create call, so a full page refresh
+  rebuilds the drawing from the Java model.
+- `setModel(GraphModel)` on the component; `forceRebuild()` on replacement.
+- Read-only interaction: pan, zoom, selection, tooltips. No editing.
+- Sizing: the panel needs an explicit height; ship `domui-maxgraph.css` with the
+  container rules.
+- A first demo page and an `IT` test that the SVG appears.
+
+*Done when*: a demo page builds a `GraphModel` in Java and the drawing appears,
+survives a full page refresh, and renders identically after one.
+
+### Phase 2 - server -> browser sync
+
+- `GraphModel` records `GraphOp`s while attached to a panel; the panel registers as
+  its listener, calls `changedJavascriptState()` on the first change, and emits
+  `DomUIMaxGraph.apply('<id>', <ops>)` from `renderJavascriptDelta()`.
+- The Typescript `apply()` walks the ops inside `batchUpdate()` with echo
+  suppression, then clears the change buffer.
+- A full render still goes through phase 1's path (whole model), never through ops.
+
+*Done when*: a demo page with buttons - add node, move node, recolour, delete -
+changes only the Java model, and the drawing updates without being redrawn (verify
+in the browser that the SVG for untouched cells is not replaced).
+
+### Phase 3 - browser -> server sync
+
+- The Typescript registers on `InternalEvent.CHANGE`, translates the `edit.changes`
+  entries into our ops, coalesces them per transaction, and calls
+  `WebUI.sendJsonAction(id, 'GRAPHCHANGE', {base, ops})`.
+- `componentHandleWebAction()` handles `GRAPHCHANGE`: parse, version-check (§7.3),
+  apply to the `GraphModel` with echo suppressed, then call the page's
+  `IGraphChangeHandler`.
+- **Rejection**: the handler may refuse an op (or the whole list). The server then
+  simply changes the model back; phase 2's delta machinery is already what carries
+  the correction to the browser in the same response. Nothing extra is needed - this
+  is why the ops are id-addressed and idempotent.
+- Since this rides the normal page action, the response is the ordinary page delta,
+  so a handler may also update anything else on the page.
+
+*Done when*: dragging a node in the browser moves it in the Java model, a handler
+that vetoes a delete makes the node reappear, and an `IT` test drives both.
+
+### Phase 4 - the editing component proper
+
+Only once 1-3 stand: a palette to drag new nodes from, edge creation constraints
+(`isValidSource/Target`), in-place label editing, keyboard delete, undo/redo
+(browser-side `UndoManager`, with the server following through phase 3), automatic
+layouts (`HierarchicalLayout`), and SVG/PNG export.
+
+### Phase 5 - demo and documentation
+
+- Demo pages under `to.etc.domui.demo/.../pages/components/graph/`, linked from
+  `ComponentListPage`, following the demo conventions (`HTag(1)` title, content in a
+  `ContentPanel`, `form4` for any form, no component in a field).
+- A documentation section `domui.github.io/site/content/components/125-diagrams/`
+  (between `120-charts` and `130-async`), written show-first, with `!demo()` tags
+  pointing at those demo pages - which therefore have to be deployed to
+  https://demo.domui.org/ before the docs build is meaningful.
+- The component groups list in the docs' components index gains this group.
+
+## 9. Risks and how they are handled
+
+| Risk | Handling |
+| --- | --- |
+| maxGraph breaks its API on every minor release | Pin the version. All maxGraph types stay inside `domui-maxgraph.ts`; the Java API and the wire protocol are ours, so an upgrade is one file and one bundle rebuild |
+| Bundle size (~1MB, to be measured in phase 0) | Loaded only by pages that call `MaxGraphPanel.initialize()`; minified variant served outside development mode by the existing `$js` resolution |
+| `forceRebuild()` destroys the widget | The Java model is authoritative and the drawing is always rebuildable from it; `renderJavascriptState()` covers the full-refresh path |
+| Large models over the page POST | The op protocol keeps steady-state traffic tiny; the model document is fetched out of band. If an initial model ever gets big, `#`-actions (`componentHandleWebDataRequest`) are the escape hatch. Container POST size limits are worth a note in the docs |
+| Server-side memory | The model lives in the page/conversation like any other page state; document that a huge drawing is a per-conversation cost |
+| Node toolchain drift | §6.1 brings the build to a current node before anything else; the maxGraph bundle is committed and reproducible from a recorded node version, so a normal Maven build needs no node |
+
+## 10. Decisions to confirm before starting
+
+1. **Separate module** `integrations/to.etc.domui.maxgraph` rather than a package in
+   `to.etc.domui` (§4). Recommended, but it is the one structural choice that is
+   awkward to reverse later.
+2. **Component name** `MaxGraphPanel`, model names neutral (`GraphModel`,
+   `GraphNode`, `GraphEdge`) so the Java API does not advertise the library.
+3. **Committed bundle** rather than a Maven-driven node build (§6).
+4. **Undo/redo lives in the browser** in phases 1-4, with the server following.
+   A server-authoritative undo stack is a bigger design and is out of scope here.
+5. **Version-mismatch means reload**, not merge (§7.3).
+6. **§6.1 (toolchain) happens first; §6.2 (namespace -> ES modules) is not part of
+   this work.** Reopen only if new core-module Typescript must be able to import npm
+   packages.

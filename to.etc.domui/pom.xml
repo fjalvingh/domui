@@ -180,9 +180,9 @@
 							<goal>install-node-and-npm</goal>
 						</goals>
 						<configuration>
-							<!-- See https://nodejs.org/en/download/ for latest node and npm (lts) versions -->
-							<nodeVersion>v8.11.1</nodeVersion>
-							<npmVersion>5.6.0</npmVersion>
+							<!-- See https://nodejs.org/en/download/ for the current LTS. The npm
+							     bundled with node is used; do not pin npm separately. -->
+							<nodeVersion>v22.22.1</nodeVersion>
 						</configuration>
 					</execution>
 
