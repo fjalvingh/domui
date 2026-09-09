@@ -6,11 +6,15 @@
  * esbuild bundles it into one IIFE which exposes the exports below as the global
  * DomUIMaxGraph; see the module's README for the build.
  */
-import { Cell, Client, Geometry, Graph, InternalEvent, Point } from '@maxgraph/core';
+import {
+	Cell, ChildChange, Client, Geometry, GeometryChange, Graph, InternalEvent, KeyHandler,
+	Point, StyleChange, TerminalChange, ValueChange
+} from '@maxgraph/core';
 
 /** DomUI's own Javascript, which is loaded before this and lives in its own global. */
 declare const WebUI: {
 	jsoncall(id: string, fields: object, callback: (response: any) => void): void;
+	sendJsonAction(id: string, action: string, json: object): void;
 };
 
 export interface CreateOptions {
@@ -40,7 +44,7 @@ interface CellDoc {
 
 interface ModelDoc {
 	version: number;
-	options?: {panning?: boolean};
+	options?: {panning?: boolean, editable?: boolean};
 	cells?: CellDoc[];
 }
 
@@ -67,6 +71,10 @@ interface Instance {
 	loaded: boolean;
 	queue: DeltaDoc[];
 	cellById: Map<string, Cell>;
+	/** True while a change list from the server is being applied, so it is not sent back. */
+	applying: boolean;
+	editable: boolean;
+	keyHandler: KeyHandler;
 }
 
 const instances = new Map<string, Instance>();
@@ -92,10 +100,30 @@ export function create(id: string, options: CreateOptions = {}): void {
 	InternalEvent.disableContextMenu(container);
 
 	const graph = new Graph(container);
-	readOnly(graph);
+	editingAllowed(graph, false);
 	zoomOnCtrlWheel(graph);
-	const instance: Instance = {graph, version: -1, loaded: false, queue: [], cellById: new Map()};
+
+	const keyHandler = new KeyHandler(graph, container);
+	keyHandler.bindKey(46, () => graph.removeCells(graph.getSelectionCells(), true));
+	keyHandler.setEnabled(false);
+
+	const instance: Instance = {
+		graph, version: -1, loaded: false, queue: [], cellById: new Map(),
+		applying: false, editable: false, keyHandler
+	};
 	instances.set(id, instance);
+
+	//-- A key press only reaches the graph when it happens inside its own container, and
+	//-- clicking a shape does not put the focus there by itself. It has to be the pointer
+	//-- event: maxGraph consumes those, and a consumed pointerdown means no mousedown at all.
+	container.addEventListener('pointerdown', () => {
+		if(instance.editable) {
+			container.focus();
+		}
+	});
+	graph.getDataModel().addListener(InternalEvent.CHANGE, (_sender: unknown, event: any) => {
+		sendChanges(id, instance, event.getProperty('edit'));
+	});
 	load(id, instance);
 }
 
@@ -138,17 +166,24 @@ export function graphFor(id: string): Graph | undefined {
 }
 
 /**
- * Nothing in the drawing can be changed from the browser: it is the server's model
- * that decides what it looks like. Selecting, panning and zooming stay.
+ * What the user may do to the drawing. A read-only drawing can be selected in, panned and
+ * zoomed, and nothing else: it is the server's model that decides what it looks like. An
+ * editable one adds moving, resizing and deleting - each of which is sent to the server,
+ * which has the last word on it.
+ *
+ * Editing a label in place, bending an edge and drawing a new one are deliberately still
+ * off: a cell the browser invents has no id the server knows it by, which needs more than
+ * this.
  */
-function readOnly(graph: Graph): void {
+function editingAllowed(graph: Graph, editable: boolean): void {
 	graph.setCellsEditable(false);
-	graph.setCellsMovable(false);
-	graph.setCellsResizable(false);
-	graph.setCellsDeletable(false);
 	graph.setCellsBendable(false);
 	graph.setConnectable(false);
 	graph.setDropEnabled(false);
+
+	graph.setCellsMovable(editable);
+	graph.setCellsResizable(editable);
+	graph.setCellsDeletable(editable);
 }
 
 /**
@@ -183,8 +218,20 @@ function build(instance: Instance, doc: ModelDoc): void {
 	instance.cellById.clear();
 
 	graph.setPanning(doc.options?.panning !== false);
+	instance.editable = doc.options?.editable === true;
+	editingAllowed(graph, instance.editable);
+	instance.keyHandler.setEnabled(instance.editable);
+	const container = graph.container;
+	if(null != container) {
+		//-- Only a drawing that can be edited belongs in the tab order.
+		if(instance.editable) {
+			container.setAttribute('tabindex', '0');
+		} else {
+			container.removeAttribute('tabindex');
+		}
+	}
 
-	graph.batchUpdate(() => {
+	withoutEcho(instance, () => graph.batchUpdate(() => {
 		for(const child of graph.getChildCells(graph.getDefaultParent(), true, true)) {
 			graph.getDataModel().remove(child);
 		}
@@ -195,7 +242,21 @@ function build(instance: Instance, doc: ModelDoc): void {
 				addNode(instance, cell);
 			}
 		}
-	});
+	}));
+}
+
+/**
+ * Do something to the drawing without it being reported back to the server: the server is
+ * where it came from, and telling it what it just told us would be an echo.
+ */
+function withoutEcho(instance: Instance, what: () => void): void {
+	const was = instance.applying;
+	instance.applying = true;
+	try {
+		what();
+	} finally {
+		instance.applying = was;
+	}
 }
 
 /**
@@ -214,7 +275,7 @@ function applyDelta(id: string, instance: Instance, delta: DeltaDoc): void {
 	}
 
 	let reload = false;
-	instance.graph.batchUpdate(() => {
+	withoutEcho(instance, () => instance.graph.batchUpdate(() => {
 		for(const op of delta.ops ?? []) {
 			if('reload' === op.op) {
 				reload = true;
@@ -222,12 +283,108 @@ function applyDelta(id: string, instance: Instance, delta: DeltaDoc): void {
 			}
 			applyOp(instance, op);
 		}
-	});
+	}));
 	if(reload) {
 		load(id, instance);
 	} else {
 		instance.version = delta.version;
 	}
+}
+
+/*----------------------------------------------------------------------*/
+/*	CODING: What the user changed                                       */
+/*----------------------------------------------------------------------*/
+
+/**
+ * Called at the end of every transaction on the drawing. What the user did is translated
+ * into the same operations the server sends the other way and posted as a normal page
+ * action, so the answer is the ordinary page delta - including whatever the server decides
+ * to change back.
+ */
+function sendChanges(id: string, instance: Instance, edit: {changes?: unknown[]} | undefined): void {
+	if(instance.applying || !instance.editable || undefined === edit) {
+		return;
+	}
+	const ops: OpDoc[] = [];
+	for(const change of edit.changes ?? []) {
+		const op = translate(change);
+		if(null !== op && !ops.some(o => o.op === op.op && o.id === op.id)) {
+			//-- A cell the user threw away is no longer addressable here either. Forgetting it
+			//-- is what lets the server put it back: an add for a cell we still knew about
+			//-- would be taken for a repeat and ignored.
+			if('remove' === op.op) {
+				instance.cellById.delete(op.id);
+			}
+			ops.push(op);
+		}
+	}
+	if(0 === ops.length) {
+		return;
+	}
+	WebUI.sendJsonAction(id, 'GRAPHCHANGE', {base: instance.version, ops});
+}
+
+/**
+ * One maxGraph change as one of our operations, or null for a change the server has no
+ * word for. What is sent is read from the cell as it is now, not from the change: the
+ * change has been executed by the time we see it, and its own fields have been swapped
+ * around for the undo stack.
+ */
+function translate(change: unknown): OpDoc | null {
+	if(change instanceof GeometryChange) {
+		//-- An edge's geometry is its waypoints, and bending is not on yet.
+		return change.cell.isVertex() ? geometryOp(change.cell) : null;
+	}
+	if(change instanceof ChildChange) {
+		//-- parent is where the cell ended up: nowhere means it was deleted. A cell that
+		//-- appeared is not sent - only the server hands out ids.
+		return null === change.parent ? opFor('remove', change.child) : null;
+	}
+	if(change instanceof ValueChange) {
+		const doc = opFor('label', change.cell);
+		if(null !== doc) {
+			doc.label = String(change.cell.getValue() ?? '');
+		}
+		return doc;
+	}
+	if(change instanceof TerminalChange) {
+		const doc = opFor('terminal', change.cell);
+		if(null !== doc) {
+			doc.source = idOf(change.cell.getTerminal(true));
+			doc.target = idOf(change.cell.getTerminal(false));
+		}
+		return doc;
+	}
+	if(change instanceof StyleChange) {
+		const doc = opFor('style', change.cell);
+		if(null !== doc) {
+			doc.style = change.cell.getStyle() as Record<string, unknown>;
+		}
+		return doc;
+	}
+	return null;
+}
+
+function opFor(name: string, cell: Cell): OpDoc | null {
+	const id = cell.getId();
+	return null == id ? null : {op: name, id};
+}
+
+function geometryOp(cell: Cell): OpDoc | null {
+	const doc = opFor('geometry', cell);
+	const geometry = cell.getGeometry();
+	if(null === doc || null == geometry) {
+		return null;
+	}
+	doc.x = geometry.x;
+	doc.y = geometry.y;
+	doc.w = geometry.width;
+	doc.h = geometry.height;
+	return doc;
+}
+
+function idOf(cell: Cell | null): string | null {
+	return null == cell ? null : cell.getId();
 }
 
 function applyOp(instance: Instance, op: OpDoc): void {
@@ -300,7 +457,15 @@ function routedGeometry(cell: Cell, op: CellDoc): Geometry {
 	return geometry;
 }
 
+/**
+ * Adding a cell that is already there does nothing. The server sends a cell again to put
+ * back a change it refused, and what it takes back may be only part of what the browser
+ * threw away - so an add has to be as harmless to repeat as every other operation.
+ */
 function addNode(instance: Instance, doc: CellDoc): void {
+	if(instance.cellById.has(doc.id)) {
+		return;
+	}
 	const parent = undefined === doc.parent ? undefined : instance.cellById.get(doc.parent);
 	const cell = instance.graph.insertVertex({
 		id: doc.id,
@@ -314,6 +479,9 @@ function addNode(instance: Instance, doc: CellDoc): void {
 }
 
 function addEdge(instance: Instance, doc: CellDoc): void {
+	if(instance.cellById.has(doc.id)) {
+		return;
+	}
 	const cell = instance.graph.insertEdge({
 		id: doc.id,
 		source: terminal(instance, doc.source),

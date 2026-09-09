@@ -4429,8 +4429,8 @@ var DomUIMaxGraph = (() => {
       if (!cellBounds)
         return void 0;
       const view = graph.view;
-      const { scale, translate: translate2 } = view;
-      const { x, y } = translate2;
+      const { scale, translate: translate3 } = view;
+      const { x, y } = translate3;
       const round = (v) => Math.round(v * 10) / 10;
       const res = new Rectangle_default(round(cellBounds.x / scale - x), round(cellBounds.y / scale - y), round(cellBounds.width / scale), round(cellBounds.height / scale));
       return res;
@@ -19479,9 +19479,9 @@ var DomUIMaxGraph = (() => {
       const tmp = this.view.currentRoot;
       this.view.currentRoot = this.previous;
       this.previous = tmp;
-      const translate2 = this.view.graph.getTranslateForRoot(this.view.currentRoot);
-      if (translate2) {
-        this.view.translate = new Point_default(-translate2.x, -translate2.y);
+      const translate3 = this.view.graph.getTranslateForRoot(this.view.currentRoot);
+      if (translate3) {
+        this.view.translate = new Point_default(-translate3.x, -translate3.y);
       }
       if (this.isUp) {
         this.view.clear(this.view.currentRoot, true, true);
@@ -26923,6 +26923,206 @@ var DomUIMaxGraph = (() => {
     }
   };
 
+  // node_modules/@maxgraph/core/lib/esm/view/handler/KeyHandler.js
+  var KeyHandler = class {
+    /**
+     * Constructs an event handler that executes functions bound to specific keystrokes.
+     *
+     * @param graph Reference to the associated {@link AbstractGraph}.
+     * @param target  Optional reference to the event target.
+     *                If `null`, the document element is used as the event target, that is, the object where the key event listener is installed.
+     */
+    constructor(graph, target = null) {
+      this.keydownHandler = null;
+      this.graph = null;
+      this.target = null;
+      this.normalKeys = {};
+      this.shiftKeys = {};
+      this.controlKeys = {};
+      this.controlShiftKeys = {};
+      this.enabled = true;
+      if (graph != null) {
+        this.graph = graph;
+        this.target = target || document.documentElement;
+        this.keydownHandler = (evt) => {
+          this.keyDown(evt);
+        };
+        InternalEvent_default.addListener(this.target, "keydown", this.keydownHandler);
+      }
+    }
+    /**
+     * Returns true if events are handled.
+     * This implementation returns {@link enabled}.
+     */
+    isEnabled() {
+      return this.enabled;
+    }
+    /**
+     * Enables or disables event handling by updating {@link enabled}.
+     *
+     * @param enabled Boolean that specifies the new enabled state.
+     */
+    setEnabled(enabled) {
+      this.enabled = enabled;
+    }
+    /**
+     * Binds the specified keycode to the given function. This binding is used
+     * if the control key is not pressed.
+     *
+     * @param code Integer that specifies the keycode.
+     * @param funct JavaScript function that takes the key event as an argument.
+     */
+    bindKey(code, funct) {
+      this.normalKeys[code] = funct;
+    }
+    /**
+     * Binds the specified keycode to the given function. This binding is used
+     * if the shift key is pressed.
+     *
+     * @param code Integer that specifies the keycode.
+     * @param funct JavaScript function that takes the key event as an argument.
+     */
+    bindShiftKey(code, funct) {
+      this.shiftKeys[code] = funct;
+    }
+    /**
+     * Binds the specified keycode to the given function. This binding is used
+     * if the control key is pressed.
+     *
+     * @param code Integer that specifies the keycode.
+     * @param funct JavaScript function that takes the key event as an argument.
+     */
+    bindControlKey(code, funct) {
+      this.controlKeys[code] = funct;
+    }
+    /**
+     * Binds the specified keycode to the given function. This binding is used
+     * if the control and shift key are pressed.
+     *
+     * @param code Integer that specifies the keycode.
+     * @param funct JavaScript function that takes the key event as an argument.
+     */
+    bindControlShiftKey(code, funct) {
+      this.controlShiftKeys[code] = funct;
+    }
+    /**
+     * Returns true if the control key is pressed. This uses {@link Event#isControlDown}.
+     *
+     * @param evt Key event whose control key pressed state should be returned.
+     */
+    isControlDown(evt) {
+      return isControlDown(evt);
+    }
+    /**
+     * Returns the function associated with the given key event or null if no
+     * function is associated with the given event.
+     *
+     * @param evt Key event whose associated function should be returned.
+     */
+    getFunction(evt) {
+      if (evt != null && !isAltDown(evt)) {
+        if (this.isControlDown(evt)) {
+          if (isShiftDown(evt)) {
+            return this.controlShiftKeys[evt.keyCode];
+          }
+          return this.controlKeys[evt.keyCode];
+        }
+        if (isShiftDown(evt)) {
+          return this.shiftKeys[evt.keyCode];
+        }
+        return this.normalKeys[evt.keyCode];
+      }
+      return null;
+    }
+    /**
+     * Returns `true` if the event should be processed by this handler.
+     * That is, if the event source is either the target, one of its direct children, or a descendant of the {@link AbstractGraph.container},
+     * or the {@link CellEditorHandler} plugin of the {@link graph}.
+     *
+     * @param evt Key event that represents the keystroke.
+     */
+    isGraphEvent(evt) {
+      var _a2;
+      const source = getSource(evt);
+      const cellEditorHandler = (_a2 = this.graph) == null ? void 0 : _a2.getPlugin("CellEditorHandler");
+      if (source === this.target || source.parentNode === this.target || cellEditorHandler && cellEditorHandler.isEventSource(evt)) {
+        return true;
+      }
+      return this.graph ? isAncestorNode(this.graph.container, source) : false;
+    }
+    /**
+     * Handles the event by invoking the function bound to the respective keystroke
+     * if {@link isEnabledForEvent} returns `true` for the given event and if
+     * {@link isEventIgnored} returns `false`, except for escape for which
+     * {@link isEventIgnored} is not invoked.
+     *
+     * @param evt Key event that represents the keystroke.
+     */
+    keyDown(evt) {
+      if (this.isEnabledForEvent(evt)) {
+        if (evt.keyCode === 27) {
+          this.escape(evt);
+        } else if (!this.isEventIgnored(evt)) {
+          const boundFunction = this.getFunction(evt);
+          if (boundFunction != null) {
+            boundFunction(evt);
+            InternalEvent_default.consume(evt);
+          }
+        }
+      }
+    }
+    /**
+     * Returns true if the given event should be handled. {@link isEventIgnored} is
+     * called later if the event is not an escape keystroke, in which case
+     * {@link escape} is called.
+     *
+     * This implementation returns `true` if  {@link AbstractGraph.isEnabled}
+     * returns `true` for both, this handler and {@link graph}, if the event is not
+     * consumed and if  {@link isGraphEvent} returns `true`.
+     *
+     * @param evt Key event that represents the keystroke.
+     */
+    isEnabledForEvent(evt) {
+      var _a2;
+      return ((_a2 = this.graph) == null ? void 0 : _a2.isEnabled()) && !isConsumed(evt) && this.isGraphEvent(evt) && this.isEnabled();
+    }
+    /**
+     * Returns true if the given keystroke should be ignored. This returns {@link AbstractGraph.isEditing}.
+     *
+     * @param evt Key event that represents the keystroke.
+     */
+    isEventIgnored(evt) {
+      var _a2, _b;
+      return (_b = (_a2 = this.graph) == null ? void 0 : _a2.isEditing()) != null ? _b : false;
+    }
+    /**
+     * Hook to process ESCAPE keystrokes. This implementation invokes
+     * {@link AbstractGraph.stopEditing} to cancel the current editing, connecting
+     * and/or other ongoing modifications.
+     *
+     * @param evt Key event that represents the keystroke. Possible keycode in this case is 27 (ESCAPE).
+     */
+    escape(evt) {
+      var _a2;
+      if ((_a2 = this.graph) == null ? void 0 : _a2.isEscapeEnabled()) {
+        this.graph.escape(evt);
+      }
+    }
+    /**
+     * Destroys the handler and all its references into the DOM. This does
+     * normally not need to be called, it is called automatically when the
+     * window unloads (in IE).
+     */
+    onDestroy() {
+      if (this.target != null && this.keydownHandler != null) {
+        InternalEvent_default.removeListener(this.target, "keydown", this.keydownHandler);
+        this.keydownHandler = null;
+      }
+      this.target = null;
+    }
+  };
+  var KeyHandler_default = KeyHandler;
+
   // src/main/frontend/domui-maxgraph.ts
   var instances = /* @__PURE__ */ new Map();
   function create(id, options = {}) {
@@ -26937,10 +27137,30 @@ var DomUIMaxGraph = (() => {
     }
     InternalEvent_default.disableContextMenu(container);
     const graph = new Graph(container);
-    readOnly(graph);
+    editingAllowed(graph, false);
     zoomOnCtrlWheel(graph);
-    const instance = { graph, version: -1, loaded: false, queue: [], cellById: /* @__PURE__ */ new Map() };
+    const keyHandler = new KeyHandler_default(graph, container);
+    keyHandler.bindKey(46, () => graph.removeCells(graph.getSelectionCells(), true));
+    keyHandler.setEnabled(false);
+    const instance = {
+      graph,
+      version: -1,
+      loaded: false,
+      queue: [],
+      cellById: /* @__PURE__ */ new Map(),
+      applying: false,
+      editable: false,
+      keyHandler
+    };
     instances.set(id, instance);
+    container.addEventListener("pointerdown", () => {
+      if (instance.editable) {
+        container.focus();
+      }
+    });
+    graph.getDataModel().addListener(InternalEvent_default.CHANGE, (_sender, event) => {
+      sendChanges(id, instance, event.getProperty("edit"));
+    });
     load(id, instance);
   }
   function destroy(id) {
@@ -26966,14 +27186,14 @@ var DomUIMaxGraph = (() => {
     var _a2;
     return (_a2 = instances.get(id)) == null ? void 0 : _a2.graph;
   }
-  function readOnly(graph) {
+  function editingAllowed(graph, editable) {
     graph.setCellsEditable(false);
-    graph.setCellsMovable(false);
-    graph.setCellsResizable(false);
-    graph.setCellsDeletable(false);
     graph.setCellsBendable(false);
     graph.setConnectable(false);
     graph.setDropEnabled(false);
+    graph.setCellsMovable(editable);
+    graph.setCellsResizable(editable);
+    graph.setCellsDeletable(editable);
   }
   function load(id, instance) {
     instance.loaded = false;
@@ -26991,12 +27211,23 @@ var DomUIMaxGraph = (() => {
     });
   }
   function build(instance, doc) {
-    var _a2;
+    var _a2, _b;
     const graph = instance.graph;
     instance.version = doc.version;
     instance.cellById.clear();
     graph.setPanning(((_a2 = doc.options) == null ? void 0 : _a2.panning) !== false);
-    graph.batchUpdate(() => {
+    instance.editable = ((_b = doc.options) == null ? void 0 : _b.editable) === true;
+    editingAllowed(graph, instance.editable);
+    instance.keyHandler.setEnabled(instance.editable);
+    const container = graph.container;
+    if (null != container) {
+      if (instance.editable) {
+        container.setAttribute("tabindex", "0");
+      } else {
+        container.removeAttribute("tabindex");
+      }
+    }
+    withoutEcho(instance, () => graph.batchUpdate(() => {
       var _a3;
       for (const child of graph.getChildCells(graph.getDefaultParent(), true, true)) {
         graph.getDataModel().remove(child);
@@ -27008,7 +27239,16 @@ var DomUIMaxGraph = (() => {
           addNode(instance, cell);
         }
       }
-    });
+    }));
+  }
+  function withoutEcho(instance, what) {
+    const was = instance.applying;
+    instance.applying = true;
+    try {
+      what();
+    } finally {
+      instance.applying = was;
+    }
   }
   function applyDelta(id, instance, delta) {
     if (delta.base !== instance.version) {
@@ -27019,7 +27259,7 @@ var DomUIMaxGraph = (() => {
       return;
     }
     let reload = false;
-    instance.graph.batchUpdate(() => {
+    withoutEcho(instance, () => instance.graph.batchUpdate(() => {
       var _a2;
       for (const op of (_a2 = delta.ops) != null ? _a2 : []) {
         if ("reload" === op.op) {
@@ -27028,12 +27268,83 @@ var DomUIMaxGraph = (() => {
         }
         applyOp(instance, op);
       }
-    });
+    }));
     if (reload) {
       load(id, instance);
     } else {
       instance.version = delta.version;
     }
+  }
+  function sendChanges(id, instance, edit) {
+    var _a2;
+    if (instance.applying || !instance.editable || void 0 === edit) {
+      return;
+    }
+    const ops = [];
+    for (const change of (_a2 = edit.changes) != null ? _a2 : []) {
+      const op = translate2(change);
+      if (null !== op && !ops.some((o) => o.op === op.op && o.id === op.id)) {
+        if ("remove" === op.op) {
+          instance.cellById.delete(op.id);
+        }
+        ops.push(op);
+      }
+    }
+    if (0 === ops.length) {
+      return;
+    }
+    WebUI.sendJsonAction(id, "GRAPHCHANGE", { base: instance.version, ops });
+  }
+  function translate2(change) {
+    var _a2;
+    if (change instanceof GeometryChange_default) {
+      return change.cell.isVertex() ? geometryOp(change.cell) : null;
+    }
+    if (change instanceof ChildChange) {
+      return null === change.parent ? opFor("remove", change.child) : null;
+    }
+    if (change instanceof ValueChange_default) {
+      const doc = opFor("label", change.cell);
+      if (null !== doc) {
+        doc.label = String((_a2 = change.cell.getValue()) != null ? _a2 : "");
+      }
+      return doc;
+    }
+    if (change instanceof TerminalChange) {
+      const doc = opFor("terminal", change.cell);
+      if (null !== doc) {
+        doc.source = idOf(change.cell.getTerminal(true));
+        doc.target = idOf(change.cell.getTerminal(false));
+      }
+      return doc;
+    }
+    if (change instanceof StyleChange_default) {
+      const doc = opFor("style", change.cell);
+      if (null !== doc) {
+        doc.style = change.cell.getStyle();
+      }
+      return doc;
+    }
+    return null;
+  }
+  function opFor(name, cell) {
+    const id = cell.getId();
+    return null == id ? null : { op: name, id };
+  }
+  function geometryOp(cell) {
+    const doc = opFor("geometry", cell);
+    const geometry = cell.getGeometry();
+    if (null === doc || null == geometry) {
+      return null;
+    }
+    doc.x = geometry.x;
+    doc.y = geometry.y;
+    doc.w = geometry.width;
+    doc.h = geometry.height;
+    return doc;
+  }
+  function idOf(cell) {
+    return null == cell ? null : cell.getId();
   }
   function applyOp(instance, op) {
     var _a2, _b;
@@ -27097,6 +27408,9 @@ var DomUIMaxGraph = (() => {
   }
   function addNode(instance, doc) {
     var _a2, _b, _c, _d, _e, _f;
+    if (instance.cellById.has(doc.id)) {
+      return;
+    }
     const parent = void 0 === doc.parent ? void 0 : instance.cellById.get(doc.parent);
     const cell = instance.graph.insertVertex({
       id: doc.id,
@@ -27110,6 +27424,9 @@ var DomUIMaxGraph = (() => {
   }
   function addEdge(instance, doc) {
     var _a2, _b;
+    if (instance.cellById.has(doc.id)) {
+      return;
+    }
     const cell = instance.graph.insertEdge({
       id: doc.id,
       source: terminal(instance, doc.source),

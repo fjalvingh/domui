@@ -3,10 +3,13 @@ package to.etc.domui.test.ui.maxgraph;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domuidemo.pages.components.graph.BasicGraphPage;
 import to.etc.domuidemo.pages.components.graph.ChangingGraphPage;
+import to.etc.domuidemo.pages.components.graph.EditableGraphPage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -113,5 +116,72 @@ public class ITMaxGraphPanel extends AbstractWebDriverTest {
 
 		wd().cmd().click().on("button_Recolour_the_hub");
 		wd().wait(ellipseFilled("#f8cecc"));
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	The user changing a drawing, and a server that decides       */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Dragging a node has to reach the Java model: the page says where the model put it,
+	 * which it can only know from the change the browser sent.
+	 */
+	@Test
+	public void draggingANodeMovesItInTheModel() throws Exception {
+		wd().openScreen(EditableGraphPage.class);
+		wd().wait(label("Drag me 1"));
+
+		drag(label("Drag me 1"), 260, 60);
+		wd().wait(logLineContaining("Moved Drag me 1"));
+	}
+
+	/**
+	 * A refused deletion has to put the drawing back - the node the browser threw away, and
+	 * the edges the browser took with it.
+	 */
+	@Test
+	public void aRefusedDeleteBringsTheCellBack() throws Exception {
+		wd().openScreen(EditableGraphPage.class);
+		wd().wait(label("The hub stays"));
+		int edges = wd().findElements(EDGES).size();
+
+		delete(label("The hub stays"));
+		wd().wait(logLineContaining("Refused"));
+
+		Assert.assertTrue("The hub must be back", wd().isPresent(label("The hub stays")));
+		Assert.assertEquals("The edges that went with it must be back too", edges, wd().findElements(EDGES).size());
+	}
+
+	/** And a deletion that is accepted really does remove it, edge and all. */
+	@Test
+	public void anAcceptedDeleteRemovesTheCell() throws Exception {
+		wd().openScreen(EditableGraphPage.class);
+		wd().wait(label("Drag me 3"));
+		int edges = wd().findElements(EDGES).size();
+
+		delete(label("Drag me 3"));
+		wd().notPresent(label("Drag me 3"));
+		wd().wait(logLineContaining("Deleted the edge to Drag me 3"));
+		Assert.assertTrue("The edge to it must be gone as well", wd().findElements(EDGES).size() < edges);
+	}
+
+	/** What an edge is drawn with; maxGraph uses more than one path per edge, so only counts of it compare. */
+	static private final By EDGES = By.xpath("//div[contains(@class,'ui-mxgr')]//*[local-name()='path'][@fill='none']");
+
+	/** One line of what the page says the model was told. */
+	static private By logLineContaining(String text) {
+		return By.xpath("//div[contains(@class,'dm-tut-q')]/div[contains(text(),'" + text + "')]");
+	}
+
+	private void drag(By what, int dx, int dy) {
+		new Actions(wd().driver()).dragAndDropBy(wd().findElement(what), dx, dy).perform();
+	}
+
+	/**
+	 * Delete what this locator points at: click it to select, then press Delete. The drawing
+	 * only gets key events while it holds the focus, which the click gives it.
+	 */
+	private void delete(By what) {
+		new Actions(wd().driver()).click(wd().findElement(what)).sendKeys(Keys.DELETE).perform();
 	}
 }

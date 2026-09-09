@@ -116,6 +116,23 @@ public final class GraphStyle {
 		return this;
 	}
 
+	/**
+	 * Replace everything in this style with what is in the other one. Used when the browser
+	 * sends a cell's complete style back.
+	 */
+	public GraphStyle replaceWith(GraphStyle style) {
+		if(style == this) {
+			return this;
+		}
+		m_properties.clear();
+		m_properties.putAll(style.m_properties);
+		GraphCell owner = m_owner;
+		if(null != owner) {
+			owner.internalStyleChanged();
+		}
+		return this;
+	}
+
 	public Map<String, Object> getProperties() {
 		return Collections.unmodifiableMap(m_properties);
 	}

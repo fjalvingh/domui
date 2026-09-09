@@ -62,7 +62,7 @@ phases 1-3. Verified against the source:
 | Restore browser state after a full page refresh | Nothing, when the create JS is state-free: a full render re-emits it. `NodeBase.renderJavascriptState(JavascriptStmt)` is for state that only the browser has (`CKEditor`, `AceEditor` do that) |
 | Push a change list to an existing widget | `NodeBase.changedJavascriptState()` marks the node; `renderJavascriptDelta(JavascriptStmt)` then emits the Javascript into the delta response. `AceEditor` markers are the working example |
 | Fetch the model as JSON from the browser | `WebUI.jsoncall(id, fields, cb)` -> `IComponentJsonProvider.provideJsonData()`; the response may be a `StringBufferDataFactory` filled by `JsonBuilder`, which is how `PlotlyGraph` ships its dataset |
-| Send structured data to the server as a normal page action | `WebUI.sendJsonAction(id, action, json)` - posts `json` as a string field, dispatches to `NodeBase.componentHandleWebAction(ctx, action)`, and returns the normal page delta. **It exists and nothing uses it yet** |
+| Send structured data to the server as a normal page action | `WebUI.sendJsonAction(id, action, json)` - posts `json` as a string field, dispatches to `NodeBase.componentHandleWebAction(ctx, action)`, and returns the normal page delta. Nothing used it before this component |
 | Send structured data out of band (no UI state change, JSON reply) | action prefixed `#` -> `componentHandleWebDataRequest()` |
 | Build/parse JSON | `to.etc.domui.util.javascript.JsonBuilder` (streaming, used by plotly), `to.etc.json.JSON` (bean mapping), and Jackson 2.21 is already a dependency |
 
@@ -433,28 +433,75 @@ than rebuilt, a removed cell disappearing while its neighbour stays, a relabelle
 restyled cell - and `mvn21 verify -pl to.etc.domui.demo` is green: 9 unit tests, 61
 Selenium ITs, no failures.
 
-### Phase 3 - browser -> server sync
+### Phase 3 - browser -> server sync - DONE
 
-- The Typescript registers on `InternalEvent.CHANGE`, translates the `edit.changes`
-  entries into our ops, coalesces them per transaction, and calls
-  `WebUI.sendJsonAction(id, 'GRAPHCHANGE', {base, ops})`.
-- `componentHandleWebAction()` handles `GRAPHCHANGE`: parse, version-check (§7.3),
-  apply to the `GraphModel` with echo suppressed, then call the page's
-  `IGraphChangeHandler`.
-- **Rejection**: the handler may refuse an op (or the whole list). The server then
-  simply changes the model back; phase 2's delta machinery is already what carries
-  the correction to the browser in the same response. Nothing extra is needed - this
-  is why the ops are id-addressed and idempotent.
-- Since this rides the normal page action, the response is the ordinary page delta,
-  so a handler may also update anything else on the page.
+The user may now change the drawing, and the server has the last word on it. A drawing
+is read-only until `setEditable(true)`; an editable one can be moved, resized and deleted
+in, and every such change goes to the server before it counts.
 
-*Done when*: dragging a node in the browser moves it in the Java model, a handler
-that vetoes a delete makes the node reappear, and an `IT` test drives both.
+- The Typescript listens on the data model's `InternalEvent.CHANGE`, translates the
+  `edit.changes` of the transaction into our operations, coalesces them per transaction,
+  and calls `WebUI.sendJsonAction(id, 'GRAPHCHANGE', {base, ops})` - the framework call
+  the plan found unused. `MaxGraphPanel.webActionGRAPHCHANGE()` picks it up through
+  `SimpleWebActionFactory`, and `GraphChangeParser` reads it in the vocabulary
+  `GraphJsonRenderer` writes - Jackson, because `to.etc.json` has no mapping for a
+  `double` and a geometry is four of them.
+- **Rejection is a veto, not an undo.** The plan said to apply a change and let the
+  handler change it back, but a delete cannot be changed back: the model removes what
+  cannot exist without the cell, and nothing rebuilds that. So `IGraphChangeHandler` is
+  asked *before* anything is made to the model, and returns false to refuse. Nothing then
+  has to be undone - the correction is `GraphModel.resend()`, recording an operation
+  without changing anything so that what the model holds is sent again. Because the
+  operations are id-addressed and read at render time, that is all it takes: phase 2's
+  delta carries it in the same response.
+- `GraphChange` is the mirror of `GraphOp`: an operation names a cell and is read from it,
+  a change carries what is proposed for it. That is what lets a handler decide.
+- **A node deleted in the browser takes its edges with it**, so those edges are one
+  gesture with the node: they follow its verdict, and the handler is not asked about them.
+  Which is why the node deletions are put to the handler first.
+- **The browser is always told the new version**, even when there is nothing to correct.
+  Applying the user's changes moves the model on without anything being sent, and the next
+  change list would then be about a version that no longer exists.
+- **A change list made against another version needs no `reload` operation.** Dropping it
+  leaves the two versions apart, and phase 2's guard in the browser already turns that into
+  a fetch of the whole model. §7.3 costs one `if` and no protocol.
+- Editing a label in place, bending an edge and drawing a new one stay off: a cell the
+  browser invents has no id the server knows it by, and ids are the server's (§5). That is
+  what phase 4's palette is for. The server side parses the whole vocabulary anyway -
+  label, terminal, style, points - so the browser is the only side phase 4 has to grow.
+
+Three things about maxGraph and the browser cost real time here, and are worth knowing:
+
+- `graph.removeCells()` **obeys `cellsDeletable`**, which is off in a read-only drawing, so
+  applying a removal has to go through `graph.getDataModel()`. The server decided; the
+  browser's editing policy has no say over it.
+- a `KeyHandler` only sees a key press that happens **inside the graph's container**, and
+  clicking a shape does not put the focus there - the container needs a `tabindex` and has
+  to be focused by hand;
+- and it must be focused on **`pointerdown`**: maxGraph consumes those, and a consumed
+  pointer event means the compatibility `mousedown` never fires at all. A `mousedown`
+  listener on the container is simply never called.
+
+One protocol bug worth recording: the browser has to **forget a cell the user removed**.
+It was still in the id map, so when the server put a refused deletion back the add was
+taken for a repeat of a cell already there and ignored - the node stayed gone, in a
+drawing that otherwise looked right.
+
+`EditableGraphPage` in the demo has a hub that refuses to be deleted and three nodes to
+drag, and writes what the model was told under the drawing.
+
+*Verified*: driven in a browser - dragging a node reports where the model put it,
+deleting a node deletes it and its edge, and deleting the hub brings it and all three of
+its edges straight back, with nothing in the console but the demo's usual jQuery-migrate
+warnings. `ITMaxGraphPanel` drives all three with Selenium (a real drag, and click +
+Delete), and `mvn21 verify -pl to.etc.domui.demo` is green: 9 unit tests, 64 Selenium ITs,
+no failures.
 
 ### Phase 4 - the editing component proper
 
-Only once 1-3 stand: a palette to drag new nodes from, edge creation constraints
-(`isValidSource/Target`), in-place label editing, keyboard delete, undo/redo
+What phase 3 left off, all of it needing the browser to be able to make a cell the server
+has not named yet: a palette to drag new nodes from, edge creation with constraints
+(`isValidSource/Target`), in-place label editing, and edge bending. Then undo/redo
 (browser-side `UndoManager`, with the server following through phase 3), automatic
 layouts (`HierarchicalLayout`), and SVG/PNG export.
 

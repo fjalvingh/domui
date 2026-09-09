@@ -163,6 +163,15 @@ public class GraphModel {
 		m_listenerList.remove(listener);
 	}
 
+	/**
+	 * Record a change without changing anything, so that what the model holds is sent to
+	 * the browser again. This is how a refused change is put back: the browser made it, the
+	 * model did not, and telling the browser what the cell really is undoes it there.
+	 */
+	public void resend(GraphOp op) {
+		changed(op);
+	}
+
 	/** Called by the model's own classes when something in it changed. */
 	void changed(GraphOp op) {
 		m_version++;

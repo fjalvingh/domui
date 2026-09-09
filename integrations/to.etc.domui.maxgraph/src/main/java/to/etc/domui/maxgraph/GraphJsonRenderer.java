@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * <pre>
  * { "version": 12,
- *   "options": { "panning": true },
+ *   "options": { "panning": true, "editable": false },
  *   "cells": [
  *     { "id": "n1", "kind": "node", "label": "Start", "x": 20, "y": 20, "w": 120, "h": 40,
  *       "style": { "shape": "ellipse" } },
@@ -38,12 +38,13 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class GraphJsonRenderer {
-	public void render(JsonBuilder b, GraphModel model, boolean panning) throws Exception {
+	public void render(JsonBuilder b, GraphModel model, boolean panning, boolean editable) throws Exception {
 		b.obj();
 		b.objField("version", model.getVersion());
 
 		b.objObjField("options");
 		b.objField("panning", panning);
+		b.objField("editable", editable);
 		b.objEnd();
 
 		b.objArrayField("cells");
