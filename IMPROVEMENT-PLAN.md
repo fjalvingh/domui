@@ -254,15 +254,6 @@ it. Everything else on this list is a question for the user, not a deletion.
       `color: yellow` are live. Nothing in the demo raises a bug, so they have
       never been seen rendered. A demo page that raises one would be worth having
       anyway. (Found 2026-09-08.)
-- [ ] **Framework: SVG rasterisation cannot run.** `PartUtil.loadSvg()`, used by
-      `GrayscalerPart` and `MarkerImagePart`, throws
-      `NoClassDefFoundError: org/w3c/dom/svg/SVGDocument`: `to.etc.domui/pom.xml`
-      excludes `batik-ext` (commit e611a2382, 2019-02-10, because it duplicates
-      the `org.w3c.dom` package on Java 10+) and nothing else on the classpath
-      supplies those interfaces. Pre-existing and invisible until now, because
-      the old code threw earlier. Either find a JPMS-safe source for
-      `org.w3c.dom.svg` or replace Batik. (Found 2026-09-07 removing the old
-      theme engines.)
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
       that add nothing.
 

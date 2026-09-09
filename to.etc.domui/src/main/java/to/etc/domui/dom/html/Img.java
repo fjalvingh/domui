@@ -219,13 +219,18 @@ public class Img extends NodeBase implements IActionControl {
 	}
 
 	/**
-	 * When disabled the image renders by greying out the image.
+	 * A disabled image is greyed out by the theme, and does not call its click handler.
 	 */
 	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;
 		m_disabled = disabled;
+		if(disabled) {
+			addCssClass("ui-disabled");
+		} else {
+			removeCssClass("ui-disabled");
+		}
 		changed();
 	}
 

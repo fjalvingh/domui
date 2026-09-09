@@ -69,7 +69,6 @@ import to.etc.domui.dom.html.Underline;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.dom.html.Video;
 import to.etc.domui.dom.html.XmlTextNode;
-import to.etc.domui.parts.GrayscalerPart;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DomUtil;
@@ -1232,9 +1231,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 		String src = n.getSrc();
 		if(null != src) {
 			src = n.getThemedResourceRURL(src);
-			if(n.isDisabled() && !src.startsWith("http")) { // For now we're not supporting grey scaling of servlet images
-				src = GrayscalerPart.getURL(src);
-			}
 			if(m_renderInline) {
 				String s = new ImgToDataRenderer().imageToData(src);
 				o().attr("src", s);

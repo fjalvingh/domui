@@ -7,6 +7,9 @@
 .ui-clickable {
 	cursor: pointer;
 }
+img.ui-disabled {
+	filter: grayscale(1);
+}
 .ui-sup {
 	font-size: xx-small;
 	vertical-align: top;

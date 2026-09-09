@@ -205,7 +205,7 @@ public class PlImage {
 		a = m_yAnchor;
 		if(null != a)
 			b.objField("yanchor", a.name().toLowerCase());
-		b.objFieldOpt("source", DomUtil.calculateImageURL(m_source, false));
+		b.objFieldOpt("source", DomUtil.calculateImageURL(m_source));
 		PlSizing s = m_sizing;
 		if(null != s) {
 			b.objField("sizing", s.name().toLowerCase());

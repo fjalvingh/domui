@@ -24,9 +24,6 @@
  */
 package to.etc.domui.parts;
 
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.DomApplication;
@@ -74,10 +71,8 @@ public class PartUtil {
 				bi = ImaTool.loadJPEG(is);
 			else if(isa(image, "png"))
 				bi = ImaTool.loadPNG(is);
-			else if(isa(image, "svg"))
-				bi = loadSvg(is);
 			else
-				throw new IllegalArgumentException("The image '" + image + "' must be .gif, .jpg, .jpeg, .png or .svg");
+				throw new IllegalArgumentException("The image '" + image + "' must be .gif, .jpg, .jpeg or .png");
 
 			//			System.out.println("size of image is "+xy(m_src_bi.getWidth(), m_src_bi.getHeight()));
 
@@ -94,51 +89,6 @@ public class PartUtil {
 			} catch(Exception x) {
 				//-- Ignore
 			}
-		}
-	}
-
-	/**
-	 * Rasterize an svg image, at the size defined by the svg itself.
-	 */
-	private static BufferedImage loadSvg(InputStream is) throws Exception {
-		BufferedImageTranscoder bit = new BufferedImageTranscoder();
-		bit.transcode(new TranscoderInput(is), new TranscoderOutput());
-		return bit.getRendered();
-	}
-
-	static private class BufferedImageTranscoder extends ImageTranscoder {
-		private BufferedImage m_bi;
-
-		public BufferedImageTranscoder() {
-			//			hints.put(ImageTranscoder.KEY_BACKGROUND_COLOR, Color.white);
-		}
-
-		/**
-		 * Creates a new ARGB image with the specified dimension.
-		 *
-		 * @param w the image width in pixels
-		 * @param h the image height in pixels
-		 */
-		@Override
-		public BufferedImage createImage(int w, int h) {
-			return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		}
-
-		// Note this method does not need the Transcoder Output. It allows you to loosly assume that TranscoderOutput is of type BufferedImageTranscoderOutput, purely because it doesn't really care.
-
-		/**
-		 * Writes the specified image to the specified output.
-		 *
-		 * @param img    the image to write
-		 * @param output the output where to store the image
-		 */
-		@Override
-		public void writeImage(BufferedImage img, TranscoderOutput output) {
-			m_bi = img;
-		}
-
-		public BufferedImage getRendered() {
-			return m_bi;
 		}
 	}
 

@@ -51,7 +51,6 @@ import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.domui.parts.GrayscalerPart;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
@@ -2334,15 +2333,11 @@ final public class DomUtil {
 	/**
 	 * From a "normal" image URL, calculate a site absolute URL.
 	 */
-	static public String calculateImageURL(@NonNull String relativeURL, boolean disabled) {
+	static public String calculateImageURL(@NonNull String relativeURL) {
 		String src = relativeURL;
 
 		if(!DomUtil.isAbsoluteURL(src))
 			src = DomApplication.get().internalGetThemeManager().getThemedResourceRURL(UIContext.getRequestContext(), src);
-
-		if(disabled && !src.startsWith("http")) {            // For now we're not supporting grey scaling of servlet images
-			src = GrayscalerPart.getURL(src);
-		}
 
 		//-- Make absolute
 		if(!src.startsWith("/")) {

@@ -1826,9 +1826,73 @@ These were offered as input while the phase 0 items were being worked, and taken
       commented out. The compiled diff for that removal is deletions only.
       Verified: both stylesheets byte-identical across the renames, `mvn21 clean
       install` green, site build clean.
+- [x] **Framework: server-side SVG rasterisation is gone, and `GrayscalerPart`
+      with it.** Done 2026-09-09, at the user's direction, after the question
+      "is Batik still the best solution to rasterize SVG" was worked out (see the
+      decisions log entry of that date). Removed: `PartUtil.loadSvg()`, its
+      `BufferedImageTranscoder` and the `.svg` branch of `PartUtil.loadImage()`,
+      which now takes GIF, JPEG and PNG only; `parts/GrayscalerPart.java` and its
+      two call sites in `HtmlTagRenderer.visitImg()` and
+      `DomUtil.calculateImageURL()`; that method's `disabled` parameter, with its
+      one caller `PlImage` updated; and the `batik-transcoder` dependency, its
+      four exclusions and the `batik.version` property - 20 jars, 4.3 MB. What
+      replaces it: `Img.setDisabled()` adds the `ui-disabled` class the way
+      `setClicked()` adds `ui-clickable`, and `_helperclasses.scss` carries
+      `img.ui-disabled { filter: grayscale(1); }`. The `ImgPage` paragraph that
+      explained the server-side grayscaler was rewritten; `THEMES.md` §8, §11 and
+      the still-open list were updated and its open issue 3 dropped. Verified:
+      `mvn21 clean install` green, 9 demo unit tests and 55 Selenium ITs pass, and
+      against a locally run demo the disabled `Img` on `ImgPage` renders
+      `class="ui-clickable ui-disabled"` with its original `src` and the compiled
+      stylesheet carries the rule.
 
 
 ## Decisions log
+
+### 2026-09-09 - Batik was not the problem, and the rasteriser was not needed
+
+The question asked was whether Apache Batik is still the best way to rasterise SVG.
+Three answers came out of it, and the third is what was done.
+
+**The exclusion that broke it was stale.** `PartUtil.loadSvg()` threw
+`NoClassDefFoundError: org/w3c/dom/svg/SVGDocument` because the build excluded
+`batik-ext` "because it duplicates the org.w3c.dom package". It does not, and has
+not for years: `batik-ext-1.17.jar` holds seven classes, all under
+`org.apache.batik.w3c.dom`. The missing interfaces live in `xml-apis-ext`, which
+was excluded next to it and which splits no JDK package - `java.xml` on 21 exports
+`org.w3c.dom{,.bootstrap,.events,.ls,.ranges,.traversal,.views}`, and neither
+`.svg` nor `.smil` nor `org.w3c.css.sac`. Dropping the two `*-ext` exclusions makes
+the transcoder work on Java 21, on 1.17 and on the current 1.19. Only the
+`xml-apis` (non-`ext`) exclusion was ever load-bearing.
+
+**Batik is still the only complete pure-Java rasteriser, and JSVG is not a drop-in.**
+Batik 1.19 (2025-05-06) is current and maintained; the costs are 20 jars, 4.3 MB, and
+a run of SSRF/RCE advisories driven by it dereferencing URIs found inside the SVG.
+The modern alternative, JSVG 2.1.0, is one 784 KB jar with no dependencies and no
+scripting - but measured against the demo's three SVGs it rendered two of them
+blank, because it does not implement `<switch>`, which is what Illustrator wraps
+every export in. Stripping the `<switch>` makes it render. That rules it out for
+arbitrary application icons.
+
+**But the rasteriser had no reason to exist.** The only path that reached it in
+anger was `GrayscalerPart`, which made a grey copy of a disabled image on the
+server - written in 2012, when browsers could not do it. The framework had already
+moved: `_button_common.scss` and `_linkButton.scss` grey a disabled button's `img`
+with `filter: grayscale()`, and the `img.setDisabled(isDisabled())` calls in
+`DefaultButton` and `SmallImgButton` are commented out. `MarkerImagePart`, the other
+caller, is fed `THEME/` icons and rejects anything else, and the theme ships no
+`.svg` at all. So the branch was dead in the shipped configuration, and wrong where
+it was not: it rasterised at the size the SVG declares, which for the demo's own
+`checkmark.svg` is 1707x1260 for a 16-pixel icon.
+
+The decision, at the user's direction: remove SVG rasterisation and the part that
+depended on it, rather than repair a dependency to keep a feature CSS does better.
+This supersedes the 2026-09-07 note that `GrayscalerPart` and `MarkerImagePart`
+would keep SVG support. `MarkerImagePart` stays - it draws a caption over a raster
+theme icon, which is not a thing CSS does, and `Input.setMarkerImage()` and
+`Text2.setMarker*()` are live API. `DomUtil.calculateImageURL()` lost its `disabled`
+parameter rather than keeping a boolean that silently does nothing: a compile error
+tells an application that greying is the theme's job now.
 
 ### 2026-09-08 - Two tiers, because one indirection is the whole point
 

@@ -289,10 +289,10 @@ an application re-point.
 - anything else → `ImgIcon`, a `<span>` wrapping an `<img src="THEME/…">` that
   `HtmlTagRenderer.visitImg` translates at render time.
 
-`GrayscalerPart` and `MarkerImagePart` are the two parts that load a themed image
-server-side, through `PartUtil.loadImage()`: GIF, JPEG and PNG via `ImaTool`, SVG via the
-Batik transcoder at the size the SVG itself declares. See open issue 3 — the SVG branch
-cannot currently run.
+`MarkerImagePart` is the one part that loads a themed image server-side, through
+`PartUtil.loadImage()`: GIF, JPEG and PNG via `ImaTool`. There is no server-side SVG
+rasterisation - an `.svg` is rejected. An svg icon reaches the page through `SvgIcon`,
+which inlines its markup, and is styled - recoloured, greyed - by CSS.
 
 A scan of every `"THEME/…"` literal in the framework and demo (93 distinct paths) against
 `resources/themes/scss/winter/` finds two dangling references:
@@ -383,8 +383,7 @@ expander did was call `ITheme.getPropertyScope()`, on which `SassTheme` threw.
 - `themes/ThemePartFactory.java` (`*.theme.*`) and `parts/SvgPartFactory.java`
   (`*.png.svg`), with their registrations
 - `PartUtil.loadProperties()` (no callers) and `PartUtil`'s URL-parameter splitting.
-  `PartUtil.loadSvg()` now takes the resource stream and rasterises it at the size the SVG
-  declares, with no theme expansion and no `w`/`h` parameters.
+  `PartUtil.loadSvg()` kept SVG support here; it was removed later, see below
 
 **Other**
 
@@ -405,6 +404,28 @@ nothing to do with theming.
 Verified after the change: full `mvn21 clean install` succeeds, and against a locally run
 demo `$THEME/<theme>/style.scss` (200, 472 KB of CSS), `$THEME/<theme>/btnCancel.png`,
 `GrayscalerPart` and `MarkerImagePart` all still serve.
+
+### Server-side SVG rasterisation, and the grayscaler with it
+
+A later, separate removal. `PartUtil.loadSvg()` rasterised an `.svg` with the Apache Batik
+transcoder; `PartUtil.loadImage()` is what reached it, and the only callers of that are
+`GrayscalerPart` and `MarkerImagePart`. Gone now:
+
+- `PartUtil.loadSvg()`, its `BufferedImageTranscoder`, and the `.svg` branch of
+  `PartUtil.loadImage()` - which now accepts GIF, JPEG and PNG only
+- `parts/GrayscalerPart.java` and its two call sites, `HtmlTagRenderer.visitImg()` and
+  `DomUtil.calculateImageURL()`, which rewrote the `src` of a disabled `Img` to
+  `GrayscalerPart.part?icon=…` so the server could serve a grey copy
+- `DomUtil.calculateImageURL()`'s `disabled` parameter, which no longer meant anything
+- the `batik-transcoder` dependency, its four exclusions and the `batik.version` property -
+  20 jars, 4.3 MB
+
+What replaces it is CSS. `Img.setDisabled()` adds the `ui-disabled` class the way
+`setClicked()` adds `ui-clickable`, and `_helperclasses.scss` carries
+`img.ui-disabled { filter: grayscale(1); }`; the buttons had already moved that way, with
+`filter: grayscale(100%)` in `_button_common.scss` and `_linkButton.scss` and their
+`img.setDisabled(isDisabled())` calls commented out. An `.svg` never needed the server
+anyway: `SvgIcon` inlines it, so CSS can recolour and grey it directly.
 
 ## 12. One theme, and real variants
 
@@ -731,20 +752,13 @@ parameters of a vendor mixin rather than theme variables.
    breadcrumb link, a badge digit, a selected-item background, a toggle parameter, a
    panel ground and a title tint.
 
-3. **SVG rasterisation cannot run.** `PartUtil.loadSvg()` throws
-   `NoClassDefFoundError: org/w3c/dom/svg/SVGDocument`, because `to.etc.domui/pom.xml`
-   deliberately excludes `batik-ext` — commit e611a2382 (2019-02-10), *"exclude batik-ext
-   because it (partially) duplicates org.w3c.dom package"* for the Java 10 build. Nothing
-   else on the classpath provides those interfaces. This predates the cleanup: the old code
-   threw earlier (in the template expander) and never reached Batik at all. Fixing it means
-   either finding a JPMS-safe source for `org.w3c.dom.svg` or replacing Batik.
-4. **`ThemeManager.checkReapThemes()` does nothing.** It sorts a *copy* of the map's values
+3. **`ThemeManager.checkReapThemes()` does nothing.** It sorts a *copy* of the map's values
    and removes entries from that copy; `m_themeMap` is never touched
    (`ThemeManager.java:151-172`). It also skips the last element because of the
    `for(int i = list.size()-1; --i >= 0;)` / `list.remove(i)` combination.
-5. **Two dangling icon references** — `THEME/big-accessDenied.png` and `THEME/btnBack.png`
+4. **Two dangling icon references** — `THEME/big-accessDenied.png` and `THEME/btnBack.png`
    (§8).
-6. **`$themes/scss/all` is on every search path** but does not exist; `scss/` holds only
+5. **`$themes/scss/all` is on every search path** but does not exist; `scss/` holds only
    `winter/`.
-7. **`translateResourceName()` is a no-op** in the only shipped `ITheme`. Kept as an
+6. **`translateResourceName()` is a no-op** in the only shipped `ITheme`. Kept as an
    extension point; drop it if the rework decides `ITheme` should not carry one.

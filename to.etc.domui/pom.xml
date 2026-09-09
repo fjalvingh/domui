@@ -139,31 +139,6 @@
 		<!--            <artifactId>esapi</artifactId>-->
 		<!--        </dependency>-->
 
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-transcoder</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>xml-apis</groupId>
-					<artifactId>xml-apis</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>xml-apis</groupId>
-					<artifactId>xml-apis-ext</artifactId>
-				</exclusion>
-				<!-- Below contains org.w3c.dom definitions which is not allowed after java 9 -->
-				<exclusion>
-					<groupId>org.apache.xmlgraphics</groupId>
-					<artifactId>batik-ext</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>xalan</groupId>
-					<artifactId>xalan</artifactId>
-				</exclusion>
-
-			</exclusions>
-		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
 		<dependency>
 			<groupId>net.htmlparser.jericho</groupId>

@@ -75,9 +75,8 @@ public class ImgPage extends UrlPage {
 		clickable.add(disabled);
 
 		cp.add(new Para().add("Giving an Img a click handler makes it clickable - the cursor "
-			+ "changes, because the tag gets the ui-clickable class. The second one is disabled: the "
-			+ "handler is not called, and the picture is grey because the src now points at the "
-			+ "framework's grayscaler, which makes a grey copy of it on the server."));
+			+ "changes, because the tag gets the ui-clickable class. The second one is disabled: it "
+			+ "gets the ui-disabled class, which the theme greys out, and the handler is not called."));
 
 		cp.add(new Para().add("For something that is really a button, though, use a button: "
 			+ "SmallImgButton and HoverButton are images that know they are buttons."));
