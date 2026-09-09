@@ -41,12 +41,12 @@ public final class GraphEdge extends GraphCell {
 
 	public void setSource(@Nullable GraphNode source) {
 		m_source = source;
-		getModel().changed();
+		getModel().changed(GraphOp.terminal(this));
 	}
 
 	public void setTarget(@Nullable GraphNode target) {
 		m_target = target;
-		getModel().changed();
+		getModel().changed(GraphOp.terminal(this));
 	}
 
 	/** The points the edge is routed through, in order. */
@@ -56,13 +56,13 @@ public final class GraphEdge extends GraphCell {
 
 	public GraphEdge waypoint(double x, double y) {
 		m_waypoints.add(new GraphPoint(x, y));
-		getModel().changed();
+		getModel().changed(GraphOp.points(this));
 		return this;
 	}
 
 	public void clearWaypoints() {
 		m_waypoints.clear();
-		getModel().changed();
+		getModel().changed(GraphOp.points(this));
 	}
 
 	public GraphEdge label(@Nullable String label) {

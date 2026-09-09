@@ -376,18 +376,62 @@ back identically after both a browser reload and DomUI's own full re-render.
 `ITMaxGraphPanel` asserts the seven labels of the model are in the SVG, and again after
 a refresh; it and the rest of the demo suite are green.
 
-### Phase 2 - server -> browser sync
+### Phase 2 - server -> browser sync - DONE
 
-- `GraphModel` records `GraphOp`s while attached to a panel; the panel registers as
-  its listener, calls `changedJavascriptState()` on the first change, and emits
-  `DomUIMaxGraph.apply('<id>', <ops>)` from `renderJavascriptDelta()`.
-- The Typescript `apply()` walks the ops inside `batchUpdate()` with echo
-  suppression, then clears the change buffer.
-- A full render still goes through phase 1's path (whole model), never through ops.
+Changing the model changes the drawing, without redrawing it. A page moves a node by
+moving it in the model and does nothing else - no `forceRebuild()`, no redraw.
 
-*Done when*: a demo page with buttons - add node, move node, recolour, delete -
-changes only the Java model, and the drawing updates without being redrawn (verify
-in the browser that the SVG for untouched cells is not replaced).
+- Every mutation in `to.etc.domui.maxgraph.model` now arrives at
+  `GraphModel.changed(GraphOp)`, which bumps the version and tells whatever listens.
+  `MaxGraphPanel` listens while it is on a page, collects the operations, and calls
+  `changedJavascriptState()`; `renderJavascriptDelta()` then emits
+  `DomUIMaxGraph.apply('<id>', {base, version, ops})`, rendered by
+  `GraphJsonRenderer.renderOps()` in the vocabulary of §7.2.
+- **An operation names a cell, it does not copy it.** What is sent is read from the cell
+  when the change list is rendered, so a cell changed three times in a round trip is sent
+  once, in the state it ended up in - and the panel's buffer needs no coalescing beyond
+  "an operation already on the list is not added again" (`GraphOp.equals` is type plus
+  cell identity).
+- **`GraphStyle` and `GraphGeometry` report to their cell**, which closes phase 1's gap:
+  `cell.style().fillColor(...)` and `node.getGeometry().setPosition(...)` are changes to
+  the model like any other. A style or geometry made on its own, not part of a drawing,
+  reports to nobody.
+- The Typescript `apply()` walks the operations inside one `batchUpdate()`. Two things
+  the plan did not foresee:
+  - **A change list can arrive before the drawing does.** The create JS and the change
+    list are in the same response, but the model document is fetched asynchronously after
+    it. So an instance carries a `loaded` flag and a queue: lists that arrive early wait,
+    and when the document lands - newer than they are - they find themselves already
+    applied and do nothing.
+  - **A list whose `base` is not the version the drawing is at** is either one we already
+    have (`delta.version <= instance.version`: ignore it) or a sign that we missed one,
+    and then the drawing is loaded again from the model document. That is §7.3's reload
+    path, in the server -> browser direction, working before phase 3 needs it.
+- `graph.removeCells()` **obeys `cellsDeletable`**, which the read-only setup turns off,
+  so removals went through silently doing nothing. Applying a change goes through
+  `graph.getDataModel()` throughout: it is the server that decided, and the browser's
+  editing policy has no say over it.
+- A full render still goes through phase 1's path - `createContent()` drops whatever was
+  pending, because the browser is about to ask for the whole model again.
+
+No echo suppression, contrary to what the plan said: nothing on the browser side listens
+to model changes yet, so applying a change list cannot echo. That flag belongs to phase 3
+and is written when there is something to suppress.
+
+`ChangingGraphPage` in the demo (linked from `ComponentListPage` next to
+`BasicGraphPage`) has five buttons - add a satellite, move the hub, recolour it, rename
+it, remove a satellite - each of which changes only the model.
+
+*Verified*: driven in a browser, every button changes the drawing, and the console shows
+nothing but the jQuery-migrate warnings the demo always has. Held onto in Javascript
+across the clicks: the `<svg>` is the same element afterwards, and so is the `<text>` of a
+node that was not touched, while the ellipse of the node that was recoloured and moved is
+a new one - which is the phase's claim, measured rather than looked at. Removing a
+satellite takes its edge with it. `BasicGraphPage` still draws phase 1's flow chart
+unchanged. `ITMaxGraphPanel` grew four tests around the new page - changed in place rather
+than rebuilt, a removed cell disappearing while its neighbour stays, a relabelled cell, a
+restyled cell - and `mvn21 verify -pl to.etc.domui.demo` is green: 9 unit tests, 61
+Selenium ITs, no failures.
 
 ### Phase 3 - browser -> server sync
 
@@ -431,7 +475,7 @@ layouts (`HierarchicalLayout`), and SVG/PNG export.
 | --- | --- |
 | maxGraph breaks its API on every minor release | Pin the version. All maxGraph types stay inside `domui-maxgraph.ts`; the Java API and the wire protocol are ours, so an upgrade is one file and one bundle rebuild |
 | Bundle size (measured: 401KB minified, 111KB gzipped) | Loaded only by pages that call `MaxGraphPanel.initialize()`; the minified variant is served outside development mode by the existing `$js` resolution |
-| `forceRebuild()` destroys the widget | The Java model is authoritative and the drawing is always rebuildable from it; `renderJavascriptState()` covers the full-refresh path |
+| `forceRebuild()` destroys the widget | The Java model is authoritative and the drawing is always rebuildable from it; the create JS carries no state, so a full render re-emits it and the browser asks for the model again |
 | Large models over the page POST | The op protocol keeps steady-state traffic tiny; the model document is fetched out of band. If an initial model ever gets big, `#`-actions (`componentHandleWebDataRequest`) are the escape hatch. Container POST size limits are worth a note in the docs |
 | Server-side memory | The model lives in the page/conversation like any other page state; document that a huge drawing is a per-conversation cost |
 | Node toolchain drift | §6.1 brings the build to a current node before anything else; the maxGraph bundle is committed and reproducible from a recorded node version, so a normal Maven build needs no node |

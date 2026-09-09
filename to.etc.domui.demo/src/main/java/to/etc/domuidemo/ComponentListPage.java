@@ -41,6 +41,7 @@ import to.etc.domuidemo.pages.components.async.AsyncDivPage;
 import to.etc.domuidemo.pages.components.async.PollingDivPage;
 import to.etc.domuidemo.pages.components.charts.BarChartPage;
 import to.etc.domuidemo.pages.components.graph.BasicGraphPage;
+import to.etc.domuidemo.pages.components.graph.ChangingGraphPage;
 import to.etc.domuidemo.pages.components.charts.GaugeChartPage;
 import to.etc.domuidemo.pages.components.charts.PieChartPage;
 import to.etc.domuidemo.pages.components.charts.SunburstChartPage;
@@ -234,5 +235,6 @@ public class ComponentListPage extends MenuPage {
 		f = new ListFragment("Diagrams");
 		main.add(f);
 		f.addLink(BasicGraphPage.class, "A diagram drawn by maxGraph");
+		f.addLink(ChangingGraphPage.class, "A diagram the server changes");
 	}
 }

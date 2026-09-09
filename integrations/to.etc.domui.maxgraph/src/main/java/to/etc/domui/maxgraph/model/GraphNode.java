@@ -24,10 +24,10 @@ public final class GraphNode extends GraphCell {
 
 	private final GraphGeometry m_geometry;
 
-	GraphNode(GraphModel model, String id, @Nullable String label, @Nullable GraphNode parent, GraphGeometry geometry) {
+	GraphNode(GraphModel model, String id, @Nullable String label, @Nullable GraphNode parent, double x, double y, double width, double height) {
 		super(model, id, label);
 		m_parent = parent;
-		m_geometry = geometry;
+		m_geometry = new GraphGeometry(this, x, y, width, height);
 		if(null != parent) {
 			parent.m_children.add(this);
 		}
@@ -49,13 +49,11 @@ public final class GraphNode extends GraphCell {
 
 	public GraphNode at(double x, double y) {
 		m_geometry.setPosition(x, y);
-		getModel().changed();
 		return this;
 	}
 
 	public GraphNode size(double width, double height) {
 		m_geometry.setSize(width, height);
-		getModel().changed();
 		return this;
 	}
 

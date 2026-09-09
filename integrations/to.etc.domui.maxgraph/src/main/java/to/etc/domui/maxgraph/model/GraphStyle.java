@@ -11,10 +11,26 @@ import java.util.Map;
  * understands is set with {@link #raw(String, Object)}, which is also what the named
  * methods do underneath. Only the properties that were set are sent.
  *
+ * <p>The style of a cell reports every change to that cell, so restyling a drawing that
+ * is already on screen restyles it there too. A style made on its own - to hold a set of
+ * properties to copy from - reports to nobody.</p>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public final class GraphStyle {
+	/** The cell this is the style of, or null for a style that is not part of a drawing. */
+	@Nullable
+	private final GraphCell m_owner;
+
 	private final Map<String, Object> m_properties = new LinkedHashMap<>();
+
+	public GraphStyle() {
+		this(null);
+	}
+
+	GraphStyle(@Nullable GraphCell owner) {
+		m_owner = owner;
+	}
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	The shape and its colours								    */
@@ -92,6 +108,10 @@ public final class GraphStyle {
 			m_properties.remove(name);
 		} else {
 			m_properties.put(name, value);
+		}
+		GraphCell owner = m_owner;
+		if(null != owner) {
+			owner.internalStyleChanged();
 		}
 		return this;
 	}

@@ -19,12 +19,18 @@ import java.util.Map;
  * server and the browser name the same cell. Application data belongs on
  * {@link GraphCell#setUserObject(Object)}, which never leaves the server.</p>
  *
+ * <p>Every change to the model, wherever in it it is made, arrives here as a
+ * {@link GraphOp} and is passed to whatever listens - which is how a panel showing this
+ * model knows what to send to the browser without redrawing it.</p>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class GraphModel {
 	private final List<GraphCell> m_cellList = new ArrayList<>();
 
 	private final Map<String, GraphCell> m_cellMap = new HashMap<>();
+
+	private final List<IGraphModelListener> m_listenerList = new ArrayList<>(1);
 
 	private int m_nodeIdCounter;
 
@@ -50,7 +56,7 @@ public class GraphModel {
 		if(null != parent && parent.getModel() != this) {
 			throw new IllegalArgumentException("The parent " + parent + " belongs to another model");
 		}
-		GraphNode node = new GraphNode(this, "n" + (++m_nodeIdCounter), label, parent, new GraphGeometry(x, y, width, height));
+		GraphNode node = new GraphNode(this, "n" + (++m_nodeIdCounter), label, parent, x, y, width, height);
 		register(node);
 		return node;
 	}
@@ -76,12 +82,13 @@ public class GraphModel {
 	private void register(GraphCell cell) {
 		m_cellList.add(cell);
 		m_cellMap.put(cell.getId(), cell);
-		changed();
+		changed(GraphOp.add(cell));
 	}
 
 	/**
 	 * Remove a cell, with everything that cannot exist without it: the children of a node,
-	 * and the edges that end on it.
+	 * and the edges that end on it. Those go first, so a list of changes can be applied in
+	 * the order it was made.
 	 */
 	public void remove(GraphCell cell) {
 		if(m_cellMap.get(cell.getId()) != cell) {
@@ -103,13 +110,13 @@ public class GraphModel {
 		}
 		m_cellList.remove(cell);
 		m_cellMap.remove(cell.getId());
-		changed();
+		changed(GraphOp.remove(cell));
 	}
 
 	public void clear() {
-		m_cellList.clear();
-		m_cellMap.clear();
-		changed();
+		for(GraphCell cell : new ArrayList<>(m_cellList)) {
+			remove(cell);
+		}
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -134,17 +141,34 @@ public class GraphModel {
 	}
 
 	/**
-	 * Incremented by every change to the model. From phase 3 on this is what tells a
-	 * change list coming from the browser whether it was made against what the model
-	 * still holds.
+	 * Incremented by every change to the model. A change list carries the version it was
+	 * made against, so the side receiving it can tell whether it is still about the model
+	 * it has.
 	 */
 	public int getVersion() {
 		return m_version;
 	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Being told about changes							        */
+	/*----------------------------------------------------------------------*/
+
+	public void addChangeListener(IGraphModelListener listener) {
+		if(!m_listenerList.contains(listener)) {
+			m_listenerList.add(listener);
+		}
+	}
+
+	public void removeChangeListener(IGraphModelListener listener) {
+		m_listenerList.remove(listener);
+	}
+
 	/** Called by the model's own classes when something in it changed. */
-	void changed() {
+	void changed(GraphOp op) {
 		m_version++;
+		for(IGraphModelListener listener : new ArrayList<>(m_listenerList)) {
+			listener.onGraphChanged(this, op);
+		}
 	}
 
 	@Override

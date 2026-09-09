@@ -20,7 +20,7 @@ abstract public class GraphCell {
 	@Nullable
 	private String m_label;
 
-	private final GraphStyle m_style = new GraphStyle();
+	private final GraphStyle m_style = new GraphStyle(this);
 
 	@Nullable
 	private Object m_userObject;
@@ -46,16 +46,13 @@ abstract public class GraphCell {
 
 	public void setLabel(@Nullable String label) {
 		m_label = label;
-		m_model.changed();
+		m_model.changed(GraphOp.label(this));
 	}
 
 	/**
 	 * The style of this cell, changed in place: {@code cell.style().fillColor("#eef")}.
-	 *
-	 * <p>Handing out the mutable style means the model cannot see the change, so a style
-	 * edited after the drawing has been sent does not reach the browser by itself. That is
-	 * what the change recording of phase 2 is for; until then, style the cells while the
-	 * model is being built.</p>
+	 * Changing it is a change to the model like any other, so a cell restyled long after
+	 * the drawing was sent is restyled in the browser too.
 	 */
 	public GraphStyle style() {
 		return m_style;
@@ -68,6 +65,11 @@ abstract public class GraphCell {
 
 	public void setUserObject(@Nullable Object userObject) {
 		m_userObject = userObject;
+	}
+
+	/** Called by the cell's own {@link GraphStyle} when a property in it was set. */
+	void internalStyleChanged() {
+		m_model.changed(GraphOp.style(this));
 	}
 
 	@Override

@@ -35,6 +35,7 @@ var DomUIMaxGraph = (() => {
   // src/main/frontend/domui-maxgraph.ts
   var domui_maxgraph_exports = {};
   __export(domui_maxgraph_exports, {
+    apply: () => apply,
     create: () => create,
     destroy: () => destroy,
     graphFor: () => graphFor
@@ -2000,13 +2001,13 @@ var DomUIMaxGraph = (() => {
      * @param terminal  Cell that represents the new source or target terminal.
      * @param isSource  boolean that specifies if the source or target terminal should be set.
      */
-    setTerminal(terminal, isSource) {
+    setTerminal(terminal2, isSource) {
       if (isSource) {
-        this.source = terminal;
+        this.source = terminal2;
       } else {
-        this.target = terminal;
+        this.target = terminal2;
       }
-      return terminal;
+      return terminal2;
     }
     /**
      * Returns the number of child cells.
@@ -2140,9 +2141,9 @@ var DomUIMaxGraph = (() => {
      * @param isSource Boolean that specifies if the edge should be removed from its source or target terminal.
      */
     removeFromTerminal(isSource) {
-      const terminal = this.getTerminal(isSource);
-      if (terminal) {
-        terminal.removeEdge(this, isSource);
+      const terminal2 = this.getTerminal(isSource);
+      if (terminal2) {
+        terminal2.removeEdge(this, isSource);
       }
     }
     /**
@@ -2527,11 +2528,11 @@ var DomUIMaxGraph = (() => {
 
   // node_modules/@maxgraph/core/lib/esm/view/undoable-change/TerminalChange.js
   var TerminalChange = class {
-    constructor(model, cell, terminal, source) {
+    constructor(model, cell, terminal2, source) {
       this.model = model;
       this.cell = cell;
-      this.terminal = terminal;
-      this.previous = terminal;
+      this.terminal = terminal2;
+      this.previous = terminal2;
       this.source = source;
     }
     /**
@@ -2964,16 +2965,16 @@ var DomUIMaxGraph = (() => {
     const y1 = y * cos + x * sin;
     return new Point_default(x1 + c.x, y1 + c.y);
   };
-  var getPortConstraints = (terminal, edge, source, defaultValue) => {
+  var getPortConstraints = (terminal2, edge, source, defaultValue) => {
     var _a2, _b, _c;
-    const value = (_a2 = terminal.style.portConstraint) != null ? _a2 : source ? edge.style.sourcePortConstraint : edge.style.targetPortConstraint;
+    const value = (_a2 = terminal2.style.portConstraint) != null ? _a2 : source ? edge.style.sourcePortConstraint : edge.style.targetPortConstraint;
     if (isNullish(value)) {
       return defaultValue;
     }
     const directions = value.toString();
     let returnValue = DIRECTION_MASK.NONE;
-    const constraintRotationEnabled = (_b = terminal.style.portConstraintRotation) != null ? _b : false;
-    const rotation = constraintRotationEnabled ? (_c = terminal.style.rotation) != null ? _c : 0 : 0;
+    const constraintRotationEnabled = (_b = terminal2.style.portConstraintRotation) != null ? _b : false;
+    const rotation = constraintRotationEnabled ? (_c = terminal2.style.rotation) != null ? _c : 0 : 0;
     let quad = 0;
     if (rotation > 45) {
       quad = 1;
@@ -8791,8 +8792,8 @@ var DomUIMaxGraph = (() => {
         if (this.isHandleVisible(i)) {
           const source = i === 0;
           const target = i === this.abspoints.length - 1;
-          const terminal = source || target;
-          if (terminal || this.graph.isCellBendable(cell)) {
+          const terminal2 = source || target;
+          if (terminal2 || this.graph.isCellBendable(cell)) {
             ((index) => {
               const bend = this.createHandleShape(index);
               this.initBend(bend, () => {
@@ -8801,10 +8802,10 @@ var DomUIMaxGraph = (() => {
                 }
               });
               if (this.isHandleEnabled(i)) {
-                bend.setCursor(terminal ? EdgeHandlerConfig.cursorTerminal : EdgeHandlerConfig.cursorBend);
+                bend.setCursor(terminal2 ? EdgeHandlerConfig.cursorTerminal : EdgeHandlerConfig.cursorBend);
               }
               bends.push(bend);
-              if (!terminal) {
+              if (!terminal2) {
                 this.points.push(new Point_default(0, 0));
                 bend.node.style.visibility = "hidden";
               }
@@ -9000,8 +9001,8 @@ var DomUIMaxGraph = (() => {
       this.isLabel = index === InternalEvent_default.LABEL_HANDLE;
       if (this.isSource || this.isTarget) {
         const { cell } = this.state;
-        const terminal = cell.getTerminal(this.isSource);
-        if (terminal == null && this.graph.isTerminalPointMovable(cell, this.isSource) || terminal != null && this.graph.isCellDisconnectable(cell, terminal, this.isSource)) {
+        const terminal2 = cell.getTerminal(this.isSource);
+        if (terminal2 == null && this.graph.isTerminalPointMovable(cell, this.isSource) || terminal2 != null && this.graph.isCellDisconnectable(cell, terminal2, this.isSource)) {
           this.index = index;
         }
       } else {
@@ -9020,7 +9021,7 @@ var DomUIMaxGraph = (() => {
     /**
      * Returns a clone of the current preview state for the given point and terminal.
      */
-    clonePreviewState(point, terminal) {
+    clonePreviewState(point, terminal2) {
       return this.state.clone();
     }
     /**
@@ -9079,9 +9080,9 @@ var DomUIMaxGraph = (() => {
             }
           }
         };
-        const snapToTerminal = (terminal) => {
-          if (terminal) {
-            snapToPoint(new Point_default(view.getRoutingCenterX(terminal), view.getRoutingCenterY(terminal)));
+        const snapToTerminal = (terminal2) => {
+          if (terminal2) {
+            snapToPoint(new Point_default(view.getRoutingCenterX(terminal2), view.getRoutingCenterY(terminal2)));
           }
         };
         snapToTerminal(this.state.getVisibleTerminalState(true));
@@ -9387,14 +9388,14 @@ var DomUIMaxGraph = (() => {
           } else if (this.isLabel && this.label) {
             this.moveLabel(this.state, this.label.x, this.label.y);
           } else if (this.isSource || this.isTarget) {
-            let terminal = null;
+            let terminal2 = null;
             if (this.constraintHandler.currentConstraint != null && this.constraintHandler.currentFocus != null) {
-              terminal = this.constraintHandler.currentFocus.cell;
+              terminal2 = this.constraintHandler.currentFocus.cell;
             }
-            if (!terminal && this.marker.hasValidState() && this.marker.highlight != null && this.marker.highlight.shape != null && this.marker.highlight.shape.stroke !== "transparent" && this.marker.highlight.shape.stroke !== "white") {
-              terminal = this.marker.validState.cell;
+            if (!terminal2 && this.marker.hasValidState() && this.marker.highlight != null && this.marker.highlight.shape != null && this.marker.highlight.shape.stroke !== "transparent" && this.marker.highlight.shape.stroke !== "white") {
+              terminal2 = this.marker.validState.cell;
             }
-            if (terminal) {
+            if (terminal2) {
               const model = this.graph.getDataModel();
               const parent = edge.getParent();
               model.beginUpdate();
@@ -9411,7 +9412,7 @@ var DomUIMaxGraph = (() => {
                   this.graph.connectCell(cloned, other, !this.isSource);
                   edge = cloned;
                 }
-                edge = this.connect(edge, terminal, this.isSource, clone2, me);
+                edge = this.connect(edge, terminal2, this.isSource, clone2, me);
               } finally {
                 model.endUpdate();
               }
@@ -9550,14 +9551,14 @@ var DomUIMaxGraph = (() => {
      * @param _isClone Boolean indicating if the new connection should be a clone of the old edge.
      * @param _me {@link MouseEvent} that contains the mouse up event.
      */
-    connect(edge, terminal, isSource, _isClone, _me) {
+    connect(edge, terminal2, isSource, _isClone, _me) {
       const parent = edge.getParent();
       this.graph.batchUpdate(() => {
         let constraint = this.constraintHandler.currentConstraint;
         if (constraint == null) {
           constraint = new ConnectionConstraint_default(null);
         }
-        this.graph.connectCell(edge, terminal, isSource, constraint);
+        this.graph.connectCell(edge, terminal2, isSource, constraint);
       });
       return edge;
     }
@@ -9569,10 +9570,10 @@ var DomUIMaxGraph = (() => {
       model.batchUpdate(() => {
         if (clone2) {
           const parent = edge.getParent();
-          const terminal = edge.getTerminal(!isSource);
+          const terminal2 = edge.getTerminal(!isSource);
           edge = this.graph.cloneCell(edge);
           model.add(parent, edge, parent.getChildCount());
-          model.setTerminal(edge, terminal, !isSource);
+          model.setTerminal(edge, terminal2, !isSource);
         }
         let geo = edge.getGeometry();
         if (geo != null) {
@@ -9667,11 +9668,11 @@ var DomUIMaxGraph = (() => {
     getHandleFillColor(index) {
       const isSource = index === 0;
       const { cell } = this.state;
-      const terminal = cell.getTerminal(isSource);
+      const terminal2 = cell.getTerminal(isSource);
       let color = HandleConfig.fillColor;
-      if (terminal != null && !this.graph.isCellDisconnectable(cell, terminal, isSource) || terminal == null && !this.graph.isTerminalPointMovable(cell, isSource)) {
+      if (terminal2 != null && !this.graph.isCellDisconnectable(cell, terminal2, isSource) || terminal2 == null && !this.graph.isTerminalPointMovable(cell, isSource)) {
         color = LOCKED_HANDLE_FILLCOLOR;
-      } else if (terminal != null && this.graph.isCellDisconnectable(cell, terminal, isSource)) {
+      } else if (terminal2 != null && this.graph.isCellDisconnectable(cell, terminal2, isSource)) {
         color = EdgeHandlerConfig.connectFillColor;
       }
       return color;
@@ -11599,7 +11600,7 @@ var DomUIMaxGraph = (() => {
     /**
      * Overriden to merge edge segments.
      */
-    connect(edge, terminal, isSource, isClone, me) {
+    connect(edge, terminal2, isSource, isClone, me) {
       const model = this.graph.getDataModel();
       let geo = edge.getGeometry();
       let result = null;
@@ -11626,7 +11627,7 @@ var DomUIMaxGraph = (() => {
             model.setGeometry(edge, geo);
           }
         }
-        edge = super.connect(edge, terminal, isSource, isClone, me);
+        edge = super.connect(edge, terminal2, isSource, isClone, me);
       });
       return edge;
     }
@@ -12203,9 +12204,9 @@ var DomUIMaxGraph = (() => {
             const disconnectTerminal = (edge, source) => {
               let geo = edge.getGeometry();
               if (geo) {
-                const terminal = edge.getTerminal(source);
+                const terminal2 = edge.getTerminal(source);
                 let connected = false;
-                let tmp = terminal;
+                let tmp = terminal2;
                 while (tmp) {
                   if (cell === tmp) {
                     connected = true;
@@ -12221,8 +12222,8 @@ var DomUIMaxGraph = (() => {
                     const n = source ? 0 : pts.length - 1;
                     const p = pts[n];
                     geo.setTerminalPoint(new Point_default(p.x / scale - tr.x - state.origin.x, p.y / scale - tr.y - state.origin.y), source);
-                  } else if (terminal) {
-                    const tstate = this.getView().getState(terminal);
+                  } else if (terminal2) {
+                    const tstate = this.getView().getState(terminal2);
                     if (tstate) {
                       geo.setTerminalPoint(new Point_default(tstate.getCenterX() / scale - tr.x, tstate.getCenterY() / scale - tr.y), source);
                     }
@@ -13187,11 +13188,11 @@ var DomUIMaxGraph = (() => {
       }
       return null;
     },
-    getAllConnectionConstraints(terminal, _source) {
+    getAllConnectionConstraints(terminal2, _source) {
       var _a2, _b, _c;
-      return (_c = (_b = (_a2 = terminal == null ? void 0 : terminal.shape) == null ? void 0 : _a2.stencil) == null ? void 0 : _b.constraints) != null ? _c : null;
+      return (_c = (_b = (_a2 = terminal2 == null ? void 0 : terminal2.shape) == null ? void 0 : _a2.stencil) == null ? void 0 : _b.constraints) != null ? _c : null;
     },
-    getConnectionConstraint(edge, terminal, source = false) {
+    getConnectionConstraint(edge, terminal2, source = false) {
       let point = null;
       const x = edge.style[source ? "exitX" : "entryX"];
       if (x !== void 0) {
@@ -13212,7 +13213,7 @@ var DomUIMaxGraph = (() => {
       }
       return new ConnectionConstraint_default(point, perimeter, null, dx, dy);
     },
-    setConnectionConstraint(edge, terminal, source = false, constraint = null) {
+    setConnectionConstraint(edge, terminal2, source = false, constraint = null) {
       if (constraint) {
         this.batchUpdate(() => {
           if (!constraint || !constraint.point) {
@@ -13318,32 +13319,32 @@ var DomUIMaxGraph = (() => {
       }
       return point;
     },
-    connectCell(edge, terminal = null, source = false, constraint = null) {
+    connectCell(edge, terminal2 = null, source = false, constraint = null) {
       this.batchUpdate(() => {
         const previous = edge.getTerminal(source);
-        this.cellConnected(edge, terminal, source, constraint);
-        this.fireEvent(new EventObject_default(InternalEvent_default.CONNECT_CELL, "edge", edge, "terminal", terminal, "source", source, "previous", previous));
+        this.cellConnected(edge, terminal2, source, constraint);
+        this.fireEvent(new EventObject_default(InternalEvent_default.CONNECT_CELL, "edge", edge, "terminal", terminal2, "source", source, "previous", previous));
       });
       return edge;
     },
-    cellConnected(edge, terminal, source = false, constraint = null) {
+    cellConnected(edge, terminal2, source = false, constraint = null) {
       this.batchUpdate(() => {
         const previous = edge.getTerminal(source);
-        this.setConnectionConstraint(edge, terminal, source, constraint);
+        this.setConnectionConstraint(edge, terminal2, source, constraint);
         if (this.isPortsEnabled()) {
           let id = null;
-          if (terminal && this.isPort(terminal)) {
-            id = terminal.getId();
-            terminal = this.getTerminalForPort(terminal, source);
+          if (terminal2 && this.isPort(terminal2)) {
+            id = terminal2.getId();
+            terminal2 = this.getTerminalForPort(terminal2, source);
           }
           const key = source ? "sourcePort" : "targetPort";
           this.setCellStyles(key, id, [edge]);
         }
-        this.getDataModel().setTerminal(edge, terminal, source);
+        this.getDataModel().setTerminal(edge, terminal2, source);
         if (this.isResetEdgesOnConnect()) {
           this.resetEdge(edge);
         }
-        this.fireEvent(new EventObject_default(InternalEvent_default.CELL_CONNECTED, "edge", edge, "terminal", terminal, "source", source, "previous", previous));
+        this.fireEvent(new EventObject_default(InternalEvent_default.CELL_CONNECTED, "edge", edge, "terminal", terminal2, "source", source, "previous", previous));
       });
     },
     disconnectGraph(cells) {
@@ -13423,7 +13424,7 @@ var DomUIMaxGraph = (() => {
     setDisconnectOnMove(value) {
       this.disconnectOnMove = value;
     },
-    isCellDisconnectable(cell, terminal = null, source = false) {
+    isCellDisconnectable(cell, terminal2 = null, source = false) {
       return this.isCellsDisconnectable() && !this.isCellLocked(cell);
     },
     isCellsDisconnectable() {
@@ -15622,19 +15623,19 @@ var DomUIMaxGraph = (() => {
     isTerminalPointMovable(cell, source) {
       return true;
     },
-    getOpposites(edges, terminal = null, includeSources = true, includeTargets = true) {
+    getOpposites(edges, terminal2 = null, includeSources = true, includeTargets = true) {
       const terminals = [];
       const coveredEntries = /* @__PURE__ */ new Map();
       for (let i = 0; i < edges.length; i += 1) {
         const state = this.getView().getState(edges[i]);
         const source = state ? state.getVisibleTerminal(true) : this.getView().getVisibleTerminal(edges[i], true);
         const target = state ? state.getVisibleTerminal(false) : this.getView().getVisibleTerminal(edges[i], false);
-        if (source === terminal && target && target !== terminal && includeTargets) {
+        if (source === terminal2 && target && target !== terminal2 && includeTargets) {
           if (!coveredEntries.has(target)) {
             coveredEntries.set(target, true);
             terminals.push(target);
           }
-        } else if (target === terminal && source && source !== terminal && includeSources) {
+        } else if (target === terminal2 && source && source !== terminal2 && includeSources) {
           if (!coveredEntries.has(source)) {
             coveredEntries.set(source, true);
             terminals.push(source);
@@ -17180,13 +17181,13 @@ var DomUIMaxGraph = (() => {
      * @param isSource  Boolean indicating if the terminal is the new source or
      * target terminal of the edge.
      */
-    setTerminal(edge, terminal, isSource) {
-      const terminalChanged = terminal !== edge.getTerminal(isSource);
-      this.execute(new TerminalChange_default(this, edge, terminal, isSource));
+    setTerminal(edge, terminal2, isSource) {
+      const terminalChanged = terminal2 !== edge.getTerminal(isSource);
+      this.execute(new TerminalChange_default(this, edge, terminal2, isSource));
       if (this.maintainEdgeParent && terminalChanged) {
         this.updateEdgeParent(edge, this.getRoot());
       }
-      return terminal;
+      return terminal2;
     }
     /**
      * Sets the source and target {@link Cell} of the given {@link Cell} in a single
@@ -17214,10 +17215,10 @@ var DomUIMaxGraph = (() => {
      * @param isSource  Boolean indicating if the terminal is the new source or
      * target terminal of the edge.
      */
-    terminalForCellChanged(edge, terminal, isSource = false) {
+    terminalForCellChanged(edge, terminal2, isSource = false) {
       const previous = edge.getTerminal(isSource);
-      if (terminal != null) {
-        terminal.insertEdge(edge, isSource);
+      if (terminal2 != null) {
+        terminal2.insertEdge(edge, isSource);
       } else if (previous != null) {
         previous.removeEdge(edge, isSource);
       }
@@ -17238,15 +17239,15 @@ var DomUIMaxGraph = (() => {
     getEdgesBetween(source, target, directed = false) {
       const tmp1 = source.getEdgeCount();
       const tmp2 = target.getEdgeCount();
-      let terminal = source;
+      let terminal2 = source;
       let edgeCount = tmp1;
       if (tmp2 < tmp1) {
         edgeCount = tmp2;
-        terminal = target;
+        terminal2 = target;
       }
       const result = [];
       for (let i = 0; i < edgeCount; i += 1) {
-        const edge = terminal.getEdgeAt(i);
+        const edge = terminal2.getEdgeAt(i);
         const src = edge.getTerminal(true);
         const trg = edge.getTerminal(false);
         const directedMatch = src === source && trg === target;
@@ -17544,15 +17545,15 @@ var DomUIMaxGraph = (() => {
         this.mergeChildrenImpl(from, to, cloneAllEdges, mapping);
         for (const key in mapping) {
           const cell = mapping[key];
-          let terminal = cell.getTerminal(true);
-          if (terminal != null) {
-            terminal = mapping[CellPath_default.create(terminal)];
-            this.setTerminal(cell, terminal, true);
+          let terminal2 = cell.getTerminal(true);
+          if (terminal2 != null) {
+            terminal2 = mapping[CellPath_default.create(terminal2)];
+            this.setTerminal(cell, terminal2, true);
           }
-          terminal = cell.getTerminal(false);
-          if (terminal != null) {
-            terminal = mapping[CellPath_default.create(terminal)];
-            this.setTerminal(cell, terminal, false);
+          terminal2 = cell.getTerminal(false);
+          if (terminal2 != null) {
+            terminal2 = mapping[CellPath_default.create(terminal2)];
+            this.setTerminal(cell, terminal2, false);
           }
         }
       } finally {
@@ -20248,8 +20249,8 @@ var DomUIMaxGraph = (() => {
      * @param source Boolean that specifies if the terminal is the source.
      * @param constraint {@link ConnectionConstraint} that specifies the connection.
      */
-    updateFixedTerminalPoint(edge, terminal, source, constraint) {
-      edge.setAbsoluteTerminalPoint(this.getFixedTerminalPoint(edge, terminal, source, constraint), source);
+    updateFixedTerminalPoint(edge, terminal2, source, constraint) {
+      edge.setAbsoluteTerminalPoint(this.getFixedTerminalPoint(edge, terminal2, source, constraint), source);
     }
     /**
      * Returns the fixed source or target terminal point for the given edge.
@@ -20259,12 +20260,12 @@ var DomUIMaxGraph = (() => {
      * @param source Boolean that specifies if the terminal is the source.
      * @param constraint {@link ConnectionConstraint} that specifies the connection.
      */
-    getFixedTerminalPoint(edge, terminal, source, constraint) {
+    getFixedTerminalPoint(edge, terminal2, source, constraint) {
       let pt = null;
-      if (constraint && terminal) {
-        pt = this.graph.getConnectionPoint(terminal, constraint, false);
+      if (constraint && terminal2) {
+        pt = this.graph.getConnectionPoint(terminal2, constraint, false);
       }
-      if (!pt && !terminal) {
+      if (!pt && !terminal2) {
         const s = this.scale;
         const tr = this.translate;
         const orig = edge.origin;
@@ -20449,7 +20450,7 @@ var DomUIMaxGraph = (() => {
      * @param terminal {@link CellState} that represents the terminal.
      * @param source Boolean indicating if the given terminal is the source terminal.
      */
-    getTerminalPort(state, terminal, source = false) {
+    getTerminalPort(state, terminal2, source = false) {
       const key = source ? "sourcePort" : "targetPort";
       const id = state.style[key];
       if (id) {
@@ -20457,11 +20458,11 @@ var DomUIMaxGraph = (() => {
         if (cell) {
           const tmp = this.getState(cell, false);
           if (tmp) {
-            terminal = tmp;
+            terminal2 = tmp;
           }
         }
       }
-      return terminal;
+      return terminal2;
     }
     /**
      * Returns an {@link Point} that defines the location of the intersection point between
@@ -20475,19 +20476,19 @@ var DomUIMaxGraph = (() => {
      * returned.
      * @param border Optional border between the perimeter and the shape.
      */
-    getPerimeterPoint(terminal, next, orthogonal, border = 0) {
+    getPerimeterPoint(terminal2, next, orthogonal, border = 0) {
       let point = null;
-      if (terminal != null) {
-        const perimeter = this.getPerimeterFunction(terminal);
+      if (terminal2 != null) {
+        const perimeter = this.getPerimeterFunction(terminal2);
         if (perimeter != null && next != null) {
-          const bounds = this.getPerimeterBounds(terminal, border);
+          const bounds = this.getPerimeterBounds(terminal2, border);
           if (bounds.width > 0 || bounds.height > 0) {
             point = new Point_default(next.x, next.y);
             let flipH = false;
             let flipV = false;
-            if (terminal.cell.isVertex()) {
-              flipH = !!terminal.style.flipH;
-              flipV = !!terminal.style.flipV;
+            if (terminal2.cell.isVertex()) {
+              flipH = !!terminal2.style.flipH;
+              flipV = !!terminal2.style.flipV;
               if (flipH) {
                 point.x = 2 * bounds.getCenterX() - point.x;
               }
@@ -20495,7 +20496,7 @@ var DomUIMaxGraph = (() => {
                 point.y = 2 * bounds.getCenterY() - point.y;
               }
             }
-            point = perimeter(bounds, terminal, point, orthogonal);
+            point = perimeter(bounds, terminal2, point, orthogonal);
             if (point != null) {
               if (flipH) {
                 point.x = 2 * bounds.getCenterX() - point.x;
@@ -20507,7 +20508,7 @@ var DomUIMaxGraph = (() => {
           }
         }
         if (point == null) {
-          point = this.getPoint(terminal);
+          point = this.getPoint(terminal2);
         }
       }
       return point;
@@ -20568,10 +20569,10 @@ var DomUIMaxGraph = (() => {
      * @param terminal CellState that represents the terminal.
      * @param border Number that adds a border between the shape and the perimeter.
      */
-    getPerimeterBounds(terminal, border = 0) {
+    getPerimeterBounds(terminal2, border = 0) {
       var _a2;
-      border += (_a2 = terminal.style.perimeterSpacing) != null ? _a2 : 0;
-      return terminal.getPerimeterBounds(border * this.scale);
+      border += (_a2 = terminal2.style.perimeterSpacing) != null ? _a2 : 0;
+      return terminal2.getPerimeterBounds(border * this.scale);
     }
     /**
      * Returns the perimeter function for the given state.
@@ -26937,14 +26938,10 @@ var DomUIMaxGraph = (() => {
     InternalEvent_default.disableContextMenu(container);
     const graph = new Graph(container);
     readOnly(graph);
-    const instance = { graph, version: -1, cellById: /* @__PURE__ */ new Map() };
+    zoomOnCtrlWheel(graph);
+    const instance = { graph, version: -1, loaded: false, queue: [], cellById: /* @__PURE__ */ new Map() };
     instances.set(id, instance);
-    WebUI.jsoncall(id, {}, (response) => {
-      if (instances.get(id) !== instance) {
-        return;
-      }
-      build(instance, response);
-    });
+    load(id, instance);
   }
   function destroy(id) {
     const instance = instances.get(id);
@@ -26953,6 +26950,17 @@ var DomUIMaxGraph = (() => {
     }
     instance.graph.destroy();
     instances.delete(id);
+  }
+  function apply(id, delta) {
+    const instance = instances.get(id);
+    if (void 0 === instance) {
+      return;
+    }
+    if (!instance.loaded) {
+      instance.queue.push(delta);
+      return;
+    }
+    applyDelta(id, instance, delta);
   }
   function graphFor(id) {
     var _a2;
@@ -26967,23 +26975,125 @@ var DomUIMaxGraph = (() => {
     graph.setConnectable(false);
     graph.setDropEnabled(false);
   }
+  function load(id, instance) {
+    instance.loaded = false;
+    WebUI.jsoncall(id, {}, (response) => {
+      if (instances.get(id) !== instance) {
+        return;
+      }
+      build(instance, response);
+      instance.loaded = true;
+      const queue = instance.queue;
+      instance.queue = [];
+      for (const delta of queue) {
+        applyDelta(id, instance, delta);
+      }
+    });
+  }
   function build(instance, doc) {
     var _a2;
     const graph = instance.graph;
     instance.version = doc.version;
     instance.cellById.clear();
     graph.setPanning(((_a2 = doc.options) == null ? void 0 : _a2.panning) !== false);
-    zoomOnCtrlWheel(graph);
     graph.batchUpdate(() => {
       var _a3;
+      for (const child of graph.getChildCells(graph.getDefaultParent(), true, true)) {
+        graph.getDataModel().remove(child);
+      }
       for (const cell of (_a3 = doc.cells) != null ? _a3 : []) {
-        if ("node" === cell.kind) {
-          addNode(instance, cell);
-        } else {
+        if ("edge" === cell.kind) {
           addEdge(instance, cell);
+        } else {
+          addNode(instance, cell);
         }
       }
     });
+  }
+  function applyDelta(id, instance, delta) {
+    if (delta.base !== instance.version) {
+      if (delta.version <= instance.version) {
+        return;
+      }
+      load(id, instance);
+      return;
+    }
+    let reload = false;
+    instance.graph.batchUpdate(() => {
+      var _a2;
+      for (const op of (_a2 = delta.ops) != null ? _a2 : []) {
+        if ("reload" === op.op) {
+          reload = true;
+          return;
+        }
+        applyOp(instance, op);
+      }
+    });
+    if (reload) {
+      load(id, instance);
+    } else {
+      instance.version = delta.version;
+    }
+  }
+  function applyOp(instance, op) {
+    var _a2, _b;
+    if ("addNode" === op.op) {
+      addNode(instance, op);
+      return;
+    }
+    if ("addEdge" === op.op) {
+      addEdge(instance, op);
+      return;
+    }
+    const cell = instance.cellById.get(op.id);
+    if (void 0 === cell) {
+      return;
+    }
+    const model = instance.graph.getDataModel();
+    switch (op.op) {
+      default:
+        console.error("DomUIMaxGraph: unknown operation '" + op.op + "'");
+        break;
+      case "remove":
+        model.remove(cell);
+        instance.cellById.delete(op.id);
+        break;
+      case "label":
+        model.setValue(cell, (_a2 = op.label) != null ? _a2 : "");
+        break;
+      case "style":
+        model.setStyle(cell, (_b = op.style) != null ? _b : {});
+        break;
+      case "geometry":
+        model.setGeometry(cell, movedGeometry(cell, op));
+        break;
+      case "terminal":
+        model.setTerminal(cell, terminal(instance, op.source), true);
+        model.setTerminal(cell, terminal(instance, op.target), false);
+        break;
+      case "points":
+        model.setGeometry(cell, routedGeometry(cell, op));
+        break;
+    }
+  }
+  function terminal(instance, id) {
+    var _a2;
+    return null == id ? null : (_a2 = instance.cellById.get(id)) != null ? _a2 : null;
+  }
+  function movedGeometry(cell, op) {
+    var _a2, _b, _c, _d, _e, _f;
+    const geometry = (_b = (_a2 = cell.getGeometry()) == null ? void 0 : _a2.clone()) != null ? _b : new Geometry_default();
+    geometry.x = (_c = op.x) != null ? _c : 0;
+    geometry.y = (_d = op.y) != null ? _d : 0;
+    geometry.width = (_e = op.w) != null ? _e : 0;
+    geometry.height = (_f = op.h) != null ? _f : 0;
+    return geometry;
+  }
+  function routedGeometry(cell, op) {
+    var _a2, _b, _c;
+    const geometry = (_b = (_a2 = cell.getGeometry()) == null ? void 0 : _a2.clone()) != null ? _b : new Geometry_default();
+    geometry.points = ((_c = op.points) != null ? _c : []).map((p) => new Point_default(p[0], p[1]));
+    return geometry;
   }
   function addNode(instance, doc) {
     var _a2, _b, _c, _d, _e, _f;
@@ -27002,8 +27112,8 @@ var DomUIMaxGraph = (() => {
     var _a2, _b;
     const cell = instance.graph.insertEdge({
       id: doc.id,
-      source: void 0 === doc.source ? null : instance.cellById.get(doc.source),
-      target: void 0 === doc.target ? null : instance.cellById.get(doc.target),
+      source: terminal(instance, doc.source),
+      target: terminal(instance, doc.target),
       value: (_a2 = doc.label) != null ? _a2 : "",
       style: (_b = doc.style) != null ? _b : {}
     });

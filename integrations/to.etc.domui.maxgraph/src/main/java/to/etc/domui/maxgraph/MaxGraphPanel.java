@@ -6,11 +6,17 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.maxgraph.model.GraphModel;
+import to.etc.domui.maxgraph.model.GraphOp;
+import to.etc.domui.maxgraph.model.IGraphModelListener;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.server.StringBufferDataFactory;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.javascript.JsonBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A diagram, drawn in the browser by <a href="https://github.com/maxGraph/maxGraph">maxGraph</a>
@@ -37,6 +43,11 @@ import to.etc.domui.util.javascript.JsonBuilder;
  * browser-side instance away, and the create call that comes with the next render asks
  * for the model again.</p>
  *
+ * <p>Changing the model afterwards does not redraw anything: the panel listens to the
+ * model, and what changed during a request is sent at the end of it as a list of changes
+ * that the browser applies to the drawing it already has. So a page moves a node by
+ * moving it in the model, and nothing else.</p>
+ *
  * <p>A page that uses this must call {@link #initialize(NodeContainer)} once, which adds
  * the library to that page only.</p>
  *
@@ -49,6 +60,16 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 	private GraphModel m_model = new GraphModel();
 
 	private boolean m_panning = true;
+
+	/** What changed since the browser was last told, in the order it changed. */
+	private final List<GraphOp> m_pendingOps = new ArrayList<>();
+
+	/** The model version the browser's drawing is at, as far as this panel knows. */
+	private int m_sentVersion;
+
+	private boolean m_listening;
+
+	private final IGraphModelListener m_modelListener = (model, op) -> opped(op);
 
 	public MaxGraphPanel() {
 		setCssClass("ui-mxgr");
@@ -71,6 +92,10 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 	 */
 	@Override
 	public void createContent() throws Exception {
+		//-- Everything before now is in the model the browser is about to ask for.
+		m_pendingOps.clear();
+		m_sentVersion = m_model.getVersion();
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("DomUIMaxGraph.create('").append(getActualID()).append("', {imageBase:'")
 			.append(DomUtil.getRelativeApplicationResourceURL(RESOURCE_ROOT + "/images"))
@@ -79,8 +104,15 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 	}
 
 	@Override
+	public void onAddedToPage(Page p) {
+		super.onAddedToPage(p);
+		startListening();
+	}
+
+	@Override
 	public void onRemoveFromPage(Page p) {
 		super.onRemoveFromPage(p);
+		stopListening();
 		appendJavascript("DomUIMaxGraph.destroy('" + getActualID() + "');");
 	}
 
@@ -94,7 +126,59 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 		try(JsonBuilder b = new JsonBuilder(sb)) {
 			new GraphJsonRenderer().render(b, m_model, m_panning);
 		}
+		//-- Whatever the browser had, it now has this.
+		m_pendingOps.clear();
+		m_sentVersion = m_model.getVersion();
 		return sb;
+	}
+
+	/**
+	 * Send what changed in the model during this request to the drawing that is already
+	 * on the screen, so that it changes instead of being rebuilt.
+	 */
+	@Override
+	protected void renderJavascriptDelta(@NonNull JavascriptStmt b) throws Exception {
+		if(m_pendingOps.isEmpty()) {
+			return;
+		}
+		StringBuilder json = new StringBuilder();
+		try(JsonBuilder jb = new JsonBuilder(json)) {
+			new GraphJsonRenderer().renderOps(jb, m_sentVersion, m_model, m_pendingOps);
+		}
+		m_pendingOps.clear();
+		m_sentVersion = m_model.getVersion();
+
+		b.append("DomUIMaxGraph.apply('").append(getActualID()).append("',").append(json.toString()).append(")");
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Listening to the model								        */
+	/*----------------------------------------------------------------------*/
+
+	private void startListening() {
+		if(!m_listening) {
+			m_model.addChangeListener(m_modelListener);
+			m_listening = true;
+		}
+	}
+
+	private void stopListening() {
+		if(m_listening) {
+			m_model.removeChangeListener(m_modelListener);
+			m_listening = false;
+		}
+	}
+
+	/**
+	 * One change to the model. A change that is already on the list is not added again:
+	 * what is sent for it is read from the cell when the list is rendered, so recording it
+	 * once is recording the last value.
+	 */
+	private void opped(GraphOp op) {
+		if(!m_pendingOps.contains(op)) {
+			m_pendingOps.add(op);
+		}
+		changedJavascriptState();
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -106,10 +190,20 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 	}
 
 	/**
-	 * Show this model. The drawing is rebuilt from it.
+	 * Show this model. The drawing is rebuilt from it: another model has other cells, so
+	 * there is nothing to change one into the other with.
 	 */
 	public MaxGraphPanel setModel(GraphModel model) {
+		if(m_model == model) {
+			return this;
+		}
+		boolean listening = m_listening;
+		stopListening();
 		m_model = model;
+		m_pendingOps.clear();
+		if(listening) {
+			startListening();
+		}
 		forceRebuild();
 		return this;
 	}

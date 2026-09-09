@@ -6,7 +6,7 @@
  * esbuild bundles it into one IIFE which exposes the exports below as the global
  * DomUIMaxGraph; see the module's README for the build.
  */
-import { Cell, Client, Graph, InternalEvent, Point } from '@maxgraph/core';
+import { Cell, Client, Geometry, Graph, InternalEvent, Point } from '@maxgraph/core';
 
 /** DomUI's own Javascript, which is loaded before this and lives in its own global. */
 declare const WebUI: {
@@ -18,10 +18,10 @@ export interface CreateOptions {
 	imageBase?: string;
 }
 
-/** One cell of the model document the server sends. */
+/** One cell of the model document the server sends, and the payload of a change to one. */
 interface CellDoc {
 	id: string;
-	kind: 'node' | 'edge';
+	kind?: 'node' | 'edge';
 	label?: string;
 	style?: Record<string, unknown>;
 
@@ -32,9 +32,9 @@ interface CellDoc {
 	w?: number;
 	h?: number;
 
-	/** Edges. */
-	source?: string;
-	target?: string;
+	/** Edges. A terminal that is sent as null is one that was taken away. */
+	source?: string | null;
+	target?: string | null;
 	points?: number[][];
 }
 
@@ -44,9 +44,28 @@ interface ModelDoc {
 	cells?: CellDoc[];
 }
 
+/** One change to the drawing: what happened, plus the fields that kind of change carries. */
+interface OpDoc extends CellDoc {
+	op: string;
+}
+
+/**
+ * A list of changes, and the model version it turns into. It only applies to a drawing
+ * that is at "base"; anything else means we saw a different history than the server did.
+ */
+interface DeltaDoc {
+	base: number;
+	version: number;
+	ops?: OpDoc[];
+}
+
 interface Instance {
 	graph: Graph;
+	/** The model version this drawing shows, or -1 while there is no drawing yet. */
 	version: number;
+	/** False while we are waiting for a model document; changes that arrive then wait too. */
+	loaded: boolean;
+	queue: DeltaDoc[];
 	cellById: Map<string, Cell>;
 }
 
@@ -74,16 +93,10 @@ export function create(id: string, options: CreateOptions = {}): void {
 
 	const graph = new Graph(container);
 	readOnly(graph);
-	const instance: Instance = {graph, version: -1, cellById: new Map()};
+	zoomOnCtrlWheel(graph);
+	const instance: Instance = {graph, version: -1, loaded: false, queue: [], cellById: new Map()};
 	instances.set(id, instance);
-
-	WebUI.jsoncall(id, {}, (response: ModelDoc) => {
-		//-- The panel can have gone away while we were asking.
-		if(instances.get(id) !== instance) {
-			return;
-		}
-		build(instance, response);
-	});
+	load(id, instance);
 }
 
 /**
@@ -97,6 +110,26 @@ export function destroy(id: string): void {
 	}
 	instance.graph.destroy();
 	instances.delete(id);
+}
+
+/**
+ * Apply the changes the server made to its model to the drawing that is already there,
+ * so that what did not change is not touched.
+ *
+ * A change list that arrives before the drawing does is kept until it has: the document
+ * that is on its way is newer than the list, and the list then finds itself already
+ * applied and does nothing.
+ */
+export function apply(id: string, delta: DeltaDoc): void {
+	const instance = instances.get(id);
+	if(undefined === instance) {
+		return;
+	}
+	if(!instance.loaded) {
+		instance.queue.push(delta);
+		return;
+	}
+	applyDelta(id, instance, delta);
 }
 
 /** The maxGraph instance for this element, for debugging from the console. */
@@ -119,6 +152,28 @@ function readOnly(graph: Graph): void {
 }
 
 /**
+ * Ask the server for the model of this component and draw it, replacing whatever is
+ * drawn now. Changes that come in while we wait are queued by {@link apply}.
+ */
+function load(id: string, instance: Instance): void {
+	instance.loaded = false;
+	WebUI.jsoncall(id, {}, (response: ModelDoc) => {
+		//-- The panel can have gone away, or been recreated, while we were asking.
+		if(instances.get(id) !== instance) {
+			return;
+		}
+		build(instance, response);
+		instance.loaded = true;
+
+		const queue = instance.queue;
+		instance.queue = [];
+		for(const delta of queue) {
+			applyDelta(id, instance, delta);
+		}
+	});
+}
+
+/**
  * Build the whole drawing from a model document, inside one transaction so the browser
  * lays out and paints once.
  */
@@ -128,17 +183,121 @@ function build(instance: Instance, doc: ModelDoc): void {
 	instance.cellById.clear();
 
 	graph.setPanning(doc.options?.panning !== false);
-	zoomOnCtrlWheel(graph);
 
 	graph.batchUpdate(() => {
+		for(const child of graph.getChildCells(graph.getDefaultParent(), true, true)) {
+			graph.getDataModel().remove(child);
+		}
 		for(const cell of doc.cells ?? []) {
-			if('node' === cell.kind) {
-				addNode(instance, cell);
-			} else {
+			if('edge' === cell.kind) {
 				addEdge(instance, cell);
+			} else {
+				addNode(instance, cell);
 			}
 		}
 	});
+}
+
+/**
+ * Walk a change list. A list that was made against another version of the model than
+ * this drawing shows is either one we already have - the drawing was rebuilt from a
+ * document that is newer than the list - or a sign that we missed one, and then the only
+ * cure is to ask for the whole model again.
+ */
+function applyDelta(id: string, instance: Instance, delta: DeltaDoc): void {
+	if(delta.base !== instance.version) {
+		if(delta.version <= instance.version) {
+			return;
+		}
+		load(id, instance);
+		return;
+	}
+
+	let reload = false;
+	instance.graph.batchUpdate(() => {
+		for(const op of delta.ops ?? []) {
+			if('reload' === op.op) {
+				reload = true;
+				return;
+			}
+			applyOp(instance, op);
+		}
+	});
+	if(reload) {
+		load(id, instance);
+	} else {
+		instance.version = delta.version;
+	}
+}
+
+function applyOp(instance: Instance, op: OpDoc): void {
+	if('addNode' === op.op) {
+		addNode(instance, op);
+		return;
+	}
+	if('addEdge' === op.op) {
+		addEdge(instance, op);
+		return;
+	}
+
+	const cell = instance.cellById.get(op.id);
+	if(undefined === cell) {
+		return;                                            // Gone already; every change is about a cell that may not be there.
+	}
+	const model = instance.graph.getDataModel();
+	switch(op.op) {
+		default:
+			console.error("DomUIMaxGraph: unknown operation '" + op.op + "'");
+			break;
+
+		case 'remove':
+			//-- Through the model, not through the graph: the graph refuses to delete what it
+			//-- was told is not deletable, and everything here is not deletable by the user.
+			model.remove(cell);
+			instance.cellById.delete(op.id);
+			break;
+
+		case 'label':
+			model.setValue(cell, op.label ?? '');
+			break;
+
+		case 'style':
+			model.setStyle(cell, op.style ?? {});
+			break;
+
+		case 'geometry':
+			model.setGeometry(cell, movedGeometry(cell, op));
+			break;
+
+		case 'terminal':
+			model.setTerminal(cell, terminal(instance, op.source), true);
+			model.setTerminal(cell, terminal(instance, op.target), false);
+			break;
+
+		case 'points':
+			model.setGeometry(cell, routedGeometry(cell, op));
+			break;
+	}
+}
+
+function terminal(instance: Instance, id: string | null | undefined): Cell | null {
+	return null == id ? null : instance.cellById.get(id) ?? null;
+}
+
+/** The cell's geometry with the bounds the change carries; a geometry is replaced, not edited. */
+function movedGeometry(cell: Cell, op: CellDoc): Geometry {
+	const geometry = cell.getGeometry()?.clone() ?? new Geometry();
+	geometry.x = op.x ?? 0;
+	geometry.y = op.y ?? 0;
+	geometry.width = op.w ?? 0;
+	geometry.height = op.h ?? 0;
+	return geometry;
+}
+
+function routedGeometry(cell: Cell, op: CellDoc): Geometry {
+	const geometry = cell.getGeometry()?.clone() ?? new Geometry();
+	geometry.points = (op.points ?? []).map(p => new Point(p[0], p[1]));
+	return geometry;
 }
 
 function addNode(instance: Instance, doc: CellDoc): void {
@@ -157,8 +316,8 @@ function addNode(instance: Instance, doc: CellDoc): void {
 function addEdge(instance: Instance, doc: CellDoc): void {
 	const cell = instance.graph.insertEdge({
 		id: doc.id,
-		source: undefined === doc.source ? null : instance.cellById.get(doc.source),
-		target: undefined === doc.target ? null : instance.cellById.get(doc.target),
+		source: terminal(instance, doc.source),
+		target: terminal(instance, doc.target),
 		value: doc.label ?? '',
 		style: doc.style ?? {}
 	});
