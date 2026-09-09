@@ -26936,23 +26936,14 @@ var DomUIMaxGraph = (() => {
     }
     InternalEvent_default.disableContextMenu(container);
     const graph = new Graph(container);
-    graph.setPanning(options.panning !== false);
-    instances.set(id, { graph });
-    graph.batchUpdate(() => {
-      const from = graph.insertVertex({
-        id: "n1",
-        value: "Hello",
-        position: [40, 40],
-        size: [120, 40]
-      });
-      const to = graph.insertVertex({
-        id: "n2",
-        value: "World",
-        position: [260, 160],
-        size: [120, 40],
-        style: { shape: "ellipse", fillColor: "#ddeeff" }
-      });
-      graph.insertEdge({ id: "e1", source: from, target: to, value: "edge" });
+    readOnly(graph);
+    const instance = { graph, version: -1, cellById: /* @__PURE__ */ new Map() };
+    instances.set(id, instance);
+    WebUI.jsoncall(id, {}, (response) => {
+      if (instances.get(id) !== instance) {
+        return;
+      }
+      build(instance, response);
     });
   }
   function destroy(id) {
@@ -26966,6 +26957,85 @@ var DomUIMaxGraph = (() => {
   function graphFor(id) {
     var _a2;
     return (_a2 = instances.get(id)) == null ? void 0 : _a2.graph;
+  }
+  function readOnly(graph) {
+    graph.setCellsEditable(false);
+    graph.setCellsMovable(false);
+    graph.setCellsResizable(false);
+    graph.setCellsDeletable(false);
+    graph.setCellsBendable(false);
+    graph.setConnectable(false);
+    graph.setDropEnabled(false);
+  }
+  function build(instance, doc) {
+    var _a2;
+    const graph = instance.graph;
+    instance.version = doc.version;
+    instance.cellById.clear();
+    graph.setPanning(((_a2 = doc.options) == null ? void 0 : _a2.panning) !== false);
+    zoomOnCtrlWheel(graph);
+    graph.batchUpdate(() => {
+      var _a3;
+      for (const cell of (_a3 = doc.cells) != null ? _a3 : []) {
+        if ("node" === cell.kind) {
+          addNode(instance, cell);
+        } else {
+          addEdge(instance, cell);
+        }
+      }
+    });
+  }
+  function addNode(instance, doc) {
+    var _a2, _b, _c, _d, _e, _f;
+    const parent = void 0 === doc.parent ? void 0 : instance.cellById.get(doc.parent);
+    const cell = instance.graph.insertVertex({
+      id: doc.id,
+      parent,
+      value: (_a2 = doc.label) != null ? _a2 : "",
+      position: [(_b = doc.x) != null ? _b : 0, (_c = doc.y) != null ? _c : 0],
+      size: [(_d = doc.w) != null ? _d : 0, (_e = doc.h) != null ? _e : 0],
+      style: (_f = doc.style) != null ? _f : {}
+    });
+    instance.cellById.set(doc.id, cell);
+  }
+  function addEdge(instance, doc) {
+    var _a2, _b;
+    const cell = instance.graph.insertEdge({
+      id: doc.id,
+      source: void 0 === doc.source ? null : instance.cellById.get(doc.source),
+      target: void 0 === doc.target ? null : instance.cellById.get(doc.target),
+      value: (_a2 = doc.label) != null ? _a2 : "",
+      style: (_b = doc.style) != null ? _b : {}
+    });
+    const points = doc.points;
+    if (void 0 !== points && points.length > 0) {
+      const geometry = cell.getGeometry();
+      if (null != geometry) {
+        geometry.points = points.map((p) => new Point_default(p[0], p[1]));
+      }
+    }
+    instance.cellById.set(doc.id, cell);
+  }
+  function zoomOnCtrlWheel(graph) {
+    const container = graph.container;
+    if (null == container) {
+      return;
+    }
+    InternalEvent_default.addMouseWheelListener((event, up) => {
+      const wheel = event;
+      if (!wheel.ctrlKey && !wheel.metaKey) {
+        return;
+      }
+      if (!container.contains(wheel.target)) {
+        return;
+      }
+      if (up) {
+        graph.zoomIn();
+      } else {
+        graph.zoomOut();
+      }
+      InternalEvent_default.consume(event);
+    }, container);
   }
   return __toCommonJS(domui_maxgraph_exports);
 })();

@@ -59,7 +59,7 @@ phases 1-3. Verified against the source:
 | --- | --- |
 | Load the library on pages that use it | `HeaderContributor.loadJavascript("$js/...")`, added by a static `initialize(NodeContainer)` on the component, as `PlotlyGraph` does |
 | Create the widget when the node is rendered | `NodeBase.appendCreateJS()` - runs on create *and* on every full page refresh, and may not carry state |
-| Restore browser state after a full page refresh | `NodeBase.renderJavascriptState(JavascriptStmt)` (`CKEditor`, `AceEditor` do this) |
+| Restore browser state after a full page refresh | Nothing, when the create JS is state-free: a full render re-emits it. `NodeBase.renderJavascriptState(JavascriptStmt)` is for state that only the browser has (`CKEditor`, `AceEditor` do that) |
 | Push a change list to an existing widget | `NodeBase.changedJavascriptState()` marks the node; `renderJavascriptDelta(JavascriptStmt)` then emits the Javascript into the delta response. `AceEditor` markers are the working example |
 | Fetch the model as JSON from the browser | `WebUI.jsoncall(id, fields, cb)` -> `IComponentJsonProvider.provideJsonData()`; the response may be a `StringBufferDataFactory` filled by `JsonBuilder`, which is how `PlotlyGraph` ships its dataset |
 | Send structured data to the server as a normal page action | `WebUI.sendJsonAction(id, action, json)` - posts `json` as a string field, dispatches to `NodeBase.componentHandleWebAction(ctx, action)`, and returns the normal page delta. **It exists and nothing uses it yet** |
@@ -340,25 +340,41 @@ this module at all** - the bundle is committed, and only `to.etc.domui`'s own
 Typescript still runs node, as it did before. The demo's 9 unit tests and 55 Selenium
 ITs are green with the module and its demo page added.
 
-### Phase 1 - render a drawing (the initial version asked for)
+### Phase 1 - render a drawing - DONE
 
-- `MaxGraphPanel extends Div implements IComponentJsonProvider`. `createContent()`
-  adds the css class, leaves the div empty, and emits
-  `appendCreateJS("DomUIMaxGraph.create('<id>', <options>)")`.
-- The Typescript `create()` builds the `Graph`, then does `WebUI.jsoncall(id, ...)`
-  and builds all cells from the model document inside one `batchUpdate()` - the
-  `PlotlyGraph` pattern, which keeps the create-JS state-free as `appendCreateJS`
-  requires.
-- `renderJavascriptState()` re-issues the create call, so a full page refresh
-  rebuilds the drawing from the Java model.
-- `setModel(GraphModel)` on the component; `forceRebuild()` on replacement.
-- Read-only interaction: pan, zoom, selection, tooltips. No editing.
-- Sizing: the panel needs an explicit height; ship `domui-maxgraph.css` with the
-  container rules.
-- A first demo page and an `IT` test that the SVG appears.
+The Java content model of §5, the document of §7.1, and a panel that fetches it.
 
-*Done when*: a demo page builds a `GraphModel` in Java and the drawing appears,
-survives a full page refresh, and renders identically after one.
+- `to.etc.domui.maxgraph.model` holds `GraphModel`, `GraphCell` with `GraphNode` and
+  `GraphEdge`, `GraphGeometry`, `GraphPoint`, `GraphStyle` and the `GraphShape` /
+  `GraphEdgeStyle` enums. It knows nothing of maxGraph and nothing of DomUI, so a
+  drawing can be built and tested without either.
+- `MaxGraphPanel implements IComponentJsonProvider`. `createContent()` emits only
+  `DomUIMaxGraph.create('<id>', {imageBase})`; `provideJsonData()` renders the model
+  with `GraphJsonRenderer` into a `JsonBuilder`.
+- The wrapper's `create()` builds the `Graph`, switches every editing affordance off,
+  asks for the model with `WebUI.jsoncall`, and builds all cells in one
+  `batchUpdate()`. Read-only interaction: selection, panning, and zoom on ctrl+wheel
+  (a plain wheel keeps scrolling the page).
+- `BasicGraphPage` in the demo builds a five-node flow chart in Java, and
+  `ITMaxGraphPanel` drives it.
+
+**No `renderJavascriptState()`, contrary to what this plan said.** A full render
+re-emits a node's `appendCreateJS` buffer - which is why the phase 0 drawing already
+survived a refresh - so adding `renderJavascriptState` would create the widget twice.
+The create call carries no state, and the model comes from the follow-up json call, so
+the refresh path needs nothing of its own.
+
+Two smaller deviations: cell ids are allocated by the model and cannot be supplied by
+the caller (an application correlates through `GraphCell.setUserObject()`, which stays
+on the server), and there are no tooltips, because the model has nothing to put in
+them. `GraphStyle` is handed out mutable, so a style edited after the drawing has been
+sent does not reach the browser by itself - that is what phase 2 is for.
+
+*Verified*: the demo page draws the model - shapes, fill and stroke colours, the
+labelled and dashed edges, the orthogonal routing - with no console errors, and comes
+back identically after both a browser reload and DomUI's own full re-render.
+`ITMaxGraphPanel` asserts the seven labels of the model are in the SVG, and again after
+a refresh; it and the rest of the demo suite are green.
 
 ### Phase 2 - server -> browser sync
 
