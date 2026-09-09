@@ -49,12 +49,14 @@ final public class SassTheme implements ITheme {
 
 	@NonNull @Override public String getStyleSheetName() throws Exception {
 		BrowserVersion version = UIContext.getRequestContext().getPageParameters().getBrowserVersion();	// FIXME Fugly!!
-		String css = ThemeResourceFactory.PREFIX + m_variantName + "/style.scss";
+		String contextString = ThemeResourceFactory.PREFIX + m_variantName + "/";
+		String css = contextString + "style.scss";
 		PageParameters pp = new PageParameters()
 			.themeVariant(getVariantName())
 			.browserVersion(version)
 			.inputPath(css)
 			;
+		pp.setUrlContextString(contextString);
 		PartData data = DomApplication.get().getPartService().getData(pp);
 		String hash = StringTool.toHex(data.getHash());
 
