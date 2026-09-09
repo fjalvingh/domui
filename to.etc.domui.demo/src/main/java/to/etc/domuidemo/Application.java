@@ -24,6 +24,7 @@ import to.etc.domui.themes.sass.SassThemeFactory;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.Msgs;
+import to.etc.domui.util.bugs.DefaultBugListener;
 import to.etc.domuidemo.components.PageHeader;
 import to.etc.domuidemo.pages.HomePage;
 import to.etc.domuidemo.pages.tutorial.messages.OutOfStockException;
@@ -104,6 +105,11 @@ public class Application extends DomApplication {
 			public void newPageCreated(@NonNull UrlPage body) throws Exception {
 			}
 		});
+
+		/*
+		 * Show the bug indicator when Bug.bug() is called - see BugIndicatorPage.
+		 */
+		DefaultBugListener.registerSessionListener(this);
 
 		/*
 		 * Add a generic listener for column width changed events.

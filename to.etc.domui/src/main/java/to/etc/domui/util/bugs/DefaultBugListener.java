@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.layout.FloatingWindow;
 import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Img;
@@ -330,13 +331,10 @@ public class DefaultBugListener implements IBugListener {
 	}
 
 	static private class ItemPnl extends TR {
-		private BugItem m_bi;
+		private final BugItem m_bi;
 
-		private TD m_maintd;
-
-		private Div m_detail;
-
-		private Img m_clickimg;
+		/** T when the stack trace below the message is shown. */
+		private boolean m_expanded;
 
 		public ItemPnl(BugItem bi) {
 			m_bi = bi;
@@ -346,10 +344,11 @@ public class DefaultBugListener implements IBugListener {
 		public void createContent() throws Exception {
 			TD td = addCell();
 			td.setVerticalAlign(VerticalAlignType.TOP);
-			m_clickimg = new Img("THEME/xdt-collapsed.png");
-			td.add(m_clickimg);
-			m_clickimg.setAlign(ImgAlign.LEFT);
-			m_clickimg.setClicked(new IExecute() {
+
+			//-- A font icon, so the disclosure marker follows the text colour of whatever theme variant is current.
+			NodeBase marker = (m_expanded ? Icon.faCaretDown : Icon.faCaretRight).createNode();
+			td.add(marker);
+			marker.setClicked(new IExecute() {
 				@Override
 				public void execute() throws Exception {
 					toggle();
@@ -367,27 +366,22 @@ public class DefaultBugListener implements IBugListener {
 					ttl.add(nb);
 			}
 			ttl.setCssClass("ui-bug-msg");
-			m_maintd = td;
+
+			if(m_expanded) {
+				Div detail = new Div();
+				td.add(detail);
+				detail.setCssClass("ui-bug-stk");
+
+				//-- Show location stacktrace
+				StringBuilder sb = new StringBuilder();
+				StringTool.strStacktraceFiltered(sb, m_bi.getLocation(), PRESET, ENDSET, 40);
+				detail.setText(sb.toString());
+			}
 		}
 
 		protected void toggle() {
-			if(null != m_detail) {
-				m_detail.remove();
-				m_detail = null;
-				m_clickimg.setSrc("THEME/xdt-collapsed.png");
-				return;
-			}
-
-			//-- Expand
-			m_clickimg.setSrc("THEME/xdt-expanded.png");
-			m_detail = new Div();
-			m_maintd.add(m_detail);
-			m_detail.setCssClass("ui-bug-stk");
-
-			//-- Show location stacktrace
-			StringBuilder sb = new StringBuilder();
-			StringTool.strStacktraceFiltered(sb, m_bi.getLocation(), PRESET, ENDSET, 40);
-			m_detail.setText(sb.toString());
+			m_expanded = !m_expanded;
+			forceRebuild();
 		}
 	}
 }

@@ -366,6 +366,7 @@ $tree3-fbtn-bg: $black !default;				// the fold button is an inverted square
 
 //-- Forms, and the odd remaining component colour that is genuinely its own
 $f-display-bg: #eff7ff !default;				// .ui-f-display, the read-only field wash
+$bug-ind-bg: $errors-border !default;			// the bug badge's ground: the theme's error red
 $bug-count-color: yellow !default;				// the count on the red bug badge
 $oddchars-hover-bg: $row-hover-bg !default;
 $pct-rlr2-border: $line-color !default;

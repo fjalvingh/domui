@@ -16,6 +16,7 @@ import to.etc.domuidemo.pages.components.buttons.ButtonBar2Page;
 import to.etc.domuidemo.pages.components.buttons.ButtonKindsPage;
 import to.etc.domuidemo.pages.components.buttons.DefaultButtonPage;
 import to.etc.domuidemo.pages.components.buttons.ToggleButtonPage;
+import to.etc.domuidemo.pages.components.dialog.BugIndicatorPage;
 import to.etc.domuidemo.pages.components.dialog.DialogPage;
 import to.etc.domuidemo.pages.components.dialog.ErrorDisplayPage;
 import to.etc.domuidemo.pages.components.dialog.FlarePage;
@@ -114,6 +115,7 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(ErrorDisplayPage.class, "ErrorPanel and ErrorMessageDiv: showing messages");
 		f.addLink(FlarePage.class, "MessageFlare: a message that vanishes");
 		f.addLink(NoticePage.class, "MessageLine, InfoPanel and Explanation");
+		f.addLink(BugIndicatorPage.class, "The bug indicator: reporting a broken assumption");
 
 		f = new ListFragment("Navigation and menus");
 		main.add(f);

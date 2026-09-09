@@ -1910,8 +1910,56 @@ These were offered as input while the phase 0 items were being worked, and taken
       repeated with `-Djetty.http.port=8188 -Djetty.http.stopport=8189`; that pair
       moves the webdriver URL too, since `pom.xml:1035` builds it from the port.
 
+- [x] **Framework + demo: the bug indicator has a demo page, and its colours have
+      been looked at.** Done 2026-09-09. `BugIndicatorPage`
+      (`pages/components/dialog/`) has four buttons that call `Bug.bug()` - one bug,
+      one with a Throwable, five at once, and twenty-five to reach the overflow -
+      and explains what a bug report is for and how an application switches the
+      display on. It is linked from `ComponentListPage` under "Windows, dialogs and
+      messages". Nothing had ever shown the indicator because nothing registered the
+      listener: the demo's `Application.initialize()` now calls
+      `DefaultBugListener.registerSessionListener(this)`.
+      **The badge's colours are right in both variants.** Rendered and measured:
+      light is `#ff0000` ground, `#0a0a0a` frame, yellow count; dark is `#e75555`
+      ground, `#f5f5f5` frame, yellow count - the frame inverts with `$black` as it
+      should, and the yellow count reaches 3.7:1 against the light red and 3.4:1
+      against the dark one, both above the 3:1 that 25px bold text needs. The yellow
+      is loud but it is the badge's long-standing look, so it stays.
+      **One real defect, in the report rather than the badge**: the line's
+      disclosure marker was `THEME/xdt-collapsed.png`, a grey box around a *black*
+      plus, which on the dark variant's ground left an empty box - the "there is a
+      stack trace here" affordance was invisible. It is now `Icon.faCaretRight` /
+      `faCaretDown`, a font icon, which takes the theme's text colour in either
+      variant. `ItemPnl` was rewritten around that: it keeps a boolean and calls
+      `forceRebuild()` instead of holding `Img`, `Div` and `TD` in fields and
+      mutating them.
+      `_bugIndicator.scss` also read `$errors-border` - a main-set variable, and one
+      named for a border - as its background. It now reads `$bug-ind-bg`, which
+      defaults to `$errors-border`, so the partial reads only its own variables as
+      the naming convention requires. The compiled `.ui-bug-ind` and `.ui-bug-count`
+      rules are unchanged in both variants.
+      Verified: `mvn21 clean install` green, and both variants driven in a browser
+      against a locally run demo - badge, count, the infinity overflow, the report,
+      and the marker opening and closing a stack trace.
+
 
 ## Decisions log
+
+### 2026-09-09 - A themed image with a fixed-colour glyph is a dark-variant bug
+
+The bug report's expand marker was `xdt-collapsed.png`: 16x22, transparent, a grey
+`#808080` box and a black `#000000` plus inside it. In the light variant that reads as a
+plus in a box. In the dark variant the box still shows against the dark ground and the
+plus does not, so the marker becomes an empty square and the line stops looking as if it
+opens.
+
+This is the general problem with a themed *image* whose glyph is a fixed colour: the
+variant mechanism can only substitute a whole file, so a variant either ships a second
+copy of every such image or lives with the ones that vanish. A font icon has no such
+problem - it is text, it takes `color`, and it follows whatever the variant sets. So the
+rule for the framework's own small UI glyphs is **a font icon, not a themed PNG**, and
+that is what the bug report now uses. The remaining `xdt-*.png` callers - the tree
+components - have the same defect and are not fixed here.
 
 ### 2026-09-09 - `$themes/scss/all` stays on the search path
 

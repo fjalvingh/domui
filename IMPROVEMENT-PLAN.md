@@ -249,11 +249,6 @@ it. Everything else on this list is a question for the user, not a deletion.
       and by the rule above only the user can decide whether a generation of
       components is dropped, and with what deprecation period. Until then the
       work here is to stop the docs and the demo teaching them, which is done.
-- [ ] **Framework: the bug indicator's own colours are unreviewed.** Now that
-      `_bugIndicator.scss` compiles, its `border: 2px solid black` and
-      `color: yellow` are live. Nothing in the demo raises a bug, so they have
-      never been seen rendered. A demo page that raises one would be worth having
-      anyway. (Found 2026-09-08.)
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
       that add nothing.
 
