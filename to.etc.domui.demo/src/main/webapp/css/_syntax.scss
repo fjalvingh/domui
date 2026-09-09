@@ -1,13 +1,71 @@
-/******** Syntax highlighting for patch renderer ***********/
+/******** Syntax highlighting for the source viewer and the patch renderer ***********/
+//
+// Every colour in this file is a foreground on the page ground, so all of them have to
+// change when the session renders dark - which is why the palette is a set of variables
+// picked here rather than a repaint in _darkstyle.scss. $themeVariant comes from
+// 'parameters', which demostyle.scss imports first.
+//
+// The dark values keep the hue of their light counterpart and move the lightness to the
+// other side of the ground, so a reader who knows one palette recognises the other.
+
+// The light palette is the default; the dark one overrides it. Both are written as plain
+// assignments plus !global because libsass scopes a variable set inside a control
+// directive to that directive.
+$s-text:        #222;
+$s-keyword1:    #fb8d00;
+$s-keyword2:    #86002f;
+$s-type:        #0057b7;
+$s-comment:     #006121;
+$s-comment-alt: #003842;
+$s-string:      #00807a;
+$s-number:      #842900;
+$s-punctuation: #555;
+$s-link:        #000fd4;
+$s-literal:     #00afaf;
+
+$s-lnr-bg:      #ccc;
+$s-lnr-color:   #333;
+
+$s-diffstart:   #ccca8f;
+$s-diffold:     #ffded6;
+$s-diffnew:     #ebffd7;
+$s-diffline:    #b8dfff;
+$s-diffchar:    red;
+
+@if $themeVariant == "dark" {
+	$s-text:        hsl(220, 14%, 85%) !global;
+	$s-keyword1:    hsl(35, 95%, 62%) !global;
+	$s-keyword2:    hsl(340, 75%, 70%) !global;
+	$s-type:        hsl(210, 85%, 70%) !global;
+	$s-comment:     hsl(141, 45%, 58%) !global;
+	$s-comment-alt: hsl(195, 40%, 62%) !global;
+	$s-string:      hsl(176, 55%, 58%) !global;
+	$s-number:      hsl(20, 80%, 66%) !global;
+	$s-punctuation: hsl(220, 12%, 62%) !global;
+	$s-link:        hsl(210, 90%, 72%) !global;
+	$s-literal:     hsl(180, 60%, 62%) !global;
+
+	$s-lnr-bg:      hsl(220, 12%, 18%) !global;
+	$s-lnr-color:   hsl(220, 10%, 55%) !global;
+
+	$s-diffstart:   hsl(55, 30%, 25%) !global;
+	$s-diffold:     hsl(10, 30%, 22%) !global;
+	$s-diffnew:     hsl(90, 28%, 20%) !global;
+	$s-diffline:    hsl(210, 35%, 25%) !global;
+	$s-diffchar:    hsl(0, 80%, 70%) !global;
+}
+
 .dm-srcp-scrl {
 	overflow: auto;
 	font-family: 'Fira Mono', sans-serif;
 	font-size: 12px;
+	color: $s-text;
 }
 
 .dm-srcp-lnr {
 	width: 4em;
-	background: #ccc;
+	background: $s-lnr-bg;
+	color: $s-lnr-color;
 	text-align: right;
 	font-style: italic;
 	padding-right: 4px;
@@ -30,23 +88,23 @@ pre.code {
 }
 
 .s-diffstart {
-	background-color: #ccca8f;
+	background-color: $s-diffstart;
 }
 
 .s-diffold, .s-diffmin {
-	background-color: #ffded6;
+	background-color: $s-diffold;
 }
 
 .s-diffnew, .s-diffplus {
-	background-color: #ebffd7;
+	background-color: $s-diffnew;
 }
 
 .s-diffline {
-	background-color: #b8dfff;
+	background-color: $s-diffline;
 }
 
 .s-diffchar {
-	color: red;
+	color: $s-diffchar;
 }
 
 .s-diffnone {
@@ -54,26 +112,26 @@ pre.code {
 }
 
 .s-comment1 {
-	color: #006121;
+	color: $s-comment;
 	font-style: italic;
 }
 
 .s-comment2 {
-	color: #003842;
+	color: $s-comment-alt;
 	font-style: italic;
 }
 
 .s-comment3 {
-	color: #003842;
+	color: $s-comment-alt;
 	font-style: italic;
 }
 
 .s-operator {
-	color: black;
+	color: $s-text;
 }
 
 .s-function {
-	color: #000fd4;
+	color: $s-link;
 }
 
 /*
@@ -81,65 +139,64 @@ pre.code {
  * writes "s-" plus the lowercased HighlightTokenType name.
  */
 .s-keyword1 {
-	color: #fb8d00;
+	color: $s-keyword1;
 	font-weight: bold;
 }
 
 .s-keyword2 {
-	color: #86002f;
+	color: $s-keyword2;
 	font-weight: bold;
 }
 
 .s-keyword3 {
-	color: #86002f;
+	color: $s-keyword2;
 }
 
 .s-type {
-	color: #0057b7;
+	color: $s-type;
 	font-weight: bold;
 }
 
 .s-comment {
-	color: #006121;
+	color: $s-comment;
 	font-style: italic;
 }
 
 .s-string, .s-character {
-	color: #00807a;
+	color: $s-string;
 }
 
 .s-stringescape {
-	color: #00807a;
+	color: $s-string;
 	font-weight: bold;
 }
 
 .s-number {
-	color: #842900;
+	color: $s-number;
 }
 
 .s-punctuation {
-	color: #555;
+	color: $s-punctuation;
 }
 
 .s-id, .s-text {
-	color: #222;
+	color: $s-text;
 }
 
 /* Identifiers the source viewer could resolve are rendered as links. */
 a.s-id {
-	color: #000fd4;
+	color: $s-link;
 	text-decoration: underline;
 }
 
 .s-literal1 {
-	color: #00afaf;
+	color: $s-literal;
 }
 
 .s-literal2 {
-	color: #00afaf;
+	color: $s-literal;
 }
 
 .s-digit {
-	color: #842900;
+	color: $s-number;
 }
-

@@ -1885,6 +1885,33 @@ These were offered as input while the phase 0 items were being worked, and taken
 
 ## Decisions log
 
+### 2026-09-09 - The source viewer's palette belongs in its own sheet
+
+`SourcePage` was unreadable in the dark variant. Its colours live in the demo's
+`css/_syntax.scss`, and every one of them was a light-theme value: `#222` text,
+`#006121` comments, `#86002f` keywords, `#000fd4` links, and a `#ccc` band behind the
+line numbers - dark ink and a light band, both on the dark ground the variant paints.
+
+The demo's other hardcoded colours are repainted in `_darkstyle.scss`, which is
+imported last so its rules win. That was not the right shape here: in `_syntax.scss`
+*every* rule is a colour rule, so repainting it would have meant a second copy of the
+whole file. The palette became a set of variables at the top of the sheet instead -
+the light values as plain assignments, and an `@if $themeVariant == "dark"` block
+overriding them - so both palettes sit next to the rules they colour and neither can
+drift from the other. The dark values keep the hue of their light counterpart and move
+the lightness across the ground.
+
+The overrides need `!global`: libsass scopes a variable assigned inside a control
+directive to that directive, so the first attempt - the two palettes as the two arms of
+an `@if`/`@else` - compiled to `Undefined variable: "$s-text"`. It failed loudly, at
+build time, which is the good case.
+
+Verified by running the demo (`mvn21 jetty:run -pl to.etc.domui.demo`) and loading
+`SourcePage` in both variants: the sheet compiles in each, and the dark one renders
+keywords, types, strings, comments and numbers legibly on the dark ground. The line
+numbers got an explicit colour in both variants rather than inheriting one, and the
+`.s-diff*` washes of the patch renderer were given dark grounds by the same rule.
+
 ### 2026-09-09 - Batik was not the problem, and the rasteriser was not needed
 
 The question asked was whether Apache Batik is still the best way to rasterise SVG.
