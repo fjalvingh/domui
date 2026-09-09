@@ -13,9 +13,15 @@
 	font-size: 16px;
 }
 
+/*
+ * The logo lines up with the page content below it: the home page indents by 20px, and
+ * the image carries two transparent columns of its own, so 18px puts the visible logo on
+ * the same line as the text. The box is border-box, so the padding stays inside the 290px.
+ */
 .d-sbc-logo {
 	flex: none;
 	width: 290px;
+	padding-left: 18px;
 }
 .d-sbc-l {
 	text-decoration: none;
