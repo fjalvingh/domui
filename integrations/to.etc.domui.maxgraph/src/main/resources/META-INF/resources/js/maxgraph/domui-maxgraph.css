@@ -1,0 +1,11 @@
+/*
+ * The container DomUI renders for a MaxGraphPanel. maxGraph draws its SVG inside
+ * it and positions handles against it, so it needs its own positioning context and
+ * must clip what leaves it.
+ */
+.ui-mxgr {
+	position: relative;
+	overflow: hidden;
+	background-color: #ffffff;
+	border: 1px solid #d0d0d0;
+}

@@ -40,6 +40,7 @@ import to.etc.domuidemo.pages.components.async.AsyncContainerPage;
 import to.etc.domuidemo.pages.components.async.AsyncDivPage;
 import to.etc.domuidemo.pages.components.async.PollingDivPage;
 import to.etc.domuidemo.pages.components.charts.BarChartPage;
+import to.etc.domuidemo.pages.components.graph.BasicGraphPage;
 import to.etc.domuidemo.pages.components.charts.GaugeChartPage;
 import to.etc.domuidemo.pages.components.charts.PieChartPage;
 import to.etc.domuidemo.pages.components.charts.SunburstChartPage;
@@ -229,5 +230,9 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(PieChartPage.class, "Pie and donut charts");
 		f.addLink(SunburstChartPage.class, "Sunburst charts");
 		f.addLink(GaugeChartPage.class, "Gauges");
+
+		f = new ListFragment("Diagrams");
+		main.add(f);
+		f.addLink(BasicGraphPage.class, "A diagram drawn by maxGraph");
 	}
 }

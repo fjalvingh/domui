@@ -22,6 +22,7 @@
         <module>fontawesome4</module>
         <module>fontawesome5free</module>
         <module>fontawesome6free</module>
+        <module>to.etc.domui.maxgraph</module>
     </modules>
 
 </project>
