@@ -50,10 +50,12 @@
 
  	SameSite (and Partitioned, for browsers that block third party cookies
  	outright) are set on the CookieProcessor in META-INF/context.xml, which
- 	Tomcat reads. The Secure flag is set by the listener below: Tomcat ignores
- 	session-config/cookie-config/secure and derives the flag from the request
- 	being secure, which it never is here because Apache terminates the TLS in
- 	front of it.
+ 	Tomcat reads. The Secure flag is set by the listener below, unconditionally:
+ 	it is what makes that cookie legal, and it works on a developer workstation
+ 	too because browsers accept Secure cookies over http on localhost. It is set
+ 	there and not with session-config/cookie-config/secure because Tomcat
+ 	ignores that element and derives the flag from the request being secure,
+ 	which it never is here because Apache terminates the TLS in front of it.
   -->
  <listener>
   <listener-class>to.etc.domuidemo.SessionCookieSetup</listener-class>

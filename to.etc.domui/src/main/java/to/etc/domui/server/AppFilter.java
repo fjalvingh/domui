@@ -45,6 +45,7 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.UnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -225,8 +226,12 @@ public class AppFilter implements Filter {
 		initLogConfig(approot, config.getInitParameter("logpath"));
 
 		if(DeveloperOptions.isDeveloperWorkstation()) {
-			config.getServletContext().getSessionCookieConfig().setHttpOnly(false);
-			config.getServletContext().getSessionCookieConfig().setSecure(false);
+			//-- Relax the session cookie for development instances, which are plain http - but leave it alone when the application marked the
+			//-- cookie Secure itself. It does that to be allowed to say SameSite=None (so its pages work inside a frame on another site), and
+			//-- such a cookie is rejected by the browser when it is not Secure - relaxing it here would block every session.
+			SessionCookieConfig scc = config.getServletContext().getSessionCookieConfig();
+			if(!scc.isSecure())
+				scc.setHttpOnly(false);
 		}
 
 		try {
