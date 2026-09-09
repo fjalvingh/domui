@@ -32,6 +32,7 @@ import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencyList;
+import to.etc.domui.util.resources.WebResourceAccess;
 import to.etc.net.HttpCallException;
 import to.etc.util.FileTool;
 import to.etc.webapp.core.ServerTools;
@@ -52,6 +53,9 @@ import java.util.Locale;
  *	<li>Try to find the resulting name in the webapp data files (below WebContent). If found there return this resource as a cached stream.</li>
  *	<li>Try to find the name as a Java classpath resource below /resources/, and return it as a cached stream.</li>
  * </ul>
+ * <p>Because this bypasses the servlet container's own resource handling it must enforce the container's
+ * access rules itself: nothing inside the protected webapp directories (WEB-INF, META-INF) is served, see
+ * {@link WebResourceAccess}.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 11, 2009
@@ -117,6 +121,9 @@ final public class InternalResourcePart implements IBufferedPartFactory<ResKey> 
 		String rurl = param.getInputPath();
 		if(FileTool.getFileExtension(rurl).isEmpty()) {
 			throw new HttpCallException("", HttpServletResponse.SC_FORBIDDEN, "Request forbidden for directory " + rurl);
+		}
+		if(WebResourceAccess.isForbidden(rurl)) {
+			throw new HttpCallException("", HttpServletResponse.SC_FORBIDDEN, "Request forbidden for protected resource " + rurl);
 		}
 
 		//-- Is this an URL containing an nls'ed resource?
