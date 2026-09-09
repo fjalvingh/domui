@@ -33,13 +33,16 @@ public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
 	 * sass compiler, returning the result as a normal .css stylesheet.
 	 */
 	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@NonNull IPageParameters parameters) {
+		@Override
+		public boolean accepts(@NonNull IPageParameters parameters) {
 			return parameters.getInputPath().endsWith(".scss") || parameters.getInputPath().endsWith(".sass");
 		}
 	};
 
-	@NonNull @Override public IPageParameters decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
-		PageParameters pp = new PageParameters(param, name -> ! name.startsWith("$"))	// Ignore DomUI system parameters
+	@NonNull
+	@Override
+	public IPageParameters decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
+		PageParameters pp = new PageParameters(param, name -> !name.startsWith("$"))    // Ignore DomUI system parameters
 			.browserVersion(BrowserVersion.INSTANCE);
 
 		/*
@@ -53,7 +56,8 @@ public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
 		return pp;
 	}
 
-	@Override public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception {
+	@Override
+	public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception {
 		long ts = System.nanoTime();
 
 		/*

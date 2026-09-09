@@ -1,17 +1,12 @@
 package to.etc.domui.themes.sass;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.parts.PartData;
-import to.etc.domui.state.PageParameters;
-import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencies;
-import to.etc.util.StringTool;
 
 import java.util.List;
 
@@ -39,28 +34,22 @@ final public class SassTheme implements ITheme {
 		m_searchPath = searchpath;
 	}
 
-	@NonNull @Override public String getVariantName() {
+	@NonNull
+	@Override
+	public String getVariantName() {
 		return m_variantName;
 	}
 
-	@NonNull @Override public String translateResourceName(@NonNull String name) {
+	@NonNull
+	@Override
+	public String translateResourceName(@NonNull String name) {
 		return name;
 	}
 
-	@NonNull @Override public String getStyleSheetName() throws Exception {
-		BrowserVersion version = UIContext.getRequestContext().getPageParameters().getBrowserVersion();	// FIXME Fugly!!
-		String contextString = ThemeResourceFactory.PREFIX + m_variantName + "/";
-		String css = contextString + "style.scss";
-		PageParameters pp = new PageParameters()
-			.themeVariant(getVariantName())
-			.browserVersion(version)
-			.inputPath(css)
-			;
-		pp.setUrlContextString(contextString);
-		PartData data = DomApplication.get().getPartService().getData(pp);
-		String hash = StringTool.toHex(data.getHash());
-
-		return css + "?$hash=" + hash;
+	@NonNull
+	@Override
+	public String getStyleSheetName() throws Exception {
+		return ThemeResourceFactory.PREFIX + m_variantName + "/style.scss";
 	}
 
 	@NonNull
