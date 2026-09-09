@@ -126,6 +126,7 @@ import to.etc.domui.util.resources.ResourceInfoCache;
 import to.etc.domui.util.resources.SimpleResourceFactory;
 import to.etc.domui.util.resources.UrlWebappResourceRef;
 import to.etc.domui.util.resources.VersionedJsResourceFactory;
+import to.etc.domui.util.resources.WebResourceAccess;
 import to.etc.domui.util.resources.WebappResourceRef;
 import to.etc.function.BiConsumerEx;
 import to.etc.function.ConsumerEx;
@@ -1665,9 +1666,15 @@ public abstract class DomApplication {
 	 * or a classpath resource (below /resources/) for the same path. The result will
 	 * implement {@link IModifyableResource}. This will not use any kind of resource
 	 * factory.
+	 *
+	 * <p>All resource requests coming in from an URL end up here, so this refuses to return anything
+	 * from the protected webapp directories (WEB-INF, META-INF); use {@link #getAppFile(String)} to
+	 * read those from inside the application.</p>
 	 */
 	@NonNull
 	public IResourceRef getAppFileOrResource(String name) throws Exception {
+		WebResourceAccess.checkAllowed(name);
+
 		//-- 1. Is a file-based resource available?
 		File f = getAppFile(name);
 		if(f.exists())
