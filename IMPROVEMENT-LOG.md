@@ -1942,6 +1942,54 @@ These were offered as input while the phase 0 items were being worked, and taken
       against a locally run demo - badge, count, the infinity overflow, the report,
       and the marker opening and closing a stack trace.
 
+- [x] **Framework + documentation: the browser-side build is current, and documented.**
+      Done 2026-09-09. The Typescript pipeline had been frozen since 2021 and could
+      not run a modern bundler, which blocked the maxGraph component planned in
+      `MAXGRAPH.md`; §6.1 of that plan is this work. `frontend-maven-plugin` 1.11.0
+      -> 1.15.1 and node **v8.11.1 -> v22.22.1** (the separate `npmVersion` pin
+      dropped, so node's own npm is used); typescript 4.3 -> 5.9; `@types/jquery`
+      ^2.0.56 -> ^3.5.32, which is the jQuery that is actually served; esbuild added
+      and `npm run compile-typescript` is now `tsc` followed by a minify step, taking
+      the bundle from 163KB to 74KB with a source map.
+      `VersionedJsResourceFactory` now accepts `$ts/` as well as `$js/`, so
+      `$ts/domui-combined.js` resolves to the `-min` sibling outside development mode
+      from one unchanged reference - header contributors are registered in
+      `DomApplication`'s constructor, before development mode is known, so the choice
+      has to be made at resource-resolution time.
+      **Two latent Javascript bugs fell out of it.** `tsconfig.json` had no `target`,
+      so `class BodyTooLargeException extends Error` was emitted through the
+      `__extends` shim, whose constructor returns the `Error` it built - meaning
+      `x instanceof BodyTooLargeException` in `domui.fileupload.ts` was always false.
+      `"target": "es2017"` emits native classes and the check works. In the same file
+      `maxSize === NaN` was always false, so a garbage `fumaxsize` attribute silently
+      disabled the upload size check (`NaN <= 0` is false too, so nothing caught it);
+      it is `isNaN(maxSize)` now. Also removed: the ~40 committed per-file
+      `.js`/`.js.map` outputs, and `resources/ts/package.json`, a duplicate that was
+      being packaged into the jar.
+      **Documentation**: a new page,
+      `development-environment/typescript-build/index.md` ("The browser-side build"),
+      which had no equivalent before - what is built and why the tsconfig lists its
+      files by hand, the three files that configure it, which of the two bundles is
+      served when, and how to run the Typescript build by hand. Linked from the
+      section index, from the stack list in `introduction/developer-view-of-domui`,
+      and from "Building the code" in `getting-started/running-the-demo`, which now
+      says that the first build downloads its own node and therefore needs network
+      access. The `-min` rule itself belongs with the other resource-prefix rules
+      rather than with the build, so it was written into
+      `look-and-feel/header-contributors`, where `$`-prefixed names are documented,
+      and the new page points there.
+      Verified: `mvn21 clean install` downloads node 22 and runs npm, tsc and esbuild;
+      both bundles and both maps are in the jar; a jetty-run demo serves the
+      75825-byte minified bundle with `-Ddeveloper.properties=false` and the
+      162903-byte full bundle in development mode, at the same URL; 9 demo unit tests
+      and 55 Selenium ITs green. The IT run first showed two failures in
+      `ITOrderEntryPageObject` which were **not** from this work: the
+      `to.etc.domui.selenium` jar in the local `.m2` predated its source and lacked
+      the `*[testid$='/lbtn_Order']` fallback in
+      `CpDataTableRowBase.getCellComponentSelectorCss`, so the exact-match selector
+      could never find a row button (DomUI renders those calculated ids prefixed per
+      row: `/r0/lbtn_Order`). Rebuilding that module made them pass - a full
+      `mvn21 clean install` avoids the trap.
 
 ## Decisions log
 
