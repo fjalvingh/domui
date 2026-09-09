@@ -87,21 +87,6 @@ public class UrlPage extends AbstractPage {
 		UIContext.getRequestContext().setThemeVariant(themeVariant);
 	}
 
-	//public final IThemeVariant getThemeVariant() {
-	//	return UIContext.getRequestContext().getThemeVariant();
-	//}
-
-	/**
-	 * No longer in use for domui 2.0.
-	 *
-	 * Remove the styles that cause the margin kludge to be applied to all pages.
-	 */
-	@Deprecated
-	public void unkludge() {
-		removeCssClass("ui-content");
-		removeCssClass("ui-kludge");
-	}
-
 	/**
 	 * Gets called when a page is reloaded (for ROOT pages only).
 	 */

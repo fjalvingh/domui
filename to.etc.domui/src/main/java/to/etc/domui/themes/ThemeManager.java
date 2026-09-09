@@ -33,9 +33,8 @@ import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.ResourceDependencies;
 import to.etc.util.WrappedException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -67,6 +66,7 @@ final public class ThemeManager {
 		public ThemeRef(ITheme theme, IIsModified rdl) {
 			m_theme = theme;
 			m_rdl = rdl;
+			m_lastuse = System.currentTimeMillis();
 		}
 
 		public ITheme getTheme() {
@@ -152,21 +152,21 @@ final public class ThemeManager {
 		long ts = System.currentTimeMillis();
 		if(ts < m_themeNextReapTS)
 			return;
+		m_themeNextReapTS = ts + OLD_THEME_TIME;
 
-		//-- Get a list of all themes and sort in ascending time order.
-		List<ThemeRef> list = new ArrayList<>(m_themeMap.values());
-		list.sort((a, b) -> {
-			long d = a.getLastuse() - b.getLastuse();
-			return d == 0 ? 0 : d > 0 ? 1 : -1;
-		});
+		//-- Find the most recently used theme; that one is always retained.
+		ThemeRef newest = null;
+		for(ThemeRef tr : m_themeMap.values()) {
+			if(newest == null || tr.getLastuse() > newest.getLastuse())
+				newest = tr;
+		}
 
 		long abstime = ts - OLD_THEME_TIME;
-		for(int i = list.size()-1; --i >= 0;) {
-			ThemeRef tr = list.get(i);
-			if(tr.getLastuse() < abstime)
-				list.remove(i);
+		for(Iterator<Map.Entry<String, ThemeRef>> it = m_themeMap.entrySet().iterator(); it.hasNext();) {
+			ThemeRef tr = it.next().getValue();
+			if(tr != newest && tr.getLastuse() < abstime)
+				it.remove();
 		}
-		m_themeNextReapTS = ts + OLD_THEME_TIME;
 	}
 
 	/**

@@ -62,7 +62,7 @@ Call sites that perform the translation during rendering:
 
 - `dom/HtmlTagRenderer.java:1234` — `<img src=...>`
 - `dom/HtmlTagRenderer.java:283` — `background-image: url(...)`
-- `dom/HtmlFullRenderer.java:507`, `dom/html/OptimalDeltaRenderer.java:298,305`,
+- `dom/HtmlFullRenderer.java:545`, `dom/html/OptimalDeltaRenderer.java:298,305`,
   `dom/HtmlFileRenderer.java:466,522` — CSS/JS header contributors
 - `parts/MarkerImagePartKey.java:75-77` — the marker-image part's icon parameter
 
@@ -101,10 +101,10 @@ String               getVariantName();                     // first URL segment:
 ResourceDependencies getDependencies();                    // for dev-mode reload
 IResourceRef         getThemeResource(String name, IResourceDependencyList rdl);
 String               translateResourceName(String name);   // icon name remapping hook
-String               getStyleSheetName();                  // RURL of the main stylesheet
+String               getStyleSheetName();                  // RURL of the sheet; the renderer hashes it
 ```
 
-`translateResourceName` is a no-op in `SassTheme` (`SassTheme.java:51-53`). It is kept as
+`translateResourceName` is a no-op in `SassTheme` (`SassTheme.java:44-47`). It is kept as
 the extension point it is — an `ITheme` of your own can still substitute one icon file for
 another — but nothing in the framework uses it any more.
 
@@ -203,18 +203,24 @@ have looked in `winter/dark/` first). MIME from the extension,
 
 ### 6.2 The stylesheet: `$THEME/default/style.scss`
 
-`HtmlFullRenderer.renderThemeCSS()` (`dom/HtmlFullRenderer.java:478-491`) emits
+`HtmlFullRenderer.renderThemeCSS()` (`dom/HtmlFullRenderer.java:486-503`) emits
 
 ```html
 <link rel="stylesheet" type="text/css" href="<ctx>/$THEME/<variant>/style.scss?$hash=<hex>">
 ```
 
-from `ITheme.getStyleSheetName()`. `SassTheme.getStyleSheetName()` computes that hash by **compiling the sheet right
-there**, through `PartService.getData()`, and hashing the result. That warms the part
-cache, so the browser's follow-up request is a cache hit (`$hash` is stripped from the key
-by `SassPartFactory.decodeKey`, which drops every `$`-prefixed parameter). It reaches into
-`UIContext.getRequestContext()` for a browser version it then discards, and is annotated
-`FIXME Fugly!!` in the source (open issue 3).
+`ITheme.getStyleSheetName()` returns just the RURL, `$THEME/<variant>/style.scss`. The hash
+is the renderer's: `calculateStyleSheetHash()` (line 515-529) **compiles the sheet right
+there**, through `PartService.getData()`, and hashes the result. That warms the part cache,
+so the browser's follow-up request is a cache hit (`$hash` is stripped from the key by
+`SassPartFactory.decodeKey`, which drops every `$`-prefixed parameter).
+
+It sits in the renderer rather than in the theme because every `ITheme` needs exactly this:
+a generated stylesheet changes when its parameters change, and the URL has to change with
+it. The parameters the renderer builds - variant, browser version, and the url context
+string taken from the sheet's own directory - are the ones `RequestContextImpl` derives
+from the browser's later request for that same sheet, so both use one cache entry. A theme
+whose stylesheet is not a part but a plain resource gets no hash; its URL is stable anyway.
 
 `SassPartFactory.decodeKey` takes the variant for the cache key **from the URL**, not from
 the requesting session: the URL is what decides which sheet this is, and two sessions in
@@ -285,7 +291,7 @@ an application re-point.
 
 `GrayscalerPart` and `MarkerImagePart` are the two parts that load a themed image
 server-side, through `PartUtil.loadImage()`: GIF, JPEG and PNG via `ImaTool`, SVG via the
-Batik transcoder at the size the SVG itself declares. See open issue 4 — the SVG branch
+Batik transcoder at the size the SVG itself declares. See open issue 3 — the SVG branch
 cannot currently run.
 
 A scan of every `"THEME/…"` literal in the framework and demo (93 distinct paths) against
@@ -329,7 +335,8 @@ page render
     RequestContextImpl.getCurrentTheme()          session variant / calculateUserThemeVariant -> "dark"
       ThemeManager.getTheme(variant, null)        cache by variant name; the app's one IThemeFactory
         SassThemeFactory.getTheme()               search path: [.../winter/dark, .../winter, .../all]
-    SassTheme.getStyleSheetName()
+    SassTheme.getStyleSheetName()                 -> $THEME/dark/style.scss
+    HtmlFullRenderer.calculateStyleSheetHash()
       PartService.getData($THEME/dark/style.scss)      -> compiles + caches, returns hash
     <link href=".../$THEME/dark/style.scss?$hash=...">
 
@@ -724,23 +731,20 @@ parameters of a vendor mixin rather than theme variables.
    breadcrumb link, a badge digit, a selected-item background, a toggle parameter, a
    panel ground and a title tint.
 
-3. **`getStyleSheetName()` compiles the whole stylesheet** to compute a cache-busting hash,
-   from inside a getter, reaching into `UIContext` for a browser version it discards
-   (`SassTheme.java:54-66`, its own `FIXME Fugly!!`).
-4. **SVG rasterisation cannot run.** `PartUtil.loadSvg()` throws
+3. **SVG rasterisation cannot run.** `PartUtil.loadSvg()` throws
    `NoClassDefFoundError: org/w3c/dom/svg/SVGDocument`, because `to.etc.domui/pom.xml`
    deliberately excludes `batik-ext` — commit e611a2382 (2019-02-10), *"exclude batik-ext
    because it (partially) duplicates org.w3c.dom package"* for the Java 10 build. Nothing
    else on the classpath provides those interfaces. This predates the cleanup: the old code
    threw earlier (in the template expander) and never reached Batik at all. Fixing it means
    either finding a JPMS-safe source for `org.w3c.dom.svg` or replacing Batik.
-5. **`ThemeManager.checkReapThemes()` does nothing.** It sorts a *copy* of the map's values
+4. **`ThemeManager.checkReapThemes()` does nothing.** It sorts a *copy* of the map's values
    and removes entries from that copy; `m_themeMap` is never touched
    (`ThemeManager.java:151-172`). It also skips the last element because of the
    `for(int i = list.size()-1; --i >= 0;)` / `list.remove(i)` combination.
-6. **Two dangling icon references** — `THEME/big-accessDenied.png` and `THEME/btnBack.png`
+5. **Two dangling icon references** — `THEME/big-accessDenied.png` and `THEME/btnBack.png`
    (§8).
-7. **`$themes/scss/all` is on every search path** but does not exist; `scss/` holds only
+6. **`$themes/scss/all` is on every search path** but does not exist; `scss/` holds only
    `winter/`.
-8. **`translateResourceName()` is a no-op** in the only shipped `ITheme`. Kept as an
+7. **`translateResourceName()` is a no-op** in the only shipped `ITheme`. Kept as an
    extension point; drop it if the rework decides `ITheme` should not carry one.
