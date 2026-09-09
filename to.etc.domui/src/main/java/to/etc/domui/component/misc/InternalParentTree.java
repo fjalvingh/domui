@@ -216,7 +216,7 @@ public class InternalParentTree extends Div {
 
 		Div alt = new Div();
 		m_structure.add(alt);
-		LinkButton lb = new LinkButton("Back to structure", Icon.of("THEME/btnBack.png"), ()-> {
+		LinkButton lb = new LinkButton("Back to structure", Icon.faArrowLeft, ()-> {
 			m_structure.removeAllChildren();
 			renderStructure(m_structure);
 		});

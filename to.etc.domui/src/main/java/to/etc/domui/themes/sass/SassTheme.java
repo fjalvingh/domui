@@ -40,11 +40,6 @@ final public class SassTheme implements ITheme {
 		return m_variantName;
 	}
 
-	@NonNull
-	@Override
-	public String translateResourceName(@NonNull String name) {
-		return name;
-	}
 
 	@NonNull
 	@Override

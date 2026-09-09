@@ -1268,7 +1268,7 @@ These were offered as input while the phase 0 items were being worked, and taken
 
 - [x] **Framework: remove the obsolete theme engines and the Rhino theme
       templating.** Done 2026-09-07, at the user's direction, after an
-      investigation written up in `domui/THEMES.md`. DomUI carried three theme
+      investigation written up in `domui/finished-plans/THEMES.md`. DomUI carried three theme
       engines; only the SCSS one has been selectable since 2017. Removed: the
       `simple` and `fragmented` factories and their registrations; the Rhino
       template machinery they shared (`ThemeManager.getThemeReplacedString()`,
@@ -1801,7 +1801,7 @@ These were offered as input while the phase 0 items were being worked, and taken
       Documentation brought along: `look-and-feel/themes`,
       `look-and-feel/overriding-the-theme` and
       `look-and-feel/styling-your-component` all spelled variables the old way in
-      their tables and samples; so did `THEMES.md`. The callout warning readers that
+      their tables and samples; so did `finished-plans/THEMES.md`. The callout warning readers that
       69 names had not been converted is replaced by the fact that matters to them -
       that the two spellings are the same variable.
 
@@ -1814,8 +1814,8 @@ These were offered as input while the phase 0 items were being worked, and taken
       **Done 2026-09-08**, the second half of the naming work and, unlike the first,
       not free: 104 variables changed identifier, so an application overriding one of
       them by its old name has to be updated. The complete old -> new table, with a
-      reason per row, is section 15 of `THEMES.md`. All of it compiled
-      **byte-identical in both variants** - only names moved.
+      reason per row, is section 14 of `finished-plans/THEMES.md`. All of it
+      compiled **byte-identical in both variants** - only names moved.
       Four kinds of wrong name, and the first is the one worth remembering.
       **Three components had two prefixes each.** The tab panel was styled through
       `$tabpanel-*` (six names, in the derived tier) *and* `$tab-pnl-*` (nine, in
@@ -1875,15 +1875,56 @@ These were offered as input while the phase 0 items were being worked, and taken
       replaces it: `Img.setDisabled()` adds the `ui-disabled` class the way
       `setClicked()` adds `ui-clickable`, and `_helperclasses.scss` carries
       `img.ui-disabled { filter: grayscale(1); }`. The `ImgPage` paragraph that
-      explained the server-side grayscaler was rewritten; `THEMES.md` §8, §11 and
+      explained the server-side grayscaler was rewritten; `finished-plans/THEMES.md` §8, §11 and
       the still-open list were updated and its open issue 3 dropped. Verified:
       `mvn21 clean install` green, 9 demo unit tests and 55 Selenium ITs pass, and
       against a locally run demo the disabled `Img` on `ImgPage` renders
       `class="ui-clickable ui-disabled"` with its original `src` and the compiled
       stylesheet carries the rule.
 
+- [x] **The `finished-plans/THEMES.md` still-open list is empty.** Done 2026-09-09. Six items
+      stood in section 15; two had already been fixed in the source since the list
+      was written (`UrlPage.getThemeVariant()` - the commented-out getter is gone
+      and the setter delegates to `UIContext.getRequestContext()`; and
+      `ThemeManager.checkReapThemes()`, which now iterates `m_themeMap.entrySet()`
+      and calls `it.remove()`, so entries really leave the map and the last one is
+      no longer skipped). Fixed now: the two dangling icon references - a sweep of
+      all 93 distinct `THEME/…` literals confirmed they were the only ones -
+      repaired without adding image files, `BIG_ACCESS_DENIED` becoming an alias of
+      `ACCESS_DENIED` (whose `accessDenied.png` is 96x114, the big one already) and
+      `InternalParentTree`'s "Back to structure" button taking `Icon.faArrowLeft`,
+      a font icon, which is how a `LinkButton` gets one now; `UrlPage`'s dead
+      `m_themeVariant` field, left behind by the getter's removal and read by
+      nothing; and `ITheme.translateResourceName()` with its four no-op
+      implementations (`SassTheme`, `TestRequestContext`, `StandaloneRequest`,
+      `ITheme` itself), which also let `ThemeManager.getThemedResourceRURL()` drop
+      the `try`/`catch` that existed only to wrap that call. `$themes/scss/all` was
+      **not** removed - see the decisions log entry of this date. The colour-literal
+      item was a record of finished work, not an open one: its three rules moved
+      into section 14 as "Three rules the colour sweep produced", so section 15 is
+      gone entirely and sections 3, 5, 8 and 11 now carry what it used to defer.
+      Verified: `mvn21 clean install` builds and unit-tests every module green,
+      and `mvn21 verify -pl to.etc.domui.demo` runs 9 demo unit tests and 55
+      Selenium ITs green. The install run itself ends in a jetty bind failure on
+      port 8088 - an IntelliJ Tomcat was holding it - which is why the IT run was
+      repeated with `-Djetty.http.port=8188 -Djetty.http.stopport=8189`; that pair
+      moves the webdriver URL too, since `pom.xml:1035` builds it from the port.
+
 
 ## Decisions log
+
+### 2026-09-09 - `$themes/scss/all` stays on the search path
+
+`SassThemeFactory` ends every theme search path with `$themes/scss/all`, and no such
+directory exists - `resources/themes/scss/` holds only `winter/`. It was on the
+still-open list of `finished-plans/THEMES.md` as a path entry to drop.
+
+It stays, at the user's direction. The entry is the shared tail of the search path: a
+second style - a `summer` next to `winter` - would use many resources unchanged, and
+`all` is where those belong rather than duplicated in both style directories. DomUI
+ships one style and therefore ships no `all` directory; that the directory is absent is
+what a one-style installation looks like, not a defect. `finished-plans/THEMES.md` §5 now says so where
+it lists the path, instead of listing it as an open issue.
 
 ### 2026-09-09 - The source viewer's palette belongs in its own sheet
 

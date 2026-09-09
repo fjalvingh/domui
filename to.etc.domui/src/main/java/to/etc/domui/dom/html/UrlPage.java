@@ -69,7 +69,6 @@ public class UrlPage extends AbstractPage {
 	@Nullable
 	private String m_pageTitle;
 
-	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
 
 	final private List<IWebActionListener> m_actionListeners = new ArrayList<>(1);
 

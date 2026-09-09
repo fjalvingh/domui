@@ -208,9 +208,6 @@ public class StandaloneRequest implements IRequestContext, AutoCloseable {
 				throw new IllegalStateException("Not implemented");
 			}
 
-			@NonNull @Override public String translateResourceName(@NonNull String name) {
-				return name;
-			}
 
 			@NonNull @Override public String getStyleSheetName() throws Exception {
 				return "style.css";

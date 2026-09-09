@@ -137,7 +137,7 @@ public enum Theme implements IIconRef {
 		update(ISCT_EMPTY, Icon.of("THEME/isct_empty.png"));
 		update(ISCT_ERASE, Icon.of("THEME/48x16_isct_erase.png"));
 		update(ACCESS_DENIED, Icon.of("THEME/accessDenied.png"));
-		update(BIG_ACCESS_DENIED, Icon.of("THEME/big-accessDenied.png"));
+		update(BIG_ACCESS_DENIED, ACCESS_DENIED);
 		update(ICON_BIG_INFO, Icon.of("THEME/big-info.png"));
 		update(BTN_SHOW_CALENDAR, Icon.of("THEME/btn-datein.png"));
 		update(BTN_CLOCK, Icon.of("THEME/btnClock.png"));

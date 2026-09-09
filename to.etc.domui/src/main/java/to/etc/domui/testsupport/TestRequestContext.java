@@ -191,9 +191,6 @@ public class TestRequestContext implements IRequestContext {
 				throw new IllegalStateException("Not implemented");
 			}
 
-			@NonNull @Override public String translateResourceName(@NonNull String name) {
-				return name;
-			}
 
 			@NonNull @Override public String getStyleSheetName() throws Exception {
 				return "style.css";

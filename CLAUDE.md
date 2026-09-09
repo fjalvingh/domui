@@ -82,6 +82,10 @@ in **[IMPROVEMENT-LOG.md](IMPROVEMENT-LOG.md)**. Read the plan before working on
 documentation or on `to.etc.domui.demo`, and keep both up to date: a finished item
 moves to the log, and what it decided becomes an entry in the log's decisions log.
 
+A plan that is finished as a whole moves to **`finished-plans/`**. What is there is
+done and is kept for the account it gives of how a part of the framework now works -
+`THEMES.md`, the theming write-up, is the first of them.
+
 The documentation website source is a separate repository at
 `/home/jal/git/update-domui/domui.github.io` (Markdown under `site/content`, static site
 generator in `sitegenerator`).

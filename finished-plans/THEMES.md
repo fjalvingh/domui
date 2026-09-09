@@ -2,7 +2,7 @@
 
 How theming works, after the removal of the two obsolete theme engines and the Rhino
 template machinery, and the reduction to one theme with per-session variants. The last
-sections record what was removed and what is still open.
+sections record what was removed.
 
 All paths are relative to `domui/to.etc.domui/src/main/java/to/etc/domui/` unless said
 otherwise; resources live under `domui/to.etc.domui/src/main/resources/resources/`.
@@ -41,14 +41,13 @@ theme variant the reference was resolved in, and it is both a DomUI resource RUR
 browser-visible URL.
 
 The conversion happens at render time, in `ThemeManager.getThemedResourceRURL()`
-(`themes/ThemeManager.java:203-216`):
+(`themes/ThemeManager.java:201-210`):
 
 ```java
 if(path.startsWith("THEME/"))       path = path.substring(6);
 else if(path.startsWith("ICON/"))   throw new IllegalStateException("Bad ROOT: ICON/...");
 else                                return path;              // not theme-relative
-String newicon = theme.translateResourceName(path);           // icon-name remapping hook
-return ThemeResourceFactory.PREFIX + theme.getVariantName() + "/" + newicon;
+return ThemeResourceFactory.PREFIX + theme.getVariantName() + "/" + path;
 ```
 
 `ICON/` is a third, long-removed form that survives only as this guard clause.
@@ -100,13 +99,11 @@ One instance is held by `DomApplication` and asked for one `ITheme` per variant.
 String               getVariantName();                     // first URL segment: the variant
 ResourceDependencies getDependencies();                    // for dev-mode reload
 IResourceRef         getThemeResource(String name, IResourceDependencyList rdl);
-String               translateResourceName(String name);   // icon name remapping hook
 String               getStyleSheetName();                  // RURL of the sheet; the renderer hashes it
 ```
 
-`translateResourceName` is a no-op in `SassTheme` (`SassTheme.java:44-47`). It is kept as
-the extension point it is — an `ITheme` of your own can still substitute one icon file for
-another — but nothing in the framework uses it any more.
+Four methods, and that is all an `ITheme` is: which variant it is, what it depends on for
+dev-mode reload, how to find one of its resources, and where its stylesheet lives.
 
 ### `IThemeVariant` (`themes/IThemeVariant.java`)
 
@@ -165,6 +162,11 @@ $themes/scss/all
 This is the whole of the variant mechanism: a variant directory is consulted first, so it
 overrides the files it contains and inherits every file it does not. §13 is the shipped
 example of it.
+
+`all` is the shared tail of every search path: a resource that a second style — a `summer`
+next to `winter` — would use unchanged belongs there rather than in both style directories.
+DomUI ships one style and so ships no `all` directory; the entry stays on the path for the
+style that adds one.
 
 The entries are themselves DomUI RURLs, so the walk recurses into `SimpleResourceFactory`
 → `DomApplication.getAppFileOrResource()` (`server/DomApplication.java:1674-1693`), which
@@ -294,11 +296,11 @@ an application re-point.
 rasterisation - an `.svg` is rejected. An svg icon reaches the page through `SvgIcon`,
 which inlines its markup, and is styled - recoloured, greyed - by CSS.
 
-A scan of every `"THEME/…"` literal in the framework and demo (93 distinct paths) against
-`resources/themes/scss/winter/` finds two dangling references:
-
-- `THEME/big-accessDenied.png` — `themes/Theme.java:140` (`BIG_ACCESS_DENIED`)
-- `THEME/btnBack.png` — `component/misc/InternalParentTree.java:219`
+Every `"THEME/…"` literal in the framework and demo (93 distinct paths) resolves against
+`resources/themes/scss/winter/`. Two of them did not, and were repaired rather than given
+an image: `BIG_ACCESS_DENIED` is now an alias of `ACCESS_DENIED` — whose `accessDenied.png`
+is 96x114, the big one already — and `InternalParentTree`'s "Back to structure" button
+takes `Icon.faArrowLeft`, a font icon, which is how a `LinkButton` gets an icon now.
 
 (The apparent misses `big-`, `mini-`, `btnHeaderCollapsed`, `btnHeaderExpanded` are
 prefixes concatenated at runtime and do resolve.)
@@ -389,6 +391,10 @@ expander did was call `ITheme.getPropertyScope()`, on which `SassTheme` threw.
 
 - `themes/CleanThemeVariant.java` — named the fragmented engine's `clean` style directory,
   which is gone
+- `ITheme.translateResourceName()` and its four no-op implementations — an icon-name
+  remapping hook that no shipped theme ever used. `ThemeManager.getThemedResourceRURL()`
+  now builds `$THEME/<variant>/<name>` directly, and lost the `try`/`catch` that existed
+  only because of the call
 - `src/test/.../TestRhino.java`, `extra/TestThemeExpander.java`, `makeunsplit.xml` (an Ant
   script that rebuilt `css-blue` from the now-deleted `css-domui`), and the orphaned
   `extra/*.png.svg` + `extra/defaultbutton.properties`
@@ -730,35 +736,21 @@ parameters of a vendor mixin rather than theme variables.
 | `$common-hdr-color-1` | declared in both variants, read by nothing |
 | `$button-height` | declared, read by nothing |
 
-## 15. Still open
+### Three rules the colour sweep produced
 
-1. **`UrlPage.getThemeVariant()` is still commented out** (`dom/html/UrlPage.java:90-92`),
-   though the setter next to it now works. Uncomment it, or drop the pair in favour of
-   `UIContext.getRequestContext()`.
-2. **The colour literals are gone.** 214 of them were written in the partials when the
-   sweep started; nine occurrences remain and all are deliberate - the colour picker's
-   three `#f00` sample swatches, `red()`/`green()`/`blue()` in `_draganddrop` (SCSS
-   channel functions, not colours), two hex values quoted inside a comment in
-   `_popupmenu.scss`, and `_devmode`, skipped by direction. The account of the five
-   batches is in `IMPROVEMENT-LOG.md`; the architecture it settled on is a main set in
-   `_variables.scss`, component colours in `_derived-variables.scss` as
-   `$<component>-<part>-<role>` defaulting to a main-set value, and a partial that reads
-   only its own variables.
+The sweep that replaced 214 colour literals in the partials with variables settled these,
+and they are how a new colour is added:
 
-   Three rules the work produced. **Give the partial a variable, never override it in
-   the variant.** **Check for a ladder first** - greys that form a sequence take
-   consecutive rungs from one base, not nearest-neighbour matches each. **Hue is not
-   semantics** - the scan's "warning", "info" and "success" families turned out to be a
-   breadcrumb link, a badge digit, a selected-item background, a toggle parameter, a
-   panel ground and a title tint.
+- **Give the partial a variable, never override it in the variant.** A partial reads only
+  its own `$<component>-<part>-<role>` variables; the variant sets the main set those
+  default to.
+- **Check for a ladder first.** Greys that form a sequence take consecutive rungs from one
+  base, not a nearest-neighbour match each.
+- **Hue is not semantics.** The scan's "warning", "info" and "success" families turned out
+  to be a breadcrumb link, a badge digit, a selected-item background, a toggle parameter, a
+  panel ground and a title tint.
 
-3. **`ThemeManager.checkReapThemes()` does nothing.** It sorts a *copy* of the map's values
-   and removes entries from that copy; `m_themeMap` is never touched
-   (`ThemeManager.java:151-172`). It also skips the last element because of the
-   `for(int i = list.size()-1; --i >= 0;)` / `list.remove(i)` combination.
-4. **Two dangling icon references** — `THEME/big-accessDenied.png` and `THEME/btnBack.png`
-   (§8).
-5. **`$themes/scss/all` is on every search path** but does not exist; `scss/` holds only
-   `winter/`.
-6. **`translateResourceName()` is a no-op** in the only shipped `ITheme`. Kept as an
-   extension point; drop it if the rework decides `ITheme` should not carry one.
+Nine colour literals remain and all are deliberate: the colour picker's three `#f00` sample
+swatches, `red()`/`green()`/`blue()` in `_draganddrop` (SCSS channel functions, not
+colours), two hex values quoted inside a comment in `_popupmenu.scss`, and `_devmode`,
+skipped by direction. The account of the five batches is in `IMPROVEMENT-LOG.md`.

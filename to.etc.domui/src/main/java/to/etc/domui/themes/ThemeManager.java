@@ -205,12 +205,7 @@ final public class ThemeManager {
 			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
 		} else
 			return path;										// Not theme-relative, so return as-is.
-		try {
-			String newicon = theme.translateResourceName(path);
-			return ThemeResourceFactory.PREFIX + theme.getVariantName() + "/" + newicon;
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
+		return ThemeResourceFactory.PREFIX + theme.getVariantName() + "/" + path;
 	}
 
 }

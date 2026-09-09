@@ -54,8 +54,6 @@ public interface ITheme {
 	@NonNull
 	IResourceRef getThemeResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception;
 
-	@NonNull
-	String translateResourceName(@NonNull String name);
 
 	/**
 	 * Returns the internal (RURL) name of this theme's stylesheet, like
