@@ -5,8 +5,11 @@ diagramming library in a DomUI component with a Java-side "content model" for th
 drawing, growing from "render a drawing" to "the Java model and the Javascript
 instance stay in sync in both directions".
 
-Nothing of this exists yet; this file is the plan and the record of what the
-investigation found.
+All of it exists. This file is what the plan turned into: the design, the wire
+protocol and the model as they were built, and per phase what it cost, what it
+decided and what was verified. The one thing still open is named in phase 5,
+under automatic layout: an edge's label offset, which the model has no word for
+and which `EdgeLabelLayout` needs.
 
 ## 1. What is being built
 
@@ -737,16 +740,37 @@ can load, and that moving a node makes the next picture wider - the picture bein
 drawing as it is, not of the model as the page built it. `mvn21 verify -pl to.etc.domui.demo`
 is green: 9 unit tests, 77 Selenium ITs, no failures.
 
-### Phase 6 - demo and documentation
+### Phase 6 - demo and documentation - DONE
 
-- Demo pages under `to.etc.domui.demo/.../pages/components/graph/`, linked from
-  `ComponentListPage`, following the demo conventions (`HTag(1)` title, content in a
-  `ContentPanel`, `form4` for any form, no component in a field).
-- A documentation section `domui.github.io/site/content/components/125-diagrams/`
-  (between `120-charts` and `130-async`), written show-first, with `!demo()` tags
-  pointing at those demo pages - which therefore have to be deployed to
-  https://demo.domui.org/ before the docs build is meaningful.
-- The component groups list in the docs' components index gains this group.
+Five demo pages, written as the phases needed them, and six documentation pages written
+around those five. The demo pages are in `to.etc.domui.demo/.../pages/components/graph/`
+and are the Diagrams group of `ComponentListPage`:
+
+| Demo page | What it shows |
+| --- | --- |
+| `BasicGraphPage` | a drawing built as a Java model |
+| `ChangingGraphPage` | the server changing a drawing that is on the screen, and arranging one nobody may touch |
+| `EditableGraphPage` | the user changing a drawing, and a page refusing one of the changes |
+| `GraphEditorPage` | the user building one: palette, connections, renaming, bending, undo |
+| `ExportGraphPage` | the drawing saved in the browser, and posted back here |
+
+The documentation is `domui.github.io/site/content/components/125-diagrams/`, between
+`120-charts` and `130-async`: a group page and one page each for
+the panel, the model, editing, arranging and pictures. **Every one of them embeds the
+demo page that shows the thing working** - which is what those pages are for, and why the
+demo has to be deployed before the documentation means anything. The components index
+gained the group, between Charts and Asynchronous work.
+
+The group page carries the mechanism the other five lean on: the drawing is not in the
+page's html, the browser asks for the model, and what changes afterwards travels as a list
+of changes rather than a redraw - with the two rules that follow from it, that the model is
+a field of the page and the panel is not, and that the drawing must be rebuildable from the
+model at any time.
+
+*Verified*: `java -jar sitegenerator/target/sitegen.jar -i site` reports 163 pages and no
+broken links, and the pre-commit hook generates the site cleanly. The six pages were read in
+a browser: every `!demo()` frame draws the live demo from https://demo.domui.org/, and both
+plantuml diagrams render.
 
 ## 9. Risks and how they are handled
 

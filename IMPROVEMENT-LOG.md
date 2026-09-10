@@ -1945,7 +1945,7 @@ These were offered as input while the phase 0 items were being worked, and taken
 - [x] **Framework + documentation: the browser-side build is current, and documented.**
       Done 2026-09-09. The Typescript pipeline had been frozen since 2021 and could
       not run a modern bundler, which blocked the maxGraph component planned in
-      `MAXGRAPH.md`; §6.1 of that plan is this work. `frontend-maven-plugin` 1.11.0
+      `finished-plans/MAXGRAPH.md`; §6.1 of that plan is this work. `frontend-maven-plugin` 1.11.0
       -> 1.15.1 and node **v8.11.1 -> v22.22.1** (the separate `npmVersion` pin
       dropped, so node's own npm is used); typescript 4.3 -> 5.9; `@types/jquery`
       ^2.0.56 -> ^3.5.32, which is the jQuery that is actually served; esbuild added
@@ -1990,6 +1990,23 @@ These were offered as input while the phase 0 items were being worked, and taken
       could never find a row button (DomUI renders those calculated ids prefixed per
       row: `/r0/lbtn_Order`). Rebuilding that module made them pass - a full
       `mvn21 clean install` avoids the trap.
+
+- [x] **The maxGraph component, and the Diagrams documentation it exists for.**
+      Done 2026-09-10. `integrations/to.etc.domui.maxgraph` wraps
+      [maxGraph](https://github.com/maxGraph/maxGraph) as `MaxGraphPanel`: a diagram
+      described by a Java `GraphModel`, drawn in the browser, with the two sides kept in
+      step - what the page changes travels as a list of changes rather than a redraw, and
+      what the user changes is offered to the page, which may refuse it. Five demo pages
+      under `to.etc.domuidemo.pages.components.graph` are the Diagrams group of
+      `ComponentListPage`, and six documentation pages,
+      `domui.github.io/site/content/components/125-diagrams/`, are written around them -
+      one group page plus the panel, the model, editing, arranging and pictures, each
+      embedding the demo that shows it working. The whole account of how it works, what
+      each phase cost and what was decided is `finished-plans/MAXGRAPH.md`; the one thing
+      still open is an edge's label offset, which the model has no word for.
+      Verified: `mvn21 verify -pl to.etc.domui.demo` green (9 unit tests, 77 Selenium ITs,
+      22 of them the component's own), 10 unit tests in the module itself, and the site
+      generates cleanly at 163 pages with every `!demo()` frame drawing the live demo.
 
 ## Decisions log
 

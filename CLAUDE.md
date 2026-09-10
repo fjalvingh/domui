@@ -46,6 +46,9 @@ Key modules:
 - **to.etc.domui** - Core UI framework (components, data binding, AJAX)
 - **to.etc.webapp.core** - Web application framework, includes QCriteria query abstraction
 - **integrations/to.etc.domui.hibutil** - Hibernate/JPA integration, translates QCriteria to JPA Criteria
+- **integrations/to.etc.domui.maxgraph** - `MaxGraphPanel`: diagrams drawn by maxGraph from a
+  Java `GraphModel`. Ships a committed javascript bundle, so it builds without node; see
+  `finished-plans/MAXGRAPH.md` for how it works and the module's README for rebuilding the bundle
 - **to.etc.domui.demo** - Demo application and integration tests
 - **common/** - Shared utilities (logging, database, algorithms, security)
 
