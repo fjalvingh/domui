@@ -271,6 +271,71 @@ public class ITMaxGraphPanel extends AbstractWebDriverTest {
 		wd().wait(logLineContaining("points"));
 	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Taking it back again                                        */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * The point of undo living on the server: the browser threw the node away and has
+	 * nothing left to make one from, while the model still has the cell itself. So the node
+	 * comes back as the same cell - and, because deleting it deleted the edge that hung on
+	 * it, the edge comes back with it, in one step.
+	 */
+	@Test
+	public void undoBringsBackADeletedNodeAndItsEdge() throws Exception {
+		wd().openScreen(GraphEditorPage.class);
+		wd().wait(label("Start here"));
+		drag(paletteItem("Done"), 300, 220);
+		wd().wait(label("Done"));
+		connect(label("Start here"), label("Done"));
+		wd().wait(logLineContaining("Connected Start here to Done"));
+		int edges = wd().findElements(EDGES).size();
+
+		delete(label("Done"));
+		wd().notPresent(label("Done"));
+		Assert.assertTrue("The edge must have gone with it", wd().findElements(EDGES).size() < edges);
+
+		wd().cmd().click().on("button_Undo");
+		wd().wait(label("Done"));
+		Assert.assertEquals("And both must come back together", edges, wd().findElements(EDGES).size());
+	}
+
+	/** What the page made of a palette drop is undone like anything else, and redone again. */
+	@Test
+	public void undoAndRedoOfAPaletteDrop() throws Exception {
+		wd().openScreen(GraphEditorPage.class);
+		wd().wait(label("Start here"));
+
+		drag(paletteItem("Decision?"), 300, 220);
+		wd().wait(label("Decision?"));
+
+		wd().cmd().click().on("button_Undo");
+		wd().notPresent(label("Decision?"));
+
+		wd().cmd().click().on("button_Redo");
+		wd().wait(label("Decision?"));
+		Assert.assertTrue("The drawing the user started from is never undone away",
+			wd().isPresent(label("Start here")));
+	}
+
+	/**
+	 * ctrl-Z in the drawing is the same undo: the browser only says the key was pressed, and
+	 * what comes back is the ordinary list of changes.
+	 */
+	@Test
+	public void theCtrlZKeystrokeUndoes() throws Exception {
+		wd().openScreen(GraphEditorPage.class);
+		wd().wait(label("Start here"));
+		drag(paletteItem("Done"), 300, 220);
+		wd().wait(label("Done"));
+
+		//-- The drawing only gets key events while it has the focus, which a click in it gives it.
+		new Actions(wd().driver()).click(wd().findElement(label("Start here")))
+			.keyDown(Keys.CONTROL).sendKeys("z").keyUp(Keys.CONTROL).perform();
+
+		wd().notPresent(label("Done"));
+	}
+
 	static private final By CANVAS = By.cssSelector(".ui-mxgr-canvas");
 
 	static private By paletteItem(String label) {

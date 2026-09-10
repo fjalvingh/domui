@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.components.graph;
 
 import to.etc.domui.component.layout.ContentPanel;
+import to.etc.domui.component2.buttons.ButtonBar2;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.Para;
@@ -37,6 +38,10 @@ public class GraphEditorPage extends UrlPage {
 		GraphNode start = m_task.create(m_model, 60, 40);
 		start.setLabel("Start here");
 		start.setUserObject(m_task.getKey());
+
+		//-- The drawing the user starts from is there; everything they do to it from here is
+		//-- undoable, and the drawing itself is not.
+		m_model.setUndoEnabled(true);
 	}
 
 	@Override
@@ -50,10 +55,16 @@ public class GraphEditorPage extends UrlPage {
 		cp.add(new Para().add("Drag a shape from the strip at the top into the drawing. Point at "
 			+ "a shape and a green dot appears in the middle of it: drag that onto another shape "
 			+ "to connect them. Double click a shape to rename it, drag the handle in the middle "
-			+ "of an edge to bend it, and select anything and press Delete to remove it."));
+			+ "of an edge to bend it, and select anything and press Delete to remove it. Anything "
+			+ "you do can be taken back, with the buttons or with ctrl-Z in the drawing."));
 
 		Div log = new Div("dm-tut-q");
 		say(log, "Nothing has been drawn yet.");
+
+		ButtonBar2 bb = new ButtonBar2();
+		cp.add(bb);
+		bb.addButton("Undo", () -> say(log, m_model.undo() ? "Undone" : "Nothing left to undo"));
+		bb.addButton("Redo", () -> say(log, m_model.redo() ? "Redone" : "Nothing to redo"));
 
 		MaxGraphPanel panel = new MaxGraphPanel();
 		cp.add(panel);
@@ -69,6 +80,12 @@ public class GraphEditorPage extends UrlPage {
 			});
 
 		cp.add(log);
+		cp.add(new Para().add("Undo is this side's, and so is everything it needs: the node you "
+			+ "delete is still here, with the id it always had and the page's own data on it, "
+			+ "while the browser has nothing left to put back. So ctrl-Z only says that ctrl-Z "
+			+ "was pressed, and what comes back is an ordinary list of changes - which is why "
+			+ "undoing a deletion returns the shape and the edges that hung on it in one go."));
+
 		cp.add(new Para().add("A cell the browser made up would have no id this side knows it "
 			+ "by, so the browser never makes one: it says the user dropped a Task here, or drew "
 			+ "a connection from this node to that one, and the page answers with the cell it "

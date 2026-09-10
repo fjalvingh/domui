@@ -53,6 +53,7 @@ public final class GraphGeometry {
 	}
 
 	public void setBounds(double x, double y, double width, double height) {
+		record();
 		m_x = x;
 		m_y = y;
 		m_width = width;
@@ -61,12 +62,14 @@ public final class GraphGeometry {
 	}
 
 	public void setPosition(double x, double y) {
+		record();
 		m_x = x;
 		m_y = y;
 		changed();
 	}
 
 	public void setSize(double width, double height) {
+		record();
 		m_width = width;
 		m_height = height;
 		changed();
@@ -76,6 +79,18 @@ public final class GraphGeometry {
 		GraphNode owner = m_owner;
 		if(null != owner) {
 			owner.getModel().changed(GraphOp.geometry(owner));
+		}
+	}
+
+	/** Where the node is now, as the change that puts it back there. */
+	private void record() {
+		GraphNode owner = m_owner;
+		if(null != owner) {
+			double x = m_x;
+			double y = m_y;
+			double width = m_width;
+			double height = m_height;
+			owner.getModel().record(() -> setBounds(x, y, width, height));
 		}
 	}
 

@@ -150,11 +150,7 @@ public final class GraphChange {
 				break;
 
 			case Points:
-				GraphEdge routed = (GraphEdge) m_cell;
-				routed.clearWaypoints();
-				for(GraphPoint point : getPoints()) {
-					routed.waypoint(point.getX(), point.getY());
-				}
+				((GraphEdge) m_cell).setWaypoints(getPoints());
 				break;
 
 			case Style:

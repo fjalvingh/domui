@@ -104,6 +104,7 @@ public final class GraphStyle {
 	 * Set any maxGraph style property by name. A null value removes the property.
 	 */
 	public GraphStyle raw(String name, @Nullable Object value) {
+		record();
 		if(null == value) {
 			m_properties.remove(name);
 		} else {
@@ -124,6 +125,7 @@ public final class GraphStyle {
 		if(style == this) {
 			return this;
 		}
+		record();
 		m_properties.clear();
 		m_properties.putAll(style.m_properties);
 		GraphCell owner = m_owner;
@@ -131,6 +133,19 @@ public final class GraphStyle {
 			owner.internalStyleChanged();
 		}
 		return this;
+	}
+
+	/**
+	 * What this style holds now, as the change that puts it back - one whole style, because
+	 * that is what a style change is: the browser sends the complete style of a cell too.
+	 */
+	private void record() {
+		GraphCell owner = m_owner;
+		if(null != owner) {
+			GraphStyle old = new GraphStyle();
+			old.m_properties.putAll(m_properties);
+			owner.getModel().record(() -> replaceWith(old));
+		}
 	}
 
 	public Map<String, Object> getProperties() {

@@ -23,6 +23,12 @@ import java.util.Map;
  * {@link GraphOp} and is passed to whatever listens - which is how a panel showing this
  * model knows what to send to the browser without redrawing it.</p>
  *
+ * <p>The model is also where undo lives, once {@link #setUndoEnabled(boolean)} says so:
+ * every change records what puts it back, and {@link #undo()} makes those changes - so an
+ * undo travels to a drawing on the screen as the same kind of change list as everything
+ * else. It is this side that undoes, because it is this side that still has the object of
+ * a cell the user deleted.</p>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class GraphModel {
@@ -37,6 +43,20 @@ public class GraphModel {
 	private int m_edgeIdCounter;
 
 	private int m_version;
+
+	private final List<GraphEdit> m_undoList = new ArrayList<>();
+
+	private final List<GraphEdit> m_redoList = new ArrayList<>();
+
+	private boolean m_undoEnabled;
+
+	private int m_undoLimit = 50;
+
+	/** The step being recorded, while there is one; changes outside one are a step by themselves. */
+	@Nullable
+	private GraphEdit m_edit;
+
+	private int m_editDepth;
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Building the drawing								        */
@@ -82,6 +102,7 @@ public class GraphModel {
 	private void register(GraphCell cell) {
 		m_cellList.add(cell);
 		m_cellMap.put(cell.getId(), cell);
+		record(() -> remove(cell));
 		changed(GraphOp.add(cell));
 	}
 
@@ -94,29 +115,63 @@ public class GraphModel {
 		if(m_cellMap.get(cell.getId()) != cell) {
 			return;
 		}
-		if(cell instanceof GraphNode node) {
-			for(GraphNode child : new ArrayList<>(node.getChildren())) {
-				remove(child);
-			}
-			for(GraphCell other : new ArrayList<>(m_cellList)) {
-				if(other instanceof GraphEdge edge && (edge.getSource() == node || edge.getTarget() == node)) {
-					remove(edge);
+		//-- Taking a cell away takes more than one cell away, and that is one thing to undo.
+		beginEdit();
+		try {
+			if(cell instanceof GraphNode node) {
+				for(GraphNode child : new ArrayList<>(node.getChildren())) {
+					remove(child);
+				}
+				for(GraphCell other : new ArrayList<>(m_cellList)) {
+					if(other instanceof GraphEdge edge && (edge.getSource() == node || edge.getTarget() == node)) {
+						remove(edge);
+					}
+				}
+				GraphNode parent = node.getParent();
+				if(null != parent) {
+					parent.internalRemoveChild(node);
 				}
 			}
+			m_cellList.remove(cell);
+			m_cellMap.remove(cell.getId());
+			record(() -> reinsert(cell));
+			changed(GraphOp.remove(cell));
+		} finally {
+			endEdit();
+		}
+	}
+
+	/**
+	 * Put a removed cell back, the same object under the same id - which is the one thing
+	 * only this side can do: the browser threw its cell away and has nothing left to make
+	 * one from, while here the cell is still whole, {@link GraphCell#getUserObject()} and
+	 * all.
+	 *
+	 * <p>Only an undo gets here, and only in the reverse of the order things were removed
+	 * in, so whatever a cell needs is already back by the time the cell itself is.</p>
+	 */
+	private void reinsert(GraphCell cell) {
+		if(m_cellMap.containsKey(cell.getId())) {
+			return;
+		}
+		m_cellList.add(cell);
+		m_cellMap.put(cell.getId(), cell);
+		if(cell instanceof GraphNode node) {
 			GraphNode parent = node.getParent();
 			if(null != parent) {
-				parent.internalRemoveChild(node);
+				parent.internalAddChild(node);
 			}
 		}
-		m_cellList.remove(cell);
-		m_cellMap.remove(cell.getId());
-		changed(GraphOp.remove(cell));
+		record(() -> remove(cell));
+		changed(GraphOp.add(cell));
 	}
 
 	public void clear() {
-		for(GraphCell cell : new ArrayList<>(m_cellList)) {
-			remove(cell);
-		}
+		edit(() -> {
+			for(GraphCell cell : new ArrayList<>(m_cellList)) {
+				remove(cell);
+			}
+		});
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -147,6 +202,173 @@ public class GraphModel {
 	 */
 	public int getVersion() {
 		return m_version;
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Undo and redo										        */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Whether the model remembers what it was changed by, so that {@link #undo()} can put
+	 * it back. Off by default: a drawing that is only being built has nothing to undo, and
+	 * remembering it would cost the whole of it.
+	 *
+	 * <p>Turn it on once the drawing is there - after the constructor built it, usually -
+	 * and everything from then on is undoable.</p>
+	 */
+	public boolean isUndoEnabled() {
+		return m_undoEnabled;
+	}
+
+	public GraphModel setUndoEnabled(boolean undoEnabled) {
+		if(m_undoEnabled == undoEnabled) {
+			return this;
+		}
+		m_undoEnabled = undoEnabled;
+		if(!undoEnabled) {
+			clearHistory();
+		}
+		return this;
+	}
+
+	/**
+	 * How many steps are kept, the oldest being dropped past that. There is a limit because
+	 * a step that removed cells holds on to them - and to the application's own data on
+	 * them - for as long as it can still be undone.
+	 */
+	public int getUndoLimit() {
+		return m_undoLimit;
+	}
+
+	public GraphModel setUndoLimit(int undoLimit) {
+		m_undoLimit = undoLimit < 1 ? 1 : undoLimit;
+		trim();
+		return this;
+	}
+
+	/**
+	 * Make everything this does one step, so that one undo takes all of it back. Changes
+	 * made outside such a boundary are each a step of their own.
+	 *
+	 * <p>Nesting is allowed and joins the outermost one: a boundary inside a boundary is
+	 * still one step.</p>
+	 */
+	public void edit(Runnable what) {
+		beginEdit();
+		try {
+			what.run();
+		} finally {
+			endEdit();
+		}
+	}
+
+	/** {@link #edit(Runnable)} for code that cannot be a lambda, like a request handler. */
+	public void beginEdit() {
+		if(m_editDepth++ == 0 && m_undoEnabled) {
+			m_edit = new GraphEdit();
+		}
+	}
+
+	public void endEdit() {
+		if(m_editDepth > 0 && --m_editDepth > 0) {
+			return;
+		}
+		m_editDepth = 0;
+		GraphEdit edit = m_edit;
+		m_edit = null;
+		if(null != edit && !edit.isEmpty()) {
+			m_undoList.add(edit);
+			m_redoList.clear();
+			trim();
+		}
+	}
+
+	public boolean canUndo() {
+		return !m_undoList.isEmpty();
+	}
+
+	public boolean canRedo() {
+		return !m_redoList.isEmpty();
+	}
+
+	/**
+	 * Take the last step back, and return whether there was one. What this changes is a
+	 * change to the model like any other: listeners are told, the version moves on, and a
+	 * panel showing the model sends it to the browser at the end of the request.
+	 */
+	public boolean undo() {
+		return replay(m_undoList, m_redoList);
+	}
+
+	/** Make the last undone step again, and return whether there was one. */
+	public boolean redo() {
+		return replay(m_redoList, m_undoList);
+	}
+
+	/**
+	 * Undoing and redoing are the same thing in opposite directions: run the last step of
+	 * one stack, recording what that changes as the step that takes it back, and put that
+	 * on the other stack.
+	 */
+	private boolean replay(List<GraphEdit> from, List<GraphEdit> to) {
+		if(from.isEmpty()) {
+			return false;
+		}
+		GraphEdit edit = from.remove(from.size() - 1);
+		GraphEdit inverse = new GraphEdit();
+
+		//-- Whatever boundary the caller was inside stays untouched: this step is its own.
+		GraphEdit outer = m_edit;
+		int depth = m_editDepth;
+		m_edit = inverse;
+		m_editDepth = 1;
+		try {
+			edit.undo();
+		} finally {
+			m_edit = outer;
+			m_editDepth = depth;
+		}
+		if(!inverse.isEmpty()) {
+			to.add(inverse);
+		}
+		return true;
+	}
+
+	/** Forget what the model was changed by. What it holds now is where it starts again. */
+	public void clearHistory() {
+		m_undoList.clear();
+		m_redoList.clear();
+	}
+
+	private void trim() {
+		while(m_undoList.size() > m_undoLimit) {
+			m_undoList.remove(0);
+		}
+		while(m_redoList.size() > m_undoLimit) {
+			m_redoList.remove(0);
+		}
+	}
+
+	/**
+	 * Called by the model's own classes before they change anything, with the change that
+	 * puts it back. It has to be the state as it is at that moment: once the change is
+	 * made, what it was is gone.
+	 */
+	void record(Runnable inverse) {
+		if(!m_undoEnabled) {
+			return;
+		}
+		GraphEdit edit = m_edit;
+		if(null != edit) {
+			edit.add(inverse);
+			return;
+		}
+		//-- A change outside a boundary is a step of its own.
+		edit = new GraphEdit();
+		edit.add(inverse);
+		m_undoList.add(edit);
+		m_redoList.clear();
+		trim();
 	}
 
 	/*----------------------------------------------------------------------*/

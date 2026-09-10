@@ -40,11 +40,15 @@ public final class GraphEdge extends GraphCell {
 	}
 
 	public void setSource(@Nullable GraphNode source) {
+		GraphNode old = m_source;
+		getModel().record(() -> setSource(old));
 		m_source = source;
 		getModel().changed(GraphOp.terminal(this));
 	}
 
 	public void setTarget(@Nullable GraphNode target) {
+		GraphNode old = m_target;
+		getModel().record(() -> setTarget(old));
 		m_target = target;
 		getModel().changed(GraphOp.terminal(this));
 	}
@@ -55,14 +59,32 @@ public final class GraphEdge extends GraphCell {
 	}
 
 	public GraphEdge waypoint(double x, double y) {
+		recordWaypoints();
 		m_waypoints.add(new GraphPoint(x, y));
 		getModel().changed(GraphOp.points(this));
 		return this;
 	}
 
-	public void clearWaypoints() {
+	/**
+	 * Route the edge through these points instead of the ones it has. Which is what the
+	 * browser sends when the user bends an edge: the whole route, not a difference.
+	 */
+	public GraphEdge setWaypoints(List<GraphPoint> points) {
+		recordWaypoints();
 		m_waypoints.clear();
+		m_waypoints.addAll(points);
 		getModel().changed(GraphOp.points(this));
+		return this;
+	}
+
+	public void clearWaypoints() {
+		setWaypoints(Collections.emptyList());
+	}
+
+	/** The route the edge takes now, as the change that puts it back. */
+	private void recordWaypoints() {
+		List<GraphPoint> old = new ArrayList<>(m_waypoints);
+		getModel().record(() -> setWaypoints(old));
 	}
 
 	public GraphEdge label(@Nullable String label) {

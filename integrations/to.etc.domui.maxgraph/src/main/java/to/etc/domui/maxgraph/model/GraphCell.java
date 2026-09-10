@@ -45,6 +45,8 @@ abstract public class GraphCell {
 	}
 
 	public void setLabel(@Nullable String label) {
+		String old = m_label;
+		m_model.record(() -> setLabel(old));
 		m_label = label;
 		m_model.changed(GraphOp.label(this));
 	}

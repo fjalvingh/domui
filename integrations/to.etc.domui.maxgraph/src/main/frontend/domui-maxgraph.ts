@@ -154,6 +154,7 @@ export function create(id: string, options: CreateOptions = {}): void {
 		applying: false, editable: false, keyHandler, palette
 	};
 	instances.set(id, instance);
+	undoKeys(id, instance, keyHandler);
 	askForEdges(id, instance);
 
 	//-- A key press only reaches the graph when it happens inside its own container, and
@@ -394,6 +395,25 @@ function buildPalette(id: string, instance: Instance, items: PaletteDoc[]): void
 				x: (x ?? 0) - item.w / 2, y: (y ?? 0) - item.h / 2}]);
 		}, preview);
 	}
+}
+
+/**
+ * ctrl-Z and ctrl-Y ask the server to move through the history it keeps; maxGraph's own
+ * UndoManager is deliberately not installed anywhere in this file.
+ *
+ * The model is the server's, and so is everything an undo needs: a cell the user deleted
+ * still exists there, with its id and the application's own data on it, while here there
+ * is nothing left to put back. So the browser only says which key was pressed, and what
+ * comes back is the ordinary list of changes.
+ *
+ * A keystroke inside the label editor is left alone: KeyHandler ignores everything while
+ * the graph is editing, so ctrl-Z there undoes typing, as it should.
+ */
+function undoKeys(id: string, instance: Instance, keyHandler: KeyHandler): void {
+	keyHandler.bindControlKey(90, () => send(id, instance, [{op: 'requestUndo', id: ''}]));
+	keyHandler.bindControlKey(89, () => send(id, instance, [{op: 'requestRedo', id: ''}]));
+	//-- ctrl-shift-Z is the other redo, and the only one people use on a Mac.
+	keyHandler.bindControlShiftKey(90, () => send(id, instance, [{op: 'requestRedo', id: ''}]));
 }
 
 /*----------------------------------------------------------------------*/

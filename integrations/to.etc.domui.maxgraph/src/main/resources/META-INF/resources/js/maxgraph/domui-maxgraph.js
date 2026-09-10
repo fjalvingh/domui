@@ -27593,6 +27593,7 @@ var DomUIMaxGraph = (() => {
       palette
     };
     instances.set(id, instance);
+    undoKeys(id, instance, keyHandler);
     askForEdges(id, instance);
     canvas.addEventListener("pointerdown", () => {
       if (instance.editable) {
@@ -27759,6 +27760,11 @@ var DomUIMaxGraph = (() => {
         }]);
       }, preview);
     }
+  }
+  function undoKeys(id, instance, keyHandler) {
+    keyHandler.bindControlKey(90, () => send(id, instance, [{ op: "requestUndo", id: "" }]));
+    keyHandler.bindControlKey(89, () => send(id, instance, [{ op: "requestRedo", id: "" }]));
+    keyHandler.bindControlShiftKey(90, () => send(id, instance, [{ op: "requestRedo", id: "" }]));
   }
   function sendChanges(id, instance, edit) {
     var _a2;

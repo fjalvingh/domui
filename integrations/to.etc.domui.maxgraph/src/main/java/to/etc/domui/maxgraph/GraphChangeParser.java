@@ -30,9 +30,10 @@ import java.util.Map;
  * <p>A change about a cell the model no longer has is dropped: the browser can only have
  * sent it because the two sides crossed, and the drawing is corrected anyway.</p>
  *
- * <p>Two of the operations - {@code requestNode} and {@code requestEdge} - are not changes
- * but requests for a cell that does not exist yet; they come out as {@link GraphRequest}
- * and only the browser ever sends them.</p>
+ * <p>Four of the operations are not changes but requests: {@code requestNode} and
+ * {@code requestEdge} ask for a cell that does not exist yet, and {@code requestUndo} and
+ * {@code requestRedo} ask the model's history to move. They come out as
+ * {@link GraphRequest} and only the browser ever sends them.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
@@ -75,6 +76,12 @@ public class GraphChangeParser {
 				GraphNode target = terminal(model, node.get("target"));
 				//-- A connection to a node that is gone here is not a connection at all.
 				return null == source || null == target ? null : GraphRequest.edge(source, target);
+
+			case "requestUndo":
+				return GraphRequest.undo();
+
+			case "requestRedo":
+				return GraphRequest.redo();
 		}
 	}
 

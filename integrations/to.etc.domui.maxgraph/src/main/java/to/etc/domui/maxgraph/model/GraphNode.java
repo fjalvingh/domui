@@ -71,4 +71,11 @@ public final class GraphNode extends GraphCell {
 	void internalRemoveChild(GraphNode child) {
 		m_children.remove(child);
 	}
+
+	/** Called when a removed child is put back by an undo; it kept its parent all along. */
+	void internalAddChild(GraphNode child) {
+		if(!m_children.contains(child)) {
+			m_children.add(child);
+		}
+	}
 }

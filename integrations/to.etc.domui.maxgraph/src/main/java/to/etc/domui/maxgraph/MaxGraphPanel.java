@@ -73,6 +73,13 @@ import java.util.Set;
  * {@link IGraphCreateHandler} decides what the model becomes. What it makes then arrives
  * in the browser like any other change.</p>
  *
+ * <p>Undo is the model's, and is off until {@link GraphModel#setUndoEnabled(boolean)} says
+ * otherwise. Where it is on, ctrl-Z and ctrl-Y in the drawing ask the model to take a step
+ * back or forward, exactly as a button calling {@link GraphModel#undo()} would; what that
+ * changes arrives in the browser as an ordinary list of changes. The browser keeps no
+ * history of its own - it could not put back a cell it deleted, because the object of that
+ * cell only exists here.</p>
+ *
  * <p>A page that uses this must call {@link #initialize(NodeContainer)} once, which adds
  * the library to that page only.</p>
  *
@@ -230,37 +237,73 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 		Set<GraphChange> refusedSet = Collections.newSetFromMap(new IdentityHashMap<>());
 		decide(set, refusedSet);
 
-		for(GraphChange change : set.getChanges()) {
-			if(!refusedSet.contains(change)) {
-				applyWithoutEcho(change);
+		//-- One gesture is often several changes - deleting a node deletes its edges with it -
+		//-- so everything one request does is one step to undo.
+		m_model.beginEdit();
+		try {
+			for(GraphChange change : set.getChanges()) {
+				if(!refusedSet.contains(change)) {
+					applyWithoutEcho(change);
+				}
 			}
+			putBack(refusedSet);
+			handle(set.getRequests());
+		} finally {
+			m_model.endEdit();
 		}
-		putBack(refusedSet);
-		create(set.getRequests());
 	}
 
 	/**
-	 * Make the cells the user asked for. Nothing is suppressed here: the browser has none
-	 * of these, because it never makes a cell of its own - what comes back from the model
-	 * is the first the browser sees of it, with the id the model gave it.
+	 * Do what the user asked for that the browser could not do itself: make the cells it
+	 * has no ids for, and move through the history it does not have.
+	 *
+	 * <p>Nothing is suppressed here. The browser has none of the cells a create handler
+	 * makes, because it never makes one of its own, and an undo changes cells it was never
+	 * told changed - so both go to it as ordinary changes, which is what the model's
+	 * listener turns them into.</p>
 	 */
-	private void create(List<GraphRequest> requestList) throws Exception {
+	private void handle(List<GraphRequest> requestList) throws Exception {
+		for(GraphRequest request : requestList) {
+			switch(request.getType()) {
+				default:
+					break;
+
+				case RequestUndo:
+					m_model.undo();
+					break;
+
+				case RequestRedo:
+					m_model.redo();
+					break;
+
+				case RequestNode:
+				case RequestEdge:
+					create(request);
+					break;
+			}
+		}
+	}
+
+	/**
+	 * Make the cell the user asked for - or rather, let the page make it: what a dropped
+	 * palette item or a drawn connection becomes is the page's decision, and it may be
+	 * nothing at all.
+	 */
+	private void create(GraphRequest request) throws Exception {
 		IGraphCreateHandler handler = m_createHandler;
 		if(null == handler) {
 			return;
 		}
-		for(GraphRequest request : requestList) {
-			if(request.getType() == GraphOpType.RequestNode) {
-				GraphPaletteItem item = paletteItem(request.getPaletteKey());
-				if(null != item) {
-					handler.createNode(m_model, item, request.getX(), request.getY());
-				}
-			} else {
-				GraphNode source = request.getSource();
-				GraphNode target = request.getTarget();
-				if(null != source && null != target) {
-					handler.createEdge(m_model, source, target);
-				}
+		if(request.getType() == GraphOpType.RequestNode) {
+			GraphPaletteItem item = paletteItem(request.getPaletteKey());
+			if(null != item) {
+				handler.createNode(m_model, item, request.getX(), request.getY());
+			}
+		} else {
+			GraphNode source = request.getSource();
+			GraphNode target = request.getTarget();
+			if(null != source && null != target) {
+				handler.createEdge(m_model, source, target);
 			}
 		}
 	}

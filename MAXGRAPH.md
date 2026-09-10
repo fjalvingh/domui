@@ -128,6 +128,7 @@ GraphGeometry               x, y, width, height
 IGraphModelListener         onModelChanged(List<GraphOp>)
 GraphOp / GraphOpType       one change, the unit of the wire protocol (§7)
 IGraphChangeHandler         page callback for browser-originated changes; may reject
+GraphEdit                   one undoable step: the ops it made, and the ops that take them back
 ```
 
 Decisions that matter:
@@ -291,12 +292,15 @@ once and the three phases below are mechanical.
 ] }
 ```
 
-Two more travel from the browser only. They are not changes to a cell but requests for one
-that does not exist yet, because ids are the server's:
+Four more travel from the browser only. None of them is a change: the first two ask for a
+cell that does not exist yet, because ids are the server's, and the last two ask the model's
+history to make one (phase 5).
 
 ```json
 { "op": "requestNode", "key": "task", "x": 120, "y": 40 }
 { "op": "requestEdge", "source": "n1", "target": "n2" }
+{ "op": "requestUndo" }
+{ "op": "requestRedo" }
 ```
 
 Every op is **id-addressed and idempotent**, so applying the same list twice is
@@ -568,14 +572,71 @@ been a rule nobody can hit.
 
 ### Phase 5 - what an editor still wants
 
-Not started, and each independent of the others:
+The three items are independent of each other. The first is done; the other two are not
+started.
 
-- **Undo/redo.** Decision 4 said the browser's `UndoManager` would do it with the server
-  following through phase 3. That works for everything except undoing a deletion: the
-  model removes what cannot exist without a cell, and nothing puts a removed cell back -
-  it no longer has an object, let alone its id. Either the model learns to keep what it
-  removed, or undo becomes server-authoritative, which decision 4 put out of scope. Decide
-  before building.
+#### Undo/redo - the server's - DONE
+
+**Undo/redo is the server's** (decision 4, reversed). The browser's `UndoManager` is never
+installed; `GraphModel` keeps the history, and an undo is an ordinary change list on its way
+to the browser. Two things settle it: the model is the only side that still has the *object*
+of a deleted cell - its `userObject` included - and maxGraph's editing API changes with every
+minor release, so a history built on it is a history that breaks on upgrade (§9). Keeping it
+in Java leaves the wrapper with two keystrokes to forward and nothing to remember.
+
+- **An undo step is an op list, and it travels the path phase 2 already built.** Every op
+  in §7.2 has an inverse in the same vocabulary: `addNode`/`addEdge` invert to `remove`,
+  `remove` inverts to the add of *that same `GraphCell` object* under its old id, and
+  `geometry`, `style`, `label`, `terminal` and `points` invert to themselves carrying what
+  the cell held before. So undo needs no operation the protocol does not have, and the
+  browser needs no code beyond what applies a delta today.
+- **What is recorded is the change that reverses it**, made where the original was made -
+  the mutators of the model, the only places that see both the old value and the new one.
+  A `GraphOp` names a cell and does not copy it (§7.2), so an inverse cannot be an op with
+  old values in it; it is the mutation that puts the old value back, and the op it produces
+  on its way out is the ordinary one.
+- **A step is a list, because one gesture is several changes.** Removing a node removes its
+  children and the edges that end on it, and a palette drop can be answered with a node
+  *and* an edge. One `GraphEdit` holds the changes of one boundary, and undoing it runs
+  their inverses **in reverse order** - which puts a node back before the things that
+  cannot exist without it, with no ordering rule of its own.
+- **The boundaries are the round trip and the cascade.** Everything one `GraphChangeSet`
+  causes, the cells its handler creates included, is one step; so is one
+  `GraphModel.remove()`, however many cells it takes with it. Page code groups its own with
+  `model.edit(() -> ...)`, and anything outside a boundary is a step by itself.
+- **History is off until it is asked for**, so building the drawing in the page's
+  constructor does not fill the stack; `clearHistory()` is what loading another drawing
+  calls.
+- **Triggered from either side.** `model.canUndo()/undo()/redo()` is all a server-side
+  toolbar button needs. In the drawing, ctrl-Z and ctrl-Y (and ctrl-shift-Z) send
+  `requestUndo`/`requestRedo` (§7.2) - one-way ops in the same family as `requestNode`: the
+  browser says what the user did, the server decides whether anything happens. maxGraph's
+  own `UndoManager` is installed nowhere, and `KeyHandler` ignores keystrokes while a label
+  is being edited, so ctrl-Z in the editor still undoes typing.
+- **The version counter moves forward, never back.** An undo is a change like any other, so
+  §7.3's conflict rule and §7.4's echo suppression are untouched.
+- **A refused change is not history.** `IGraphChangeHandler` rejects before the model is
+  touched, and `resend()` changes nothing, so neither can be undone.
+- **The stack is bounded** (`setUndoLimit`, default 50) and a new change clears the redo
+  side. It pins the `userObject` of every deleted cell until that step falls off the end,
+  which is why there is a limit at all.
+
+What it cost: `GraphEdit` and the history in `GraphModel`, a recorded inverse in each
+mutator (`GraphCell`, `GraphGeometry`, `GraphStyle`, `GraphEdge`, and the model's own
+register/remove), `GraphEdge.setWaypoints()` so that a bend is one change rather than one
+per point, two enum values and their parsing, and eleven lines of Typescript for the
+keystrokes. Nothing in the delta protocol, and nothing in the browser's side of it.
+
+*Verified*: `TestGraphUndo` in the module drives the model without a browser - the ten
+cases include a removed node coming back as the same object with its `userObject`, its
+children and its edges, in an order in which nothing arrives before what it needs. In a
+browser, `GraphEditorPage` has Undo and Redo buttons and takes ctrl-Z; `ITMaxGraphPanel`
+drives all three paths, the deleted-node-and-its-edge one being the point of the exercise.
+`mvn21 verify -pl to.etc.domui.demo` is green: 9 unit tests, 72 Selenium ITs, no failures,
+and 10 unit tests in the maxgraph module itself, which had none before.
+
+#### The other two
+
 - **Automatic layout** (`HierarchicalLayout`). Cheap: run it in the browser and the
   geometry changes it makes travel to the model through phase 3 by themselves.
 - **SVG/PNG export**, which wants a `#`-action to get the drawing back out of band.
@@ -599,7 +660,7 @@ Not started, and each independent of the others:
 | Bundle size (measured: 401KB minified, 111KB gzipped) | Loaded only by pages that call `MaxGraphPanel.initialize()`; the minified variant is served outside development mode by the existing `$js` resolution |
 | `forceRebuild()` destroys the widget | The Java model is authoritative and the drawing is always rebuildable from it; the create JS carries no state, so a full render re-emits it and the browser asks for the model again |
 | Large models over the page POST | The op protocol keeps steady-state traffic tiny; the model document is fetched out of band. If an initial model ever gets big, `#`-actions (`componentHandleWebDataRequest`) are the escape hatch. Container POST size limits are worth a note in the docs |
-| Server-side memory | The model lives in the page/conversation like any other page state; document that a huge drawing is a per-conversation cost |
+| Server-side memory | The model lives in the page/conversation like any other page state; document that a huge drawing is a per-conversation cost. The undo stack adds a bounded multiple of it and pins the `userObject` of every deleted cell until that step falls off the end - hence the depth limit |
 | Node toolchain drift | §6.1 brings the build to a current node before anything else; the maxGraph bundle is committed and reproducible from a recorded node version, so a normal Maven build needs no node |
 
 ## 10. Decisions to confirm before starting
@@ -610,9 +671,12 @@ Not started, and each independent of the others:
 2. **Component name** `MaxGraphPanel`, model names neutral (`GraphModel`,
    `GraphNode`, `GraphEdge`) so the Java API does not advertise the library.
 3. **Committed bundle** rather than a Maven-driven node build (§6).
-4. **Undo/redo lives in the browser**, with the server following. Phase 4 found the hole
-   in this: undoing a deletion needs a cell the model no longer has an object for, let
-   alone an id. Reopened, and now the first item of phase 5.
+4. **Undo/redo is the server's** (2026-09-10), reversing the original "the browser's
+   `UndoManager` does it, the server follows". Phase 4 found the hole: undoing a deletion
+   needs a cell the model no longer has an object for, let alone an id. The library
+   settles the rest - maxGraph's editing API moves on every minor release, and history
+   built on it is history to be rewritten at every upgrade. Built as phase 5's first item;
+   it cost the browser eleven lines and the protocol nothing.
 5. **Version-mismatch means reload**, not merge (§7.3).
 6. **§6.1 (toolchain) happens first; §6.2 (namespace -> ES modules) is not part of
    this work.** Reopen only if new core-module Typescript must be able to import npm

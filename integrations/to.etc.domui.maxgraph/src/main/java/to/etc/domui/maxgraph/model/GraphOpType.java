@@ -46,7 +46,18 @@ public enum GraphOpType {
 	RequestNode("requestNode"),
 
 	/** The user drew a connection between two nodes and would like an edge. Browser only. */
-	RequestEdge("requestEdge");
+	RequestEdge("requestEdge"),
+
+	/**
+	 * The user asked for the last change to be taken back. Browser only, and like the two
+	 * above it is a request rather than a change: the history is the model's, so the
+	 * browser can only say that the user pressed ctrl-Z. What comes back is whatever
+	 * undoing changed, as ordinary changes.
+	 */
+	RequestUndo("requestUndo"),
+
+	/** The user asked for the last undone change to be made again. Browser only. */
+	RequestRedo("requestRedo");
 
 	private final String m_name;
 
