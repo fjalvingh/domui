@@ -637,24 +637,36 @@ and 10 unit tests in the maxgraph module itself, which had none before.
 
 #### The other two
 
-- **Automatic layout.** Cheap for the layouts that only move nodes: run one in the browser
-  and the geometry changes it makes travel to the model through phase 3 by themselves. So
-  this is a choice of layout rather than a method - a `GraphLayoutType` naming the ones
-  that fit, and one op to ask for it. 0.24.0 exports ten of them, and they are not
-  interchangeable:
+- **Automatic layout - DONE.** `MaxGraphPanel.layout(GraphLayoutType)`, optionally with a
+  `GraphLayoutDirection`, arranges the drawing: the browser runs the layout and the geometry
+  it changes travels back to the model through phase 3 by itself, so the model ends up
+  holding the arranged drawing and a later render draws it that way. It is **a command, not
+  a property** - a drawing arranged on every render would put back a node the user had
+  dragged. Two things it cost:
 
-  | Layout | What it does | Fits |
-  | --- | --- | --- |
-  | `HierarchicalLayout` | layered, with an orientation (north by default) | flow-chart-shaped drawings; the obvious first one |
-  | `FastOrganicLayout` | force-directed; ignores vertices with no connections | connected drawings |
-  | `CircleLayout` | everything on a circle of a given radius, edges ignored | anything, connected or not |
-  | `CompactTreeLayout` | the Moen compact tree | trees only - a cycle is ignored, not laid out |
-  | `RadialTreeLayout` | the same tree, around a centre | trees only |
-  | `StackLayout` | stacks a node's children horizontally or vertically | grouping, which no page uses yet |
-  | `PartitionLayout` | divides a node's width or height among its children | grouping, likewise |
-  | `ParallelEdgeLayout` | separates edges that run between the same two nodes | a touch-up; changes waypoints, which travel as `points` |
-  | `EdgeLabelLayout` | places edge labels; needs the view validated first | **not yet**: see below |
-  | `SwimlaneLayout` | hierarchical within swimlanes | nothing - the model has no swimlanes |
+  - **A read-only drawing has to report a layout**, even though it reports nothing else: the
+    user cannot move anything there, but the page can, and if those positions did not come
+    back the arrangement would be lost on the next render. So the browser sends what a
+    layout moved regardless of `editable`, and the ops are ordinary geometry changes - which
+    means a change handler is asked about them, and one arrangement is one step to undo.
+  - **The bundle grew** from 415KB to 465KB minified for six layouts; esbuild only pulls in
+    what the wrapper imports, so the ones that do not fit cost nothing.
+
+  0.24.0 exports ten of them, and they are not interchangeable - the six the wrapper knows
+  are marked:
+
+  | Layout | `GraphLayoutType` | What it does | Fits |
+  | --- | --- | --- | --- |
+  | `HierarchicalLayout` | `Hierarchical` | layered, in the direction given | flow-chart-shaped drawings; the obvious first one |
+  | `FastOrganicLayout` | `Organic` | force-directed; ignores vertices with no connections | connected drawings |
+  | `CircleLayout` | `Circle` | everything on a circle, edges ignored | anything, connected or not |
+  | `CompactTreeLayout` | `Tree` | the Moen compact tree | trees only - a cycle is ignored, not laid out |
+  | `RadialTreeLayout` | `RadialTree` | the same tree, around a centre | trees only |
+  | `ParallelEdgeLayout` | `ParallelEdges` | separates edges that run between the same two nodes | a touch-up; changes waypoints, which travel as `points` |
+  | `StackLayout` | - | stacks a node's children horizontally or vertically | grouping, which no page uses yet |
+  | `PartitionLayout` | - | divides a node's width or height among its children | grouping, likewise |
+  | `EdgeLabelLayout` | - | places edge labels; needs the view validated first | **not yet**: see below |
+  | `SwimlaneLayout` | - | hierarchical within swimlanes | nothing - the model has no swimlanes |
 
   `CompositeLayout` chains several into one, and `LayoutManager` runs a layout on every
   model change rather than on demand - which is a different feature, and one that would
@@ -663,6 +675,12 @@ and 10 unit tests in the maxgraph module itself, which had none before.
   The one hole is `EdgeLabelLayout`: where an edge's label sits is a geometry on the edge
   cell, which the model has no word for, and `translate()` in the wrapper turns every edge
   geometry change into a `points` op. It needs the model to grow a label offset first.
+
+  *Verified*: `GraphEditorPage` arranges what the user has drawn and its log shows the
+  geometry changes arriving, and `ChangingGraphPage` - a drawing nobody may touch - arranges
+  too and comes back arranged after a full refresh, which is the model having kept it.
+  `ITMaxGraphPanel` drives both, and `mvn21 verify -pl to.etc.domui.demo -am` is green:
+  9 unit tests, 74 Selenium ITs, no failures.
 - **SVG/PNG export**, which wants a `#`-action to get the drawing back out of band.
 
 ### Phase 6 - demo and documentation

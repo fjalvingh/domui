@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
@@ -334,6 +335,57 @@ public class ITMaxGraphPanel extends AbstractWebDriverTest {
 			.keyDown(Keys.CONTROL).sendKeys("z").keyUp(Keys.CONTROL).perform();
 
 		wd().notPresent(label("Done"));
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Arranging the drawing                                       */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * A layout runs in the browser, but what it moves has to reach the model - so the page
+	 * hears about the same geometry changes it hears about when a user drags a node.
+	 */
+	@Test
+	public void arrangingReportsWhereEverythingEndedUp() throws Exception {
+		wd().openScreen(GraphEditorPage.class);
+		wd().wait(label("Start here"));
+		drag(paletteItem("Task"), 320, 240);
+		wd().wait(logLineContaining("Added a task"));
+
+		wd().cmd().click().on("button_Arrange");
+		wd().wait(logLineContaining("Changed: geometry"));
+	}
+
+	/**
+	 * The drawing on {@link ChangingGraphPage} may not be touched by the user at all, and is
+	 * arranged all the same - and the model keeps where the layout put things, which is what
+	 * a full refresh proves: it rebuilds the drawing from the model.
+	 */
+	@Test
+	public void aReadOnlyDrawingIsArrangedAndTheModelKeepsIt() throws Exception {
+		wd().openScreen(ChangingGraphPage.class);
+		wd().wait(label("Hub"));
+		Point before = locationOf(label("Hub"));
+
+		wd().cmd().click().on("button_Arrange");
+		wd().wait(() -> !before.equals(locationOf(label("Hub"))));
+		Point arranged = locationOf(label("Hub"));
+
+		wd().refresh();
+		wd().wait(label("Hub"));
+		Point rebuilt = locationOf(label("Hub"));
+		Assert.assertTrue("The drawing must come back where the layout left it, not where it started"
+				+ " (was " + before + ", arranged to " + arranged + ", rebuilt at " + rebuilt + ")",
+			Math.abs(arranged.getX() - rebuilt.getX()) <= 3 && Math.abs(arranged.getY() - rebuilt.getY()) <= 3);
+	}
+
+	/** Where what this points at sits on the screen. */
+	private Point locationOf(By what) {
+		WebElement element = wd().findElement(what);
+		if(null == element) {
+			throw new IllegalStateException("Nothing found for " + what);
+		}
+		return element.getLocation();
 	}
 
 	static private final By CANVAS = By.cssSelector(".ui-mxgr-canvas");

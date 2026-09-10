@@ -9,6 +9,8 @@ import to.etc.domui.dom.html.Page;
 import to.etc.domui.maxgraph.model.GraphCell;
 import to.etc.domui.maxgraph.model.GraphChange;
 import to.etc.domui.maxgraph.model.GraphEdge;
+import to.etc.domui.maxgraph.model.GraphLayoutDirection;
+import to.etc.domui.maxgraph.model.GraphLayoutType;
 import to.etc.domui.maxgraph.model.GraphModel;
 import to.etc.domui.maxgraph.model.GraphNode;
 import to.etc.domui.maxgraph.model.GraphOp;
@@ -80,6 +82,11 @@ import java.util.Set;
  * history of its own - it could not put back a cell it deleted, because the object of that
  * cell only exists here.</p>
  *
+ * <p>{@link #layout(GraphLayoutType)} arranges the drawing: the browser does the arranging,
+ * because that is where the drawing is, and where it puts things comes back as ordinary
+ * changes - so the model ends up holding the arranged drawing, and a later render draws it
+ * that way.</p>
+ *
  * <p>A page that uses this must call {@link #initialize(NodeContainer)} once, which adds
  * the library to that page only.</p>
  *
@@ -118,6 +125,12 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 	 * will be about a version that no longer exists.
 	 */
 	private boolean m_versionMoved;
+
+	/** A layout the page asked for and the browser has not been told about yet. */
+	@Nullable
+	private GraphLayoutType m_pendingLayout;
+
+	private GraphLayoutDirection m_pendingLayoutDirection = GraphLayoutDirection.North;
 
 	private final IGraphModelListener m_modelListener = (model, op) -> opped(op);
 
@@ -189,18 +202,42 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 	 */
 	@Override
 	protected void renderJavascriptDelta(@NonNull JavascriptStmt b) throws Exception {
-		if(m_pendingOps.isEmpty() && !m_versionMoved) {
+		if(!m_pendingOps.isEmpty() || m_versionMoved) {
+			m_versionMoved = false;
+			StringBuilder json = new StringBuilder();
+			try(JsonBuilder jb = new JsonBuilder(json)) {
+				new GraphJsonRenderer().renderOps(jb, m_sentVersion, m_model, m_pendingOps);
+			}
+			m_pendingOps.clear();
+			m_sentVersion = m_model.getVersion();
+
+			b.append("DomUIMaxGraph.apply('").append(getActualID()).append("',").append(json.toString()).append(")");
+		}
+		//-- After the changes, so that a layout asked for in the same request arranges what
+		//-- that request added.
+		renderLayout(b);
+	}
+
+	/**
+	 * A full render creates the widget again, which asks for the model again - so a layout
+	 * that was asked for in the same request has to be emitted here as well, and the browser
+	 * runs it once the drawing it is about is there.
+	 */
+	@Override
+	protected void renderJavascriptState(@NonNull JavascriptStmt b) throws Exception {
+		renderLayout(b);
+	}
+
+	private void renderLayout(@NonNull JavascriptStmt b) {
+		GraphLayoutType layout = m_pendingLayout;
+		if(null == layout) {
 			return;
 		}
-		m_versionMoved = false;
-		StringBuilder json = new StringBuilder();
-		try(JsonBuilder jb = new JsonBuilder(json)) {
-			new GraphJsonRenderer().renderOps(jb, m_sentVersion, m_model, m_pendingOps);
-		}
-		m_pendingOps.clear();
-		m_sentVersion = m_model.getVersion();
-
-		b.append("DomUIMaxGraph.apply('").append(getActualID()).append("',").append(json.toString()).append(")");
+		m_pendingLayout = null;
+		b.next();
+		b.append("DomUIMaxGraph.layout('").append(getActualID()).append("',{layout:'")
+			.append(layout.getName()).append("',direction:'")
+			.append(m_pendingLayoutDirection.getName()).append("'})");
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -473,6 +510,35 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 			startListening();
 		}
 		forceRebuild();
+		return this;
+	}
+
+	/**
+	 * Arrange the drawing, now: the browser lays it out and tells the model where everything
+	 * ended up, so the drawing stays arranged when it is built again.
+	 *
+	 * <p>This is one command, not a property - what a button does, not something a drawing
+	 * is. A drawing that is arranged on every render would put a node the user dragged back
+	 * where the layout wants it.</p>
+	 *
+	 * <p>What the layout moves arrives here as ordinary changes, which means a
+	 * {@link #setChangeHandler(IGraphChangeHandler) change handler} is asked about them like
+	 * any other change - and, where the model keeps a history, one arrangement is one thing
+	 * to undo. It works on a read-only drawing too: the user cannot move anything there, but
+	 * the page can.</p>
+	 */
+	public MaxGraphPanel layout(GraphLayoutType type) {
+		return layout(type, GraphLayoutDirection.North);
+	}
+
+	/**
+	 * Arrange the drawing so that it grows this way. Only {@link GraphLayoutType#Hierarchical}
+	 * and the tree layouts have a direction; the others ignore it.
+	 */
+	public MaxGraphPanel layout(GraphLayoutType type, GraphLayoutDirection direction) {
+		m_pendingLayout = type;
+		m_pendingLayoutDirection = direction;
+		changedJavascriptState();
 		return this;
 	}
 

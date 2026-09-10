@@ -8,6 +8,7 @@ import to.etc.domui.dom.html.Para;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.maxgraph.MaxGraphPanel;
 import to.etc.domui.maxgraph.model.GraphEdge;
+import to.etc.domui.maxgraph.model.GraphLayoutType;
 import to.etc.domui.maxgraph.model.GraphModel;
 import to.etc.domui.maxgraph.model.GraphNode;
 import to.etc.domui.maxgraph.model.GraphPaletteItem;
@@ -61,12 +62,18 @@ public class GraphEditorPage extends UrlPage {
 		Div log = new Div("dm-tut-q");
 		say(log, "Nothing has been drawn yet.");
 
+		//-- The panel is made here so the buttons can talk to it, and is added below them.
+		MaxGraphPanel panel = new MaxGraphPanel();
+
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
 		bb.addButton("Undo", () -> say(log, m_model.undo() ? "Undone" : "Nothing left to undo"));
 		bb.addButton("Redo", () -> say(log, m_model.redo() ? "Redone" : "Nothing to redo"));
+		bb.addButton("Arrange", () -> {
+			say(log, "Arranging the drawing");
+			panel.layout(GraphLayoutType.Hierarchical);
+		});
 
-		MaxGraphPanel panel = new MaxGraphPanel();
 		cp.add(panel);
 		panel.size("100%", "460px").setEditable(true).setModel(m_model)
 			.addPaletteItem(m_task)
@@ -80,6 +87,11 @@ public class GraphEditorPage extends UrlPage {
 			});
 
 		cp.add(log);
+		cp.add(new Para().add("Arrange lays the drawing out in layers. The arranging is done in "
+			+ "the browser, because that is where the drawing is, but where it puts things comes "
+			+ "back here as ordinary changes - which is why it is one thing to undo, and why the "
+			+ "drawing stays arranged when the page is rendered again."));
+
 		cp.add(new Para().add("Undo is this side's, and so is everything it needs: the node you "
 			+ "delete is still here, with the id it always had and the page's own data on it, "
 			+ "while the browser has nothing left to put back. So ctrl-Z only says that ctrl-Z "

@@ -7,8 +7,10 @@
  * DomUIMaxGraph; see the module's README for the build.
  */
 import {
-	Cell, ChildChange, Client, ConnectionHandler, EdgeHandlerConfig, Geometry, GeometryChange, Graph,
-	gestureUtils, ImageBox, InternalEvent, KeyHandler, Point, StyleChange, TerminalChange, ValueChange
+	Cell, ChildChange, CircleLayout, Client, CompactTreeLayout, ConnectionHandler, DirectionValue,
+	EdgeHandlerConfig, FastOrganicLayout, Geometry, GeometryChange, Graph, GraphLayout,
+	gestureUtils, HierarchicalLayout, ImageBox, InternalEvent, KeyHandler, ParallelEdgeLayout, Point,
+	RadialTreeLayout, StyleChange, TerminalChange, ValueChange
 } from '@maxgraph/core';
 
 /**
@@ -92,6 +94,12 @@ interface DeltaDoc {
 	ops?: OpDoc[];
 }
 
+/** Arrange the drawing: which layout, and which way it is to grow. */
+interface LayoutDoc {
+	layout: string;
+	direction: DirectionValue;
+}
+
 interface Instance {
 	graph: Graph;
 	/** The model version this drawing shows, or -1 while there is no drawing yet. */
@@ -102,6 +110,10 @@ interface Instance {
 	cellById: Map<string, Cell>;
 	/** True while a change list from the server is being applied, so it is not sent back. */
 	applying: boolean;
+	/** True while a layout the server asked for is running: what it moves is reported even in a read-only drawing. */
+	layingOut: boolean;
+	/** A layout that arrived before the drawing did, waiting for it. */
+	pendingLayout: LayoutDoc | null;
 	editable: boolean;
 	keyHandler: KeyHandler;
 	/** The strip the palette items live in, above the drawing. */
@@ -151,7 +163,7 @@ export function create(id: string, options: CreateOptions = {}): void {
 
 	const instance: Instance = {
 		graph, version: -1, loaded: false, queue: [], cellById: new Map(),
-		applying: false, editable: false, keyHandler, palette
+		applying: false, layingOut: false, pendingLayout: null, editable: false, keyHandler, palette
 	};
 	instances.set(id, instance);
 	undoKeys(id, instance, keyHandler);
@@ -204,6 +216,22 @@ export function apply(id: string, delta: DeltaDoc): void {
 	applyDelta(id, instance, delta);
 }
 
+/**
+ * Arrange the drawing the way the server asked for. A layout that arrives before the
+ * drawing does waits for it: it is about the model that is on its way.
+ */
+export function layout(id: string, request: LayoutDoc): void {
+	const instance = instances.get(id);
+	if(undefined === instance) {
+		return;
+	}
+	if(!instance.loaded) {
+		instance.pendingLayout = request;
+		return;
+	}
+	runLayout(id, instance, request);
+}
+
 /** The maxGraph instance for this element, for debugging from the console. */
 export function graphFor(id: string): Graph | undefined {
 	return instances.get(id)?.graph;
@@ -253,6 +281,11 @@ function load(id: string, instance: Instance): void {
 		instance.queue = [];
 		for(const delta of queue) {
 			applyDelta(id, instance, delta);
+		}
+		const waiting = instance.pendingLayout;
+		if(null !== waiting) {
+			instance.pendingLayout = null;
+			runLayout(id, instance, waiting);
 		}
 	});
 }
@@ -417,6 +450,68 @@ function undoKeys(id: string, instance: Instance, keyHandler: KeyHandler): void 
 }
 
 /*----------------------------------------------------------------------*/
+/*	CODING: Arranging the drawing                                       */
+/*----------------------------------------------------------------------*/
+
+/**
+ * Run a layout over the whole drawing and let the server know where everything ended up.
+ *
+ * The arranging is done here because this is where the drawing is - maxGraph's layouts
+ * work on the cells it has - but what they move is model data, so it goes back the way a
+ * user's own drag does: as geometry changes, through the same listener. That is why the
+ * echo is *not* suppressed here, and why a read-only drawing reports these changes even
+ * though the user could not have made them.
+ */
+function runLayout(id: string, instance: Instance, request: LayoutDoc): void {
+	const graph = instance.graph;
+	const layout = layoutFor(graph, request);
+	if(null === layout) {
+		console.error("DomUIMaxGraph: unknown layout '" + request.layout + "'");
+		return;
+	}
+	const was = instance.layingOut;
+	instance.layingOut = true;
+	try {
+		graph.batchUpdate(() => layout.execute(graph.getDefaultParent()));
+	} finally {
+		instance.layingOut = was;
+	}
+}
+
+/**
+ * The layout to run. Every maxGraph layout type stays in this file, so the server's
+ * vocabulary is ours and an upgrade that renames one is this function.
+ */
+function layoutFor(graph: Graph, request: LayoutDoc): GraphLayout | null {
+	//-- A tree grows sideways when its roots are to the east or west, and is inverted when
+	//-- it grows towards them - which is the same thing the hierarchical layout's direction says.
+	const horizontal = 'east' === request.direction || 'west' === request.direction;
+	const inverted = 'east' === request.direction || 'south' === request.direction;
+	switch(request.layout) {
+		default:
+			return null;
+
+		case 'hierarchical':
+			return new HierarchicalLayout(graph, request.direction);
+
+		case 'organic':
+			return new FastOrganicLayout(graph);
+
+		case 'circle':
+			return new CircleLayout(graph);
+
+		case 'tree':
+			return new CompactTreeLayout(graph, horizontal, inverted);
+
+		case 'radialTree':
+			return new RadialTreeLayout(graph);
+
+		case 'parallelEdges':
+			return new ParallelEdgeLayout(graph);
+	}
+}
+
+/*----------------------------------------------------------------------*/
 /*	CODING: What the user changed                                       */
 /*----------------------------------------------------------------------*/
 
@@ -427,7 +522,13 @@ function undoKeys(id: string, instance: Instance, keyHandler: KeyHandler): void 
  * to change back.
  */
 function sendChanges(id: string, instance: Instance, edit: {changes?: unknown[]} | undefined): void {
-	if(instance.applying || !instance.editable || undefined === edit) {
+	if(instance.applying || undefined === edit) {
+		return;
+	}
+	//-- A read-only drawing reports nothing the user did, because the user can do nothing to
+	//-- it - but a layout the server asked for is not the user, and the model has to hear
+	//-- where it put things.
+	if(!instance.editable && !instance.layingOut) {
 		return;
 	}
 	const ops: OpDoc[] = [];

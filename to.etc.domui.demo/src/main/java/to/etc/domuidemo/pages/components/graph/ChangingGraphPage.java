@@ -7,6 +7,7 @@ import to.etc.domui.dom.html.Para;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.maxgraph.MaxGraphPanel;
 import to.etc.domui.maxgraph.model.GraphCell;
+import to.etc.domui.maxgraph.model.GraphLayoutType;
 import to.etc.domui.maxgraph.model.GraphModel;
 import to.etc.domui.maxgraph.model.GraphNode;
 import to.etc.domui.maxgraph.model.GraphShape;
@@ -46,6 +47,9 @@ public class ChangingGraphPage extends UrlPage {
 		add(cp);
 		cp.add(new HTag(1, "A diagram the server changes"));
 
+		//-- Made here so the Arrange button can talk to it, and added below the buttons.
+		MaxGraphPanel panel = new MaxGraphPanel();
+
 		ButtonBar2 bb = new ButtonBar2();
 		cp.add(bb);
 		bb.addButton("Add a satellite", this::addSatellite);
@@ -53,8 +57,8 @@ public class ChangingGraphPage extends UrlPage {
 		bb.addButton("Recolour the hub", this::recolourHub);
 		bb.addButton("Rename the hub", this::renameHub);
 		bb.addButton("Remove a satellite", this::removeSatellite);
+		bb.addButton("Arrange", () -> panel.layout(GraphLayoutType.Organic));
 
-		MaxGraphPanel panel = new MaxGraphPanel();
 		cp.add(panel);
 		panel.size("100%", "420px").setModel(m_model);
 
@@ -62,6 +66,11 @@ public class ChangingGraphPage extends UrlPage {
 			+ "forceRebuild, no redraw. What changed during the request is sent at the end of "
 			+ "it as a list of changes, which the browser applies to the drawing it already "
 			+ "has - so the nodes you did not touch are not even repainted."));
+
+		cp.add(new Para().add("Arrange is the one thing that happens the other way round: the "
+			+ "browser does the arranging, because that is where the drawing is, and tells this "
+			+ "side where everything ended up. Nobody may drag a node in this drawing, and it "
+			+ "still holds after a refresh - the model has the arranged positions now."));
 	}
 
 	/*----------------------------------------------------------------------*/

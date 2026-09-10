@@ -38,7 +38,8 @@ var DomUIMaxGraph = (() => {
     apply: () => apply,
     create: () => create,
     destroy: () => destroy,
-    graphFor: () => graphFor
+    graphFor: () => graphFor,
+    layout: () => layout
   });
 
   // node_modules/@maxgraph/core/lib/esm/view/image/ImageBox.js
@@ -3577,6 +3578,24 @@ var DomUIMaxGraph = (() => {
   };
 
   // node_modules/@maxgraph/core/lib/esm/util/arrayUtils.js
+  var remove = (obj, array) => {
+    let result = null;
+    if (typeof array === "object") {
+      let index = array.indexOf(obj);
+      while (index >= 0) {
+        array.splice(index, 1);
+        result = obj;
+        index = array.indexOf(obj);
+      }
+    }
+    for (const key in array) {
+      if (array[key] == obj) {
+        delete array[key];
+        result = obj;
+      }
+    }
+    return result;
+  };
   var equalPoints = (a, b) => {
     if (!a && b || a && !b || a && b && a.length != b.length) {
       return false;
@@ -27552,6 +27571,3942 @@ var DomUIMaxGraph = (() => {
     return dragSource;
   };
 
+  // node_modules/@maxgraph/core/lib/esm/view/layout/GraphLayout.js
+  var GraphLayout = class {
+    constructor(graph) {
+      this.useBoundingBox = true;
+      this.parent = null;
+      this.graph = graph;
+    }
+    /**
+     * Notified when a cell is being moved in a parent that has automatic
+     * layout to update the cell state (eg. index) so that the outcome of the
+     * layout will position the vertex as close to the point (x, y) as
+     * possible.
+     *
+     * Empty implementation.
+     *
+     * @param cell {@link Cell} which has been moved.
+     * @param x X-coordinate of the new cell location.
+     * @param y Y-coordinate of the new cell location.
+     */
+    moveCell(cell, x, y) {
+      return;
+    }
+    /**
+     * Notified when a cell is being resized in a parent that has automatic
+     * layout to update the other cells in the layout.
+     *
+     * Empty implementation.
+     *
+     * @param cell {@link Cell} which has been moved.
+     * @param bounds {@link Rectangle} that represents the new cell bounds.
+     * @param prev
+     */
+    resizeCell(cell, bounds, prev) {
+      return;
+    }
+    /**
+     * Executes the layout algorithm for the children of the given parent.
+     *
+     * @param parent {@link Cell} whose children should be layed out.
+     */
+    execute(parent) {
+      return;
+    }
+    /**
+     * Returns the graph that this layout operates on.
+     */
+    getGraph() {
+      return this.graph;
+    }
+    /**
+     * Returns the constraint for the given key and cell. The optional edge and
+     * source arguments are used to return inbound and outgoing routing-
+     * constraints for the given edge and vertex. This implementation always
+     * returns the value for the given key in the style of the given cell.
+     *
+     * @param key Key of the constraint to be returned.
+     * @param cell {@link Cell} whose constraint should be returned.
+     * @param edge Optional {@link Cell} that represents the connection whose constraint
+     * should be returned. Default is null.
+     * @param source Optional boolean that specifies if the connection is incoming
+     * or outgoing. Default is null.
+     */
+    getConstraint(key, cell, edge, source) {
+      return this.graph.getCurrentCellStyle(cell)[key];
+    }
+    /**
+     * Traverses the (directed) graph invoking the given function for each
+     * visited vertex and edge. The function is invoked with the current vertex
+     * and the incoming edge as a parameter. This implementation makes sure
+     * each vertex is only visited once. The function may return false if the
+     * traversal should stop at the given vertex.
+     *
+     * Example:
+     *
+     * ```javascript
+     * GlobalConfig.logger.show();
+     * const cell = graph.getSelectionCell();
+     * graph.traverse(cell, false, function(vertex, edge)
+     * {
+     *   GlobalConfig.logger.debug(graph.getLabel(vertex));
+     * });
+     * ```
+     *
+     * @param vertex {@link Cell} that represents the vertex where the traversal starts.
+     * @param directed Optional boolean indicating if edges should only be traversed
+     * from source to target. Default is true.
+     * @param func Visitor function that takes the current vertex and the incoming
+     * edge as arguments. The traversal stops if the function returns false.
+     * @param edge Optional {@link Cell} that represents the incoming edge. This is
+     * null for the first step of the traversal.
+     * @param visited Optional {@link Map} of cell paths for the visited cells.
+     */
+    traverse({ vertex, directed, func, edge, visited }) {
+      if (func != null && vertex != null) {
+        directed = directed != null ? directed : true;
+        visited = visited || /* @__PURE__ */ new Map();
+        if (!visited.get(vertex)) {
+          visited.set(vertex, true);
+          const result = func(vertex, edge);
+          if (result == null || result) {
+            const edgeCount = vertex.getEdgeCount();
+            if (edgeCount > 0) {
+              for (let i = 0; i < edgeCount; i += 1) {
+                const e = vertex.getEdgeAt(i);
+                const isSource = e.getTerminal(true) === vertex;
+                if (!directed || isSource) {
+                  const next = this.graph.view.getVisibleTerminal(e, !isSource);
+                  this.traverse({
+                    vertex: next,
+                    directed,
+                    func,
+                    edge: e,
+                    visited
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    /**
+     * Returns true if the given parent is an ancestor of the given child.
+     *
+     * @param parent {@link Cell} that specifies the parent.
+     * @param child {@link Cell} that specifies the child.
+     * @param traverseAncestors boolean whether to
+     */
+    isAncestor(parent, child, traverseAncestors) {
+      if (!traverseAncestors) {
+        return child.getParent() === parent;
+      }
+      if (child === parent) {
+        return false;
+      }
+      while (child != null && child !== parent) {
+        child = child.getParent();
+      }
+      return child === parent;
+    }
+    /**
+     * Returns a boolean indicating if the given {@link Cell} is movable or
+     * bendable by the algorithm. This implementation returns true if the given
+     * cell is movable in the graph.
+     *
+     * @param cell {@link Cell} whose movable state should be returned.
+     */
+    isVertexMovable(cell) {
+      return this.graph.isCellMovable(cell);
+    }
+    /**
+     * Returns a boolean indicating if the given {@link Cell} should be ignored by
+     * the algorithm. This implementation returns false for all vertices.
+     *
+     * @param vertex {@link Cell} whose ignored state should be returned.
+     */
+    isVertexIgnored(vertex) {
+      return !vertex.isVertex() || !vertex.isVisible();
+    }
+    /**
+     * Returns a boolean indicating if the given {@link Cell} should be ignored by
+     * the algorithm. This implementation returns false for all vertices.
+     *
+     * @param edge {@link Cell} whose ignored state should be returned.
+     */
+    isEdgeIgnored(edge) {
+      return !edge.isEdge() || !edge.isVisible() || edge.getTerminal(true) == null || edge.getTerminal(false) == null;
+    }
+    /**
+     * Disables or enables the edge style of the given edge.
+     */
+    setEdgeStyleEnabled(edge, value) {
+      this.graph.setCellStyles("noEdgeStyle", value ? "0" : "1", [edge]);
+    }
+    /**
+     * Disables or enables orthogonal end segments of the given edge.
+     */
+    setOrthogonalEdge(edge, value) {
+      this.graph.setCellStyles("orthogonal", value ? "1" : "0", [edge]);
+    }
+    /**
+     * Determines the offset of the given parent to the parent
+     * of the layout
+     */
+    getParentOffset(parent) {
+      const result = new Point_default();
+      if (parent != null && parent !== this.parent) {
+        const model = this.graph.getDataModel();
+        if (this.parent && this.parent.isAncestor(parent)) {
+          let parentGeo = parent.getGeometry();
+          while (parent !== this.parent) {
+            result.x += parentGeo.x;
+            result.y += parentGeo.y;
+            parent = parent.getParent();
+            parentGeo = parent.getGeometry();
+          }
+        }
+      }
+      return result;
+    }
+    /**
+     * Replaces the array of Point in the geometry of the given edge
+     * with the given array of Point.
+     */
+    setEdgePoints(edge, points) {
+      if (edge != null) {
+        const { model } = this.graph;
+        let geometry = edge.getGeometry();
+        if (geometry == null) {
+          geometry = new Geometry_default();
+          geometry.setRelative(true);
+        } else {
+          geometry = geometry.clone();
+        }
+        if (this.parent != null && points != null) {
+          const parent = edge.getParent();
+          const parentOffset = this.getParentOffset(parent);
+          for (let i = 0; i < points.length; i += 1) {
+            points[i].x = points[i].x - parentOffset.x;
+            points[i].y = points[i].y - parentOffset.y;
+          }
+        }
+        geometry.points = points;
+        model.setGeometry(edge, geometry);
+      }
+    }
+    /**
+     * Sets the new position of the given cell taking into account the size of
+     * the bounding box if {@link useBoundingBox} is true. The change is only carried
+     * out if the new location is not equal to the existing location, otherwise
+     * the geometry is not replaced with an updated instance. The new or old
+     * bounds are returned (including overlapping labels).
+     *
+     * @param cell {@link Cell} whose geometry is to be set.
+     * @param x Integer that defines the x-coordinate of the new location.
+     * @param y Integer that defines the y-coordinate of the new location.
+     */
+    setVertexLocation(cell, x, y) {
+      const model = this.graph.getDataModel();
+      let geometry = cell.getGeometry();
+      let result = null;
+      if (geometry != null) {
+        result = new Rectangle_default(x, y, geometry.width, geometry.height);
+        if (this.useBoundingBox) {
+          const state = this.graph.getView().getState(cell);
+          if (state != null && state.text != null && state.text.boundingBox != null) {
+            const { scale } = this.graph.getView();
+            const box = state.text.boundingBox;
+            if (state.text.boundingBox.x < state.x) {
+              x += (state.x - box.x) / scale;
+              result.width = box.width;
+            }
+            if (state.text.boundingBox.y < state.y) {
+              y += (state.y - box.y) / scale;
+              result.height = box.height;
+            }
+          }
+        }
+        if (this.parent != null) {
+          const parent = cell.getParent();
+          if (parent != null && parent !== this.parent) {
+            const parentOffset = this.getParentOffset(parent);
+            x -= parentOffset.x;
+            y -= parentOffset.y;
+          }
+        }
+        if (geometry.x !== x || geometry.y !== y) {
+          geometry = geometry.clone();
+          geometry.x = x;
+          geometry.y = y;
+          model.setGeometry(cell, geometry);
+        }
+      }
+      return result;
+    }
+    /**
+     * Returns an {@link Rectangle} that defines the bounds of the given cell or
+     * the bounding box if {@link useBoundingBox} is true.
+     */
+    getVertexBounds(cell) {
+      let geo = cell.getGeometry();
+      if (this.useBoundingBox) {
+        const state = this.graph.getView().getState(cell);
+        if (state != null && state.text != null && state.text.boundingBox != null) {
+          const { scale } = this.graph.getView();
+          const tmp = state.text.boundingBox;
+          const dx0 = Math.max(state.x - tmp.x, 0) / scale;
+          const dy0 = Math.max(state.y - tmp.y, 0) / scale;
+          const dx1 = Math.max(tmp.x + tmp.width - (state.x + state.width), 0) / scale;
+          const dy1 = Math.max(tmp.y + tmp.height - (state.y + state.height), 0) / scale;
+          geo = new Rectangle_default(geo.x - dx0, geo.y - dy0, geo.width + dx0 + dx1, geo.height + dy0 + dy1);
+        }
+      }
+      if (this.parent != null) {
+        const parent = cell.getParent();
+        geo = geo.clone();
+        if (parent != null && parent !== this.parent) {
+          const parentOffset = this.getParentOffset(parent);
+          geo.x += parentOffset.x;
+          geo.y += parentOffset.y;
+        }
+      }
+      return new Rectangle_default(geo.x, geo.y, geo.width, geo.height);
+    }
+    /**
+     * Shortcut to {@link AbstractGraph.updateGroupBounds} with moveGroup set to true.
+     */
+    arrangeGroups(cells, border, topBorder, rightBorder, bottomBorder, leftBorder) {
+      return this.graph.updateGroupBounds(cells, border, true, topBorder, rightBorder, bottomBorder, leftBorder);
+    }
+  };
+  var GraphLayout_default = GraphLayout;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/util/WeightedCellSorter.js
+  var WeightedCellSorter = class {
+    constructor(cell, weightedValue = 0) {
+      this.weightedValue = 0;
+      this.nudge = false;
+      this.visited = false;
+      this.rankIndex = null;
+      this.cell = cell;
+      this.weightedValue = weightedValue;
+    }
+    /**
+     * Compares two WeightedCellSorters.
+     */
+    static compare(a, b) {
+      if (a != null && b != null) {
+        if (b.weightedValue > a.weightedValue) {
+          return -1;
+        }
+        if (b.weightedValue < a.weightedValue) {
+          return 1;
+        }
+        if (b.nudge) {
+          return -1;
+        }
+        return 1;
+      }
+      return 0;
+    }
+  };
+  var WeightedCellSorter_default = WeightedCellSorter;
+
+  // node_modules/@maxgraph/core/lib/esm/util/treeTraversal.js
+  function findTreeRoots(graph, parent, isolate = false, invert = false) {
+    const roots = [];
+    if (parent != null) {
+      let best = null;
+      let maxDiff = 0;
+      for (const cell of parent.getChildren()) {
+        if (cell.isVertex() && cell.isVisible()) {
+          const conns = graph.getConnections(cell, isolate ? parent : null);
+          let fanOut = 0;
+          let fanIn = 0;
+          for (let j = 0; j < conns.length; j++) {
+            const src = graph.view.getVisibleTerminal(conns[j], true);
+            if (src == cell) {
+              fanOut++;
+            } else {
+              fanIn++;
+            }
+          }
+          if (invert && fanOut == 0 && fanIn > 0 || !invert && fanIn == 0 && fanOut > 0) {
+            roots.push(cell);
+          }
+          const diff = invert ? fanIn - fanOut : fanOut - fanIn;
+          if (diff > maxDiff) {
+            maxDiff = diff;
+            best = cell;
+          }
+        }
+      }
+      if (roots.length == 0 && best != null) {
+        roots.push(best);
+      }
+    }
+    return roots;
+  }
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/CompactTreeLayout.js
+  var CompactTreeLayout = class extends GraphLayout_default {
+    constructor(graph, horizontal = true, invert = false) {
+      super(graph);
+      this.parentX = null;
+      this.parentY = null;
+      this.visited = {};
+      this.horizontal = true;
+      this.invert = false;
+      this.resizeParent = true;
+      this.maintainParentLocation = false;
+      this.groupPadding = 10;
+      this.groupPaddingTop = 0;
+      this.groupPaddingRight = 0;
+      this.groupPaddingBottom = 0;
+      this.groupPaddingLeft = 0;
+      this.parentsChanged = null;
+      this.moveTree = false;
+      this.levelDistance = 10;
+      this.nodeDistance = 20;
+      this.resetEdges = true;
+      this.prefHozEdgeSep = 5;
+      this.prefVertEdgeOff = 4;
+      this.minEdgeJetty = 8;
+      this.channelBuffer = 4;
+      this.edgeRouting = true;
+      this.sortEdges = false;
+      this.alignRanks = false;
+      this.maxRankHeight = [];
+      this.root = null;
+      this.node = null;
+      this.horizontal = horizontal;
+      this.invert = invert;
+    }
+    /**
+     * Returns a boolean indicating if the given {@link Cell} should be ignored as a
+     * vertex. This returns true if the cell has no connections.
+     *
+     * @param vertex {@link Cell} whose ignored state should be returned.
+     */
+    isVertexIgnored(vertex) {
+      return super.isVertexIgnored(vertex) || vertex.getConnections().length === 0;
+    }
+    /**
+     * Returns {@link horizontal}.
+     */
+    isHorizontal() {
+      return this.horizontal;
+    }
+    /**
+     * Implements {@link GraphLayout.execute}.
+     *
+     * If the parent has any connected edges, then it is used as the root of
+     * the tree. Else, {@link findTreeRoots} will be used to find a suitable
+     * root node within the set of children of the given parent.
+     *
+     * @param parent  {@link Cell} whose children should be laid out.
+     * @param root    Optional {@link Cell} that will be used as the root of the tree. Overrides {@link root} if specified.
+     */
+    execute(parent, root) {
+      this.parent = parent;
+      const model = this.graph.getDataModel();
+      if (root == null) {
+        if (this.graph.getEdges(parent, parent.getParent(), this.invert, !this.invert, false).length > 0) {
+          this.root = parent;
+        } else {
+          const roots = findTreeRoots(this.graph, parent, true, this.invert);
+          if (roots.length > 0) {
+            for (let i = 0; i < roots.length; i += 1) {
+              if (!this.isVertexIgnored(roots[i]) && this.graph.getEdges(roots[i], null, this.invert, !this.invert, false).length > 0) {
+                this.root = roots[i];
+                break;
+              }
+            }
+          }
+        }
+      } else {
+        this.root = root;
+      }
+      if (this.root != null) {
+        if (this.resizeParent) {
+          this.parentsChanged = {};
+        } else {
+          this.parentsChanged = null;
+        }
+        this.parentX = null;
+        this.parentY = null;
+        if (parent !== this.root && parent.isVertex() != null && this.maintainParentLocation) {
+          const geo = parent.getGeometry();
+          if (geo != null) {
+            this.parentX = geo.x;
+            this.parentY = geo.y;
+          }
+        }
+        model.beginUpdate();
+        try {
+          this.visited = {};
+          this.node = this.dfs(this.root, parent);
+          if (this.alignRanks) {
+            this.maxRankHeight = [];
+            this.findRankHeights(this.node, 0);
+            this.setCellHeights(this.node, 0);
+          }
+          if (this.node != null) {
+            this.layout(this.node);
+            let x0 = this.graph.gridSize;
+            let y0 = x0;
+            if (!this.moveTree) {
+              const g = this.getVertexBounds(this.root);
+              if (g != null) {
+                x0 = g.x;
+                y0 = g.y;
+              }
+            }
+            let bounds = null;
+            if (this.isHorizontal()) {
+              bounds = this.horizontalLayout(this.node, x0, y0);
+            } else {
+              bounds = this.verticalLayout(this.node, null, x0, y0);
+            }
+            if (bounds != null) {
+              let dx = 0;
+              let dy = 0;
+              if (bounds.x < 0) {
+                dx = Math.abs(x0 - bounds.x);
+              }
+              if (bounds.y < 0) {
+                dy = Math.abs(y0 - bounds.y);
+              }
+              if (dx !== 0 || dy !== 0) {
+                this.moveNode(this.node, dx, dy);
+              }
+              if (this.resizeParent) {
+                this.adjustParents();
+              }
+              if (this.edgeRouting) {
+                this.localEdgeProcessing(this.node);
+              }
+            }
+            if (this.parentX != null && this.parentY != null) {
+              let geo = parent.getGeometry();
+              if (geo != null) {
+                geo = geo.clone();
+                geo.x = this.parentX;
+                geo.y = this.parentY;
+                model.setGeometry(parent, geo);
+              }
+            }
+          }
+        } finally {
+          model.endUpdate();
+        }
+      }
+    }
+    /**
+     * Moves the specified node and all of its children by the given amount.
+     */
+    moveNode(node, dx, dy) {
+      node.x += dx;
+      node.y += dy;
+      this.apply(node);
+      let { child } = node;
+      while (child != null) {
+        this.moveNode(child, dx, dy);
+        child = child.next;
+      }
+    }
+    /**
+     * Called if {@link sortEdges} is true to sort the array of outgoing edges in place.
+     */
+    sortOutgoingEdges(source, edges) {
+      const lookup = /* @__PURE__ */ new Map();
+      edges.sort((e1, e2) => {
+        const end1 = e1.getTerminal(e1.getTerminal(false) == source);
+        let p1 = lookup.get(end1);
+        if (p1 == null) {
+          p1 = CellPath_default.create(end1).split(CellPath_default.PATH_SEPARATOR);
+          lookup.set(end1, p1);
+        }
+        const end2 = e2.getTerminal(e2.getTerminal(false) === source);
+        let p2 = lookup.get(end2);
+        if (p2 == null) {
+          p2 = CellPath_default.create(end2).split(CellPath_default.PATH_SEPARATOR);
+          lookup.set(end2, p2);
+        }
+        return CellPath_default.compare(p1, p2);
+      });
+    }
+    /**
+     * Stores the maximum height (relative to the layout
+     * direction) of cells in each rank
+     */
+    findRankHeights(node, rank) {
+      const maxRankHeight = this.maxRankHeight;
+      if (maxRankHeight[rank] == null || maxRankHeight[rank] < node.height) {
+        maxRankHeight[rank] = node.height;
+      }
+      let { child } = node;
+      while (child != null) {
+        this.findRankHeights(child, rank + 1);
+        child = child.next;
+      }
+    }
+    /**
+     * Set the cells heights (relative to the layout
+     * direction) when the tops of each rank are to be aligned
+     */
+    setCellHeights(node, rank) {
+      const maxRankHeight = this.maxRankHeight;
+      if (maxRankHeight[rank] != null && maxRankHeight[rank] > node.height) {
+        node.height = maxRankHeight[rank];
+      }
+      let { child } = node;
+      while (child != null) {
+        this.setCellHeights(child, rank + 1);
+        child = child.next;
+      }
+    }
+    /**
+     * Does a depth first search starting at the specified cell.
+     * Makes sure the specified parent is never left by the
+     * algorithm.
+     */
+    dfs(cell, parent) {
+      const id = CellPath_default.create(cell);
+      let node = null;
+      if (cell != null && this.visited[id] == null && !this.isVertexIgnored(cell)) {
+        this.visited[id] = cell;
+        node = this.createNode(cell);
+        const model = this.graph.getDataModel();
+        let prev = null;
+        const out = this.graph.getEdges(cell, parent, this.invert, !this.invert, false, true);
+        const view = this.graph.getView();
+        if (this.sortEdges) {
+          this.sortOutgoingEdges(cell, out);
+        }
+        for (let i = 0; i < out.length; i += 1) {
+          const edge = out[i];
+          if (!this.isEdgeIgnored(edge)) {
+            if (this.resetEdges) {
+              this.setEdgePoints(edge, null);
+            }
+            if (this.edgeRouting) {
+              this.setEdgeStyleEnabled(edge, false);
+              this.setEdgePoints(edge, null);
+            }
+            const state = view.getState(edge);
+            const target = state != null ? state.getVisibleTerminal(this.invert) : view.getVisibleTerminal(edge, this.invert);
+            const tmp = this.dfs(target, parent);
+            if (tmp != null && target.getGeometry() != null) {
+              if (prev == null) {
+                node.child = tmp;
+              } else {
+                prev.next = tmp;
+              }
+              prev = tmp;
+            }
+          }
+        }
+      }
+      return node;
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    layout(node) {
+      let { child } = node;
+      while (child != null) {
+        this.layout(child);
+        child = child.next;
+      }
+      if (node.child != null) {
+        this.attachParent(node, this.join(node));
+      } else {
+        this.layoutLeaf(node);
+      }
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    horizontalLayout(node, x0, y0, bounds = null) {
+      node.x += x0 + node.offsetX;
+      node.y += y0 + node.offsetY;
+      bounds = this.apply(node, bounds);
+      const { child } = node;
+      if (child != null) {
+        bounds = this.horizontalLayout(child, node.x, node.y, bounds);
+        let siblingOffset = node.y + child.offsetY;
+        let s = child.next;
+        while (s != null) {
+          bounds = this.horizontalLayout(s, node.x + child.offsetX, siblingOffset, bounds);
+          siblingOffset += s.offsetY;
+          s = s.next;
+        }
+      }
+      return bounds;
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    verticalLayout(node, parent, x0, y0, bounds = null) {
+      node.x = node.x + x0 + node.offsetY;
+      node.y = node.y + y0 + node.offsetX;
+      bounds = this.apply(node, bounds);
+      const { child } = node;
+      if (child != null) {
+        bounds = this.verticalLayout(child, node, node.x, node.y, bounds);
+        let siblingOffset = node.x + child.offsetY;
+        let s = child.next;
+        while (s != null) {
+          bounds = this.verticalLayout(s, node, siblingOffset, node.y + child.offsetX, bounds);
+          siblingOffset += s.offsetY;
+          s = s.next;
+        }
+      }
+      return bounds;
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    attachParent(node, height) {
+      const x = this.nodeDistance + this.levelDistance;
+      const y2 = (height - node.width) / 2 - this.nodeDistance;
+      const y1 = y2 + node.width + 2 * this.nodeDistance - height;
+      node.child.offsetX = x + node.height;
+      node.child.offsetY = y1;
+      node.contour.upperHead = this.createLine(node.height, 0, this.createLine(x, y1, node.contour.upperHead));
+      node.contour.lowerHead = this.createLine(node.height, 0, this.createLine(x, y2, node.contour.lowerHead));
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    // layoutLeaf(node: any): void;
+    layoutLeaf(node) {
+      const dist = 2 * this.nodeDistance;
+      node.contour.upperTail = this.createLine(node.height + dist, 0);
+      node.contour.upperHead = node.contour.upperTail;
+      node.contour.lowerTail = this.createLine(0, -node.width - dist);
+      node.contour.lowerHead = this.createLine(node.height + dist, 0, node.contour.lowerTail);
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    join(node) {
+      const dist = 2 * this.nodeDistance;
+      let { child } = node;
+      node.contour = child.contour;
+      let h = child.width + dist;
+      let sum = h;
+      child = child.next;
+      while (child != null) {
+        const d = this.merge(node.contour, child.contour);
+        child.offsetY = d + h;
+        child.offsetX = 0;
+        h = child.width + dist;
+        sum += d + h;
+        child = child.next;
+      }
+      return sum;
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    merge(p1, p2) {
+      let x = 0;
+      let y = 0;
+      let total = 0;
+      let upper = p1.lowerHead;
+      let lower = p2.upperHead;
+      while (lower != null && upper != null) {
+        const d = this.offset(x, y, lower.dx, lower.dy, upper.dx, upper.dy);
+        y += d;
+        total += d;
+        if (x + lower.dx <= upper.dx) {
+          x += lower.dx;
+          y += lower.dy;
+          lower = lower.next;
+        } else {
+          x -= upper.dx;
+          y -= upper.dy;
+          upper = upper.next;
+        }
+      }
+      if (lower != null) {
+        const b = this.bridge(p1.upperTail, 0, 0, lower, x, y);
+        p1.upperTail = b.next != null ? p2.upperTail : b;
+        p1.lowerTail = p2.lowerTail;
+      } else {
+        const b = this.bridge(p2.lowerTail, x, y, upper, 0, 0);
+        if (b.next == null) {
+          p1.lowerTail = b;
+        }
+      }
+      p1.lowerHead = p2.lowerHead;
+      return total;
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    // offset(p1: number, p2: number, a1: number, a2: number, b1: number, b2: number): number;
+    offset(p1, p2, a1, a2, b1, b2) {
+      let d = 0;
+      if (b1 <= p1 || p1 + a1 <= 0) {
+        return 0;
+      }
+      const t = b1 * a2 - a1 * b2;
+      if (t > 0) {
+        if (p1 < 0) {
+          const s = p1 * a2;
+          d = s / a1 - p2;
+        } else if (p1 > 0) {
+          const s = p1 * b2;
+          d = s / b1 - p2;
+        } else {
+          d = -p2;
+        }
+      } else if (b1 < p1 + a1) {
+        const s = (b1 - p1) * a2;
+        d = b2 - (p2 + s / a1);
+      } else if (b1 > p1 + a1) {
+        const s = (a1 + p1) * b2;
+        d = s / b1 - (p2 + a2);
+      } else {
+        d = b2 - (p2 + a2);
+      }
+      if (d > 0) {
+        return d;
+      }
+      return 0;
+    }
+    bridge(line1, x1, y1, line2, x2, y2) {
+      const dx = x2 + line2.dx - x1;
+      let dy = 0;
+      let s = 0;
+      if (line2.dx === 0) {
+        dy = line2.dy;
+      } else {
+        s = dx * line2.dy;
+        dy = s / line2.dx;
+      }
+      const r = this.createLine(dx, dy, line2.next);
+      line1.next = this.createLine(0, y2 + line2.dy - dy - y1, r);
+      return r;
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    createNode(cell) {
+      const node = {};
+      node.cell = cell;
+      node.x = 0;
+      node.y = 0;
+      node.width = 0;
+      node.height = 0;
+      const geo = this.getVertexBounds(cell);
+      if (geo != null) {
+        if (this.isHorizontal()) {
+          node.width = geo.height;
+          node.height = geo.width;
+        } else {
+          node.width = geo.width;
+          node.height = geo.height;
+        }
+      }
+      node.offsetX = 0;
+      node.offsetY = 0;
+      node.contour = {};
+      return node;
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    apply(node, bounds = null) {
+      const model = this.graph.getDataModel();
+      const cell = node.cell;
+      let g = cell.getGeometry();
+      if (cell != null && g != null) {
+        if (this.isVertexMovable(cell)) {
+          g = this.setVertexLocation(cell, node.x, node.y);
+          if (this.resizeParent) {
+            const parent = cell.getParent();
+            const id = CellPath_default.create(parent);
+            const parentsChanged = this.parentsChanged;
+            if (parentsChanged[id] == null) {
+              parentsChanged[id] = parent;
+            }
+          }
+        }
+        if (bounds == null) {
+          bounds = new Rectangle_default(g.x, g.y, g.width, g.height);
+        } else {
+          bounds = new Rectangle_default(Math.min(bounds.x, g.x), Math.min(bounds.y, g.y), Math.max(bounds.x + bounds.width, g.x + g.width), Math.max(bounds.y + bounds.height, g.y + g.height));
+        }
+      }
+      return bounds;
+    }
+    /**
+     * Starts the actual compact tree layout algorithm
+     * at the given node.
+     */
+    createLine(dx, dy, next = null) {
+      const line = {
+        dx,
+        dy,
+        next
+      };
+      return line;
+    }
+    /**
+     * Adjust parent cells whose child geometries have changed. The default
+     * implementation adjusts the group to just fit around the children with
+     * a padding.
+     */
+    adjustParents() {
+      const tmp = [];
+      for (const id in this.parentsChanged) {
+        tmp.push(this.parentsChanged[id]);
+      }
+      this.arrangeGroups(sortCells(tmp, true), this.groupPadding, this.groupPaddingTop, this.groupPaddingRight, this.groupPaddingBottom, this.groupPaddingLeft);
+    }
+    /**
+     * Moves the specified node and all of its children by the given amount.
+     */
+    localEdgeProcessing(node) {
+      this.processNodeOutgoing(node);
+      let { child } = node;
+      while (child != null) {
+        this.localEdgeProcessing(child);
+        child = child.next;
+      }
+    }
+    /**
+     * Separates the x position of edges as they connect to vertices
+     */
+    processNodeOutgoing(node) {
+      let { child } = node;
+      const parentCell = node.cell;
+      let childCount = 0;
+      const sortedCells = [];
+      while (child != null) {
+        childCount++;
+        let sortingCriterion;
+        if (this.horizontal) {
+          sortingCriterion = child.y;
+        } else {
+          sortingCriterion = child.x;
+        }
+        sortedCells.push(new WeightedCellSorter_default(child, sortingCriterion));
+        child = child.next;
+      }
+      sortedCells.sort(WeightedCellSorter_default.compare);
+      let availableWidth = node.width;
+      const requiredWidth = (childCount + 1) * this.prefHozEdgeSep;
+      if (availableWidth > requiredWidth + 2 * this.prefHozEdgeSep) {
+        availableWidth -= 2 * this.prefHozEdgeSep;
+      }
+      const edgeSpacing = availableWidth / childCount;
+      let currentXOffset = edgeSpacing / 2;
+      if (availableWidth > requiredWidth + 2 * this.prefHozEdgeSep) {
+        currentXOffset += this.prefHozEdgeSep;
+      }
+      let currentYOffset = this.minEdgeJetty - this.prefVertEdgeOff;
+      let maxYOffset = 0;
+      const parentBounds = this.getVertexBounds(parentCell);
+      child = node.child;
+      for (let j = 0; j < sortedCells.length; j++) {
+        const childCell = sortedCells[j].cell.cell;
+        const childBounds = this.getVertexBounds(childCell);
+        const edges = this.graph.getEdgesBetween(parentCell, childCell, false);
+        const newPoints = [];
+        let x = 0;
+        let y = 0;
+        for (let i = 0; i < edges.length; i += 1) {
+          if (this.horizontal) {
+            x = parentBounds.x + parentBounds.width;
+            y = parentBounds.y + currentXOffset;
+            newPoints.push(new Point_default(x, y));
+            x = parentBounds.x + parentBounds.width + currentYOffset;
+            newPoints.push(new Point_default(x, y));
+            y = childBounds.y + childBounds.height / 2;
+            newPoints.push(new Point_default(x, y));
+            this.setEdgePoints(edges[i], newPoints);
+          } else {
+            x = parentBounds.x + currentXOffset;
+            y = parentBounds.y + parentBounds.height;
+            newPoints.push(new Point_default(x, y));
+            y = parentBounds.y + parentBounds.height + currentYOffset;
+            newPoints.push(new Point_default(x, y));
+            x = childBounds.x + childBounds.width / 2;
+            newPoints.push(new Point_default(x, y));
+            this.setEdgePoints(edges[i], newPoints);
+          }
+        }
+        if (j < childCount / 2) {
+          currentYOffset += this.prefVertEdgeOff;
+        } else if (j > childCount / 2) {
+          currentYOffset -= this.prefVertEdgeOff;
+        }
+        currentXOffset += edgeSpacing;
+        maxYOffset = Math.max(maxYOffset, currentYOffset);
+      }
+    }
+  };
+  var CompactTreeLayout_default = CompactTreeLayout;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/CircleLayout.js
+  var CircleLayout = class extends GraphLayout_default {
+    /**
+     * Constructs a new circular layout for the specified radius.
+     *
+     * @param graph {@link AbstractGraph} that contains the cells.
+     * @param radius Optional radius as an int. Default is 100.
+     */
+    constructor(graph, radius = 100) {
+      super(graph);
+      this.moveCircle = false;
+      this.x0 = 0;
+      this.y0 = 0;
+      this.resetEdges = true;
+      this.disableEdgeStyle = true;
+      this.radius = radius;
+    }
+    /**
+     * Implements {@link GraphLayout#execute}.
+     */
+    execute(parent) {
+      this.graph.batchUpdate(() => {
+        let max = 0;
+        let top = null;
+        let left = null;
+        const vertices = [];
+        const childCount = parent.getChildCount();
+        for (let i = 0; i < childCount; i += 1) {
+          const cell = parent.getChildAt(i);
+          if (!this.isVertexIgnored(cell)) {
+            vertices.push(cell);
+            const bounds = this.getVertexBounds(cell);
+            if (top == null) {
+              top = bounds.y;
+            } else {
+              top = Math.min(top, bounds.y);
+            }
+            if (left == null) {
+              left = bounds.x;
+            } else {
+              left = Math.min(left, bounds.x);
+            }
+            max = Math.max(max, Math.max(bounds.width, bounds.height));
+          } else if (!this.isEdgeIgnored(cell)) {
+            if (this.resetEdges) {
+              this.graph.resetEdge(cell);
+            }
+            if (this.disableEdgeStyle) {
+              this.setEdgeStyleEnabled(cell, false);
+            }
+          }
+        }
+        const r = this.getRadius(vertices.length, max);
+        if (this.moveCircle) {
+          left = this.x0;
+          top = this.y0;
+        }
+        this.circle(vertices, r, left, top);
+      });
+    }
+    /**
+     * Returns the radius to be used for the given vertex count. Max is the maximum
+     * width or height of all vertices in the layout.
+     */
+    getRadius(count, max) {
+      return Math.max(count * max / Math.PI, this.radius);
+    }
+    /**
+     * Executes the circular layout for the specified array
+     * of vertices and the given radius. This is called from
+     * <execute>.
+     */
+    circle(vertices, r, left, top) {
+      const vertexCount = vertices.length;
+      const phi = 2 * Math.PI / vertexCount;
+      vertices.forEach((vertex, i) => {
+        if (this.isVertexMovable(vertex)) {
+          this.setVertexLocation(vertex, Math.round(left + r + r * Math.sin(i * phi)), Math.round(top + r + r * Math.cos(i * phi)));
+        }
+      });
+    }
+  };
+  var CircleLayout_default = CircleLayout;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/FastOrganicLayout.js
+  var FastOrganicLayout = class extends GraphLayout_default {
+    constructor(graph) {
+      super(graph);
+      this.useInputOrigin = true;
+      this.resetEdges = true;
+      this.disableEdgeStyle = true;
+      this.forceConstant = 50;
+      this.forceConstantSquared = 0;
+      this.minDistanceLimit = 2;
+      this.maxDistanceLimit = 500;
+      this.minDistanceLimitSquared = 4;
+      this.initialTemp = 200;
+      this.temperature = 0;
+      this.maxIterations = 0;
+      this.iteration = 0;
+      this.vertexArray = [];
+      this.dispX = [];
+      this.dispY = [];
+      this.cellLocation = [];
+      this.radius = [];
+      this.radiusSquared = [];
+      this.isMoveable = [];
+      this.neighbours = {};
+      this.indices = {};
+      this.allowedToRun = true;
+    }
+    /**
+     * Returns a boolean indicating if the given <Cell> should be ignored as a
+     * vertex. This returns true if the cell has no connections.
+     *
+     * @param vertex <Cell> whose ignored state should be returned.
+     */
+    isVertexIgnored(vertex) {
+      return super.isVertexIgnored(vertex) || this.graph.getConnections(vertex).length === 0;
+    }
+    /**
+     * Implements {@link GraphLayout#execute}. This operates on all children of the
+     * given parent where <isVertexIgnored> returns false.
+     */
+    execute(parent) {
+      this.vertexArray = [];
+      let cells = this.graph.getChildVertices(parent);
+      for (let i = 0; i < cells.length; i += 1) {
+        if (!this.isVertexIgnored(cells[i])) {
+          this.vertexArray.push(cells[i]);
+        }
+      }
+      const initialBounds = this.useInputOrigin ? this.graph.getBoundingBoxFromGeometry(this.vertexArray) : null;
+      const n = this.vertexArray.length;
+      this.indices = {};
+      this.dispX = [];
+      this.dispY = [];
+      this.cellLocation = [];
+      this.isMoveable = [];
+      this.neighbours = {};
+      this.radius = [];
+      this.radiusSquared = [];
+      if (this.forceConstant < 1e-3) {
+        this.forceConstant = 1e-3;
+      }
+      this.forceConstantSquared = this.forceConstant * this.forceConstant;
+      for (let i = 0; i < this.vertexArray.length; i += 1) {
+        const vertex = this.vertexArray[i];
+        this.cellLocation[i] = [];
+        const id = ObjectIdentity_default.get(vertex);
+        this.indices[id] = i;
+        const bounds = this.getVertexBounds(vertex);
+        const { width } = bounds;
+        const { height } = bounds;
+        const { x } = bounds;
+        const { y } = bounds;
+        this.cellLocation[i][0] = x + width / 2;
+        this.cellLocation[i][1] = y + height / 2;
+        this.radius[i] = Math.min(width, height);
+        this.radiusSquared[i] = this.radius[i] * this.radius[i];
+      }
+      this.graph.batchUpdate(() => {
+        for (let i = 0; i < n; i += 1) {
+          this.dispX[i] = 0;
+          this.dispY[i] = 0;
+          this.isMoveable[i] = this.isVertexMovable(this.vertexArray[i]);
+          const edges = this.graph.getConnections(this.vertexArray[i], parent);
+          cells = this.graph.getOpposites(edges, this.vertexArray[i]);
+          this.neighbours[i] = [];
+          for (let j = 0; j < cells.length; j += 1) {
+            if (this.resetEdges) {
+              this.graph.resetEdge(edges[j]);
+            }
+            if (this.disableEdgeStyle) {
+              this.setEdgeStyleEnabled(edges[j], false);
+            }
+            const id = ObjectIdentity_default.get(cells[j]);
+            const index = this.indices[id];
+            if (index != null) {
+              this.neighbours[i][j] = index;
+            } else {
+              this.neighbours[i][j] = i;
+            }
+          }
+        }
+        this.temperature = this.initialTemp;
+        if (this.maxIterations === 0) {
+          this.maxIterations = 20 * Math.sqrt(n);
+        }
+        for (this.iteration = 0; this.iteration < this.maxIterations; this.iteration += 1) {
+          if (!this.allowedToRun) {
+            return;
+          }
+          this.calcRepulsion();
+          this.calcAttraction();
+          this.calcPositions();
+          this.reduceTemperature();
+        }
+        let minx = null;
+        let miny = null;
+        for (let i = 0; i < this.vertexArray.length; i += 1) {
+          const vertex = this.vertexArray[i];
+          if (this.isVertexMovable(vertex)) {
+            const bounds = this.getVertexBounds(vertex);
+            if (bounds != null) {
+              this.cellLocation[i][0] -= bounds.width / 2;
+              this.cellLocation[i][1] -= bounds.height / 2;
+              const x = this.graph.snap(Math.round(this.cellLocation[i][0]));
+              const y = this.graph.snap(Math.round(this.cellLocation[i][1]));
+              this.setVertexLocation(vertex, x, y);
+              if (minx == null) {
+                minx = x;
+              } else {
+                minx = Math.min(minx, x);
+              }
+              if (miny == null) {
+                miny = y;
+              } else {
+                miny = Math.min(miny, y);
+              }
+            }
+          }
+        }
+        let dx = -(minx || 0) + 1;
+        let dy = -(miny || 0) + 1;
+        if (initialBounds != null) {
+          dx += initialBounds.x;
+          dy += initialBounds.y;
+        }
+        this.graph.moveCells(this.vertexArray, dx, dy);
+      });
+    }
+    /**
+     * Takes the displacements calculated for each cell and applies them to the
+     * local cache of cell positions. Limits the displacement to the current
+     * temperature.
+     */
+    calcPositions() {
+      for (let index = 0; index < this.vertexArray.length; index += 1) {
+        if (this.isMoveable[index]) {
+          let deltaLength = Math.sqrt(this.dispX[index] * this.dispX[index] + this.dispY[index] * this.dispY[index]);
+          if (deltaLength < 1e-3) {
+            deltaLength = 1e-3;
+          }
+          const newXDisp = this.dispX[index] / deltaLength * Math.min(deltaLength, this.temperature);
+          const newYDisp = this.dispY[index] / deltaLength * Math.min(deltaLength, this.temperature);
+          this.dispX[index] = 0;
+          this.dispY[index] = 0;
+          this.cellLocation[index][0] += newXDisp;
+          this.cellLocation[index][1] += newYDisp;
+        }
+      }
+    }
+    /**
+     * Calculates the attractive forces between all laid out nodes linked by
+     * edges
+     */
+    calcAttraction() {
+      for (let i = 0; i < this.vertexArray.length; i += 1) {
+        for (let k = 0; k < this.neighbours[i].length; k += 1) {
+          const j = this.neighbours[i][k];
+          if (i !== j && this.isMoveable[i] && this.isMoveable[j]) {
+            const xDelta = this.cellLocation[i][0] - this.cellLocation[j][0];
+            const yDelta = this.cellLocation[i][1] - this.cellLocation[j][1];
+            let deltaLengthSquared = xDelta * xDelta + yDelta * yDelta - this.radiusSquared[i] - this.radiusSquared[j];
+            if (deltaLengthSquared < this.minDistanceLimitSquared) {
+              deltaLengthSquared = this.minDistanceLimitSquared;
+            }
+            const deltaLength = Math.sqrt(deltaLengthSquared);
+            const force = deltaLengthSquared / this.forceConstant;
+            const displacementX = xDelta / deltaLength * force;
+            const displacementY = yDelta / deltaLength * force;
+            this.dispX[i] -= displacementX;
+            this.dispY[i] -= displacementY;
+            this.dispX[j] += displacementX;
+            this.dispY[j] += displacementY;
+          }
+        }
+      }
+    }
+    /**
+     * Calculates the repulsive forces between all laid out nodes
+     */
+    calcRepulsion() {
+      const vertexCount = this.vertexArray.length;
+      for (let i = 0; i < vertexCount; i += 1) {
+        for (let j = i; j < vertexCount; j += 1) {
+          if (!this.allowedToRun) {
+            return;
+          }
+          if (j !== i && this.isMoveable[i] && this.isMoveable[j]) {
+            let xDelta = this.cellLocation[i][0] - this.cellLocation[j][0];
+            let yDelta = this.cellLocation[i][1] - this.cellLocation[j][1];
+            if (xDelta === 0) {
+              xDelta = 0.01 + Math.random();
+            }
+            if (yDelta === 0) {
+              yDelta = 0.01 + Math.random();
+            }
+            const deltaLength = Math.sqrt(xDelta * xDelta + yDelta * yDelta);
+            let deltaLengthWithRadius = deltaLength - this.radius[i] - this.radius[j];
+            if (deltaLengthWithRadius > this.maxDistanceLimit) {
+              continue;
+            }
+            if (deltaLengthWithRadius < this.minDistanceLimit) {
+              deltaLengthWithRadius = this.minDistanceLimit;
+            }
+            const force = this.forceConstantSquared / deltaLengthWithRadius;
+            const displacementX = xDelta / deltaLength * force;
+            const displacementY = yDelta / deltaLength * force;
+            this.dispX[i] += displacementX;
+            this.dispY[i] += displacementY;
+            this.dispX[j] -= displacementX;
+            this.dispY[j] -= displacementY;
+          }
+        }
+      }
+    }
+    /**
+     * Reduces the temperature of the layout from an initial setting in a linear
+     * fashion to zero.
+     */
+    reduceTemperature() {
+      this.temperature = this.initialTemp * (1 - this.iteration / this.maxIterations);
+    }
+  };
+  var FastOrganicLayout_default = FastOrganicLayout;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/ParallelEdgeLayout.js
+  var ParallelEdgeLayout = class extends GraphLayout_default {
+    constructor(graph) {
+      super(graph);
+      this.spacing = 20;
+      this.checkOverlap = false;
+    }
+    /**
+     * Implements {@link GraphLayout.execute}.
+     */
+    execute(parent, cells = null) {
+      const lookup = this.findParallels(parent, cells);
+      this.graph.batchUpdate(() => {
+        for (const parallels of Object.values(lookup)) {
+          if (parallels.length > 1) {
+            this.layout(parallels);
+          }
+        }
+      });
+    }
+    /**
+     * Finds the parallel edges in the given parent.
+     */
+    findParallels(parent, cells = null) {
+      const lookup = /* @__PURE__ */ Object.create(null);
+      const addCell = (cell) => {
+        var _a2;
+        if (!this.isEdgeIgnored(cell)) {
+          const id = this.getEdgeId(cell);
+          if (!isNullish(id)) {
+            ((_a2 = lookup[id]) != null ? _a2 : lookup[id] = []).push(cell);
+          }
+        }
+      };
+      if (cells) {
+        for (const cell of cells) {
+          addCell(cell);
+        }
+      } else {
+        const model = this.graph.getDataModel();
+        const childCount = parent.getChildCount();
+        for (let i = 0; i < childCount; i += 1) {
+          addCell(parent.getChildAt(i));
+        }
+      }
+      return lookup;
+    }
+    /**
+     * Returns a unique ID for the given edge.
+     * The id is independent of the edge direction and is built using the visible terminals of the given edge.
+     */
+    getEdgeId(edge) {
+      const view = this.graph.getView();
+      let src = view.getVisibleTerminal(edge, true);
+      let trg = view.getVisibleTerminal(edge, false);
+      let pts = "";
+      if (src != null && trg != null) {
+        src = ObjectIdentity_default.get(src);
+        trg = ObjectIdentity_default.get(trg);
+        if (this.checkOverlap) {
+          const state = view.getState(edge);
+          if (state != null && state.absolutePoints != null) {
+            const tmp = [];
+            for (let i = 0; i < state.absolutePoints.length; i += 1) {
+              const pt = state.absolutePoints[i];
+              if (pt != null) {
+                tmp.push(pt.x, pt.y);
+              }
+            }
+            pts = tmp.join(",");
+          }
+        }
+        return (src > trg ? `${trg}-${src}` : `${src}-${trg}`) + pts;
+      }
+      return null;
+    }
+    /**
+     * Lays out the parallel edges in the given array.
+     */
+    layout(parallels) {
+      const edge = parallels[0];
+      const view = this.graph.getView();
+      const model = this.graph.getDataModel();
+      const src = view.getVisibleTerminal(edge, true).getGeometry();
+      const trg = view.getVisibleTerminal(edge, false).getGeometry();
+      let x0;
+      let y0;
+      if (src === trg) {
+        x0 = src.x + src.width + this.spacing;
+        y0 = src.y + src.height / 2;
+        for (let i = 0; i < parallels.length; i += 1) {
+          this.route(parallels[i], x0, y0);
+          x0 += this.spacing;
+        }
+      } else if (src != null && trg != null) {
+        const scx = src.x + src.width / 2;
+        const scy = src.y + src.height / 2;
+        const tcx = trg.x + trg.width / 2;
+        const tcy = trg.y + trg.height / 2;
+        const dx = tcx - scx;
+        const dy = tcy - scy;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len > 0) {
+          x0 = scx + dx / 2;
+          y0 = scy + dy / 2;
+          const nx = dy * this.spacing / len;
+          const ny = dx * this.spacing / len;
+          x0 += nx * (parallels.length - 1) / 2;
+          y0 -= ny * (parallels.length - 1) / 2;
+          for (let i = 0; i < parallels.length; i += 1) {
+            this.route(parallels[i], x0, y0);
+            x0 -= nx;
+            y0 += ny;
+          }
+        }
+      }
+    }
+    /**
+     * Routes the given edge via the given point.
+     */
+    route(edge, x, y) {
+      if (this.graph.isCellMovable(edge)) {
+        this.setEdgePoints(edge, [new Point_default(x, y)]);
+      }
+    }
+  };
+  var ParallelEdgeLayout_default = ParallelEdgeLayout;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/RadialTreeLayout.js
+  var RadialTreeLayout = class extends CompactTreeLayout {
+    constructor(graph) {
+      super(graph, false);
+      this.centerX = null;
+      this.centerY = null;
+      this.angleOffset = 0.5;
+      this.rootx = 0;
+      this.rooty = 0;
+      this.levelDistance = 120;
+      this.nodeDistance = 10;
+      this.autoRadius = false;
+      this.sortEdges = false;
+      this.rowMinX = {};
+      this.rowMaxX = {};
+      this.rowMinCenX = {};
+      this.rowMaxCenX = {};
+      this.rowRadi = {};
+      this.row = [];
+    }
+    /**
+     * Returns a boolean indicating if the given {@link Cell} should be ignored as a vertex.
+     *
+     * @param vertex {@link Cell} whose ignored state should be returned.
+     * @return true if the cell has no connections.
+     */
+    isVertexIgnored(vertex) {
+      return super.isVertexIgnored(vertex) || this.graph.getConnections(vertex).length === 0;
+    }
+    /**
+     * Implements {@link GraphLayout#execute}.
+     *
+     * If the parent has any connected edges, then it is used as the root of
+     * the tree. Else, {@link AbstractGraph.findTreeRoots} will be used to find a suitable
+     * root node within the set of children of the given parent.
+     *
+     * @param parent    {@link Cell} whose children should be laid out.
+     * @param root      Optional {@link Cell} that will be used as the root of the tree.
+     */
+    execute(parent, root = null) {
+      this.parent = parent;
+      this.useBoundingBox = false;
+      this.edgeRouting = false;
+      super.execute(parent, root || void 0);
+      let bounds = null;
+      const rootBounds = this.getVertexBounds(this.root);
+      this.centerX = rootBounds.x + rootBounds.width / 2;
+      this.centerY = rootBounds.y + rootBounds.height / 2;
+      for (const vertex in this.visited) {
+        const vertexBounds = this.getVertexBounds(this.visited[vertex]);
+        bounds = bounds != null ? bounds : vertexBounds.clone();
+        bounds.add(vertexBounds);
+      }
+      this.calcRowDims([this.node], 0);
+      let maxLeftGrad = 0;
+      let maxRightGrad = 0;
+      for (let i = 0; i < this.row.length; i += 1) {
+        const leftGrad = (this.centerX - this.rowMinX[i] - this.nodeDistance) / this.rowRadi[i];
+        const rightGrad = (this.rowMaxX[i] - this.centerX - this.nodeDistance) / this.rowRadi[i];
+        maxLeftGrad = Math.max(maxLeftGrad, leftGrad);
+        maxRightGrad = Math.max(maxRightGrad, rightGrad);
+      }
+      for (let i = 0; i < this.row.length; i += 1) {
+        const xLeftLimit = this.centerX - this.nodeDistance - maxLeftGrad * this.rowRadi[i];
+        const xRightLimit = this.centerX + this.nodeDistance + maxRightGrad * this.rowRadi[i];
+        const fullWidth = xRightLimit - xLeftLimit;
+        for (let j = 0; j < this.row[i].length; j++) {
+          const row = this.row[i];
+          const node = row[j];
+          const vertexBounds = this.getVertexBounds(node.cell);
+          const xProportion = (vertexBounds.x + vertexBounds.width / 2 - xLeftLimit) / fullWidth;
+          const theta = 2 * Math.PI * xProportion;
+          node.theta = theta;
+        }
+      }
+      for (let i = this.row.length - 2; i >= 0; i--) {
+        const row = this.row[i];
+        for (let j = 0; j < row.length; j++) {
+          const node = row[j];
+          let { child } = node;
+          let counter = 0;
+          let totalTheta = 0;
+          while (child != null) {
+            totalTheta += child.theta;
+            counter++;
+            child = child.next;
+          }
+          if (counter > 0) {
+            const averTheta = totalTheta / counter;
+            if (averTheta > node.theta && j < row.length - 1) {
+              const nextTheta = row[j + 1].theta;
+              node.theta = Math.min(averTheta, nextTheta - Math.PI / 10);
+            } else if (averTheta < node.theta && j > 0) {
+              const lastTheta = row[j - 1].theta;
+              node.theta = Math.max(averTheta, lastTheta + Math.PI / 10);
+            }
+          }
+        }
+      }
+      for (let i = 0; i < this.row.length; i += 1) {
+        for (let j = 0; j < this.row[i].length; j++) {
+          const row = this.row[i];
+          const node = row[j];
+          const vertexBounds = this.getVertexBounds(node.cell);
+          this.setVertexLocation(node.cell, this.centerX - vertexBounds.width / 2 + this.rowRadi[i] * Math.cos(node.theta), this.centerY - vertexBounds.height / 2 + this.rowRadi[i] * Math.sin(node.theta));
+        }
+      }
+    }
+    /**
+     * Recursive function to calculate the dimensions of each row
+     *
+     * @param row      Array of internal nodes, the children of which are to be processed.
+     * @param rowNum   Integer indicating which row is being processed.
+     */
+    calcRowDims(row, rowNum) {
+      if (row == null || row.length === 0) {
+        return;
+      }
+      this.rowMinX[rowNum] = this.centerX;
+      this.rowMaxX[rowNum] = this.centerX;
+      this.rowMinCenX[rowNum] = this.centerX;
+      this.rowMaxCenX[rowNum] = this.centerX;
+      this.row[rowNum] = [];
+      let rowHasChildren = false;
+      for (let i = 0; i < row.length; i += 1) {
+        let child = row[i] != null ? row[i].child : null;
+        while (child != null) {
+          const { cell } = child;
+          const vertexBounds = this.getVertexBounds(cell);
+          this.rowMinX[rowNum] = Math.min(vertexBounds.x, this.rowMinX[rowNum]);
+          this.rowMaxX[rowNum] = Math.max(vertexBounds.x + vertexBounds.width, this.rowMaxX[rowNum]);
+          this.rowMinCenX[rowNum] = Math.min(vertexBounds.x + vertexBounds.width / 2, this.rowMinCenX[rowNum]);
+          this.rowMaxCenX[rowNum] = Math.max(vertexBounds.x + vertexBounds.width / 2, this.rowMaxCenX[rowNum]);
+          this.rowRadi[rowNum] = vertexBounds.y - this.getVertexBounds(this.root).y;
+          if (child.child != null) {
+            rowHasChildren = true;
+          }
+          this.row[rowNum].push(child);
+          child = child.next;
+        }
+      }
+      if (rowHasChildren) {
+        this.calcRowDims(this.row[rowNum], rowNum + 1);
+      }
+    }
+  };
+  var RadialTreeLayout_default = RadialTreeLayout;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/datatypes/HierarchicalEdgeStyle.js
+  var HierarchicalEdgeStyle = {
+    ORTHOGONAL: 1,
+    POLYLINE: 2,
+    STRAIGHT: 3,
+    CURVE: 4
+  };
+  var HierarchicalEdgeStyle_default = HierarchicalEdgeStyle;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/datatypes/GraphAbstractHierarchyCell.js
+  var GraphAbstractHierarchyCell = class extends Cell_default {
+    constructor() {
+      super();
+      this.swimlaneIndex = null;
+      this.maxRank = -1;
+      this.minRank = -1;
+      this.width = 0;
+      this.height = 0;
+      this.nextLayerConnectedCells = null;
+      this.previousLayerConnectedCells = null;
+      this.x = [];
+      this.y = [];
+      this.temp = [];
+    }
+    /**
+     * Returns whether or not this cell is an edge
+     */
+    isEdge() {
+      return false;
+    }
+    /**
+     * Returns whether or not this cell is a node
+     */
+    isVertex() {
+      return false;
+    }
+    /**
+     * Set the value of x for the specified layer
+     */
+    setX(layer, value) {
+      if (this.isVertex()) {
+        this.x[0] = value;
+      } else if (this.isEdge()) {
+        this.x[layer - this.minRank - 1] = value;
+      }
+    }
+    /**
+     * Gets the value of x on the specified layer
+     */
+    getX(layer) {
+      if (this.isVertex()) {
+        return this.x[0];
+      }
+      if (this.isEdge()) {
+        return this.x[layer - this.minRank - 1];
+      }
+      return 0;
+    }
+    /**
+     * Set the value of y for the specified layer
+     */
+    setY(layer, value) {
+      if (this.isVertex()) {
+        this.y[0] = value;
+      } else if (this.isEdge()) {
+        this.y[layer - this.minRank - 1] = value;
+      }
+    }
+  };
+  var GraphAbstractHierarchyCell_default = GraphAbstractHierarchyCell;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/datatypes/GraphHierarchyNode.js
+  var GraphHierarchyNode = class extends GraphAbstractHierarchyCell_default {
+    /**
+     * Constructs an internal node to represent the specified real graph cell
+     *
+     * @param cell the real graph cell this node represents
+     */
+    constructor(cell) {
+      super();
+      this.ids = [];
+      this.hashCode = false;
+      this.cell = cell;
+      this.id = ObjectIdentity_default.get(cell);
+      this.connectsAsTarget = [];
+      this.connectsAsSource = [];
+    }
+    /**
+     * Returns the integer value of the layer that this node resides in
+     */
+    getRankValue(layer) {
+      return this.maxRank;
+    }
+    /**
+     * Returns the cells this cell connects to on the next layer up
+     */
+    getNextLayerConnectedCells(layer) {
+      if (this.nextLayerConnectedCells == null) {
+        this.nextLayerConnectedCells = {};
+        this.nextLayerConnectedCells[0] = [];
+        for (let i = 0; i < this.connectsAsTarget.length; i += 1) {
+          const edge = this.connectsAsTarget[i];
+          if (edge.maxRank === -1 || edge.maxRank === layer + 1) {
+            this.nextLayerConnectedCells[0].push(edge.source);
+          } else {
+            this.nextLayerConnectedCells[0].push(edge);
+          }
+        }
+      }
+      return this.nextLayerConnectedCells[0];
+    }
+    /**
+     * Returns the cells this cell connects to on the next layer down
+     */
+    getPreviousLayerConnectedCells(layer) {
+      if (this.previousLayerConnectedCells == null) {
+        this.previousLayerConnectedCells = [];
+        this.previousLayerConnectedCells[0] = [];
+        for (let i = 0; i < this.connectsAsSource.length; i += 1) {
+          const edge = this.connectsAsSource[i];
+          if (edge.minRank === -1 || edge.minRank === layer - 1) {
+            this.previousLayerConnectedCells[0].push(edge.target);
+          } else {
+            this.previousLayerConnectedCells[0].push(edge);
+          }
+        }
+      }
+      return this.previousLayerConnectedCells[0];
+    }
+    /**
+     * Returns true.
+     */
+    isVertex() {
+      return true;
+    }
+    /**
+     * Gets the value of temp for the specified layer
+     */
+    getGeneralPurposeVariable(layer) {
+      return this.temp[0];
+    }
+    /**
+     * Set the value of temp for the specified layer
+     */
+    setGeneralPurposeVariable(layer, value) {
+      this.temp[0] = value;
+    }
+    isAncestor(otherNode) {
+      if (otherNode != null && this.hashCode != null && otherNode.hashCode != null && this.hashCode.length < otherNode.hashCode.length) {
+        if (this.hashCode === otherNode.hashCode) {
+          return true;
+        }
+        if (this.hashCode == null || this.hashCode == null) {
+          return false;
+        }
+        for (let i = 0; i < this.hashCode.length; i += 1) {
+          if (this.hashCode[i] !== otherNode.hashCode[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+      return false;
+    }
+    /**
+     * Gets the core vertex associated with this wrapper
+     */
+    getCoreCell() {
+      return this.cell;
+    }
+  };
+  var GraphHierarchyNode_default = GraphHierarchyNode;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/datatypes/GraphHierarchyEdge.js
+  var GraphHierarchyEdge = class extends GraphAbstractHierarchyCell_default {
+    /**
+     * Constructs a hierarchy edge
+     *
+     * @param edges a list of real graph edges this abstraction represents
+     */
+    constructor(edges) {
+      super();
+      this.source = null;
+      this.target = null;
+      this.isReversed = false;
+      this.edges = edges;
+      this.ids = [];
+      for (let i = 0; i < edges.length; i += 1) {
+        this.ids.push(ObjectIdentity_default.get(edges[i]));
+      }
+    }
+    /**
+     * Inverts the direction of this internal edge(s)
+     */
+    invert() {
+      const temp = this.source;
+      this.source = this.target;
+      this.target = temp;
+      this.isReversed = !this.isReversed;
+    }
+    /**
+     * Returns the cells this cell connects to on the next layer up
+     */
+    getNextLayerConnectedCells(layer) {
+      if (this.nextLayerConnectedCells == null) {
+        this.nextLayerConnectedCells = [];
+        for (let i = 0; i < this.temp.length; i += 1) {
+          this.nextLayerConnectedCells[i] = [];
+          if (i === this.temp.length - 1) {
+            this.nextLayerConnectedCells[i].push(this.source);
+          } else {
+            this.nextLayerConnectedCells[i].push(this);
+          }
+        }
+      }
+      return this.nextLayerConnectedCells[layer - this.minRank - 1];
+    }
+    /**
+     * Returns the cells this cell connects to on the next layer down
+     */
+    getPreviousLayerConnectedCells(layer) {
+      if (this.previousLayerConnectedCells == null) {
+        this.previousLayerConnectedCells = [];
+        for (let i = 0; i < this.temp.length; i += 1) {
+          this.previousLayerConnectedCells[i] = [];
+          if (i === 0) {
+            this.previousLayerConnectedCells[i].push(this.target);
+          } else {
+            this.previousLayerConnectedCells[i].push(this);
+          }
+        }
+      }
+      return this.previousLayerConnectedCells[layer - this.minRank - 1];
+    }
+    /**
+     * Returns true.
+     */
+    isEdge() {
+      return true;
+    }
+    /**
+     * Gets the value of temp for the specified layer
+     */
+    getGeneralPurposeVariable(layer) {
+      return this.temp[layer - this.minRank - 1];
+    }
+    /**
+     * Set the value of temp for the specified layer
+     */
+    setGeneralPurposeVariable(layer, value) {
+      this.temp[layer - this.minRank - 1] = value;
+    }
+    /**
+     * Gets the first core edge associated with this wrapper
+     */
+    getCoreCell() {
+      if (this.edges.length > 0) {
+        return this.edges[0];
+      }
+      return null;
+    }
+  };
+  var GraphHierarchyEdge_default = GraphHierarchyEdge;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/hierarchical/GraphHierarchyModel.js
+  var GraphHierarchyModel = class {
+    /**
+     *
+     * Creates an internal ordered graph model using the vertices passed in. If
+     * there are any, leftward edge need to be inverted in the internal model
+     *
+     * @param layout
+     * @param vertices the vertices for this hierarchy
+     * @param roots
+     * @param parent
+     * @param tightenToSource whether or not to tighten vertices towards the sources
+     */
+    constructor(layout2, vertices, roots, parent, tightenToSource) {
+      this.ranks = null;
+      this.roots = null;
+      this.parent = null;
+      this.dfsCount = 0;
+      this.SOURCESCANSTARTRANK = 1e8;
+      this.tightenToSource = false;
+      const graph = layout2.getGraph();
+      this.tightenToSource = tightenToSource;
+      this.roots = roots;
+      this.parent = parent;
+      this.vertexMapper = /* @__PURE__ */ new Map();
+      this.edgeMapper = /* @__PURE__ */ new Map();
+      this.maxRank = 0;
+      const internalVertices = {};
+      if (vertices == null) {
+        vertices = graph.getChildVertices(parent);
+      }
+      this.maxRank = this.SOURCESCANSTARTRANK;
+      this.createInternalCells(layout2, vertices, internalVertices);
+      for (let i = 0; i < vertices.length; i += 1) {
+        const edges = internalVertices[i].connectsAsSource;
+        for (let j = 0; j < edges.length; j++) {
+          const internalEdge = edges[j];
+          const realEdges = internalEdge.edges;
+          if (realEdges != null && realEdges.length > 0) {
+            const realEdge = realEdges[0];
+            let targetCell = layout2.getVisibleTerminal(realEdge, false);
+            let internalTargetCell = this.vertexMapper.get(targetCell);
+            if (internalVertices[i] === internalTargetCell) {
+              targetCell = layout2.getVisibleTerminal(realEdge, true);
+              internalTargetCell = this.vertexMapper.get(targetCell);
+            }
+            if (internalTargetCell != null && internalVertices[i] !== internalTargetCell) {
+              internalEdge.target = internalTargetCell;
+              if (internalTargetCell.connectsAsTarget.length === 0) {
+                internalTargetCell.connectsAsTarget = [];
+              }
+              if (!internalTargetCell.connectsAsTarget.includes(internalEdge)) {
+                internalTargetCell.connectsAsTarget.push(internalEdge);
+              }
+            }
+          }
+        }
+        internalVertices[i].temp[0] = 1;
+      }
+    }
+    /**
+     * Creates all edges in the internal model
+     *
+     * @param layout Reference to the <HierarchicalLayout> algorithm.
+     * @param vertices Array of {@link Cell}s that represent the vertices whom are to
+     * have an internal representation created.
+     * @param internalVertices The array of {@link GraphHierarchyNode}s to have their
+     * information filled in using the real vertices.
+     */
+    createInternalCells(layout2, vertices, internalVertices) {
+      const graph = layout2.getGraph();
+      for (let i = 0; i < vertices.length; i += 1) {
+        internalVertices[i] = new GraphHierarchyNode_default(vertices[i]);
+        this.vertexMapper.set(vertices[i], internalVertices[i]);
+        const conns = layout2.getEdges(vertices[i]);
+        internalVertices[i].connectsAsSource = [];
+        for (let j = 0; j < conns.length; j++) {
+          const cell = layout2.getVisibleTerminal(conns[j], false);
+          if (cell !== vertices[i] && cell.isVertex() && !layout2.isVertexIgnored(cell)) {
+            const undirectedEdges = layout2.getEdgesBetween(vertices[i], cell, false);
+            const directedEdges = layout2.getEdgesBetween(vertices[i], cell, true);
+            if (undirectedEdges != null && undirectedEdges.length > 0 && this.edgeMapper.get(undirectedEdges[0]) == null && directedEdges.length * 2 >= undirectedEdges.length) {
+              const internalEdge = new GraphHierarchyEdge_default(undirectedEdges);
+              for (let k = 0; k < undirectedEdges.length; k++) {
+                const edge = undirectedEdges[k];
+                this.edgeMapper.set(edge, internalEdge);
+                graph.resetEdge(edge);
+                if (layout2.disableEdgeStyle) {
+                  layout2.setEdgeStyleEnabled(edge, false);
+                  layout2.setOrthogonalEdge(edge, true);
+                }
+              }
+              internalEdge.source = internalVertices[i];
+              if (!internalVertices[i].connectsAsSource.includes(internalEdge)) {
+                internalVertices[i].connectsAsSource.push(internalEdge);
+              }
+            }
+          }
+        }
+        internalVertices[i].temp[0] = 0;
+      }
+    }
+    /**
+     * Basic determination of minimum layer ranking by working from from sources
+     * or sinks and working through each node in the relevant edge direction.
+     * Starting at the sinks is basically a longest path layering algorithm.
+     */
+    initialRank() {
+      const startNodes = [];
+      if (this.roots != null) {
+        for (let i = 0; i < this.roots.length; i += 1) {
+          const internalNode = this.vertexMapper.get(this.roots[i]);
+          if (internalNode != null) {
+            startNodes.push(internalNode);
+          }
+        }
+      }
+      const internalNodes = Array.from(this.vertexMapper.values());
+      for (let i = 0; i < internalNodes.length; i += 1) {
+        internalNodes[i].temp[0] = -1;
+      }
+      const startNodesCopy = startNodes.slice();
+      while (startNodes.length > 0) {
+        const internalNode = startNodes[0];
+        const layerDeterminingEdges = internalNode.connectsAsTarget;
+        const edgesToBeMarked = internalNode.connectsAsSource;
+        let allEdgesScanned = true;
+        let minimumLayer = this.SOURCESCANSTARTRANK;
+        for (let i = 0; i < layerDeterminingEdges.length; i += 1) {
+          const internalEdge = layerDeterminingEdges[i];
+          if (internalEdge.temp[0] === 5270620) {
+            const otherNode = internalEdge.source;
+            minimumLayer = Math.min(minimumLayer, otherNode.temp[0] - 1);
+          } else {
+            allEdgesScanned = false;
+            break;
+          }
+        }
+        if (allEdgesScanned) {
+          internalNode.temp[0] = minimumLayer;
+          this.maxRank = Math.min(this.maxRank, minimumLayer);
+          if (edgesToBeMarked != null) {
+            for (let i = 0; i < edgesToBeMarked.length; i += 1) {
+              const internalEdge = edgesToBeMarked[i];
+              internalEdge.temp[0] = 5270620;
+              const otherNode = internalEdge.target;
+              if (otherNode.temp[0] === -1) {
+                startNodes.push(otherNode);
+                otherNode.temp[0] = -2;
+              }
+            }
+          }
+          startNodes.shift();
+        } else {
+          const removedCell = startNodes.shift();
+          startNodes.push(internalNode);
+          if (removedCell === internalNode && startNodes.length === 1) {
+            break;
+          }
+        }
+      }
+      for (let i = 0; i < internalNodes.length; i += 1) {
+        internalNodes[i].temp[0] -= this.maxRank;
+      }
+      for (let i = 0; i < startNodesCopy.length; i += 1) {
+        const internalNode = startNodesCopy[i];
+        let currentMaxLayer = 0;
+        const layerDeterminingEdges = internalNode.connectsAsSource;
+        for (let j = 0; j < layerDeterminingEdges.length; j++) {
+          const internalEdge = layerDeterminingEdges[j];
+          const otherNode = internalEdge.target;
+          internalNode.temp[0] = Math.max(currentMaxLayer, otherNode.temp[0] + 1);
+          currentMaxLayer = internalNode.temp[0];
+        }
+      }
+      this.maxRank = this.SOURCESCANSTARTRANK - this.maxRank;
+    }
+    /**
+     * Fixes the layer assignments to the values stored in the nodes. Also needs
+     * to create dummy nodes for edges that cross layers.
+     */
+    fixRanks() {
+      const rankList = {};
+      this.ranks = [];
+      for (let i = 0; i < this.maxRank + 1; i += 1) {
+        rankList[i] = [];
+        this.ranks.push(rankList[i]);
+      }
+      let rootsArray = null;
+      if (this.roots != null) {
+        const oldRootsArray = this.roots;
+        rootsArray = [];
+        for (let i = 0; i < oldRootsArray.length; i += 1) {
+          const cell = oldRootsArray[i];
+          const internalNode = this.vertexMapper.get(cell);
+          rootsArray[i] = internalNode;
+        }
+      }
+      this.visit((parent, node, edge, layer, seen) => {
+        if (seen == 0 && node.maxRank < 0 && node.minRank < 0) {
+          rankList[node.temp[0]].push(node);
+          node.maxRank = node.temp[0];
+          node.minRank = node.temp[0];
+          node.temp[0] = rankList[node.maxRank].length - 1;
+        }
+        if (parent != null && edge != null) {
+          const parentToCellRankDifference = parent.maxRank - node.maxRank;
+          if (parentToCellRankDifference > 1) {
+            edge.maxRank = parent.maxRank;
+            edge.minRank = node.maxRank;
+            edge.temp = [];
+            edge.x = [];
+            edge.y = [];
+            for (let i = edge.minRank + 1; i < edge.maxRank; i += 1) {
+              rankList[i].push(edge);
+              edge.setGeneralPurposeVariable(i, rankList[i].length - 1);
+            }
+          }
+        }
+      }, rootsArray, false, null);
+    }
+    /**
+     * A depth first search through the internal heirarchy model.
+     *
+     * @param visitor The visitor function pattern to be called for each node.
+     * @param trackAncestors Whether or not the search is to keep track all nodes
+     * directly above this one in the search path.
+     */
+    visit(visitor, dfsRoots, trackAncestors, seenNodes = null) {
+      if (dfsRoots != null) {
+        for (let i = 0; i < dfsRoots.length; i += 1) {
+          const internalNode = dfsRoots[i];
+          if (internalNode != null) {
+            if (seenNodes == null) {
+              seenNodes = {};
+            }
+            if (trackAncestors) {
+              internalNode.hashCode = [];
+              internalNode.hashCode[0] = this.dfsCount;
+              internalNode.hashCode[1] = i;
+              this.extendedDfs(null, internalNode, null, visitor, seenNodes, internalNode.hashCode, i, 0);
+            } else {
+              this.dfs(null, internalNode, null, visitor, seenNodes, 0);
+            }
+          }
+        }
+        this.dfsCount++;
+      }
+    }
+    /**
+     * Performs a depth first search on the internal hierarchy model
+     *
+     * @param parent the parent internal node of the current internal node
+     * @param root the current internal node
+     * @param connectingEdge the internal edge connecting the internal node and the parent
+     * internal node, if any
+     * @param visitor the visitor pattern to be called for each node
+     * @param seen a set of all nodes seen by this dfs a set of all of the
+     * ancestor node of the current node
+     * @param layer the layer on the dfs tree ( not the same as the model ranks )
+     */
+    dfs(parent, root, connectingEdge, visitor, seen, layer) {
+      if (root != null) {
+        const rootId = root.id;
+        if (seen[rootId] == null) {
+          seen[rootId] = root;
+          visitor(parent, root, connectingEdge, layer, 0);
+          const outgoingEdges = root.connectsAsSource.slice();
+          for (let i = 0; i < outgoingEdges.length; i += 1) {
+            const internalEdge = outgoingEdges[i];
+            const targetNode = internalEdge.target;
+            this.dfs(root, targetNode, internalEdge, visitor, seen, layer + 1);
+          }
+        } else {
+          visitor(parent, root, connectingEdge, layer, 1);
+        }
+      }
+    }
+    /**
+     * Performs a depth first search on the internal hierarchy model. This dfs
+     * extends the default version by keeping track of cells ancestors, but it
+     * should be only used when necessary because of it can be computationally
+     * intensive for deep searches.
+     *
+     * @param parent the parent internal node of the current internal node
+     * @param root the current internal node
+     * @param connectingEdge the internal edge connecting the internal node and the parent
+     * internal node, if any
+     * @param visitor the visitor pattern to be called for each node
+     * @param seen a set of all nodes seen by this dfs
+     * @param ancestors the parent hash code
+     * @param childHash the new hash code for this node
+     * @param layer the layer on the dfs tree ( not the same as the model ranks )
+     */
+    extendedDfs(parent, root, connectingEdge, visitor, seen, ancestors, childHash, layer) {
+      if (root != null) {
+        if (parent != null) {
+          if (root.hashCode == null || root.hashCode[0] != parent.hashCode[0]) {
+            const hashCodeLength = parent.hashCode.length + 1;
+            root.hashCode = parent.hashCode.slice();
+            root.hashCode[hashCodeLength - 1] = childHash;
+          }
+        }
+        const rootId = root.id;
+        if (seen[rootId] == null) {
+          seen[rootId] = root;
+          visitor(parent, root, connectingEdge, layer, 0);
+          const outgoingEdges = root.connectsAsSource.slice();
+          for (let i = 0; i < outgoingEdges.length; i += 1) {
+            const internalEdge = outgoingEdges[i];
+            const targetNode = internalEdge.target;
+            this.extendedDfs(root, targetNode, internalEdge, visitor, seen, root.hashCode, i, layer + 1);
+          }
+        } else {
+          visitor(parent, root, connectingEdge, layer, 1);
+        }
+      }
+    }
+  };
+  var GraphHierarchyModel_default = GraphHierarchyModel;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/hierarchical/HierarchicalLayoutStage.js
+  var HierarchicalLayoutStage = class {
+  };
+  var HierarchicalLayoutStage_default = HierarchicalLayoutStage;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/hierarchical/MinimumCycleRemover.js
+  var MinimumCycleRemover = class extends HierarchicalLayoutStage_default {
+    /**
+     * Creates a cycle remover for the given internal model.
+     */
+    constructor(layout2) {
+      super();
+      this.layout = layout2;
+    }
+    /**
+     * Takes the graph detail and configuration information within the facade
+     * and creates the resulting laid out graph within that facade for further
+     * use.
+     */
+    execute(parent) {
+      const model = this.layout.getDataModel();
+      const seenNodes = {};
+      const unseenNodesArray = Array.from(model.vertexMapper.values());
+      const unseenNodes = {};
+      for (let i = 0; i < unseenNodesArray.length; i += 1) {
+        unseenNodes[unseenNodesArray[i].id] = unseenNodesArray[i];
+      }
+      let rootsArray = null;
+      if (model.roots != null) {
+        const modelRoots = model.roots;
+        rootsArray = [];
+        for (let i = 0; i < modelRoots.length; i += 1) {
+          rootsArray[i] = model.vertexMapper.get(modelRoots[i]);
+        }
+      }
+      model.visit((parent2, node, connectingEdge, layer, seen) => {
+        if (node.isAncestor(parent2)) {
+          connectingEdge.invert();
+          remove(connectingEdge, parent2.connectsAsSource);
+          parent2.connectsAsTarget.push(connectingEdge);
+          remove(connectingEdge, node.connectsAsTarget);
+          node.connectsAsSource.push(connectingEdge);
+        }
+        seenNodes[node.id] = node;
+        delete unseenNodes[node.id];
+      }, rootsArray, true, null);
+      const seenNodesCopy = clone(seenNodes, null, true);
+      model.visit((parent2, node, connectingEdge, layer, seen) => {
+        if (node.isAncestor(parent2)) {
+          connectingEdge.invert();
+          remove(connectingEdge, parent2.connectsAsSource);
+          node.connectsAsSource.push(connectingEdge);
+          parent2.connectsAsTarget.push(connectingEdge);
+          remove(connectingEdge, node.connectsAsTarget);
+        }
+        seenNodes[node.id] = node;
+        delete unseenNodes[node.id];
+      }, Object.values(unseenNodes), true, seenNodesCopy);
+    }
+  };
+  var MinimumCycleRemover_default = MinimumCycleRemover;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/util/MedianCellSorter.js
+  var MedianCellSorter = class {
+    constructor() {
+      this.medianValue = 0;
+      this.cell = false;
+    }
+    /**
+     * Compares two MedianCellSorters.
+     */
+    compare(a, b) {
+      if (a != null && b != null) {
+        if (b.medianValue > a.medianValue) {
+          return -1;
+        }
+        if (b.medianValue < a.medianValue) {
+          return 1;
+        }
+        return 0;
+      }
+      return 0;
+    }
+  };
+  var MedianCellSorter_default = MedianCellSorter;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/hierarchical/MedianHybridCrossingReduction.js
+  var MedianHybridCrossingReduction = class extends HierarchicalLayoutStage_default {
+    constructor(layout2) {
+      super();
+      this.maxIterations = 24;
+      this.nestedBestRanks = null;
+      this.currentBestCrossings = 0;
+      this.iterationsWithoutImprovement = 0;
+      this.maxNoImprovementIterations = 2;
+      this.layout = layout2;
+    }
+    /**
+     * Performs a vertex ordering within ranks as described by Gansner et al
+     * 1993
+     */
+    execute(parent) {
+      const model = this.layout.getDataModel();
+      let ranks = model.ranks;
+      this.nestedBestRanks = [];
+      for (let i = 0; i < ranks.length; i += 1) {
+        this.nestedBestRanks[i] = ranks[i].slice();
+      }
+      let iterationsWithoutImprovement = 0;
+      let currentBestCrossings = this.calculateCrossings(model);
+      for (let i = 0; i < this.maxIterations && iterationsWithoutImprovement < this.maxNoImprovementIterations; i++) {
+        this.weightedMedian(i, model);
+        this.transpose(i, model);
+        const candidateCrossings = this.calculateCrossings(model);
+        if (candidateCrossings < currentBestCrossings) {
+          currentBestCrossings = candidateCrossings;
+          iterationsWithoutImprovement = 0;
+          for (let j = 0; j < this.nestedBestRanks.length; j += 1) {
+            const rank = ranks[j];
+            for (let k = 0; k < rank.length; k += 1) {
+              const cell = rank[k];
+              this.nestedBestRanks[j][cell.getGeneralPurposeVariable(j)] = cell;
+            }
+          }
+        } else {
+          iterationsWithoutImprovement += 1;
+          for (let j = 0; j < this.nestedBestRanks.length; j += 1) {
+            const rank = ranks[j];
+            for (let k = 0; k < rank.length; k += 1) {
+              const cell = rank[k];
+              cell.setGeneralPurposeVariable(j, k);
+            }
+          }
+        }
+        if (currentBestCrossings === 0) {
+          break;
+        }
+      }
+      ranks = [];
+      const rankList = [];
+      for (let i = 0; i < model.maxRank + 1; i += 1) {
+        rankList[i] = [];
+        ranks[i] = rankList[i];
+      }
+      for (let i = 0; i < this.nestedBestRanks.length; i += 1) {
+        for (let j = 0; j < this.nestedBestRanks[i].length; j += 1) {
+          rankList[i].push(this.nestedBestRanks[i][j]);
+        }
+      }
+      model.ranks = ranks;
+    }
+    /**
+     * Calculates the total number of edge crossing in the current graph.
+     * Returns the current number of edge crossings in the hierarchy graph
+     * model in the current candidate layout
+     *
+     * @param model the internal model describing the hierarchy
+     */
+    calculateCrossings(model) {
+      const ranks = model.ranks;
+      const numRanks = ranks.length;
+      let totalCrossings = 0;
+      for (let i = 1; i < numRanks; i += 1) {
+        totalCrossings += this.calculateRankCrossing(i, model);
+      }
+      return totalCrossings;
+    }
+    /**
+     * Calculates the number of edges crossings between the specified rank and
+     * the rank below it. Returns the number of edges crossings with the rank
+     * beneath
+     *
+     * @param i  the topmost rank of the pair ( higher rank value )
+     * @param model the internal model describing the hierarchy
+     */
+    calculateRankCrossing(i, model) {
+      let totalCrossings = 0;
+      const ranks = model.ranks;
+      const rank = ranks[i];
+      const previousRank = ranks[i - 1];
+      const tmpIndices = [];
+      for (let j = 0; j < rank.length; j += 1) {
+        const node = rank[j];
+        const rankPosition = node.getGeneralPurposeVariable(i);
+        const connectedCells = node.getPreviousLayerConnectedCells(i);
+        const nodeIndices = [];
+        for (let k = 0; k < connectedCells.length; k += 1) {
+          const connectedNode = connectedCells[k];
+          const otherCellRankPosition = connectedNode.getGeneralPurposeVariable(i - 1);
+          nodeIndices.push(otherCellRankPosition);
+        }
+        nodeIndices.sort((x, y) => {
+          return x - y;
+        });
+        tmpIndices[rankPosition] = nodeIndices;
+      }
+      let indices = [];
+      for (let j = 0; j < tmpIndices.length; j++) {
+        indices = indices.concat(tmpIndices[j]);
+      }
+      let firstIndex = 1;
+      while (firstIndex < previousRank.length) {
+        firstIndex <<= 1;
+      }
+      const treeSize = 2 * firstIndex - 1;
+      firstIndex -= 1;
+      const tree = [];
+      for (let j = 0; j < treeSize; ++j) {
+        tree[j] = 0;
+      }
+      for (let j = 0; j < indices.length; j += 1) {
+        const index = indices[j];
+        let treeIndex = index + firstIndex;
+        ++tree[treeIndex];
+        while (treeIndex > 0) {
+          if (treeIndex % 2) {
+            totalCrossings += tree[treeIndex + 1];
+          }
+          treeIndex = treeIndex - 1 >> 1;
+          ++tree[treeIndex];
+        }
+      }
+      return totalCrossings;
+    }
+    /**
+     * Takes each possible adjacent cell pair on each rank and checks if
+     * swapping them around reduces the number of crossing
+     *
+     * @param mainLoopIteration the iteration number of the main loop
+     * @param model the internal model describing the hierarchy
+     */
+    transpose(mainLoopIteration, model) {
+      let improved = true;
+      let count = 0;
+      const maxCount = 10;
+      while (improved && count++ < maxCount) {
+        const nudge = mainLoopIteration % 2 === 1 && count % 2 === 1;
+        improved = false;
+        const ranks = model.ranks;
+        for (let i = 0; i < ranks.length; i += 1) {
+          const rank = ranks[i];
+          const orderedCells = [];
+          for (let j = 0; j < rank.length; j++) {
+            const cell = rank[j];
+            let tempRank = cell.getGeneralPurposeVariable(i);
+            if (tempRank < 0) {
+              tempRank = j;
+            }
+            orderedCells[tempRank] = cell;
+          }
+          let leftCellAboveConnections = null;
+          let leftCellBelowConnections = null;
+          let rightCellAboveConnections = null;
+          let rightCellBelowConnections = null;
+          let leftAbovePositions = null;
+          let leftBelowPositions = null;
+          let rightAbovePositions = null;
+          let rightBelowPositions = null;
+          let leftCell = null;
+          let rightCell = null;
+          for (let j = 0; j < rank.length - 1; j++) {
+            if (j === 0) {
+              leftCell = orderedCells[j];
+              leftCellAboveConnections = leftCell.getNextLayerConnectedCells(i);
+              leftCellBelowConnections = leftCell.getPreviousLayerConnectedCells(i);
+              leftAbovePositions = [];
+              leftBelowPositions = [];
+              for (let k = 0; k < leftCellAboveConnections.length; k++) {
+                leftAbovePositions[k] = leftCellAboveConnections[k].getGeneralPurposeVariable(i + 1);
+              }
+              for (let k = 0; k < leftCellBelowConnections.length; k++) {
+                leftBelowPositions[k] = leftCellBelowConnections[k].getGeneralPurposeVariable(i - 1);
+              }
+            } else {
+              leftCellAboveConnections = rightCellAboveConnections;
+              leftCellBelowConnections = rightCellBelowConnections;
+              leftAbovePositions = rightAbovePositions;
+              leftBelowPositions = rightBelowPositions;
+              leftCell = rightCell;
+            }
+            rightCell = orderedCells[j + 1];
+            rightCellAboveConnections = rightCell.getNextLayerConnectedCells(i);
+            rightCellBelowConnections = rightCell.getPreviousLayerConnectedCells(i);
+            rightAbovePositions = [];
+            rightBelowPositions = [];
+            for (let k = 0; k < rightCellAboveConnections.length; k++) {
+              rightAbovePositions[k] = rightCellAboveConnections[k].getGeneralPurposeVariable(i + 1);
+            }
+            for (let k = 0; k < rightCellBelowConnections.length; k++) {
+              rightBelowPositions[k] = rightCellBelowConnections[k].getGeneralPurposeVariable(i - 1);
+            }
+            let totalCurrentCrossings = 0;
+            let totalSwitchedCrossings = 0;
+            for (let k = 0; k < leftAbovePositions.length; k += 1) {
+              for (let ik = 0; ik < rightAbovePositions.length; ik += 1) {
+                if (leftAbovePositions[k] > rightAbovePositions[ik]) {
+                  totalCurrentCrossings += 1;
+                }
+                if (leftAbovePositions[k] < rightAbovePositions[ik]) {
+                  totalSwitchedCrossings += 1;
+                }
+              }
+            }
+            for (let k = 0; k < leftBelowPositions.length; k += 1) {
+              for (let ik = 0; ik < rightBelowPositions.length; ik += 1) {
+                if (leftBelowPositions[k] > rightBelowPositions[ik]) {
+                  totalCurrentCrossings += 1;
+                }
+                if (leftBelowPositions[k] < rightBelowPositions[ik]) {
+                  totalSwitchedCrossings += 1;
+                }
+              }
+            }
+            if (totalSwitchedCrossings < totalCurrentCrossings || totalSwitchedCrossings === totalCurrentCrossings && nudge) {
+              const temp = leftCell.getGeneralPurposeVariable(i);
+              leftCell.setGeneralPurposeVariable(i, rightCell.getGeneralPurposeVariable(i));
+              rightCell.setGeneralPurposeVariable(i, temp);
+              rightCellAboveConnections = leftCellAboveConnections;
+              rightCellBelowConnections = leftCellBelowConnections;
+              rightAbovePositions = leftAbovePositions;
+              rightBelowPositions = leftBelowPositions;
+              rightCell = leftCell;
+              if (!nudge) {
+                improved = true;
+              }
+            }
+          }
+        }
+      }
+    }
+    /**
+     * Sweeps up or down the layout attempting to minimise the median placement
+     * of connected cells on adjacent ranks
+     *
+     * @param iteration the iteration number of the main loop
+     * @param model the internal model describing the hierarchy
+     */
+    weightedMedian(iteration, model) {
+      const downwardSweep = iteration % 2 === 0;
+      if (downwardSweep) {
+        for (let j = model.maxRank - 1; j >= 0; j -= 1) {
+          this.medianRank(j, downwardSweep);
+        }
+      } else {
+        for (let j = 1; j < model.maxRank; j += 1) {
+          this.medianRank(j, downwardSweep);
+        }
+      }
+    }
+    /**
+     * Attempts to minimise the median placement of connected cells on this rank
+     * and one of the adjacent ranks
+     *
+     * @param rankValue the layer number of this rank
+     * @param downwardSweep whether or not this is a downward sweep through the graph
+     */
+    medianRank(rankValue, downwardSweep) {
+      const nestedBestRanks = this.nestedBestRanks;
+      const numCellsForRank = nestedBestRanks[rankValue].length;
+      const medianValues = [];
+      const reservedPositions = {};
+      for (let i = 0; i < numCellsForRank; i += 1) {
+        const cell = nestedBestRanks[rankValue][i];
+        const sorterEntry = new MedianCellSorter_default();
+        sorterEntry.cell = cell;
+        const nextLevelConnectedCells = downwardSweep ? cell.getNextLayerConnectedCells(rankValue) : cell.getPreviousLayerConnectedCells(rankValue);
+        const nextRankValue = downwardSweep ? rankValue + 1 : rankValue - 1;
+        if (nextLevelConnectedCells != null && nextLevelConnectedCells.length !== 0) {
+          sorterEntry.medianValue = this.medianValue(nextLevelConnectedCells, nextRankValue);
+          medianValues.push(sorterEntry);
+        } else {
+          reservedPositions[cell.getGeneralPurposeVariable(rankValue)] = true;
+        }
+      }
+      medianValues.sort(new MedianCellSorter_default().compare);
+      for (let i = 0; i < numCellsForRank; i += 1) {
+        if (reservedPositions[i] == null) {
+          const cell = medianValues.shift().cell;
+          cell.setGeneralPurposeVariable(rankValue, i);
+        }
+      }
+    }
+    /**
+     * Calculates the median rank order positioning for the specified cell using
+     * the connected cells on the specified rank. Returns the median rank
+     * ordering value of the connected cells
+     *
+     * @param connectedCells the cells on the specified rank connected to the
+     * specified cell
+     * @param rankValue the rank that the connected cell lie upon
+     */
+    medianValue(connectedCells, rankValue) {
+      const medianValues = [];
+      let arrayCount = 0;
+      for (let i = 0; i < connectedCells.length; i += 1) {
+        const cell = connectedCells[i];
+        medianValues[arrayCount++] = cell.getGeneralPurposeVariable(rankValue);
+      }
+      medianValues.sort((a, b) => {
+        return a - b;
+      });
+      if (arrayCount % 2 === 1) {
+        return medianValues[Math.floor(arrayCount / 2)];
+      }
+      if (arrayCount === 2) {
+        return (medianValues[0] + medianValues[1]) / 2;
+      }
+      const medianPoint = arrayCount / 2;
+      const leftMedian = medianValues[medianPoint - 1] - medianValues[0];
+      const rightMedian = medianValues[arrayCount - 1] - medianValues[medianPoint];
+      return (medianValues[medianPoint - 1] * rightMedian + medianValues[medianPoint] * leftMedian) / (leftMedian + rightMedian);
+    }
+  };
+  var MedianHybridCrossingReduction_default = MedianHybridCrossingReduction;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/hierarchical/CoordinateAssignment.js
+  var CoordinateAssignment = class extends HierarchicalLayoutStage_default {
+    /**
+     * Creates a coordinate assignment.
+     *
+     * @param layout
+     * @param intraCellSpacing the minimum buffer between cells on the same rank interRankCellSpacing
+     * @param interRankCellSpacing the minimum distance between cells on adjacent ranks
+     * @param orientation the position of the root node(s) relative to the graph
+     * @param initialX the leftmost coordinate node placement starts at
+     * @param parallelEdgeSpacing
+     */
+    constructor(layout2, intraCellSpacing = 30, interRankCellSpacing = 100, orientation, initialX, parallelEdgeSpacing = 10) {
+      super();
+      this.intraCellSpacing = 30;
+      this.interRankCellSpacing = 100;
+      this.parallelEdgeSpacing = 10;
+      this.maxIterations = 8;
+      this.prefHozEdgeSep = 5;
+      this.prefVertEdgeOff = 2;
+      this.minEdgeJetty = 12;
+      this.channelBuffer = 4;
+      this.jettyPositions = null;
+      this.orientation = "north";
+      this.limitX = null;
+      this.currentXDelta = null;
+      this.widestRank = null;
+      this.rankTopY = null;
+      this.rankBottomY = null;
+      this.widestRankValue = null;
+      this.rankWidths = null;
+      this.rankY = null;
+      this.fineTuning = true;
+      this.nextLayerConnectedCache = null;
+      this.previousLayerConnectedCache = null;
+      this.groupPadding = 10;
+      this.layout = layout2;
+      this.intraCellSpacing = intraCellSpacing;
+      this.interRankCellSpacing = interRankCellSpacing;
+      this.orientation = orientation;
+      this.initialX = initialX;
+      this.parallelEdgeSpacing = parallelEdgeSpacing;
+    }
+    /**
+     * Utility method to display current positions
+     */
+    printStatus() {
+      const model = this.layout.getDataModel();
+      const ranks = model.ranks;
+      const logger = log();
+      logger.show();
+      logger.info("======Coord assignment debug=======");
+      for (let j = 0; j < ranks.length; j++) {
+        const rank = ranks[j];
+        const cellsInfo = rank.map((cell) => String(cell.getGeneralPurposeVariable(j))).join("  ");
+        logger.info(`Rank ${j} : ${cellsInfo}`);
+      }
+      logger.info("====================================");
+    }
+    /**
+     * A basic horizontal coordinate assignment algorithm
+     */
+    execute(parent) {
+      this.jettyPositions = Object();
+      const model = this.layout.getDataModel();
+      this.currentXDelta = 0;
+      this.initialCoords(this.layout.getGraph(), model);
+      if (this.fineTuning) {
+        this.minNode(model);
+      }
+      let bestXDelta = 1e8;
+      if (this.fineTuning) {
+        for (let i = 0; i < this.maxIterations; i += 1) {
+          if (i !== 0) {
+            this.medianPos(i, model);
+            this.minNode(model);
+          }
+          const ranks = model.ranks;
+          if (this.currentXDelta < bestXDelta) {
+            for (let j = 0; j < ranks.length; j++) {
+              const rank = ranks[j];
+              for (let k = 0; k < rank.length; k++) {
+                const cell = rank[k];
+                cell.setX(j, cell.getGeneralPurposeVariable(j));
+              }
+            }
+            bestXDelta = this.currentXDelta;
+          } else {
+            for (let j = 0; j < ranks.length; j++) {
+              const rank = ranks[j];
+              for (let k = 0; k < rank.length; k++) {
+                const cell = rank[k];
+                cell.setGeneralPurposeVariable(j, cell.getX(j));
+              }
+            }
+          }
+          this.minPath(this.layout.getGraph(), model);
+          this.currentXDelta = 0;
+        }
+      }
+      this.setCellLocations(this.layout.getGraph(), model);
+    }
+    /**
+     * Performs one median positioning sweep in both directions
+     */
+    minNode(model) {
+      const nodeList = [];
+      const map = /* @__PURE__ */ new Map();
+      const rank = [];
+      for (let i = 0; i <= model.maxRank; i += 1) {
+        rank[i] = model.ranks[i];
+        for (let j = 0; j < rank[i].length; j += 1) {
+          const node = rank[i][j];
+          const nodeWrapper = new WeightedCellSorter_default(node, i);
+          nodeWrapper.rankIndex = j;
+          nodeWrapper.visited = true;
+          nodeList.push(nodeWrapper);
+          map.set(node, nodeWrapper);
+        }
+      }
+      const maxTries = nodeList.length * 10;
+      let count = 0;
+      const tolerance = 1;
+      while (nodeList.length > 0 && count <= maxTries) {
+        const cellWrapper = nodeList.shift();
+        const cell = cellWrapper.cell;
+        const rankValue = cellWrapper.weightedValue;
+        const rankIndex = Number.parseInt(String(cellWrapper.rankIndex));
+        const nextLayerConnectedCells = cell.getNextLayerConnectedCells(rankValue);
+        const previousLayerConnectedCells = cell.getPreviousLayerConnectedCells(rankValue);
+        const numNextLayerConnected = nextLayerConnectedCells.length;
+        const numPreviousLayerConnected = previousLayerConnectedCells.length;
+        const medianNextLevel = this.medianXValue(nextLayerConnectedCells, rankValue + 1);
+        const medianPreviousLevel = this.medianXValue(previousLayerConnectedCells, rankValue - 1);
+        const numConnectedNeighbours = numNextLayerConnected + numPreviousLayerConnected;
+        const currentPosition = cell.getGeneralPurposeVariable(rankValue);
+        let cellMedian = currentPosition;
+        if (numConnectedNeighbours > 0) {
+          cellMedian = (medianNextLevel * numNextLayerConnected + medianPreviousLevel * numPreviousLayerConnected) / numConnectedNeighbours;
+        }
+        let positionChanged = false;
+        if (cellMedian < currentPosition - tolerance) {
+          if (rankIndex === 0) {
+            cell.setGeneralPurposeVariable(rankValue, cellMedian);
+            positionChanged = true;
+          } else {
+            const leftCell = rank[rankValue][rankIndex - 1];
+            let leftLimit = leftCell.getGeneralPurposeVariable(rankValue);
+            leftLimit = leftLimit + leftCell.width / 2 + this.intraCellSpacing + cell.width / 2;
+            if (leftLimit < cellMedian) {
+              cell.setGeneralPurposeVariable(rankValue, cellMedian);
+              positionChanged = true;
+            } else if (leftLimit < cell.getGeneralPurposeVariable(rankValue) - tolerance) {
+              cell.setGeneralPurposeVariable(rankValue, leftLimit);
+              positionChanged = true;
+            }
+          }
+        } else if (cellMedian > currentPosition + tolerance) {
+          const rankSize = rank[rankValue].length;
+          if (rankIndex === rankSize - 1) {
+            cell.setGeneralPurposeVariable(rankValue, cellMedian);
+            positionChanged = true;
+          } else {
+            const rightCell = rank[rankValue][rankIndex + 1];
+            let rightLimit = rightCell.getGeneralPurposeVariable(rankValue);
+            rightLimit = rightLimit - rightCell.width / 2 - this.intraCellSpacing - cell.width / 2;
+            if (rightLimit > cellMedian) {
+              cell.setGeneralPurposeVariable(rankValue, cellMedian);
+              positionChanged = true;
+            } else if (rightLimit > cell.getGeneralPurposeVariable(rankValue) + tolerance) {
+              cell.setGeneralPurposeVariable(rankValue, rightLimit);
+              positionChanged = true;
+            }
+          }
+        }
+        if (positionChanged) {
+          for (let i = 0; i < nextLayerConnectedCells.length; i += 1) {
+            const connectedCell = nextLayerConnectedCells[i];
+            const connectedCellWrapper = map.get(connectedCell);
+            if (connectedCellWrapper != null) {
+              if (connectedCellWrapper.visited == false) {
+                connectedCellWrapper.visited = true;
+                nodeList.push(connectedCellWrapper);
+              }
+            }
+          }
+          for (let i = 0; i < previousLayerConnectedCells.length; i += 1) {
+            const connectedCell = previousLayerConnectedCells[i];
+            const connectedCellWrapper = map.get(connectedCell);
+            if (connectedCellWrapper != null) {
+              if (connectedCellWrapper.visited == false) {
+                connectedCellWrapper.visited = true;
+                nodeList.push(connectedCellWrapper);
+              }
+            }
+          }
+        }
+        cellWrapper.visited = false;
+        count += 1;
+      }
+    }
+    /**
+     * Performs one median positioning sweep in one direction
+     *
+     * @param i the iteration of the whole process
+     * @param model an internal model of the hierarchical layout
+     */
+    medianPos(i, model) {
+      const downwardSweep = i % 2 === 0;
+      if (downwardSweep) {
+        for (let j = model.maxRank; j > 0; j--) {
+          this.rankMedianPosition(j - 1, model, j);
+        }
+      } else {
+        for (let j = 0; j < model.maxRank - 1; j++) {
+          this.rankMedianPosition(j + 1, model, j);
+        }
+      }
+    }
+    /**
+     * Performs median minimisation over one rank.
+     *
+     * @param rankValue the layer number of this rank
+     * @param model an internal model of the hierarchical layout
+     * @param nextRankValue the layer number whose connected cels are to be laid out
+     * relative to
+     */
+    rankMedianPosition(rankValue, model, nextRankValue) {
+      const ranks = model.ranks;
+      const rank = ranks[rankValue];
+      const weightedValues = [];
+      const cellMap = {};
+      for (let i = 0; i < rank.length; i += 1) {
+        const currentCell = rank[i];
+        weightedValues[i] = new WeightedCellSorter_default(currentCell);
+        weightedValues[i].rankIndex = i;
+        cellMap[currentCell.id] = weightedValues[i];
+        let nextLayerConnectedCells = null;
+        if (nextRankValue < rankValue) {
+          nextLayerConnectedCells = currentCell.getPreviousLayerConnectedCells(rankValue);
+        } else {
+          nextLayerConnectedCells = currentCell.getNextLayerConnectedCells(rankValue);
+        }
+        weightedValues[i].weightedValue = this.calculatedWeightedValue(currentCell, nextLayerConnectedCells);
+      }
+      weightedValues.sort(WeightedCellSorter_default.compare);
+      for (let i = 0; i < weightedValues.length; i += 1) {
+        let numConnectionsNextLevel = 0;
+        const cell = weightedValues[i].cell;
+        let nextLayerConnectedCells = null;
+        let medianNextLevel = 0;
+        if (nextRankValue < rankValue) {
+          nextLayerConnectedCells = cell.getPreviousLayerConnectedCells(rankValue).slice();
+        } else {
+          nextLayerConnectedCells = cell.getNextLayerConnectedCells(rankValue).slice();
+        }
+        if (nextLayerConnectedCells != null) {
+          numConnectionsNextLevel = nextLayerConnectedCells.length;
+          if (numConnectionsNextLevel > 0) {
+            medianNextLevel = this.medianXValue(nextLayerConnectedCells, nextRankValue);
+          } else {
+            medianNextLevel = cell.getGeneralPurposeVariable(rankValue);
+          }
+        }
+        let leftBuffer = 0;
+        let leftLimit = -1e8;
+        for (let j = weightedValues[i].rankIndex - 1; j >= 0; ) {
+          const weightedValue = cellMap[rank[j].id];
+          if (weightedValue != null) {
+            const leftCell = weightedValue.cell;
+            if (weightedValue.visited) {
+              leftLimit = leftCell.getGeneralPurposeVariable(rankValue) + leftCell.width / 2 + this.intraCellSpacing + leftBuffer + cell.width / 2;
+              j = -1;
+            } else {
+              leftBuffer += leftCell.width + this.intraCellSpacing;
+              j--;
+            }
+          }
+        }
+        let rightBuffer = 0;
+        let rightLimit = 1e8;
+        for (let j = weightedValues[i].rankIndex + 1; j < weightedValues.length; ) {
+          const weightedValue = cellMap[rank[j].id];
+          if (weightedValue != null) {
+            const rightCell = weightedValue.cell;
+            if (weightedValue.visited) {
+              rightLimit = rightCell.getGeneralPurposeVariable(rankValue) - rightCell.width / 2 - this.intraCellSpacing - rightBuffer - cell.width / 2;
+              j = weightedValues.length;
+            } else {
+              rightBuffer += rightCell.width + this.intraCellSpacing;
+              j++;
+            }
+          }
+        }
+        if (medianNextLevel >= leftLimit && medianNextLevel <= rightLimit) {
+          cell.setGeneralPurposeVariable(rankValue, medianNextLevel);
+        } else if (medianNextLevel < leftLimit) {
+          cell.setGeneralPurposeVariable(rankValue, leftLimit);
+          this.currentXDelta = this.currentXDelta + leftLimit - medianNextLevel;
+        } else if (medianNextLevel > rightLimit) {
+          cell.setGeneralPurposeVariable(rankValue, rightLimit);
+          this.currentXDelta = this.currentXDelta + medianNextLevel - rightLimit;
+        }
+        weightedValues[i].visited = true;
+      }
+    }
+    /**
+     * Calculates the priority the specified cell has based on the type of its
+     * cell and the cells it is connected to on the next layer
+     *
+     * @param currentCell the cell whose weight is to be calculated
+     * @param collection the cells the specified cell is connected to
+     */
+    calculatedWeightedValue(currentCell, collection) {
+      let totalWeight = 0;
+      for (let i = 0; i < collection.length; i += 1) {
+        const cell = collection[i];
+        if (currentCell.isVertex() && cell.isVertex()) {
+          totalWeight += 1;
+        } else if (currentCell.isEdge() && cell.isEdge()) {
+          totalWeight += 8;
+        } else {
+          totalWeight += 2;
+        }
+      }
+      return totalWeight;
+    }
+    /**
+     * Calculates the median position of the connected cell on the specified
+     * rank
+     *
+     * @param connectedCells the cells the candidate connects to on this level
+     * @param rankValue the layer number of this rank
+     */
+    medianXValue(connectedCells, rankValue) {
+      if (connectedCells.length === 0) {
+        return 0;
+      }
+      const medianValues = [];
+      for (let i = 0; i < connectedCells.length; i += 1) {
+        medianValues[i] = connectedCells[i].getGeneralPurposeVariable(rankValue);
+      }
+      medianValues.sort((a, b) => a - b);
+      if (connectedCells.length % 2 === 1) {
+        return medianValues[Math.floor(connectedCells.length / 2)];
+      }
+      const medianPoint = connectedCells.length / 2;
+      const leftMedian = medianValues[medianPoint - 1];
+      const rightMedian = medianValues[medianPoint];
+      return (leftMedian + rightMedian) / 2;
+    }
+    /**
+     * Sets up the layout in an initial positioning. The ranks are all centered
+     * as much as possible along the middle vertex in each rank. The other cells
+     * are then placed as close as possible on either side.
+     *
+     * @param facade the facade describing the input graph
+     * @param model an internal model of the hierarchical layout
+     */
+    initialCoords(facade, model) {
+      this.calculateWidestRank(facade, model);
+      for (let i = this.widestRank; i >= 0; i--) {
+        if (i < model.maxRank) {
+          this.rankCoordinates(i, facade, model);
+        }
+      }
+      for (let i = this.widestRank + 1; i <= model.maxRank; i += 1) {
+        if (i > 0) {
+          this.rankCoordinates(i, facade, model);
+        }
+      }
+    }
+    /**
+     * Sets up the layout in an initial positioning. All the first cells in each
+     * rank are moved to the left and the rest of the rank inserted as close
+     * together as their size and buffering permits. This method works on just
+     * the specified rank.
+     *
+     * @param rankValue the current rank being processed
+     * @param graph the facade describing the input graph
+     * @param model an internal model of the hierarchical layout
+     */
+    rankCoordinates(rankValue, graph, model) {
+      const ranks = model.ranks;
+      const rank = ranks[rankValue];
+      let maxY = 0;
+      let localX = this.initialX + (this.widestRankValue - this.rankWidths[rankValue]) / 2;
+      let boundsWarning = false;
+      for (let i = 0; i < rank.length; i += 1) {
+        const node = rank[i];
+        if (node.isVertex()) {
+          const bounds = this.layout.getVertexBounds(node.cell);
+          if (bounds != null) {
+            if (this.orientation === "north" || this.orientation === "south") {
+              node.width = bounds.width;
+              node.height = bounds.height;
+            } else {
+              node.width = bounds.height;
+              node.height = bounds.width;
+            }
+          } else {
+            boundsWarning = true;
+          }
+          maxY = Math.max(maxY, node.height);
+        } else if (node.isEdge()) {
+          let numEdges = 1;
+          if (node.edges != null) {
+            numEdges = node.edges.length;
+          } else {
+            log().warn("edge.edges is null");
+          }
+          node.width = (numEdges - 1) * this.parallelEdgeSpacing;
+        }
+        localX += node.width / 2;
+        node.setX(rankValue, localX);
+        node.setGeneralPurposeVariable(rankValue, localX);
+        localX += node.width / 2;
+        localX += this.intraCellSpacing;
+      }
+      if (boundsWarning) {
+        log().warn("At least one cell has no bounds");
+      }
+    }
+    /**
+     * Calculates the width rank in the hierarchy. Also set the y value of each
+     * rank whilst performing the calculation
+     *
+     * @param graph the facade describing the input graph
+     * @param model an internal model of the hierarchical layout
+     */
+    calculateWidestRank(graph, model) {
+      let y = -this.interRankCellSpacing;
+      let lastRankMaxCellHeight = 0;
+      this.rankWidths = [];
+      this.rankY = [];
+      for (let rankValue = model.maxRank; rankValue >= 0; rankValue -= 1) {
+        let maxCellHeight = 0;
+        const ranks = model.ranks;
+        const rank = ranks[rankValue];
+        let localX = this.initialX;
+        let boundsWarning = false;
+        for (let i = 0; i < rank.length; i += 1) {
+          const node = rank[i];
+          if (node.isVertex()) {
+            const bounds = this.layout.getVertexBounds(node.cell);
+            if (bounds != null) {
+              if (this.orientation === "north" || this.orientation === "south") {
+                node.width = bounds.width;
+                node.height = bounds.height;
+              } else {
+                node.width = bounds.height;
+                node.height = bounds.width;
+              }
+            } else {
+              boundsWarning = true;
+            }
+            maxCellHeight = Math.max(maxCellHeight, node.height);
+          } else if (node.isEdge()) {
+            let numEdges = 1;
+            if (node.edges != null) {
+              numEdges = node.edges.length;
+            } else {
+              log().warn("edge.edges is null");
+            }
+            node.width = (numEdges - 1) * this.parallelEdgeSpacing;
+          }
+          localX += node.width / 2;
+          node.setX(rankValue, localX);
+          node.setGeneralPurposeVariable(rankValue, localX);
+          localX += node.width / 2;
+          localX += this.intraCellSpacing;
+          if (localX > this.widestRankValue) {
+            this.widestRankValue = localX;
+            this.widestRank = rankValue;
+          }
+          this.rankWidths[rankValue] = localX;
+        }
+        if (boundsWarning) {
+          log().warn("At least one cell has no bounds");
+        }
+        this.rankY[rankValue] = y;
+        const distanceToNextRank = maxCellHeight / 2 + lastRankMaxCellHeight / 2 + this.interRankCellSpacing;
+        lastRankMaxCellHeight = maxCellHeight;
+        if (this.orientation === "north" || this.orientation === "west") {
+          y += distanceToNextRank;
+        } else {
+          y -= distanceToNextRank;
+        }
+        for (let i = 0; i < rank.length; i += 1) {
+          const cell = rank[i];
+          cell.setY(rankValue, y);
+        }
+      }
+    }
+    /**
+     * Straightens out chains of virtual nodes where possibleacade to those stored after this layout
+     * processing step has completed.
+     *
+     * @param graph the facade describing the input graph
+     * @param model an internal model of the hierarchical layout
+     */
+    minPath(graph, model) {
+      const edges = Array.from(model.edgeMapper.values());
+      for (let j = 0; j < edges.length; j++) {
+        const cell = edges[j];
+        if (cell.maxRank - cell.minRank - 1 < 1) {
+          continue;
+        }
+        let referenceX = cell.getGeneralPurposeVariable(cell.minRank + 1);
+        let edgeStraight = true;
+        let refSegCount = 0;
+        for (let i = cell.minRank + 2; i < cell.maxRank; i += 1) {
+          const x = cell.getGeneralPurposeVariable(i);
+          if (referenceX !== x) {
+            edgeStraight = false;
+            referenceX = x;
+          } else {
+            refSegCount += 1;
+          }
+        }
+        if (!edgeStraight) {
+          let upSegCount = 0;
+          let downSegCount = 0;
+          const upXPositions = [];
+          const downXPositions = [];
+          let i = 0;
+          let currentX = cell.getGeneralPurposeVariable(cell.minRank + 1);
+          for (i = cell.minRank + 1; i < cell.maxRank - 1; i += 1) {
+            const nextX = cell.getX(i + 1);
+            if (currentX === nextX) {
+              upXPositions[i - cell.minRank - 1] = currentX;
+              upSegCount += 1;
+            } else if (this.repositionValid(model, cell, i + 1, currentX)) {
+              upXPositions[i - cell.minRank - 1] = currentX;
+              upSegCount += 1;
+            } else {
+              upXPositions[i - cell.minRank - 1] = nextX;
+              currentX = nextX;
+            }
+          }
+          currentX = cell.getX(i);
+          for (let i2 = cell.maxRank - 1; i2 > cell.minRank + 1; i2--) {
+            const nextX = cell.getX(i2 - 1);
+            if (currentX === nextX) {
+              downXPositions[i2 - cell.minRank - 2] = currentX;
+              downSegCount += 1;
+            } else if (this.repositionValid(model, cell, i2 - 1, currentX)) {
+              downXPositions[i2 - cell.minRank - 2] = currentX;
+              downSegCount += 1;
+            } else {
+              downXPositions[i2 - cell.minRank - 2] = cell.getX(i2 - 1);
+              currentX = nextX;
+            }
+          }
+          if (downSegCount > refSegCount || upSegCount > refSegCount) {
+            if (downSegCount >= upSegCount) {
+              for (let i2 = cell.maxRank - 2; i2 > cell.minRank; i2--) {
+                cell.setX(i2, downXPositions[i2 - cell.minRank - 1]);
+              }
+            } else if (upSegCount > downSegCount) {
+              for (let i2 = cell.minRank + 2; i2 < cell.maxRank; i2 += 1) {
+                cell.setX(i2, upXPositions[i2 - cell.minRank - 2]);
+              }
+            } else {
+            }
+          }
+        }
+      }
+    }
+    /**
+     * Determines whether or not a node may be moved to the specified x
+     * position on the specified rank
+     *
+     * @param model the layout model
+     * @param cell the cell being analysed
+     * @param rank the layer of the cell
+     * @param position the x position being sought
+     */
+    repositionValid(model, cell, rank, position) {
+      const ranks = model.ranks;
+      const rankArray = ranks[rank];
+      let rankIndex = -1;
+      for (let i = 0; i < rankArray.length; i += 1) {
+        if (cell === rankArray[i]) {
+          rankIndex = i;
+          break;
+        }
+      }
+      if (rankIndex < 0) {
+        return false;
+      }
+      const currentX = cell.getGeneralPurposeVariable(rank);
+      if (position < currentX) {
+        if (rankIndex === 0) {
+          return true;
+        }
+        const leftCell = rankArray[rankIndex - 1];
+        let leftLimit = leftCell.getGeneralPurposeVariable(rank);
+        leftLimit = leftLimit + leftCell.width / 2 + this.intraCellSpacing + cell.width / 2;
+        return leftLimit <= position;
+      }
+      if (position > currentX) {
+        if (rankIndex === rankArray.length - 1) {
+          return true;
+        }
+        const rightCell = rankArray[rankIndex + 1];
+        let rightLimit = rightCell.getGeneralPurposeVariable(rank);
+        rightLimit = rightLimit - rightCell.width / 2 - this.intraCellSpacing - cell.width / 2;
+        return rightLimit >= position;
+      }
+      return true;
+    }
+    /**
+     * Sets the cell locations in the facade to those stored after this layout
+     * processing step has completed.
+     *
+     * @param graph the input graph
+     * @param model the layout model
+     */
+    setCellLocations(graph, model) {
+      this.rankTopY = [];
+      this.rankBottomY = [];
+      const ranks = model.ranks;
+      for (let i = 0; i < ranks.length; i += 1) {
+        this.rankTopY[i] = Number.MAX_VALUE;
+        this.rankBottomY[i] = -Number.MAX_VALUE;
+      }
+      const vertices = Array.from(model.vertexMapper.values());
+      for (let i = 0; i < vertices.length; i += 1) {
+        this.setVertexLocation(vertices[i]);
+      }
+      if (this.layout.edgeStyle === HierarchicalEdgeStyle_default.ORTHOGONAL || this.layout.edgeStyle === HierarchicalEdgeStyle_default.POLYLINE || this.layout.edgeStyle === HierarchicalEdgeStyle_default.CURVE) {
+        this.localEdgeProcessing(model);
+      }
+      const edges = Array.from(model.edgeMapper.values());
+      for (let i = 0; i < edges.length; i += 1) {
+        this.setEdgePosition(edges[i]);
+      }
+    }
+    /**
+     * Separates the x position of edges as they connect to vertices
+     *
+     * @param model the layout model
+     */
+    localEdgeProcessing(model) {
+      const ranks = model.ranks;
+      for (let rankIndex = 0; rankIndex < ranks.length; rankIndex += 1) {
+        const rank = ranks[rankIndex];
+        for (let cellIndex = 0; cellIndex < rank.length; cellIndex += 1) {
+          const cell = rank[cellIndex];
+          if (cell.isVertex()) {
+            let currentCells = cell.getPreviousLayerConnectedCells(rankIndex);
+            let currentRank = rankIndex - 1;
+            for (let k = 0; k < 2; k += 1) {
+              if (currentRank > -1 && currentRank < ranks.length && currentCells != null && currentCells.length > 0) {
+                const sortedCells = [];
+                for (let j = 0; j < currentCells.length; j++) {
+                  const sorter = new WeightedCellSorter_default(currentCells[j], currentCells[j].getX(currentRank));
+                  sortedCells.push(sorter);
+                }
+                sortedCells.sort(WeightedCellSorter_default.compare);
+                let leftLimit = cell.x[0] - cell.width / 2;
+                let rightLimit = leftLimit + cell.width;
+                let connectedEdgeCount = 0;
+                let connectedEdgeGroupCount = 0;
+                const connectedEdges = [];
+                for (let j = 0; j < sortedCells.length; j++) {
+                  const innerCell = sortedCells[j].cell;
+                  let connections;
+                  if (innerCell.isVertex()) {
+                    if (k === 0) {
+                      connections = cell.connectsAsSource;
+                    } else {
+                      connections = cell.connectsAsTarget;
+                    }
+                    for (let connIndex = 0; connIndex < connections.length; connIndex += 1) {
+                      if (connections[connIndex].source === innerCell || connections[connIndex].target === innerCell) {
+                        connectedEdgeCount += connections[connIndex].edges.length;
+                        connectedEdgeGroupCount += 1;
+                        connectedEdges.push(connections[connIndex]);
+                      }
+                    }
+                  } else {
+                    connectedEdgeCount += innerCell.edges.length;
+                    connectedEdgeGroupCount += 1;
+                    connectedEdges.push(innerCell);
+                  }
+                }
+                const requiredWidth = (connectedEdgeCount + 1) * this.prefHozEdgeSep;
+                if (cell.width > requiredWidth + 2 * this.prefHozEdgeSep) {
+                  leftLimit += this.prefHozEdgeSep;
+                  rightLimit -= this.prefHozEdgeSep;
+                }
+                const availableWidth = rightLimit - leftLimit;
+                const edgeSpacing = availableWidth / connectedEdgeCount;
+                let currentX = leftLimit + edgeSpacing / 2;
+                let currentYOffset = this.minEdgeJetty - this.prefVertEdgeOff;
+                let maxYOffset = 0;
+                for (let j = 0; j < connectedEdges.length; j++) {
+                  const numActualEdges = connectedEdges[j].edges.length;
+                  const jettyPositions = this.jettyPositions;
+                  let pos = jettyPositions[connectedEdges[j].ids[0]];
+                  if (pos == null) {
+                    pos = [];
+                    jettyPositions[connectedEdges[j].ids[0]] = pos;
+                  }
+                  if (j < connectedEdgeCount / 2) {
+                    currentYOffset += this.prefVertEdgeOff;
+                  } else if (j > connectedEdgeCount / 2) {
+                    currentYOffset -= this.prefVertEdgeOff;
+                  }
+                  for (let m = 0; m < numActualEdges; m += 1) {
+                    pos[m * 4 + k * 2] = currentX;
+                    currentX += edgeSpacing;
+                    pos[m * 4 + k * 2 + 1] = currentYOffset;
+                  }
+                  maxYOffset = Math.max(maxYOffset, currentYOffset);
+                }
+              }
+              currentCells = cell.getNextLayerConnectedCells(rankIndex);
+              currentRank = rankIndex + 1;
+            }
+          }
+        }
+      }
+    }
+    /**
+     * Fixes the control points
+     */
+    setEdgePosition(cell) {
+      let offsetX = 0;
+      if (cell.temp[0] !== 101207) {
+        let { maxRank } = cell;
+        let { minRank } = cell;
+        if (maxRank === minRank) {
+          maxRank = cell.source.maxRank;
+          minRank = cell.target.minRank;
+        }
+        let parallelEdgeCount = 0;
+        const jettyPositions = this.jettyPositions;
+        const jettys = jettyPositions[cell.ids[0]];
+        const source = cell.isReversed ? cell.target.cell : cell.source.cell;
+        const { graph } = this.layout;
+        const layoutReversed = this.orientation === "east" || this.orientation === "south";
+        for (let i = 0; i < cell.edges.length; i += 1) {
+          const realEdge = cell.edges[i];
+          const realSource = this.layout.getVisibleTerminal(realEdge, true);
+          const newPoints = [];
+          let reversed = cell.isReversed;
+          if (realSource !== source) {
+            reversed = !reversed;
+          }
+          if (jettys != null) {
+            const arrayOffset = reversed ? 2 : 0;
+            const rankBottomY = this.rankBottomY;
+            const rankTopY = this.rankTopY;
+            let y = reversed ? layoutReversed ? rankBottomY[minRank] : rankTopY[minRank] : layoutReversed ? rankTopY[maxRank] : rankBottomY[maxRank];
+            let jetty = jettys[parallelEdgeCount * 4 + 1 + arrayOffset];
+            if (reversed !== layoutReversed) {
+              jetty = -jetty;
+            }
+            y += jetty;
+            let x = jettys[parallelEdgeCount * 4 + arrayOffset];
+            const modelSource = realEdge.getTerminal(true);
+            if (this.layout.isPort(modelSource) && modelSource.getParent() === realSource) {
+              const state = graph.view.getState(modelSource);
+              if (state != null) {
+                x = state.x;
+              } else {
+                x = realSource.geometry.x + cell.source.width * modelSource.geometry.x;
+              }
+            }
+            if (this.orientation === "north" || this.orientation === "south") {
+              newPoints.push(new Point_default(x, y));
+              if (this.layout.edgeStyle === HierarchicalEdgeStyle_default.CURVE) {
+                newPoints.push(new Point_default(x, y + jetty));
+              }
+            } else {
+              newPoints.push(new Point_default(y, x));
+              if (this.layout.edgeStyle === HierarchicalEdgeStyle_default.CURVE) {
+                newPoints.push(new Point_default(y + jetty, x));
+              }
+            }
+          }
+          let loopStart = cell.x.length - 1;
+          let loopLimit = -1;
+          let loopDelta = -1;
+          let currentRank = cell.maxRank - 1;
+          if (reversed) {
+            loopStart = 0;
+            loopLimit = cell.x.length;
+            loopDelta = 1;
+            currentRank = cell.minRank + 1;
+          }
+          for (let j = loopStart; cell.maxRank !== cell.minRank && j !== loopLimit; j += loopDelta) {
+            const positionX = cell.x[j] + offsetX;
+            const rankTopY = this.rankTopY;
+            const rankBottomY = this.rankBottomY;
+            let topChannelY = (rankTopY[currentRank] + rankBottomY[currentRank + 1]) / 2;
+            let bottomChannelY = (rankTopY[currentRank - 1] + rankBottomY[currentRank]) / 2;
+            if (reversed) {
+              const tmp = topChannelY;
+              topChannelY = bottomChannelY;
+              bottomChannelY = tmp;
+            }
+            if (this.orientation === "north" || this.orientation === "south") {
+              newPoints.push(new Point_default(positionX, topChannelY));
+              newPoints.push(new Point_default(positionX, bottomChannelY));
+            } else {
+              newPoints.push(new Point_default(topChannelY, positionX));
+              newPoints.push(new Point_default(bottomChannelY, positionX));
+            }
+            this.limitX = Math.max(this.limitX, positionX);
+            currentRank += loopDelta;
+          }
+          if (jettys != null) {
+            const arrayOffset = reversed ? 2 : 0;
+            const rankTopY = this.rankTopY;
+            const rankBottomY = this.rankBottomY;
+            const rankY = reversed ? layoutReversed ? rankTopY[maxRank] : rankBottomY[maxRank] : layoutReversed ? rankBottomY[minRank] : rankTopY[minRank];
+            let jetty = jettys[parallelEdgeCount * 4 + 3 - arrayOffset];
+            if (reversed !== layoutReversed) {
+              jetty = -jetty;
+            }
+            const y = rankY - jetty;
+            let x = jettys[parallelEdgeCount * 4 + 2 - arrayOffset];
+            const modelTarget = realEdge.getTerminal(false);
+            const realTarget = this.layout.getVisibleTerminal(realEdge, false);
+            if (this.layout.isPort(modelTarget) && modelTarget.getParent() === realTarget) {
+              const state = graph.view.getState(modelTarget);
+              if (state != null) {
+                x = state.x;
+              } else {
+                x = realTarget.geometry.x + cell.target.width * modelTarget.geometry.x;
+              }
+            }
+            if (this.orientation === "north" || this.orientation === "south") {
+              if (this.layout.edgeStyle === HierarchicalEdgeStyle_default.CURVE) {
+                newPoints.push(new Point_default(x, y - jetty));
+              }
+              newPoints.push(new Point_default(x, y));
+            } else {
+              if (this.layout.edgeStyle === HierarchicalEdgeStyle_default.CURVE) {
+                newPoints.push(new Point_default(y - jetty, x));
+              }
+              newPoints.push(new Point_default(y, x));
+            }
+          }
+          if (cell.isReversed) {
+            this.processReversedEdge(cell, realEdge);
+          }
+          this.layout.setEdgePoints(realEdge, newPoints);
+          if (offsetX === 0) {
+            offsetX = this.parallelEdgeSpacing;
+          } else if (offsetX > 0) {
+            offsetX = -offsetX;
+          } else {
+            offsetX = -offsetX + this.parallelEdgeSpacing;
+          }
+          parallelEdgeCount++;
+        }
+        cell.temp[0] = 101207;
+      }
+    }
+    /**
+     * Fixes the position of the specified vertex.
+     *
+     * @param cell the vertex to position
+     */
+    setVertexLocation(cell) {
+      const realCell = cell.cell;
+      const positionX = cell.x[0] - cell.width / 2;
+      const positionY = cell.y[0] - cell.height / 2;
+      const rankTopY = this.rankTopY;
+      const rankBottomY = this.rankBottomY;
+      rankTopY[cell.minRank] = Math.min(rankTopY[cell.minRank], positionY);
+      rankBottomY[cell.minRank] = Math.max(rankBottomY[cell.minRank], positionY + cell.height);
+      if (this.orientation === "north" || this.orientation === "south") {
+        this.layout.setVertexLocation(realCell, positionX, positionY);
+      } else {
+        this.layout.setVertexLocation(realCell, positionY, positionX);
+      }
+      this.limitX = Math.max(this.limitX, positionX + cell.width);
+    }
+    /**
+     * Hook to add additional processing
+     *
+     * @param edge the hierarchical model edge
+     * @param realEdge the real edge in the graph
+     */
+    processReversedEdge(edge, realEdge) {
+    }
+  };
+  var CoordinateAssignment_default = CoordinateAssignment;
+
+  // node_modules/@maxgraph/core/lib/esm/view/layout/HierarchicalLayout.js
+  var HierarchicalLayout = class extends GraphLayout_default {
+    /**
+     * Constructs a new hierarchical layout algorithm.
+     *
+     * @param graph Reference to the enclosing {@link AbstractGraph}.
+     * @param orientation Optional constant that defines the orientation of this layout. Default is 'north'.
+     * @param deterministic Optional boolean that specifies if this layout should be deterministic. Default is true.
+     */
+    constructor(graph, orientation = "north", deterministic = true) {
+      super(graph);
+      this.parentX = null;
+      this.parentY = null;
+      this.roots = null;
+      this.resizeParent = false;
+      this.maintainParentLocation = false;
+      this.moveParent = false;
+      this.parentBorder = 0;
+      this.intraCellSpacing = 30;
+      this.interRankCellSpacing = 100;
+      this.interHierarchySpacing = 60;
+      this.parallelEdgeSpacing = 10;
+      this.orientation = "north";
+      this.fineTuning = true;
+      this.tightenToSource = true;
+      this.disableEdgeStyle = true;
+      this.traverseAncestors = true;
+      this.model = null;
+      this.edgesCache = /* @__PURE__ */ new Map();
+      this.edgeSourceTermCache = /* @__PURE__ */ new Map();
+      this.edgesTargetTermCache = /* @__PURE__ */ new Map();
+      this.edgeStyle = HierarchicalEdgeStyle_default.POLYLINE;
+      this.orientation = orientation;
+      this.deterministic = deterministic;
+    }
+    /**
+     * Returns the internal <GraphHierarchyModel> for this layout algorithm.
+     */
+    getDataModel() {
+      return this.model;
+    }
+    /**
+     * Executes the layout for the children of the specified parent.
+     *
+     * @param parent Parent <Cell> that contains the children to be laid out.
+     * @param roots Optional starting roots of the layout.
+     */
+    execute(parent, roots = null) {
+      this.parent = parent;
+      this.edgesCache = /* @__PURE__ */ new Map();
+      this.edgeSourceTermCache = /* @__PURE__ */ new Map();
+      this.edgesTargetTermCache = /* @__PURE__ */ new Map();
+      if (roots != null && !(roots instanceof Array)) {
+        roots = [roots];
+      }
+      if (roots == null && parent == null) {
+        return;
+      }
+      this.parentX = null;
+      this.parentY = null;
+      if (parent !== this.graph.getDataModel().root && parent.isVertex() != null && this.maintainParentLocation) {
+        const geo = parent.getGeometry();
+        if (geo != null) {
+          this.parentX = geo.x;
+          this.parentY = geo.y;
+        }
+      }
+      if (roots != null) {
+        const rootsCopy = [];
+        for (let i = 0; i < roots.length; i += 1) {
+          const ancestor = parent != null ? parent.isAncestor(roots[i]) : true;
+          if (ancestor && roots[i].isVertex()) {
+            rootsCopy.push(roots[i]);
+          }
+        }
+        this.roots = rootsCopy;
+      }
+      const { model } = this.graph;
+      model.batchUpdate(() => {
+        this.run(parent);
+        if (this.resizeParent && !parent.isCollapsed()) {
+          this.graph.updateGroupBounds([parent], this.parentBorder, this.moveParent);
+        }
+        if (this.parentX != null && this.parentY != null) {
+          let geo = parent.getGeometry();
+          if (geo != null) {
+            geo = geo.clone();
+            geo.x = this.parentX;
+            geo.y = this.parentY;
+            model.setGeometry(parent, geo);
+          }
+        }
+      });
+    }
+    /**
+     * Returns all visible children in the given parent which do not have
+     * incoming edges. If the result is empty then the children with the
+     * maximum difference between incoming and outgoing edges are returned.
+     * This takes into account edges that are being promoted to the given
+     * root due to invisible children or collapsed cells.
+     *
+     * @param parent <Cell> whose children should be checked.
+     * @param vertices array of vertices to limit search to
+     */
+    findRoots(parent, vertices) {
+      const roots = [];
+      if (parent != null && vertices != null) {
+        const { model } = this.graph;
+        let best = null;
+        let maxDiff = -1e5;
+        for (const i in vertices) {
+          const cell = vertices[i];
+          if (cell.isVertex() && cell.isVisible()) {
+            const conns = this.getEdges(cell);
+            let fanOut = 0;
+            let fanIn = 0;
+            for (let k = 0; k < conns.length; k++) {
+              const src = this.getVisibleTerminal(conns[k], true);
+              if (src === cell) {
+                fanOut++;
+              } else {
+                fanIn++;
+              }
+            }
+            if (fanIn === 0 && fanOut > 0) {
+              roots.push(cell);
+            }
+            const diff = fanOut - fanIn;
+            if (diff > maxDiff) {
+              maxDiff = diff;
+              best = cell;
+            }
+          }
+        }
+        if (roots.length === 0 && best != null) {
+          roots.push(best);
+        }
+      }
+      return roots;
+    }
+    /**
+     * Returns the connected edges for the given cell.
+     *
+     * @param cell <Cell> whose edges should be returned.
+     */
+    getEdges(cell) {
+      const cachedEdges = this.edgesCache.get(cell);
+      if (cachedEdges) {
+        return cachedEdges;
+      }
+      let edges = [];
+      const isCollapsed = cell.isCollapsed();
+      const childCount = cell.getChildCount();
+      for (let i = 0; i < childCount; i += 1) {
+        const child = cell.getChildAt(i);
+        if (this.isPort(child)) {
+          edges = edges.concat(child.getEdges(true, true));
+        } else if (isCollapsed || !child.isVisible()) {
+          edges = edges.concat(child.getEdges(true, true));
+        }
+      }
+      edges = edges.concat(cell.getEdges(true, true));
+      const result = [];
+      for (let i = 0; i < edges.length; i += 1) {
+        const source = this.getVisibleTerminal(edges[i], true);
+        const target = this.getVisibleTerminal(edges[i], false);
+        if (source === target || source !== target && (target === cell && (this.parent == null || this.isAncestor(this.parent, source, this.traverseAncestors)) || source === cell && (this.parent == null || this.isAncestor(this.parent, target, this.traverseAncestors)))) {
+          result.push(edges[i]);
+        }
+      }
+      this.edgesCache.set(cell, result);
+      return result;
+    }
+    /**
+     * Helper function to return visible terminal for edge allowing for ports
+     *
+     * @param edge <Cell> whose edges should be returned.
+     * @param source Boolean that specifies whether the source or target terminal is to be returned
+     */
+    getVisibleTerminal(edge, source) {
+      const terminalCache = source ? this.edgeSourceTermCache : this.edgesTargetTermCache;
+      const term = terminalCache.get(edge);
+      if (term) {
+        return term;
+      }
+      const state = this.graph.view.getState(edge);
+      let terminal2 = state != null ? state.getVisibleTerminal(source) : this.graph.view.getVisibleTerminal(edge, source);
+      if (terminal2 == null) {
+        terminal2 = state != null ? state.getVisibleTerminal(source) : this.graph.view.getVisibleTerminal(edge, source);
+      }
+      if (terminal2 != null) {
+        if (this.isPort(terminal2)) {
+          terminal2 = terminal2.getParent();
+        }
+        terminalCache.set(edge, terminal2);
+      }
+      return terminal2;
+    }
+    /**
+     * The API method used to exercise the layout upon the graph description
+     * and produce a separate description of the vertex position and edge
+     * routing changes made. It runs each stage of the layout that has been
+     * created.
+     */
+    run(parent) {
+      const hierarchyVertices = [];
+      const allVertexSet = {};
+      if (this.roots == null && parent != null) {
+        const filledVertexSet = Object();
+        this.filterDescendants(parent, filledVertexSet);
+        this.roots = [];
+        let filledVertexSetEmpty = true;
+        for (const key in filledVertexSet) {
+          if (filledVertexSet[key] != null) {
+            filledVertexSetEmpty = false;
+            break;
+          }
+        }
+        while (!filledVertexSetEmpty) {
+          const candidateRoots = this.findRoots(parent, filledVertexSet);
+          for (let i = 0; i < candidateRoots.length; i += 1) {
+            const vertexSet = Object();
+            hierarchyVertices.push(vertexSet);
+            this.traverse({
+              vertex: candidateRoots[i],
+              directed: true,
+              edge: null,
+              allVertices: allVertexSet,
+              currentComp: vertexSet,
+              hierarchyVertices,
+              filledVertexSet,
+              func: null,
+              visited: null
+            });
+          }
+          for (let i = 0; i < candidateRoots.length; i += 1) {
+            this.roots.push(candidateRoots[i]);
+          }
+          filledVertexSetEmpty = true;
+          for (const key in filledVertexSet) {
+            if (filledVertexSet[key] != null) {
+              filledVertexSetEmpty = false;
+              break;
+            }
+          }
+        }
+      } else {
+        const roots = this.roots;
+        for (let i = 0; i < roots.length; i += 1) {
+          const vertexSet = Object();
+          hierarchyVertices.push(vertexSet);
+          this.traverse({
+            vertex: roots[i],
+            directed: true,
+            edge: null,
+            allVertices: allVertexSet,
+            currentComp: vertexSet,
+            hierarchyVertices,
+            filledVertexSet: null,
+            func: null,
+            visited: null
+          });
+        }
+      }
+      let initialX = 0;
+      for (let i = 0; i < hierarchyVertices.length; i += 1) {
+        const vertexSet = hierarchyVertices[i];
+        const tmp = [];
+        for (const key in vertexSet) {
+          tmp.push(vertexSet[key]);
+        }
+        this.model = new GraphHierarchyModel_default(this, tmp, this.roots, parent, this.tightenToSource);
+        this.cycleStage(parent);
+        this.layeringStage();
+        this.crossingStage(parent);
+        initialX = this.placementStage(initialX, parent);
+      }
+    }
+    /**
+     * Creates an array of descendant cells
+     */
+    filterDescendants(cell, result) {
+      const { model } = this.graph;
+      if (cell.isVertex() && cell !== this.parent && cell.isVisible()) {
+        result[ObjectIdentity_default.get(cell)] = cell;
+      }
+      if (this.traverseAncestors || cell === this.parent && cell.isVisible()) {
+        const childCount = cell.getChildCount();
+        for (let i = 0; i < childCount; i += 1) {
+          const child = cell.getChildAt(i);
+          if (!this.isPort(child)) {
+            this.filterDescendants(child, result);
+          }
+        }
+      }
+    }
+    /**
+     * Returns true if the given cell is a "port", that is, when connecting to
+     * it, its parent is the connecting vertex in terms of graph traversal
+     *
+     * @param cell <Cell> that represents the port.
+     */
+    isPort(cell) {
+      if (cell != null && cell.geometry != null) {
+        return cell.geometry.relative;
+      }
+      return false;
+    }
+    /**
+     * Returns the edges between the given source and target. This takes into
+     * account collapsed and invisible cells and ports.
+     *
+     * source -
+     * target -
+     * directed -
+     */
+    getEdgesBetween(source, target, directed) {
+      directed = directed != null ? directed : false;
+      const edges = this.getEdges(source);
+      const result = [];
+      for (let i = 0; i < edges.length; i += 1) {
+        const src = this.getVisibleTerminal(edges[i], true);
+        const trg = this.getVisibleTerminal(edges[i], false);
+        if (src === source && trg === target || !directed && src === target && trg === source) {
+          result.push(edges[i]);
+        }
+      }
+      return result;
+    }
+    /**
+     * Traverses the (directed) graph invoking the given function for each
+     * visited vertex and edge. The function is invoked with the current vertex
+     * and the incoming edge as a parameter. This implementation makes sure
+     * each vertex is only visited once. The function may return false if the
+     * traversal should stop at the given vertex.
+     *
+     * @param vertex <Cell> that represents the vertex where the traversal starts.
+     * @param directed boolean indicating if edges should only be traversed
+     * from source to target. Default is true.
+     * @param edge Optional <Cell> that represents the incoming edge. This is
+     * null for the first step of the traversal.
+     * @param allVertices Array of cell paths for the visited cells.
+     */
+    traverse({ vertex, directed, allVertices, currentComp, hierarchyVertices, filledVertexSet }) {
+      if (vertex != null && allVertices != null) {
+        const vertexID = ObjectIdentity_default.get(vertex);
+        if (allVertices[vertexID] == null && (filledVertexSet == null ? true : filledVertexSet[vertexID] != null)) {
+          if (currentComp[vertexID] == null) {
+            currentComp[vertexID] = vertex;
+          }
+          if (allVertices[vertexID] == null) {
+            allVertices[vertexID] = vertex;
+          }
+          if (filledVertexSet !== null) {
+            delete filledVertexSet[vertexID];
+          }
+          const edges = this.getEdges(vertex);
+          const edgeIsSource = [];
+          for (let i = 0; i < edges.length; i += 1) {
+            edgeIsSource[i] = this.getVisibleTerminal(edges[i], true) == vertex;
+          }
+          for (let i = 0; i < edges.length; i += 1) {
+            if (!directed || edgeIsSource[i]) {
+              const next = this.getVisibleTerminal(edges[i], !edgeIsSource[i]);
+              let netCount = 1;
+              for (let j = 0; j < edges.length; j++) {
+                if (j !== i) {
+                  const isSource2 = edgeIsSource[j];
+                  const otherTerm = this.getVisibleTerminal(edges[j], !isSource2);
+                  if (otherTerm === next) {
+                    if (isSource2) {
+                      netCount++;
+                    } else {
+                      netCount--;
+                    }
+                  }
+                }
+              }
+              if (netCount >= 0) {
+                currentComp = this.traverse({
+                  vertex: next,
+                  directed,
+                  edge: edges[i],
+                  allVertices,
+                  currentComp,
+                  hierarchyVertices,
+                  filledVertexSet,
+                  func: null,
+                  visited: null
+                });
+              }
+            }
+          }
+        } else if (currentComp[vertexID] == null) {
+          for (let i = 0; i < hierarchyVertices.length; i += 1) {
+            const comp = hierarchyVertices[i];
+            if (comp[vertexID] != null) {
+              for (const key in comp) {
+                currentComp[key] = comp[key];
+              }
+              hierarchyVertices.splice(i, 1);
+              return currentComp;
+            }
+          }
+        }
+      }
+      return currentComp;
+    }
+    /**
+     * Executes the cycle stage using mxMinimumCycleRemover.
+     */
+    cycleStage(parent) {
+      const cycleStage = new MinimumCycleRemover_default(this);
+      cycleStage.execute(parent);
+    }
+    /**
+     * Implements first stage of a Sugiyama layout.
+     */
+    layeringStage() {
+      const model = this.model;
+      model.initialRank();
+      model.fixRanks();
+    }
+    /**
+     * Executes the crossing stage using mxMedianHybridCrossingReduction.
+     */
+    crossingStage(parent) {
+      const crossingStage = new MedianHybridCrossingReduction_default(this);
+      crossingStage.execute(parent);
+    }
+    /**
+     * Executes the placement stage using mxCoordinateAssignment.
+     */
+    placementStage(initialX, parent) {
+      const placementStage = new CoordinateAssignment_default(this, this.intraCellSpacing, this.interRankCellSpacing, this.orientation, initialX, this.parallelEdgeSpacing);
+      placementStage.fineTuning = this.fineTuning;
+      placementStage.execute(parent);
+      return placementStage.limitX + this.interHierarchySpacing;
+    }
+  };
+  var HierarchicalLayout_default = HierarchicalLayout;
+
   // src/main/frontend/domui-maxgraph.ts
   EdgeHandlerConfig.virtualBendsEnabled = true;
   var CONNECT_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"><circle cx="7" cy="7" r="6" fill="#82b366" stroke="#ffffff" stroke-width="2"/></svg>');
@@ -27588,6 +31543,8 @@ var DomUIMaxGraph = (() => {
       queue: [],
       cellById: /* @__PURE__ */ new Map(),
       applying: false,
+      layingOut: false,
+      pendingLayout: null,
       editable: false,
       keyHandler,
       palette
@@ -27624,6 +31581,17 @@ var DomUIMaxGraph = (() => {
     }
     applyDelta(id, instance, delta);
   }
+  function layout(id, request) {
+    const instance = instances.get(id);
+    if (void 0 === instance) {
+      return;
+    }
+    if (!instance.loaded) {
+      instance.pendingLayout = request;
+      return;
+    }
+    runLayout(id, instance, request);
+  }
   function graphFor(id) {
     var _a2;
     return (_a2 = instances.get(id)) == null ? void 0 : _a2.graph;
@@ -27650,6 +31618,11 @@ var DomUIMaxGraph = (() => {
       instance.queue = [];
       for (const delta of queue) {
         applyDelta(id, instance, delta);
+      }
+      const waiting = instance.pendingLayout;
+      if (null !== waiting) {
+        instance.pendingLayout = null;
+        runLayout(id, instance, waiting);
       }
     });
   }
@@ -27766,9 +31739,47 @@ var DomUIMaxGraph = (() => {
     keyHandler.bindControlKey(89, () => send(id, instance, [{ op: "requestRedo", id: "" }]));
     keyHandler.bindControlShiftKey(90, () => send(id, instance, [{ op: "requestRedo", id: "" }]));
   }
+  function runLayout(id, instance, request) {
+    const graph = instance.graph;
+    const layout2 = layoutFor(graph, request);
+    if (null === layout2) {
+      console.error("DomUIMaxGraph: unknown layout '" + request.layout + "'");
+      return;
+    }
+    const was = instance.layingOut;
+    instance.layingOut = true;
+    try {
+      graph.batchUpdate(() => layout2.execute(graph.getDefaultParent()));
+    } finally {
+      instance.layingOut = was;
+    }
+  }
+  function layoutFor(graph, request) {
+    const horizontal = "east" === request.direction || "west" === request.direction;
+    const inverted = "east" === request.direction || "south" === request.direction;
+    switch (request.layout) {
+      default:
+        return null;
+      case "hierarchical":
+        return new HierarchicalLayout_default(graph, request.direction);
+      case "organic":
+        return new FastOrganicLayout_default(graph);
+      case "circle":
+        return new CircleLayout_default(graph);
+      case "tree":
+        return new CompactTreeLayout_default(graph, horizontal, inverted);
+      case "radialTree":
+        return new RadialTreeLayout_default(graph);
+      case "parallelEdges":
+        return new ParallelEdgeLayout_default(graph);
+    }
+  }
   function sendChanges(id, instance, edit) {
     var _a2;
-    if (instance.applying || !instance.editable || void 0 === edit) {
+    if (instance.applying || void 0 === edit) {
+      return;
+    }
+    if (!instance.editable && !instance.layingOut) {
       return;
     }
     const ops = [];
