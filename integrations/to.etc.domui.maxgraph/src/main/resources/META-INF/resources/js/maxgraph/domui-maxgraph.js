@@ -27123,7 +27123,438 @@ var DomUIMaxGraph = (() => {
   };
   var KeyHandler_default = KeyHandler;
 
+  // node_modules/@maxgraph/core/lib/esm/util/gestureUtils.js
+  var gestureUtils_exports = {};
+  __export(gestureUtils_exports, {
+    makeDraggable: () => makeDraggable
+  });
+
+  // node_modules/@maxgraph/core/lib/esm/view/other/DragSource.js
+  var DragSource = class {
+    constructor(element, dropHandler) {
+      this.dragOffset = null;
+      this.dragElement = null;
+      this.previewElement = null;
+      this.previewOffset = null;
+      this.enabled = true;
+      this.currentGraph = null;
+      this.currentDropTarget = null;
+      this.currentPoint = null;
+      this.currentGuide = null;
+      this.currentHighlight = null;
+      this.autoscroll = true;
+      this.guidesEnabled = true;
+      this.gridEnabled = true;
+      this.highlightDropTargets = true;
+      this.dragElementZIndex = 100;
+      this.dragElementOpacity = 70;
+      this.checkEventSource = true;
+      this.mouseMoveHandler = null;
+      this.mouseUpHandler = null;
+      this.eventSource = null;
+      this.element = element;
+      this.dropHandler = dropHandler;
+      InternalEvent_default.addGestureListeners(element, (evt) => {
+        this.mouseDown(evt);
+      });
+      InternalEvent_default.addListener(element, "dragstart", (evt) => {
+        InternalEvent_default.consume(evt);
+      });
+      this.eventConsumer = (sender, evt) => {
+        const evtName = evt.getProperty("eventName");
+        const me = evt.getProperty("event");
+        if (evtName !== InternalEvent_default.MOUSE_DOWN) {
+          me.consume();
+        }
+      };
+    }
+    /**
+     * Returns {@link enabled}.
+     */
+    isEnabled() {
+      return this.enabled;
+    }
+    /**
+     * Sets {@link enabled}.
+     */
+    setEnabled(value) {
+      this.enabled = value;
+    }
+    /**
+     * Returns {@link guidesEnabled}.
+     */
+    isGuidesEnabled() {
+      return this.guidesEnabled;
+    }
+    /**
+     * Sets {@link guidesEnabled}.
+     */
+    setGuidesEnabled(value) {
+      this.guidesEnabled = value;
+    }
+    /**
+     * Returns {@link gridEnabled}.
+     */
+    isGridEnabled() {
+      return this.gridEnabled;
+    }
+    /**
+     * Sets {@link gridEnabled}.
+     */
+    setGridEnabled(value) {
+      this.gridEnabled = value;
+    }
+    /**
+     * Returns the graph for the given mouse event. This implementation returns
+     * null.
+     */
+    getGraphForEvent(evt) {
+      return null;
+    }
+    /**
+     * Returns the drop target for the given graph and coordinates.
+     * This implementation uses {@link AbstractGraph.getCellAt}.
+     */
+    getDropTarget(graph, x, y, evt) {
+      return graph.getCellAt(x, y);
+    }
+    /**
+     * Creates and returns a clone of the {@link dragElementPrototype} or the {@link element}
+     * if the former is not defined.
+     */
+    createDragElement(evt) {
+      return this.element.cloneNode(true);
+    }
+    /**
+     * Creates and returns an element which can be used as a preview in the given
+     * graph.
+     */
+    createPreviewElement(graph) {
+      return null;
+    }
+    /**
+     * Returns true if this drag source is active.
+     */
+    isActive() {
+      return !!this.mouseMoveHandler;
+    }
+    /**
+     * Stops and removes everything and restores the state of the object.
+     */
+    reset() {
+      if (this.currentGraph) {
+        this.dragExit(this.currentGraph);
+        this.currentGraph = null;
+      }
+      this.removeDragElement();
+      this.removeListeners();
+      this.stopDrag();
+    }
+    /**
+     * Returns the drop target for the given graph and coordinates.
+     * This implementation uses {@link AbstractGraph.getCellAt}.
+     *
+     * To ignore popup menu events for a drag source, this function can be overridden as follows.
+     *
+     * ```javascript
+     * const mouseDown = dragSource.mouseDown;
+     *
+     * dragSource.mouseDown(evt) {
+     *   if (!EventUtils.isPopupTrigger(evt)) {
+     *     mouseDown.apply(this, [evt]);
+     *   }
+     * };
+     * ```
+     */
+    mouseDown(evt) {
+      if (this.enabled && !isConsumed(evt) && this.mouseMoveHandler == null) {
+        this.startDrag(evt);
+        this.mouseMoveHandler = this.mouseMove.bind(this);
+        this.mouseUpHandler = this.mouseUp.bind(this);
+        InternalEvent_default.addGestureListeners(document, null, this.mouseMoveHandler, this.mouseUpHandler);
+        if (Client_default.IS_TOUCH && !isMouseEvent(evt)) {
+          this.eventSource = getSource(evt);
+          if (this.eventSource) {
+            InternalEvent_default.addGestureListeners(this.eventSource, null, this.mouseMoveHandler, this.mouseUpHandler);
+          }
+        }
+      }
+    }
+    /**
+     * Creates the {@link dragElement} using {@link createDragElement}.
+     */
+    startDrag(evt) {
+      this.dragElement = this.createDragElement(evt);
+      this.dragElement.style.position = "absolute";
+      this.dragElement.style.zIndex = String(this.dragElementZIndex);
+      setOpacity(this.dragElement, this.dragElementOpacity);
+      if (this.checkEventSource && Client_default.IS_SVG) {
+        this.dragElement.style.pointerEvents = "none";
+      }
+    }
+    /**
+     * Invokes {@link removeDragElement}.
+     */
+    stopDrag() {
+      this.removeDragElement();
+    }
+    /**
+     * Removes and destroys the {@link dragElement}.
+     */
+    removeDragElement() {
+      if (this.dragElement) {
+        if (this.dragElement.parentNode) {
+          this.dragElement.parentNode.removeChild(this.dragElement);
+        }
+        this.dragElement = null;
+      }
+    }
+    /**
+     * Returns the topmost element under the given event.
+     */
+    getElementForEvent(evt) {
+      return isTouchEvent(evt) || isPenEvent(evt) ? document.elementFromPoint(getClientX(evt), getClientY(evt)) : getSource(evt);
+    }
+    /**
+     * Returns true if the given graph contains the given event.
+     */
+    graphContainsEvent(graph, evt) {
+      const x = getClientX(evt);
+      const y = getClientY(evt);
+      const offset = getOffset(graph.container);
+      const origin = getScrollOrigin();
+      let elt = this.getElementForEvent(evt);
+      if (this.checkEventSource) {
+        while (elt && elt !== graph.container) {
+          elt = elt.parentNode;
+        }
+      }
+      return !!elt && x >= offset.x - origin.x && y >= offset.y - origin.y && x <= offset.x - origin.x + graph.container.offsetWidth && y <= offset.y - origin.y + graph.container.offsetHeight;
+    }
+    /**
+     * Gets the graph for the given event using {@link getGraphForEvent}, updates the
+     * {@link currentGraph}, calling {@link dragEnter} and {@link dragExit} on the new and old graph,
+     * respectively, and invokes {@link dragOver} if {@link currentGraph} is not null.
+     */
+    mouseMove(evt) {
+      let graph = this.getGraphForEvent(evt);
+      if (graph && !this.graphContainsEvent(graph, evt)) {
+        graph = null;
+      }
+      if (graph !== this.currentGraph) {
+        if (this.currentGraph) {
+          this.dragExit(this.currentGraph, evt);
+        }
+        this.currentGraph = graph;
+        if (this.currentGraph) {
+          this.dragEnter(this.currentGraph, evt);
+        }
+      }
+      if (this.currentGraph) {
+        this.dragOver(this.currentGraph, evt);
+      }
+      if (this.dragElement && (!this.previewElement || this.previewElement.style.visibility !== "visible")) {
+        let x = getClientX(evt);
+        let y = getClientY(evt);
+        if (this.dragElement.parentNode == null) {
+          document.body.appendChild(this.dragElement);
+        }
+        this.dragElement.style.visibility = "visible";
+        if (this.dragOffset) {
+          x += this.dragOffset.x;
+          y += this.dragOffset.y;
+        }
+        const offset = getDocumentScrollOrigin(document);
+        this.dragElement.style.left = `${x + offset.x}px`;
+        this.dragElement.style.top = `${y + offset.y}px`;
+      } else if (this.dragElement) {
+        this.dragElement.style.visibility = "hidden";
+      }
+      InternalEvent_default.consume(evt);
+    }
+    /**
+     * Processes the mouse up event and invokes {@link drop}, {@link dragExit} and {@link stopDrag}
+     * as required.
+     */
+    mouseUp(evt) {
+      if (this.currentGraph) {
+        if (this.currentPoint && (!this.previewElement || this.previewElement.style.visibility !== "hidden")) {
+          const { scale } = this.currentGraph.view;
+          const tr = this.currentGraph.view.translate;
+          const x = this.currentPoint.x / scale - tr.x;
+          const y = this.currentPoint.y / scale - tr.y;
+          this.drop(this.currentGraph, evt, this.currentDropTarget, x, y);
+        }
+        this.dragExit(this.currentGraph);
+        this.currentGraph = null;
+      }
+      this.stopDrag();
+      this.removeListeners();
+      InternalEvent_default.consume(evt);
+    }
+    /**
+     * Actives the given graph as a drop target.
+     */
+    // removeListeners(): void;
+    removeListeners() {
+      if (this.eventSource) {
+        InternalEvent_default.removeGestureListeners(this.eventSource, null, this.mouseMoveHandler, this.mouseUpHandler);
+        this.eventSource = null;
+      }
+      InternalEvent_default.removeGestureListeners(document, null, this.mouseMoveHandler, this.mouseUpHandler);
+      this.mouseMoveHandler = null;
+      this.mouseUpHandler = null;
+    }
+    /**
+     * Actives the given graph as a drop target.
+     */
+    dragEnter(graph, evt) {
+      var _a2;
+      graph.isMouseDown = true;
+      graph.isMouseTrigger = isMouseEvent(evt);
+      this.previewElement = this.createPreviewElement(graph);
+      if (this.previewElement && this.checkEventSource && Client_default.IS_SVG) {
+        this.previewElement.style.pointerEvents = "none";
+      }
+      if (this.isGuidesEnabled() && this.previewElement) {
+        const selectionHandler = graph.getPlugin("SelectionHandler");
+        this.currentGuide = new Guide_default(graph, (_a2 = selectionHandler == null ? void 0 : selectionHandler.getGuideStates()) != null ? _a2 : []);
+      }
+      if (this.highlightDropTargets) {
+        this.currentHighlight = new CellHighlight_default(graph, DROP_TARGET_COLOR);
+      }
+      graph.addListener(InternalEvent_default.FIRE_MOUSE_EVENT, this.eventConsumer);
+    }
+    /**
+     * Deactivates the given graph as a drop target.
+     */
+    dragExit(graph, evt) {
+      this.currentDropTarget = null;
+      this.currentPoint = null;
+      graph.isMouseDown = false;
+      graph.removeListener(this.eventConsumer);
+      if (this.previewElement) {
+        if (this.previewElement.parentNode) {
+          this.previewElement.parentNode.removeChild(this.previewElement);
+        }
+        this.previewElement = null;
+      }
+      if (this.currentGuide) {
+        this.currentGuide.destroy();
+        this.currentGuide = null;
+      }
+      if (this.currentHighlight) {
+        this.currentHighlight.destroy();
+        this.currentHighlight = null;
+      }
+    }
+    /**
+     * Implements autoscroll, updates the {@link currentPoint}, highlights any drop
+     * targets and updates the preview.
+     */
+    dragOver(graph, evt) {
+      const offset = getOffset(graph.container);
+      const origin = getScrollOrigin(graph.container);
+      let x = getClientX(evt) - offset.x + origin.x - graph.getPanDx();
+      let y = getClientY(evt) - offset.y + origin.y - graph.getPanDy();
+      if (graph.isAutoScroll() && (!this.autoscroll || this.autoscroll)) {
+        graph.scrollPointToVisible(x, y, graph.isAutoExtend());
+      }
+      if (this.currentHighlight && graph.isDropEnabled()) {
+        this.currentDropTarget = this.getDropTarget(graph, x, y, evt);
+        if (this.currentDropTarget) {
+          const state = graph.getView().getState(this.currentDropTarget);
+          this.currentHighlight.highlight(state);
+        }
+      }
+      if (this.previewElement) {
+        if (!this.previewElement.parentNode) {
+          graph.container.appendChild(this.previewElement);
+          this.previewElement.style.zIndex = "3";
+          this.previewElement.style.position = "absolute";
+        }
+        const gridEnabled = this.isGridEnabled() && graph.isGridEnabledEvent(evt);
+        let hideGuide = true;
+        if (this.currentGuide && this.currentGuide.isEnabledForEvent(evt)) {
+          const w = Number.parseInt(this.previewElement.style.width);
+          const h = Number.parseInt(this.previewElement.style.height);
+          const bounds = new Rectangle_default(0, 0, w, h);
+          let delta = new Point_default(x, y);
+          delta = this.currentGuide.move(bounds, delta, gridEnabled, true);
+          hideGuide = false;
+          x = delta.x;
+          y = delta.y;
+        } else if (gridEnabled) {
+          const { scale } = graph.view;
+          const tr = graph.view.translate;
+          const off = graph.getGridSize() / 2;
+          x = (graph.snap(x / scale - tr.x - off) + tr.x) * scale;
+          y = (graph.snap(y / scale - tr.y - off) + tr.y) * scale;
+        }
+        if (this.currentGuide && hideGuide) {
+          this.currentGuide.hide();
+        }
+        if (this.previewOffset) {
+          x += this.previewOffset.x;
+          y += this.previewOffset.y;
+        }
+        this.previewElement.style.left = `${Math.round(x)}px`;
+        this.previewElement.style.top = `${Math.round(y)}px`;
+        this.previewElement.style.visibility = "visible";
+      }
+      this.currentPoint = new Point_default(x, y);
+    }
+    /**
+     * Returns the drop target for the given graph and coordinates. This
+     * implementation uses {@link AbstractGraph.getCellAt}.
+     */
+    drop(graph, evt, dropTarget = null, x, y) {
+      this.dropHandler(graph, evt, dropTarget, x, y);
+      if (graph.container.style.visibility !== "hidden") {
+        graph.container.focus();
+      }
+    }
+  };
+  var DragSource_default = DragSource;
+
+  // node_modules/@maxgraph/core/lib/esm/util/gestureUtils.js
+  var makeDraggable = (element, graphF, funct, dragElement = null, dx = null, dy = null, autoscroll = null, scalePreview = false, highlightDropTargets = true, getDropTarget = null) => {
+    const dragSource = new DragSource_default(element, funct);
+    dragSource.dragOffset = new Point_default(dx != null ? dx : 0, dy != null ? dy : TOOLTIP_VERTICAL_OFFSET);
+    if (autoscroll != null) {
+      dragSource.autoscroll = autoscroll;
+    }
+    dragSource.setGuidesEnabled(false);
+    if (highlightDropTargets != null) {
+      dragSource.highlightDropTargets = highlightDropTargets;
+    }
+    if (getDropTarget != null) {
+      dragSource.getDropTarget = getDropTarget;
+    }
+    dragSource.getGraphForEvent = (evt) => {
+      return typeof graphF === "function" ? graphF(evt) : graphF;
+    };
+    if (dragElement != null) {
+      dragSource.createDragElement = () => {
+        return dragElement.cloneNode(true);
+      };
+      if (scalePreview) {
+        dragSource.createPreviewElement = (graph) => {
+          const elt = dragElement.cloneNode(true);
+          const w = Number.parseInt(elt.style.width);
+          const h = Number.parseInt(elt.style.height);
+          elt.style.width = `${Math.round(w * graph.view.scale)}px`;
+          elt.style.height = `${Math.round(h * graph.view.scale)}px`;
+          return elt;
+        };
+      }
+    }
+    return dragSource;
+  };
+
   // src/main/frontend/domui-maxgraph.ts
+  EdgeHandlerConfig.virtualBendsEnabled = true;
+  var CONNECT_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"><circle cx="7" cy="7" r="6" fill="#82b366" stroke="#ffffff" stroke-width="2"/></svg>');
   var instances = /* @__PURE__ */ new Map();
   function create(id, options = {}) {
     const container = document.getElementById(id);
@@ -27135,11 +27566,19 @@ var DomUIMaxGraph = (() => {
     if (options.imageBase) {
       Client_default.setImageBasePath(options.imageBase);
     }
-    InternalEvent_default.disableContextMenu(container);
-    const graph = new Graph(container);
-    editingAllowed(graph, false);
+    container.innerHTML = "";
+    const palette = document.createElement("div");
+    palette.className = "ui-mxgr-palette";
+    palette.hidden = true;
+    container.appendChild(palette);
+    const canvas = document.createElement("div");
+    canvas.className = "ui-mxgr-canvas";
+    container.appendChild(canvas);
+    InternalEvent_default.disableContextMenu(canvas);
+    const graph = new Graph(canvas);
+    editingAllowed(graph, false, false);
     zoomOnCtrlWheel(graph);
-    const keyHandler = new KeyHandler_default(graph, container);
+    const keyHandler = new KeyHandler_default(graph, canvas);
     keyHandler.bindKey(46, () => graph.removeCells(graph.getSelectionCells(), true));
     keyHandler.setEnabled(false);
     const instance = {
@@ -27150,12 +27589,14 @@ var DomUIMaxGraph = (() => {
       cellById: /* @__PURE__ */ new Map(),
       applying: false,
       editable: false,
-      keyHandler
+      keyHandler,
+      palette
     };
     instances.set(id, instance);
-    container.addEventListener("pointerdown", () => {
+    askForEdges(id, instance);
+    canvas.addEventListener("pointerdown", () => {
       if (instance.editable) {
-        container.focus();
+        canvas.focus();
       }
     });
     graph.getDataModel().addListener(InternalEvent_default.CHANGE, (_sender, event) => {
@@ -27186,14 +27627,15 @@ var DomUIMaxGraph = (() => {
     var _a2;
     return (_a2 = instances.get(id)) == null ? void 0 : _a2.graph;
   }
-  function editingAllowed(graph, editable) {
-    graph.setCellsEditable(false);
-    graph.setCellsBendable(false);
-    graph.setConnectable(false);
+  function editingAllowed(graph, editable, connectable) {
     graph.setDropEnabled(false);
     graph.setCellsMovable(editable);
     graph.setCellsResizable(editable);
     graph.setCellsDeletable(editable);
+    graph.setCellsEditable(editable);
+    graph.setCellsBendable(editable);
+    graph.setConnectable(editable && connectable);
+    graph.setAllowDanglingEdges(false);
   }
   function load(id, instance) {
     instance.loaded = false;
@@ -27201,7 +27643,7 @@ var DomUIMaxGraph = (() => {
       if (instances.get(id) !== instance) {
         return;
       }
-      build(instance, response);
+      build(id, instance, response);
       instance.loaded = true;
       const queue = instance.queue;
       instance.queue = [];
@@ -27210,23 +27652,24 @@ var DomUIMaxGraph = (() => {
       }
     });
   }
-  function build(instance, doc) {
-    var _a2, _b;
+  function build(id, instance, doc) {
+    var _a2, _b, _c, _d, _e;
     const graph = instance.graph;
     instance.version = doc.version;
     instance.cellById.clear();
     graph.setPanning(((_a2 = doc.options) == null ? void 0 : _a2.panning) !== false);
     instance.editable = ((_b = doc.options) == null ? void 0 : _b.editable) === true;
-    editingAllowed(graph, instance.editable);
+    editingAllowed(graph, instance.editable, ((_c = doc.options) == null ? void 0 : _c.connectable) === true);
     instance.keyHandler.setEnabled(instance.editable);
-    const container = graph.container;
-    if (null != container) {
+    const canvas = graph.container;
+    if (null != canvas) {
       if (instance.editable) {
-        container.setAttribute("tabindex", "0");
+        canvas.setAttribute("tabindex", "0");
       } else {
-        container.removeAttribute("tabindex");
+        canvas.removeAttribute("tabindex");
       }
     }
+    buildPalette(id, instance, (_e = (_d = doc.options) == null ? void 0 : _d.palette) != null ? _e : []);
     withoutEcho(instance, () => graph.batchUpdate(() => {
       var _a3;
       for (const child of graph.getChildCells(graph.getDefaultParent(), true, true)) {
@@ -27275,6 +27718,48 @@ var DomUIMaxGraph = (() => {
       instance.version = delta.version;
     }
   }
+  function askForEdges(id, instance) {
+    const handler = instance.graph.getPlugin("ConnectionHandler");
+    if (void 0 === handler) {
+      return;
+    }
+    handler.connectImage = new ImageBox_default(CONNECT_ICON, 14, 14);
+    handler.connect = (source, target) => {
+      const from = idOf(source);
+      const to = idOf(target);
+      if (null !== from && null !== to) {
+        send(id, instance, [{ op: "requestEdge", id: from, source: from, target: to }]);
+      }
+    };
+  }
+  function buildPalette(id, instance, items) {
+    var _a2;
+    const palette = instance.palette;
+    palette.innerHTML = "";
+    palette.hidden = 0 === items.length || !instance.editable;
+    if (palette.hidden) {
+      return;
+    }
+    for (const item of items) {
+      const element = document.createElement("div");
+      element.className = "ui-mxgr-pi";
+      element.textContent = (_a2 = item.label) != null ? _a2 : item.key;
+      palette.appendChild(element);
+      const preview = document.createElement("div");
+      preview.className = "ui-mxgr-pi-drag";
+      preview.style.width = item.w + "px";
+      preview.style.height = item.h + "px";
+      gestureUtils_exports.makeDraggable(element, instance.graph, (_graph, _event, _cell, x, y) => {
+        send(id, instance, [{
+          op: "requestNode",
+          id: item.key,
+          key: item.key,
+          x: (x != null ? x : 0) - item.w / 2,
+          y: (y != null ? y : 0) - item.h / 2
+        }]);
+      }, preview);
+    }
+  }
   function sendChanges(id, instance, edit) {
     var _a2;
     if (instance.applying || !instance.editable || void 0 === edit) {
@@ -27293,12 +27778,15 @@ var DomUIMaxGraph = (() => {
     if (0 === ops.length) {
       return;
     }
+    send(id, instance, ops);
+  }
+  function send(id, instance, ops) {
     WebUI.sendJsonAction(id, "GRAPHCHANGE", { base: instance.version, ops });
   }
   function translate2(change) {
     var _a2;
     if (change instanceof GeometryChange_default) {
-      return change.cell.isVertex() ? geometryOp(change.cell) : null;
+      return change.cell.isVertex() ? geometryOp(change.cell) : pointsOp(change.cell);
     }
     if (change instanceof ChildChange) {
       return null === change.parent ? opFor("remove", change.child) : null;
@@ -27341,6 +27829,15 @@ var DomUIMaxGraph = (() => {
     doc.y = geometry.y;
     doc.w = geometry.width;
     doc.h = geometry.height;
+    return doc;
+  }
+  function pointsOp(cell) {
+    var _a2, _b;
+    const doc = opFor("points", cell);
+    if (null === doc) {
+      return null;
+    }
+    doc.points = ((_b = (_a2 = cell.getGeometry()) == null ? void 0 : _a2.points) != null ? _b : []).map((p) => [p.x, p.y]);
     return doc;
   }
   function idOf(cell) {

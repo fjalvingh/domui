@@ -6,6 +6,7 @@ import to.etc.domui.maxgraph.model.GraphGeometry;
 import to.etc.domui.maxgraph.model.GraphModel;
 import to.etc.domui.maxgraph.model.GraphNode;
 import to.etc.domui.maxgraph.model.GraphOp;
+import to.etc.domui.maxgraph.model.GraphPaletteItem;
 import to.etc.domui.maxgraph.model.GraphPoint;
 import to.etc.domui.maxgraph.model.GraphStyle;
 import to.etc.domui.util.javascript.JsonBuilder;
@@ -21,7 +22,7 @@ import java.util.Map;
  *
  * <pre>
  * { "version": 12,
- *   "options": { "panning": true, "editable": false },
+ *   "options": { "panning": true, "editable": false, "connectable": false, "palette": [] },
  *   "cells": [
  *     { "id": "n1", "kind": "node", "label": "Start", "x": 20, "y": 20, "w": 120, "h": 40,
  *       "style": { "shape": "ellipse" } },
@@ -38,13 +39,15 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class GraphJsonRenderer {
-	public void render(JsonBuilder b, GraphModel model, boolean panning, boolean editable) throws Exception {
+	public void render(JsonBuilder b, GraphModel model, boolean panning, boolean editable, boolean connectable, List<GraphPaletteItem> paletteList) throws Exception {
 		b.obj();
 		b.objField("version", model.getVersion());
 
 		b.objObjField("options");
 		b.objField("panning", panning);
 		b.objField("editable", editable);
+		b.objField("connectable", connectable);
+		renderPalette(b, paletteList);
 		b.objEnd();
 
 		b.objArrayField("cells");
@@ -82,6 +85,27 @@ public class GraphJsonRenderer {
 		}
 		b.arrayEnd();
 		b.objEnd();
+	}
+
+	/**
+	 * What the user can drag into the drawing. Only the look of an item goes over: what a
+	 * dropped item becomes is decided on this side.
+	 */
+	private void renderPalette(JsonBuilder b, List<GraphPaletteItem> paletteList) throws Exception {
+		if(paletteList.isEmpty()) {
+			return;
+		}
+		b.objArrayField("palette");
+		for(GraphPaletteItem item : paletteList) {
+			b.itemObj();
+			b.objField("key", item.getKey());
+			b.objFieldOpt("label", item.getLabel());
+			b.objField("w", item.getWidth());
+			b.objField("h", item.getHeight());
+			renderStyle(b, item.style(), false);
+			b.objEnd();
+		}
+		b.arrayEnd();
 	}
 
 	private void renderOp(JsonBuilder b, GraphOp op) throws Exception {

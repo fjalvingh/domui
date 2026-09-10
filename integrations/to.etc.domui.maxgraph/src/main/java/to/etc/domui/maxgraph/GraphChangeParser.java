@@ -30,6 +30,10 @@ import java.util.Map;
  * <p>A change about a cell the model no longer has is dropped: the browser can only have
  * sent it because the two sides crossed, and the drawing is corrected anyway.</p>
  *
+ * <p>Two of the operations - {@code requestNode} and {@code requestEdge} - are not changes
+ * but requests for a cell that does not exist yet; they come out as {@link GraphRequest}
+ * and only the browser ever sends them.</p>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class GraphChangeParser {
@@ -38,13 +42,40 @@ public class GraphChangeParser {
 	public GraphChangeSet parse(GraphModel model, String json) throws Exception {
 		JsonNode root = MAPPER.readTree(json);
 		List<GraphChange> changes = new ArrayList<>();
+		List<GraphRequest> requests = new ArrayList<>();
 		for(JsonNode node : root.path("ops")) {
+			GraphRequest request = parseRequest(model, node);
+			if(null != request) {
+				requests.add(request);
+				continue;
+			}
 			GraphChange change = parseChange(model, node);
 			if(null != change) {
 				changes.add(change);
 			}
 		}
-		return new GraphChangeSet(root.path("base").asInt(-1), changes);
+		return new GraphChangeSet(root.path("base").asInt(-1), changes, requests);
+	}
+
+	/**
+	 * The two operations that are not about a cell that exists, but ask for one that does
+	 * not. Anything else is a change, and is parsed as one.
+	 */
+	@Nullable
+	private GraphRequest parseRequest(GraphModel model, JsonNode node) {
+		switch(node.path("op").asText()) {
+			default:
+				return null;
+
+			case "requestNode":
+				return GraphRequest.node(node.path("key").asText(), node.path("x").asDouble(), node.path("y").asDouble());
+
+			case "requestEdge":
+				GraphNode source = terminal(model, node.get("source"));
+				GraphNode target = terminal(model, node.get("target"));
+				//-- A connection to a node that is gone here is not a connection at all.
+				return null == source || null == target ? null : GraphRequest.edge(source, target);
+		}
 	}
 
 	@Nullable

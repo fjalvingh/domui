@@ -13,7 +13,9 @@ import to.etc.domui.maxgraph.model.GraphModel;
 import to.etc.domui.maxgraph.model.GraphNode;
 import to.etc.domui.maxgraph.model.GraphOp;
 import to.etc.domui.maxgraph.model.GraphOpType;
+import to.etc.domui.maxgraph.model.GraphPaletteItem;
 import to.etc.domui.maxgraph.model.IGraphChangeHandler;
+import to.etc.domui.maxgraph.model.IGraphCreateHandler;
 import to.etc.domui.maxgraph.model.IGraphModelListener;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.server.RequestContextImpl;
@@ -60,10 +62,16 @@ import java.util.Set;
  * moving it in the model, and nothing else.</p>
  *
  * <p>A drawing is read-only unless {@link #setEditable(boolean)} says otherwise. In an
- * editable one the user can move and resize nodes and delete what is selected; every such
- * change is sent to the server, offered to the page's {@link IGraphChangeHandler}, and -
- * unless the handler refuses it - made to the model. A refused change is put back, because
- * the model then sends the browser what the cell really is.</p>
+ * editable one the user can move, resize, rename and delete cells and bend edges; every
+ * such change is sent to the server, offered to the page's {@link IGraphChangeHandler},
+ * and - unless the handler refuses it - made to the model. A refused change is put back,
+ * because the model then sends the browser what the cell really is.</p>
+ *
+ * <p>Adding to a drawing goes the other way round. The browser never makes a cell, because
+ * a cell it invented would have no id the server knows it by; it says what the user did -
+ * dropped a {@link GraphPaletteItem}, drew a connection - and the page's
+ * {@link IGraphCreateHandler} decides what the model becomes. What it makes then arrives
+ * in the browser like any other change.</p>
  *
  * <p>A page that uses this must call {@link #initialize(NodeContainer)} once, which adds
  * the library to that page only.</p>
@@ -82,6 +90,11 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 
 	@Nullable
 	private IGraphChangeHandler m_changeHandler;
+
+	@Nullable
+	private IGraphCreateHandler m_createHandler;
+
+	private final List<GraphPaletteItem> m_paletteList = new ArrayList<>();
 
 	/** What changed since the browser was last told, in the order it changed. */
 	private final List<GraphOp> m_pendingOps = new ArrayList<>();
@@ -154,7 +167,8 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 	public Object provideJsonData(@NonNull IPageParameters parameterSource) throws Exception {
 		StringBufferDataFactory sb = new StringBufferDataFactory("application/json");
 		try(JsonBuilder b = new JsonBuilder(sb)) {
-			new GraphJsonRenderer().render(b, m_model, m_panning, m_editable);
+			//-- Connections can only be drawn where there is something to make an edge with.
+			new GraphJsonRenderer().render(b, m_model, m_panning, m_editable, null != m_createHandler, m_paletteList);
 		}
 		//-- Whatever the browser had, it now has this.
 		m_pendingOps.clear();
@@ -222,6 +236,33 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 			}
 		}
 		putBack(refusedSet);
+		create(set.getRequests());
+	}
+
+	/**
+	 * Make the cells the user asked for. Nothing is suppressed here: the browser has none
+	 * of these, because it never makes a cell of its own - what comes back from the model
+	 * is the first the browser sees of it, with the id the model gave it.
+	 */
+	private void create(List<GraphRequest> requestList) throws Exception {
+		IGraphCreateHandler handler = m_createHandler;
+		if(null == handler) {
+			return;
+		}
+		for(GraphRequest request : requestList) {
+			if(request.getType() == GraphOpType.RequestNode) {
+				GraphPaletteItem item = paletteItem(request.getPaletteKey());
+				if(null != item) {
+					handler.createNode(m_model, item, request.getX(), request.getY());
+				}
+			} else {
+				GraphNode source = request.getSource();
+				GraphNode target = request.getTarget();
+				if(null != source && null != target) {
+					handler.createEdge(m_model, source, target);
+				}
+			}
+		}
 	}
 
 	/**
@@ -407,6 +448,48 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 		}
 		m_editable = editable;
 		forceRebuild();
+		return this;
+	}
+
+	/**
+	 * What the user can drag into the drawing. An item does nothing without a
+	 * {@link #setCreateHandler(IGraphCreateHandler) create handler} to say what it becomes.
+	 */
+	public MaxGraphPanel addPaletteItem(GraphPaletteItem item) {
+		m_paletteList.add(item);
+		forceRebuild();
+		return this;
+	}
+
+	public List<GraphPaletteItem> getPaletteItems() {
+		return Collections.unmodifiableList(m_paletteList);
+	}
+
+	@Nullable
+	public GraphPaletteItem paletteItem(@Nullable String key) {
+		for(GraphPaletteItem item : m_paletteList) {
+			if(item.getKey().equals(key)) {
+				return item;
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	public IGraphCreateHandler getCreateHandler() {
+		return m_createHandler;
+	}
+
+	/**
+	 * Makes the cells the user asks for. Without one nothing can be added to the drawing:
+	 * dropping a palette item and drawing a connection both do nothing.
+	 */
+	public MaxGraphPanel setCreateHandler(@Nullable IGraphCreateHandler createHandler) {
+		if(m_createHandler == createHandler) {
+			return this;
+		}
+		m_createHandler = createHandler;
+		forceRebuild();                                    // Whether connections can be drawn changed with it.
 		return this;
 	}
 

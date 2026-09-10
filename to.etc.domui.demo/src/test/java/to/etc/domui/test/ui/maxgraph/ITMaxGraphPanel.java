@@ -10,6 +10,7 @@ import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domuidemo.pages.components.graph.BasicGraphPage;
 import to.etc.domuidemo.pages.components.graph.ChangingGraphPage;
 import to.etc.domuidemo.pages.components.graph.EditableGraphPage;
+import to.etc.domuidemo.pages.components.graph.GraphEditorPage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -183,5 +184,109 @@ public class ITMaxGraphPanel extends AbstractWebDriverTest {
 	 */
 	private void delete(By what) {
 		new Actions(wd().driver()).click(wd().findElement(what)).sendKeys(Keys.DELETE).perform();
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	The user adding to a drawing                                */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * A palette item dropped in the drawing is a request, not a cell: what appears is what
+	 * the page made of it, with the id the model gave it.
+	 */
+	@Test
+	public void aDroppedPaletteItemBecomesTheNodeThePageMakes() throws Exception {
+		wd().openScreen(GraphEditorPage.class);
+		wd().wait(label("Start here"));
+
+		drag(paletteItem("Done"), 300, 220);
+		wd().wait(logLineContaining("Added a done"));
+		Assert.assertTrue("The node the page made must be in the drawing", wd().isPresent(label("Done")));
+	}
+
+	/**
+	 * And a connection drawn between two nodes is a request too. It starts from the dot in
+	 * the middle of a node, which maxGraph only puts there once the pointer is over it.
+	 */
+	@Test
+	public void aDrawnConnectionBecomesTheEdgeThePageMakes() throws Exception {
+		wd().openScreen(GraphEditorPage.class);
+		wd().wait(label("Start here"));
+		drag(paletteItem("Done"), 300, 220);
+		wd().wait(label("Done"));
+		int edges = wd().findElements(EDGES).size();
+
+		connect(label("Start here"), label("Done"));
+		wd().wait(logLineContaining("Connected Start here to Done"));
+		Assert.assertTrue("The edge the page made must be in the drawing", wd().findElements(EDGES).size() > edges);
+	}
+
+	/**
+	 * And a connection the page will not make is not drawn: there is nothing to take back,
+	 * because the browser never made anything.
+	 */
+	@Test
+	public void aConnectionThePageRefusesIsNotDrawn() throws Exception {
+		wd().openScreen(GraphEditorPage.class);
+		wd().wait(label("Start here"));
+		drag(paletteItem("Done"), 300, 220);
+		wd().wait(label("Done"));
+
+		connect(label("Done"), label("Start here"));
+		wd().wait(logLineContaining("Refused"));
+		Assert.assertTrue("Nothing may have been drawn", wd().findElements(EDGES).isEmpty());
+	}
+
+	/** Renaming a cell in place is an ordinary change, and goes the ordinary way. */
+	@Test
+	public void renamingACellInPlaceReachesTheModel() throws Exception {
+		wd().openScreen(GraphEditorPage.class);
+		wd().wait(label("Start here"));
+
+		Actions actions = new Actions(wd().driver());
+		actions.doubleClick(wd().findElement(label("Start here")))
+			.keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL)
+			.sendKeys("Renamed").perform();
+		//-- The editor commits when the drawing is clicked outside of it.
+		new Actions(wd().driver()).moveToElement(wd().findElement(CANVAS), 20, 20).click().perform();
+
+		wd().wait(logLineContaining("label"));
+		Assert.assertTrue("The drawing must show the new label", wd().isPresent(label("Renamed")));
+	}
+
+	/**
+	 * Bending an edge is a change to its waypoints. The handle to bend it by sits in the
+	 * middle of the edge, where the edge itself is, so selecting and bending are the same
+	 * point twice.
+	 */
+	@Test
+	public void bendingAnEdgeReachesTheModel() throws Exception {
+		wd().openScreen(EditableGraphPage.class);
+		wd().wait(label("The hub stays"));
+
+		WebElement edge = wd().findElements(EDGES).get(0);
+		new Actions(wd().driver()).click(edge).perform();
+		new Actions(wd().driver()).dragAndDropBy(edge, -60, 30).perform();
+
+		wd().wait(logLineContaining("points"));
+	}
+
+	static private final By CANVAS = By.cssSelector(".ui-mxgr-canvas");
+
+	static private By paletteItem(String label) {
+		return By.xpath("//div[contains(@class,'ui-mxgr-pi')][normalize-space(text())='" + label + "']");
+	}
+
+
+	/**
+	 * Draw a connection from one node to another. The dot that starts it appears only while
+	 * the pointer is over the node, and maxGraph needs a move onto the dot itself before it
+	 * counts as the thing being dragged.
+	 */
+	private void connect(By from, By to) {
+		WebElement source = wd().findElement(from);
+		new Actions(wd().driver()).moveToElement(source).moveToElement(source, 1, 1).perform();
+		WebElement icon = wd().findElement(By.xpath("//div[contains(@class,'ui-mxgr-canvas')]//*[local-name()='image']"));
+		new Actions(wd().driver()).dragAndDrop(icon, wd().findElement(to)).perform();
 	}
 }

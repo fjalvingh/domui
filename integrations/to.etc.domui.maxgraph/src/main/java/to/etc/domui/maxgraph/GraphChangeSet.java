@@ -7,8 +7,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * What the browser sent: the changes a user made to a drawing, and the model version they
- * were made against.
+ * What the browser sent: what the user did to a drawing, and the model version they did it
+ * to. Changes are about cells that exist; requests are for cells that do not exist yet,
+ * because only the server hands out ids.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
@@ -17,9 +18,12 @@ public final class GraphChangeSet {
 
 	private final List<GraphChange> m_changes;
 
-	GraphChangeSet(int base, List<GraphChange> changes) {
+	private final List<GraphRequest> m_requests;
+
+	GraphChangeSet(int base, List<GraphChange> changes, List<GraphRequest> requests) {
 		m_base = base;
 		m_changes = changes;
+		m_requests = requests;
 	}
 
 	/**
@@ -33,5 +37,9 @@ public final class GraphChangeSet {
 
 	public List<GraphChange> getChanges() {
 		return Collections.unmodifiableList(m_changes);
+	}
+
+	public List<GraphRequest> getRequests() {
+		return Collections.unmodifiableList(m_requests);
 	}
 }

@@ -1,11 +1,58 @@
 /*
- * The container DomUI renders for a MaxGraphPanel. maxGraph draws its SVG inside
- * it and positions handles against it, so it needs its own positioning context and
- * must clip what leaves it.
+ * The container DomUI renders for a MaxGraphPanel. DomUI renders it empty and never looks
+ * inside it; the two parts below are made by domui-maxgraph.ts - the palette strip, and
+ * the canvas maxGraph draws its SVG into.
  */
 .ui-mxgr {
-	position: relative;
-	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 	background-color: #ffffff;
 	border: 1px solid #d0d0d0;
+}
+
+/*
+ * maxGraph positions its handles against this, so it needs its own positioning context
+ * and must clip what leaves it.
+ */
+.ui-mxgr-canvas {
+	position: relative;
+	overflow: hidden;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.ui-mxgr-canvas:focus {
+	outline: none;
+}
+
+/* What can be dragged into the drawing. */
+.ui-mxgr-palette {
+	display: flex;
+	flex: 0 0 auto;
+	flex-wrap: wrap;
+	gap: 4px;
+	padding: 4px;
+	border-bottom: 1px solid #d0d0d0;
+	background-color: #f4f4f4;
+}
+
+.ui-mxgr-pi {
+	padding: 3px 10px;
+	border: 1px solid #6c8ebf;
+	border-radius: 3px;
+	background-color: #dae8fc;
+	color: #202020;
+	font-size: 12px;
+	cursor: grab;
+	user-select: none;
+}
+
+.ui-mxgr-pi:hover {
+	background-color: #c5dbf7;
+}
+
+/* The shape that follows the pointer while an item is being dragged. */
+.ui-mxgr-pi-drag {
+	border: 1px dashed #6c8ebf;
+	background-color: rgba(218, 232, 252, 0.6);
 }

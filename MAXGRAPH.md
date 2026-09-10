@@ -291,6 +291,14 @@ once and the three phases below are mechanical.
 ] }
 ```
 
+Two more travel from the browser only. They are not changes to a cell but requests for one
+that does not exist yet, because ids are the server's:
+
+```json
+{ "op": "requestNode", "key": "task", "x": 120, "y": 40 }
+{ "op": "requestEdge", "source": "n1", "target": "n2" }
+```
+
 Every op is **id-addressed and idempotent**, so applying the same list twice is
 harmless and order within a list is the only thing that matters.
 
@@ -497,15 +505,82 @@ warnings. `ITMaxGraphPanel` drives all three with Selenium (a real drag, and cli
 Delete), and `mvn21 verify -pl to.etc.domui.demo` is green: 9 unit tests, 64 Selenium ITs,
 no failures.
 
-### Phase 4 - the editing component proper
+### Phase 4 - the user builds the drawing - DONE
 
-What phase 3 left off, all of it needing the browser to be able to make a cell the server
-has not named yet: a palette to drag new nodes from, edge creation with constraints
-(`isValidSource/Target`), in-place label editing, and edge bending. Then undo/redo
-(browser-side `UndoManager`, with the server following through phase 3), automatic
-layouts (`HierarchicalLayout`), and SVG/PNG export.
+Everything phase 3 left off that needs a cell the server has not named yet: a palette to
+drag nodes from, connections drawn between nodes, in-place label editing, and edge
+bending. What is still open is in phase 5 below.
 
-### Phase 5 - demo and documentation
+- **The browser never makes a cell.** Ids are the server's (§5), so instead of inventing
+  one the browser says what the user did: two new operations, `requestNode` (a palette
+  item was dropped here) and `requestEdge` (a connection was drawn from this node to that
+  one). They are the only two that travel one way only. The page's new
+  `IGraphCreateHandler` answers with the cell it wants, and that arrives in the browser
+  through phase 2's delta like any other change - with the id the model gave it. **One
+  round trip, no temporary ids, and nothing in the protocol that has to be renamed
+  afterwards.**
+- **Returning null is how a drawing says what may not be drawn in it.** There is nothing
+  to take back, because nothing was made: the constraint costs no protocol at all, which
+  is why `isValidSource/Target` is not needed on the browser side.
+- **The panel renders one empty div still.** The wrapper makes two elements inside it -
+  the palette strip and the canvas maxGraph owns - so DomUI still has no server-side
+  children to re-render and the rule of §3 holds.
+- A `GraphPaletteItem` is what the user drags: a key, a label, a size and a style. Only
+  its look goes to the browser; `item.create(model, x, y)` is the one-liner a handler
+  usually answers with.
+- Connections are only offered where the panel has a create handler, because the dot that
+  starts one sits in the middle of a node - exactly where dragging the node would
+  otherwise move it. A drawing that cannot gain edges should not lose that.
+
+Four things about maxGraph, each of which cost time:
+
+- `ConnectionHandler.connect()` is the one method that inserts the edge, and replacing it
+  on the instance leaves the preview, the highlighting and the reset exactly as they were.
+  There is no cleaner hook, and no need for one.
+- **Without a `connectImage` a connection starts from the middle of a node with nothing to
+  say so**, and dragging a node to move it connects it instead
+  (`isImmediateConnectSource` is `!isCellMovable`). maxGraph ships no image for it, so the
+  wrapper draws the dot itself as an inline SVG data URI.
+- **A virtual bend is off by default** (`EdgeHandlerConfig.virtualBendsEnabled`), which
+  leaves an edge that has no waypoints yet impossible to bend: the handles maxGraph shows
+  are for waypoints that already exist. It is a setting of the library rather than of a
+  graph, and every graph in this bundle is one of ours.
+- `gestureUtils.makeDraggable(element, graph, dropHandler, preview)` gives the palette its
+  drag, and hands the drop point in the drawing's own coordinates - which is what
+  `requestNode` carries.
+
+`GraphEditorPage` in the demo has a three-item palette, connects what is drawn, and
+refuses a connection out of a Done - deciding that on the node's `userObject`, which is the
+server's own data and never goes to the browser. It writes what the model was told under
+the drawing.
+
+*Verified*: driven in a browser - a dropped palette item becomes the node the page makes, a
+connection drawn between two shapes becomes the edge the page makes, one the page refuses
+is not drawn at all, a double click renames a shape, and the middle handle of an edge bends
+it. Each of those reports what the model was told, and the console shows nothing but the
+demo's usual jQuery-migrate warnings. `ITMaxGraphPanel` drives the palette drop, the
+connection, the refusal, the rename and the bend with real Selenium gestures; `mvn21 verify
+-pl to.etc.domui.demo` is green: 9 unit tests, 69 Selenium ITs, no failures.
+
+One thing that was tried and turned out not to be reachable: a node cannot be connected to
+itself - maxGraph does not offer the connection at all - so a demo rule about it would have
+been a rule nobody can hit.
+
+### Phase 5 - what an editor still wants
+
+Not started, and each independent of the others:
+
+- **Undo/redo.** Decision 4 said the browser's `UndoManager` would do it with the server
+  following through phase 3. That works for everything except undoing a deletion: the
+  model removes what cannot exist without a cell, and nothing puts a removed cell back -
+  it no longer has an object, let alone its id. Either the model learns to keep what it
+  removed, or undo becomes server-authoritative, which decision 4 put out of scope. Decide
+  before building.
+- **Automatic layout** (`HierarchicalLayout`). Cheap: run it in the browser and the
+  geometry changes it makes travel to the model through phase 3 by themselves.
+- **SVG/PNG export**, which wants a `#`-action to get the drawing back out of band.
+
+### Phase 6 - demo and documentation
 
 - Demo pages under `to.etc.domui.demo/.../pages/components/graph/`, linked from
   `ComponentListPage`, following the demo conventions (`HTag(1)` title, content in a
@@ -535,8 +610,9 @@ layouts (`HierarchicalLayout`), and SVG/PNG export.
 2. **Component name** `MaxGraphPanel`, model names neutral (`GraphModel`,
    `GraphNode`, `GraphEdge`) so the Java API does not advertise the library.
 3. **Committed bundle** rather than a Maven-driven node build (§6).
-4. **Undo/redo lives in the browser** in phases 1-4, with the server following.
-   A server-authoritative undo stack is a bigger design and is out of scope here.
+4. **Undo/redo lives in the browser**, with the server following. Phase 4 found the hole
+   in this: undoing a deletion needs a cell the model no longer has an object for, let
+   alone an id. Reopened, and now the first item of phase 5.
 5. **Version-mismatch means reload**, not merge (§7.3).
 6. **§6.1 (toolchain) happens first; §6.2 (namespace -> ES modules) is not part of
    this work.** Reopen only if new core-module Typescript must be able to import npm

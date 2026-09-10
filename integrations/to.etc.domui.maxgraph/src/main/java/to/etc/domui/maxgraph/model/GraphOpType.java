@@ -36,7 +36,17 @@ public enum GraphOpType {
 	 * cannot be expressed as a change, and to a change list that was made against a
 	 * version of the model that no longer exists.
 	 */
-	Reload("reload");
+	Reload("reload"),
+
+	/**
+	 * The user dropped something from the palette here and would like a node. Only the
+	 * browser sends this: it is not a change, it is a request for one, because a cell the
+	 * browser invents would have no id that the server knows it by.
+	 */
+	RequestNode("requestNode"),
+
+	/** The user drew a connection between two nodes and would like an edge. Browser only. */
+	RequestEdge("requestEdge");
 
 	private final String m_name;
 

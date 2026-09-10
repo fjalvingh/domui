@@ -7,9 +7,27 @@
  * DomUIMaxGraph; see the module's README for the build.
  */
 import {
-	Cell, ChildChange, Client, Geometry, GeometryChange, Graph, InternalEvent, KeyHandler,
-	Point, StyleChange, TerminalChange, ValueChange
+	Cell, ChildChange, Client, ConnectionHandler, EdgeHandlerConfig, Geometry, GeometryChange, Graph,
+	gestureUtils, ImageBox, InternalEvent, KeyHandler, Point, StyleChange, TerminalChange, ValueChange
 } from '@maxgraph/core';
+
+/**
+ * Show the handle in the middle of a selected edge that bends it. maxGraph hides it by
+ * default, which leaves an edge with no waypoints yet impossible to bend at all - the
+ * handles it does show are the ones for waypoints that already exist. It is a setting of
+ * the library rather than of a graph, and every graph in this bundle is one of ours.
+ */
+EdgeHandlerConfig.virtualBendsEnabled = true;
+
+/**
+ * The dot that appears in the middle of a shape the pointer is over, and that a connection
+ * is drawn from. maxGraph has no image for this and without one a connection would start
+ * from the middle of a shape with nothing to say so - and dragging a shape to move it would
+ * connect it instead.
+ */
+const CONNECT_ICON = 'data:image/svg+xml;utf8,'
+	+ encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14">'
+		+ '<circle cx="7" cy="7" r="6" fill="#82b366" stroke="#ffffff" stroke-width="2"/></svg>');
 
 /** DomUI's own Javascript, which is loaded before this and lives in its own global. */
 declare const WebUI: {
@@ -42,15 +60,26 @@ interface CellDoc {
 	points?: number[][];
 }
 
+/** One thing the user can drag into the drawing. What it becomes is decided on the server. */
+interface PaletteDoc {
+	key: string;
+	label?: string;
+	w: number;
+	h: number;
+	style?: Record<string, unknown>;
+}
+
 interface ModelDoc {
 	version: number;
-	options?: {panning?: boolean, editable?: boolean};
+	options?: {panning?: boolean, editable?: boolean, connectable?: boolean, palette?: PaletteDoc[]};
 	cells?: CellDoc[];
 }
 
 /** One change to the drawing: what happened, plus the fields that kind of change carries. */
 interface OpDoc extends CellDoc {
 	op: string;
+	/** The palette item that was dropped, for a requestNode. */
+	key?: string;
 }
 
 /**
@@ -75,6 +104,8 @@ interface Instance {
 	applying: boolean;
 	editable: boolean;
 	keyHandler: KeyHandler;
+	/** The strip the palette items live in, above the drawing. */
+	palette: HTMLElement;
 }
 
 const instances = new Map<string, Instance>();
@@ -97,28 +128,40 @@ export function create(id: string, options: CreateOptions = {}): void {
 	if(options.imageBase) {
 		Client.setImageBasePath(options.imageBase);
 	}
-	InternalEvent.disableContextMenu(container);
 
-	const graph = new Graph(container);
-	editingAllowed(graph, false);
+	//-- DomUI renders one empty div and never looks inside it, so the two parts of the
+	//-- widget are made here: the palette strip, and the canvas maxGraph owns.
+	container.innerHTML = '';
+	const palette = document.createElement('div');
+	palette.className = 'ui-mxgr-palette';
+	palette.hidden = true;
+	container.appendChild(palette);
+	const canvas = document.createElement('div');
+	canvas.className = 'ui-mxgr-canvas';
+	container.appendChild(canvas);
+	InternalEvent.disableContextMenu(canvas);
+
+	const graph = new Graph(canvas);
+	editingAllowed(graph, false, false);
 	zoomOnCtrlWheel(graph);
 
-	const keyHandler = new KeyHandler(graph, container);
+	const keyHandler = new KeyHandler(graph, canvas);
 	keyHandler.bindKey(46, () => graph.removeCells(graph.getSelectionCells(), true));
 	keyHandler.setEnabled(false);
 
 	const instance: Instance = {
 		graph, version: -1, loaded: false, queue: [], cellById: new Map(),
-		applying: false, editable: false, keyHandler
+		applying: false, editable: false, keyHandler, palette
 	};
 	instances.set(id, instance);
+	askForEdges(id, instance);
 
 	//-- A key press only reaches the graph when it happens inside its own container, and
 	//-- clicking a shape does not put the focus there by itself. It has to be the pointer
 	//-- event: maxGraph consumes those, and a consumed pointerdown means no mousedown at all.
-	container.addEventListener('pointerdown', () => {
+	canvas.addEventListener('pointerdown', () => {
 		if(instance.editable) {
-			container.focus();
+			canvas.focus();
 		}
 	});
 	graph.getDataModel().addListener(InternalEvent.CHANGE, (_sender: unknown, event: any) => {
@@ -168,22 +211,27 @@ export function graphFor(id: string): Graph | undefined {
 /**
  * What the user may do to the drawing. A read-only drawing can be selected in, panned and
  * zoomed, and nothing else: it is the server's model that decides what it looks like. An
- * editable one adds moving, resizing and deleting - each of which is sent to the server,
- * which has the last word on it.
+ * editable one adds moving, resizing, renaming, bending and deleting - each of which is
+ * sent to the server, which has the last word on it - and, where the server has something
+ * to make an edge with, drawing a connection, which is not a change but a request for one.
  *
- * Editing a label in place, bending an edge and drawing a new one are deliberately still
- * off: a cell the browser invents has no id the server knows it by, which needs more than
- * this.
+ * Connecting is separate because it costs something: the dot that starts a connection sits
+ * in the middle of a node, so where connecting is on, that is where it happens instead of
+ * dragging the node.
  */
-function editingAllowed(graph: Graph, editable: boolean): void {
-	graph.setCellsEditable(false);
-	graph.setCellsBendable(false);
-	graph.setConnectable(false);
+function editingAllowed(graph: Graph, editable: boolean, connectable: boolean): void {
 	graph.setDropEnabled(false);
 
 	graph.setCellsMovable(editable);
 	graph.setCellsResizable(editable);
 	graph.setCellsDeletable(editable);
+	graph.setCellsEditable(editable);
+	graph.setCellsBendable(editable);
+	graph.setConnectable(editable && connectable);
+
+	//-- A connection has to end on a node: one that ends nowhere would be an edge the
+	//-- server cannot make sense of.
+	graph.setAllowDanglingEdges(false);
 }
 
 /**
@@ -197,7 +245,7 @@ function load(id: string, instance: Instance): void {
 		if(instances.get(id) !== instance) {
 			return;
 		}
-		build(instance, response);
+		build(id, instance, response);
 		instance.loaded = true;
 
 		const queue = instance.queue;
@@ -212,24 +260,25 @@ function load(id: string, instance: Instance): void {
  * Build the whole drawing from a model document, inside one transaction so the browser
  * lays out and paints once.
  */
-function build(instance: Instance, doc: ModelDoc): void {
+function build(id: string, instance: Instance, doc: ModelDoc): void {
 	const graph = instance.graph;
 	instance.version = doc.version;
 	instance.cellById.clear();
 
 	graph.setPanning(doc.options?.panning !== false);
 	instance.editable = doc.options?.editable === true;
-	editingAllowed(graph, instance.editable);
+	editingAllowed(graph, instance.editable, doc.options?.connectable === true);
 	instance.keyHandler.setEnabled(instance.editable);
-	const container = graph.container;
-	if(null != container) {
+	const canvas = graph.container;
+	if(null != canvas) {
 		//-- Only a drawing that can be edited belongs in the tab order.
 		if(instance.editable) {
-			container.setAttribute('tabindex', '0');
+			canvas.setAttribute('tabindex', '0');
 		} else {
-			container.removeAttribute('tabindex');
+			canvas.removeAttribute('tabindex');
 		}
 	}
+	buildPalette(id, instance, doc.options?.palette ?? []);
 
 	withoutEcho(instance, () => graph.batchUpdate(() => {
 		for(const child of graph.getChildCells(graph.getDefaultParent(), true, true)) {
@@ -292,6 +341,62 @@ function applyDelta(id: string, instance: Instance, delta: DeltaDoc): void {
 }
 
 /*----------------------------------------------------------------------*/
+/*	CODING: What the user wants made                                    */
+/*----------------------------------------------------------------------*/
+
+/**
+ * Drawing a connection asks the server for an edge instead of making one.
+ *
+ * maxGraph would insert the edge itself at the end of the gesture, with an id of its own
+ * invention that means nothing here. Taking over the one method that does it leaves the
+ * preview, the highlighting and the reset exactly as they were, and no cell is ever made
+ * in the browser.
+ */
+function askForEdges(id: string, instance: Instance): void {
+	const handler = instance.graph.getPlugin('ConnectionHandler') as ConnectionHandler | undefined;
+	if(undefined === handler) {
+		return;
+	}
+	handler.connectImage = new ImageBox(CONNECT_ICON, 14, 14);
+	handler.connect = (source: Cell | null, target: Cell | null) => {
+		const from = idOf(source);
+		const to = idOf(target);
+		if(null !== from && null !== to) {
+			send(id, instance, [{op: 'requestEdge', id: from, source: from, target: to}]);
+		}
+	};
+}
+
+/**
+ * Fill the strip above the drawing with what can be dragged into it. Dropping an item
+ * asks the server for a node at that place, in the drawing's own coordinates.
+ */
+function buildPalette(id: string, instance: Instance, items: PaletteDoc[]): void {
+	const palette = instance.palette;
+	palette.innerHTML = '';
+	palette.hidden = 0 === items.length || !instance.editable;
+	if(palette.hidden) {
+		return;
+	}
+	for(const item of items) {
+		const element = document.createElement('div');
+		element.className = 'ui-mxgr-pi';
+		element.textContent = item.label ?? item.key;
+		palette.appendChild(element);
+
+		const preview = document.createElement('div');
+		preview.className = 'ui-mxgr-pi-drag';
+		preview.style.width = item.w + 'px';
+		preview.style.height = item.h + 'px';
+
+		gestureUtils.makeDraggable(element, instance.graph, (_graph, _event, _cell, x, y) => {
+			send(id, instance, [{op: 'requestNode', id: item.key, key: item.key,
+				x: (x ?? 0) - item.w / 2, y: (y ?? 0) - item.h / 2}]);
+		}, preview);
+	}
+}
+
+/*----------------------------------------------------------------------*/
 /*	CODING: What the user changed                                       */
 /*----------------------------------------------------------------------*/
 
@@ -321,6 +426,11 @@ function sendChanges(id: string, instance: Instance, edit: {changes?: unknown[]}
 	if(0 === ops.length) {
 		return;
 	}
+	send(id, instance, ops);
+}
+
+/** Everything the browser has to say about a drawing goes as one page action. */
+function send(id: string, instance: Instance, ops: OpDoc[]): void {
 	WebUI.sendJsonAction(id, 'GRAPHCHANGE', {base: instance.version, ops});
 }
 
@@ -332,8 +442,8 @@ function sendChanges(id: string, instance: Instance, edit: {changes?: unknown[]}
  */
 function translate(change: unknown): OpDoc | null {
 	if(change instanceof GeometryChange) {
-		//-- An edge's geometry is its waypoints, and bending is not on yet.
-		return change.cell.isVertex() ? geometryOp(change.cell) : null;
+		//-- A node's geometry is where it is; an edge's is the points it is bent through.
+		return change.cell.isVertex() ? geometryOp(change.cell) : pointsOp(change.cell);
 	}
 	if(change instanceof ChildChange) {
 		//-- parent is where the cell ended up: nowhere means it was deleted. A cell that
@@ -380,6 +490,15 @@ function geometryOp(cell: Cell): OpDoc | null {
 	doc.y = geometry.y;
 	doc.w = geometry.width;
 	doc.h = geometry.height;
+	return doc;
+}
+
+function pointsOp(cell: Cell): OpDoc | null {
+	const doc = opFor('points', cell);
+	if(null === doc) {
+		return null;
+	}
+	doc.points = (cell.getGeometry()?.points ?? []).map(p => [p.x, p.y]);
 	return doc;
 }
 
