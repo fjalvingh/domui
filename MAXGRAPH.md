@@ -572,8 +572,7 @@ been a rule nobody can hit.
 
 ### Phase 5 - what an editor still wants
 
-The three items are independent of each other. The first is done; the other two are not
-started.
+The three items are independent of each other, and all three are done.
 
 #### Undo/redo - the server's - DONE
 
@@ -635,53 +634,108 @@ drives all three paths, the deleted-node-and-its-edge one being the point of the
 `mvn21 verify -pl to.etc.domui.demo` is green: 9 unit tests, 72 Selenium ITs, no failures,
 and 10 unit tests in the maxgraph module itself, which had none before.
 
-#### The other two
+#### Automatic layout - DONE
 
-- **Automatic layout - DONE.** `MaxGraphPanel.layout(GraphLayoutType)`, optionally with a
-  `GraphLayoutDirection`, arranges the drawing: the browser runs the layout and the geometry
-  it changes travels back to the model through phase 3 by itself, so the model ends up
-  holding the arranged drawing and a later render draws it that way. It is **a command, not
-  a property** - a drawing arranged on every render would put back a node the user had
-  dragged. Two things it cost:
+`MaxGraphPanel.layout(GraphLayoutType)`, optionally with a
+`GraphLayoutDirection`, arranges the drawing: the browser runs the layout and the geometry
+it changes travels back to the model through phase 3 by itself, so the model ends up
+holding the arranged drawing and a later render draws it that way. It is **a command, not
+a property** - a drawing arranged on every render would put back a node the user had
+dragged. Two things it cost:
 
-  - **A read-only drawing has to report a layout**, even though it reports nothing else: the
-    user cannot move anything there, but the page can, and if those positions did not come
-    back the arrangement would be lost on the next render. So the browser sends what a
-    layout moved regardless of `editable`, and the ops are ordinary geometry changes - which
-    means a change handler is asked about them, and one arrangement is one step to undo.
-  - **The bundle grew** from 415KB to 465KB minified for six layouts; esbuild only pulls in
-    what the wrapper imports, so the ones that do not fit cost nothing.
+- **A read-only drawing has to report a layout**, even though it reports nothing else: the
+  user cannot move anything there, but the page can, and if those positions did not come
+  back the arrangement would be lost on the next render. So the browser sends what a
+  layout moved regardless of `editable`, and the ops are ordinary geometry changes - which
+  means a change handler is asked about them, and one arrangement is one step to undo.
+- **The bundle grew** from 415KB to 465KB minified for six layouts; esbuild only pulls in
+  what the wrapper imports, so the ones that do not fit cost nothing.
 
-  0.24.0 exports ten of them, and they are not interchangeable - the six the wrapper knows
-  are marked:
+0.24.0 exports ten of them, and they are not interchangeable - the six the wrapper knows
+are marked:
 
-  | Layout | `GraphLayoutType` | What it does | Fits |
-  | --- | --- | --- | --- |
-  | `HierarchicalLayout` | `Hierarchical` | layered, in the direction given | flow-chart-shaped drawings; the obvious first one |
-  | `FastOrganicLayout` | `Organic` | force-directed; ignores vertices with no connections | connected drawings |
-  | `CircleLayout` | `Circle` | everything on a circle, edges ignored | anything, connected or not |
-  | `CompactTreeLayout` | `Tree` | the Moen compact tree | trees only - a cycle is ignored, not laid out |
-  | `RadialTreeLayout` | `RadialTree` | the same tree, around a centre | trees only |
-  | `ParallelEdgeLayout` | `ParallelEdges` | separates edges that run between the same two nodes | a touch-up; changes waypoints, which travel as `points` |
-  | `StackLayout` | - | stacks a node's children horizontally or vertically | grouping, which no page uses yet |
-  | `PartitionLayout` | - | divides a node's width or height among its children | grouping, likewise |
-  | `EdgeLabelLayout` | - | places edge labels; needs the view validated first | **not yet**: see below |
-  | `SwimlaneLayout` | - | hierarchical within swimlanes | nothing - the model has no swimlanes |
+| Layout | `GraphLayoutType` | What it does | Fits |
+| --- | --- | --- | --- |
+| `HierarchicalLayout` | `Hierarchical` | layered, in the direction given | flow-chart-shaped drawings; the obvious first one |
+| `FastOrganicLayout` | `Organic` | force-directed; ignores vertices with no connections | connected drawings |
+| `CircleLayout` | `Circle` | everything on a circle, edges ignored | anything, connected or not |
+| `CompactTreeLayout` | `Tree` | the Moen compact tree | trees only - a cycle is ignored, not laid out |
+| `RadialTreeLayout` | `RadialTree` | the same tree, around a centre | trees only |
+| `ParallelEdgeLayout` | `ParallelEdges` | separates edges that run between the same two nodes | a touch-up; changes waypoints, which travel as `points` |
+| `StackLayout` | - | stacks a node's children horizontally or vertically | grouping, which no page uses yet |
+| `PartitionLayout` | - | divides a node's width or height among its children | grouping, likewise |
+| `EdgeLabelLayout` | - | places edge labels; needs the view validated first | **not yet**: see below |
+| `SwimlaneLayout` | - | hierarchical within swimlanes | nothing - the model has no swimlanes |
 
-  `CompositeLayout` chains several into one, and `LayoutManager` runs a layout on every
-  model change rather than on demand - which is a different feature, and one that would
-  fight the page for who decides where a node sits.
+`CompositeLayout` chains several into one, and `LayoutManager` runs a layout on every
+model change rather than on demand - which is a different feature, and one that would
+fight the page for who decides where a node sits.
 
-  The one hole is `EdgeLabelLayout`: where an edge's label sits is a geometry on the edge
-  cell, which the model has no word for, and `translate()` in the wrapper turns every edge
-  geometry change into a `points` op. It needs the model to grow a label offset first.
+The one hole is `EdgeLabelLayout`: where an edge's label sits is a geometry on the edge
+cell, which the model has no word for, and `translate()` in the wrapper turns every edge
+geometry change into a `points` op. It needs the model to grow a label offset first.
 
-  *Verified*: `GraphEditorPage` arranges what the user has drawn and its log shows the
-  geometry changes arriving, and `ChangingGraphPage` - a drawing nobody may touch - arranges
-  too and comes back arranged after a full refresh, which is the model having kept it.
-  `ITMaxGraphPanel` drives both, and `mvn21 verify -pl to.etc.domui.demo -am` is green:
-  9 unit tests, 74 Selenium ITs, no failures.
-- **SVG/PNG export**, which wants a `#`-action to get the drawing back out of band.
+*Verified*: `GraphEditorPage` arranges what the user has drawn and its log shows the
+geometry changes arriving, and `ChangingGraphPage` - a drawing nobody may touch - arranges
+too and comes back arranged after a full refresh, which is the model having kept it.
+`ITMaxGraphPanel` drives both, and `mvn21 verify -pl to.etc.domui.demo -am` is green:
+9 unit tests, 74 Selenium ITs, no failures.
+#### SVG/PNG export - DONE
+
+A picture of the drawing is made **in the browser**, because that is the only place the
+drawing exists: the model says what is drawn, but where an edge runs and how wide a label
+is are maxGraph's answers, not the model's. Where the picture goes afterwards is two
+questions with two answers, and the component has both:
+
+- `panel.download(format, "diagram.png")` hands it to the user. Nothing reaches the server
+  at all: the file is made where the drawing is and saved from there, which is the whole of
+  what a "save this drawing" button needs.
+- `panel.export(format, image -> ...)` posts it back here, for the application that has to
+  keep the thing - put it in a report, mail it, store it. The handler is given a
+  `GraphExport`: the bytes of the file, and how big the picture turned out to be, which is
+  something this side cannot know by itself.
+
+**The picture comes back as an ordinary page action, not out of band** (decision 7,
+reversing this plan's own `#`-action). An out-of-band request may not change the page, and
+a picture that arrives where nothing may change is a picture nothing can be done with: the
+demo page shows what it got, and handing the file on to the user is
+`TempFilePart.createDownloadAction()`, which needs a delta to travel in. Out of band would
+have bought nothing either - both are POSTs to the same URL, under the same container
+limit, which for Tomcat is two megabytes and is what a drawing big enough to matter should
+be saved in the browser to avoid.
+
+- **The drawing is drawn again, not copied.** The svg that is on the screen is the wrong
+  thing to take: it is clipped by its container, carries the handles and the selection, and
+  leans on the page's stylesheets. `ImageExport` walks the cell states maxGraph computed
+  into a fresh `SvgCanvas2D`, which is a document that stands on its own - the whole
+  drawing, whatever part of it is scrolled into view, and nothing else of the page.
+- **The view's zoom is divided out and the asked-for scale multiplied in**, so a picture is
+  the same size whatever the user has zoomed to, and a png can be asked for at twice the
+  size because a png is pixels and a printed one wants more of them.
+- **Labels are `<text>`, not html in a `foreignObject`** (`foEnabled = false`). The png is
+  made by loading that very svg document into an `Image` and drawing it onto a canvas, and
+  a browser gives up on a foreignObject there. The same rule is why a picture carries
+  nothing it would have to fetch: a document loaded from a `data:` url may not, so a node
+  whose shape is an image, or a font the document does not carry, is not in the png.
+- **The png is given a white background**, because a drawing on the screen sits on the
+  page's white while a canvas starts transparent - and a transparent png is printed on
+  whatever it lands on.
+- **The answer carries a token**, so that two pictures asked for in one request cannot be
+  mistaken for each other; the handler is looked up by it and dropped when it is used.
+
+What it cost: `GraphExportFormat`, `GraphExport` and `IGraphExportHandler`, four methods on
+the panel and one web action, and about 120 lines of Typescript. The bundle grew from 465KB
+to 468KB minified: the svg canvas and the image export were already in it.
+
+*Verified*: driven in a browser - `ExportGraphPage` saves diagram.svg and diagram.png in the
+browser, and sends both back here, where the page shows what arrived by serving it from a
+temporary file (a png of 810 by 310 pixels at twice the size, an svg of 409 by 159 with four
+`<text>` elements and no `foreignObject`). Zooming the drawing two steps in and taking the
+picture again gives the same 410 by 160, which is the view's scale being divided out.
+`ITMaxGraphPanel` drives both formats and checks that what came back is an image the browser
+can load, and that moving a node makes the next picture wider - the picture being of the
+drawing as it is, not of the model as the page built it. `mvn21 verify -pl to.etc.domui.demo`
+is green: 9 unit tests, 77 Selenium ITs, no failures.
 
 ### Phase 6 - demo and documentation
 
@@ -723,3 +777,10 @@ and 10 unit tests in the maxgraph module itself, which had none before.
 6. **§6.1 (toolchain) happens first; §6.2 (namespace -> ES modules) is not part of
    this work.** Reopen only if new core-module Typescript must be able to import npm
    packages.
+7. **A picture comes back as an ordinary page action** (2026-09-10), reversing "export
+   wants a `#`-action to get the drawing back out of band". Out of band may not change the
+   page, and a picture nothing may be done with is no use: showing it, or handing it to the
+   user with `TempFilePart.createDownloadAction()`, needs the delta. It would have bought
+   nothing either - both are POSTs to the same URL under the same container limit. The
+   picture the *user* keeps never travels at all: `download()` makes it and saves it in the
+   browser.

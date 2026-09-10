@@ -11,9 +11,12 @@ import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domuidemo.pages.components.graph.BasicGraphPage;
 import to.etc.domuidemo.pages.components.graph.ChangingGraphPage;
 import to.etc.domuidemo.pages.components.graph.EditableGraphPage;
+import to.etc.domuidemo.pages.components.graph.ExportGraphPage;
 import to.etc.domuidemo.pages.components.graph.GraphEditorPage;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -377,6 +380,87 @@ public class ITMaxGraphPanel extends AbstractWebDriverTest {
 		Assert.assertTrue("The drawing must come back where the layout left it, not where it started"
 				+ " (was " + before + ", arranged to " + arranged + ", rebuilt at " + rebuilt + ")",
 			Math.abs(arranged.getX() - rebuilt.getX()) <= 3 && Math.abs(arranged.getY() - rebuilt.getY()) <= 3);
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	A picture of the drawing                                    */
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * A picture is made in the browser and posted back, so what proves it arrived is the
+	 * page showing what it got: a file this server now has, served back to the browser as
+	 * an image. If the bytes were not a png, that image would not load.
+	 */
+	@Test
+	public void aPngArrivesAtTheServer() throws Exception {
+		wd().openScreen(ExportGraphPage.class);
+		wd().wait(label("Order arrives"));
+
+		wd().cmd().click().on("button_Send_the_PNG_here");
+		wd().wait(exportedLineContaining("The png arrived here"));
+		wd().wait(() -> naturalWidthOfExported() > 0);
+	}
+
+	/** The same, in the other format: an svg document, served back and drawn. */
+	@Test
+	public void anSvgArrivesAtTheServer() throws Exception {
+		wd().openScreen(ExportGraphPage.class);
+		wd().wait(label("Order arrives"));
+
+		wd().cmd().click().on("button_Send_the_SVG_here");
+		wd().wait(exportedLineContaining("The svg arrived here"));
+		wd().wait(() -> naturalWidthOfExported() > 0);
+	}
+
+	/**
+	 * The picture is of the drawing as it is at that moment, not of the model as the page
+	 * built it: dragging a node further out makes the next picture wider.
+	 */
+	@Test
+	public void aPictureIsOfTheDrawingAsItIsNow() throws Exception {
+		wd().openScreen(ExportGraphPage.class);
+		wd().wait(label("Ship it"));
+
+		wd().cmd().click().on("button_Send_the_PNG_here");
+		wd().wait(exportedLineContaining("The png arrived here"));
+		int before = exportedWidth();
+		Assert.assertTrue("The picture must have a size", before > 0);
+
+		drag(label("Ship it"), 200, 0);
+		wd().cmd().click().on("button_Send_the_PNG_here");
+		wd().wait(() -> exportedWidth() > before);
+	}
+
+	static private final By EXPORTED_IMAGE = By.cssSelector("*[testid='exported'] img");
+
+	static private By exportedLineContaining(String text) {
+		return By.xpath("//div[@testid='exported']//p[contains(text(),'" + text + "')]");
+	}
+
+	/** How wide the picture that came back is, as the page reports it, or 0 while there is none. */
+	private int exportedWidth() {
+		try {
+			WebElement element = wd().findElement(By.cssSelector("*[testid='exported'] p"));
+			if(null == element) {
+				return 0;
+			}
+			Matcher matcher = Pattern.compile("(\\d+) by ").matcher(element.getText());
+			return matcher.find() ? Integer.parseInt(matcher.group(1)) : 0;
+		} catch(Exception x) {
+			return 0;                                      // Being replaced by the next picture.
+		}
+	}
+
+	/**
+	 * How wide the browser found the image the server served to be: a picture that did not
+	 * arrive, or arrived broken, is zero wide.
+	 */
+	private int naturalWidthOfExported() {
+		if(!wd().isPresent(EXPORTED_IMAGE)) {
+			return 0;
+		}
+		String width = wd().executeScript("return document.querySelector(\"*[testid='exported'] img\").naturalWidth");
+		return width.isEmpty() ? 0 : Integer.parseInt(width);
 	}
 
 	/** Where what this points at sits on the screen. */

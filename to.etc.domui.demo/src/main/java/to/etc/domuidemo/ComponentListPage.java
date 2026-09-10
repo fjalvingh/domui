@@ -43,6 +43,7 @@ import to.etc.domuidemo.pages.components.charts.BarChartPage;
 import to.etc.domuidemo.pages.components.graph.BasicGraphPage;
 import to.etc.domuidemo.pages.components.graph.ChangingGraphPage;
 import to.etc.domuidemo.pages.components.graph.EditableGraphPage;
+import to.etc.domuidemo.pages.components.graph.ExportGraphPage;
 import to.etc.domuidemo.pages.components.graph.GraphEditorPage;
 import to.etc.domuidemo.pages.components.charts.GaugeChartPage;
 import to.etc.domuidemo.pages.components.charts.PieChartPage;
@@ -240,5 +241,6 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(ChangingGraphPage.class, "A diagram the server changes");
 		f.addLink(EditableGraphPage.class, "A diagram the user changes");
 		f.addLink(GraphEditorPage.class, "A diagram the user draws");
+		f.addLink(ExportGraphPage.class, "A picture of a diagram");
 	}
 }

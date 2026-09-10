@@ -9,8 +9,8 @@
 import {
 	Cell, ChildChange, CircleLayout, Client, CompactTreeLayout, ConnectionHandler, DirectionValue,
 	EdgeHandlerConfig, FastOrganicLayout, Geometry, GeometryChange, Graph, GraphLayout,
-	gestureUtils, HierarchicalLayout, ImageBox, InternalEvent, KeyHandler, ParallelEdgeLayout, Point,
-	RadialTreeLayout, StyleChange, TerminalChange, ValueChange
+	gestureUtils, HierarchicalLayout, ImageBox, ImageExport, InternalEvent, KeyHandler,
+	ParallelEdgeLayout, Point, RadialTreeLayout, StyleChange, SvgCanvas2D, TerminalChange, ValueChange
 } from '@maxgraph/core';
 
 /**
@@ -100,6 +100,23 @@ interface LayoutDoc {
 	direction: DirectionValue;
 }
 
+/** A picture of the drawing: in what format, at what size, and where it is to go. */
+interface ExportDoc {
+	format: string;
+	scale: number;
+	/** Set when the server wants the picture: the token its answer has to name. */
+	token?: string;
+	/** Set when the user is to keep the picture: the name to save it under. */
+	name?: string;
+}
+
+/** A picture, as base64 - which is what both the server and a download want. */
+interface Picture {
+	data: string;
+	width: number;
+	height: number;
+}
+
 interface Instance {
 	graph: Graph;
 	/** The model version this drawing shows, or -1 while there is no drawing yet. */
@@ -114,6 +131,8 @@ interface Instance {
 	layingOut: boolean;
 	/** A layout that arrived before the drawing did, waiting for it. */
 	pendingLayout: LayoutDoc | null;
+	/** Pictures that were asked for before the drawing was there, waiting for it. */
+	pendingPictures: (() => void)[];
 	editable: boolean;
 	keyHandler: KeyHandler;
 	/** The strip the palette items live in, above the drawing. */
@@ -163,7 +182,8 @@ export function create(id: string, options: CreateOptions = {}): void {
 
 	const instance: Instance = {
 		graph, version: -1, loaded: false, queue: [], cellById: new Map(),
-		applying: false, layingOut: false, pendingLayout: null, editable: false, keyHandler, palette
+		applying: false, layingOut: false, pendingLayout: null, pendingPictures: [],
+		editable: false, keyHandler, palette
 	};
 	instances.set(id, instance);
 	undoKeys(id, instance, keyHandler);
@@ -232,6 +252,29 @@ export function layout(id: string, request: LayoutDoc): void {
 	runLayout(id, instance, request);
 }
 
+/**
+ * Make a picture of the drawing and post it back to the server, under the token it was
+ * asked for with. Nothing is shown to the user; the page decides what happens to it.
+ */
+export function exportImage(id: string, request: ExportDoc): void {
+	whenDrawn(id, instance => picture(instance, request)
+		.then(made => WebUI.sendJsonAction(id, 'GRAPHEXPORT', {
+			token: request.token, format: request.format,
+			width: made.width, height: made.height, data: made.data
+		}))
+		.catch(x => console.error('DomUIMaxGraph: the picture could not be made', x)));
+}
+
+/**
+ * Make a picture of the drawing and hand it to the user under the name given. The server
+ * never sees it: the drawing is here, and so is the file.
+ */
+export function download(id: string, request: ExportDoc): void {
+	whenDrawn(id, instance => picture(instance, request)
+		.then(made => save(request.name ?? 'drawing', mimeOf(request.format), made.data))
+		.catch(x => console.error('DomUIMaxGraph: the picture could not be made', x)));
+}
+
 /** The maxGraph instance for this element, for debugging from the console. */
 export function graphFor(id: string): Graph | undefined {
 	return instances.get(id)?.graph;
@@ -286,6 +329,12 @@ function load(id: string, instance: Instance): void {
 		if(null !== waiting) {
 			instance.pendingLayout = null;
 			runLayout(id, instance, waiting);
+		}
+		//-- After the layout, so that a picture asked for with it is one of the arranged drawing.
+		const pictures = instance.pendingPictures;
+		instance.pendingPictures = [];
+		for(const make of pictures) {
+			make();
 		}
 	});
 }
@@ -509,6 +558,141 @@ function layoutFor(graph: Graph, request: LayoutDoc): GraphLayout | null {
 		case 'parallelEdges':
 			return new ParallelEdgeLayout(graph);
 	}
+}
+
+/*----------------------------------------------------------------------*/
+/*	CODING: A picture of the drawing                                    */
+/*----------------------------------------------------------------------*/
+
+/** How much room is left around the drawing in a picture of it. */
+const PICTURE_BORDER = 4;
+
+/**
+ * Do something with a drawing once there is one. A picture that is asked for before the
+ * model has arrived is a picture of the model that is on its way.
+ */
+function whenDrawn(id: string, what: (instance: Instance) => void): void {
+	const instance = instances.get(id);
+	if(undefined === instance) {
+		return;
+	}
+	if(instance.loaded) {
+		what(instance);
+	} else {
+		instance.pendingPictures.push(() => what(instance));
+	}
+}
+
+/**
+ * A picture of the whole drawing, whatever part of it is scrolled into view and whatever
+ * the user has zoomed to. It is not the svg that is on the screen: that one is clipped by
+ * its container, carries the handles and the selection, and leans on the page's
+ * stylesheets. This is a document of its own, drawn again from the states maxGraph
+ * computed - so the edges run and the labels sit where the screen has them, and nothing
+ * else of the page is in it.
+ */
+function picture(instance: Instance, request: ExportDoc): Promise<Picture> {
+	const drawn = drawing(instance.graph, request.scale);
+	const document = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(drawn.root);
+	const data = base64(new TextEncoder().encode(document));
+	if('png' !== request.format) {
+		return Promise.resolve({data, width: drawn.width, height: drawn.height});
+	}
+	return rasterize(data, drawn.width, drawn.height);
+}
+
+/** Draw the graph into an svg document of its own, at this many times its own size. */
+function drawing(graph: Graph, scale: number): {root: SVGElement, width: number, height: number} {
+	const bounds = graph.getGraphBounds();
+	//-- What is on the screen is zoomed by the view's scale; a picture is not, so it is divided out.
+	const zoom = graph.getView().scale;
+	const width = Math.max(1, Math.ceil(bounds.width * scale / zoom) + 2 * PICTURE_BORDER);
+	const height = Math.max(1, Math.ceil(bounds.height * scale / zoom) + 2 * PICTURE_BORDER);
+
+	const root = window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	root.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+	root.setAttribute('version', '1.1');
+	root.setAttribute('width', String(width));
+	root.setAttribute('height', String(height));
+
+	const canvas = new SvgCanvas2D(root, false);
+	//-- Labels as <text> and not as html in a foreignObject: a browser rasterizes the first
+	//-- and gives up on the second, and a png is made by rasterizing this very document.
+	canvas.foEnabled = false;
+	canvas.translate(Math.floor((PICTURE_BORDER / scale - bounds.x) / zoom), Math.floor((PICTURE_BORDER / scale - bounds.y) / zoom));
+	canvas.scale(scale / zoom);
+
+	const cell = graph.getDataModel().getRoot();
+	const state = null === cell ? null : graph.getView().getState(cell);
+	if(null !== state) {
+		new ImageExport().drawState(state, canvas);
+	}
+	return {root, width, height};
+}
+
+/**
+ * The png, made by drawing the svg one onto a canvas. It is the only way to a png in a
+ * browser, and it is why the svg has to be a document that stands on its own: what is
+ * loaded from a data url may not fetch anything else, so an image in the drawing - or a
+ * font it does not carry - is not in the picture.
+ */
+function rasterize(svg: string, width: number, height: number): Promise<Picture> {
+	return new Promise((resolve, reject) => {
+		const image = new Image();
+		image.onload = () => {
+			const canvas = window.document.createElement('canvas');
+			canvas.width = width;
+			canvas.height = height;
+			const context = canvas.getContext('2d');
+			if(null === context) {
+				reject(new Error('this browser has no 2d canvas'));
+				return;
+			}
+			//-- A drawing on the screen sits on the page's white; a png without this one sits on
+			//-- nothing at all, and is then printed on whatever it lands on.
+			context.fillStyle = '#ffffff';
+			context.fillRect(0, 0, width, height);
+			context.drawImage(image, 0, 0, width, height);
+			const url = canvas.toDataURL('image/png');
+			resolve({data: url.substring(url.indexOf(',') + 1), width, height});
+		};
+		image.onerror = () => reject(new Error('the drawing could not be rasterized'));
+		image.src = 'data:image/svg+xml;base64,' + svg;
+	});
+}
+
+/** Hand the picture to the user under this name. */
+function save(name: string, mime: string, data: string): void {
+	const url = URL.createObjectURL(new Blob([bytes(data)], {type: mime}));
+	const link = window.document.createElement('a');
+	link.href = url;
+	link.download = name;
+	window.document.body.appendChild(link);
+	link.click();
+	link.remove();
+	//-- The url has to still be there while the click is being handled, which is the next tick.
+	setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function mimeOf(format: string): string {
+	return 'png' === format ? 'image/png' : 'image/svg+xml';
+}
+
+function base64(data: Uint8Array): string {
+	let text = '';
+	for(const byte of data) {
+		text += String.fromCharCode(byte);
+	}
+	return btoa(text);
+}
+
+function bytes(data: string): Uint8Array<ArrayBuffer> {
+	const text = atob(data);
+	const out = new Uint8Array(new ArrayBuffer(text.length));
+	for(let i = 0; i < text.length; i++) {
+		out[i] = text.charCodeAt(i);
+	}
+	return out;
 }
 
 /*----------------------------------------------------------------------*/

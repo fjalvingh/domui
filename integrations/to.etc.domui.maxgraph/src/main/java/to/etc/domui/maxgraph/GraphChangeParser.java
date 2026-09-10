@@ -19,7 +19,8 @@ import java.util.Map;
 /**
  * Reads what the browser sends when a user changes a drawing, in the same vocabulary
  * {@link GraphJsonRenderer} writes. Between the two of them they are the whole of the
- * contract with the Typescript; nothing else on either side knows the format.
+ * contract with the Typescript about a drawing and its changes; the panel's own commands -
+ * arrange the drawing, make a picture of it - are the only other thing that crosses.
  *
  * <pre>
  * { "base": 12, "ops": [

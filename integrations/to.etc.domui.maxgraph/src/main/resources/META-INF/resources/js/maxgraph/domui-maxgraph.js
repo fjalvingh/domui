@@ -38,6 +38,8 @@ var DomUIMaxGraph = (() => {
     apply: () => apply,
     create: () => create,
     destroy: () => destroy,
+    download: () => download,
+    exportImage: () => exportImage,
     graphFor: () => graphFor,
     layout: () => layout
   });
@@ -31507,6 +31509,94 @@ var DomUIMaxGraph = (() => {
   };
   var HierarchicalLayout_default = HierarchicalLayout;
 
+  // node_modules/@maxgraph/core/lib/esm/view/image/ImageExport.js
+  var ImageExport = class {
+    constructor() {
+      this.includeOverlays = false;
+    }
+    /**
+     * Draws the given state and all its descendants to the given canvas.
+     */
+    drawState(state, canvas) {
+      if (state) {
+        this.visitStatesRecursive(state, canvas, this.drawCellState.bind(this));
+        if (this.includeOverlays) {
+          this.visitStatesRecursive(state, canvas, this.drawOverlays.bind(this));
+        }
+      }
+    }
+    /**
+     * Visits the given state and all its descendants to the given canvas recursively.
+     */
+    visitStatesRecursive(state, canvas, visitor) {
+      if (state) {
+        visitor(state, canvas);
+        const graph = state.view.graph;
+        const childCount = state.cell.getChildCount();
+        for (let i = 0; i < childCount; i += 1) {
+          const childState = graph.view.getState(state.cell.getChildAt(i));
+          if (childState)
+            this.visitStatesRecursive(childState, canvas, visitor);
+        }
+      }
+    }
+    /**
+     * Returns the link for the given cell state and canvas. This returns null.
+     */
+    getLinkForCellState(_state, _canvas) {
+      return null;
+    }
+    /**
+     * Draws the given state to the given canvas.
+     */
+    drawCellState(state, canvas) {
+      const link = this.getLinkForCellState(state, canvas);
+      if (link) {
+        canvas.setLink(link);
+      }
+      this.drawShape(state, canvas);
+      this.drawText(state, canvas);
+      if (link) {
+        canvas.setLink(null);
+      }
+    }
+    /**
+     * Draws the shape of the given state.
+     */
+    drawShape(state, canvas) {
+      if (state.shape instanceof Shape_default && state.shape.checkBounds()) {
+        canvas.save();
+        state.shape.beforePaint(canvas);
+        state.shape.paint(canvas);
+        state.shape.afterPaint(canvas);
+        canvas.restore();
+      }
+    }
+    /**
+     * Draws the text of the given state.
+     */
+    drawText(state, canvas) {
+      if (state.text && state.text.checkBounds()) {
+        canvas.save();
+        state.text.beforePaint(canvas);
+        state.text.paint(canvas);
+        state.text.afterPaint(canvas);
+        canvas.restore();
+      }
+    }
+    /**
+     * Draws the overlays for the given state. This is called if <includeOverlays>
+     * is true.
+     */
+    drawOverlays(state, canvas) {
+      var _a2;
+      (_a2 = state.overlays) == null ? void 0 : _a2.forEach((shape) => {
+        shape.paint(canvas);
+      });
+    }
+  };
+  var ImageExport_default = ImageExport;
+
   // src/main/frontend/domui-maxgraph.ts
   EdgeHandlerConfig.virtualBendsEnabled = true;
   var CONNECT_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"><circle cx="7" cy="7" r="6" fill="#82b366" stroke="#ffffff" stroke-width="2"/></svg>');
@@ -31545,6 +31635,7 @@ var DomUIMaxGraph = (() => {
       applying: false,
       layingOut: false,
       pendingLayout: null,
+      pendingPictures: [],
       editable: false,
       keyHandler,
       palette
@@ -31592,6 +31683,21 @@ var DomUIMaxGraph = (() => {
     }
     runLayout(id, instance, request);
   }
+  function exportImage(id, request) {
+    whenDrawn(id, (instance) => picture(instance, request).then((made) => WebUI.sendJsonAction(id, "GRAPHEXPORT", {
+      token: request.token,
+      format: request.format,
+      width: made.width,
+      height: made.height,
+      data: made.data
+    })).catch((x) => console.error("DomUIMaxGraph: the picture could not be made", x)));
+  }
+  function download(id, request) {
+    whenDrawn(id, (instance) => picture(instance, request).then((made) => {
+      var _a2;
+      return save((_a2 = request.name) != null ? _a2 : "drawing", mimeOf(request.format), made.data);
+    }).catch((x) => console.error("DomUIMaxGraph: the picture could not be made", x)));
+  }
   function graphFor(id) {
     var _a2;
     return (_a2 = instances.get(id)) == null ? void 0 : _a2.graph;
@@ -31623,6 +31729,11 @@ var DomUIMaxGraph = (() => {
       if (null !== waiting) {
         instance.pendingLayout = null;
         runLayout(id, instance, waiting);
+      }
+      const pictures = instance.pendingPictures;
+      instance.pendingPictures = [];
+      for (const make of pictures) {
+        make();
       }
     });
   }
@@ -31773,6 +31884,98 @@ var DomUIMaxGraph = (() => {
       case "parallelEdges":
         return new ParallelEdgeLayout_default(graph);
     }
+  }
+  var PICTURE_BORDER = 4;
+  function whenDrawn(id, what) {
+    const instance = instances.get(id);
+    if (void 0 === instance) {
+      return;
+    }
+    if (instance.loaded) {
+      what(instance);
+    } else {
+      instance.pendingPictures.push(() => what(instance));
+    }
+  }
+  function picture(instance, request) {
+    const drawn = drawing(instance.graph, request.scale);
+    const document2 = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(drawn.root);
+    const data = base64(new TextEncoder().encode(document2));
+    if ("png" !== request.format) {
+      return Promise.resolve({ data, width: drawn.width, height: drawn.height });
+    }
+    return rasterize(data, drawn.width, drawn.height);
+  }
+  function drawing(graph, scale) {
+    const bounds = graph.getGraphBounds();
+    const zoom = graph.getView().scale;
+    const width = Math.max(1, Math.ceil(bounds.width * scale / zoom) + 2 * PICTURE_BORDER);
+    const height = Math.max(1, Math.ceil(bounds.height * scale / zoom) + 2 * PICTURE_BORDER);
+    const root = window.document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    root.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    root.setAttribute("version", "1.1");
+    root.setAttribute("width", String(width));
+    root.setAttribute("height", String(height));
+    const canvas = new SvgCanvas2D_default(root, false);
+    canvas.foEnabled = false;
+    canvas.translate(Math.floor((PICTURE_BORDER / scale - bounds.x) / zoom), Math.floor((PICTURE_BORDER / scale - bounds.y) / zoom));
+    canvas.scale(scale / zoom);
+    const cell = graph.getDataModel().getRoot();
+    const state = null === cell ? null : graph.getView().getState(cell);
+    if (null !== state) {
+      new ImageExport_default().drawState(state, canvas);
+    }
+    return { root, width, height };
+  }
+  function rasterize(svg, width, height) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        const canvas = window.document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d");
+        if (null === context) {
+          reject(new Error("this browser has no 2d canvas"));
+          return;
+        }
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, width, height);
+        context.drawImage(image, 0, 0, width, height);
+        const url = canvas.toDataURL("image/png");
+        resolve({ data: url.substring(url.indexOf(",") + 1), width, height });
+      };
+      image.onerror = () => reject(new Error("the drawing could not be rasterized"));
+      image.src = "data:image/svg+xml;base64," + svg;
+    });
+  }
+  function save(name, mime, data) {
+    const url = URL.createObjectURL(new Blob([bytes(data)], { type: mime }));
+    const link = window.document.createElement("a");
+    link.href = url;
+    link.download = name;
+    window.document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+  function mimeOf(format) {
+    return "png" === format ? "image/png" : "image/svg+xml";
+  }
+  function base64(data) {
+    let text = "";
+    for (const byte of data) {
+      text += String.fromCharCode(byte);
+    }
+    return btoa(text);
+  }
+  function bytes(data) {
+    const text = atob(data);
+    const out = new Uint8Array(new ArrayBuffer(text.length));
+    for (let i = 0; i < text.length; i++) {
+      out[i] = text.charCodeAt(i);
+    }
+    return out;
   }
   function sendChanges(id, instance, edit) {
     var _a2;

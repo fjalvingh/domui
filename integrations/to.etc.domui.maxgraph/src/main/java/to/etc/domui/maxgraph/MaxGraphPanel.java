@@ -1,5 +1,7 @@
 package to.etc.domui.maxgraph;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.header.HeaderContributor;
@@ -26,11 +28,15 @@ import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.javascript.JsonBuilder;
+import to.etc.util.StringTool;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -87,6 +93,11 @@ import java.util.Set;
  * changes - so the model ends up holding the arranged drawing, and a later render draws it
  * that way.</p>
  *
+ * <p>A picture of the drawing is made by the browser, because that is where the drawing
+ * is: {@link #download(GraphExportFormat, String)} hands it straight to the user, and
+ * {@link #export(GraphExportFormat, IGraphExportHandler)} posts it back here for the
+ * application to keep.</p>
+ *
  * <p>A page that uses this must call {@link #initialize(NodeContainer)} once, which adds
  * the library to that page only.</p>
  *
@@ -131,6 +142,18 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 	private GraphLayoutType m_pendingLayout;
 
 	private GraphLayoutDirection m_pendingLayoutDirection = GraphLayoutDirection.North;
+
+	/** Pictures the page asked for that the browser has not been told to make yet. */
+	private final List<ExportCommand> m_exportList = new ArrayList<>();
+
+	/**
+	 * The handlers of the pictures that have been asked for but have not arrived, by the
+	 * token they will come back under. A picture takes a request of its own to make, so
+	 * more than one can be on its way at a time.
+	 */
+	private final Map<String, IGraphExportHandler> m_exportHandlerMap = new HashMap<>();
+
+	private int m_exportTokenCounter;
 
 	private final IGraphModelListener m_modelListener = (model, op) -> opped(op);
 
@@ -214,18 +237,20 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 			b.append("DomUIMaxGraph.apply('").append(getActualID()).append("',").append(json.toString()).append(")");
 		}
 		//-- After the changes, so that a layout asked for in the same request arranges what
-		//-- that request added.
+		//-- that request added, and a picture of it is a picture of the arranged drawing.
 		renderLayout(b);
+		renderExports(b);
 	}
 
 	/**
 	 * A full render creates the widget again, which asks for the model again - so a layout
-	 * that was asked for in the same request has to be emitted here as well, and the browser
-	 * runs it once the drawing it is about is there.
+	 * or a picture that was asked for in the same request has to be emitted here as well,
+	 * and the browser does it once the drawing it is about is there.
 	 */
 	@Override
 	protected void renderJavascriptState(@NonNull JavascriptStmt b) throws Exception {
 		renderLayout(b);
+		renderExports(b);
 	}
 
 	private void renderLayout(@NonNull JavascriptStmt b) {
@@ -239,6 +264,63 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 			.append(layout.getName()).append("',direction:'")
 			.append(m_pendingLayoutDirection.getName()).append("'})");
 	}
+
+	/**
+	 * Ask the browser for the pictures the page wants. One that is to be saved says where;
+	 * one that is to come here carries the token its answer will name.
+	 */
+	private void renderExports(@NonNull JavascriptStmt b) {
+		for(ExportCommand command : m_exportList) {
+			b.next();
+			String fileName = command.fileName();
+			if(null == fileName) {
+				b.append("DomUIMaxGraph.exportImage('").append(getActualID()).append("',{token:'")
+					.append(command.token()).append("',format:'").append(command.format().getName())
+					.append("',scale:").append(Double.toString(command.scale())).append("})");
+			} else {
+				b.append("DomUIMaxGraph.download('").append(getActualID()).append("',{format:'")
+					.append(command.format().getName()).append("',scale:")
+					.append(Double.toString(command.scale())).append(",name:")
+					.append(StringTool.strToJavascriptString(fileName, true)).append("})");
+			}
+		}
+		m_exportList.clear();
+	}
+
+	/**
+	 * The picture the browser was asked for. It arrives in a request of its own, because
+	 * making it takes as long as it takes to draw the thing; the token says which of the
+	 * pictures that were asked for this is.
+	 *
+	 * <p>This is an ordinary page action, so the handler may change the page - which is how
+	 * a picture that came here is shown, or handed to the user as a download.</p>
+	 */
+	public void webActionGRAPHEXPORT(@NonNull RequestContextImpl ctx) throws Exception {
+		String json = ctx.getPageParameters().getString("json", null);
+		if(null == json) {
+			throw new IllegalStateException("The graph export request has no json parameter");
+		}
+		JsonNode root = new ObjectMapper().readTree(json);
+		IGraphExportHandler handler = m_exportHandlerMap.remove(root.path("token").asText());
+		if(null == handler) {
+			return;                                        // Asked for by a panel that is gone, or answered twice.
+		}
+		GraphExportFormat format = formatOf(root.path("format").asText());
+		byte[] data = Base64.getDecoder().decode(root.path("data").asText());
+		handler.exported(new GraphExport(format, data, root.path("width").asInt(), root.path("height").asInt()));
+	}
+
+	static private GraphExportFormat formatOf(String name) {
+		for(GraphExportFormat format : GraphExportFormat.values()) {
+			if(format.getName().equals(name)) {
+				return format;
+			}
+		}
+		throw new IllegalStateException("Unknown export format '" + name + "' from the browser");
+	}
+
+	/** One picture the page asked for: to be saved where the user wants it, or to come here. */
+	private record ExportCommand(GraphExportFormat format, double scale, @Nullable String token, @Nullable String fileName) {}
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	What the browser changed							        */
@@ -538,6 +620,57 @@ public class MaxGraphPanel extends Div implements IComponentJsonProvider {
 	public MaxGraphPanel layout(GraphLayoutType type, GraphLayoutDirection direction) {
 		m_pendingLayout = type;
 		m_pendingLayoutDirection = direction;
+		changedJavascriptState();
+		return this;
+	}
+
+	/**
+	 * Make a picture of the drawing and bring it here: the browser draws it and posts it
+	 * back, and the handler is called with it a moment later, in a request of its own.
+	 *
+	 * <p>This is what an application asks for when it needs the picture itself - to put in
+	 * a report, to mail, to keep. A picture the <i>user</i> is to keep does not need the
+	 * detour: {@link #download(GraphExportFormat, String)} saves it without it ever coming
+	 * here.</p>
+	 *
+	 * <p>The picture is made in the browser because that is the only place the drawing
+	 * exists: the model says what is drawn, but where an edge runs and how wide a label is
+	 * are maxGraph's answers, not the model's. What is made is the whole drawing, whatever
+	 * part of it happens to be scrolled into view.</p>
+	 *
+	 * <p>It arrives over the ordinary page POST, which containers limit the size of -
+	 * Tomcat allows two megabytes by default. A drawing large enough to make a picture
+	 * bigger than that is one to save in the browser instead.</p>
+	 */
+	public MaxGraphPanel export(GraphExportFormat format, IGraphExportHandler handler) {
+		return export(format, 1.0, handler);
+	}
+
+	/**
+	 * The same picture, drawn this many times its own size. Only {@link GraphExportFormat#Png}
+	 * gains anything by it: it decides how many pixels the picture has, which is what a
+	 * printed one wants more of.
+	 */
+	public MaxGraphPanel export(GraphExportFormat format, double scale, IGraphExportHandler handler) {
+		String token = "e" + (++m_exportTokenCounter);
+		m_exportHandlerMap.put(token, handler);
+		m_exportList.add(new ExportCommand(format, scale, token, null));
+		changedJavascriptState();
+		return this;
+	}
+
+	/**
+	 * Save a picture of the drawing under this name, on the machine the browser runs on.
+	 * Nothing comes here: the browser makes the picture and hands it to the user, which is
+	 * all a "save this drawing" button needs and costs no traffic at all.
+	 */
+	public MaxGraphPanel download(GraphExportFormat format, String fileName) {
+		return download(format, 1.0, fileName);
+	}
+
+	/** The same, drawn this many times its own size. */
+	public MaxGraphPanel download(GraphExportFormat format, double scale, String fileName) {
+		m_exportList.add(new ExportCommand(format, scale, null, fileName));
 		changedJavascriptState();
 		return this;
 	}
