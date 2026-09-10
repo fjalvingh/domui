@@ -637,8 +637,32 @@ and 10 unit tests in the maxgraph module itself, which had none before.
 
 #### The other two
 
-- **Automatic layout** (`HierarchicalLayout`). Cheap: run it in the browser and the
-  geometry changes it makes travel to the model through phase 3 by themselves.
+- **Automatic layout.** Cheap for the layouts that only move nodes: run one in the browser
+  and the geometry changes it makes travel to the model through phase 3 by themselves. So
+  this is a choice of layout rather than a method - a `GraphLayoutType` naming the ones
+  that fit, and one op to ask for it. 0.24.0 exports ten of them, and they are not
+  interchangeable:
+
+  | Layout | What it does | Fits |
+  | --- | --- | --- |
+  | `HierarchicalLayout` | layered, with an orientation (north by default) | flow-chart-shaped drawings; the obvious first one |
+  | `FastOrganicLayout` | force-directed; ignores vertices with no connections | connected drawings |
+  | `CircleLayout` | everything on a circle of a given radius, edges ignored | anything, connected or not |
+  | `CompactTreeLayout` | the Moen compact tree | trees only - a cycle is ignored, not laid out |
+  | `RadialTreeLayout` | the same tree, around a centre | trees only |
+  | `StackLayout` | stacks a node's children horizontally or vertically | grouping, which no page uses yet |
+  | `PartitionLayout` | divides a node's width or height among its children | grouping, likewise |
+  | `ParallelEdgeLayout` | separates edges that run between the same two nodes | a touch-up; changes waypoints, which travel as `points` |
+  | `EdgeLabelLayout` | places edge labels; needs the view validated first | **not yet**: see below |
+  | `SwimlaneLayout` | hierarchical within swimlanes | nothing - the model has no swimlanes |
+
+  `CompositeLayout` chains several into one, and `LayoutManager` runs a layout on every
+  model change rather than on demand - which is a different feature, and one that would
+  fight the page for who decides where a node sits.
+
+  The one hole is `EdgeLabelLayout`: where an edge's label sits is a geometry on the edge
+  cell, which the model has no word for, and `translate()` in the wrapper turns every edge
+  geometry change into a `points` op. It needs the model to grow a label offset first.
 - **SVG/PNG export**, which wants a `#`-action to get the drawing back out of band.
 
 ### Phase 6 - demo and documentation
