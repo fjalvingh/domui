@@ -2,6 +2,7 @@ package to.etc.domui.sass;
 
 import com.sass_lang.embedded_protocol.InboundMessage.CompileRequest;
 import com.sass_lang.embedded_protocol.InboundMessage.ImportResponse.ImportSuccess;
+import com.sass_lang.embedded_protocol.OutboundMessage.LogEventOrBuilder;
 import com.sass_lang.embedded_protocol.OutputStyle;
 import de.larsgrefer.sass.embedded.CompileSuccess;
 import de.larsgrefer.sass.embedded.SassCompilationFailedException;
@@ -195,6 +196,17 @@ public class DartSassCompiler implements ISassCompiler {
 		instance.close();
 	}
 
+	/**
+	 * A message from the compiler: warnings (a @warn, or a deprecation) at warn level, the
+	 * output of @debug at info level.
+	 */
+	static private void log(LogEventOrBuilder event) {
+		switch(event.getType()) {
+			case WARNING, DEPRECATION_WARNING -> LOG.warn(event.getFormatted());
+			default -> LOG.info(event.getFormatted());
+		}
+	}
+
 	private Instance create() throws IOException {
 		long ts = System.nanoTime();
 		String executable = DeveloperOptions.getString(EXECUTABLE_PROPERTY, System.getProperty(EXECUTABLE_PROPERTY, ""));
@@ -203,16 +215,12 @@ public class DartSassCompiler implements ISassCompiler {
 			: new SassCompiler(ConnectionFactory.ofExecutable(new File(executable)));
 
 		/*
-		 * The theme is on the module system, but its sheets still use slash division instead of
-		 * math.div and the global colour functions (lighten, darken) instead of the sass:color
-		 * module, and the application sheets in the demo still @import. All are deprecated in
-		 * Dart Sass and warn on every compile, so they are silenced until that is done too. Every
-		 * other warning must stay visible.
+		 * What the compiler has to say about a sheet - a deprecation, a @warn, a @debug - goes
+		 * to this class's logger, formatted by dart-sass itself with the source line and the
+		 * sheet's url. Nothing is silenced: the theme has no deprecated construct left, and
+		 * a warning is something to fix.
 		 */
-		compiler.addSilenceDeprecation("import");
-		compiler.addSilenceDeprecation("slash-div");
-		compiler.addSilenceDeprecation("global-builtin");
-		compiler.addSilenceDeprecation("color-functions");
+		compiler.setLoggingHandler(DartSassCompiler::log);
 
 		DartSassImporter importer = new DartSassImporter();
 		compiler.registerImporter(importer);

@@ -2141,6 +2141,21 @@ These were offered as input while the phase 0 items were being worked, and taken
       passes 9 unit tests and 77 Selenium ITs (17 skipped - the `@Ignore`d baseline
       tests already on the plan).
 
+- [x] **Framework: nothing the sass compiler says is silenced any more, and what it says
+      is logged.** Done 2026-09-11, the sixth step of the migration. The four
+      `addSilenceDeprecation()` calls in `DartSassCompiler` are gone. In their place every
+      process gets a logging handler that routes the compiler's messages to this class's
+      slf4j logger: a `@warn` and a deprecation at warn level, a `@debug` at info level,
+      each as dart-sass formats it - the message, the source excerpt with the offending
+      token underlined, and the sheet's `domui:/` url and line. (The embedded host
+      already logged them, but under its own logger name, `de.larsgrefer.sass...`.)
+      DomUI's default logger configuration writes warn and above to stdout, so that is
+      where they land for now; where they should land eventually - the developer's bug
+      indicator, say - is a separate question. Verified under `jetty:run`: compiling both
+      theme variants and the demo's sheet logs nothing at all; a throwaway sheet with an
+      `@import`, a `darken()` and a `@warn` logs the three deprecations and the warning,
+      excerpt and url included.
+
 ## Decisions log
 
 ### 2026-09-11 - Configuration, not first-assignment-wins: the module system design

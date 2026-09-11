@@ -266,8 +266,8 @@ it. Everything else on this list is a question for the user, not a deletion.
       - [x] The theme's structure, and every partial's `@import`. **Done 2026-09-11**,
             see the log.
       - [x] Mechanical passes to the `sass:` modules. **Done 2026-09-11**, see the log.
-      - [ ] Remove the four `addSilenceDeprecation()` calls; from then on a
-            deprecation warning is something to fix.
+      - [x] The silencing removed; the compiler's warnings are logged. **Done
+            2026-09-11**, see the log.
       - [x] The application sheets. **Done 2026-09-11**, see the log.
       - [ ] The documentation: `look-and-feel/sass-scss-support` still says the
             compiler is jsass, and describes `@import` as include; it,
