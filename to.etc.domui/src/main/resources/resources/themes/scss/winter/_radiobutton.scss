@@ -63,7 +63,7 @@
 		}
 		input[type="radio"][disabled="disabled"]:checked + label {
 			background-color: $rbb-common-color;
-			color: darken($rbb-common-bg, 20%);
+			color: darker($rbb-common-bg, 20%);
 			display: inline-block;
 		}
 		input[type="radio"][readonly="readonly"] + label {

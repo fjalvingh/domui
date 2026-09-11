@@ -1,3 +1,4 @@
+@use "sass:list";
 @use "theme" as *;
 /*** FontIcon and variants ***/
 .ui-fnti {
@@ -9,7 +10,7 @@
 
 	@each $name, $pair in $colors {
 		&.is-#{$name} {
-			color: nth($pair, 1);
+			color: list.nth($pair, 1);
 		}
 	}
 }

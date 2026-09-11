@@ -73,7 +73,6 @@
 
 	$selected-bg:      hsl(28, 80%, 44%) !default,
 	$highlight-bg:     hsl(38, 75%, 42%) !default,
-	$highlight2-bg:    hsl(38, 60%, 32%) !default,
 
 	$input-border-color: hsl(220, 11%, 30%) !default,
 
@@ -143,6 +142,8 @@
 // loaded and configured by now, so its values can be read here.
 @use "variables" as v;
 @forward "derived-variables" with (
+	$highlight2-bg:    hsl(38, 60%, 32%) !default,
+
 	// --- DataTable: the header band and the row washes --------------------------------
 	$dt-hdr-bg:        hsl(215, 30%, 26%) !default,
 	$dt-hdr-color: hsl(0, 0%, 92%) !default,

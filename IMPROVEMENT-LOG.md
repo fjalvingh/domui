@@ -2091,6 +2091,39 @@ These were offered as input while the phase 0 items were being worked, and taken
       `_userstyle` reads `$link-color` through `@use "theme"`. The demo's own sheet is
       byte-identical. The Selenium ITs were not run - the css rules are identical.
 
+- [x] **Framework: the theme uses the `sass:` modules; no deprecated construct is left.**
+      Done 2026-09-11, the fourth step of the migration. The nine slash divisions are
+      `math.div()`, `nth`/`index`/`length` are `list.*`, `map-get`/`map-merge` are
+      `map.*`, `red()`/`green()`/`blue()` are `color.channel()`, `mix()` is
+      `color.mix()`, `adjust-hue()` is `color.adjust($hue:)`, and
+      `rgba(red($c), green($c), blue($c), a)` is `rgba($c, a)`. The three unused
+      `hue()`/`saturation()`/`lightness()` lines in `findButtonFocusBorderColor()` are
+      gone with their commented-out alternatives. Two things were not mechanical:
+      - **`color.adjust()` does not clamp.** `darken()`, `lighten()` and `saturate()`
+        moved a channel and clamped it to 0..100%; `color.adjust()` keeps the
+        out-of-range value, so black darkened by 1% became `hsl(0, 0%, -1%)` and a
+        button's focus border `hsl(119.5, 141.6%, 57.8%)`. `_functions.scss` therefore
+        has `darker()`, `lighter()` and `moreSaturated()` - `color.change()` on the
+        clamped channel - which the CLI showed to reproduce the old functions byte for
+        byte, output format included; every former `darken()`/`lighten()` call uses
+        them. They live in `_functions.scss`, which `_variables.scss` cannot load (the
+        functions read the variables), so the three tier-1 declarations that needed a
+        function - `$highlight2-bg`, `$esic-label-border`, `$esic-label-color` - are in
+        `_derived-variables.scss` now, where a derived value belongs anyway, and the
+        dark variant sets `$highlight2-bg` in its second `with` clause.
+      - **A defect found**: `$esic-label-color: findColorInvert($esic-label-bg)` sat in
+        `_variables.scss`, which `style.scss` imported *before* `functions`, so the call
+        was never resolved and the css has always said `color: findColorInvert(#d4f94e)`
+        - invalid, so the EnumSetInput label's text colour never applied. Moved to the
+        derived tier it resolves: `rgba(0, 0, 0, 0.7)` in the light variant, `#fff` in
+        the dark one.
+      Verified with the CLI harness and under `jetty:run` (identical output): zero
+      deprecation warnings in either variant; the light variant differs from the baseline
+      only in the removed DataTable duplicate and the repaired label colour; the dark one
+      additionally in three `rgba()` washes whose channels keep their fraction
+      (`210.375` where the legacy `red()` rounded to `210`) - a difference of less than
+      half a unit in 255, accepted rather than rounded back.
+
 ## Decisions log
 
 ### 2026-09-11 - Configuration, not first-assignment-wins: the module system design

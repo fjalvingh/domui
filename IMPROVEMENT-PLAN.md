@@ -265,9 +265,7 @@ it. Everything else on this list is a question for the user, not a deletion.
       - [x] The resolver: the virtual `theme` name. **Done 2026-09-11**, see the log.
       - [x] The theme's structure, and every partial's `@import`. **Done 2026-09-11**,
             see the log.
-      - [ ] Mechanical passes: slash division to `math.div()`, `lighten()` and
-            friends to `color.adjust()`/`color.mix()`/`color.channel()`,
-            `map-get()`/`nth()`/`index()`/`length()` to `map.*`/`list.*`.
+      - [x] Mechanical passes to the `sass:` modules. **Done 2026-09-11**, see the log.
       - [ ] Remove the four `addSilenceDeprecation()` calls; from then on a
             deprecation warning is something to fix.
       - [ ] The application sheets: the demo's `css/demostyle.scss` and partials,

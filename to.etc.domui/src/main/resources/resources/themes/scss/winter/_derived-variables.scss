@@ -1,6 +1,7 @@
 // The second tier of the theme's variables: one for each colour or size a component paints,
 // each defaulting to a value from the main set in _variables.scss. See the header of that
 // file for how the two tiers relate and how variables are named.
+@use "sass:math";
 @use "variables" as *;
 @use "functions" as *;
 
@@ -31,6 +32,12 @@ $light-invert: $dark !default;
 $dark-invert: $light !default;
 
 // General colors
+
+// Derived from the main set's $highlight-bg and $esic-label-bg. Here rather than next to
+// them because they need the theme's functions, which _variables.scss cannot load.
+$highlight2-bg: lighter($highlight-bg, 20%) !default;
+$esic-label-border: darker($esic-label-bg, 20%) !default;
+$esic-label-color: findColorInvert($esic-label-bg) !default;
 
 $background: $white-ter !default;
 
@@ -224,7 +231,7 @@ $dt-selected-bg: #bed6f8 !default;			// blue
 $dt-even-row-bg: #E5E5E5 !default;			// greyish
 $dt-cell-highlight-bg: #67267f !default;		// cell select: purple
 $dt-cell-highlight-link-bg: $surface-bg !default;
-$dt-expanding-row-bg: lighten($green-accent, 20%) !default;
+$dt-expanding-row-bg: lighter($green-accent, 20%) !default;
 $dt-hdr-bg: #99bfe6 !default;
 // Deliberately black rather than $text: the header sits on its own coloured band, where
 // $text drops the contrast from 10.9:1 to 4.6:1 - on the AA threshold, for bold text
@@ -238,7 +245,7 @@ $dt-hdr-color: black !default;
 $dt-hdr-btm-border: undefined !default;
 
 $dt-border: $dt-hdr-bg !default;
-$dt-lines-border: lighten($dt-border, 20%) !default;
+$dt-lines-border: lighter($dt-border, 20%) !default;
 
 //-- Calendar schedule (.ui-wa-*) - the week/day grid, not the date-picker popup
 $wa-band-bg: $surface-alt-bg !default;
@@ -332,7 +339,7 @@ $brcr2-shadow: $shadow-color !default;
 $brc-link-color: #ffff99 !default;				// a crumb that is still a link
 $brcr2-bg: $alt-button-color !default;			// item bg colour
 $brcr2-color: $brc-color !default;
-$brcr2-hover-bg: lighten($brcr2-bg, 20%) !default;
+$brcr2-hover-bg: lighter($brcr2-bg, 20%) !default;
 $brcr2-sel-bg: #eef5ff !default;				// the selected item's bg
 $brcr2-sel-color: $brcr2-bg !default;
 
@@ -379,7 +386,7 @@ $lnkb-icon-color: $text !default;
 //-- button asks it like every other coloured surface does.
 $ckw-accept-color: $primary-invert !default;
 
-//-- MonthPanel dims, which were written as lighten(#000000, 55%) and 65%
+//-- MonthPanel dims, which were written as lighter(#000000, 55%) and 65%
 $mp-weeknr-color: $text-muted !default;
 $mp-othermonth-color: $grey-light !default;
 
@@ -393,10 +400,10 @@ $mp-othermonth-color: $grey-light !default;
 // -- RadioButton
 $rbb-common-color: $alt-button-color !default;
 $rbb-common-bg: $alt-button-bg !default;
-$rbb-border-color: darken($rbb-common-color, 10%) !default;
+$rbb-border-color: darker($rbb-common-color, 10%) !default;
 $rbb-border-width: 1px !default;
 $rbb-disabled-color: $rbb-disabled-bg !default;
-$rbb-disabled-border-color: darken($rbb-disabled-color, 15%) !default;
+$rbb-disabled-border-color: darker($rbb-disabled-color, 15%) !default;
 
 // -- Buttons (bulmaish/_button_common)
 $button-color: $grey-darker !default;
@@ -428,7 +435,7 @@ $dp2-button-bg: $alt-button-bg !default;
 
 // -- Drag and drop
 $drp-hover-border: $green-accent !default;
-$drp-hover-bg: rgba(red($green-accent), green($green-accent), blue($green-accent), 0.1) !default;
+$drp-hover-bg: rgba($green-accent, 0.1) !default;
 
 // -- Form5
 
@@ -484,7 +491,7 @@ $swtch-border-width: 2px !default;
 $swtch-width: 44px !default;			// 60px
 $swtch-height: 25px !default;
 $swtch-knob-size: $swtch-height - 2 * $swtch-border-width !default;		// 26px
-$swtch-travel: $swtch-width / 2 - 2 * $swtch-border-width !default;
+$swtch-travel: math.div($swtch-width, 2) - 2 * $swtch-border-width !default;
 
 // -- TabPanel
 $tab-hdr-bg: $grey !default;					// The header part containing the tabs

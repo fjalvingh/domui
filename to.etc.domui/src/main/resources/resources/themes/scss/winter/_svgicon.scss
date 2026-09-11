@@ -1,3 +1,4 @@
+@use "sass:list";
 @use "theme" as *;
 .ui-svgi {
 	display: inline;
@@ -17,9 +18,9 @@
 	}
 	@each $name, $pair in $colors {
 		&.is-#{$name} svg path {
-			stroke: nth($pair, 1);
-			fill: nth($pair, 1);
-			color: nth($pair, 1);
+			stroke: list.nth($pair, 1);
+			fill: list.nth($pair, 1);
+			color: list.nth($pair, 1);
 		}
 	}
 }

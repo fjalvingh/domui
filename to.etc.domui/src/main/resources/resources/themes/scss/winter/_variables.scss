@@ -87,12 +87,11 @@ $title-color: #ffffff !default;
 $selected-bg: $primary !default;			// selection follows the accent
 
 $highlight-bg: #ffbb43 !default; 	// row select: hard orange
-$highlight2-bg: lighten($highlight-bg, 20%) !default;
 
 // Error, warning, info colors
 $errors-border: #ff0000 !default; 			// red
 $errors-color: #ff0000 !default;		// red
-$errors-transparent: rgba(red($errors-border), green($errors-border), blue($errors-border), 0.25) !default;
+$errors-transparent: rgba($errors-border, 0.25) !default;
 
 $errors-input-bg: #ffe5e5 !default;	// error bg for input component
 
@@ -106,12 +105,12 @@ $errors-wash: #ffe5e5 !default;
 $warnings-bg: #fffeee !default; // light yellow
 $warnings-color: #8a6100 !default;	// dark amber: yellow is unreadable on $warnings-bg
 $warnings-border: goldenrod !default;
-$warnings-transparent: rgba(red($warnings-border), green($warnings-border), blue($warnings-border), 0.25) !default;
+$warnings-transparent: rgba($warnings-border, 0.25) !default;
 
 $info-bg: #e4eeff !default;		// blueish light
 $info-color: #4075db !default;
 $info-border: #4075db !default;
-$info-transparent: rgba(red($info-border), green($info-border), blue($info-border), 0.25) !default;
+$info-transparent: rgba($info-border, 0.25) !default;
 
 $white-transparent: rgba(255, 255, 255, 0.25) !default;
 
@@ -127,7 +126,7 @@ $sayt-ok-color: #84C000 !default;			// Green for checkmark
 //$dt-cell-highlight-bg: #67267f;	// cell select: purple
 //$dt-cell-highlight-link-bg: #ffffff;	// link color of cell select: white
 //$dt-font-size: 12px;
-//$dt-expanding-row-bg: lighten($green-accent, 20%);
+//$dt-expanding-row-bg: lighter($green-accent, 20%);
 //
 //$dt-hdr-bg: #7c7c7c;
 //$dt-hdr-color: #ffffff;
@@ -241,8 +240,6 @@ $input-border-color: #dbdbdb !default;
 
 //-- enumsetinput label colors
 $esic-label-bg: #d4f94e !default;
-$esic-label-border: darken($esic-label-bg, 20%) !default;
-$esic-label-color: findColorInvert($esic-label-bg) !default;
 
 // --------------------------------------------------------------------------------------
 // Surfaces and text.

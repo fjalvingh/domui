@@ -1,7 +1,27 @@
 // The theme's functions. They read the theme's variables, so this is a module over
 // _variables.scss - which is why it cannot read _derived-variables.scss: that file uses
 // these functions, and a module may not load a module that loads it.
+@use "sass:color";
+@use "sass:list";
+@use "sass:map";
+@use "sass:math";
 @use "variables" as *;
+
+// darken(), lighten() and saturate() as Sass had them before the sass:color module: the
+// channel is moved by $amount and clamped to 0..100%. color.adjust() does not clamp - darkening
+// black gives a lightness of -1%, saturating past 100% stays past it - so a theme written for
+// the old functions would compile to different colours with it. These keep the old meaning.
+@function darker($color, $amount) {
+	@return color.change($color, $lightness: math.clamp(0%, color.channel($color, "lightness", $space: hsl) - $amount, 100%), $space: hsl);
+}
+
+@function lighter($color, $amount) {
+	@return color.change($color, $lightness: math.clamp(0%, color.channel($color, "lightness", $space: hsl) + $amount, 100%), $space: hsl);
+}
+
+@function moreSaturated($color, $amount) {
+	@return color.change($color, $saturation: math.clamp(0%, color.channel($color, "saturation", $space: hsl) + $amount, 100%), $space: hsl);
+}
 
 @function powerNumber($number, $exp) {
 	$value: 1;
@@ -12,7 +32,7 @@
 	} @else {
 		@if $exp < 0 {
 			@for $i from 1 through -$exp {
-				$value: $value / $number;
+				$value: math.div($value, $number);
 			}
 		}
 	}
@@ -21,22 +41,22 @@
 
 @function colorLuminance($color) {
 	$color-rgb: (
-			'red': red($color),
-			'green': green($color),
-			'blue': blue($color)
+			'red': color.channel($color, "red", $space: rgb),
+			'green': color.channel($color, "green", $space: rgb),
+			'blue': color.channel($color, "blue", $space: rgb)
 	);
 	@each $name, $value in $color-rgb {
 		$adjusted: 0;
-		$value: $value / 255;
+		$value: math.div($value, 255);
 		@if $value < 0.03928 {
-			$value: $value / 12.92;
+			$value: math.div($value, 12.92);
 		} @else {
-			$value: ($value + .055) / 1.055;
+			$value: math.div($value + .055, 1.055);
 			$value: powerNumber($value, 2);
 		}
-		$color-rgb: map-merge($color-rgb, ($name:$value));
+		$color-rgb: map.merge($color-rgb, ($name:$value));
 	}
-	@return (map-get($color-rgb, 'red') * .2126) + (map-get($color-rgb, 'green') * .7152) + (map-get($color-rgb, 'blue') * .0722);
+	@return (map.get($color-rgb, 'red') * .2126) + (map.get($color-rgb, 'green') * .7152) + (map.get($color-rgb, 'blue') * .0722);
 }
 
 // The WCAG contrast ratio between two colours, 1 (identical) to 21 (black on white).
@@ -55,7 +75,7 @@
 		$a: $b;
 		$b: $t;
 	}
-	@return ($a + 0.05) / ($b + 0.05);
+	@return math.div($a + 0.05, $b + 0.05);
 }
 
 // The text colour to put ON $color: whichever of white and the theme's softened black
@@ -72,7 +92,7 @@
 // comparison has to be made against what that actually paints: mix(#000, $color, 70%) is
 // the colour rgba(#000, 0.7) composites to over $color.
 @function findColorInvert($color) {
-	@if contrastRatio($color, mix(#000, $color, 70%)) > contrastRatio($color, #fff) {
+	@if contrastRatio($color, color.mix(#000, $color, 70%)) > contrastRatio($color, #fff) {
 		@return rgba(#000, 0.7);
 	} @else {
 		@return #fff;
@@ -81,9 +101,9 @@
 
 @function findColorHighlight($color, $percentage) {
 	@if (colorLuminance($color) > 0.30) {
-		@return darken($color, $percentage);
+		@return darker($color, $percentage);
 	} @else {
-		@return lighten($color, $percentage);
+		@return lighter($color, $percentage);
 	}
 }
 
@@ -92,21 +112,14 @@
 // because this module cannot read them - see the top of this file.
 @function findButtonFocusBorderColor($color, $dark-fallback) {
 	$newlum: colorLuminance($color);
-	$hue: hue($color);
-	$sat: saturation($color);
-	$lig: lightness($color);
 
 	@if($newlum < 0.1) {
 		@return $dark-fallback;
-		//@return hsl($hue + 180, 70%, 70%);
-		//@return saturate(adjust-hue($color, 180), 50%);
 	} @else if($newlum > 0.7) {
-		@return adjust-hue($color, 180);
+		@return color.adjust($color, $hue: 180);
 	} @else {
-		@return saturate(adjust-hue($color, 90), 50%);
+		@return moreSaturated(color.adjust($color, $hue: 90), 50%);
 	}
-
-	//@return adjust-hue($color, 180);
 }
 
 
@@ -125,7 +138,7 @@
 // build. $from must be one of the ramp's own steps; anything else is a mistake worth
 // stopping for.
 @function ladder($from, $level: 0) {
-	$i: index($grey-ramp, $from);
+	$i: list.index($grey-ramp, $from);
 	@if $i == null {
 		@error "ladder(): #{$from} is not a step of $grey-ramp - pass one of $black ... $white";
 	}
@@ -133,8 +146,8 @@
 	@if $n < 1 {
 		$n: 1;
 	}
-	@if $n > length($grey-ramp) {
-		$n: length($grey-ramp);
+	@if $n > list.length($grey-ramp) {
+		$n: list.length($grey-ramp);
 	}
-	@return nth($grey-ramp, $n);
+	@return list.nth($grey-ramp, $n);
 }

@@ -1,3 +1,4 @@
+@use "sass:math";
 @use "theme" as *;
 
 @mixin can-toggle-branding (
@@ -19,26 +20,26 @@
 			.ui-chkbb-sw {
 				background-color: $can-toggle-off-color;
 				&:after {
-					color: darken($can-toggle-off-color, 10%);
+					color: darker($can-toggle-off-color, 10%);
 					background-color: $can-toggle-button-off-color
 				}
 			}
 		}
-		&:hover ~label { color: lighten($can-toggle-off-color, 5%); }
+		&:hover ~label { color: lighter($can-toggle-off-color, 5%); }
 		&:checked {
 			~ label {
-				&:hover { color: darken($can-toggle-on-color, 3%); }
+				&:hover { color: darker($can-toggle-on-color, 3%); }
                 &:before { color: $can-toggle-off-inactive-text; }
 				.ui-chkbb-sw {
 					background-color: $can-toggle-on-color;
-					border-color: darken($can-toggle-button-on-color, 10%);
+					border-color: darker($can-toggle-button-on-color, 10%);
 					border-width: 1px;
 					border-style: solid;
 					&:before { color: $can-toggle-on-inactive-text; }
 					&:after {
 						color: $can-toggle-on-color;
 						background-color: $can-toggle-button-on-color;
-						border-color: darken($can-toggle-button-on-color, 10%);
+						border-color: darker($can-toggle-button-on-color, 10%);
 						border-width: 1px;
 						border-style: solid;
 					}
@@ -48,8 +49,8 @@
 			&:focus, &:hover {
 				~ label {
 					.ui-chkbb-sw {
-						background-color: lighten($can-toggle-on-color, 10%);
-						&:after { color: darken($can-toggle-on-color, 10%); }
+						background-color: lighter($can-toggle-on-color, 10%);
+						&:after { color: darker($can-toggle-on-color, 10%); }
 					}
 				}
 			}
@@ -59,7 +60,7 @@
 	label {
 		.ui-chkbb-sw {
 			transition: background-color 0.3s $can-toggle-transition;
-			background: lighten($can-toggle-off-color, 5%);
+			background: lighter($can-toggle-off-color, 5%);
 			&:before { color: $can-toggle-off-inactive-text; }
 			&:after {
 				// Autoprefixer choked here, so making the prefixes explicit
@@ -84,7 +85,7 @@
 	$can-toggle-switch-font-size: 12px,
 	$can-toggle-shadow: 0 2px 2px rgba($shadow-color, 0.4)
 ) {
-	$can-toggle-switch-width: ($can-toggle-width) / 2 - $can-toggle-offset;
+	$can-toggle-switch-width: math.div($can-toggle-width, 2) - $can-toggle-offset;
 
 	input[type="checkbox"] {
 
@@ -124,10 +125,10 @@
 			border-radius: $can-toggle-border-radius;
 
 			&:before {
-				left: $can-toggle-width/2;
+				left: math.div($can-toggle-width, 2);
 				font-size: $can-toggle-switch-font-size;
 				line-height: $can-toggle-height;
-				width: $can-toggle-width/2;
+				width: math.div($can-toggle-width, 2);
 				padding: 0 12px;
 			}
 

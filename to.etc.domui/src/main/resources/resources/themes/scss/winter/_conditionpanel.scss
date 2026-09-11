@@ -1,3 +1,4 @@
+@use "sass:list";
 @use "theme" as *;
 
 .ui-copa {
@@ -45,8 +46,8 @@
 	}
 }
 
-@for $i from 1 through length($copa-level-bgs) {
-	$color: nth($copa-level-bgs, $i);
+@for $i from 1 through list.length($copa-level-bgs) {
+	$color: list.nth($copa-level-bgs, $i);
 	.ui-copa-grp-l#{$i - 1} {
 		background-color: $color;
 	}
