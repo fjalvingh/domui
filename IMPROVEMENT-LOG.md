@@ -2156,6 +2156,31 @@ These were offered as input while the phase 0 items were being worked, and taken
       `@import`, a `darken()` and a `@warn` logs the three deprecations and the warning,
       excerpt and url included.
 
+- [x] **Documentation: the styling chapter describes the module system, and a page says
+      what an application changes.** Done 2026-09-11, the last step of the migration; with
+      it the plan item *Move the stylesheets to the Sass module system* is finished as a
+      whole (libsass removed 2026-09-11, the `theme` module, the theme restructured, the
+      `sass:` modules, the demo's sheets, the silencing removed - each in the log above).
+      In `domui.github.io`: `overriding-the-theme` explains `_custominit.scss` as the
+      theme's configuration - a name the theme does not declare is an error now, a value
+      derived from the theme goes in `_userstyle.scss` under `@use "theme" as *` - and
+      `sass-scss-support` no longer says the compiler is jsass (it has said so since the
+      page was written; Dart Sass replaced it on 2026-09-09) nor teaches `@import` as
+      include: it has the `parameters` and `theme` modules, the process pool, where the
+      compiler's warnings go, and *a module is loaded once* in place of *@import is
+      include*. `the-winter-theme` has the four-line `style.scss`, the file table and
+      `_stylesheet.scss`; `themes` shows the variant as `@forward ... with`;
+      `styling-your-component` puts `@use "theme" as *` at the top of the partial and its
+      variables in the derived tier. New: `moving-to-modules`, at the user's request -
+      what an existing application changes, file by file: `_custominit` (typos now fail,
+      nothing but declarations), `_userstyle` (one line), own partials (the same line, and
+      what *loaded once* means for a partial imported twice), sheets under `css/`
+      (`p.$themeVariant`), the parameters no longer setting theme variables, a variant of
+      one's own as two `with` clauses, a shadowing copy of a framework partial, and how
+      to find what is left (the error page, then the log). Its variant example was
+      compiled against the real theme - which caught `$line-color` in the wrong clause
+      before it went in - and the site builds at 164 pages with every link resolving.
+
 ## Decisions log
 
 ### 2026-09-11 - Configuration, not first-assignment-wins: the module system design
@@ -2228,6 +2253,13 @@ as before (plain `$name: value;` lines), `_userstyle.scss` and application sheet
 gain one `@use` line and lose `@import`, and shadowing a framework partial with a
 same-named webapp file keeps working, because the resolver already hands dart-sass a
 stable canonical url per resource name, which is what the module system keys on.
+
+A note on the documentation (added 2026-09-11, when the docs were written): the guiding
+principle says no migration notes, and `look-and-feel/moving-to-modules` is one. The
+user asked for it, and it is a different thing from documenting two generations of an
+API side by side: it describes one model - the current one - from the point of view of
+an application that has stylesheets, and says what in them has to change. Nothing on
+it explains how the old model worked beyond naming the line to replace.
 
 ### 2026-09-09 - The sass compiler is Dart Sass; the stylesheets still are not
 

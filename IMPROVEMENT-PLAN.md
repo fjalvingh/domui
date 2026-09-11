@@ -249,31 +249,6 @@ it. Everything else on this list is a question for the user, not a deletion.
       and by the rule above only the user can decide whether a generation of
       components is dropped, and with what deprecation period. Until then the
       work here is to stop the docs and the demo teaching them, which is done.
-- [ ] **Move the stylesheets to the Sass module system; libsass goes first.** The
-      scss/sass compiler is Dart Sass since 2026-09-09, but the sheets are still
-      written for libsass: 208 `@import`s instead of `@use`/`@forward`, slash
-      division instead of `math.div()`, and the global colour functions
-      (`lighten()`, `darken()`, `red()`, `adjust-hue()`) instead of `sass:color`.
-      All four are deprecated in Dart Sass and together they warn about 130 times
-      per compiled sheet, so `DartSassCompiler` silences them at process creation;
-      those four `addSilenceDeprecation()` calls are the marker for this work. The
-      design was decided on 2026-09-11 (see the decisions log: *configuration, not
-      first-assignment-wins*); the steps, in order, each verified by diffing the
-      compiled css of `$THEME/default/style.scss` and `$THEME/dark/style.scss`
-      against the css before the step:
-      - [x] Remove libsass. **Done 2026-09-11**, see the log.
-      - [x] The resolver: the virtual `theme` name. **Done 2026-09-11**, see the log.
-      - [x] The theme's structure, and every partial's `@import`. **Done 2026-09-11**,
-            see the log.
-      - [x] Mechanical passes to the `sass:` modules. **Done 2026-09-11**, see the log.
-      - [x] The silencing removed; the compiler's warnings are logged. **Done
-            2026-09-11**, see the log.
-      - [x] The application sheets. **Done 2026-09-11**, see the log.
-      - [ ] The documentation: `look-and-feel/sass-scss-support` still says the
-            compiler is jsass, and describes `@import` as include; it,
-            `overriding-the-theme`, `styling-your-component`, `themes` and
-            `the-winter-theme` describe the mechanism as it is after this.
-
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
       that add nothing.
 
