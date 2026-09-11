@@ -1,8 +1,9 @@
 # DomUI theming
 
 How theming works, after the removal of the two obsolete theme engines and the Rhino
-template machinery, and the reduction to one theme with per-session variants. The last
-sections record what was removed.
+template machinery, the reduction to one theme with per-session variants, and the move of
+the stylesheets to the Sass module system. The last sections record what was removed and
+what changed.
 
 All paths are relative to `domui/to.etc.domui/src/main/java/to/etc/domui/` unless said
 otherwise; resources live under `domui/to.etc.domui/src/main/resources/resources/`.
@@ -21,10 +22,10 @@ There is no registry and no theme name: `DomApplication` holds a single
 `IThemeFactory` field. The one thing that varies is the **theme variant**, which is
 per user session and is what a dark/light switch is built from.
 
-A theme is a **search path of directories** holding one `style.scss` plus the images that
-stylesheet and the components refer to; the variant, when it is not `default`, puts one
-more directory in front of that path. Serving it is two things: compiling the SCSS to CSS
-on demand, and resolving `THEME/xxx` image references against the search path.
+A theme is a **search path of directories** holding one `style.scss` plus the modules and
+images that stylesheet and the components refer to; the variant, when it is not `default`,
+puts one more directory in front of that path. Serving it is two things: compiling the SCSS
+to CSS on demand, and resolving `THEME/xxx` image references against the search path.
 
 ## 2. The two URL forms
 
@@ -229,16 +230,25 @@ the requesting session: the URL is what decides which sheet this is, and two ses
 different variants asking for the same sheet must share one cache entry.
 
 The compile itself: `SassPartFactory.generate()` → `SassCompilerFactory.createCompiler()`
-→ `DartSassCompiler` (Dart Sass over the embedded protocol, a pooled subprocess). Imports
-are resolved by `DartSassResolver` / `AbstractSassResolver` (`sass/AbstractSassResolver.java`),
-which:
+→ `DartSassCompiler` (Dart Sass over the embedded protocol, a pooled subprocess). Every
+`@use` and `@forward` the compiler meets is put to `DartSassImporter`, which hands it to the
+`DartSassResolver` / `AbstractSassResolver` (`sass/AbstractSassResolver.java`) of the running
+compilation. Every resource is presented to dart-sass as `domui:/<resource name>`, so the
+relative-path work (`.`, `..`, the loading file's directory) is dart-sass's own; the
+resolver:
 
-- resolves relative to the importing file's directory, honouring `.` and `..`;
-- tries the SCSS partial form (`_name.scss`) before the plain one;
-- resolves through `DomApplication.getResource()`, so an import inside
-  `$THEME/<theme>/style.scss` searches the theme's search path — this is how a colour or
-  icon directory earlier in the path overrides `_color.scss`;
-- **synthesises `_parameters.scss`** rather than reading it from disk (see §7).
+- tries the SCSS partial form (`_name.scss`) before the plain one, and the `.scss`, `.sass`
+  and `.css` suffixes when the name has none;
+- resolves through `DomApplication.getResource()`, so a name loaded from inside
+  `$THEME/<variant>/style.scss` searches the theme's search path — this is how a variant
+  directory earlier in the path supplies `_color.scss`;
+- **synthesises `parameters`** rather than reading it from disk (see §7), and maps
+  **`theme`** to `$THEME/<variant>/_index.scss`, the theme's own module (§15). Both are
+  matched on the basename from whatever directory asks.
+
+A message from the compiler - a `@warn`, a deprecation, a `@debug` - goes to
+`DartSassCompiler`'s slf4j logger (warn, warn, info), formatted by dart-sass with the
+source excerpt and the sheet's url; nothing is silenced.
 
 `?__nomap=true` disables the embedded source map (`DartSassCompiler.compiler()`); the offline
 renderer sets it (`dom/HtmlFileRenderer.java:412`), the normal one does not.
@@ -252,9 +262,9 @@ contributor stylesheets, falling back to the webapp file and then a classpath re
 
 ## 7. Getting values *into* a stylesheet
 
-There is exactly one channel: the generated `_parameters.scss`
-(`sass/AbstractSassResolver.java:243-270`). `style.scss` imports it first
-(`resources/themes/scss/winter/style.scss:5`). Its content is built from:
+There is exactly one channel: the generated `parameters` module
+(`AbstractSassResolver.generateParameterFile()`), which a sheet loads with
+`@use "parameters" as p;` and reads as `p.$name`. Its content is built from:
 
 1. every URL parameter of the request that does not start with `__`, as `$name: value;`
    (a name ending in `$` marks the value as a string to be quoted);
@@ -266,15 +276,19 @@ There is exactly one channel: the generated `_parameters.scss`
 
 On top of those, `$themeVariant` is always defined, holding the name of the variant the
 sheet is being compiled for. That is the alternative to a directory per variant: one file
-can `@if $themeVariant == "dark"` instead.
+can `@if p.$themeVariant == "dark"` instead.
+
+A parameter is a value a sheet *reads*. It does not set a theme variable by having the same
+name: the theme's variables are configured from `_custominit.scss` alone (§15), and a
+parameter becomes a theme variable only by a line there - `$link-color: p.$brand-color;`.
 
 A physical `_parameters.scss` also exists in the theme directory but is never read — the
 resolver intercepts the name before any lookup. Its content says as much: *"its content
 serves as a reminder only"*.
 
-Two further override hooks are empty files in the theme, imported by `style.scss` and
-meant to be shadowed by a webapp copy: `_custominit.scss` (imported second, before the
-variables) and `_userstyle.scss` (imported after them).
+Two further hooks are near-empty files in the theme, meant to be shadowed by a webapp copy:
+`_custominit.scss`, the declarations `style.scss` configures the theme with, and
+`_userstyle.scss`, the application's own rules, loaded first by `_stylesheet.scss`.
 
 ## 8. Icons
 
@@ -345,10 +359,12 @@ page render
 
 browser GET /$THEME/dark/style.scss?$hash=...
   PartRequestHandler -> PartService.render -> SassPartFactory (cache hit; key's variant from the URL)
-    DartSassCompiler + DartSassResolver
-      imports resolve via DomApplication.getResource -> ThemeResourceFactory
+    DartSassCompiler + DartSassImporter + DartSassResolver
+      style.scss: @use "custominit"; load-css("theme", $with: its variables); load-css("stylesheet")
+      every @use resolves via DomApplication.getResource -> ThemeResourceFactory
         -> SassTheme.getThemeResource -> search path -> winter/dark/_color.scss, else winter/_color.scss
-      "parameters" import -> $themeVariant + URL params + setThemeProperty + IThemeVariablesCalculator
+      "theme"      -> $THEME/dark/_index.scss
+      "parameters" -> $themeVariant + URL params + setThemeProperty + IThemeVariablesCalculator
 
 browser GET /$THEME/dark/btnCancel.png
   PartService.render -> InternalResourcePart ("$" prefix)
@@ -466,8 +482,8 @@ the URL, but exactly one, with variants.
 - The `themeName` carried by `IPageParameters` became `themeVariantName`, and
   `SassPartFactory.decodeKey` now takes it **from the URL** rather than from the requesting
   session, so two sessions in different variants share one cache entry per sheet.
-- The stylesheet gets `$themeVariant` as an scss variable, so a single file can branch on
-  the variant instead of needing a directory of its own.
+- The stylesheet gets `$themeVariant` in its `parameters` module, so a single file can
+  branch on the variant instead of needing a directory of its own.
 
 Verified against a locally run demo, with a `dark` variant dropped into the demo webapp as
 `themes/scss/winter/dark/_color.scss` (removed again afterwards):
@@ -484,10 +500,12 @@ DomUI ships one variant of its own: `dark`, selected with `DarkThemeVariant.INST
 is **one file** — `resources/themes/scss/winter/dark/_color.scss` — and it repeats no rule
 of the theme and copies no partial.
 
-**How one file can be enough.** `style.scss` imports `color` *before* `variables`, and
-everything in `_variables.scss` carries `!default`. So a variable set in `dark/_color.scss`
-wins, and `_derived-variables.scss` recomputes the derived palette — `$text`,
-`$background`, `$border`, `$link`, the input colours — from it. Most of the work is done by
+**How one file can be enough.** `_color.scss` is where the theme's two variable modules
+are loaded, and the variant's copy loads them *with* its values -
+`@forward "variables" with (...)`, `@forward "derived-variables" with (...)` - so a variable
+set in `dark/_color.scss` is the default the module starts from, and
+`_derived-variables.scss` recomputes the derived palette — `$text`, `$background`,
+`$border`, `$link`, the input colours — from it (§15 has the mechanism). Most of the work is done by
 turning the greyscale ramp upside down: `$white`/`$white-bis`/`$white-ter` become the three
 darkest surfaces and `$grey-darker`…`$grey-lighter` run from lightest text to darkest
 border. Every rule that reaches for "the light end of the ramp" then gets a dark colour
@@ -512,8 +530,8 @@ that mattered were changed to name what a colour is *for*:
 
 The calendar was vendor CSS (`calendar-theme.css`) and so could hold no variables at all;
 it is now `_calendarTheme.scss`, with one variable per distinct colour, each defaulting to
-the literal it replaced. It also had to move down `style.scss`, below the variable imports,
-or its own `!default`s would win over a variant's.
+the literal it replaced; the variables are in `_derived-variables.scss` with every other
+component's.
 
 Two of these are additions rather than substitutions: the theme never gave `body` a text
 colour, and never gave text inputs a background — both relied on the browser default. A
@@ -546,7 +564,7 @@ from the greyscale ramp in `_derived-variables.scss` and so already followed a v
 `$line-color` is for everything else, and the two must not be confused.
 
 **Things that nest get a ladder, not a grey each.** `$grey-ramp` (`_variables.scss`) is
-the greyscale as an ordered list and `ladder($from, $level)` (`functions.scss`) walks it,
+the greyscale as an ordered list and `ladder($from, $level)` (`_functions.scss`) walks it,
 so a component with nesting levels takes consecutive rungs instead of hand-picking a grey
 per level:
 
@@ -567,8 +585,8 @@ greys are a *sequence*: the popup menu's middle levels were `#666` and `#888`, w
 round to `$grey` and would have collapsed a three-rung ladder into two. `$ladder-direction`
 inverts along with the ramp, so a ladder keeps stepping away from the page ground in
 either variant — the dark variant's entire entry for the popup menu is
-`$ladder-direction: -1` and `$pmnu-bg: $white-ter`, and both menus then step the same way
-visually:
+`$ladder-direction: -1 !default` and `$pmnu-bg: v.$white-ter !default`, and both menus then
+step the same way visually:
 
 | | rung 0 | 1 | 2 | 3 | frame `-3` |
 | --- | --- | --- | --- | --- | --- |
@@ -585,7 +603,7 @@ deliberately — a real popup menu does not nest three deep.
 `IRequestContext.setThemeVariant()` and then calls `WebUI.refreshPage()`: the stylesheet
 link is written by the *full* renderer, so an ajax delta would leave the old sheet in
 place. The refresh keeps the conversation, so page state survives the switch. The demo's
-own stylesheet imports `parameters` and branches on `$themeVariant` for its own hardcoded
+own stylesheet loads `parameters` and branches on `p.$themeVariant` for its own hardcoded
 colours (`css/_darkstyle.scss`) — an application has no theme variables to set, so that is
 the right tool there.
 
@@ -751,7 +769,96 @@ and they are how a new colour is added:
   to be a breadcrumb link, a badge digit, a selected-item background, a toggle parameter, a
   panel ground and a title tint.
 
-Nine colour literals remain and all are deliberate: the colour picker's three `#f00` sample
-swatches, `red()`/`green()`/`blue()` in `_draganddrop` (SCSS channel functions, not
-colours), two hex values quoted inside a comment in `_popupmenu.scss`, and `_devmode`,
-skipped by direction. The account of the five batches is in `IMPROVEMENT-LOG.md`.
+Nine colour literals remained after the sweep and all were deliberate: the colour picker's
+three `#f00` sample swatches, `red()`/`green()`/`blue()` in `_draganddrop` (SCSS channel
+functions, not colours - since §15 written `rgba($green-accent, 0.1)` in
+`_derived-variables.scss`), two hex values quoted inside a comment in `_popupmenu.scss`,
+and `_devmode`, skipped by direction. The account of the five batches is in
+`IMPROVEMENT-LOG.md`.
+
+## 15. The module system
+
+Done 2026-09-11, in six commits; the account of each is in `IMPROVEMENT-LOG.md` and the
+design in its decisions log of that date. The theme is written for Sass's module system -
+`@use` and `@forward` - and nothing it contains is deprecated in Dart Sass: no `@import`, no
+slash division, no global built-in function. libsass (`io.bit3:jsass`, and the
+`binary-dependencies/jsass` module that patched it for Apple silicon) is gone; Dart Sass
+is the one compiler, and the four `addSilenceDeprecation()` calls that hid the old
+constructs from it went with the constructs.
+
+**What the old model was.** One global scope, filled by `@import` in the order
+`style.scss` chose: `parameters`, then the application's `_custominit`, then the theme's
+`!default` declarations, then `_userstyle`, then the partials. Everything about overriding
+rested on *whoever assigns first wins* - a value from the URL, from `setThemeProperty()`,
+from the calculator or from `_custominit.scss` pre-empted a theme default by being earlier
+in that one scope. A partial saw every variable without loading anything, and re-importing
+`variables` (as 74 partials did) re-executed the file, harmlessly, every time.
+
+**What the new model is: configuration.** A module is loaded once and sees only what it
+loads; a `!default` variable in it can be pre-set only through `@use "x" with (...)` or
+`meta.load-css("x", $with: (...))`, whose keys must all be `!default` variables the module
+declares or forwards. `style.scss` is therefore four lines:
+
+```scss
+@use "sass:meta";
+@use "custominit";
+@include meta.load-css("theme", $with: meta.module-variables("custominit"));
+@include meta.load-css("stylesheet");
+```
+
+Load the application's `_custominit.scss`; configure the theme with every variable it
+declares; load the stylesheet proper. The files:
+
+| File | Role |
+| --- | --- |
+| `_index.scss` | the `theme` module - forwards `color`, `functions`, `bulmaish/core_defs`; emits nothing. The resolver maps the name `theme` to it, in the variant being compiled, from any directory |
+| `_color.scss` | the variant's configuration of the variables: `@forward "variables"` and `@forward "derived-variables"`, plain in the light variant, `with (...)` in a variant's copy |
+| `_variables.scss` | tier 1, the main set; loads nothing |
+| `_functions.scss` | a module over `variables`; cannot read tier 2 (which uses it) |
+| `_derived-variables.scss` | tier 2, over `variables` and `functions`; also holds the 86 `!default`s that thirteen partials used to declare for themselves, so the configuration reaches them |
+| `_stylesheet.scss` | the old import list as 106 `@use` rules in the same order, `userstyle` first |
+| every partial | starts with `@use "theme" as *;` and declares no `!default` |
+
+The dark variant is the mechanism at work: `dark/_color.scss` forwards `variables` with
+its 79 first-tier values and `derived-variables` with its 34 second-tier ones, reading the
+first tier for the second through `@use "variables" as v` between the two forwards. Every
+value carries `!default` inside the `with` clause, which is what lets the configuration
+from `_custominit.scss` still win over the variant - verified: a `$white` in `_custominit`
+beats the variant's, and the derived tier recomputes from the result.
+
+**What it cost, and what it found.** The rules of both variants compile identical to what
+`@import` produced, with two exceptions that are both repairs: the DataTable block that
+`_monthpanel.scss` imported for two variables was emitted twice and is emitted once, and
+`$esic-label-color: findColorInvert($esic-label-bg)` sat in `_variables.scss`, imported
+*before* `functions`, so the css had always said `color: findColorInvert(#d4f94e)` - the
+EnumSetInput label's text colour applies for the first time. Twelve names were declared in
+both tiers, which `@import` tolerated (the first won) and two forwarded modules do not; the
+losing copies are gone. `darken()`, `lighten()` and `saturate()` clamped and
+`color.adjust()` does not - black darkened by 1% became `hsl(0, 0%, -1%)` - so the theme
+has `darker()`, `lighter()` and `moreSaturated()`, which clamp and reproduce the old output
+exactly. The sheets shrank from 208KB to 178KB: the loud comments of the variable files,
+repeated by every re-import, are gone. The verification harness compiled the theme with the
+dart-sass CLI after each step and diffed the rules against the css jetty had served before
+the first, then compared jetty's own output with the CLI's.
+
+**The application-facing contract**, decided by the user over the alternative that kept
+every old behaviour through a lookup function: `_custominit.scss` is written as before, but
+a name the theme does not declare is now a compile error instead of a silent no-op; the
+parameters (`setThemeProperty()`, the calculator, the URL) are a module a sheet reads and
+no longer configure the theme by name; and a sheet reaches the theme with one line. The
+documentation site's `look-and-feel/moving-to-modules` is the page for an application; the
+short form:
+
+| In | Change |
+| --- | --- |
+| `_custominit.scss` | nothing but `$name: value;` lines, every name one the theme declares. A parameter becomes a theme variable here: `@use "parameters" as p; $link-color: p.$brand-color;` |
+| `_userstyle.scss` | `@use "theme" as *;` at the top; `@import` of own partials becomes `@use` |
+| own partials | the same first line in each that reads a theme variable or mixin; a partial imported twice emitted its rules twice, a module emits them once |
+| sheets under `css/` | `@import 'parameters'` becomes `@use "parameters" as p;` and `$themeVariant` becomes `p.$themeVariant`, in every file that reads it; `!global` inside an `@if` is unnecessary |
+| a variant of one's own | `!default` declarations become two `with` clauses, one per tier, each value still `!default`; the compiler names a variable put in the wrong clause |
+| a copy of a framework partial | the `@use "theme" as *;` header, and no `!default` of its own |
+| `darken()` and friends | logged as deprecated; `darker()`/`lighter()`/`moreSaturated()` from the theme, or `sass:color` |
+
+What is left is found by reloading: an error fails the request with the compiler's message,
+and every deprecated construct that still compiles is logged at warn level with its file and
+line.
