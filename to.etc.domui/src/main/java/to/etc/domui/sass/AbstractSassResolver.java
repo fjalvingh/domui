@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.IPageParameters;
+import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
@@ -64,6 +65,17 @@ abstract public class AbstractSassResolver<O> {
 	public AbstractSassResolver(IPageParameters params, IResourceDependencyList dependencyList) {
 		m_params = params;
 		m_dependencyList = dependencyList;
+	}
+
+	/**
+	 * The name of the theme variant the sheet is being compiled for: the one in the URL for a
+	 * themed sheet, the requesting session's for any other sheet, and the default variant when
+	 * neither says.
+	 */
+	@NonNull
+	protected String getThemeVariantName() {
+		String variant = m_params.getThemeVariantName();
+		return null == variant ? DefaultThemeVariant.INSTANCE.getVariantName() : variant;
 	}
 
 	public O resolve(String original, String parentFile) {

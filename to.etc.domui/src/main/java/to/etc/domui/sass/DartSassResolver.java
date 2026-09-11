@@ -4,6 +4,7 @@ import com.sass_lang.embedded_protocol.InboundMessage.ImportResponse.ImportSucce
 import com.sass_lang.embedded_protocol.Syntax;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.state.IPageParameters;
+import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
 import java.net.URI;
@@ -24,6 +25,15 @@ import java.util.Map;
  * handling is done by dart-sass; what arrives here is always a complete resource name, so only
  * the partial (_name) and suffix conventions remain to be handled.</p>
  *
+ * <p>Two names are virtual and are recognised by their basename, from whatever directory they
+ * are asked for: <code>parameters</code> is the generated file holding the request's variables
+ * (see {@link AbstractSassResolver#generateParameterFile()}), and <code>theme</code> is the
+ * theme's own module, <code>$THEME/[variant]/_index.scss</code> for the variant the sheet is
+ * being compiled for. So a partial inside the theme, an application's <code>_userstyle.scss</code>
+ * and an application sheet outside the theme directory all reach the theme with the same
+ * <code>@use "theme" as *;</code>. A resource that is itself called <code>_parameters.scss</code>
+ * or <code>_theme.scss</code> is consequently unreachable.</p>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 final class DartSassResolver extends AbstractSassResolver<ImportSuccess> {
@@ -35,6 +45,12 @@ final class DartSassResolver extends AbstractSassResolver<ImportSuccess> {
 
 	/** All names under which the generated, virtual parameter file can be imported. */
 	static private final List<String> PARAMETER_NAMES = Arrays.asList("parameters", "_parameters", "parameters.scss", "_parameters.scss", "parameters.sass", "_parameters.sass");
+
+	/** All names under which the theme's module is imported. */
+	static private final List<String> THEME_NAMES = Arrays.asList("theme", "_theme", "theme.scss", "_theme.scss", "theme.sass", "_theme.sass");
+
+	/** The theme module: the index file of the theme directory. */
+	static private final String THEME_INDEX = "_index.scss";
 
 	private final Map<String, ImportSuccess> m_byUrl = new HashMap<>();
 
@@ -72,6 +88,10 @@ final class DartSassResolver extends AbstractSassResolver<ImportSuccess> {
 		String lastName = name.substring(name.lastIndexOf('/') + 1);
 		if(PARAMETER_NAMES.contains(lastName))
 			return resolve("_parameters.scss", "");
+
+		//-- The theme module is the index of the theme directory of the variant this sheet is compiled for.
+		if(THEME_NAMES.contains(lastName))
+			return resolve(ThemeResourceFactory.PREFIX + getThemeVariantName() + "/" + THEME_INDEX, "");
 
 		if(hasSuffix(name))
 			return resolve(name, "");

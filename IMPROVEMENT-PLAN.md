@@ -262,11 +262,7 @@ it. Everything else on this list is a question for the user, not a deletion.
       compiled css of `$THEME/default/style.scss` and `$THEME/dark/style.scss`
       against the css before the step:
       - [x] Remove libsass. **Done 2026-09-11**, see the log.
-      - [ ] The resolver: `_parameters.scss` stays a generated file (its variable
-            declarations already are a module), and a second virtual name, `theme`,
-            resolves to `$THEME/<variant>/_index.scss` so that a partial, the
-            application's `_userstyle.scss` and an application sheet outside the
-            theme all reach the theme with the same `@use "theme" as *;`.
+      - [x] The resolver: the virtual `theme` name. **Done 2026-09-11**, see the log.
       - [ ] The theme's structure: `winter/_index.scss` forwards `color`,
             `derived-variables` and `functions`; `_color.scss` becomes
             `@forward "variables"` and the dark variant's `_color.scss` becomes
@@ -277,7 +273,10 @@ it. Everything else on this list is a question for the user, not a deletion.
             `!default` variables that component partials declare for themselves
             (`_calendarTheme`, `bulmaish/_button_common`, `_switch`, ...) move to
             `_derived-variables.scss`, where the convention in `_variables.scss`'s
-            header says component variables live, so they stay configurable.
+            header says component variables live, so they stay configurable. The
+            `/** ... **/` loud comments in the variable files become `//` comments:
+            a loud comment is css output, and a module that is only `@use`d for
+            its variables must emit nothing (seen in the step before this).
       - [ ] Every partial: `@import "variables"` / `@import "derived-variables"`
             becomes `@use "theme" as *;`; the ~150 `@import`s of `style.scss`
             become `@use`s, in the same order, so the css order does not change.

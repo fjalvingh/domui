@@ -2024,6 +2024,28 @@ These were offered as input while the phase 0 items were being worked, and taken
       rules in each variant). That css is kept as the baseline every following step
       of the migration is diffed against.
 
+- [x] **Framework: the scss resolver knows the theme as a module.** Done 2026-09-11,
+      the second step of the module system migration. Next to `parameters`,
+      `DartSassResolver` recognises a second virtual name by its basename: `theme`
+      resolves to `$THEME/<variant>/_index.scss`, the variant being the one in the URL
+      for a themed sheet, the requesting session's for any other sheet, and the default
+      when neither says (`AbstractSassResolver.getThemeVariantName()`). It resolves
+      through the same `resolve()` as a relative name would, so it is one canonical url
+      and one module however it is reached. `winter/_index.scss` exists now, in a
+      provisional form - `@forward "derived-variables"` - that the theme's restructuring
+      replaces; for it to load as a module at all, `_derived-variables.scss` had to
+      import `color` itself, before `variables`, because under `@import` it read the
+      colour file's variables from `style.scss`'s global scope. Verified under
+      `jetty:run` with a throwaway sheet `@use "theme" as *; @use "parameters" as p;`
+      asked for three ways: as `css/themetest.scss` (an application sheet, default
+      session: `#2200cc`, `"default"`), as `$THEME/default/themetest.scss` (same) and
+      as `$THEME/dark/themetest.scss` (`hsl(210, 90%, 72%)`, `"dark"` - the dark
+      palette through the module path). Both variants' `style.scss` and the demo's
+      `demostyle.scss` are byte-identical to the baseline. One thing it showed: the
+      `/** ... **/` loud comments in the variable files are css output, so a sheet that
+      only `@use`s the theme gets ten comment lines; they become `//` comments when
+      the files are rewritten.
+
 ## Decisions log
 
 ### 2026-09-11 - Configuration, not first-assignment-wins: the module system design
