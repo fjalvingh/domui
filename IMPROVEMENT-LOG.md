@@ -2008,7 +2008,94 @@ These were offered as input while the phase 0 items were being worked, and taken
       22 of them the component's own), 10 unit tests in the module itself, and the site
       generates cleanly at 163 pages with every `!demo()` frame drawing the live demo.
 
+- [x] **Framework: libsass is gone.** Done 2026-09-11, the first step of the module
+      system migration (see the decisions log entry of that date for why it goes first).
+      Deleted: `JSassCompiler` and `JSassResolver`, the `io.bit3:jsass` dependency in
+      the root and `to.etc.domui` poms, and the whole `binary-dependencies` module -
+      its only child was `jsass`, the hand-patched 5.10.5 jar for Apple silicon that
+      existed because libsass's native library would not load there. `SassCompilerFactory`
+      registers `DartSassCompiler` alone and keeps its list, so an application can still
+      register an `ISassCompiler` of its own. `finished-plans/THEMES.md` named the old
+      classes in its request walk-through and now names the current ones. Verified:
+      `to.etc.domui` and the demo build offline, `demo.war` carries the three
+      `sass-embedded-*` jars and nothing of jsass, and under `jetty:run`
+      `$THEME/default/style.scss`, `$THEME/dark/style.scss` and the demo's
+      `css/demostyle.scss` compile as before (208341, 212398 and 8422 bytes, 1441
+      rules in each variant). That css is kept as the baseline every following step
+      of the migration is diffed against.
+
 ## Decisions log
+
+### 2026-09-11 - Configuration, not first-assignment-wins: the module system design
+
+Everything about theming rested on one property of `@import`: whoever assigns a
+variable first wins. `style.scss` imported `parameters` (generated), then the
+application's `_custominit`, then the theme's `!default` declarations, so a value
+from the URL, from `setThemeProperty()`, from the `IThemeVariablesCalculator` or from
+`_custominit.scss` pre-empted the theme's defaults by being earlier in one global
+scope. `@use` has no such scope: a module is loaded once, its `!default` variables
+can only be pre-set through `@use "x" with (...)`, and that clause is an explicit list
+whose keys must all be `!default` variables of the module - there is no way to spread a
+map into it. That is the design problem of the migration; `math.div()` and the
+`sass:color` functions are mechanical.
+
+Two designs were prototyped against the bundled dart-sass 1.94.2 and both work:
+
+- **An override map.** A module builds one map from `meta.module-variables("custominit")`
+  and `meta.module-variables("parameters")`, and every theme variable is declared as
+  `$x: o.get(x, default)` instead of `$x: default !default`. It keeps every current
+  contract - all four sources keep overriding theme variables, unknown names are
+  ignored - at the price of a mechanism nobody who reads the Sass documentation will
+  recognise.
+- **Configuration.** The theme is a configurable module: `winter/_index.scss` forwards
+  the variable files, `style.scss` does `@use "custominit"` and
+  `meta.load-css(..., $with: meta.module-variables("custominit"))`. A typo in
+  `_custominit.scss` is now a compile error (`$fnot-size was not declared with
+  !default in the @used module`) where it used to be silently ignored. But the `$with`
+  map may hold only theme variables, so the URL parameters, `setThemeProperty()` and
+  the calculator can no longer pre-set theme variables: they become the `parameters`
+  module that a sheet reads as `p.$name`.
+
+**Decided: configuration.** The user chose the idiomatic design over keeping the
+contract that outside values override theme variables. Nothing in the framework, the
+demo or the skeleton sets a theme property (the demo only reads `$themeVariant`), so
+the capability that is lost is documented but unused here; applications that used it
+set the value in `_custominit.scss` instead - which may itself `@use "parameters"`,
+so a value that comes from the request can still be turned into a theme variable, by
+the application, explicitly. Verified in the prototype.
+
+The variant follows from that. Today `dark/_color.scss` is 115 `!default` lines that
+win by being imported before `_variables.scss`; under modules it is
+`@forward "variables" with ($white: #1e1e1e !default, ...)`: the variant is a
+*configuration* of the theme's variables, and the `!default` in its `with` clause is
+what lets `_custominit` still win over it. Verified: custominit's `$white` beats the
+variant's, `_derived-variables` recomputes from the result, and the light variant's
+`_color.scss` is simply `@forward "variables"`. The three `!default`s the light
+`_color.scss` declares itself, and the ones component partials declare for
+themselves (`_calendarTheme` 28, `bulmaish/_button_common` 21, `_switch`, `_tabpanel`,
+`_radiobutton`, ...), move to `_derived-variables.scss` - where `_variables.scss`'s
+own header says component variables live - so that the `$with` map can still reach
+them.
+
+Two smaller decisions, taken at the same time:
+
+- Partials reference the theme unprefixed, `@use "theme" as *;`, from one aggregate
+  module, rather than through an explicit namespace on every one of hundreds of
+  variable references. `theme` is a second virtual name the resolver knows, next to
+  `parameters`: it resolves to `$THEME/<variant>/_index.scss`, so a partial inside
+  the theme, the application's `_userstyle.scss` and an application sheet outside the
+  theme directory all reach it with the same line, and the variant is the one the
+  sheet is being compiled for. A webapp partial literally named `_theme.scss` is
+  therefore unreachable, as `_parameters.scss` already is.
+- libsass goes **first**, not last as the plan said: it never implemented `@use`, so
+  it stops being a fallback with the first migrated sheet regardless. Its removal is
+  an independent commit that can be verified on its own.
+
+What the application-facing contract becomes: `_custominit.scss` is written exactly
+as before (plain `$name: value;` lines), `_userstyle.scss` and application sheets
+gain one `@use` line and lose `@import`, and shadowing a framework partial with a
+same-named webapp file keeps working, because the resolver already hands dart-sass a
+stable canonical url per resource name, which is what the module system keys on.
 
 ### 2026-09-09 - The sass compiler is Dart Sass; the stylesheets still are not
 

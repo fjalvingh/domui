@@ -249,22 +249,51 @@ it. Everything else on this list is a question for the user, not a deletion.
       and by the rule above only the user can decide whether a generation of
       components is dropped, and with what deprecation period. Until then the
       work here is to stop the docs and the demo teaching them, which is done.
-- [ ] **Move the stylesheets to the Sass module system, and then drop libsass.**
-      The scss/sass compiler is Dart Sass since 2026-09-09 (see the decisions log),
-      but the sheets are still written for libsass: 208 `@import`s instead of
-      `@use`/`@forward`, slash division instead of `math.div()`, and the global
-      colour functions (`lighten()`, `darken()`) instead of the `sass:color`
-      module. All four are deprecated in Dart Sass and together they warn about 130
-      times per compiled sheet, so `DartSassCompiler` silences them at process
-      creation; those four `addSilenceDeprecation()` calls are the marker for this
-      work. It is not a mechanical rewrite: the theme is built on `!default`
-      variables overridden from the generated `_parameters.scss`, and `@use` does
-      not leak variables the way `@import` does, so the parameter file has to
-      become a configured module (`@use "..." with (...)`) or the variables have to
-      be reached another way. When it is done, remove the silencing, and then the
-      libsass fallback with it: `JSassCompiler`, `JSassResolver`, the `io.bit3:jsass`
-      dependency in both poms, and the `binary-dependencies/jsass` module with the
-      hand-patched ARM jar it exists for.
+- [ ] **Move the stylesheets to the Sass module system; libsass goes first.** The
+      scss/sass compiler is Dart Sass since 2026-09-09, but the sheets are still
+      written for libsass: 208 `@import`s instead of `@use`/`@forward`, slash
+      division instead of `math.div()`, and the global colour functions
+      (`lighten()`, `darken()`, `red()`, `adjust-hue()`) instead of `sass:color`.
+      All four are deprecated in Dart Sass and together they warn about 130 times
+      per compiled sheet, so `DartSassCompiler` silences them at process creation;
+      those four `addSilenceDeprecation()` calls are the marker for this work. The
+      design was decided on 2026-09-11 (see the decisions log: *configuration, not
+      first-assignment-wins*); the steps, in order, each verified by diffing the
+      compiled css of `$THEME/default/style.scss` and `$THEME/dark/style.scss`
+      against the css before the step:
+      - [x] Remove libsass. **Done 2026-09-11**, see the log.
+      - [ ] The resolver: `_parameters.scss` stays a generated file (its variable
+            declarations already are a module), and a second virtual name, `theme`,
+            resolves to `$THEME/<variant>/_index.scss` so that a partial, the
+            application's `_userstyle.scss` and an application sheet outside the
+            theme all reach the theme with the same `@use "theme" as *;`.
+      - [ ] The theme's structure: `winter/_index.scss` forwards `color`,
+            `derived-variables` and `functions`; `_color.scss` becomes
+            `@forward "variables"` and the dark variant's `_color.scss` becomes
+            `@forward "variables" with (... !default)` - the variant is a
+            configuration of the variables, not an earlier assignment. `style.scss`
+            becomes `@use "custominit"` plus `meta.load-css("index" + the
+            component list, $with: meta.module-variables("custominit"))`. The
+            `!default` variables that component partials declare for themselves
+            (`_calendarTheme`, `bulmaish/_button_common`, `_switch`, ...) move to
+            `_derived-variables.scss`, where the convention in `_variables.scss`'s
+            header says component variables live, so they stay configurable.
+      - [ ] Every partial: `@import "variables"` / `@import "derived-variables"`
+            becomes `@use "theme" as *;`; the ~150 `@import`s of `style.scss`
+            become `@use`s, in the same order, so the css order does not change.
+      - [ ] Mechanical passes: slash division to `math.div()`, `lighten()` and
+            friends to `color.adjust()`/`color.mix()`/`color.channel()`,
+            `map-get()`/`nth()`/`index()`/`length()` to `map.*`/`list.*`.
+      - [ ] Remove the four `addSilenceDeprecation()` calls; from then on a
+            deprecation warning is something to fix.
+      - [ ] The application sheets: the demo's `css/demostyle.scss` and partials,
+            and the skeleton's `appstyle.scss` (`@import 'parameters'` becomes
+            `@use "parameters" as p;`, `$themeVariant` becomes `p.$themeVariant`).
+            Run the demo in both variants and the IT suite.
+      - [ ] The documentation: `look-and-feel/sass-scss-support` still says the
+            compiler is jsass, and describes `@import` as include; it,
+            `overriding-the-theme`, `styling-your-component`, `themes` and
+            `the-winter-theme` describe the mechanism as it is after this.
 
 - [ ] Replace 2017-2018 screenshots that no longer match reality; delete those
       that add nothing.

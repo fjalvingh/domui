@@ -176,7 +176,6 @@
     </properties>
 
     <modules>
-        <module>binary-dependencies</module>
         <module>common</module>
         <module>to.etc.webapp.core</module>
         <module>to.etc.domui</module>
@@ -752,14 +751,8 @@
                 </exclusions>
             </dependency>
 
-            <!-- https://mvnrepository.com/artifact/io.bit3/jsass -->
-            <dependency>
-                <groupId>io.bit3</groupId>
-                <artifactId>jsass</artifactId>
-                <version>5.10.5-PATCH</version>
-            </dependency>
 
-            <!-- Dart Sass, spoken to over the sass embedded protocol; replaces the end-of-life libsass in jsass.
+            <!-- Dart Sass, spoken to over the sass embedded protocol.
                  sass-embedded-host pulls in sass-embedded-bundled, which carries the dart-sass binaries for all
                  common platforms (~47MB). Exclude that artifact and set the "domui.sass.executable" option to use
                  a dart-sass installed on the machine instead.

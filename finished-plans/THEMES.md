@@ -229,8 +229,9 @@ the requesting session: the URL is what decides which sheet this is, and two ses
 different variants asking for the same sheet must share one cache entry.
 
 The compile itself: `SassPartFactory.generate()` → `SassCompilerFactory.createCompiler()`
-→ `JSassCompiler` (libsass via jsass). Imports are resolved by `JSassResolver` /
-`AbstractSassResolver` (`sass/AbstractSassResolver.java`), which:
+→ `DartSassCompiler` (Dart Sass over the embedded protocol, a pooled subprocess). Imports
+are resolved by `DartSassResolver` / `AbstractSassResolver` (`sass/AbstractSassResolver.java`),
+which:
 
 - resolves relative to the importing file's directory, honouring `.` and `..`;
 - tries the SCSS partial form (`_name.scss`) before the plain one;
@@ -239,7 +240,7 @@ The compile itself: `SassPartFactory.generate()` → `SassCompilerFactory.create
   icon directory earlier in the path overrides `_color.scss`;
 - **synthesises `_parameters.scss`** rather than reading it from disk (see §7).
 
-`?__nomap=true` disables the embedded source map (`JSassCompiler.java:60-64`); the offline
+`?__nomap=true` disables the embedded source map (`DartSassCompiler.compiler()`); the offline
 renderer sets it (`dom/HtmlFileRenderer.java:412`), the normal one does not.
 
 ### 6.3 The offline renderer differs
@@ -344,7 +345,7 @@ page render
 
 browser GET /$THEME/dark/style.scss?$hash=...
   PartRequestHandler -> PartService.render -> SassPartFactory (cache hit; key's variant from the URL)
-    JSassCompiler + JSassResolver
+    DartSassCompiler + DartSassResolver
       imports resolve via DomApplication.getResource -> ThemeResourceFactory
         -> SassTheme.getThemeResource -> search path -> winter/dark/_color.scss, else winter/_color.scss
       "parameters" import -> $themeVariant + URL params + setThemeProperty + IThemeVariablesCalculator

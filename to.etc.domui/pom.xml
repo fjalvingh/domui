@@ -127,12 +127,6 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/io.bit3/jsass -->
-		<dependency>
-			<groupId>io.bit3</groupId>
-			<artifactId>jsass</artifactId>
-		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/de.larsgrefer.sass/sass-embedded-host -->
 		<dependency>
 			<groupId>de.larsgrefer.sass</groupId>

@@ -54,7 +54,6 @@ final public class SassCompilerFactory {
 	}
 
 	static {
-		register(new DartSassCompiler());				// Dart Sass, the reference implementation, is used when its process can be started,
-		register(new JSassCompiler());					// and the end-of-life libsass is the fallback for as long as it is still here.
+		register(new DartSassCompiler());				// Dart Sass, the reference implementation. An application can register another ISassCompiler after it.
 	}
 }

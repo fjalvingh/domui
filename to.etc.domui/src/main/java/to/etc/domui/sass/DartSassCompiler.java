@@ -27,7 +27,7 @@ import java.util.Deque;
 /**
  * Compiles scss/sass using Dart Sass, the reference implementation, which is spoken to over the
  * Sass embedded protocol: the compiler is a separate process, and this is the "host" side of that
- * conversation. It replaces the {@link JSassCompiler}, which uses the end-of-life libsass.
+ * conversation.
  *
  * <p>Starting the process is expensive and a single process compiles one sheet at a time, so
  * processes are pooled: a compilation borrows one and returns it when it is done. The pool is
@@ -203,7 +203,7 @@ public class DartSassCompiler implements ISassCompiler {
 			: new SassCompiler(ConnectionFactory.ofExecutable(new File(executable)));
 
 		/*
-		 * The DomUI stylesheets are still written for libsass: @import instead of @use/@forward,
+		 * The DomUI stylesheets are still written for the pre-module Sass: @import instead of @use/@forward,
 		 * slash division instead of math.div, and the global colour functions (lighten, darken)
 		 * instead of the sass:color module. All four are deprecated in Dart Sass and together they
 		 * warn about 130 times per compiled sheet, so they are silenced until the sheets have been
