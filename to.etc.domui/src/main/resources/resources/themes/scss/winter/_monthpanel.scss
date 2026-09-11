@@ -1,13 +1,5 @@
 /*** MonthPanel: the small month calendar ***/
-@import "derived-variables";
-
-@import "_variables";
-@import "_datatable";
-
-$mp-bg: $surface-bg !default;
-$mp-border: $dt-border !default;
-$mp-hdr-bg: $dt-hdr-bg !default;
-$mp-marked-bg: $highlight-bg !default;
+@use "theme" as *;
 
 div.ui-mp {
 	display: inline-block;

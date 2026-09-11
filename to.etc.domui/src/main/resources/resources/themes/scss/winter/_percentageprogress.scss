@@ -1,5 +1,5 @@
 /*** 180_percentageprogress.frag.css ***/
-@import "derived-variables";
+@use "theme" as *;
 
 .ui-pct-rlr {
 	display: inline-block;
@@ -45,5 +45,4 @@
 		z-index: 2;
 	}
 }
-
 

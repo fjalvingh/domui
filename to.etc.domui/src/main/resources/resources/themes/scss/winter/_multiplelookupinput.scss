@@ -1,5 +1,5 @@
 /*** 110_multiplelookupinput.frag.css ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-mli-cnt { /* selection container */
 	max-height: 60px;

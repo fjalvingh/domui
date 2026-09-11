@@ -1,5 +1,5 @@
 /*** Popup menu ***/
-@import "derived-variables";
+@use "theme" as *;
 
 .ui-pmnu {
 	display: none;

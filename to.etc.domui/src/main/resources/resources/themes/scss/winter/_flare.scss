@@ -1,5 +1,5 @@
 /*** Flare component. ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-flare {
 	position: absolute;

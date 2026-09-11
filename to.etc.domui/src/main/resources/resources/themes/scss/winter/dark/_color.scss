@@ -4,176 +4,184 @@
 // partial is copied - the theme's own partials take their colours from the variables
 // below, and this file says what those colours are.
 //
-// It works because _color.scss is imported *before* _variables.scss, and everything in
-// _variables.scss carries !default. So anything set here wins over the light default, and
-// _derived-variables.scss recomputes the whole derived palette (text, backgrounds, borders,
-// links, inputs) from the values below.
+// It is the theme's _color.scss, found before the light one because the variant
+// directory comes first on the theme's search path, and what it does is *configure* the
+// two variable modules: every value below is handed to the module as the default it
+// starts from, which is what `@forward ... with` does. _derived-variables.scss then
+// recomputes the whole derived palette (text, backgrounds, borders, links, inputs) from
+// the values given to _variables.scss.
 //
-// Every declaration here carries !default itself, for the same reason: _custominit.scss is
-// imported before this file, so a customer setting a colour there must still win - in this
-// variant exactly as in the default one.
+// Every value carries !default itself, so that an application's _custominit.scss still
+// wins over it: style.scss configures the theme with that file's variables, and a
+// configuration outranks a !default in the with clause - in this variant exactly as in
+// the default one.
 //
 // The trick for the greyscale ramp is to turn it upside down: $white* become the darkest
 // surfaces and $grey-darker becomes the lightest text. Every rule in the theme that says
 // "use the light end of the ramp" then reaches for a dark colour without knowing it.
 
-// The greyscale ramp, inverted
-$white:        hsl(220, 13%, 11%) !default;		// page background
-$white-bis:    hsl(220, 13%, 14%) !default;		// one step up: cards, panels
-$white-ter:    hsl(220, 12%, 18%) !default;		// two steps up: headers, striped rows
+@forward "variables" with (
+	// The greyscale ramp, inverted
+	$white:        hsl(220, 13%, 11%) !default,		// page background
+	$white-bis:    hsl(220, 13%, 14%) !default,		// one step up: cards, panels
+	$white-ter:    hsl(220, 12%, 18%) !default,		// two steps up: headers, striped rows
 
-$black:        hsl(0, 0%, 96%) !default;
-$black-bis:    hsl(0, 0%, 93%) !default;
-$black-ter:    hsl(0, 0%, 88%) !default;
+	$black:        hsl(0, 0%, 96%) !default,
+	$black-bis:    hsl(0, 0%, 93%) !default,
+	$black-ter:    hsl(0, 0%, 88%) !default,
 
-$grey-darker:  hsl(220, 14%, 88%) !default;		// $text-strong, input text
-$grey-dark:    hsl(220, 12%, 76%) !default;		// $text - the normal body colour
-$grey:         hsl(220, 10%, 58%) !default;		// $text-light
-$grey-light:   hsl(220, 10%, 36%) !default;		// hover borders
-$grey-lighter: hsl(220, 11%, 27%) !default;		// $border - normal borders
+	$grey-darker:  hsl(220, 14%, 88%) !default,		// $text-strong, input text
+	$grey-dark:    hsl(220, 12%, 76%) !default,		// $text - the normal body colour
+	$grey:         hsl(220, 10%, 58%) !default,		// $text-light
+	$grey-light:   hsl(220, 10%, 36%) !default,		// hover borders
+	$grey-lighter: hsl(220, 11%, 27%) !default,		// $border - normal borders
 
-// --- Named colours that need to lift off a dark ground ----------------------------
-$blue:         hsl(210, 90%, 68%) !default;
-$purple:       hsl(271, 80%, 76%) !default;
-$cyan:         hsl(204, 80%, 62%) !default;
-$green:        hsl(141, 55%, 55%) !default;
-$red:          hsl(348, 85%, 68%) !default;
-$yellow:       hsl(48, 90%, 62%) !default;
-$orange:       hsl(14, 90%, 62%) !default;
+	// --- Named colours that need to lift off a dark ground ----------------------------
+	$blue:         hsl(210, 90%, 68%) !default,
+	$purple:       hsl(271, 80%, 76%) !default,
+	$cyan:         hsl(204, 80%, 62%) !default,
+	$green:        hsl(141, 55%, 55%) !default,
+	$red:          hsl(348, 85%, 68%) !default,
+	$yellow:       hsl(48, 90%, 62%) !default,
+	$orange:       hsl(14, 90%, 62%) !default,
 
-// --- The theme's own colour variables ---------------------------------------------
-$background-color: hsl(220, 13%, 11%) !default;
-$body-bg:         hsl(220, 13%, 11%) !default;
+	// --- The theme's own colour variables ---------------------------------------------
+	$background-color: hsl(220, 13%, 11%) !default,
+	$body-bg:         hsl(220, 13%, 11%) !default,
 
-$alt-button-color: hsl(210, 90%, 72%) !default;
-$alt-button-bg:    hsl(220, 13%, 18%) !default;
+	$alt-button-color: hsl(210, 90%, 72%) !default,
+	$alt-button-bg:    hsl(220, 13%, 18%) !default,
 
-$color-scheme:     dark !default;
+	$color-scheme:     dark !default,
 
-$link-color:       hsl(210, 90%, 72%) !default;
-$link-visited-color: hsl(271, 75%, 78%) !default;
+	$link-color:       hsl(210, 90%, 72%) !default,
+	$link-visited-color: hsl(271, 75%, 78%) !default,
 
-$bevel-up:         hsl(220, 11%, 30%) !default;
-$bevel-down:       hsl(220, 11%, 24%) !default;
-$bevel-hover-up:   hsl(210, 45%, 46%) !default;
-$bevel-hover-down: hsl(220, 13%, 22%) !default;
+	$bevel-up:         hsl(220, 11%, 30%) !default,
+	$bevel-down:       hsl(220, 11%, 24%) !default,
+	$bevel-hover-up:   hsl(210, 45%, 46%) !default,
+	$bevel-hover-down: hsl(220, 13%, 22%) !default,
 
-$readonly-bg:      transparent !default;
-$readonly-border:  hsl(220, 11%, 24%) !default;
+	$readonly-bg:      transparent !default,
+	$readonly-border:  hsl(220, 11%, 24%) !default,
 
-$title-bg-img:  "" !default;					// the title gradient image is a light one
-$title-bg:       hsl(220, 12%, 22%) !default;
-$title-color:      hsl(0, 0%, 93%) !default;
+	$title-bg-img:  "" !default,					// the title gradient image is a light one
+	$title-bg:       hsl(220, 12%, 22%) !default,
+	$title-color:      hsl(0, 0%, 93%) !default,
 
-$header-bg:        hsl(220, 12%, 20%) !default;
+	$header-bg:        hsl(220, 12%, 20%) !default,
 
-$selected-bg:      hsl(28, 80%, 44%) !default;
-$highlight-bg:     hsl(38, 75%, 42%) !default;
-$highlight2-bg:    hsl(38, 60%, 32%) !default;
+	$selected-bg:      hsl(28, 80%, 44%) !default,
+	$highlight-bg:     hsl(38, 75%, 42%) !default,
+	$highlight2-bg:    hsl(38, 60%, 32%) !default,
 
-$input-border-color: hsl(220, 11%, 30%) !default;
+	$input-border-color: hsl(220, 11%, 30%) !default,
 
-$form-label-color: hsl(220, 12%, 78%) !default;
+	$form-label-color: hsl(220, 12%, 78%) !default,
 
+	// --- Messages: keep the hue, drop the brightness ----------------------------------
+	$errors-border:           hsl(0, 75%, 62%) !default,
+	$errors-color:       hsl(0, 80%, 74%) !default,
+	$errors-input-bg: hsl(0, 32%, 22%) !default,
+	$errors-wash:             hsl(0, 32%, 20%) !default,	// levelled with $info-bg / $warnings-bg
 
-// --- Messages: keep the hue, drop the brightness ----------------------------------
-$errors-border:           hsl(0, 75%, 62%) !default;
-$errors-color:       hsl(0, 80%, 74%) !default;
-$errors-input-bg: hsl(0, 32%, 22%) !default;
-$errors-wash:             hsl(0, 32%, 20%) !default;	// levelled with $info-bg / $warnings-bg
+	$warnings-bg:     hsl(45, 32%, 18%) !default,
+	$warnings-color:     hsl(45, 80%, 70%) !default,
+	$warnings-border:         hsl(43, 65%, 50%) !default,
 
-$warnings-bg:     hsl(45, 32%, 18%) !default;
-$warnings-color:     hsl(45, 80%, 70%) !default;
-$warnings-border:         hsl(43, 65%, 50%) !default;
+	$info-bg:                 hsl(215, 35%, 20%) !default,
+	$info-color:                 hsl(215, 85%, 74%) !default,
+	$info-border:             hsl(215, 60%, 52%) !default,
 
-$info-bg:                 hsl(215, 35%, 20%) !default;
-$info-color:                 hsl(215, 85%, 74%) !default;
-$info-border:             hsl(215, 60%, 52%) !default;
+	// --- LookupInput result/warning popups --------------------------------------------
+	$lui-warning-bg:        hsl(14, 55%, 30%) !default,
+	$lui-warning-border: hsl(14, 65%, 46%) !default,
+	$lui-result-bg:         hsl(80, 32%, 26%) !default,
+	$lui-result-border:  hsl(80, 40%, 42%) !default,
 
-// --- LookupInput result/warning popups --------------------------------------------
-$lui-warning-bg:        hsl(14, 55%, 30%) !default;
-$lui-warning-border: hsl(14, 65%, 46%) !default;
-$lui-result-bg:         hsl(80, 32%, 26%) !default;
-$lui-result-border:  hsl(80, 40%, 42%) !default;
+	$mli-label-border:  hsl(33, 60%, 40%) !default,
+	$mli-label-bg: hsl(50, 55%, 46%) !default,
 
-$mli-label-border:  hsl(33, 60%, 40%) !default;
-$mli-label-bg: hsl(50, 55%, 46%) !default;
+	// --- Tabs -------------------------------------------------------------------------
+	$tab-inactive-color:       hsl(0, 0%, 80%) !default,
+	$tab-hover-inactive-color: hsl(0, 0%, 96%) !default,
+	$tab-active-color:         hsl(271, 70%, 76%) !default,
+	$tab-sep-bg:             hsl(220, 11%, 30%) !default,
+	$tab-img:                "" !default,
 
-// --- Tabs -------------------------------------------------------------------------
-$tab-inactive-color:       hsl(0, 0%, 80%) !default;
-$tab-hover-inactive-color: hsl(0, 0%, 96%) !default;
-$tab-active-color:         hsl(271, 70%, 76%) !default;
-$tab-sep-bg:             hsl(220, 11%, 30%) !default;
-$tab-img:                "" !default;
+	$esic-label-bg: hsl(68, 45%, 32%) !default,
 
-$esic-label-bg: hsl(68, 45%, 32%) !default;
+	// --- Surfaces and text ------------------------------------------------------------
+	$body-color:        hsl(220, 12%, 76%) !default,
 
-// --- DataTable: the header band and the row washes --------------------------------
-$dt-hdr-bg:        hsl(215, 30%, 26%) !default;
-$dt-hdr-color: hsl(0, 0%, 92%) !default;
-$dt-selected-bg:      hsl(215, 40%, 30%) !default;
-$dt-even-row-bg:      hsl(220, 12%, 16%) !default;
-$dt-cell-highlight-bg: hsl(271, 45%, 40%) !default;
+	$line-color:        hsl(220, 11%, 27%) !default,
 
-// --- Surfaces and text ------------------------------------------------------------
-$body-color:        hsl(220, 12%, 76%) !default;
+	// The ramp above is inverted, so a ladder has to walk it the other way to keep stepping
+	// away from the page ground as it nests deeper. See ladder() in functions.scss.
+	$ladder-direction: -1 !default,
 
-$line-color:        hsl(220, 11%, 27%) !default;
+	$surface-bg:        hsl(220, 13%, 14%) !default,
+	$surface-color:     hsl(220, 12%, 76%) !default,
+	$surface-alt-bg:    hsl(220, 12%, 18%) !default,
 
-// The ramp above is inverted, so a ladder has to walk it the other way to keep stepping
-// away from the page ground as it nests deeper. See ladder() in functions.scss.
-$ladder-direction: -1 !default;
+	$input-bg:          hsl(220, 13%, 14%) !default,
+	$input-color:       hsl(220, 14%, 88%) !default,
+	$input-ro-bg-top:   hsl(215, 22%, 20%) !default,
+	$input-ro-bg-bottom: hsl(215, 26%, 16%) !default,
 
-// The popup menu is an inverted surface in the light theme; here it is a raised dark one,
-// so its ladder starts three rungs off the page ground instead of near the black end.
-// Everything else about the menu follows from this one value.
-$pmnu-bg: $white-ter !default;
+	$row-hover-bg:              hsl(38, 30%, 22%) !default,
+	$row-hover-outline:         hsl(38, 60%, 42%) !default,
+	$row-select-hover-bg:       hsl(90, 22%, 20%) !default,
+	$row-select-hover-outline:  hsl(90, 35%, 40%) !default,
 
-$surface-bg:        hsl(220, 13%, 14%) !default;
-$surface-color:     hsl(220, 12%, 76%) !default;
-$surface-alt-bg:    hsl(220, 12%, 18%) !default;
+	$window-bg:         hsl(220, 13%, 16%) !default,
+	$menu-hover-bg:     hsl(220, 12%, 22%) !default,
+	$menu-hover-border: hsl(220, 11%, 34%) !default,
+);
 
-$input-bg:          hsl(220, 13%, 14%) !default;
-$input-color:       hsl(220, 14%, 88%) !default;
-$input-ro-bg-top:   hsl(215, 22%, 20%) !default;
-$input-ro-bg-bottom: hsl(215, 26%, 16%) !default;
+// The second tier: the derived variables this variant sets directly. The first tier is
+// loaded and configured by now, so its values can be read here.
+@use "variables" as v;
+@forward "derived-variables" with (
+	// --- DataTable: the header band and the row washes --------------------------------
+	$dt-hdr-bg:        hsl(215, 30%, 26%) !default,
+	$dt-hdr-color: hsl(0, 0%, 92%) !default,
+	$dt-selected-bg:      hsl(215, 40%, 30%) !default,
+	$dt-even-row-bg:      hsl(220, 12%, 16%) !default,
+	$dt-cell-highlight-bg: hsl(271, 45%, 40%) !default,
 
-$row-hover-bg:              hsl(38, 30%, 22%) !default;
-$row-hover-outline:         hsl(38, 60%, 42%) !default;
-$row-select-hover-bg:       hsl(90, 22%, 20%) !default;
-$row-select-hover-outline:  hsl(90, 35%, 40%) !default;
+	// The popup menu is an inverted surface in the light theme; here it is a raised dark one,
+	// so its ladder starts three rungs off the page ground instead of near the black end.
+	// Everything else about the menu follows from this one value.
+	$pmnu-bg: v.$white-ter !default,
 
-
-// --- The jscalendar popup (DateInput2) --------------------------------------------
-$cal-bg:               hsl(220, 13%, 14%) !default;
-$cal-body-bg:          hsl(220, 13%, 14%) !default;
-$cal-color:             hsl(220, 12%, 80%) !default;
-$cal-invert:            hsl(220, 14%, 90%) !default;
-$cal-border:           hsl(220, 11%, 30%) !default;
-$cal-band-bg:          hsl(220, 12%, 20%) !default;
-$cal-band-active-bg:   hsl(220, 12%, 26%) !default;
-$cal-title-bg:         hsl(220, 12%, 22%) !default;
-$cal-hover-bg:         hsl(220, 12%, 24%) !default;
-$cal-hover-active-bg:  hsl(220, 12%, 28%) !default;
-$cal-hilite-bg:        hsl(215, 28%, 26%) !default;
-$cal-hilite2-bg:       hsl(140, 20%, 22%) !default;
-$cal-selected-bg:      hsl(38, 45%, 30%) !default;
-$cal-today-bg:         hsl(0, 35%, 30%) !default;
-$cal-today-border:     hsl(14, 70%, 50%) !default;
-$cal-today-active-bg:  hsl(0, 30%, 38%) !default;
-$cal-weekend-color:          hsl(0, 75%, 66%) !default;
-$cal-weekend-dim-color:      hsl(0, 35%, 48%) !default;
-$cal-dim-color:              hsl(220, 10%, 48%) !default;
-$cal-disabled-color:         hsl(220, 10%, 42%) !default;
-$cal-status-bg:        hsl(220, 12%, 20%) !default;
-$cal-status-color:      hsl(38, 70%, 62%) !default;
-$cal-tooltip-bg:       hsl(220, 12%, 20%) !default;
-$cal-combo-hover-bg:   hsl(38, 45%, 32%) !default;
-$cal-combo-color:       hsl(30, 55%, 66%) !default;
-$cal-combo-dim-color:        hsl(220, 10%, 50%) !default;
-$cal-combo-border:     hsl(220, 11%, 32%) !default;
-$cal-drag-bg:             hsl(120, 60%, 55%) !default;
-
-$window-bg:         hsl(220, 13%, 16%) !default;
-$menu-hover-bg:     hsl(220, 12%, 22%) !default;
-$menu-hover-border: hsl(220, 11%, 34%) !default;
+	// --- The jscalendar popup (DateInput2) --------------------------------------------
+	$cal-bg:               hsl(220, 13%, 14%) !default,
+	$cal-body-bg:          hsl(220, 13%, 14%) !default,
+	$cal-color:             hsl(220, 12%, 80%) !default,
+	$cal-invert:            hsl(220, 14%, 90%) !default,
+	$cal-border:           hsl(220, 11%, 30%) !default,
+	$cal-band-bg:          hsl(220, 12%, 20%) !default,
+	$cal-band-active-bg:   hsl(220, 12%, 26%) !default,
+	$cal-title-bg:         hsl(220, 12%, 22%) !default,
+	$cal-hover-bg:         hsl(220, 12%, 24%) !default,
+	$cal-hover-active-bg:  hsl(220, 12%, 28%) !default,
+	$cal-hilite-bg:        hsl(215, 28%, 26%) !default,
+	$cal-hilite2-bg:       hsl(140, 20%, 22%) !default,
+	$cal-selected-bg:      hsl(38, 45%, 30%) !default,
+	$cal-today-bg:         hsl(0, 35%, 30%) !default,
+	$cal-today-border:     hsl(14, 70%, 50%) !default,
+	$cal-today-active-bg:  hsl(0, 30%, 38%) !default,
+	$cal-weekend-color:          hsl(0, 75%, 66%) !default,
+	$cal-weekend-dim-color:      hsl(0, 35%, 48%) !default,
+	$cal-dim-color:              hsl(220, 10%, 48%) !default,
+	$cal-disabled-color:         hsl(220, 10%, 42%) !default,
+	$cal-status-bg:        hsl(220, 12%, 20%) !default,
+	$cal-status-color:      hsl(38, 70%, 62%) !default,
+	$cal-tooltip-bg:       hsl(220, 12%, 20%) !default,
+	$cal-combo-hover-bg:   hsl(38, 45%, 32%) !default,
+	$cal-combo-color:       hsl(30, 55%, 66%) !default,
+	$cal-combo-dim-color:        hsl(220, 10%, 50%) !default,
+	$cal-combo-border:     hsl(220, 11%, 32%) !default,
+	$cal-drag-bg:             hsl(120, 60%, 55%) !default,
+);

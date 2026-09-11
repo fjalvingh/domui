@@ -1,12 +1,9 @@
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
-@import "derived-variables";
+@use "theme" as *;
 
-// The colours are in _derived-variables.scss - shared with _scrollableTable and three
-// others. What stays here is what is not a colour.
-$dt-font-size: 12px !default;
-$dt-hdr-bg-img: "" !default; //-- Table header doesn't have background image
-
+// The variables are in _derived-variables.scss - the colours shared with _scrollableTable
+// and three others, and this component's own $dt-font-size and $dt-hdr-bg-img.
 div.ui-dt {
 	overflow: auto;
 	position: relative;
@@ -119,7 +116,6 @@ th.ui-dt-th.ui-numeric {
 		flex-wrap: nowrap;
 	}
 }
-
 
 .ui-sortable span {
 	//margin-left: 10px;

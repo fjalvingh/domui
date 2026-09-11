@@ -1,7 +1,5 @@
 /*** LinkButton component. ***/
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 .ui-lbtn {
 	color: inherit;

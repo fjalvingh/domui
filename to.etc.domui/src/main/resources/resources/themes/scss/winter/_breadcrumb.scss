@@ -1,6 +1,6 @@
 /*** 085_breadcrumb.frag.css ***/
 /*** BreadCrumb ***/
-@import "derived-variables";
+@use "theme" as *;
 
 .ui-brc {
 	padding: 0; margin: 0;

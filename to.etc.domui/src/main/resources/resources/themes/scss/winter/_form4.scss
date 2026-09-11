@@ -1,7 +1,5 @@
 /*** 500_form4 styles and repair styles for components. ***/
-@import "derived-variables";
-
-@import "_variables";
+@use "theme" as *;
 
 /*
  * Links to documents describing some of the issues
@@ -57,7 +55,6 @@ td.ui-f4-lbl-v {
 .ui-f4-ctl-h {
 	padding: 0 4px;
 }
-
 
 .ui-f4-ctl {
 	textarea {
@@ -122,6 +119,4 @@ label.ui-f4-mandatory {
 	color: paleturquoise;
 	cursor: pointer;
 }
-
-
 

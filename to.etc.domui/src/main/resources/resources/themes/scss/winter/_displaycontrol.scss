@@ -1,5 +1,5 @@
 /*** DisplayControl ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-dspctl {
 	@include ui-control-base;

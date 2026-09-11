@@ -1,4 +1,4 @@
-@import "derived-variables";
+@use "theme" as *;
 
 /*** Bug indicator UI ***/
 .ui-bug-ind {

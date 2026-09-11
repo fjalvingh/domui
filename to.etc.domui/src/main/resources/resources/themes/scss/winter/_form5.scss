@@ -1,7 +1,5 @@
 /*** Form5 responsive form using flexbox ***/
-@import "derived-variables";
-
-$form-label-color: $grey-darker !default;
+@use "theme" as *;
 
 .ui-f5 {
 }

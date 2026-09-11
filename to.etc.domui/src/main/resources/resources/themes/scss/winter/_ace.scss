@@ -1,4 +1,4 @@
-@import "derived-variables";
+@use "theme" as *;
 
 .ui-ace-error {
 	position: absolute;

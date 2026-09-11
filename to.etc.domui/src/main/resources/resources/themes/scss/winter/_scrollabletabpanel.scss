@@ -1,7 +1,5 @@
 /*** 170_scrollabletabpanel.frag.css ***/
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 .ui-stab-c {
 }

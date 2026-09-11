@@ -203,11 +203,11 @@ public class DartSassCompiler implements ISassCompiler {
 			: new SassCompiler(ConnectionFactory.ofExecutable(new File(executable)));
 
 		/*
-		 * The DomUI stylesheets are still written for the pre-module Sass: @import instead of @use/@forward,
-		 * slash division instead of math.div, and the global colour functions (lighten, darken)
-		 * instead of the sass:color module. All four are deprecated in Dart Sass and together they
-		 * warn about 130 times per compiled sheet, so they are silenced until the sheets have been
-		 * moved to the module system. Every other warning must stay visible.
+		 * The theme is on the module system, but its sheets still use slash division instead of
+		 * math.div and the global colour functions (lighten, darken) instead of the sass:color
+		 * module, and the application sheets in the demo still @import. All are deprecated in
+		 * Dart Sass and warn on every compile, so they are silenced until that is done too. Every
+		 * other warning must stay visible.
 		 */
 		compiler.addSilenceDeprecation("import");
 		compiler.addSilenceDeprecation("slash-div");

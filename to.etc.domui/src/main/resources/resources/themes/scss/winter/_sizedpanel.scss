@@ -1,5 +1,5 @@
 /*** 410_sizedpanel ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-szdp {
 	background: $body-bg;

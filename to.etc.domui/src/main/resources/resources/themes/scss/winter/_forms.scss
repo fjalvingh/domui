@@ -1,5 +1,5 @@
 /*** 120_forms.frag.css ***/
-@import "derived-variables";
+@use "theme" as *;
 
 /*** Form basic styles ***/
 /* these are for forms having the label BEFORE the field (horizontal). */

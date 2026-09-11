@@ -1,5 +1,5 @@
 /*** ErrorMessageDiv helper for components that handle their error display ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-emd {
 	background-color: $errors-wash;

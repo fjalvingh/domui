@@ -1,6 +1,6 @@
 // https://codepen.io/bisserof/pen/fdtBm
 
-@import "derived-variables";
+@use "theme" as *;
 
 .ui-tree3 {
 	margin: 1em;
@@ -50,7 +50,6 @@ ul.ui-tree3-list > li:last-child {
 .ui-tree3-leaf > .ui-tree3-fbtn {
 	display: none;
 }
-
 
 //.ui-tree3-branch:before {
 //	background: #000;
@@ -135,6 +134,4 @@ ul.ui-tree3-list > li:last-child:before {
 ul.ui-tree3-rootlist > li:last-child:before {
 	display: none;
 }
-
-
 

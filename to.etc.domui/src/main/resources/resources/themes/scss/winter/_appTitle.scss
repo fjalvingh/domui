@@ -1,5 +1,5 @@
 /*** App Title bar ***/
-@import 'variables';
+@use "theme" as *;
 
 .ui-atl {
   background: $title-bg url($title-bg-img) repeat-y;

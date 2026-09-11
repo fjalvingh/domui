@@ -1,4 +1,7 @@
-$background-color: #ffffff !default;
-
-$alt-button-color: #428EFE !default;
-$alt-button-bg: #eef5ff !default;
+// The theme's variables, as the default (light) variant has them: the two tiers with the
+// defaults they declare themselves. A variant directory holds its own _color.scss, which
+// forwards the same two modules *with* the values that variant changes - see
+// dark/_color.scss - and is found first because the variant directory comes first on the
+// theme's search path.
+@forward "variables";
+@forward "derived-variables";

@@ -1,5 +1,5 @@
 /*** ExpandingHeader component ***/
-@import "derived-variables";
+@use "theme" as *;
 
 .ui-xphd {
 	font-family: 'Tahoma', 'Geneva', 'Verdana', sans-serif;

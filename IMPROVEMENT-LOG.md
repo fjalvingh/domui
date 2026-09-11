@@ -2046,6 +2046,51 @@ These were offered as input while the phase 0 items were being worked, and taken
       only `@use`s the theme gets ten comment lines; they become `//` comments when
       the files are rewritten.
 
+- [x] **Framework: the winter theme is on the Sass module system.** Done 2026-09-11, the
+      third step of the migration, and the fourth's first half with it: a partial that
+      still `@import`ed `variables` would have loaded its own unconfigured copy instead of
+      the configured module, so the 208 `@import`s went in the same change. What the
+      theme is now:
+      - `style.scss` is four lines: `@use "custominit"`, then
+        `meta.load-css("theme", $with: meta.module-variables("custominit"))` configures
+        the theme with whatever the application declared, then
+        `meta.load-css("stylesheet")` loads the sheet proper. `_stylesheet.scss` is the
+        old import list as 106 `@use` rules in the same order, `userstyle` first.
+      - `_index.scss` (the `theme` module) forwards `color`, `functions` and
+        `bulmaish/core_defs`. `_color.scss` is the variant's configuration of the two
+        variable tiers: the light one forwards `variables` and `derived-variables` as they
+        are, `dark/_color.scss` forwards them *with* its 113 values (79 first-tier, 34
+        second-tier, each `!default` so `_custominit` still wins), reading the first tier
+        for the second through `@use "variables" as v`.
+      - The 86 `!default` variables that thirteen component partials declared for
+        themselves are in `_derived-variables.scss` now, under a heading naming each
+        partial, so the configuration can reach them. Twelve names were declared in both
+        tiers - `$size-1..7`, `$input-color`, `$input-border-color`, `$form-label-color`,
+        `$control-padding-*` - which `@import` tolerated (the first won) and two forwarded
+        modules do not; the losing copies in `_derived-variables.scss` are gone. The three
+        variables the light `_color.scss` declared are in `_variables.scss`.
+      - `functions.scss` is `_functions.scss`, a module over `variables`; it cannot read
+        the derived tier (which uses it), so `findButtonFocusBorderColor()` takes the
+        dark fallback as a second argument and its one caller passes
+        `$button-focus-border-color`. `bulmaish/_core_defs.scss` reads `../color` rather
+        than `theme`, because `theme` forwards it.
+      - Every partial's `@import` lines became `@use "theme" as *;`, including twelve that
+        imported nothing and read the global scope. `_datapager2` also uses
+        `bulmaish/button_common` for its mixins. `_custominit.scss` and `_userstyle.scss`
+        say in comments what an application writes in them.
+      Verified with the dart-sass CLI on a copy of the theme (the two virtual names
+      stubbed, a load path for `theme`), then under `jetty:run`: both variants compile,
+      and with comments stripped their rules are identical to the baseline except for one
+      155-line block - the DataTable rules, which `_monthpanel.scss` used to `@import` for
+      two variables and so emitted a second time; a module is emitted once. The sheets
+      shrank from 208/212KB to 178/182KB, the rest being the loud comments of the variable
+      files that every re-import repeated. The override contract was exercised on the
+      compiled dark variant: `_custominit` values for a first-tier, a second-tier and a
+      variant-configured variable all take; a typo fails with `$lnk-color was not declared
+      with !default in the @used module`; `_custominit` deriving from `parameters` works;
+      `_userstyle` reads `$link-color` through `@use "theme"`. The demo's own sheet is
+      byte-identical. The Selenium ITs were not run - the css rules are identical.
+
 ## Decisions log
 
 ### 2026-09-11 - Configuration, not first-assignment-wins: the module system design

@@ -1,5 +1,5 @@
 /*** 155_captionedpanel.frag.css ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-pnl-outer {
 	background-color: $surface-bg;

@@ -20,7 +20,7 @@
  * can be found at http://github.com/fjalvingh/domui
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-@import "variables";
+@use "theme" as *;
 
 /** Text2 component **/
 .ui-txt2 {

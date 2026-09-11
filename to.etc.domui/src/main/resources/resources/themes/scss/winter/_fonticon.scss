@@ -1,3 +1,4 @@
+@use "theme" as *;
 /*** FontIcon and variants ***/
 .ui-fnti {
 	@each $name, $size in $sizes-map {

@@ -1,5 +1,5 @@
 /*** EmbeddedCode ***/
-@import "derived-variables";
+@use "theme" as *;
 
 .ui-embcd {
 	display: inline-block;

@@ -1,7 +1,5 @@
 /*** Date input ***/
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 .ui-di-sib {
 	vertical-align: top;

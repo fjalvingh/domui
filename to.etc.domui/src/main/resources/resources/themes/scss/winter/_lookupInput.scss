@@ -1,10 +1,5 @@
 /*** LookupInput ***/
-@import "variables";
-
-$lui-min-width: 14em !default;
-
-
-
+@use "theme" as *;
 
 .ui-lui {
 	display: inline-flex;
@@ -198,7 +193,6 @@ tr.ui-keyword-popop-rowsel:hover {
 tr.ui-keyword-popup-row {
 	cursor: pointer;
 }
-
 
 .ui-srip {
 	position: relative;

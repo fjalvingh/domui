@@ -263,23 +263,8 @@ it. Everything else on this list is a question for the user, not a deletion.
       against the css before the step:
       - [x] Remove libsass. **Done 2026-09-11**, see the log.
       - [x] The resolver: the virtual `theme` name. **Done 2026-09-11**, see the log.
-      - [ ] The theme's structure: `winter/_index.scss` forwards `color`,
-            `derived-variables` and `functions`; `_color.scss` becomes
-            `@forward "variables"` and the dark variant's `_color.scss` becomes
-            `@forward "variables" with (... !default)` - the variant is a
-            configuration of the variables, not an earlier assignment. `style.scss`
-            becomes `@use "custominit"` plus `meta.load-css("index" + the
-            component list, $with: meta.module-variables("custominit"))`. The
-            `!default` variables that component partials declare for themselves
-            (`_calendarTheme`, `bulmaish/_button_common`, `_switch`, ...) move to
-            `_derived-variables.scss`, where the convention in `_variables.scss`'s
-            header says component variables live, so they stay configurable. The
-            `/** ... **/` loud comments in the variable files become `//` comments:
-            a loud comment is css output, and a module that is only `@use`d for
-            its variables must emit nothing (seen in the step before this).
-      - [ ] Every partial: `@import "variables"` / `@import "derived-variables"`
-            becomes `@use "theme" as *;`; the ~150 `@import`s of `style.scss`
-            become `@use`s, in the same order, so the css order does not change.
+      - [x] The theme's structure, and every partial's `@import`. **Done 2026-09-11**,
+            see the log.
       - [ ] Mechanical passes: slash division to `math.div()`, `lighten()` and
             friends to `color.adjust()`/`color.mix()`/`color.channel()`,
             `map-get()`/`nth()`/`index()`/`length()` to `map.*`/`list.*`.

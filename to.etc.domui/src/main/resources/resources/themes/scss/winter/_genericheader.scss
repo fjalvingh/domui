@@ -1,7 +1,5 @@
 /*** GenericHeader component ***/
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 .ui-generichd {
 	padding: 5px 0px 0px;

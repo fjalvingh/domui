@@ -41,6 +41,10 @@
 
 $body-bg-img: "" !default;
 $body-bg: #ffffff !default;
+$background-color: #ffffff !default;
+
+$alt-button-color: #428EFE !default;
+$alt-button-bg: #eef5ff !default;
 
 $font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif !default;
 //$font-family: 'Arial', 'Helvetica', sans-serif !default;
@@ -54,8 +58,7 @@ $hdr-font-size: 14px !default;
 $horizontal-padding: 10px !default;
 $vertical-padding: 10px !default;
 
-/** colors **/
-
+// colors
 // The theme's accent: the colour of a default button, of a selected row, of a hovered
 // menu entry. Everything that means "this one" takes it, directly or through $selected-bg.
 //
@@ -86,7 +89,7 @@ $selected-bg: $primary !default;			// selection follows the accent
 $highlight-bg: #ffbb43 !default; 	// row select: hard orange
 $highlight2-bg: lighten($highlight-bg, 20%) !default;
 
-/** Error, warning, info colors **/
+// Error, warning, info colors
 $errors-border: #ff0000 !default; 			// red
 $errors-color: #ff0000 !default;		// red
 $errors-transparent: rgba(red($errors-border), green($errors-border), blue($errors-border), 0.25) !default;
@@ -118,7 +121,7 @@ $green-accent: #43b761 !default; 				//Main green
 $sayt-ok-color: #84C000 !default;			// Green for checkmark
 
 
-/** data table? **/
+// data table?
 //$dt-selected-bg: #bed6f8;	// blue
 //$dt-even-row-bg: #E5E5E5; //greyish
 //$dt-cell-highlight-bg: #67267f;	// cell select: purple
@@ -131,14 +134,14 @@ $sayt-ok-color: #84C000 !default;			// Green for checkmark
 //$dt-hdr-bg-img: ""; //-- Table header doesn't have background image
 //$dt-hdr-btm-border: undefined;
 
-/** LookupInput and LookupInput2 **/
+// LookupInput and LookupInput2
 $lui-warning-bg: #ff4f27 !default;				// Popup that shows 'no results'
 $lui-warning-border: #ff8d60 !default;			// Border of that popup
 $lui-result-bg: #d4ee9f !default;					// Popup showing "xxxx records"
 $lui-result-border: #a5c663 !default;			// Border of that
 
-/** Misc **/
-$io-blk-wait-img: "io-blk-wait.gif" !default;			/* Icon definition for DomUI icons */
+// Misc
+$io-blk-wait-img: "io-blk-wait.gif" !default;			// Icon definition for DomUI icons
 
 
 //multiple lookup labels
@@ -173,12 +176,12 @@ $button-disabled-color: #999999 !default;
 $button-font-size: 15px !default;
 $button-icon-font-size: 15px !default;
 
-/*** Data Pager buttons ***/
+// Data Pager buttons
 $dp-icons-img: "data-pager-icons.png" !default;
 $dp-icon-size-x: 32px !default;
 $dp-icon-size-y: 19px !default;
 
-/*** Forms ***/
+// Forms
 $form-line-height:	1.5em !default;
 $input-line-height: $form-line-height !default;
 $form-label-color: #363636 !default;
@@ -186,9 +189,8 @@ $form-label-weight: 600 !default;
 $form-label-width: 150px !default;
 $form-label-width-wide: 230px !default;
 
-/***----------------- Bulma like -------------------------***/
-
-/*** Colors ***/
+// Bulma like
+// Colors
 $orange:       hsl(14,  100%, 53%) !default;
 $yellow:       hsl(48,  100%, 67%) !default;
 $green:        hsl(141, 71%,  48%) !default;

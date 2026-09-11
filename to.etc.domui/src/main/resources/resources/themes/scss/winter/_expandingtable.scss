@@ -1,7 +1,5 @@
 /*** 135_expandingtable.frag.css ***/
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 .ui-xdt {
 	overflow: auto;

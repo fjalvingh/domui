@@ -1,7 +1,5 @@
 /*** SelectOnePanel (part of new combobox and lookupinput2) ***/
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 .ui-ssop {
     background-color: $ssop-bg;

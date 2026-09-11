@@ -1,5 +1,5 @@
 /** EnumSetInput **/
-@import "variables";
+@use "theme" as *;
 
 .ui-esic {
 	@include ui-input-base;

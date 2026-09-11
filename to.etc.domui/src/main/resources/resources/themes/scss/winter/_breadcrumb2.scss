@@ -1,6 +1,5 @@
 /** Breadcrumb2, see http://cssmenumaker.com/blog/fancy-breadcrumb-navigation-tutorial-example/ **/
-@import "derived-variables";
-
+@use "theme" as *;
 
 .ui-brcr2 {
 	display: inline-block;

@@ -1,5 +1,5 @@
 /*** Cookie idiocy ***/
-@import "derived-variables";
+@use "theme" as *;
 
 :root {
 	--purple: #{$ckc-bg};

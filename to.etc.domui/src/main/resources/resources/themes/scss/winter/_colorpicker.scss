@@ -1,6 +1,6 @@
 /*** 205_colorpicker.frag.css ***/
 /*** Color picker ***/
-@import "derived-variables";
+@use "theme" as *;
 
 .colorpicker {
 	width: 356px;

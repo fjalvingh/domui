@@ -1,6 +1,5 @@
 /*** 145_smallimgbutton.frag.css ***/
-@import "variables";
-@import "derived-variables";
+@use "theme" as *;
 
 .ui-sib2 {
 	background-color: transparent;

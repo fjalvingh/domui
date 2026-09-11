@@ -1,9 +1,15 @@
 // The theme as one module: everything a partial, an application's _userstyle.scss or an
-// application sheet needs to *read* the theme - its variables and functions - in one place,
-// reached from anywhere as
+// application sheet needs to *read* the theme - its variables, functions and mixins - in one
+// place, reached from anywhere as
 //
 //	@use "theme" as *;
 //
 // "theme" is a virtual name the scss resolver knows (see DartSassResolver): it is this file, in
 // the theme directory of the variant the sheet is being compiled for. Nothing here emits css.
-@forward "derived-variables";
+//
+// The variables come through _color.scss, which is the variant's configuration of the two
+// variable modules and the file a variant directory replaces; the functions and the common
+// mixins are the same for every variant.
+@forward "color";
+@forward "functions";
+@forward "bulmaish/core_defs";

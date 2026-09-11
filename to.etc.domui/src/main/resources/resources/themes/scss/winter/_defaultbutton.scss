@@ -1,6 +1,4 @@
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 /** MOST BUTTON PARTS ARE DEFINED IN _button_common.scss **/
 
@@ -67,9 +65,6 @@
 .ui-buttonbar .ui-sdbtn {
 	margin-right: 10px;
 }
-
-
-
 
 /**
  *		OBSOLETE OBSOLETE OBSOLETE

@@ -1,13 +1,7 @@
 /*
  * The SwitchButton class's CSS.
  */
-@import "derived-variables";
-
-$swtch-border-width: 2px !default;
-$swtch-width: 44px !default;			/* 60px */
-$swtch-height: 25px !default;
-$swtch-knob-size: $swtch-height - 2 * $swtch-border-width !default;		/* 26px */
-$swtch-travel: $swtch-width / 2 - 2 * $swtch-border-width !default;
+@use "theme" as *;
 
 .ui-swtch {
 	position: relative;

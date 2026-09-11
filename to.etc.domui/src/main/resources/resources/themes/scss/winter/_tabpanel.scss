@@ -1,11 +1,4 @@
-@import "derived-variables";
-
-$tab-hdr-bg: $grey !default;					// The header part containing the tabs
-$tab-bg: $grey-light !default;
-$tab-border: $grey-dark !default;
-$tab-content-bg: $surface-bg !default;
-
-$tab-selected-color: $tab-bg !default;
+@use "theme" as *;
 
 // See https://codepen.io/torbencolding/pen/dPvNBJ
 .ui-tab-c {

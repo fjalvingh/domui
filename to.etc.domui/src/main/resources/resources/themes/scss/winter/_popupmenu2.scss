@@ -1,7 +1,5 @@
 /*** PopupMenu2 ***/
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 .ui-pome2 {
 	position: absolute;

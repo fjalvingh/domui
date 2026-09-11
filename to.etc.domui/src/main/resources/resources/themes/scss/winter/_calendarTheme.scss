@@ -1,37 +1,10 @@
+@use "theme" as *;
 // The jscalendar popup used by DateInput2 (calendar.js), converted from the vendor's
 // calendar-theme.css so its colours can come from variables like the rest of the theme.
 //
-// Every variable below defaults to the literal it replaced, so the light theme compiles to
-// exactly what it did before. A theme variant sets them in its own _color.scss.
-
-$cal-band-active-bg:       #654 !default;
-$cal-band-bg:              #edc !default;
-$cal-bg:                   #ffd !default;
-$cal-body-bg:              #fed !default;
-$cal-border:               #655 !default;
-$cal-combo-border:         #866 !default;
-$cal-combo-dim-color:            #a88 !default;
-$cal-combo-hover-bg:       #fc8 !default;
-$cal-combo-color:           #a64 !default;
-$cal-dim-color:                  #bbb !default;
-$cal-disabled-color:             #999 !default;
-$cal-drag-bg:                 #0f0 !default;
-$cal-hilite-bg:            #ddf !default;
-$cal-hilite2-bg:           #efe !default;
-$cal-hover-active-bg:      #ddc !default;
-$cal-hover-bg:             #ffe !default;
-$cal-selected-bg:          #fea !default;
-$cal-status-bg:            #dcb !default;
-$cal-status-color:          #840 !default;
-$cal-color:                 #000 !default;
-$cal-title-bg:             #988 !default;
-$cal-today-active-bg:      #c77 !default;
-$cal-today-bg:             #faa !default;
-$cal-today-border:         #f40 !default;
-$cal-tooltip-bg:           #fee !default;
-$cal-weekend-color:              #f00 !default;
-$cal-weekend-dim-color:          #fbb !default;
-$cal-invert:                #fff !default;
+// Its variables ($cal-*, in _derived-variables.scss) each default to the literal they
+// replaced, so the light theme compiles to exactly what it did before; a theme variant
+// sets them in its own _color.scss.
 
 /* The main calendar widget.  DIV containing a table. */
 

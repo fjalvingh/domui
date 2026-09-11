@@ -1,4 +1,4 @@
-@import "derived-variables";
+@use "theme" as *;
 
 // Every colour here is the DataTable palette, in _derived-variables.scss. This file used
 // to redeclare the whole of it, identically.
@@ -11,7 +11,6 @@
     position: relative;
     font-size: $dt-font-size;
     /*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
-
 
     .ui-sdt-separator {
         //background: url('hr-blue.png') no-repeat;
@@ -187,7 +186,6 @@
         background-color: $dt-cell-highlight-bg !important;
         color: $dt-cell-highlight-link-bg;
     }
-
 
 }
 

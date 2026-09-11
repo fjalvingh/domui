@@ -1,30 +1,5 @@
-$button-color: $grey-darker !default;
-$button-background-color: $white !default;
-$button-border-color: $grey-lighter !default;
+@use "theme" as *;
 
-$button-hover-color: $link-hover !default;
-$button-hover-border-color: $link-hover-border !default;
-
-$button-focus-color: $link-focus !default;
-$button-focus-border-color: $link-focus-border !default;
-$button-focus-box-shadow-size: 0 0 0 0.125em !default;
-$button-focus-box-shadow-color: rgba($link, 0.25) !default;
-
-$button-active-color: $link-active !default;
-$button-active-border-color: $link-active-border !default;
-
-$button-text-color: $text !default;
-$button-text-hover-background-color: $background !default;
-$button-text-hover-color: $text-strong !default;
-
-$button-disabled-background-color: $white !default;
-$button-disabled-border-color: $grey-lighter !default;
-$button-disabled-shadow: none !default;
-$button-disabled-opacity: 0.5 !default;
-
-$button-static-color: $grey !default;
-$button-static-background-color: $white-ter !default;
-$button-static-border-color: $grey-lighter !default;
 
 // The button sizes use mixins so they can be used at different breakpoints
 @mixin button-small {
@@ -198,7 +173,7 @@ $button-static-border-color: $grey-lighter !default;
 			&.is-focused {
 				//border-color: transparent;
 				//border-color: $button-focus-border-color;
-				border-color: findButtonFocusBorderColor($color);
+				border-color: findButtonFocusBorderColor($color, $button-focus-border-color);
 				color: $color-invert;
 
 				&:not(:active) {
@@ -349,5 +324,4 @@ $button-static-border-color: $grey-lighter !default;
 	background-color: transparent;
 	cursor: pointer;
 }
-
 

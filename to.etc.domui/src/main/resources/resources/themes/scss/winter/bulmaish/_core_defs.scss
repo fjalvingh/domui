@@ -1,10 +1,7 @@
-@import "../derived-variables";
-
-$control-radius: $radius !default;
-$control-radius-small: $radius-small !default;
-
-$control-padding-vertical: calc(0.375em - 1px) !default;
-$control-padding-horizontal: calc(0.625em - 1px) !default;
+// The common mixins. They are part of the theme module (index forwards this file), which
+// is why this reads the variables through color, the variant's configuration of them, and
+// not through "theme": a module may not load the module that forwards it.
+@use "../color" as *;
 
 @mixin ui-beveled-border {
 	border: 1px solid $bevel-down;
@@ -140,7 +137,7 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	vertical-align: top;
 }
 
-/** Common mixins **/
+// Common mixins
 @mixin border-radius($radius) {
 	-khtml-border-radius: $radius;
 	-webkit-border-radius: $radius;

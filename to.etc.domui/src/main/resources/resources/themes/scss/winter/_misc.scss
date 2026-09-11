@@ -1,7 +1,5 @@
 /*** Miscellaneous components styles ***/
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 /* AccessDeniedPage */
 .ui-acd-ttl {}

@@ -1,5 +1,5 @@
 /*** LabelSelector component ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-lsel {
 	display: inline-block;

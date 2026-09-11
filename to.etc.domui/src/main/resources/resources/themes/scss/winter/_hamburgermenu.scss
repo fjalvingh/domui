@@ -1,7 +1,6 @@
 /*** HamburgerMenu fragment ***/
-@import "derived-variables";
+@use "theme" as *;
 
-@import "variables";
 .ui-hmbrg-menu {
 	position: absolute;
 	right: 0px;

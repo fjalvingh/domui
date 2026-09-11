@@ -1,5 +1,5 @@
 /*** Log tailer fragment ***/
-@import "derived-variables";
+@use "theme" as *;
 
 .ui-tlf-line {
 	font-family: Consolas, Liberation Mono, Courier, monospace;

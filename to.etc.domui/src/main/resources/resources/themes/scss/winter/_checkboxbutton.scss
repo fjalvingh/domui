@@ -1,4 +1,4 @@
-@import "derived-variables";
+@use "theme" as *;
 
 @mixin can-toggle-branding (
 	$can-toggle-off-color: $ckb-off-color,

@@ -1,8 +1,5 @@
 /*** Drag and drop ***/
-@import "_variables";
-
-$drp-hover-border: $green-accent !default;
-$drp-hover-bg: rgba(red($green-accent), green($green-accent), blue($green-accent), 0.1) !default;
+@use "theme" as *;
 
 /* Every node that has a drag handler */
 .ui-drgbl {

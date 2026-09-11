@@ -1,6 +1,4 @@
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 /*** Window and FloatingDiv styles. ***/
 .ui-flw {

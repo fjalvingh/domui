@@ -1,5 +1,5 @@
 /*** 420_caption2 ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-cptn2 {
 } 
@@ -11,7 +11,6 @@
 	color: $title-color;
 	margin-top: 0px;
 }
-
 
 /*-- pnl substyle --*/
 .ui-cptn2-pnl {

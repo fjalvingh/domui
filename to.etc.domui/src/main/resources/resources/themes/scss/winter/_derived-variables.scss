@@ -1,6 +1,8 @@
-@import "color";
-@import "variables";
-@import "functions.scss";
+// The second tier of the theme's variables: one for each colour or size a component paints,
+// each defaulting to a value from the main set in _variables.scss. See the header of that
+// file for how the two tiers relate and how variables are named.
+@use "variables" as *;
+@use "functions" as *;
 
 $info: $cyan !default;
 $success: $green !default;
@@ -65,13 +67,6 @@ $link-active: $grey-darker !default;
 $link-active-border: $grey-dark !default;
 
 // Typography
-$size-1: 3rem !default;
-$size-2: 2.5rem !default;
-$size-3: 2rem !default;
-$size-4: 1.5rem !default;
-$size-5: 1.25rem !default;
-$size-6: 1rem !default;
-$size-7: 0.75rem !default;
 
 $size-small: $size-7 !default;
 $size-normal: $size-6 !default;
@@ -98,9 +93,7 @@ $sizes: $size-1 $size-2 $size-3 $size-4 $size-5 $size-6 $size-7 !default;
 $sizes-map: ("size-1" : $size-1, "size-2" : $size-2, "size-3" : $size-3, "size-4" : $size-4, "size-5" : $size-5, "size-6" : $size-6, "size-7" : $size-7, "size-small": $size-small, "size-normal": $size-normal, "size-medium": $size-medium, "size-large": $size-large) !default;
 
 // Form
-$input-color: $grey-darker !default;
 $input-background-color: $white !default;
-$input-border-color: $grey-lighter !default;
 $input-shadow: inset 0 1px 2px rgba($black, 0.1) !default;
 
 $input-hover-color: $grey-darker !default;
@@ -116,7 +109,6 @@ $input-disabled-background-color: $background !default;
 $input-disabled-border-color: $background !default;
 
 $input-arrow: $link !default;
-
 
 // =======================================================================================
 // Component colours.
@@ -391,3 +383,118 @@ $ckw-accept-color: $primary-invert !default;
 $mp-weeknr-color: $text-muted !default;
 $mp-othermonth-color: $grey-light !default;
 
+// =======================================================================================
+// Component variables that used to be declared by the component partials themselves. They
+// are here so that the theme forwards every !default variable from one place - which is
+// what lets _custominit.scss (through the configuration in style.scss) and a variant set
+// them. Each block is named after the partial that reads it.
+// =======================================================================================
+
+// -- RadioButton
+$rbb-common-color: $alt-button-color !default;
+$rbb-common-bg: $alt-button-bg !default;
+$rbb-border-color: darken($rbb-common-color, 10%) !default;
+$rbb-border-width: 1px !default;
+$rbb-disabled-color: $rbb-disabled-bg !default;
+$rbb-disabled-border-color: darken($rbb-disabled-color, 15%) !default;
+
+// -- Buttons (bulmaish/_button_common)
+$button-color: $grey-darker !default;
+$button-background-color: $white !default;
+$button-border-color: $grey-lighter !default;
+$button-hover-color: $link-hover !default;
+$button-hover-border-color: $link-hover-border !default;
+$button-focus-color: $link-focus !default;
+$button-focus-border-color: $link-focus-border !default;
+$button-focus-box-shadow-size: 0 0 0 0.125em !default;
+$button-focus-box-shadow-color: rgba($link, 0.25) !default;
+$button-active-color: $link-active !default;
+$button-active-border-color: $link-active-border !default;
+$button-text-color: $text !default;
+$button-text-hover-background-color: $background !default;
+$button-text-hover-color: $text-strong !default;
+$button-disabled-background-color: $white !default;
+$button-disabled-border-color: $grey-lighter !default;
+$button-disabled-shadow: none !default;
+$button-disabled-opacity: 0.5 !default;
+$button-static-color: $grey !default;
+$button-static-background-color: $white-ter !default;
+$button-static-border-color: $grey-lighter !default;
+
+// -- DataPager2
+$dp2-padding: 0.5em 1em !default;
+$dp2-button-color: $alt-button-color !default;
+$dp2-button-bg: $alt-button-bg !default;
+
+// -- Drag and drop
+$drp-hover-border: $green-accent !default;
+$drp-hover-bg: rgba(red($green-accent), green($green-accent), blue($green-accent), 0.1) !default;
+
+// -- Form5
+
+// -- The jscalendar popup used by DateInput2 (_calendarTheme)
+$cal-band-active-bg:       #654 !default;
+$cal-band-bg:              #edc !default;
+$cal-bg:                   #ffd !default;
+$cal-body-bg:              #fed !default;
+$cal-border:               #655 !default;
+$cal-combo-border:         #866 !default;
+$cal-combo-dim-color:            #a88 !default;
+$cal-combo-hover-bg:       #fc8 !default;
+$cal-combo-color:           #a64 !default;
+$cal-dim-color:                  #bbb !default;
+$cal-disabled-color:             #999 !default;
+$cal-drag-bg:                 #0f0 !default;
+$cal-hilite-bg:            #ddf !default;
+$cal-hilite2-bg:           #efe !default;
+$cal-hover-active-bg:      #ddc !default;
+$cal-hover-bg:             #ffe !default;
+$cal-selected-bg:          #fea !default;
+$cal-status-bg:            #dcb !default;
+$cal-status-color:          #840 !default;
+$cal-color:                 #000 !default;
+$cal-title-bg:             #988 !default;
+$cal-today-active-bg:      #c77 !default;
+$cal-today-bg:             #faa !default;
+$cal-today-border:         #f40 !default;
+$cal-tooltip-bg:           #fee !default;
+$cal-weekend-color:              #f00 !default;
+$cal-weekend-dim-color:          #fbb !default;
+$cal-invert:                #fff !default;
+
+// -- DataTable
+$dt-font-size: 12px !default;
+$dt-hdr-bg-img: "" !default; //-- Table header doesn't have background image
+
+// -- MonthPanel
+$mp-bg: $surface-bg !default;
+$mp-border: $dt-border !default;
+$mp-hdr-bg: $dt-hdr-bg !default;
+$mp-marked-bg: $highlight-bg !default;
+
+// -- Controls (bulmaish/_core_defs)
+$control-radius: $radius !default;
+$control-radius-small: $radius-small !default;
+
+// -- LookupInput
+$lui-min-width: 14em !default;
+
+// -- SwitchButton
+$swtch-border-width: 2px !default;
+$swtch-width: 44px !default;			// 60px
+$swtch-height: 25px !default;
+$swtch-knob-size: $swtch-height - 2 * $swtch-border-width !default;		// 26px
+$swtch-travel: $swtch-width / 2 - 2 * $swtch-border-width !default;
+
+// -- TabPanel
+$tab-hdr-bg: $grey !default;					// The header part containing the tabs
+$tab-bg: $grey-light !default;
+$tab-border: $grey-dark !default;
+$tab-content-bg: $surface-bg !default;
+$tab-selected-color: $tab-bg !default;
+
+// -- Icons (bulmaish/_icon)
+$icon-dimensions: 1.5rem !default;
+$icon-dimensions-small: 1rem !default;
+$icon-dimensions-medium: 2rem !default;
+$icon-dimensions-large: 3rem !default;

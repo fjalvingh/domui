@@ -1,5 +1,5 @@
 /*** 160_errorpanel.frag.css ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-err-outer {
 	padding: 1px;

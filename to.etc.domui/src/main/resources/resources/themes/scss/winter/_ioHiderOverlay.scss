@@ -1,7 +1,5 @@
 /*** IO hider overlay ***/
-@import "derived-variables";
-
-@import "variables";
+@use "theme" as *;
 
 .ui-io-blk {
 	height: 100%;

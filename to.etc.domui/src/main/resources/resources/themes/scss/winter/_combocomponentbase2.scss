@@ -1,7 +1,6 @@
 /*** ComboComponentBase2: replacement for select control ***/
-@import "derived-variables";
+@use "theme" as *;
 
-@import "variables";
 .ui-cbb2 {
 	display: inline-flex;
 	position: relative;

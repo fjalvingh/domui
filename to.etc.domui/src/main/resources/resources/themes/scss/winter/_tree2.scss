@@ -1,5 +1,5 @@
 /** tree2 **/
-@import "derived-variables";
+@use "theme" as *;
 
 ul.ui-tree2-list {
 	list-style: none;
