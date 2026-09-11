@@ -1,11 +1,13 @@
 /*
  * The demo's own colours, repainted for the dark theme variant.
  *
- * Imported last by demostyle.scss, so these rules come after the ones in _panels.scss that
- * they correct. The whole file is inside the @if because libsass does not allow an @import
- * inside a conditional - so the import is unconditional and the content is not.
+ * Loaded last by demostyle.scss, so these rules come after the ones in _panels.scss that
+ * they correct. The whole file is inside the @if because a module is loaded
+ * unconditionally - so the content is what is conditional.
  */
-@if $themeVariant == "dark" {
+@use "parameters" as p;
+
+@if p.$themeVariant == "dark" {
 	$dm-surface:   hsl(220, 13%, 11%);
 	$dm-raised:    hsl(220, 13%, 15%);
 	$dm-raised-2:  hsl(220, 12%, 19%);

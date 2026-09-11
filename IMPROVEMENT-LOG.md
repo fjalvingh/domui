@@ -2124,6 +2124,23 @@ These were offered as input while the phase 0 items were being worked, and taken
       (`210.375` where the legacy `red()` rounded to `210`) - a difference of less than
       half a unit in 255, accepted rather than rounded back.
 
+- [x] **Demo: its sheets are on the module system.** Done 2026-09-11, the fifth step
+      of the migration and the last `@import` in the workspace. `demostyle.scss` `@use`s
+      its four partials; `_syntax.scss` and `_darkstyle.scss`, the two that branch on
+      the variant, each `@use "parameters" as p` and test `p.$themeVariant` - a module
+      reads the request's variables itself rather than finding them in a global scope.
+      Two libsass-era workarounds went with it: the `!global` on the dark palette's
+      nineteen assignments in `_syntax.scss` (Dart Sass assigns to the existing
+      file-level variable from inside an `@if` without it) and the comment in
+      `_darkstyle.scss` explaining why the `@if` is inside the file (still true of a
+      module, for a different reason; the comment says so). The skeleton's
+      `appstyle.scss` turned out to be plain css - no `@import`, no variable - and needs
+      nothing. Verified: compiled old and new with the CLI for both variants, rules
+      identical, zero deprecation warnings against five; through `jetty:run` the demo
+      sheet's rules are identical to the baseline; `mvn21 verify -pl to.etc.domui.demo`
+      passes 9 unit tests and 77 Selenium ITs (17 skipped - the `@Ignore`d baseline
+      tests already on the plan).
+
 ## Decisions log
 
 ### 2026-09-11 - Configuration, not first-assignment-wins: the module system design

@@ -2,15 +2,15 @@
 //
 // Every colour in this file is a foreground on the page ground, so all of them have to
 // change when the session renders dark - which is why the palette is a set of variables
-// picked here rather than a repaint in _darkstyle.scss. $themeVariant comes from
-// 'parameters', which demostyle.scss imports first.
+// picked here rather than a repaint in _darkstyle.scss. $themeVariant comes from the
+// "parameters" module DomUI synthesises per request.
 //
 // The dark values keep the hue of their light counterpart and move the lightness to the
 // other side of the ground, so a reader who knows one palette recognises the other.
 
-// The light palette is the default; the dark one overrides it. Both are written as plain
-// assignments plus !global because libsass scopes a variable set inside a control
-// directive to that directive.
+@use "parameters" as p;
+
+// The light palette is the default; the dark one overrides it.
 $s-text:        #222;
 $s-keyword1:    #fb8d00;
 $s-keyword2:    #86002f;
@@ -32,27 +32,27 @@ $s-diffnew:     #ebffd7;
 $s-diffline:    #b8dfff;
 $s-diffchar:    red;
 
-@if $themeVariant == "dark" {
-	$s-text:        hsl(220, 14%, 85%) !global;
-	$s-keyword1:    hsl(35, 95%, 62%) !global;
-	$s-keyword2:    hsl(340, 75%, 70%) !global;
-	$s-type:        hsl(210, 85%, 70%) !global;
-	$s-comment:     hsl(141, 45%, 58%) !global;
-	$s-comment-alt: hsl(195, 40%, 62%) !global;
-	$s-string:      hsl(176, 55%, 58%) !global;
-	$s-number:      hsl(20, 80%, 66%) !global;
-	$s-punctuation: hsl(220, 12%, 62%) !global;
-	$s-link:        hsl(210, 90%, 72%) !global;
-	$s-literal:     hsl(180, 60%, 62%) !global;
+@if p.$themeVariant == "dark" {
+	$s-text:        hsl(220, 14%, 85%);
+	$s-keyword1:    hsl(35, 95%, 62%);
+	$s-keyword2:    hsl(340, 75%, 70%);
+	$s-type:        hsl(210, 85%, 70%);
+	$s-comment:     hsl(141, 45%, 58%);
+	$s-comment-alt: hsl(195, 40%, 62%);
+	$s-string:      hsl(176, 55%, 58%);
+	$s-number:      hsl(20, 80%, 66%);
+	$s-punctuation: hsl(220, 12%, 62%);
+	$s-link:        hsl(210, 90%, 72%);
+	$s-literal:     hsl(180, 60%, 62%);
 
-	$s-lnr-bg:      hsl(220, 12%, 18%) !global;
-	$s-lnr-color:   hsl(220, 10%, 55%) !global;
+	$s-lnr-bg:      hsl(220, 12%, 18%);
+	$s-lnr-color:   hsl(220, 10%, 55%);
 
-	$s-diffstart:   hsl(55, 30%, 25%) !global;
-	$s-diffold:     hsl(10, 30%, 22%) !global;
-	$s-diffnew:     hsl(90, 28%, 20%) !global;
-	$s-diffline:    hsl(210, 35%, 25%) !global;
-	$s-diffchar:    hsl(0, 80%, 70%) !global;
+	$s-diffstart:   hsl(55, 30%, 25%);
+	$s-diffold:     hsl(10, 30%, 22%);
+	$s-diffnew:     hsl(90, 28%, 20%);
+	$s-diffline:    hsl(210, 35%, 25%);
+	$s-diffchar:    hsl(0, 80%, 70%);
 }
 
 .dm-srcp-scrl {

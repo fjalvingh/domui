@@ -1,15 +1,13 @@
 /*
  * The demo application's own styling.
  *
- * "parameters" is the file DomUI synthesises per request; importing it gives us
- * $themeVariant, the name of the theme variant this sheet is being compiled for. The demo
- * hardcodes a lot of light colours of its own, and _darkstyle.scss repaints them when the
- * session is rendering dark.
+ * Each partial that branches on the theme variant loads "parameters", the module DomUI
+ * synthesises per request, and reads p.$themeVariant from it. The demo hardcodes a lot of
+ * light colours of its own, and _darkstyle.scss repaints them when the session is rendering
+ * dark.
  */
-@import 'parameters';
+@use "panels";
+@use "syntax";
+@use "flextable";
 
-@import "panels";
-@import "syntax";
-@import "flextable";
-
-@import "darkstyle";
+@use "darkstyle";

@@ -268,10 +268,7 @@ it. Everything else on this list is a question for the user, not a deletion.
       - [x] Mechanical passes to the `sass:` modules. **Done 2026-09-11**, see the log.
       - [ ] Remove the four `addSilenceDeprecation()` calls; from then on a
             deprecation warning is something to fix.
-      - [ ] The application sheets: the demo's `css/demostyle.scss` and partials,
-            and the skeleton's `appstyle.scss` (`@import 'parameters'` becomes
-            `@use "parameters" as p;`, `$themeVariant` becomes `p.$themeVariant`).
-            Run the demo in both variants and the IT suite.
+      - [x] The application sheets. **Done 2026-09-11**, see the log.
       - [ ] The documentation: `look-and-feel/sass-scss-support` still says the
             compiler is jsass, and describes `@import` as include; it,
             `overriding-the-theme`, `styling-your-component`, `themes` and
