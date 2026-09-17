@@ -415,17 +415,16 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	static private final String THEMEVARIANT = "ctx$themevariant";
 
-	/** The cookie that keeps the dark/light choice, so that it outlives the session. */
-	static public final String THEMEVARIANT_COOKIE = "domui-theme-variant";
-
-	/** How long the browser keeps that cookie: a year. */
+	/** How long the browser keeps the theme variant cookie: a year. */
 	static private final int THEMEVARIANT_COOKIE_MAXAGE = 365 * 24 * 60 * 60;
 
 	/**
 	 * The theme variant to render in. A choice made on one page holds for every page after
-	 * it: it is remembered in the session, and in a cookie so that it survives the session
-	 * too. When neither holds one the application decides, which by default means asking the
-	 * browser for its dark/light preference (see {@link #isThemeVariantDefaulted()}).
+	 * it: it is remembered in the session, and - when the application named a cookie for it
+	 * ({@link DomApplication#setThemeVariantCookieName(String)}) - in that cookie, so that it
+	 * survives the session too. When neither holds one the application decides, which by
+	 * default means asking the browser for its dark/light preference (see
+	 * {@link #isThemeVariantDefaulted()}).
 	 */
 	@Override
 	@NonNull
@@ -447,16 +446,20 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	}
 
 	/**
-	 * The variant name in the theme cookie, or null when there is no cookie or its content is
-	 * not a variant name - it comes from the browser, so it can be anything at all.
+	 * The variant name in the theme cookie, or null when the application has no such cookie,
+	 * the browser did not send it, or its content is not a variant name - it comes from the
+	 * browser, so it can be anything at all.
 	 */
 	@Nullable
 	private String findThemeVariantCookie() {
+		String cookieName = m_application.getThemeVariantCookieName();
+		if(null == cookieName)
+			return null;
 		Cookie[] car = getRequestResponse().getCookies();
 		if(null == car)
 			return null;
 		for(Cookie c : car) {
-			if(THEMEVARIANT_COOKIE.equals(c.getName())) {
+			if(cookieName.equals(c.getName())) {
 				String value = c.getValue();
 				return null == value || value.isEmpty() || value.indexOf('/') != -1 ? null : value;
 			}
@@ -471,7 +474,10 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		m_currentTheme = null;
 		getSession().setAttribute(THEMEVARIANT, themeVariant.getVariantName());
 
-		Cookie k = new Cookie(THEMEVARIANT_COOKIE, themeVariant.getVariantName());
+		String cookieName = m_application.getThemeVariantCookieName();
+		if(null == cookieName)
+			return;
+		Cookie k = new Cookie(cookieName, themeVariant.getVariantName());
 		k.setPath("/" + getRequestResponse().getWebappContext());
 		k.setMaxAge(THEMEVARIANT_COOKIE_MAXAGE);
 		k.setHttpOnly(true);
@@ -481,9 +487,10 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * T when nothing chose the variant we render in: no {@link #setThemeVariant(IThemeVariant)}
-	 * earlier in this session, and no cookie from an earlier one. The page renderer asks the
-	 * browser for its dark/light preference in that case, and only then - which is also what
-	 * keeps that question from being asked twice, because answering it stores the choice.
+	 * earlier in this session, and no cookie from an earlier one (if the application keeps
+	 * one). The page renderer asks the browser for its dark/light preference in that case,
+	 * and only then - which is also what keeps that question from being asked twice, because
+	 * answering it stores the choice.
 	 */
 	@Override
 	public boolean isThemeVariantDefaulted() {

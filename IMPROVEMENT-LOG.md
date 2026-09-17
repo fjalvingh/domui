@@ -2181,7 +2181,36 @@ These were offered as input while the phase 0 items were being worked, and taken
       compiled against the real theme - which caught `$line-color` in the wrong clause
       before it went in - and the site builds at 164 pages with every link resolving.
 
+- [x] **Framework: the theme variant cookie is named by the application, or not
+      there at all.** Done 2026-09-17 at the user's request. The cookie that keeps the
+      dark/light choice across sessions had a fixed name, `domui-theme-variant`, so
+      every DomUI application on a host read the same cookie and a choice made in one
+      carried into the others. The name is now a `DomApplication` setting,
+      `setThemeVariantCookieName()`, to be called from `initialize()`; without it there
+      is no cookie: `RequestContextImpl` then neither reads nor writes one, the choice
+      lives in the session only, and the browser is asked for its colour scheme once
+      per session instead of once per browser. The demo sets `domuidemo-theme-variant`.
+      Docs: `look-and-feel/themes` says how to name the cookie and why there is no
+      default. Verified: `to.etc.domui` compiles and its 63 unit tests pass; and with
+      curl against a running demo, following the `$cid` handshake by hand - with the
+      name set, `$colorscheme` answers with a `Set-Cookie` under the demo's name, a
+      fresh session sending that cookie renders dark without being asked, and one
+      sending the old fixed name is asked and renders light; with the name commented
+      out, `$colorscheme` sets no cookie at all, the session still holds dark for the
+      next page, and the demo-named cookie is ignored in turn.
+
 ## Decisions log
+
+### 2026-09-17 - Cookies DomUI writes on its own are named by the application
+
+A cookie with a name fixed inside the framework is shared by every DomUI
+application on the same host, and a per-user choice stored in it leaks from one
+application into the next. So a cookie the framework keeps for itself has no
+default name: the application names it in `initialize()`, and until it does the
+feature that needs the cookie works without one. The theme variant cookie is the
+first case; the session-only fallback (the choice holds for the session, the
+browser is asked its colour scheme once per session) is what "without one" means
+there.
 
 ### 2026-09-11 - Configuration, not first-assignment-wins: the module system design
 

@@ -356,6 +356,13 @@ public abstract class DomApplication {
 	@NonNull
 	private volatile IThemeFactory m_themeFactory = SassThemeFactory.INSTANCE;
 
+	/**
+	 * The name of the cookie that keeps the user's theme variant choice across sessions, or
+	 * null (the default) for no cookie at all. See {@link #setThemeVariantCookieName(String)}.
+	 */
+	@Nullable
+	private volatile String m_themeVariantCookieName;
+
 	private IThemeVariablesCalculator m_themeVariablesCalculator = parameters -> Map.of();
 
 	private ConfigParameters m_configParameters;
@@ -2484,6 +2491,31 @@ public abstract class DomApplication {
 	@NonNull
 	final public IThemeFactory getThemeFactory() {
 		return m_themeFactory;
+	}
+
+	/**
+	 * Name the cookie that keeps the user's theme variant choice, so that it outlives the
+	 * session; call this from {@link #initialize(ConfigParameters)}. Without a name there is
+	 * no cookie: a variant set with {@link IRequestContext#setThemeVariant(IThemeVariant)}
+	 * then holds for the session only, and the browser is asked for its colour scheme once
+	 * per session instead of once per browser.
+	 *
+	 * <p>There is no default because every application on a host would otherwise share the
+	 * one cookie, and a choice made in one would carry into the others.</p>
+	 */
+	final public void setThemeVariantCookieName(@Nullable String cookieName) {
+		if(null != cookieName && cookieName.isBlank())
+			throw new IllegalArgumentException("The theme variant cookie name cannot be blank");
+		m_themeVariantCookieName = cookieName;
+	}
+
+	/**
+	 * The name of the theme variant cookie, or null when the application has none - see
+	 * {@link #setThemeVariantCookieName(String)}.
+	 */
+	@Nullable
+	final public String getThemeVariantCookieName() {
+		return m_themeVariantCookieName;
 	}
 
 	/**

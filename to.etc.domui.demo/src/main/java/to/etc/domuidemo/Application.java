@@ -52,6 +52,7 @@ public class Application extends DomApplication {
 		ImageCache.initialize(32 * 1024L * 1024L, 5L * 1024L * 1024L * 1024L, imagecache);
 
 		setThemeFactory(SassThemeFactory.INSTANCE);
+		setThemeVariantCookieName("domuidemo-theme-variant");		// Keep the dark/light choice across sessions
 		addDefaultHTTPHeader("X-Frame-Options", null);
 
 
