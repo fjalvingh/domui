@@ -2187,17 +2187,20 @@ These were offered as input while the phase 0 items were being worked, and taken
       every DomUI application on a host read the same cookie and a choice made in one
       carried into the others. The name is now a `DomApplication` setting,
       `setThemeVariantCookieName()`, to be called from `initialize()`; without it there
-      is no cookie: `RequestContextImpl` then neither reads nor writes one, the choice
-      lives in the session only, and the browser is asked for its colour scheme once
-      per session instead of once per browser. The demo sets `domuidemo-theme-variant`.
-      Docs: `look-and-feel/themes` says how to name the cookie and why there is no
-      default. Verified: `to.etc.domui` compiles and its 63 unit tests pass; and with
-      curl against a running demo, following the `$cid` handshake by hand - with the
-      name set, `$colorscheme` answers with a `Set-Cookie` under the demo's name, a
-      fresh session sending that cookie renders dark without being asked, and one
-      sending the old fixed name is asked and renders light; with the name commented
-      out, `$colorscheme` sets no cookie at all, the session still holds dark for the
-      next page, and the demo-named cookie is ignored in turn.
+      is no cookie: `RequestContextImpl` then neither reads nor writes one, and the
+      choice lives in the session only. The browser colour scheme detection goes
+      with it, at the user's direction: the answer could not be kept, so
+      `HtmlFullRenderer` does not write the question and `ColorSchemePart` ignores an
+      answer that arrives anyway. The demo sets `domuidemo-theme-variant`. Docs:
+      `look-and-feel/themes` says how to name the cookie, why there is no default, and
+      that the first-visit question depends on it. Verified: `to.etc.domui` compiles
+      and its 63 unit tests pass; and with curl against a running demo, following the
+      `$cid` handshake by hand - with the name set, a fresh session gets the question,
+      `$colorscheme` answers with a `Set-Cookie` under the demo's name, a fresh session
+      sending that cookie renders dark without being asked, and one sending the old
+      fixed name is asked and renders light; with the name commented out, no question
+      is written, a hand-typed `$colorscheme?scheme=dark` sets no cookie and leaves
+      the session rendering `default`, and the demo-named cookie is ignored in turn.
 
 ## Decisions log
 
@@ -2207,10 +2210,11 @@ A cookie with a name fixed inside the framework is shared by every DomUI
 application on the same host, and a per-user choice stored in it leaks from one
 application into the next. So a cookie the framework keeps for itself has no
 default name: the application names it in `initialize()`, and until it does the
-feature that needs the cookie works without one. The theme variant cookie is the
-first case; the session-only fallback (the choice holds for the session, the
-browser is asked its colour scheme once per session) is what "without one" means
-there.
+feature that needs the cookie works without one, or is off. The theme variant
+cookie is the first case: without a name a chosen variant holds for the session
+only, and the first-visit colour scheme detection is off altogether - it exists to
+make a choice once per browser, and that is exactly what cannot be stored without
+the cookie.
 
 ### 2026-09-11 - Configuration, not first-assignment-wins: the module system design
 

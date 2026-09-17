@@ -25,6 +25,10 @@ import to.etc.util.StringTool;
  * the cookie from bouncing between the two pages forever - the session alone is enough to
  * end it.</p>
  *
+ * <p>All of this is only on when the application named the cookie
+ * ({@link DomApplication#setThemeVariantCookieName(String)}): without one the renderer does
+ * not ask, and this part ignores an answer that still arrives.</p>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 final public class ColorSchemePart implements IUnbufferedPartFactory {
@@ -41,10 +45,12 @@ final public class ColorSchemePart implements IUnbufferedPartFactory {
 
 	@Override
 	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl ctx) throws Exception {
-		String scheme = ctx.getPageParameters().getString(PARAM_SCHEME, "light");
-		IThemeVariant variant = app.getThemeVariantForColorScheme(null == scheme ? "light" : scheme);
-		if(null != variant) {
-			ctx.setThemeVariant(variant);
+		if(null != app.getThemeVariantCookieName()) {
+			String scheme = ctx.getPageParameters().getString(PARAM_SCHEME, "light");
+			IThemeVariant variant = app.getThemeVariantForColorScheme(null == scheme ? "light" : scheme);
+			if(null != variant) {
+				ctx.setThemeVariant(variant);
+			}
 		}
 
 		//-- The target came from us, but it travelled through the browser: allow nothing that could leave this application.

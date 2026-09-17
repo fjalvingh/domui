@@ -2497,8 +2497,8 @@ public abstract class DomApplication {
 	 * Name the cookie that keeps the user's theme variant choice, so that it outlives the
 	 * session; call this from {@link #initialize(ConfigParameters)}. Without a name there is
 	 * no cookie: a variant set with {@link IRequestContext#setThemeVariant(IThemeVariant)}
-	 * then holds for the session only, and the browser is asked for its colour scheme once
-	 * per session instead of once per browser.
+	 * then holds for the session only, and the browser is not asked for its colour scheme
+	 * (see {@link #getThemeVariantForColorScheme(String)}) - that answer could not be kept.
 	 *
 	 * <p>There is no default because every application on a host would otherwise share the
 	 * one cookie, and a choice made in one would carry into the others.</p>
@@ -2585,6 +2585,9 @@ public abstract class DomApplication {
 	 * by the script {@link to.etc.domui.dom.HtmlFullRenderer} writes into the page head, and the
 	 * answer becomes that session's choice - so a user gets the dark theme when their desktop is
 	 * dark, without having to say so.
+	 *
+	 * <p>The question is only asked when the application named the theme variant cookie
+	 * ({@link #setThemeVariantCookieName(String)}), because the answer is kept there.</p>
 	 *
 	 * <p>The default maps onto the two variants DomUI itself ships, which is right for the theme
 	 * it ships too. A theme that has no dark variant must override this to return null, which

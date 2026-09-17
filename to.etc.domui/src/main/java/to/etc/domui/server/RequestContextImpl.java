@@ -423,8 +423,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * it: it is remembered in the session, and - when the application named a cookie for it
 	 * ({@link DomApplication#setThemeVariantCookieName(String)}) - in that cookie, so that it
 	 * survives the session too. When neither holds one the application decides, which by
-	 * default means asking the browser for its dark/light preference (see
-	 * {@link #isThemeVariantDefaulted()}).
+	 * default (and given that cookie) means asking the browser for its dark/light preference
+	 * (see {@link #isThemeVariantDefaulted()}).
 	 */
 	@Override
 	@NonNull
