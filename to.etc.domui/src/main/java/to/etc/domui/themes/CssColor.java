@@ -24,12 +24,16 @@
  */
 package to.etc.domui.themes;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.util.StringTool;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An immutable color, with methods to create new colors from it.
@@ -160,6 +164,101 @@ final public class CssColor {
 				return false;
 		}
 		return true;
+	}
+
+	/**
+	 * The colour a CSS value names, or null when the value does not name one: it is null or
+	 * blank, one of the keywords that is not a colour (transparent, inherit, currentColor,
+	 * initial, unset), a var() reference, a function like rgba() that carries more than a
+	 * colour, or simply a typo.
+	 *
+	 * <p>This is the difference with {@link #CssColor(String)}: that constructor is for a value
+	 * which is known to be a colour and turns anything else into a visible wrong one, so the
+	 * mistake is noticed. Use this when the value comes from somewhere that may legitimately
+	 * hold something else, and leave such a value alone rather than mangling it.</p>
+	 */
+	@Nullable
+	static public CssColor of(@Nullable String color) {
+		if(null == color)
+			return null;
+		String value = color.trim();
+		if(value.isEmpty())
+			return null;
+
+		Integer named = NAMED_COLORS.get(value.toLowerCase());
+		if(null != named) {
+			int iv = named.intValue();
+			return new CssColor((iv >> 16) & 0xff, (iv >> 8) & 0xff, iv & 0xff);
+		}
+
+		String rgb = value.startsWith("#") ? value.substring(1).trim() : value;
+		if(rgb.length() != 3 && rgb.length() != 6)
+			return null;
+		if(!isHex(rgb))
+			return null;
+		return new CssColor(decode(rgb));
+	}
+
+	/**
+	 * The CSS colour keywords, as the CSS Color specification defines them. The keywords that
+	 * are aliases of one another (grey/gray and their compounds, aqua/cyan, fuchsia/magenta)
+	 * are all present, so that a value spelled either way is recognised.
+	 */
+	static private final Map<String, Integer> NAMED_COLORS = createNamedColors();
+
+	static private Map<String, Integer> createNamedColors() {
+		Map<String, Integer> m = new HashMap<>();
+		m.put("aliceblue", 0xf0f8ff); m.put("antiquewhite", 0xfaebd7); m.put("aqua", 0x00ffff);
+		m.put("aquamarine", 0x7fffd4); m.put("azure", 0xf0ffff); m.put("beige", 0xf5f5dc);
+		m.put("bisque", 0xffe4c4); m.put("black", 0x000000); m.put("blanchedalmond", 0xffebcd);
+		m.put("blue", 0x0000ff); m.put("blueviolet", 0x8a2be2); m.put("brown", 0xa52a2a);
+		m.put("burlywood", 0xdeb887); m.put("cadetblue", 0x5f9ea0); m.put("chartreuse", 0x7fff00);
+		m.put("chocolate", 0xd2691e); m.put("coral", 0xff7f50); m.put("cornflowerblue", 0x6495ed);
+		m.put("cornsilk", 0xfff8dc); m.put("crimson", 0xdc143c); m.put("cyan", 0x00ffff);
+		m.put("darkblue", 0x00008b); m.put("darkcyan", 0x008b8b); m.put("darkgoldenrod", 0xb8860b);
+		m.put("darkgray", 0xa9a9a9); m.put("darkgrey", 0xa9a9a9); m.put("darkgreen", 0x006400);
+		m.put("darkkhaki", 0xbdb76b); m.put("darkmagenta", 0x8b008b); m.put("darkolivegreen", 0x556b2f);
+		m.put("darkorange", 0xff8c00); m.put("darkorchid", 0x9932cc); m.put("darkred", 0x8b0000);
+		m.put("darksalmon", 0xe9967a); m.put("darkseagreen", 0x8fbc8f); m.put("darkslateblue", 0x483d8b);
+		m.put("darkslategray", 0x2f4f4f); m.put("darkslategrey", 0x2f4f4f); m.put("darkturquoise", 0x00ced1);
+		m.put("darkviolet", 0x9400d3); m.put("deeppink", 0xff1493); m.put("deepskyblue", 0x00bfff);
+		m.put("dimgray", 0x696969); m.put("dimgrey", 0x696969); m.put("dodgerblue", 0x1e90ff);
+		m.put("firebrick", 0xb22222); m.put("floralwhite", 0xfffaf0); m.put("forestgreen", 0x228b22);
+		m.put("fuchsia", 0xff00ff); m.put("gainsboro", 0xdcdcdc); m.put("ghostwhite", 0xf8f8ff);
+		m.put("gold", 0xffd700); m.put("goldenrod", 0xdaa520); m.put("gray", 0x808080);
+		m.put("grey", 0x808080); m.put("green", 0x008000); m.put("greenyellow", 0xadff2f);
+		m.put("honeydew", 0xf0fff0); m.put("hotpink", 0xff69b4); m.put("indianred", 0xcd5c5c);
+		m.put("indigo", 0x4b0082); m.put("ivory", 0xfffff0); m.put("khaki", 0xf0e68c);
+		m.put("lavender", 0xe6e6fa); m.put("lavenderblush", 0xfff0f5); m.put("lawngreen", 0x7cfc00);
+		m.put("lemonchiffon", 0xfffacd); m.put("lightblue", 0xadd8e6); m.put("lightcoral", 0xf08080);
+		m.put("lightcyan", 0xe0ffff); m.put("lightgoldenrodyellow", 0xfafad2); m.put("lightgray", 0xd3d3d3);
+		m.put("lightgrey", 0xd3d3d3); m.put("lightgreen", 0x90ee90); m.put("lightpink", 0xffb6c1);
+		m.put("lightsalmon", 0xffa07a); m.put("lightseagreen", 0x20b2aa); m.put("lightskyblue", 0x87cefa);
+		m.put("lightslategray", 0x778899); m.put("lightslategrey", 0x778899); m.put("lightsteelblue", 0xb0c4de);
+		m.put("lightyellow", 0xffffe0); m.put("lime", 0x00ff00); m.put("limegreen", 0x32cd32);
+		m.put("linen", 0xfaf0e6); m.put("magenta", 0xff00ff); m.put("maroon", 0x800000);
+		m.put("mediumaquamarine", 0x66cdaa); m.put("mediumblue", 0x0000cd); m.put("mediumorchid", 0xba55d3);
+		m.put("mediumpurple", 0x9370db); m.put("mediumseagreen", 0x3cb371); m.put("mediumslateblue", 0x7b68ee);
+		m.put("mediumspringgreen", 0x00fa9a); m.put("mediumturquoise", 0x48d1cc); m.put("mediumvioletred", 0xc71585);
+		m.put("midnightblue", 0x191970); m.put("mintcream", 0xf5fffa); m.put("mistyrose", 0xffe4e1);
+		m.put("moccasin", 0xffe4b5); m.put("navajowhite", 0xffdead); m.put("navy", 0x000080);
+		m.put("oldlace", 0xfdf5e6); m.put("olive", 0x808000); m.put("olivedrab", 0x6b8e23);
+		m.put("orange", 0xffa500); m.put("orangered", 0xff4500); m.put("orchid", 0xda70d6);
+		m.put("palegoldenrod", 0xeee8aa); m.put("palegreen", 0x98fb98); m.put("paleturquoise", 0xafeeee);
+		m.put("palevioletred", 0xdb7093); m.put("papayawhip", 0xffefd5); m.put("peachpuff", 0xffdab9);
+		m.put("peru", 0xcd853f); m.put("pink", 0xffc0cb); m.put("plum", 0xdda0dd);
+		m.put("powderblue", 0xb0e0e6); m.put("purple", 0x800080); m.put("rebeccapurple", 0x663399);
+		m.put("red", 0xff0000); m.put("rosybrown", 0xbc8f8f); m.put("royalblue", 0x4169e1);
+		m.put("saddlebrown", 0x8b4513); m.put("salmon", 0xfa8072); m.put("sandybrown", 0xf4a460);
+		m.put("seagreen", 0x2e8b57); m.put("seashell", 0xfff5ee); m.put("sienna", 0xa0522d);
+		m.put("silver", 0xc0c0c0); m.put("skyblue", 0x87ceeb); m.put("slateblue", 0x6a5acd);
+		m.put("slategray", 0x708090); m.put("slategrey", 0x708090); m.put("snow", 0xfffafa);
+		m.put("springgreen", 0x00ff7f); m.put("steelblue", 0x4682b4); m.put("tan", 0xd2b48c);
+		m.put("teal", 0x008080); m.put("thistle", 0xd8bfd8); m.put("tomato", 0xff6347);
+		m.put("turquoise", 0x40e0d0); m.put("violet", 0xee82ee); m.put("wheat", 0xf5deb3);
+		m.put("white", 0xffffff); m.put("whitesmoke", 0xf5f5f5); m.put("yellow", 0xffff00);
+		m.put("yellowgreen", 0x9acd32);
+		return Collections.unmodifiableMap(m);
 	}
 
 	public int getRed() {

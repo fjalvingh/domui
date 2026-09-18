@@ -21,6 +21,7 @@ import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.parts.PartData;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
+import to.etc.domui.themes.ThemeColor;
 import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.javascript.JavascriptStmt;
@@ -186,6 +187,18 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	 * Main entrypoint: render the whole page.
 	 */
 	public void render(IRequestContext ctx) throws Exception {
+		//-- Everything below renders the theme factory's default variant, including the stylesheet
+		//-- this inlines; say so, so that a colour a page computes for itself lands on the same
+		//-- variant instead of on the session's.
+		boolean wasOffline = ThemeColor.setRenderingOffline(true);
+		try {
+			renderDocument(ctx);
+		} finally {
+			ThemeColor.setRenderingOffline(wasOffline);
+		}
+	}
+
+	private void renderDocument(IRequestContext ctx) throws Exception {
 		m_ctx = ctx;
 		m_page.internalFullBuild();
 
