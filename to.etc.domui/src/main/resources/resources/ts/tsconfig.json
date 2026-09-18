@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "system",
-//    "module": "system",
+    "target": "es2017",
 
     //    "noImplicitAny": true,
     "removeComments": true,

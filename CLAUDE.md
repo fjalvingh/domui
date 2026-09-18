@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-DomUI is a server-side Java UI framework library. The project is currently undergoing Jakarta EE migration (javax.* to jakarta.* packages). Main development branch is `skarp-jakarta`.
+DomUI is a server-side Java UI framework library. The main development branch is `skarp-master`.
 
 ## Build Commands
 
@@ -46,6 +46,9 @@ Key modules:
 - **to.etc.domui** - Core UI framework (components, data binding, AJAX)
 - **to.etc.webapp.core** - Web application framework, includes QCriteria query abstraction
 - **integrations/to.etc.domui.hibutil** - Hibernate/JPA integration, translates QCriteria to JPA Criteria
+- **integrations/to.etc.domui.maxgraph** - `MaxGraphPanel`: diagrams drawn by maxGraph from a
+  Java `GraphModel`. Ships a committed javascript bundle, so it builds without node; see
+  `finished-plans/MAXGRAPH.md` for how it works and the module's README for rebuilding the bundle
 - **to.etc.domui.demo** - Demo application and integration tests
 - **common/** - Shared utilities (logging, database, algorithms, security)
 
@@ -68,7 +71,24 @@ UI components in `to.etc.domui` follow a server-side rendering model with AJAX u
 - **Test Framework**: JUnit 4
 - **Build System**: Maven multi-module
 - **Primary database**: PostgreSQL version 15+
+- **Servlet API**: Jakarta EE (`jakarta.servlet`), on Jetty 11.0.26
 
-## Current Migration Notes
+## Running Projects
 
-The `skarp-jakarta` branch is migrating from javax.* to jakarta.* packages. Jetty remains at 9.4.x due to package naming incompatibilities with newer versions.
+### Documentation & demo improvement (ongoing)
+
+A multi-step improvement of the documentation website and the demo/tutorial
+application, including removal of old and incorrect code and information. The
+plan and current state live in **[IMPROVEMENT-PLAN.md](IMPROVEMENT-PLAN.md)**, which
+holds only what is still open; the finished work and the decisions log are next to it
+in **[IMPROVEMENT-LOG.md](IMPROVEMENT-LOG.md)**. Read the plan before working on
+documentation or on `to.etc.domui.demo`, and keep both up to date: a finished item
+moves to the log, and what it decided becomes an entry in the log's decisions log.
+
+A plan that is finished as a whole moves to **`finished-plans/`**. What is there is
+done and is kept for the account it gives of how a part of the framework now works -
+`THEMES.md`, the theming write-up, is the first of them.
+
+The documentation website source is a separate repository at
+`/home/jal/git/update-domui/domui.github.io` (Markdown under `site/content`, static site
+generator in `sitegenerator`).

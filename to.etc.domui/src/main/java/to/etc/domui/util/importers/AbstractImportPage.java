@@ -30,7 +30,7 @@ public class AbstractImportPage extends UrlPage {
 	}
 
 	protected <T extends AbstractImportTask> void addUploadButton(String text, T task, ConsumerEx<T> onComplete) throws Exception {
-		DefaultButton b = getButtonBar().addButton(text, Icon.faUpload, v -> startUpload(task, onComplete));
+		DefaultButton b = getButtonBar().addButton(text, Icon.faUpload, ()-> startUpload(task, onComplete));
 		b.bind("disabled").to(this, "uploadDisabled");
 	}
 

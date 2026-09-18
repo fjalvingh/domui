@@ -19,6 +19,7 @@ import to.etc.domui.dom.html.IControl
 import to.etc.domui.dom.html.NodeBase
 import to.etc.domui.dom.html.Span
 import to.etc.domui.util.IRenderInto
+import to.etc.function.IExecute
 import to.etc.webapp.query.QOperation
 import java.util.function.Supplier
 
@@ -113,8 +114,7 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 			if(node.isEmpty()) {
 				deleteSimple()
 			} else {
-				MsgBox.yesNo(this, "Delete?", {
-					it: MsgBox ->
+				MsgBox.yesNo(this, "Delete?", IExecute {			// IExecute: yesNo also has an IAnswer overload
 					deleteSimple()
 				})
 			}

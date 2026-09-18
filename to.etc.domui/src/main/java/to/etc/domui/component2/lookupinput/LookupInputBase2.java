@@ -46,7 +46,6 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IReturnPressed;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.util.DomUtil;
 import to.etc.function.IExecute;
 import to.etc.domui.util.IRenderInto;
@@ -176,8 +175,8 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 
-		ks.setOnLookupTyping(component -> {
-			ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
+		ks.setOnLookupTyping(() -> {
+			ITableModel<OT> keySearchModel = searchKeyWord(ks.getValue());
 			showResults(keySearchModel);
 		});
 
@@ -387,14 +386,14 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		}
 		DomUtil.nullChecked(getKeySearch()).add(pnl);
 
-		pnl.setOnValueChanged((IValueChanged<SelectOnePanel<OT>>) component -> {
+		pnl.setOnValueChanged(() -> {
 			clearResult();
-			OT selection = component.getValue();
+			OT selection = pnl.getValue();
 			if(null != selection)
 				handleSetValue(selection);
 		});
 
-		pnl.setClicked(clickednode -> {
+		pnl.setClicked(()-> {
 			//we just need to deliver selected value here, that is why we have empty click handler
 		});
 	}

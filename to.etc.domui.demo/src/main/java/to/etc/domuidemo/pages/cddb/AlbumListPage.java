@@ -1,75 +1,37 @@
 package to.etc.domuidemo.pages.cddb;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.searchpanel.SearchPanel;
-import to.etc.domui.component.tbl.DataPager;
-import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
-import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Album_;
-import to.etc.domui.dom.html.HTag;
-import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.UIGoto;
-import to.etc.webapp.query.QCriteria;
 
 /**
+ * Find an album in the catalogue; clicking one opens it with its tracks.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 10-10-18.
  */
-@NonNullByDefault
-final public class AlbumListPage extends UrlPage {
-	@Nullable
-	private DataTable<Album> m_table;
-
-	@Override @Nullable public String getPageTitle() {
-		return "Album List";
+final public class AlbumListPage extends AbstractCdShopListPage<Album> {
+	public AlbumListPage() {
+		super(Album.class, "Albums");
 	}
 
-	@Override public void createContent() throws Exception {
-		add(new HTag(1, "Find an album"));
-
-		ContentPanel cp = new ContentPanel();
-		add(cp);
-
-		SearchPanel<Album> lookup = new SearchPanel<>(Album.class);
-		cp.add(lookup);
-
-		lookup.add().property(Album_.artist()).control();
-		lookup.add().property(Album_.title()).control();
-		lookup.setClicked(a -> search(lookup.getCriteria()));
+	@Override
+	protected void configureSearch(@NonNull SearchPanel<Album> sp) throws Exception {
+		sp.add().property(Album_.artist()).control();
+		sp.add().property(Album_.title()).control();
 	}
 
-	private void search(@Nullable QCriteria<Album> criteria) {
-		if(criteria == null)
-			return;
-		DataTable<Album> table = m_table;
-		SimpleSearchModel<Album> model = new SimpleSearchModel<Album>(this, criteria);
-		if(null == table) {
-			RowRenderer<Album> rr = getRowRenderer();
-			rr.setRowClicked(a -> {
-				UIGoto.moveSub(AlbumEditPage.class, "id", a.getId());
-			});
-
-			table = m_table = new DataTable<>(model, rr);
-			table.setPageSize(20);
-
-			add(new DataPager(table));
-			add(table);
-			add(new DataPager(table));
-		} else {
-			table.setModel(model);
-		}
-	}
-
-	@NonNull
-	private RowRenderer<Album> getRowRenderer() {
-		RowRenderer<Album> rr = new RowRenderer<>(Album.class);
+	@Override
+	protected void configureColumns(@NonNull RowRenderer<Album> rr) throws Exception {
 		rr.column(Album_.title()).width(20).ascending();
 		rr.column(Album_.artist().name()).width(20).sortdefault().ascending();
-		return rr;
+	}
+
+	@Override
+	protected void onRowSelected(@NonNull Album instance) throws Exception {
+		UIGoto.moveSub(AlbumEditPage.class, "id", instance.getId());
 	}
 }

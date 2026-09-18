@@ -1,7 +1,7 @@
 package to.etc.domui.component.misc;
 
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
+import to.etc.function.IExecute;
 
 import java.util.Set;
 
@@ -16,7 +16,7 @@ public class KeyCodeDiv extends Div {
 
 	private final Set<KeyModifier> m_modifierSet;
 
-	public KeyCodeDiv(String keyCode, Set<KeyModifier> modifierSet, IClicked<KeyCodeDiv> clicked) {
+	public KeyCodeDiv(String keyCode, Set<KeyModifier> modifierSet, IExecute clicked) {
 		m_keyCode = keyCode;
 		m_modifierSet = modifierSet;
 		setClicked(clicked);

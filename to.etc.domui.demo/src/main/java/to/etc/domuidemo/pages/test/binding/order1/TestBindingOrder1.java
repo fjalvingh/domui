@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.test.binding.order1;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.UrlPage;
@@ -42,7 +43,10 @@ public class TestBindingOrder1 extends UrlPage {
 		cil.immediate();
 		cl.immediate();
 
-		FormBuilder fb = new FormBuilder(this);
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		FormBuilder fb = new FormBuilder(cp);
 		fb.property(this, "country").label("Country").control(cl);
 		fb.property(this, "city").label("City").control(cil);
 	}

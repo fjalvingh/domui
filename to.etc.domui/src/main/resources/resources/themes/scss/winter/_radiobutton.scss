@@ -1,9 +1,4 @@
-$rbb-common-color: $alt-button-color !default;
-$rbb-common-bg: $alt-button-bg !default;
-$rbb-border-color: darken($rbb-common-color, 10%) !default;
-$rbb-border-width: 1px !default;
-$rbb-disabled-color: #ddd;
-$rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
+@use "theme" as *;
 
 .ui-rbb-buttons {
 	&.ui-rbb-empty.ui-ro {
@@ -68,7 +63,7 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 		}
 		input[type="radio"][disabled="disabled"]:checked + label {
 			background-color: $rbb-common-color;
-			color: darken($rbb-common-bg, 20%);
+			color: darker($rbb-common-bg, 20%);
 			display: inline-block;
 		}
 		input[type="radio"][readonly="readonly"] + label {
@@ -88,7 +83,7 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 	}
 }
 .ui-rbb-buttons.ui-input-err label {
-	background-color: $errors_input_background;
+	background-color: $errors-input-bg;
 }
 
 /*** On/Off single state label that looks like an checkbox button ***/

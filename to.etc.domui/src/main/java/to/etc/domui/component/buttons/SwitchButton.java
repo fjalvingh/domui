@@ -3,9 +3,9 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.dom.html.Checkbox;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
+import to.etc.function.IExecute;
 
 /**
  * This is a simple on/off switch button, like the CheckBoxButton but
@@ -48,14 +48,29 @@ public class SwitchButton extends AbstractDivControl<Boolean> {
 
 	@Deprecated
 	@Override
-	public IValueChanged<?> getOnValueChanged() {
-		IValueChanged<?> vc = m_cb.getOnValueChanged();
+	public IExecute getOnValueChanged() {
+		IExecute vc = m_cb.getOnValueChanged();
 		return vc;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_cb.setOnValueChanged(onValueChanged);
+	}
+
+	/**
+	 * The value of this control <b>is</b> the state of the checkbox inside it; without
+	 * these two the control would keep a value of its own that the checkbox never sees.
+	 */
+	@Override
+	protected void internalSetValue(@Nullable Boolean value) {
+		m_cb.setValue(value);
+	}
+
+	@Nullable
+	@Override
+	protected Boolean internalGetValue() {
+		return m_cb.getValue();
 	}
 
 	public boolean isChecked() {
@@ -63,6 +78,18 @@ public class SwitchButton extends AbstractDivControl<Boolean> {
 	}
 
 	public void setChecked(boolean checked) {
-		m_cb.setChecked(checked);
+		setValue(Boolean.valueOf(checked));
+	}
+
+	@Override
+	public void setDisabled(boolean d) {
+		super.setDisabled(d);
+		m_cb.setDisabled(d);
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+		super.setReadOnly(ro);
+		m_cb.setReadOnly(ro);
 	}
 }

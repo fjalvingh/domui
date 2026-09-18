@@ -1,18 +1,12 @@
 package to.etc.domui.themes.sass;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.parts.PartData;
-import to.etc.domui.state.PageParameters;
-import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.ThemeResourceFactory;
-import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencies;
-import to.etc.util.StringTool;
 
 import java.util.List;
 
@@ -24,54 +18,33 @@ final public class SassTheme implements ITheme {
 	@NonNull
 	final private DomApplication m_da;
 
-	private final String m_themeName;
-
-	@NonNull
-	final private String m_styleName;
+	private final String m_variantName;
 
 	@NonNull
 	final private ResourceDependencies m_rd;
 
 	@NonNull
-	final private IScriptScope m_propertyScope;
-
-	@NonNull
 	final private List<String> m_searchPath;
 
-	public SassTheme(@NonNull DomApplication da, String themeName, @NonNull String styleName, @NonNull IScriptScope themeProperties, @NonNull ResourceDependencies rd,
+	public SassTheme(@NonNull DomApplication da, String variantName, @NonNull ResourceDependencies rd,
 		@NonNull List<String> searchpath) {
 		m_da = da;
-		m_themeName = themeName;
-		m_styleName = styleName;
-		m_propertyScope = themeProperties;
+		m_variantName = variantName;
 		m_rd = rd;
 		m_searchPath = searchpath;
 	}
 
-	@NonNull @Override public String getThemeName() {
-		return m_themeName;
+	@NonNull
+	@Override
+	public String getVariantName() {
+		return m_variantName;
 	}
 
-	@NonNull @Override public IScriptScope getPropertyScope() {
-		throw new IllegalStateException("Cannot do this as I'm not javascript based.");
-	}
 
-	@NonNull @Override public String translateResourceName(@NonNull String name) {
-		return name;
-	}
-
-	@NonNull @Override public String getStyleSheetName() throws Exception {
-		BrowserVersion version = UIContext.getRequestContext().getPageParameters().getBrowserVersion();	// FIXME Fugly!!
-		String css = ThemeResourceFactory.PREFIX + m_themeName + "/style.scss";
-		PageParameters pp = new PageParameters()
-			.themeName(getThemeName())
-			.browserVersion(version)
-			.inputPath(css)
-			;
-		PartData data = DomApplication.get().getPartService().getData(pp);
-		String hash = StringTool.toHex(data.getHash());
-
-		return css + "?$hash=" + hash;
+	@NonNull
+	@Override
+	public String getStyleSheetName() throws Exception {
+		return ThemeResourceFactory.PREFIX + m_variantName + "/style.scss";
 	}
 
 	@NonNull

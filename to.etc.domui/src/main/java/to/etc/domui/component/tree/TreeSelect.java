@@ -26,11 +26,12 @@ package to.etc.domui.component.tree;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+import to.etc.function.IExecute;
 
 public class TreeSelect<T> extends Tree<T> implements IHasChangeListener {
 	private T m_value;
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	public TreeSelect() {}
 
@@ -82,12 +83,12 @@ public class TreeSelect<T> extends Tree<T> implements IHasChangeListener {
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 }

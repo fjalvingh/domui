@@ -1,5 +1,6 @@
 /*** ComboComponentBase2: replacement for select control ***/
-@import "variables";
+@use "theme" as *;
+
 .ui-cbb2 {
 	display: inline-flex;
 	position: relative;
@@ -26,7 +27,7 @@
 	}
 
 	&.ui-input-err select {
-		background-color: $errors_input_background;
+		background-color: $errors-input-bg;
 	}
 
 	select {
@@ -43,7 +44,7 @@
 		}
 		&:-moz-focusring {
 			color: transparent;
-			text-shadow: 0 0 0 #000;
+			text-shadow: 0 0 0 $shadow-color;
 		}
 		&[disabled]:hover {
 			border-color: $input-disabled-border-color;

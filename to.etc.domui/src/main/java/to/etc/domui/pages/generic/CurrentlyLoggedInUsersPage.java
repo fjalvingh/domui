@@ -15,6 +15,7 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.ServerClientRegistry;
 import to.etc.domui.server.ServerClientRegistry.Client;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 
 import java.text.DateFormat;
@@ -56,7 +57,7 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 			node.add(df.format(new Date(ts)) + " (" + StringTool.strDurationMillis(cts - ts) + ")");
 		});
 
-		rr.setRowButtonFactory((c, data) -> c.addLinkButton("Last used pages", Icon.of("THEME/btnEdit.png"), clickednode -> {
+		rr.setRowButtonFactory((c, data) -> c.addLinkButton("Last used pages", Icon.of("THEME/btnEdit.png"), ()-> {
 			showClientData(data);
 		}));
 
@@ -75,7 +76,7 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 //			tr.addCell().setText();
 //
 //			tr.addCell().setText(df.format(new Date(cl.getTsLastRequest())) + " (" + StringTool.strDurationMillis(cts - cl.getTsLastRequest()) + " ago)");
-//			final LinkButton lb = new LinkButton("Last Used pages", new IClicked<LinkButton>() {
+//			final LinkButton lb = new LinkButton("Last Used pages", new IExecute() {
 //				@Override
 //				public void clicked(@NonNull LinkButton clickednode) throws Exception {
 //					TR ntr = new TR();

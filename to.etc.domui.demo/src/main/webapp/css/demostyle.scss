@@ -1,3 +1,13 @@
-@import "panels";
-@import "syntax";
-@import "flextable";
+/*
+ * The demo application's own styling.
+ *
+ * Each partial that branches on the theme variant loads "parameters", the module DomUI
+ * synthesises per request, and reads p.$themeVariant from it. The demo hardcodes a lot of
+ * light colours of its own, and _darkstyle.scss repaints them when the session is rendering
+ * dark.
+ */
+@use "panels";
+@use "syntax";
+@use "flextable";
+
+@use "darkstyle";

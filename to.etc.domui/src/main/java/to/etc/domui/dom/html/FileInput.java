@@ -25,12 +25,14 @@
 package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.INodeErrorDelegate;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.function.ConsumerEx;
+import to.etc.function.IExecute;
 
-public class FileInput extends NodeBase implements IHasChangeListener, INodeErrorDelegate {
-	private IValueChanged< ? > m_onValueChanged;
+public class FileInput extends NodeBase implements IHasChangeListener, INodeErrorDelegate, IForTarget {
+	private IExecute m_onValueChanged;
 
 	private boolean m_disabled;
 
@@ -47,18 +49,22 @@ public class FileInput extends NodeBase implements IHasChangeListener, INodeErro
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
+	 * The input itself is what a label's "for" points at.
 	 */
-	@Override
-	public IValueChanged< ? > getOnValueChanged() {
-		return m_onValueChanged;
+	@Nullable @Override public NodeBase getForTarget() {
+		return this;
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public IExecute getOnValueChanged() {
+		return m_onValueChanged;
+	}
+
+	@Override
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

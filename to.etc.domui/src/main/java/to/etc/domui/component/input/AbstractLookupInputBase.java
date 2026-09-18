@@ -19,13 +19,13 @@ import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IHasModifiedIndication;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
@@ -129,7 +129,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	private boolean m_doFocus;
 
 	@Nullable
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	@Nullable
 	private String m_keyWordSearchCssClass;
@@ -171,10 +171,10 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
 		setCssClass("ui-lui ctl-has-addons ui-control");
 
-		m_selButton = new DefaultButton("", Icon.faSearch, b12 -> openPopupWithClick());
+		m_selButton = new DefaultButton("", Icon.faSearch, ()-> openPopupWithClick());
 		//b.addCssClass("ui-lui-sel-btn");
 
-		m_clearButton = new DefaultButton("", Icon.faWindowCloseO, b1 -> handleSetValue(null));
+		m_clearButton = new DefaultButton("", Icon.faWindowCloseO, ()-> handleSetValue(null));
 		//b.addCssClass("ui-lui-clear-btn");
 	}
 
@@ -503,9 +503,9 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 			}
 
 			//-- Handle onValueChanged
-			IValueChanged< ? > onValueChanged = getOnValueChanged();
+			IExecute onValueChanged = getOnValueChanged();
 			if(onValueChanged != null) {
-				((IValueChanged<NodeBase>) onValueChanged).onValueChanged(this);
+				onValueChanged.execute();
 			}
 		}
 		m_rebuildCause = value == null ? RebuildCause.CLEAR : RebuildCause.SELECT;
@@ -590,7 +590,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 
 	@Override
 	@Nullable
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		if(isPopupShown()) {
 			//Fix for FF: prevent onchange event to be propagate on control when return key is pressed and popup is opened.
 			//This does not happen on IE. Be sure that it is executed after popup is already closed.
@@ -600,7 +600,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	}
 
 	@Override
-	public void setOnValueChanged(@Nullable IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(@Nullable IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

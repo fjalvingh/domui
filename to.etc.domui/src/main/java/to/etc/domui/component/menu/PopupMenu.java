@@ -3,12 +3,12 @@ package to.etc.domui.component.menu;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.IIconRef;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 
 import java.util.ArrayList;
 import java.util.List;
+import to.etc.function.IExecute;
 
 /**
  * Definition for a popup menu.
@@ -26,13 +26,13 @@ public class PopupMenu {
 
 		private boolean m_disabled;
 
-		private IClicked<NodeBase> m_clicked;
+		private IExecute m_clicked;
 
-		private IUIAction< ? > m_action;
+		private IUIAction m_action;
 
 		private Submenu m_parent;
 
-		public Item(IIconRef icon, @NonNull String title, String hint, boolean disabled, IClicked<NodeBase> clicked, Submenu parent) {
+		public Item(IIconRef icon, @NonNull String title, String hint, boolean disabled, IExecute clicked, Submenu parent) {
 			m_icon = icon;
 			m_title = title;
 			m_hint = hint;
@@ -41,7 +41,8 @@ public class PopupMenu {
 			m_parent = parent;
 		}
 
-		public Item(IUIAction< ? > action) {
+
+		public Item(IUIAction action) {
 			m_action = action;
 		}
 
@@ -61,11 +62,11 @@ public class PopupMenu {
 			return m_disabled;
 		}
 
-		public IClicked<NodeBase> getClicked() {
+		public IExecute getClicked() {
 			return m_clicked;
 		}
 
-		public IUIAction< ? > getAction() {
+		public IUIAction getAction() {
 			return m_action;
 		}
 
@@ -87,17 +88,18 @@ public class PopupMenu {
 			m_target = target;
 		}
 
-		public void addAction(@NonNull IUIAction< ? > action) {
+		public void addAction(@NonNull IUIAction action) {
 			m_itemList.add(new Item(action));
 		}
 
-		public void addItem(@NonNull String caption, IIconRef icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+		public void addItem(@NonNull String caption, IIconRef icon, String hint, boolean disabled, IExecute clk) {
 			m_itemList.add(new Item(icon, caption, hint, disabled, clk, this));
 		}
 
-		public void addItem(@NonNull String caption, IIconRef icon, IClicked<NodeBase> clk) {
+		public void addItem(@NonNull String caption, IIconRef icon, IExecute clk) {
 			m_itemList.add(new Item(icon, caption, null, false, clk, this));
 		}
+
 
 		public void addMenu(@NonNull String caption, IIconRef icon, String hint, boolean disabled, Object target) {
 			m_itemList.add(new Submenu(icon, caption, hint, disabled, target, this));
@@ -116,17 +118,18 @@ public class PopupMenu {
 
 	private List<Item> m_actionList = new ArrayList<Item>();
 
-	public void addAction(@NonNull IUIAction< ? > action) {
+	public void addAction(@NonNull IUIAction action) {
 		m_actionList.add(new Item(action));
 	}
 
-	public void addItem(@NonNull String caption, IIconRef icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+	public void addItem(@NonNull String caption, IIconRef icon, String hint, boolean disabled, IExecute clk) {
 		m_actionList.add(new Item(icon, caption, hint, disabled, clk, null));
 	}
 
-	public void addItem(@NonNull String caption, IIconRef icon, IClicked<NodeBase> clk) {
+	public void addItem(@NonNull String caption, IIconRef icon, IExecute clk) {
 		m_actionList.add(new Item(icon, caption, null, false, clk, null));
 	}
+
 
 	@NonNull
 	public Submenu addMenu(@NonNull String caption, IIconRef icon, String hint, boolean disabled, Object target) {
@@ -135,22 +138,18 @@ public class PopupMenu {
 		return submenu;
 	}
 
-	public <T> void show(NodeBase ref, T target) {
+	public void show(NodeBase ref) {
 		NodeContainer nc = ref.getPage().getPopIn();
 		if(nc instanceof SimplePopupMenu) {
 			SimplePopupMenu sp = (SimplePopupMenu) nc;
-			if(sp.getSource() == this && target == sp.getTargetObject()) {
+			if(sp.getSource() == this) {
 				sp.closeMenu();
 				return;
 			}
 		}
 
-		SimplePopupMenu sp = new SimplePopupMenu(ref, this, m_actionList, target);
+		SimplePopupMenu sp = new SimplePopupMenu(ref, this, m_actionList);
 		ref.getPage().setPopIn(sp);
 		ref.getPage().getBody().add(0, sp);
-	}
-
-	public void show(NodeBase ref) {
-		show(ref, null);
 	}
 }

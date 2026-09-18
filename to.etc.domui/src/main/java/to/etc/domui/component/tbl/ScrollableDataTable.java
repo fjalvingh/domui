@@ -1,5 +1,8 @@
 package to.etc.domui.component.tbl;
 
+import to.etc.domui.dom.html.IClickedInfo;
+import to.etc.function.IExecute;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
@@ -10,8 +13,6 @@ import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
@@ -71,9 +72,9 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	private String m_tableWidth;
 
 	@NonNull
-	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
+	final private IExecute m_headerSelectClickHandler = new IExecute() {
 		@Override
-		public void clicked(@NonNull TH clickednode) throws Exception {
+		public void execute() throws Exception {
 			if(isDisabled()) {
 				return;
 			}
@@ -316,12 +317,8 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		ISelectionModel<T> sm = getSelectionModel();
 		if(m_rowRenderer.getRowClicked() != null || null != sm) {
 			//-- Add a click handler to select or pass the rowclicked event.
-			cc.getTR().setClicked2(new IClicked2<TR>() {
-				@Override
-				public void clicked(@NonNull TR b, @NonNull ClickInfo clinfo) throws Exception {
-					handleRowClick(b, value, clinfo);
-				}
-			});
+			TR row = cc.getTR();
+			row.setClicked2(clinfo -> handleRowClick(row, value, clinfo));
 			cc.getTR().addCssClass("ui-rowsel");
 		}
 
@@ -796,12 +793,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			selectable = ((IAcceptable<T>) selectionModel).acceptable(rowInstance);
 		}
 		if(selectable) {
-			cb.setClicked2(new IClicked2<Checkbox>() {
-				@Override
-				public void clicked(@NonNull Checkbox clickednode, @NonNull ClickInfo info) throws Exception {
-					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info, clickednode);
-				}
-			});
+			cb.setClicked2(info -> selectionCheckboxClicked(rowInstance, cb.isChecked(), info, cb));
 		} else {
 			cb.setReadOnly(true);
 		}

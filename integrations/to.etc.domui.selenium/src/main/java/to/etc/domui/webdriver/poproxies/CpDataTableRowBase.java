@@ -53,8 +53,20 @@ public class CpDataTableRowBase extends AbstractCpBase implements ICpWithElement
 		return getSelectorCSS() + " > :nth-child(" + (columnIndex + 1) + ")";
 	}
 
+	/**
+	 * The selector for a component inside one cell of this row. A component whose
+	 * testid was set explicitly renders that id as it is, but an id that DomUI
+	 * calculated itself is prefixed with the repeat id of the row it sits in
+	 * (/r3/lbtn_Order) - and a page object only knows the part after that prefix,
+	 * because that part is the same in every row. So: take the plain id when the
+	 * cell has it, and otherwise match the end of a repeated one.
+	 */
 	public String getCellComponentSelectorCss(int columnIndex, String componentTestID) {
-		return getCellSelectorCss(columnIndex) + " " + WebDriverConnector.getTestIDSelector(componentTestID);
+		String cellSelector = getCellSelectorCss(columnIndex);
+		String exact = cellSelector + " " + WebDriverConnector.getTestIDSelector(componentTestID);
+		if(wd().isPresent(By.cssSelector(exact)))
+			return exact;
+		return cellSelector + " *[testid$='/" + componentTestID + "']";
 	}
 
 	public By getCellSelector(int columnIndex) {

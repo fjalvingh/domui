@@ -1,0 +1,57 @@
+package to.etc.domuidemo.pages.components.tables;
+
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.tree.ITreeModel;
+import to.etc.domui.component.tree.ITreeModelChangedListener;
+import to.etc.domui.derbydata.db.Artist;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.webapp.query.QCriteria;
+
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on 22-8-17.
+ */
+final public class TreeDemoModel implements ITreeModel<DemoNode> {
+	final private DemoNode m_root;
+
+	public TreeDemoModel(NodeBase nb) throws Exception {
+		List<Artist> artists = nb.getSharedContext().query(QCriteria.create(Artist.class).ascending("name"));
+		m_root = new DemoNode(artists);
+	}
+
+	@Override public int getChildCount(@Nullable DemoNode item) throws Exception {
+		return Objects.requireNonNull(item).getChildren().size();
+	}
+
+	@Override public boolean hasChildren(@Nullable DemoNode item) throws Exception {
+		return Objects.requireNonNull(item).hasChildren();
+	}
+
+	@NonNull @Override public DemoNode getRoot() throws Exception {
+		return m_root;
+	}
+
+	@NonNull @Override public DemoNode getChild(@Nullable DemoNode parent, int index) throws Exception {
+		return Objects.requireNonNull(parent).getChildren().get(index);
+	}
+
+	@Nullable @Override public DemoNode getParent(@Nullable DemoNode child) throws Exception {
+		return Objects.requireNonNull(child).getParent();
+	}
+
+	@Override public void addChangeListener(@NonNull ITreeModelChangedListener<DemoNode> l) {
+	}
+
+	@Override public void removeChangeListener(@NonNull ITreeModelChangedListener<DemoNode> l) {
+	}
+
+	@Override public void expandChildren(@Nullable DemoNode item) throws Exception {
+	}
+
+	@Override public void collapseChildren(@Nullable DemoNode item) throws Exception {
+	}
+}

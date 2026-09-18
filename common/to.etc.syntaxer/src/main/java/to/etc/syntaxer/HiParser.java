@@ -330,7 +330,7 @@ abstract public class HiParser {
 				copy();
 		}
 		c = la();
-		if(c == 'd' || c == 'D')
+		if(c == 'd' || c == 'D' || c == 'f' || c == 'F' || c == 'l' || c == 'L')
 			copy();
 		flush(m_state);
 		calculatePhaseFor();

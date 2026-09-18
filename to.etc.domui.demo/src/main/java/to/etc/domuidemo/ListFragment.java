@@ -1,6 +1,7 @@
 package to.etc.domuidemo;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.ALink;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
@@ -21,8 +22,11 @@ public class ListFragment extends Div {
 	}
 
 	@Override public void createContent() throws Exception {
-		add(new HTag(1, m_caption));
-		add(m_content);
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		cp.add(new HTag(1, m_caption));
+		cp.add(m_content);
 	}
 
 	final protected void addLink(@NonNull Class< ? extends UrlPage> clz, @NonNull String text) throws Exception {

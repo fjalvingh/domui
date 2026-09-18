@@ -26,7 +26,6 @@ package to.etc.domui.component2.controlfactory;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.input.DateInput;
 import to.etc.domui.component.input.DateInput2;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
@@ -34,7 +33,7 @@ import to.etc.domui.dom.html.IControl;
 import java.util.Date;
 
 /**
- * Accepts the "java.util.Date" type only and creates a DateInput component for it.
+ * Accepts the "java.util.Date" type only and creates a DateInput2 component for it.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
@@ -45,7 +44,7 @@ public class ControlCreatorDate implements IControlCreator {
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
-		if(controlClass != null && !controlClass.isAssignableFrom(DateInput.class))
+		if(controlClass != null && !controlClass.isAssignableFrom(DateInput2.class))
 			return -1;
 
 		Class< ? > iclz = pmm.getActualType();

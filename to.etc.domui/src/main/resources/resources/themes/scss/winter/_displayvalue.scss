@@ -1,5 +1,5 @@
 /*** DisplayValue ***/
-@import "variables";
+@use "theme" as *;
 
 /*
  * jal 20220905 This css is wrong; this control cannot align its content properly centered. Use

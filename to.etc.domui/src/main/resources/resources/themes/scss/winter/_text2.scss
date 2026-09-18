@@ -20,7 +20,7 @@
  * can be found at http://github.com/fjalvingh/domui
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-@import "variables";
+@use "theme" as *;
 
 /** Text2 component **/
 .ui-txt2 {
@@ -36,6 +36,6 @@
 	}
 
 	&.ui-input-err input {
-		background-color: $errors_input_background;
+		background-color: $errors-input-bg;
 	}
 }

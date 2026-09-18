@@ -32,12 +32,12 @@ import to.etc.domui.dom.css.ClearType;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Li;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
 
 import java.util.ArrayList;
@@ -181,13 +181,13 @@ public class TabPanelBase extends Div {
 
 		NodeBase label = ti.getLabel();
 		dt.add(label);
-		li.setClicked(b -> setCurrentTab(ti));
+		li.setClicked(()-> setCurrentTab(ti));
 
 		if(ti.isCloseable()) {
 			ATag x = new ATag();
 			d.add(x);
 			x.setCssClass("ui-tab-close");
-			x.setClicked((IClicked<ATag>) b -> closeTab(ti));
+			x.setClicked(()-> closeTab(ti));
 		}
 		li.add(d);
 	}

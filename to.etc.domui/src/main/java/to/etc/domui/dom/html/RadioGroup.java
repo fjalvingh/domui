@@ -13,6 +13,7 @@ import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.util.WrappedException;
 import to.etc.webapp.nls.NlsContext;
 
@@ -82,9 +83,9 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 		}
 		bi.getRadioButton().setDisabled(isDisabled());
 		bi.getRadioButton().setReadOnly(isReadOnly());
-		IValueChanged<?> ovc = super.getOnValueChanged();
+		IExecute ovc = super.getOnValueChanged();
 		if(null != ovc)
-			bi.getRadioButton().setClicked(clickednode -> {
+			bi.getRadioButton().setClicked(()-> {
 			});                // Force an event
 
 		if(m_valueIsSet) {
@@ -256,21 +257,21 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 
 
 	@Override
-	public IValueChanged<?> getOnValueChanged() {
-		IValueChanged<?> vc = super.getOnValueChanged();
+	public IExecute getOnValueChanged() {
+		IExecute vc = super.getOnValueChanged();
 		if(null == vc && isImmediate()) {
-			return IValueChanged.DUMMY;
+			return DUMMY;
 		}
 		return vc;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		super.setOnValueChanged(onValueChanged);
 		if(null != onValueChanged) {
 			List<RadioButton<?>> deepChildren = (List<RadioButton<?>>) (Object) getDeepChildren(RadioButton.class);        // What a trainwreck.
 			for(RadioButton<?> deepChild : deepChildren) {
-				deepChild.setClicked(clickednode -> {
+				deepChild.setClicked(()-> {
 				});
 			}
 		}
@@ -351,7 +352,7 @@ public class RadioGroup<T> extends AbstractDivControl<T> implements IHasChangeLi
 		//m_buttonList.add(rb);
 		//rb.setDisabled(isDisabled());
 		//rb.setReadOnly(isReadOnly());
-		//IValueChanged<?> ovc = super.getOnValueChanged();
+		//IExecute ovc = super.getOnValueChanged();
 		//if(null != ovc)
 		//	rb.setClicked(clickednode -> {
 		//	});                // Force an event

@@ -35,8 +35,8 @@ import to.etc.domui.component.layout.IButtonContainer;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.function.IExecute;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -135,32 +135,32 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IClicked<DefaultButton> click, int order) {
+	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IExecute click, int order) {
 		return m_factory.addButton(txt, icon, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IExecute click) {
 		return m_factory.addButton(txt, icon, click);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(@NonNull IUIAction<Void> action, int order) throws Exception {
+	public @NonNull DefaultButton addButton(@NonNull IUIAction action, int order) throws Exception {
 		return m_factory.addButton(action, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(@NonNull IUIAction<Void> action) throws Exception {
+	public @NonNull DefaultButton addButton(@NonNull IUIAction action) throws Exception {
 		return m_factory.addButton(action);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, IClicked<DefaultButton> click, int order) {
+	public @NonNull DefaultButton addButton(String txt, IExecute click, int order) {
 		return m_factory.addButton(txt, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addButton(String txt, IExecute click) {
 		return m_factory.addButton(txt, click);
 	}
 
@@ -215,51 +215,51 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click, int order) {
+	public @NonNull DefaultButton addConfirmedButton(String txt, String msg, IExecute click, int order) {
 		return m_factory.addConfirmedButton(txt, msg, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addConfirmedButton(String txt, String msg, IExecute click) {
 		return m_factory.addConfirmedButton(txt, msg, click);
 	}
 
 	@Override
-	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IClicked<DefaultButton> click, int order) {
+	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IExecute click, int order) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IExecute click) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click);
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click, int order) {
+	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IExecute click, int order) {
 		return m_factory.addLinkButton(txt, img, click, order);
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click) {
+	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IExecute click) {
 		return m_factory.addLinkButton(txt, img, click);
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IClicked<LinkButton> click, int order) {
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IExecute click, int order) {
 		return m_factory.addConfirmedLinkButton(txt, img, msg, click, order);
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IClicked<LinkButton> click) {
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IExecute click) {
 		return m_factory.addConfirmedLinkButton(txt, img, msg, click);
 	}
 
 	@Override
-	public @NonNull <T> DefaultButton addAction(T instance, IUIAction<T> action, int order) throws Exception {
-		return m_factory.addAction(instance, action, order);
+	public @NonNull DefaultButton addAction(IUIAction action, int order) throws Exception {
+		return m_factory.addAction(action, order);
 	}
 
 	@Override
-	public @NonNull <T> DefaultButton addAction(T instance, IUIAction<T> action) throws Exception {
-		return m_factory.addAction(instance, action);
+	public @NonNull DefaultButton addAction(IUIAction action) throws Exception {
+		return m_factory.addAction(action);
 	}
 
 	public void addButton(@NonNull NodeBase b) {

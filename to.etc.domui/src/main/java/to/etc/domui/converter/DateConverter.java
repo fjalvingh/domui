@@ -47,6 +47,22 @@ public class DateConverter implements IConverter<Date> {
 		return df;
 	}
 
+	/**
+	 * Return the date pattern this converter uses for the locale passed - the pattern that
+	 * {@link #convertStringToObject(Locale, String)} will accept, so that the browser can
+	 * repair what is typed into the same format the server is going to read.
+	 */
+	static public String getDatePattern(final Locale loc) {
+		if(loc.getLanguage().equalsIgnoreCase("nl"))
+			return DATE_PATTERN_NL;
+		if(loc.getLanguage().equalsIgnoreCase("en"))
+			return DATE_PATTERN_EN;
+		DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, loc);
+		if(df instanceof SimpleDateFormat)
+			return ((SimpleDateFormat) df).toPattern();
+		return DATE_PATTERN_NL;
+	}
+
 	@Override
 	public String convertObjectToString(final Locale loc, final Date in) throws UIException {
 		if(in == null) {

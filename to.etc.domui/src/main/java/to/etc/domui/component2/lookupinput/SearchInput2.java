@@ -29,10 +29,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IReturnPressed;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.server.IRequestContext;
+import to.etc.function.IExecute;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.
@@ -47,7 +47,7 @@ public class SearchInput2 extends Div implements IForTarget {
 	final private Input m_keySearch = new Input();
 
 	@Nullable
-	private IValueChanged<SearchInput2> m_onLookupTyping;
+	private IExecute m_onLookupTyping;
 
 	private int m_popupWidth;
 
@@ -73,11 +73,11 @@ public class SearchInput2 extends Div implements IForTarget {
 	}
 
 	@Nullable
-	public IValueChanged<SearchInput2> getOnLookupTyping() {
+	public IExecute getOnLookupTyping() {
 		return m_onLookupTyping;
 	}
 
-	public void setOnLookupTyping(@Nullable IValueChanged<SearchInput2> onLookupTyping) {
+	public void setOnLookupTyping(@Nullable IExecute onLookupTyping) {
 		m_onLookupTyping = onLookupTyping;
 	}
 
@@ -126,9 +126,9 @@ public class SearchInput2 extends Div implements IForTarget {
 	 * @throws Exception
 	 */
 	public void webActionlookupTyping(IRequestContext ctx) throws Exception {
-		IValueChanged<SearchInput2> lookupTyping = getOnLookupTyping();
+		IExecute lookupTyping = getOnLookupTyping();
 		if(null != lookupTyping)
-			lookupTyping.onValueChanged(this);
+			lookupTyping.execute();
 	}
 
 	/**

@@ -39,7 +39,6 @@ import to.etc.domui.component.tbl.RowButtonContainer;
 import to.etc.domui.component.tbl.TableModelTableBase;
 import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.MsgDiv;
 import to.etc.domui.dom.html.NodeBase;
@@ -53,6 +52,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 
 import java.util.List;
 
@@ -284,9 +284,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		if(isEnableDeleteButton() && getModel() instanceof IModifyableTableModel<?>) {
 			//-- Render a default "delete" button.
-			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), Icon.of("THEME/btnDelete.png"), Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
+			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), Icon.of("THEME/btnDelete.png"), Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IExecute() {
 				@Override
-				public void clicked(@NonNull LinkButton clickednode) throws Exception {
+				public void execute() throws Exception {
 					((IModifyableTableModel<T>) getModel()).delete(value);
 					DomUtil.setModifiedFlag(ExpandingEditTable.this);
 				}
@@ -300,9 +300,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(isEnableExpandItems()) {
 			d.setCssClass(collapsed ? "ui-xdt-ix ui-xdt-clp" : "ui-xdt-ix ui-xdt-exp");
 
-			td.setClicked(new IClicked<TD>() {
+			td.setClicked(new IExecute() {
 				@Override
-				public void clicked(@NonNull TD clickednode) throws Exception {
+				public void execute() throws Exception {
 					toggleExpanded(index);
 				}
 			});
@@ -450,7 +450,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 */
 	public void addNew(@NonNull T instance) throws Exception {
 		if(!(getModel() instanceof IModifyableTableModel<?>))
-			throw new IllegalStateException("The model is not an IModifyableTableModel: use addNew(T, IClicked) instead");
+			throw new IllegalStateException("The model is not an IModifyableTableModel: use addNew(T, IExecute) instead");
 		clearNewEditor();
 
 		//-- Create a new edit body @ the appropriate location.
@@ -468,9 +468,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			td.add(d);
 			d.setCssClass("ui-xdt-ix");
 
-			td.setClicked(new IClicked<TD>() {
+			td.setClicked(new IExecute() {
 				@Override
-				public void clicked(@NonNull TD clickednode) throws Exception {
+				public void execute() throws Exception {
 					commitNewRow();
 				}
 			});
@@ -488,16 +488,16 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newInstance = instance;
 
 		//-- Now add confirm/cancel button in action column
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Theme.BTN_CONFIRM, clickednode -> commitNewRow());
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Theme.BTN_CONFIRM, ()-> commitNewRow());
 
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Theme.BTN_DELETE, clickednode -> cancelNew());
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Theme.BTN_DELETE, ()-> cancelNew());
 	}
 
 	public void cancelNew() {
 		if(m_newEditor == null)
 			return;
 		if(DomUtil.isModified(m_newEditor)) {
-			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), (IClicked<MsgBox>) clickednode -> cancelNewReally());
+			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), ()-> cancelNewReally());
 			return;
 		}
 		cancelNewReally();

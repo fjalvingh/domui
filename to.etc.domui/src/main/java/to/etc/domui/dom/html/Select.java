@@ -31,6 +31,7 @@ import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -240,17 +241,12 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 	/**
 	 * Add a small image button after the combo.
 	 */
-	public void addExtraButton(IIconRef img, String title, final IClicked<NodeBase> click) {
+	public void addExtraButton(IIconRef img, String title, final IExecute click) {
 		if(m_buttonList == Collections.EMPTY_LIST)
 			m_buttonList = new ArrayList<SmallImgButton>();
 		SmallImgButton si = new SmallImgButton(img);
 		if(click != null) {
-			si.setClicked(new IClicked<SmallImgButton>() {
-				@Override
-				public void clicked(@NonNull SmallImgButton b) throws Exception {
-					click.clicked(Select.this);
-				}
-			});
+			si.setClicked(click);
 		}
 		if(title != null)
 			si.setTitle(title);

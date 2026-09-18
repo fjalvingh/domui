@@ -7,11 +7,11 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.state.AppSession;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.IIdentifyable;
 import to.etc.webapp.query.QDataContext;
@@ -228,9 +228,9 @@ public class SessionStorageUtil {
 
 	private static void fireValueChanged(@NonNull IControl< ? > control) throws Exception {
 		if(control instanceof NodeBase) {
-			IValueChanged<NodeBase> valueChangedListener = (IValueChanged<NodeBase>) control.getOnValueChanged();
+			IExecute valueChangedListener = control.getOnValueChanged();
 			if(valueChangedListener != null) {
-				valueChangedListener.onValueChanged((NodeBase) control);
+				valueChangedListener.execute();
 			}
 		} else {
 			throw new IllegalStateException("Unexpected type for control[" + control.getClass() + "]. Has to be assignable from " + NodeBase.class);

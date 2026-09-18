@@ -26,14 +26,14 @@ package to.etc.domui.component.layout;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.IBundleCode;
 
 /**
@@ -72,9 +72,10 @@ public class Window extends FloatingDiv {
 	private NodeBase m_closeButton;
 
 	/**
-	 * If present, an image to use as the icon inside the title bar.
+	 * If present, the icon to show inside the title bar.
 	 */
-	private Img m_titleIcon;
+	@Nullable
+	private IIconRef m_titleIcon;
 
 	/**
 	 * The optional area just above the content area which remains fixed when the content area scrolls.
@@ -252,10 +253,13 @@ public class Window extends FloatingDiv {
 
 		NodeContainer leftSize = m_titleBar;
 
-		if(m_titleIcon != null) {
+		IIconRef titleIcon = m_titleIcon;
+		if(titleIcon != null) {
 			leftSize = new Div("ui-flw-ttl-l");
 			m_titleBar.add(leftSize);
-			leftSize.add(m_titleIcon);
+			NodeBase icon = titleIcon.createNode();
+			icon.addCssClass("ui-flw-ttl-icon");
+			leftSize.add(icon);
 		}
 
 		leftSize.add(new Span(null, getWindowTitle()));
@@ -270,32 +274,14 @@ public class Window extends FloatingDiv {
 			//some margin fixes have to be applied with css
 			m_closeButton.setCssClass("ui-flw-btn-close");
 			m_titleBar.add(m_closeButton);
-			m_closeButton.setClicked(new IClicked<NodeBase>() {
+			m_closeButton.setClicked(new IExecute() {
 				@Override
-				public void clicked(@NonNull NodeBase b) throws Exception {
+				public void execute() throws Exception {
 					closePressed();
 				}
 			});
 		}
 	}
-
-	private Img createIcon() {
-		if(m_titleIcon == null) {
-			m_titleIcon = new Img();
-			m_titleIcon.setBorder(0);
-			m_titleIcon.setCssClass("ui-flw-ttl-icon");
-			if(m_titleBar != null) {
-				//Since IE has bug that floater object is rendered under previous sibling, close button must be rendered before any other element in title bar.
-				if(m_closeButton != null && m_titleBar.getChildCount() > 0 && m_titleBar.getChild(0) == m_closeButton) {
-					m_titleBar.add(1, m_titleIcon);
-				} else {
-					m_titleBar.add(0, m_titleIcon);
-				}
-			}
-		}
-		return m_titleIcon;
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Properties.											*/
@@ -338,11 +324,29 @@ public class Window extends FloatingDiv {
 	}
 
 	/**
+	 * The icon shown in front of the title, if any.
+	 */
+	@Nullable
+	public IIconRef getIcon() {
+		return m_titleIcon;
+	}
+
+	/**
+	 * Set an icon for the title bar: a font icon, an svg or an image, whatever the
+	 * reference points at.
+	 */
+	public void setIcon(@Nullable IIconRef icon) {
+		m_titleIcon = icon;
+		if(m_titleBar != null)
+			createTitleBar();
+	}
+
+	/**
 	 * Set an icon for the title bar, using the absolute path to a web resource. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 */
 	public void setIcon(String ico) {
-		createIcon().setSrc(ico);
+		setIcon(Icon.of(ico));
 	}
 
 	/**

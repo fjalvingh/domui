@@ -1,12 +1,13 @@
 package to.etc.domuidemo.pages.binding.xxxmodel;
 
 import to.etc.domui.annotations.UIUrlParameter;
-import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.derbydata.db.Invoice;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.UrlPage;
 
 /**
@@ -19,9 +20,12 @@ public class InvoiceEditScreen extends UrlPage {
 	private InvoiceEditModel m_model;
 
 	@Override public void createContent() throws Exception {
-		add(new CaptionedHeader("Invoice for " + model().getData().getCustomer().getFirstName() + model().getData().getCustomer().getLastName()));
+		ContentPanel cp = new ContentPanel();
+		add(cp);
 
-		FormBuilder fb = new FormBuilder(this);
+		cp.add(new HTag(1, "Invoice for " + model().getData().getCustomer().getFirstName() + model().getData().getCustomer().getLastName()));
+
+		FormBuilder fb = new FormBuilder(cp);
 
 		Invoice d = model().getData();
 
@@ -30,12 +34,12 @@ public class InvoiceEditScreen extends UrlPage {
 		fb.property(d, "billingCity").control();
 		fb.property(d, "billingCountry").control();
 
-		add(new VerticalSpacer(10));
+		cp.add(new VerticalSpacer(10));
 
 		RowRenderer<InvoiceLineModel> rr = createRowRenderer();
 		DataTable<InvoiceLineModel> dt = new DataTable<>(rr);
 		dt.setList(model().getLines());
-		add(dt);
+		cp.add(dt);
 	}
 
 	private RowRenderer<InvoiceLineModel> createRowRenderer() {

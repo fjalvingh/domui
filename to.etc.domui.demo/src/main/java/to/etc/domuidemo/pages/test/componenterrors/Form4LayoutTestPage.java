@@ -3,7 +3,7 @@ package to.etc.domuidemo.pages.test.componenterrors;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.headers.GenericHeader;
 import to.etc.domui.component.headers.GenericHeader.Type;
-import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component2.form4.FormBuilder;
@@ -22,14 +22,6 @@ import java.util.Date;
  * Created on 11-9-17.
  */
 public class Form4LayoutTestPage extends UrlPage {
-	private Artist m_artist;
-
-	private Album m_album;
-
-	private Album m_album3;
-
-	private Album m_album4;
-
 	private Artist m_artist2;
 
 	private Album m_album2;
@@ -45,38 +37,14 @@ public class Form4LayoutTestPage extends UrlPage {
 	private Date m_date = new Date();
 
 	@Override public void createContent() throws Exception {
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		QCriteria<Album> q = QCriteria.create(Album.class).eq("title", "Angel Dust");
-		m_album4 = m_album3 = m_album22 = m_album23 = getSharedContext().queryOne(q);
+		m_album22 = m_album23 = getSharedContext().queryOne(q);
 
-		add(new GenericHeader(Type.BLUE, "LookupInput variants"));
-		FormBuilder fb = new FormBuilder(this);
-
-		//-- LookupInput
-		LookupInput<Artist> li = new LookupInput<>(Artist.class);
-		li.setTestID("one");
-		li.setMandatory(true);
-		fb.property(this, "artist").control(li);
-
-		// This input uses Album which allows no quick lookup, only search form lookup.
-		LookupInput<Album> li2 = new LookupInput<>(Album.class);
-		li2.setTestID("two");
-		li2.setMandatory(true);
-		fb.property(this, "album").control(li2);
-
-		LookupInput<Album> li7 = new LookupInput<>(Album.class);
-		li7.setTestID("seven");
-		li7.setMandatory(true);
-		fb.property(this, "album3").control(li7);
-
-		LookupInput<Album> li8 = new LookupInput<>(Album.class);
-		li8.setValueColumns("title", "artist.name");
-		li8.setTestID("eight");
-		li8.setMandatory(true);
-		fb.property(this, "album4").control(li8);
-
-		//-- LookupInput2
-		add(new GenericHeader(Type.BLUE, "LookupInput2 variants"));
-		fb = new FormBuilder(this);
+		cp.add(new GenericHeader(Type.BLUE, "LookupInput2 variants"));
+		FormBuilder fb = new FormBuilder(cp);
 
 		LookupInput2<Artist> li3 = new LookupInput2<>(Artist.class);			// Should not have input
 		li3.setTestID("three");
@@ -99,8 +67,8 @@ public class Form4LayoutTestPage extends UrlPage {
 		li23.setMandatory(true);
 		fb.property(this, "album23").control(li23);
 
-		add(new GenericHeader(Type.BLUE, "Text inputs"));
-		fb = new FormBuilder(this);
+		cp.add(new GenericHeader(Type.BLUE, "Text inputs"));
+		fb = new FormBuilder(cp);
 
 		//-- Text<String>
 		IControl<?> text = fb.property(this, "text").label("text zzzzzzzz").control();
@@ -112,27 +80,9 @@ public class Form4LayoutTestPage extends UrlPage {
 		TextArea ta = new TextArea(80, 5);
 		fb.property(this, "memo").control(ta);
 
-		DefaultButton validate = new DefaultButton("validate", a -> validate());
-		add(validate);
+		DefaultButton validate = new DefaultButton("validate", ()-> validate());
+		cp.add(validate);
 
-	}
-
-	@MetaProperty(required = YesNoType.YES)
-	public Artist getArtist() {
-		return m_artist;
-	}
-
-	public void setArtist(Artist artist) {
-		m_artist = artist;
-	}
-
-	@MetaProperty(required = YesNoType.YES)
-	public Album getAlbum() {
-		return m_album;
-	}
-
-	public void setAlbum(Album album) {
-		m_album = album;
 	}
 
 	@MetaProperty(required = YesNoType.YES)
@@ -182,24 +132,6 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	public void setMemo(String memo) {
 		m_memo = memo;
-	}
-
-	@MetaProperty(required = YesNoType.YES)
-	public Album getAlbum3() {
-		return m_album3;
-	}
-
-	public void setAlbum3(Album album3) {
-		m_album3 = album3;
-	}
-
-	@MetaProperty(required = YesNoType.YES)
-	public Album getAlbum4() {
-		return m_album4;
-	}
-
-	public void setAlbum4(Album album4) {
-		m_album4 = album4;
 	}
 
 	@MetaProperty(required = YesNoType.YES)

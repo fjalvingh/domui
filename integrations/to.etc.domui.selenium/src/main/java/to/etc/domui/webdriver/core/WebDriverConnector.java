@@ -295,8 +295,12 @@ final public class WebDriverConnector {
 		return m_nextInterval != -1 ? m_nextInterval : m_waitInterval;
 	}
 
-	public void setNextWaitTimeout(int millis) {
-		m_nextWaitTimeout = millis;
+	/**
+	 * Set the timeout, <b>in seconds</b>, for the next wait only; it is reset
+	 * to the default (or to webdriver.waittimeout) after that wait.
+	 */
+	public void setNextWaitTimeout(int seconds) {
+		m_nextWaitTimeout = seconds;
 	}
 
 	public void setNextInterval(int nextInterval) {

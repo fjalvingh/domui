@@ -1,11 +1,13 @@
 package to.etc.domuidemo.pages.test.binding.binderrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.webapp.query.QCriteria;
 
@@ -13,8 +15,8 @@ import java.util.List;
 
 /**
  * This tests the following:
- * - add a mandatory lookupinput control and bind it to a field with an initial value
- * - clear the lookupinput
+ * - add a mandatory LookupInput2 control and bind it to a field with an initial value
+ * - clear the LookupInput2
  * - call the binding errors
  *
  * Expected result:
@@ -32,8 +34,11 @@ public class BindError2Page extends UrlPage {
 	private Artist m_artist;
 
 	@Override public void createContent() throws Exception {
-		LookupInput<Artist> li = new LookupInput<>(QCriteria.create(Artist.class));
-		add(li);
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		LookupInput2<Artist> li = new LookupInput2<>(QCriteria.create(Artist.class));
+		cp.add(li);
 
 		List<Artist> artists = getSharedContext().query(QCriteria.create(Artist.class).limit(1));
 		m_artist = artists.get(0);
@@ -42,17 +47,17 @@ public class BindError2Page extends UrlPage {
 		li.setTestID("edit");
 		li.bind().to(this, "artist");
 
-		add(new DefaultButton("click", a-> save()));
+		cp.add(new DefaultButton("click", ()-> save(cp)));
 	}
 
-	private void save() throws Exception {
+	private void save(NodeContainer target) throws Exception {
 		if(bindErrors()) {                            // Make sure bind errors are calculated
 			//-- If we have bind errors we expect the control to have set the binding to null
 			Artist artist = getArtist();
 			if(null != artist)
-				add(new Div("failed", "The binding has still the previous value: " + artist));
+				target.add(new Div("failed", "The binding has still the previous value: " + artist));
 			else
-				add(new Div("success", "Binding is null as it should be"));
+				target.add(new Div("success", "Binding is null as it should be"));
 		}
 	}
 

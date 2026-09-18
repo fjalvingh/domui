@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.tbl;
 
+import to.etc.domui.dom.html.IClickedInfo;
+import to.etc.function.IExecute;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
@@ -34,9 +37,6 @@ import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClickBase;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
@@ -115,7 +115,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	private DataTableResize m_resizeMode = DataTableResize.NONE;
 
 	@NonNull
-	final private IClicked<TH> m_headerSelectClickHandler = clickednode -> {
+	final private IExecute m_headerSelectClickHandler = ()-> {
 		if(isDisabled()) {
 			return;
 		}
@@ -407,12 +407,8 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		ISelectionModel<T> sm = getSelectionModel();
 		if(m_rowRenderer.getRowClicked() != null || null != sm) {
 			//-- Add a click handler to select or pass the rowclicked event.
-			cc.getTR().setClicked2(new IClicked2<TR>() {
-				@Override
-				public void clicked(@NonNull TR b, @NonNull ClickInfo clinfo) throws Exception {
-					handleRowClick(b, value, clinfo);
-				}
-			});
+			TR row = cc.getTR();
+			row.setClicked2(clinfo -> handleRowClick(row, value, clinfo));
 			cc.getTR().addCssClass("ui-rowsel");
 		} else if(!m_preventRowHighlight) {
 			cc.getTR().addCssClass("ui-dt-row-nosel");
@@ -444,12 +440,12 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	}
 
 	private void hookCheckboxClickToCellToo(TD td, Checkbox cb) {
-		td.setClicked2((IClicked2<TD>) (node, clinfo) -> {
+		td.setClicked2(clinfo -> {
 			if(!cb.isDisabled()) {
-				IClickBase<?> clickHandler = cb.getClicked();
-				if(null != clickHandler && clickHandler instanceof IClicked2) {
+				IClickedInfo clickHandler = cb.getClicked2();
+				if(null != clickHandler) {
 					cb.setChecked(!cb.isChecked());
-					((IClicked2<Checkbox>) clickHandler).clicked(cb, clinfo);
+					clickHandler.clicked(clinfo);
 				}
 			}
 		});
@@ -684,12 +680,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			selectable = ((IAcceptable<T>) selectionModel).acceptable(rowInstance);
 		}
 		if(selectable && !isDisabled()) {
-			cb.setClicked2(new IClicked2<Checkbox>() {
-				@Override
-				public void clicked(@NonNull Checkbox clickednode, @NonNull ClickInfo info) throws Exception {
-					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info, clickednode);
-				}
-			});
+			cb.setClicked2(info -> selectionCheckboxClicked(rowInstance, cb.isChecked(), info, cb));
 		} else {
 			cb.setReadOnly(true);
 		}

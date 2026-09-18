@@ -1,6 +1,6 @@
 /*** 145_smallimgbutton.frag.css ***/
-@import "variables";
-@import "derived-variables";
+@use "sass:list";
+@use "theme" as *;
 
 .ui-sib2 {
 	background-color: transparent;
@@ -20,8 +20,8 @@
 	@include ui-focus-border;
 
 	@each $name, $pair in $colors {
-		$color: nth($pair, 1);
-		$color-invert: nth($pair, 2);
+		$color: list.nth($pair, 1);
+		$color-invert: list.nth($pair, 2);
 		&.is-#{$name} {
 			background-color: $color;
 			border-color: $color;
@@ -37,10 +37,10 @@
 }
 
 .ui-sib:hover {
-	background-color: $header_bg !important;
+	background-color: $header-bg !important;
 }
 .ui-sib:focus {
-	background-color: lighten($header_bg, 20%) !important;
+	background-color: lighter($header-bg, 20%) !important;
 }
 
 .ui-sib[disabled] {

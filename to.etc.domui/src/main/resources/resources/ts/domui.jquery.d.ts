@@ -23,7 +23,6 @@ interface JQueryStatic {
 	executeXML(xml: any): void;
 	executeXML2(doexceptions: boolean, xml: any): void;
 
-	expr: any;
 	browser: any;
 	dbg: any;
 

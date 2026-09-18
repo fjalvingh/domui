@@ -1,8 +1,0 @@
-/*** 410_sizedpanel ***/
-.ui-szdp {
-	background: <%= bg_color %>;
-}
-
-.ui-panel {
-	background-color: <%= bg_color %>; 
-}

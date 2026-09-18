@@ -28,12 +28,19 @@ public class SyntaxerTests {
 		checkFile("sql3.sql");
 	}
 
+	@Test
+	public void testJava1() throws Exception {
+		checkFile("java1.java");
+	}
+
 	private void checkFile(String file) throws Exception {
 		System.out.println("Testing " + file);
+		int dot = file.lastIndexOf('.');
+		String ext = file.substring(dot + 1);
 		CopyRenderer renderer = new CopyRenderer();
-		IHighlighter h = HighlighterFactory.getHighlighter("sql");
+		IHighlighter h = HighlighterFactory.getHighlighter(ext);
 
-		String text = FileTool.readResourceAsString(getClass(), "/sql/" + file, "utf-8");
+		String text = FileTool.readResourceAsString(getClass(), "/" + ext + "/" + file, "utf-8");
 		LineContext lc = null;
 		for(String line : new LineIterator(text)) {
 			lc = h.highlightLine(renderer, lc, line);
@@ -50,7 +57,7 @@ public class SyntaxerTests {
 
 		String patterned;
 		try {
-			patterned = FileTool.readResourceAsString(getClass(), "/sql/" + file + ".lit", "utf-8");
+			patterned = FileTool.readResourceAsString(getClass(), "/" + ext + "/" + file + ".lit", "utf-8");
 		} catch(Exception x) {
 			return;
 		}

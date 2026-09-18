@@ -32,7 +32,6 @@ import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Span;
 import to.etc.function.IExecute;
 import to.etc.domui.util.Msgs;
@@ -124,7 +123,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 
 	private Button appendButton(Div bd, IBundleCode code, IExecute x) {
 		Button b = new Button("ui-dp2-btn");
-		b.setClicked(clickednode -> x.execute());
+		b.setClicked(()-> x.execute());
 		bd.add(b);
 		b.add(code.getString());
 		return b;
@@ -333,7 +332,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 				}
 				b.add(Integer.toString(slot + 1));
 				final int pageIndex = slot;
-				b.setClicked(clickednode -> m_table.setCurrentPage(pageIndex));
+				b.setClicked(()-> m_table.setCurrentPage(pageIndex));
 				bd.add(b);
 			}
 		}
@@ -343,8 +342,8 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		return m_buttonDiv;
 	}
 
-	public void addButton(IIconRef image, final IClicked<DataPager2> click, final BundleRef bundle, final String ttlkey) {
-		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager2.this));
+	public void addButton(IIconRef image, final IExecute click, final BundleRef bundle, final String ttlkey) {
+		SmallImgButton i = new SmallImgButton(image, click);
 		if(bundle != null)
 			i.setTitle(bundle.getString(ttlkey));
 		else if(ttlkey != null)
@@ -386,7 +385,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		forceRebuild();
 	}
 
-	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
+	public void addButton(@NonNull IIconRef img, @NonNull IExecute clicked) {
 		addButton(new SmallImgButton(img, clicked));
 	}
 

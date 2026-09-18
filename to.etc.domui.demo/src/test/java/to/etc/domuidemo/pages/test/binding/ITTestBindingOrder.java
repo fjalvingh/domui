@@ -81,7 +81,7 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	@Test
 	public void testBindingConverter2() throws Exception {
 		wd().openScreen(BindingConversionTestForm.class);
-		wd().cmd().type("123").on("value");
+		wd().cmd().type("123").on("value", "input");
 		wd().cmd().click().on("button_click");
 		String result = wd().getHtmlText("result");
 		wd().assertEquals(result, "123");
@@ -94,7 +94,7 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	@Test
 	public void testBindingConverter3() throws Exception {
 		wd().openScreen(BindingConversionTestForm.class);
-		wd().cmd().type("123abc").on("value");
+		wd().cmd().type("123abc").on("value", "input");
 		wd().cmd().click().on("button_click");
 		wd().waitForElementVisible(By.className("ui-emd-error"));
 		String result = wd().getHtmlText(By.className("ui-emd-error"));
@@ -110,7 +110,7 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	public void testBindingConverter4() throws Exception {
 		wd().openScreen(BindingConversionTestForm.class);
 		wd().cmd().click().on("button_setvalue");
-		String result = wd().getValue("value");
+		String result = wd().getElement("value", "input").getAttribute("value");
 		wd().assertEquals(result, "987");
 	}
 
@@ -123,13 +123,13 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 		wd().openScreen(BindingConversionTestForm.class);
 
 		//-- First enter 123
-		wd().cmd().type("123").on("value");
+		wd().cmd().type("123").on("value", "input");
 		wd().cmd().click().on("button_click");
 		String result = wd().getHtmlText("result");
 		wd().assertEquals(result, "123");
 		wd().cmd().click().on("button_setnull");
 
-		result = wd().getValue("value");
+		result = wd().getElement("value", "input").getAttribute("value");
 		wd().assertEquals(result, "");
 	}
 

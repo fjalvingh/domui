@@ -69,7 +69,6 @@ public class UrlPage extends AbstractPage {
 	@Nullable
 	private String m_pageTitle;
 
-	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
 
 	final private List<IWebActionListener> m_actionListeners = new ArrayList<>(1);
 
@@ -85,21 +84,6 @@ public class UrlPage extends AbstractPage {
 	 */
 	public final void setThemeVariant(@NonNull IThemeVariant themeVariant) {
 		UIContext.getRequestContext().setThemeVariant(themeVariant);
-	}
-
-	//public final IThemeVariant getThemeVariant() {
-	//	return UIContext.getRequestContext().getThemeVariant();
-	//}
-
-	/**
-	 * No longer in use for domui 2.0.
-	 *
-	 * Remove the styles that cause the margin kludge to be applied to all pages.
-	 */
-	@Deprecated
-	public void unkludge() {
-		removeCssClass("ui-content");
-		removeCssClass("ui-kludge");
 	}
 
 	/**

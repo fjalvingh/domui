@@ -2,10 +2,7 @@ package to.etc.domuidemo.pages;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.layout.CaptionedHeader;
-import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.misc.ALink;
-import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.NodeContainer;
@@ -18,14 +15,6 @@ public class MenuPage extends UrlPage {
 	public MenuPage(@NonNull String pageTitle) {
 		setPageTitle(pageTitle);
 	}
-
-	final protected void addCaption2(@NonNull String txt) {
-		add(new VerticalSpacer(10));
-		add(new CaptionedHeader(txt));
-		m_cp = new ContentPanel();
-		add(m_cp);
-	}
-
 
 	final protected void addCaption(@NonNull String txt) {
 		Div cp = m_cp = new Div("dm-content-links");

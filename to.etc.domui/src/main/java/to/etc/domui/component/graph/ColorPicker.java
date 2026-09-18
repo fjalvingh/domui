@@ -2,6 +2,7 @@ package to.etc.domui.component.graph;
 
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.function.IExecute;
 
 /**
  * Color picker using the color picker from: http://www.eyecon.ro/colorpicker
@@ -12,7 +13,7 @@ import to.etc.domui.dom.html.*;
 public class ColorPicker extends Div implements IHasChangeListener {
 	private Input m_hidden = new HiddenInput();
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	/**
 	 * Create the required structure.
@@ -49,12 +50,12 @@ public class ColorPicker extends Div implements IHasChangeListener {
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 }

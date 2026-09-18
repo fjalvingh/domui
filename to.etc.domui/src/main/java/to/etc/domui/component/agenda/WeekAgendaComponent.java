@@ -139,13 +139,6 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 				m_days = 5;
 				break;
 
-			case MONTH:
-				cal.set(Calendar.DAY_OF_MONTH, 1);
-				m_date = cal.getTime();
-				cal.add(Calendar.MONTH, 1);
-				m_end = cal.getTime();
-				m_days = 31;
-				break;
 		}
 	}
 
@@ -199,7 +192,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 				m_endHour += 60;
 		}
 		m_startHour /= 60;
-		m_endHour /= 60 + 1;
+		m_endHour /= 60;
 		//		m_maxMinutes	= (m_endHour - m_startHour) * 60;
 
 		m_items = m_model.getScheduleItems(m_date, m_end);
@@ -627,7 +620,8 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		if(m_mode == mode)
 			return;
 		m_mode = mode;
-		initDateBounds();
+		if(m_date != null)						// The bounds follow from the date; there need not be one yet
+			initDateBounds();
 		forceRebuild();
 	}
 

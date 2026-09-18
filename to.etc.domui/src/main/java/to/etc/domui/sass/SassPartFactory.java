@@ -11,6 +11,7 @@ import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
+import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.StringTool;
 
@@ -32,17 +33,31 @@ public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
 	 * sass compiler, returning the result as a normal .css stylesheet.
 	 */
 	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@NonNull IPageParameters parameters) {
+		@Override
+		public boolean accepts(@NonNull IPageParameters parameters) {
 			return parameters.getInputPath().endsWith(".scss") || parameters.getInputPath().endsWith(".sass");
 		}
 	};
 
-	@NonNull @Override public IPageParameters decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
-		return new PageParameters(param, name -> ! name.startsWith("$"))	// Ignore DomUI system parameters
+	@NonNull
+	@Override
+	public IPageParameters decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
+		PageParameters pp = new PageParameters(param, name -> !name.startsWith("$"))    // Ignore DomUI system parameters
 			.browserVersion(BrowserVersion.INSTANCE);
+
+		/*
+		 * For a themed sheet the variant is the one in the URL, not the one the requesting
+		 * session happens to render in: the URL is what decides which sheet this is.
+		 */
+		String inputPath = pp.getInputPath();
+		if(inputPath.startsWith(ThemeResourceFactory.PREFIX)) {
+			pp.themeVariant(ThemeResourceFactory.splitThemeResourceURL(inputPath)[0]);
+		}
+		return pp;
 	}
 
-	@Override public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception {
+	@Override
+	public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception {
 		long ts = System.nanoTime();
 
 		/*
@@ -50,6 +65,16 @@ public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
 		 */
 		String rurl = params.getInputPath();
 		ISassCompiler compiler = SassCompilerFactory.createCompiler();
+
+		/*
+		 * Let the browser cache the compiled sheet, as every other part does. Without this
+		 * the theme's stylesheet - half a megabyte of it - is refetched on every single page
+		 * load, render blocking, which is why a page switch shows an unstyled page first.
+		 * In development mode nothing is cached, so an edit to a .scss shows up on a reload.
+		 */
+		if(!da.inDevelopmentMode()) {
+			pr.setCacheTime(da.getDefaultExpiryTime());
+		}
 
 		pr.setMime("text/css");
 		try(OutputStream outputStream = pr.getOutputStream()) {

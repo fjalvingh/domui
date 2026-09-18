@@ -5,10 +5,8 @@ import to.etc.domui.webdriver.poproxies.AbstractCpPage;
 import to.etc.domui.webdriver.poproxies.CpButton;
 import to.etc.domui.webdriver.poproxies.CpCheckbox;
 import to.etc.domui.webdriver.poproxies.CpCheckboxButton;
-import to.etc.domui.webdriver.poproxies.CpComboFixed;
 import to.etc.domui.webdriver.poproxies.CpComboFixed2;
 import to.etc.domui.webdriver.poproxies.CpRadioGroup;
-import to.etc.domui.webdriver.poproxies.CpText;
 import to.etc.domui.webdriver.poproxies.CpText2;
 import to.etc.domuidemo.pages.test.proxies.ProxyTestPage1;
 import to.etc.domuidemo.pages.test.proxies.ProxyTestPage1.MyValues;
@@ -18,8 +16,6 @@ import javax.annotation.processing.Generated;
 @Generated("Generated on Thu Feb 03 14:26:45 CET 2022")
 public class POProxyTestPage1Base extends AbstractCpPage<ProxyTestPage1> {
     private CpCheckboxButton m_cbb;
-
-    private CpComboFixed m_cf;
 
     private CpComboFixed2 m_cf2;
 
@@ -32,8 +28,6 @@ public class POProxyTestPage1Base extends AbstractCpPage<ProxyTestPage1> {
     private CpButton m_sib;
 
     private CpButton m_sibReloadThePageFully;
-
-    private CpText m_text;
 
     private CpText2 m_text2;
 
@@ -49,15 +43,6 @@ public class POProxyTestPage1Base extends AbstractCpPage<ProxyTestPage1> {
             m_cbb = cbb;
         }
         return cbb;
-    }
-
-    public CpComboFixed cf() throws Exception {
-        CpComboFixed cf = m_cf;
-        if(null == cf) {
-            cf = new CpComboFixed(this.wd(), () -> "*[testId='cf']");
-            m_cf = cf;
-        }
-        return cf;
     }
 
     public CpComboFixed2 cf2() throws Exception {
@@ -113,15 +98,6 @@ public class POProxyTestPage1Base extends AbstractCpPage<ProxyTestPage1> {
             m_sibReloadThePageFully = sibReloadThePageFully;
         }
         return sibReloadThePageFully;
-    }
-
-    public CpText text() throws Exception {
-        CpText text = m_text;
-        if(null == text) {
-            text = new CpText(this.wd(), () -> "*[testId='text']");
-            m_text = text;
-        }
-        return text;
     }
 
     public CpText2 text2() throws Exception {

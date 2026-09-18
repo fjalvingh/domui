@@ -1,5 +1,7 @@
 /*** 205_colorpicker.frag.css ***/
 /*** Color picker ***/
+@use "theme" as *;
+
 .colorpicker {
 	width: 356px;
 	height: 176px;
@@ -74,7 +76,7 @@
 	border: 1px solid transparent;
 	position: absolute;
 	font-size: 10px;
-	color: #898989;
+	color: $cpick-label-color;
 	top: 4px;
 	right: 11px;
 	text-align: right;
@@ -177,6 +179,10 @@
 	left: 4px;
 	top: 4px;
 }
+.ui-cpbt-off {
+	cursor: not-allowed;
+	opacity: 0.6;
+}
 
 /*** ColorPickerInput ***/
 .ui-cpin {
@@ -184,7 +190,7 @@
 .ui-cpin-div {
         display: inline-block;
         margin-top: 5px;
-        border: 1px solid grey;
+        border: 1px solid $cpick-border;
         height: 11px;
         width: 20px;
 }

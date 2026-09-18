@@ -1,11 +1,10 @@
 /*** 150_caption.frag.css ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-cptn {
 	font-weight: bold;
-	background: $header_bg;
-	color: $bg_ttl_text;
-/*?	<%= margins_neutralize %> */
+	background: $header-bg;
+	color: $title-color;
 	margin-top: 0px;
 }
 

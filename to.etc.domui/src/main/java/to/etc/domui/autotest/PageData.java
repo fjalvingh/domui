@@ -38,7 +38,7 @@ public class PageData {
 	}
 
 	public void checkNode(@NonNull NodeBase node) {
-		if(node.getClicked() != null)
+		if(node.hasClicked())
 			m_clickTargets.add(node);
 
 		//-- Handle "normal" html input nodes.

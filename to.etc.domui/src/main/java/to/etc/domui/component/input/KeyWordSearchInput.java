@@ -36,10 +36,10 @@ import to.etc.domui.dom.css.PositionType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.ILookupTypingListener;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.
@@ -59,10 +59,10 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 	private Div m_pnlSearchCount;
 
 	@Nullable
-	private IValueChanged<KeyWordSearchInput<T>> m_onLookupTyping;
+	private IExecute m_onLookupTyping;
 
 	@Nullable
-	private IValueChanged<KeyWordSearchInput<T>> m_onShowTypingResults;
+	private IExecute m_onShowTypingResults;
 
 	@Nullable
 	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
@@ -97,12 +97,12 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 			public void onLookupTyping(@NonNull Input component, boolean done) throws Exception {
 				if(done) {
 					if(getOnShowResults() != null) {
-						getOnShowResults().onValueChanged(KeyWordSearchInput.this);
+						getOnShowResults().execute();
 					}
 				} else {
-					IValueChanged<KeyWordSearchInput<T>> olt = getOnLookupTyping();
+					IExecute olt = getOnLookupTyping();
 					if(olt != null) {
-						olt.onValueChanged(KeyWordSearchInput.this);
+						olt.execute();
 					}
 				}
 			}
@@ -118,11 +118,11 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 	}
 
 	@Nullable
-	public IValueChanged<KeyWordSearchInput<T>> getOnLookupTyping() {
+	public IExecute getOnLookupTyping() {
 		return m_onLookupTyping;
 	}
 
-	public void setOnLookupTyping(@Nullable IValueChanged<KeyWordSearchInput<T>> onLookupTyping) {
+	public void setOnLookupTyping(@Nullable IExecute onLookupTyping) {
 		m_onLookupTyping = onLookupTyping;
 	}
 
@@ -173,11 +173,11 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 		}
 	}
 
-	public IValueChanged<KeyWordSearchInput<T>> getOnShowResults() {
+	public IExecute getOnShowResults() {
 		return m_onShowTypingResults;
 	}
 
-	public void setOnShowResults(IValueChanged<KeyWordSearchInput<T>> onShowResults) {
+	public void setOnShowResults(IExecute onShowResults) {
 		m_onShowTypingResults = onShowResults;
 	}
 

@@ -5,7 +5,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MessageFlare;
@@ -16,7 +15,6 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.NodeBase;
@@ -30,6 +28,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.upload.FileUploadException;
 import to.etc.domui.util.upload.UploadItem;
+import to.etc.function.IExecute;
 import to.etc.util.FileTool;
 import to.etc.webapp.nls.BundleRef;
 
@@ -68,15 +67,16 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	private boolean m_mandatory;
 
-	@Nullable
-	private FileInput m_input;
+	/**
+	 * The file input is created here and not in {@link #createContent()} because a label's
+	 * "for" is calculated before this control is built; see {@link #getForTarget()}.
+	 */
+	@NonNull
+	private final FileInput m_input = new FileInput(s -> forceRebuild());
 
 	private boolean m_readOnly;
 
-	private IValueChanged< ? > m_onValueChanged;
-
-	@Nullable
-	private HoverButton m_sib;
+	private IExecute m_onValueChanged;
 
 	public ImageSelectControl(@Nullable IUIImage value) {
 		m_value = value;
@@ -115,7 +115,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		}
 
 		if(!isDisabled() && ! isReadOnly()) {
-			DefaultButton btn = new DefaultButton("", Icon.faWindowClose, a -> {
+			DefaultButton btn = new DefaultButton("", Icon.faWindowClose, ()-> {
 				setValue(null);
 				forceRebuild();
 				setImageChanged();
@@ -123,18 +123,6 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			add(btn);
 			btn.setTitle(Msgs.BUNDLE.getString(Msgs.ISCT_EMPTY_TITLE));
 			btn.setDisabled(m_value == null);
-
-			//add(" ");
-			//HoverButton sib = m_sib = new HoverButton(Theme.ISCT_ERASE, new IClicked<HoverButton>() {
-			//	@Override
-			//	public void clicked(HoverButton clickednode) throws Exception {
-			//		setValue(null);
-			//		forceRebuild();
-			//		setImageChanged();
-			//	}
-			//});
-			//add(sib);
-			//sib.setTitle(Msgs.BUNDLE.getString(Msgs.ISCT_EMPTY_TITLE));
 
 			add(" ");
 			Form f = new Form();
@@ -147,8 +135,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			sb.append("?uniq=" + System.currentTimeMillis());	// Uniq the URL to prevent IE's caching.
 			f.setAction(sb.toString());
 
-			FileInput fi = new FileInput(s -> {forceRebuild();});
-			m_input = fi;
+			FileInput fi = m_input;
 			f.add(fi);
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			String types = ".jpg,.jpeg,.png,.gif";
@@ -159,12 +146,16 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	}
 
 	@Nullable @Override protected String getFocusID() {
-		HoverButton sib = m_sib;
-		return sib == null ? null : sib.getActualID();
+		NodeBase target = getForTarget();
+		return target == null ? null : target.getActualID();
 	}
 
+	/**
+	 * The file input is what can be focused and what a label points at - but only when it is
+	 * actually rendered, which is not the case for a disabled or readonly control.
+	 */
 	@Nullable @Override public NodeBase getForTarget() {
-		return m_sib;
+		return isDisabled() || isReadOnly() ? null : m_input;
 	}
 
 	/**
@@ -199,9 +190,6 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	@Override
 	public boolean handleUploadRequest(RequestContextImpl param, ConversationContext conversation) throws Exception {
 		FileInput fi = m_input;
-		if(null == fi)
-			return true;
-
 		try {
 			UploadItem[] uiar = param.getFileParameter(fi.getActualID());
 			if(uiar != null) {
@@ -222,7 +210,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	private void setImageChanged() throws Exception {
 		if(m_onValueChanged != null)
-			((IValueChanged<Object>) m_onValueChanged).onValueChanged(this);
+			m_onValueChanged.execute();
 	}
 
 	private void updateImage(@NonNull ConversationContext cc, @NonNull UploadItem ui) throws Exception {
@@ -266,12 +254,12 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

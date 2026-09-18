@@ -25,6 +25,9 @@
 package to.etc.domui.dom;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.misc.LiteralXhtml;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.header.HeaderContributorEntry;
@@ -38,7 +41,12 @@ import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.parts.ColorSchemePart;
+import to.etc.domui.server.parts.PartData;
+import to.etc.domui.state.PageParameters;
 import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.js.RhinoExecutor;
 import to.etc.domui.util.js.RhinoExecutorFactory;
@@ -65,6 +73,8 @@ import java.util.Map;
  * Created on Aug 17, 2007
  */
 public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRenderer {
+	static private final Logger LOG = LoggerFactory.getLogger(HtmlFullRenderer.class);
+
 	//	private BrowserVersion m_browserVersion;
 
 	/**
@@ -264,6 +274,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	 * Called from template.
 	 */
 	public void renderHeadContent() throws Exception {
+		renderColorScheme();
 		o().writeRaw("<script>");
 		if(!isXml())
 			o().writeRaw("<!--\n");
@@ -434,6 +445,8 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	private void checkForFocus(NodeBase n) {
 		if(m_tagRenderer.getMode() != HtmlRenderMode.FULL)
 			return;
+		if(!DomApplication.get().isAutoFocus())            // Automatic focus disabled by the application?
+			return;
 		if(n.getPage().getFocusComponent() != null)
 			return;
 		if(n.isFocusable())
@@ -470,22 +483,99 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	}
 
 	/**
+	 * Tell the browser which colour scheme this page renders in, as the very first thing in
+	 * the head. The stylesheet is render blocking: between committing the new document and
+	 * parsing that sheet the browser has nothing to go on and paints its default white
+	 * canvas, which is what makes a page switch flash white on a dark theme. The meta tag is
+	 * seen by the parser immediately, so the canvas is dark right away.
+	 */
+	protected void renderColorScheme() throws Exception {
+		String scheme = m_ctx.getThemeVariant().getColorScheme();
+		o().writeRaw("<meta name=\"color-scheme\" content=\"");
+		o().writeRaw(scheme);
+		o().writeRaw(isXml() ? "\"/>\n" : "\">\n");
+		renderColorSchemeDetection(scheme);
+	}
+
+	/**
+	 * Ask the browser, once, whether it would rather have the other colour scheme than the one
+	 * this page renders in - and if so leave for {@link ColorSchemePart}, which stores that
+	 * answer and sends the browser straight back here.
+	 *
+	 * <p>Only a session that never chose a variant is asked, so the question is put once per
+	 * browser: the answer becomes a stored choice, and a stored choice is what the user's own
+	 * dark/light switch writes too, so choosing by hand ends the question as well. That
+	 * needs the theme variant cookie: an application that named none
+	 * ({@link DomApplication#setThemeVariantCookieName(String)}) cannot keep the answer past
+	 * the session, so it does not ask.</p>
+	 *
+	 * <p>The script sits at the top of the head, before the render blocking stylesheet, so the
+	 * browser leaves before it has painted anything: what the user sees is the page in the
+	 * scheme they wanted, not a flash of the other one.</p>
+	 */
+	protected void renderColorSchemeDetection(String scheme) throws Exception {
+		if(null == m_application.getThemeVariantCookieName() || !m_ctx.isThemeVariantDefaulted())
+			return;
+		String other = "dark".equals(scheme) ? "light" : "dark";
+		IThemeVariant variant = m_application.getThemeVariantForColorScheme(other);
+		if(null == variant || variant.getVariantName().equals(m_ctx.getThemeVariant().getVariantName()))
+			return;
+
+		//-- No && and no < in the script: this is written raw, and the page may be XHTML.
+		o().writeRaw("<script>if(window.matchMedia) if(window.matchMedia(\"(prefers-color-scheme: ");
+		o().writeRaw(other);
+		o().writeRaw(")\").matches) window.location.replace(");
+		o().writeRaw(StringTool.strToJavascriptString(m_ctx.getRelativePath(ColorSchemePart.getRedirectURL(m_ctx, other)), true));
+		o().writeRaw(");</script>\n");
+	}
+
+	/**
 	 * Render the proper themed stylesheet. This will be "style.theme.css" within the current
 	 * "theme directory", which is defined by the "currentTheme" in DomApplication.
 	 */
 	protected void renderThemeCSS() throws Exception {
 		ITheme theme = m_ctx.getCurrentTheme();
 		String sheet = theme.getStyleSheetName();
+		String url = ctx().getRelativePath(sheet);
+		String hash = calculateStyleSheetHash(theme, sheet);
+		if(null != hash)
+			url += "?$hash=" + hash;
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
-		o().writeRaw(ctx().getRelativePath(sheet));
+		o().writeRaw(url);
 		if(isXml())
 			o().writeRaw("\"/>");
 		else
 			o().writeRaw("\">\n");
 		//else
 		//	o().writeRaw("\"></link>\n");					No longer needed
+	}
+
+	/**
+	 * A theme's stylesheet is generated, and its content depends on the theme's parameters. So
+	 * generate the sheet here and calculate a hash over its content; that hash is added to the
+	 * stylesheet's URL, making the URL change as soon as the generated content changes. This
+	 * lets the browser cache the sheet forever while still picking up every change.
+	 *
+	 * Returns null if the stylesheet is not generated by a part but is a plain resource - its
+	 * URL is stable and there is nothing to hash.
+	 */
+	@Nullable
+	private String calculateStyleSheetHash(ITheme theme, String sheet) throws Exception {
+		int slash = sheet.lastIndexOf('/');
+		PageParameters pp = new PageParameters()
+			.themeVariant(theme.getVariantName())
+			.browserVersion(ctx().getPageParameters().getBrowserVersion())
+			.inputPath(sheet);
+		pp.setUrlContextString(slash < 0 ? "" : sheet.substring(0, slash + 1));    // As the browser's request for the sheet will have it, so that both use the same part cache entry
+		try {
+			PartData data = DomApplication.get().getPartService().getData(pp);
+			return StringTool.toHex(data.getHash());
+		} catch(ThingyNotFoundException x) {
+			LOG.debug("No part generates the theme stylesheet '" + sheet + "', rendering its URL without a content hash");
+			return null;
+		}
 	}
 
 	/**

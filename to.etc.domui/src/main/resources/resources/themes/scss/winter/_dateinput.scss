@@ -1,5 +1,5 @@
 /*** Date input ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-di-sib {
 	vertical-align: top;
@@ -16,11 +16,11 @@
 	border: 0px;
 }
 .ui-di.ui-ro {
-	color: black;
+	color: $di-readonly-color;
 }
 
 .ui-di-sib:hover {
-	background-color: $data_tbl_header_bg !important;
+	background-color: $dt-hdr-bg !important;
 }
 
 /*** LookupFactoryDate date till field ***/

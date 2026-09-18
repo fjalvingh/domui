@@ -70,8 +70,8 @@ public class RequestContextParameterContainer implements IBasicParameterContaine
 
 	@Nullable
 	@Override
-	public String getThemeName() {
-		return m_ctx.getThemeName();
+	public String getThemeVariantName() {
+		return m_ctx.getThemeVariant().getVariantName();
 	}
 
 	@Override

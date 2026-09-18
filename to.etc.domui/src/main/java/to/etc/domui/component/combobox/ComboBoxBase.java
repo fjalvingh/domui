@@ -9,7 +9,6 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
@@ -21,6 +20,7 @@ import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueTransformer;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
 
@@ -40,7 +40,7 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 
 	private int m_currentIndex;
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	/**
 	 * If this combobox has a "unselected" option currently this contains that option. When present it
@@ -543,16 +543,13 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
-		IValueChanged< ? > vc = m_onValueChanged;
+	public IExecute getOnValueChanged() {
+		IExecute vc = m_onValueChanged;
 		return vc;
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
-	 */
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

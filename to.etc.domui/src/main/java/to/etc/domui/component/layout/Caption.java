@@ -27,7 +27,6 @@ package to.etc.domui.component.layout;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.NodeBase;
@@ -36,6 +35,7 @@ import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TDAlignType;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,7 +122,7 @@ public class Caption extends Div {
 		m_icon.setAlign(ImgAlign.RIGHT);
 	}
 
-	public void addButton(IIconRef image, String hint, IClicked<NodeBase> handler) {
+	public void addButton(IIconRef image, String hint, IExecute handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setClicked(handler);
 		internallyAddButton(ib, hint);

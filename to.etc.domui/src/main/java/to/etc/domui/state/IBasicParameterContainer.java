@@ -44,7 +44,7 @@ public interface IBasicParameterContainer {
 	int getDataLength();
 
 	@Nullable
-	String getThemeName();
+	String getThemeVariantName();
 
 	/**
 	 * The complete input URL without the JSDK context part and the query part. Specifically:

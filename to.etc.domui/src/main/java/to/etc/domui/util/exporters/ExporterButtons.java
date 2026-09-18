@@ -48,18 +48,22 @@ public class ExporterButtons {
 	}
 
 	static public DefaultButton createExportButton(ConsumerEx<IExportFormat> onExport) {
-		return new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO, a -> showFormatPopup(onExport, a));
+		DefaultButton button = new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO);
+		button.setClicked(() -> showFormatPopup(onExport, button));
+		return button;
 	}
 
 	static public DefaultButton createExportButton(String name, IIconRef icon, ConsumerEx<IExportFormat> onExport) {
-		return new DefaultButton(name, icon, a -> showFormatPopup(onExport, a));
+		DefaultButton button = new DefaultButton(name, icon);
+		button.setClicked(() -> showFormatPopup(onExport, button));
+		return button;
 	}
 
 	public static void showFormatPopup(ConsumerEx<IExportFormat> onExport, NodeBase target) {
 		List<IExportFormat> exportFormats = ExportFormatRegistry.getExportFormats();
 		PopupMenu pm = new PopupMenu();
 		for(IExportFormat xf : exportFormats) {
-			pm.addItem(xf.extension(), Icon.faFile, xf.name(), false, s -> onExport.accept(xf));
+			pm.addItem(xf.extension(), Icon.faFile, xf.name(), false, ()-> onExport.accept(xf));
 		}
 		pm.show(target);
 	}
@@ -544,7 +548,7 @@ public class ExporterButtons {
 		public DefaultButton build() {
 			String buttonName = m_buttonName == null ? Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON) : m_buttonName;
 			DefaultButton button = new DefaultButton(buttonName, Icon.faFileExcelO);
-			button.setClicked(this::buttonPressed);
+			button.setClicked(() -> buttonPressed(button));
 
 			return button;
 		}
@@ -552,12 +556,13 @@ public class ExporterButtons {
 		public LinkButton buildLinkButton() {
 			String buttonName = m_buttonName == null ? Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON) : m_buttonName;
 			LinkButton button = new LinkButton(buttonName, Icon.faFileExcelO);
-			button.setClicked(this::buttonPressed);
+			button.setClicked(() -> buttonPressed(button));
 			return button;
 		}
 
 		public SmallImgButton buildImageButton() {
-			SmallImgButton sib = new SmallImgButton(Icon.faFileExcelO, this::buttonPressed);
+			SmallImgButton sib = new SmallImgButton(Icon.faFileExcelO);
+			sib.setClicked(() -> buttonPressed(sib));
 			return sib;
 		}
 

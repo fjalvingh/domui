@@ -47,12 +47,12 @@ public class BasicScheduleModel<T extends ScheduleItem> implements ScheduleModel
 
 	@Override
 	public List<T> getScheduleItems(Date start, Date end) throws Exception {
-		List<ScheduleItem> l = new ArrayList<ScheduleItem>();
-		for(ScheduleItem h : m_items) {
+		List<T> l = new ArrayList<T>();
+		for(T h : m_items) {
 			if(h.getEnd().getTime() >= start.getTime() && h.getStart().getTime() < end.getTime())
 				l.add(h);
 		}
-		return m_items;
+		return l;
 	}
 
 	@Override

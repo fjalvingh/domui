@@ -5,9 +5,9 @@ import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.DateInput;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -41,9 +41,9 @@ public class DateInputTestPage extends UrlPage {
 		add(di);
 		di.setTestID("datein");
 
-		DefaultButton	button = new DefaultButton("Click", new IClicked<DefaultButton>() {
+		DefaultButton	button = new DefaultButton("Click", new IExecute() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				Date dt = di.getValueSafe();
 				Div result = m_result;
 				if(null == result) {
@@ -63,9 +63,9 @@ public class DateInputTestPage extends UrlPage {
 		button.setTestID("btn");
 		add(button);
 
-		DefaultButton clear = new DefaultButton("Click", new IClicked<DefaultButton>() {
+		DefaultButton clear = new DefaultButton("Click", new IExecute() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				di.setValue(null);
 				Div result = m_result;
 				if(null != result) {

@@ -18,7 +18,7 @@ public class TestMsg2Box1 extends UrlPage {
 		text.setMandatory(true);
 		MsgBox2.on(this)
 				.input("Minutes", text)
-			.onClicked(clickednode -> {
+			.onClicked(()-> {
 				//-- Deliberately empty
 			});
 	}

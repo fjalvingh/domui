@@ -1,0 +1,19 @@
+{
+  "name": "domui-maxgraph",
+  "version": "1.0.0",
+  "description": "The maxGraph bundle for DomUI's maxGraph component",
+  "private": true,
+  "license": "LGPL-2.1 License",
+  "scripts": {
+    "bundle": "npm run typecheck && npm run bundle-js && npm run bundle-min && npm run copy-assets",
+    "typecheck": "tsc --noEmit",
+    "bundle-js": "esbuild src/main/frontend/domui-maxgraph.ts --bundle --format=iife --global-name=DomUIMaxGraph --target=es2017 --outfile=src/main/resources/META-INF/resources/js/maxgraph/domui-maxgraph.js",
+    "bundle-min": "esbuild src/main/frontend/domui-maxgraph.ts --bundle --format=iife --global-name=DomUIMaxGraph --target=es2017 --minify --outfile=src/main/resources/META-INF/resources/js/maxgraph/domui-maxgraph-min.js",
+    "copy-assets": "node copy-assets.mjs"
+  },
+  "devDependencies": {
+    "@maxgraph/core": "0.24.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.0"
+  }
+}

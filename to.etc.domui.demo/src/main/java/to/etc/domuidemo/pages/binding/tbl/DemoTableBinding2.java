@@ -1,7 +1,7 @@
 package to.etc.domuidemo.pages.binding.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.IRowControlFactory;
@@ -35,7 +35,7 @@ public class DemoTableBinding2 extends WikiExplanationPage {
 
 		rr.column(Employee.class, "reportsTo").label("Manager").editable().factory(new IRowControlFactory<Employee>() {
 			@NonNull @Override public IControl<?> createControl(@NonNull Employee rowInstance) throws Exception {
-				LookupInput<Employee> li = new LookupInput<Employee>(Employee.class);
+				LookupInput2<Employee> li = new LookupInput2<Employee>(Employee.class);
 				li.setValueRenderer(contentRenderer);
 				return li;
 			}

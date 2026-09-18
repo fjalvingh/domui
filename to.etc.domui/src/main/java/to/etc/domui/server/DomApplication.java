@@ -75,9 +75,10 @@ import to.etc.domui.login.ILoginAuthenticator;
 import to.etc.domui.login.ILoginDialogFactory;
 import to.etc.domui.login.ILoginListener;
 import to.etc.domui.login.IPageAccessChecker;
-import to.etc.domui.parts.SvgPartFactory;
 import to.etc.domui.parts.TempFileManager;
+import to.etc.domui.sass.SassCompilerFactory;
 import to.etc.domui.sass.SassPartFactory;
+import to.etc.domui.server.parts.ColorSchemePart;
 import to.etc.domui.server.parts.IPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.InternalResourcePart;
@@ -93,18 +94,15 @@ import to.etc.domui.state.UIGotoContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.subinjector.ISubPageInjector;
 import to.etc.domui.subinjector.SubPageInjector;
+import to.etc.domui.themes.DarkThemeVariant;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
 import to.etc.domui.themes.IThemeVariant;
-import to.etc.domui.themes.ThemeCssUtils;
 import to.etc.domui.themes.ThemeManager;
-import to.etc.domui.themes.ThemePartFactory;
 import to.etc.domui.themes.ThemeResourceFactory;
-import to.etc.domui.themes.fragmented.FragmentedThemeFactory;
 import to.etc.domui.themes.sass.IThemeVariablesCalculator;
 import to.etc.domui.themes.sass.SassThemeFactory;
-import to.etc.domui.themes.simple.SimpleThemeFactory;
 import to.etc.domui.trouble.DataAccessViolationException;
 import to.etc.domui.trouble.DataAccessViolationPage;
 import to.etc.domui.trouble.ExpiredDataPage;
@@ -115,7 +113,6 @@ import to.etc.domui.util.ICachedListMaker;
 import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.Msgs;
-import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.ClassRefResourceFactory;
 import to.etc.domui.util.resources.ClasspathInventory;
 import to.etc.domui.util.resources.IModifyableResource;
@@ -179,8 +176,6 @@ public abstract class DomApplication {
 		{"3.6.0", "jquery-3.6.0", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 		{"3.7.1", "jquery-3.7.1", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 	};
-
-	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
 
 	public static final String HEADER_PREFIX = "header-";
 
@@ -261,6 +256,12 @@ public abstract class DomApplication {
 	 * opt-out attributes rendered on inputs. See {@link #isRefuseDisobeyingPasswordManagers()}.
 	 */
 	private boolean m_refuseDisobeyingPasswordManagers;
+
+	/**
+	 * When T (the default) the first focusable component on a newly built page gets the focus
+	 * automatically. See {@link #isAutoFocus()}.
+	 */
+	private boolean m_autoFocus = true;
 
 	private boolean m_underSeleniumTest = System.getProperty("domui.selenium") != null;
 
@@ -351,11 +352,16 @@ public abstract class DomApplication {
 	 */
 	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
 
-	/**
-	 * The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources.
-	 */
+	/** The application's one and only theme; the variant is what can differ per session. */
 	@NonNull
-	private volatile String m_defaultTheme = "";
+	private volatile IThemeFactory m_themeFactory = SassThemeFactory.INSTANCE;
+
+	/**
+	 * The name of the cookie that keeps the user's theme variant choice across sessions, or
+	 * null (the default) for no cookie at all. See {@link #setThemeVariantCookieName(String)}.
+	 */
+	@Nullable
+	private volatile String m_themeVariantCookieName;
 
 	private IThemeVariablesCalculator m_themeVariablesCalculator = parameters -> Map.of();
 
@@ -606,8 +612,6 @@ public abstract class DomApplication {
 			UIGoto.redirect(rurl);
 			return true;
 		});
-		setDefaultThemeName("blue/domui/blue");
-		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
@@ -698,8 +702,7 @@ public abstract class DomApplication {
 
 	protected void registerPartFactories() {
 		registerUrlPart(new SassPartFactory(), SassPartFactory.MATCHER);            // Support .scss SASS stylesheets
-		registerUrlPart(new ThemePartFactory(), ThemePartFactory.MATCHER);            // convert *.theme.* as a JSTemplate.
-		registerUrlPart(new SvgPartFactory(), SvgPartFactory.MATCHER);                // Converts .svg.png to png.
+		registerUrlPart(new ColorSchemePart(), ColorSchemePart.MATCHER);            // Accepts the browser's dark/light preference
 		registerUrlPart(new InternalResourcePart(), InternalResourcePart.MATCHER);
 	}
 
@@ -891,6 +894,8 @@ public abstract class DomApplication {
 		} catch(Throwable x) {
 			AppFilter.LOG.error("Exception when destroying Application", x);
 		}
+
+		SassCompilerFactory.terminate();					// Stop the sass compiler processes, if any were started.
 
 		ServiceLoader<IApplicationInitializer> initLoader = ServiceLoader.load(IApplicationInitializer.class);
 		for(IApplicationInitializer ai : initLoader) {
@@ -2474,36 +2479,43 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * This method can be overridden to add extra stuff to the theme map, after
-	 * it has been loaded from properties or whatnot.
+	 * Set the application's theme. There is exactly one, and it must be set during
+	 * application initialization; it cannot change afterwards. What <i>can</i> differ per
+	 * user session is the {@link IThemeVariant}, see
+	 * {@link IRequestContext#setThemeVariant(IThemeVariant)}.
 	 */
-	//@OverridingMethodsMustInvokeSuper
-	public void augmentThemeMap(@NonNull IScriptScope ss) throws Exception {
-		ss.put("util", new ThemeCssUtils(ss));
-		ss.eval(Object.class, "function url(x) { return util.url(x);};", "internal");
-
-		m_themeApplicationProperties.forEach((key, value) -> ss.put(key, value));
+	final public void setThemeFactory(@NonNull IThemeFactory factory) {
+		m_themeFactory = factory;
 	}
 
-	/**
-	 * Sets the application-default theme string. This will become part of all themed resource URLs
-	 * and is interpreted by the theme factory to resolve resources. The string is used
-	 * as a "parameter" for the theme factory which will use it to decide on the "real"
-	 * theme to use.
-	 *
-	 * @param themeName The theme name, valid for the current theme engine. Cannot be null nor the empty string.
-	 */
-	final public void setDefaultThemeName(@NonNull String themeName) {
-		m_defaultTheme = themeName;
-	}
-
-	/**
-	 * Gets the application-default theme string. This will become part of all themed resource URLs
-	 * and is interpreted by the theme factory to resolve resources.
-	 */
 	@NonNull
-	final public String getDefaultThemeName() {
-		return m_defaultTheme;
+	final public IThemeFactory getThemeFactory() {
+		return m_themeFactory;
+	}
+
+	/**
+	 * Name the cookie that keeps the user's theme variant choice, so that it outlives the
+	 * session; call this from {@link #initialize(ConfigParameters)}. Without a name there is
+	 * no cookie: a variant set with {@link IRequestContext#setThemeVariant(IThemeVariant)}
+	 * then holds for the session only, and the browser is not asked for its colour scheme
+	 * (see {@link #getThemeVariantForColorScheme(String)}) - that answer could not be kept.
+	 *
+	 * <p>There is no default because every application on a host would otherwise share the
+	 * one cookie, and a choice made in one would carry into the others.</p>
+	 */
+	final public void setThemeVariantCookieName(@Nullable String cookieName) {
+		if(null != cookieName && cookieName.isBlank())
+			throw new IllegalArgumentException("The theme variant cookie name cannot be blank");
+		m_themeVariantCookieName = cookieName;
+	}
+
+	/**
+	 * The name of the theme variant cookie, or null when the application has none - see
+	 * {@link #setThemeVariantCookieName(String)}.
+	 */
+	@Nullable
+	final public String getThemeVariantCookieName() {
+		return m_themeVariantCookieName;
 	}
 
 	/**
@@ -2530,13 +2542,6 @@ public abstract class DomApplication {
 		return m_themeManager;
 	}
 
-	/**
-	 * Set the application-default theme factory, and make the factory set its default theme.
-	 */
-	final public void setDefaultThemeFactory(@NonNull IThemeFactory themer) {
-		m_defaultTheme = themer.getDefaultThemeName();
-	}
-
 	public IThemeVariablesCalculator getThemeVariablesCalculator() {
 		return m_themeVariablesCalculator;
 	}
@@ -2546,36 +2551,56 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Get an ITheme instance for the default theme manager and theme.
-	 */
-	@NonNull
-	public ITheme getDefaultThemeInstance() {
-		return m_themeManager.getTheme(getDefaultThemeName(), DefaultThemeVariant.INSTANCE, null);
-	}
-
-	/**
-	 * Get the theme store representing the specified theme name. This is the name as obtained
-	 * from the resource name which is the part between $THEME/ and the actual filename.
-	 */
-	final public ITheme getTheme(@NonNull String themeName, @NonNull IThemeVariant variant, @Nullable IResourceDependencyList rdl) throws Exception {
-		return m_themeManager.getTheme(themeName, variant, rdl);
-	}
-
-	/**
 	 * FIXME Get rid of rdl parameter
-	 * Get the theme store representing the specified theme name. This is the name as obtained
-	 * from the resource name which is the part between $THEME/ and the actual filename.
+	 * Get the theme for the variant passed.
 	 */
-	final public ITheme getTheme(@NonNull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
-		return m_themeManager.getTheme(themeName, rdl);
+	@NonNull
+	final public ITheme getTheme(@NonNull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
+		return m_themeManager.getTheme(variant, rdl);
 	}
 
 	/**
-	 * Called from the user session to detect the user's theme; override to assign per-user theme.
+	 * Get the theme for the variant name as obtained from a themed resource URL: the part
+	 * between $THEME/ and the actual filename.
 	 */
 	@NonNull
-	public String calculateUserTheme(IRequestContext ctx) {
-		return getDefaultThemeName();
+	final public ITheme getTheme(@NonNull String variantName, @Nullable IResourceDependencyList rdl) {
+		return m_themeManager.getTheme(variantName, rdl);
+	}
+
+	/**
+	 * Called from the user session to determine the theme variant to render in; override to
+	 * assign one per user, for instance from a stored dark/light preference. A page can
+	 * override the result for the session with
+	 * {@link IRequestContext#setThemeVariant(IThemeVariant)}.
+	 */
+	@NonNull
+	public IThemeVariant calculateUserThemeVariant(IRequestContext ctx) {
+		return getThemeFactory().getDefaultVariant();
+	}
+
+	/**
+	 * The variant to render in for a browser that says it prefers the CSS color-scheme passed
+	 * ("light" or "dark"). A session that never chose a variant of its own is asked this once,
+	 * by the script {@link to.etc.domui.dom.HtmlFullRenderer} writes into the page head, and the
+	 * answer becomes that session's choice - so a user gets the dark theme when their desktop is
+	 * dark, without having to say so.
+	 *
+	 * <p>The question is only asked when the application named the theme variant cookie
+	 * ({@link #setThemeVariantCookieName(String)}), because the answer is kept there.</p>
+	 *
+	 * <p>The default maps onto the two variants DomUI itself ships, which is right for the theme
+	 * it ships too. A theme that has no dark variant must override this to return null, which
+	 * switches the whole question off; so must an application that decides the variant itself in
+	 * {@link #calculateUserThemeVariant(IRequestContext)}, because the browser would otherwise
+	 * overrule it.</p>
+	 */
+	@Nullable
+	public IThemeVariant getThemeVariantForColorScheme(@NonNull String colorScheme) {
+		IThemeVariant def = getThemeFactory().getDefaultVariant();
+		if(def.getColorScheme().equals(colorScheme))
+			return def;
+		return "dark".equals(colorScheme) ? DarkThemeVariant.INSTANCE : DefaultThemeVariant.INSTANCE;
 	}
 
 	/**
@@ -2757,22 +2782,6 @@ public abstract class DomApplication {
 		return "DomUI Application - " + body.getClass().getSimpleName();
 	}
 
-	public static void register(IThemeFactory factory) {
-		THEME_FACTORIES.put(factory.getFactoryName(), factory);
-	}
-
-	@NonNull
-	public static IThemeFactory getFactoryFromThemeName(String name) {
-		int pos = name.indexOf('-');
-		if(pos == -1)
-			throw new IllegalArgumentException("Missing - in theme name '" + name + "'");
-		String fn = name.substring(0, pos);
-		IThemeFactory factory = THEME_FACTORIES.get(fn);
-		if(null == factory)
-			throw new IllegalArgumentException("Undefined theme factory '" + fn + "'");
-		return factory;
-	}
-
 	public void addPersistedParameter(String name) {
 		if(!name.startsWith("_") && !name.startsWith("$"))
 			throw new IllegalStateException("Persisted parameters must start with _ or $");
@@ -2841,6 +2850,20 @@ public abstract class DomApplication {
 		m_refuseDisobeyingPasswordManagers = refuseDisobeyingPasswordManagers;
 	}
 
+	/**
+	 * When T (the default) DomUI automatically focuses the first focusable component it finds
+	 * when a page (or a {@link to.etc.domui.component.layout.Window}) is rendered and no component
+	 * asked for the focus itself. Set to F to leave the focus alone unless a component explicitly
+	 * requests it using {@link to.etc.domui.dom.html.NodeBase#setFocus()}.
+	 */
+	public boolean isAutoFocus() {
+		return m_autoFocus;
+	}
+
+	public void setAutoFocus(boolean autoFocus) {
+		m_autoFocus = autoFocus;
+	}
+
 	public int getMaxUploadSize() {
 		return m_maxUploadSize;
 	}
@@ -2890,12 +2913,6 @@ public abstract class DomApplication {
 		DelayedActivitiesExecutor dx = new DelayedActivitiesExecutor();
 		dx.initialize(20);
 		return dx;
-	}
-
-	static {
-		register(SassThemeFactory.INSTANCE);
-		register(SimpleThemeFactory.INSTANCE);
-		register(FragmentedThemeFactory.getInstance());
 	}
 
 	public synchronized void iconPackInitialized() {

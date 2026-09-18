@@ -82,7 +82,7 @@ public class ColorPickerInput extends Input implements IControl<String> {
 		String v = getRawValue();
 		if(isMandatory() && (v == null || v.isEmpty())) {
 			v = "000000";
-		} else if(!isMandatory() && v.isEmpty()) {
+		} else if(v != null && v.isEmpty()) {
 			v = null;
 		}
 		return v;

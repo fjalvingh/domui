@@ -1,9 +1,11 @@
 /*** Popup menu ***/
+@use "theme" as *;
+
 .ui-pmnu {
 	display: none;
 	width: auto;
-	background-color: #444;
-	border: 1px dotted black;
+	background-color: ladder($pmnu-bg);
+	border: 1px dotted $pmnu-border;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
@@ -13,18 +15,18 @@
 	padding: 4px 0px;
 }
 .ui-pmnu-disabled {
-	color: #999;
+	color: $pmnu-disabled-color;
 }
 .ui-pmnu-enabled {
-	color: white;
+	color: $pmnu-color;
 	cursor: pointer;
 }
 
 .ui-pmnu-ttl {
 	padding: 4px;
 	font-style: italic;
-	background-color: #222;
-	color: #eeffee;
+	background-color: $pmnu-border;
+	color: $pmnu-title-color;
 }
 .ui-pmnu-action {
 	padding: 4px 4px 4px 20px;
@@ -35,10 +37,10 @@
 }
 
 .ui-pmnu-action:hover {
-	background-color: #ff9436;
+	background-color: $pmnu-hover-bg;
 }
 .ui-pmnu-subsel {
-	background-color: #ff9436;
+	background-color: $pmnu-hover-bg;
 }
 
 /*** Submenu's ***/
@@ -48,13 +50,18 @@
 	padding-bottom: 100%;
 	margin-bottom: -100%;
 }
+
+/*
+ * One rung per nesting level. The ramp gives these even steps and keeps them distinct,
+ * which hand-picked greys did not: the two middle levels used to be #666 and #888, close
+ * enough that rounding each to its own nearest ramp step collapsed them into one colour.
+ */
 .ui-pmnu-sm1 {
-	background-color: #666;
+	background-color: ladder($pmnu-bg, 1);
 }
 .ui-pmnu-sm2 {
-	background-color: #888;
+	background-color: ladder($pmnu-bg, 2);
 }
 .ui-pmnu-sm3 {
-	background-color: #aaa;
+	background-color: ladder($pmnu-bg, 3);
 }
-

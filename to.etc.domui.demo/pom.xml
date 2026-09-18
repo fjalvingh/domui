@@ -64,6 +64,12 @@
 
 		<dependency>
 			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.domui.maxgraph</artifactId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>to.etc.domui</groupId>
 			<artifactId>fontawesome6free</artifactId>
 			<version>1.2-SNAPSHOT</version>
 		</dependency>

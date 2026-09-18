@@ -58,17 +58,23 @@ import java.util.Set;
 public class ClasspathInventory {
 	static final Logger LOG = LoggerFactory.getLogger(ClasspathInventory.class);
 
-	/** If needed: a singleton maintaining the inventory data. */
+	/**
+	 * If needed: a singleton maintaining the inventory data.
+	 */
 	@Nullable
 	static private ClasspathInventory m_instance;
 
-	/** The set of directories and .jar files. */
+	/**
+	 * The set of directories and .jar files.
+	 */
 	private final Set<File> m_fileSet;
 
 	@Nullable
 	private List<IFileContainer> m_classPathContainers;
 
-	/** Maps resource and class names to the container they were found in first */
+	/**
+	 * Maps resource and class names to the container they were found in first
+	 */
 	private final Map<String, IFileContainer> m_fileContainerMap = new HashMap<>();
 
 	static private final IModifyableResource NOT_FOUND = new IModifyableResource() {
@@ -80,7 +86,6 @@ public class ClasspathInventory {
 
 	/**
 	 * Create an inventory on the specified set of paths, either directories or .jar files.
-	 * @param files
 	 */
 	ClasspathInventory(Set<File> files) {
 		m_fileSet = files;
@@ -88,7 +93,6 @@ public class ClasspathInventory {
 
 	/**
 	 * Checks to see what kind of classloader this is, and add all paths to my list.
-	 * @param loader
 	 */
 	static private void findUrlsFor(Set<File> result, ClassLoader loader) {
 		if(loader == null)
@@ -104,29 +108,29 @@ public class ClasspathInventory {
 
 	/**
 	 * If this URL is recognised add it to the fileset.
-	 * @param result
-	 * @param u
 	 */
 	static private void addUrl(Set<File> result, URL u) {
 		if("file".equalsIgnoreCase(u.getProtocol())) {
 			try {
 				File f = new File(u.toURI());
 				result.add(f);
-			} catch(URISyntaxException x) {}
+			} catch(URISyntaxException x) {
+			}
 		}
 	}
 
 	/**
 	 * Locate the source for some file that is part of the classpath (either a class resource or a .class file itself),
 	 * and return a timestamp for that thing if found. If the resource is not found this returns null.
-	 * @param resourcePath			Absolute resource pathname, preferably without leading /
+	 *
+	 * @param resourcePath Absolute resource pathname, preferably without leading /
 	 */
 	@Nullable
 	public synchronized IModifyableResource findResourceSource(String resourcePath) {
 		long t = System.nanoTime();
 		IModifyableResource ref = null;
 		try {
-			if(resourcePath.startsWith("/"))							// Resources should start with /, but do not use that in the scan.
+			if(resourcePath.startsWith("/"))                            // Resources should start with /, but do not use that in the scan.
 				resourcePath = resourcePath.substring(1);
 			IFileContainer container = m_fileContainerMap.get(resourcePath);
 			if(null != container) {
@@ -141,7 +145,7 @@ public class ClasspathInventory {
 				ref = current.findFile(resourcePath);
 				if(ref != null) {
 					//-- Gotcha.
-					m_fileContainerMap.put(resourcePath, current);		// Found here
+					m_fileContainerMap.put(resourcePath, current);        // Found here
 					return ref;
 				}
 			}
@@ -161,7 +165,7 @@ public class ClasspathInventory {
 	 * Tries to find the .class file for the specified class.
 	 */
 	@Nullable
-	public synchronized IModifyableResource findClassSource(Class< ? > clz) {
+	public synchronized IModifyableResource findClassSource(Class<?> clz) {
 		return findResourceSource(clz.getName().replace('.', '/') + ".class");
 	}
 
@@ -195,9 +199,6 @@ public class ClasspathInventory {
 	/**
 	 * Create an inventory on the specified URLs. Only file: urls are actually used, the
 	 * rest is ignored.
-	 *
-	 * @param urls
-	 * @return
 	 */
 	static public ClasspathInventory create(URL[] urls) {
 		Set<File> fileSet = new HashSet<File>();
@@ -209,8 +210,6 @@ public class ClasspathInventory {
 
 	/**
 	 * Create an inventory for the specified classloader.
-	 * @param cl
-	 * @return
 	 */
 	static public ClasspathInventory create(ClassLoader cl) {
 		Set<File> fileSet = new HashSet<File>();
@@ -220,7 +219,6 @@ public class ClasspathInventory {
 
 	/**
 	 * Create and/or return an instance that uses it's own classloader to initialize all classpath entries.
-	 * @return
 	 */
 	static synchronized public ClasspathInventory getInstance() {
 		ClasspathInventory instance = m_instance;
@@ -237,7 +235,7 @@ public class ClasspathInventory {
 	public List<String> getPackageInventory(@NonNull String pkgdirname) {
 		pkgdirname = pkgdirname.replace('.', '/') + "/";
 
-		List<String>	res = new ArrayList<String>();
+		List<String> res = new ArrayList<String>();
 		for(IFileContainer con : getClassPathContainers()) {
 			List<String> inventory = con.getInventory();
 			for(String s : inventory) {

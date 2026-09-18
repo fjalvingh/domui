@@ -1,14 +1,11 @@
-@import "../variables";
-
-$control-radius: $radius !default;
-$control-radius-small: $radius-small !default;
-
-$control-padding-vertical: calc(0.375em - 1px) !default;
-$control-padding-horizontal: calc(0.625em - 1px) !default;
+// The common mixins. They are part of the theme module (index forwards this file), which
+// is why this reads the variables through color, the variant's configuration of them, and
+// not through "theme": a module may not load the module that forwards it.
+@use "../color" as *;
 
 @mixin ui-beveled-border {
-	border: 1px solid $bevel_down;
-	border-top-color: $bevel_up;
+	border: 1px solid $bevel-down;
+	border-top-color: $bevel-up;
 }
 
 @mixin ui-appearance-none {
@@ -19,7 +16,7 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 @mixin loader {
 	animation: spinAround 500ms infinite linear;
 	//border: 2px solid $border;
-	border: 2px solid #666;
+	border: 2px solid $text-muted;
 	border-radius: 290486px;
 	border-right-color: transparent;
 	border-top-color: transparent;
@@ -32,8 +29,8 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 
 @mixin ui-focus-border {
 	&:focus {
-		border-color: #3273dc;
-		box-shadow: 0 0 0 0.125em rgba(50, 115, 220, 0.25);
+		border-color: $link;
+		box-shadow: 0 0 0 0.125em $input-focus-box-shadow-color;
 		z-index: 2;
 	}
 }
@@ -99,11 +96,11 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 		border-color: $input-hover-border-color;
 		cursor: default;
 	}
-	background: #f2f9fe; /* Old browsers */
-	background: -moz-linear-gradient(top, #f2f9fe 0%, #d6f0fd 100%); /* FF3.6-15 */
-	background: -webkit-linear-gradient(top, #f2f9fe 0%,#d6f0fd 100%); /* Chrome10-25,Safari5.1-6 */
-	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-	box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
+	background: $input-ro-bg-top; /* Old browsers */
+	background: -moz-linear-gradient(top, $input-ro-bg-top 0%, $input-ro-bg-bottom 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, $input-ro-bg-top 0%, $input-ro-bg-bottom 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, $input-ro-bg-top 0%, $input-ro-bg-bottom 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	box-shadow: inset 0 1px 2px rgba($shadow-color, 0.1);
 }
 
 @mixin ui-input-base {
@@ -120,11 +117,13 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 
 	line-height: $input-line-height;
 	height: 2.25em;
+	background-color: $input-bg;			// the browser default is white: say so, so a variant can change it
+	color: $input-color;
 	border: 1px solid $border; // $input-border-color;
 	border-radius: 3px;
 	font-size: 1rem;
 	font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
-	box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
+	box-shadow: inset 0 1px 2px rgba($shadow-color, 0.1);
 }
 
 @mixin ui-label-base {
@@ -138,7 +137,7 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	vertical-align: top;
 }
 
-/** Common mixins **/
+// Common mixins
 @mixin border-radius($radius) {
 	-khtml-border-radius: $radius;
 	-webkit-border-radius: $radius;

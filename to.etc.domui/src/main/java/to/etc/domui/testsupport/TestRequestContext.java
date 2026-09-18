@@ -38,7 +38,6 @@ import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeVariant;
-import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencies;
@@ -180,8 +179,8 @@ public class TestRequestContext implements IRequestContext {
 
 	@NonNull @Override public ITheme getCurrentTheme() {
 		return new ITheme() {
-			@NonNull @Override public String getThemeName() {
-				return "aa/bb";
+			@NonNull @Override public String getVariantName() {
+				return DefaultThemeVariant.INSTANCE.getVariantName();
 			}
 
 			@NonNull @Override public ResourceDependencies getDependencies() {
@@ -192,13 +191,6 @@ public class TestRequestContext implements IRequestContext {
 				throw new IllegalStateException("Not implemented");
 			}
 
-			@NonNull @Override public IScriptScope getPropertyScope() {
-				throw new IllegalStateException("Not implemented");
-			}
-
-			@NonNull @Override public String translateResourceName(@NonNull String name) {
-				return name;
-			}
 
 			@NonNull @Override public String getStyleSheetName() throws Exception {
 				return "style.css";
@@ -214,15 +206,6 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override public void setPersistedParameter(@NonNull String name, @NonNull String value) {
-
-	}
-
-	@Nullable
-	public String getThemeName() {
-		return getCurrentTheme().getThemeName();
-	}
-
-	@Override public void setThemeName(String userThemeName) {
 
 	}
 

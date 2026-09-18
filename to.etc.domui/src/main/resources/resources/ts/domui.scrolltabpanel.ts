@@ -7,30 +7,32 @@ namespace WebUI {
 	let _ignoreScrollClick = 0;
 
 	export function scrollLeft(bLeft) : void {
-		if(this._ignoreScrollClick != 0 || $(bLeft).hasClass('ui-stab-dis'))
+		//-- _ignoreScrollClick is a variable of this namespace, not a property of anything:
+		//-- reading it through "this" gives undefined, which is not 0, so this used to
+		//-- refuse every click.
+		if(_ignoreScrollClick != 0 || $(bLeft).hasClass('ui-stab-dis'))
 			return;
 
 		let scrlNavig = $(bLeft.parentNode);
 		let offset = -1 * parseInt($('ul',scrlNavig).css('marginLeft'));
 		let diff = $(scrlNavig).width() - 2 * $('.ui-stab-scrl-left',scrlNavig).width();
-		let me = this;
 		let disa = false;
 		if ( diff >= offset ){
 			disa = true;
 			diff = offset;
 		}
-		this._ignoreScrollClick++;
+		_ignoreScrollClick++;
 		$('ul',scrlNavig).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
 			$('.ui-stab-scrl-right', scrlNavig).removeClass('ui-stab-dis');
 			if(disa){
 				$(bLeft).addClass('ui-stab-dis');
 			}
-			me._ignoreScrollClick--;
+			_ignoreScrollClick--;
 		});
 	}
 
 	export function scrollRight(bRight) : void {
-		if(this._ignoreScrollClick != 0 || $(bRight).hasClass('ui-stab-dis'))
+		if(_ignoreScrollClick != 0 || $(bRight).hasClass('ui-stab-dis'))
 			return;
 
 		let scrlNavig = $(bRight.parentNode);
@@ -47,14 +49,13 @@ namespace WebUI {
 			diff = maxLeftOffset - offset;
 			disa = true;
 		}
-		this._ignoreScrollClick++;
-		let me = this;
+		_ignoreScrollClick++;
 		$('ul', scrlNavig ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
 			$('.ui-stab-scrl-left', scrlNavig).removeClass('ui-stab-dis');
 			if (disa){
 				$(bRight).addClass('ui-stab-dis');
 			}
-			me._ignoreScrollClick--;
+			_ignoreScrollClick--;
 		});
 	}
 

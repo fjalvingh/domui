@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.dom.html.BR;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.function.IExecute;
 import to.etc.webapp.qsql.JdbcUtil;
 
 import java.util.Date;
@@ -18,10 +18,10 @@ public class TestLoggerPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		add(new DefaultButton("Click to log line", new IClicked<DefaultButton>() {
+		add(new DefaultButton("Click to log line", new IExecute() {
 
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				LOG.debug("debug log");
 				LOG.trace("trace log");
 				LOG.info("info log");
@@ -31,28 +31,28 @@ public class TestLoggerPage extends UrlPage {
 				add(new BR());
 			}
 		}));
-		add(new DefaultButton("Click to set MDC page=AAA", new IClicked<DefaultButton>() {
+		add(new DefaultButton("Click to set MDC page=AAA", new IExecute() {
 
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				MDC.put("page", "AAA");
 				add("Added MDC AAA");
 				add(new BR());
 			}
 		}));
-		add(new DefaultButton("Click to set MDC page=BBB", new IClicked<DefaultButton>() {
+		add(new DefaultButton("Click to set MDC page=BBB", new IExecute() {
 
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				MDC.put("page", "BBB");
 				add("Added MDC BBB");
 				add(new BR());
 			}
 		}));
-		add(new DefaultButton("Click to log formatted INFO mesages", new IClicked<DefaultButton>() {
+		add(new DefaultButton("Click to log formatted INFO mesages", new IExecute() {
 
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				LOG.info("Info Log that uses format 1 part message, values: {}", "[value1]");
 				LOG.info("Info Log that uses format 2 parts message, values: {} {}", "[value1]", "[value2]");
 				LOG.info("Info Log that uses format 3 parts message, values: {} {} {}", new String[]{"[value1]", "[value2]", "[value3]"});
@@ -60,10 +60,10 @@ public class TestLoggerPage extends UrlPage {
 				add(new BR());
 			}
 		}));
-		add(new DefaultButton("Click to log simple exception", new IClicked<DefaultButton>() {
+		add(new DefaultButton("Click to log simple exception", new IExecute() {
 
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				LOG.error("Example of simple exception logging.", new Exception("This is some exception logged."));
 				try {
 					Integer.parseInt("THIS IS NOT A INTEGER!");
@@ -74,10 +74,10 @@ public class TestLoggerPage extends UrlPage {
 				add(new BR());
 			}
 		}));
-		add(new DefaultButton("Click to log nested exception", new IClicked<DefaultButton>() {
+		add(new DefaultButton("Click to log nested exception", new IExecute() {
 
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				try {
 					Integer.parseInt("THIS IS NOT A INTEGER!");
 				} catch(Exception ex) {
@@ -88,10 +88,10 @@ public class TestLoggerPage extends UrlPage {
 				add(new BR());
 			}
 		}));
-		add(new DefaultButton("Click to log SQL exception", new IClicked<DefaultButton>() {
+		add(new DefaultButton("Click to log SQL exception", new IExecute() {
 
 			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
+			public void execute() throws Exception {
 				try {
 					JdbcUtil.oracleSpCall(getSharedContext().getConnection(), Integer.class, "TestStoredProcedure", new Date(), Integer.valueOf(5), "param3");
 				} catch(Exception ex) {

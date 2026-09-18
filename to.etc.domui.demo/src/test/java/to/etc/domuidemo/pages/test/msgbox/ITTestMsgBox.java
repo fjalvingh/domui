@@ -6,37 +6,12 @@ import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 
 /**
- * This tests several things around MsgBox and MsgBox2.
+ * This tests several things around MsgBox2.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 07-03-23.
  */
 public class ITTestMsgBox extends AbstractWebDriverTest {
-	/*----------------------------------------------------------------------*/
-	/*	CODING:	MsgBox tests	*/
-	/*----------------------------------------------------------------------*/
-	/**
-	 * No scroll bar on a simple auto-resize input with a text control.
-	 */
-	@Test
-	public void noScrollBarOnSimpleInput() throws Exception {
-		wd().openScreen(TestMsgBox1.class);
-		Assert.assertFalse("There should not be a scrollbar", wd().isScrollbarPresent(By.className("ui-mbx-top")));
-	}
-
-	/**
-	 * No scroll bar on a simple auto-resizing error dialog with a large text.
-	 */
-	@Test
-	public void noScrollBarOnLargeText() throws Exception {
-		wd().openScreen(TestMsgBox2.class);
-		Assert.assertFalse("There should not be a scrollbar", wd().isScrollbarPresent(By.className("ui-mbx-top")));
-	}
-
-	/*----------------------------------------------------------------------*/
-	/*	CODING:	MsgBox2 tests	*/
-	/*----------------------------------------------------------------------*/
-
 	/**
 	 * No scroll bar on a simple auto-resize input with a text control.
 	 */

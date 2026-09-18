@@ -74,10 +74,10 @@ abstract public class AbstractLayoutTest extends AbstractSinglePageWebDriverTest
 		si();											// Make sure screen is open
 		WebDriverConnector wd = wd();
 		WebElement comp = wd.getElement(wd.byId(testID, componentInputCSS));
-		WebElement row = getParentTR(comp, "ui-f4-row");
+		WebElement row = getParentPair(comp);
 		if(null == row) {
-			Assert.assertNotNull("The form's parent row cannot be located for testid " + testID);
-			return;
+			Assert.fail("The form's label/control pair cannot be located for testid " + testID);
+			throw new IllegalStateException();								// Satisfy nullchecking
 		}
 
 		WebElement label = row.findElement(By.tagName("label"));
@@ -142,9 +142,9 @@ abstract public class AbstractLayoutTest extends AbstractSinglePageWebDriverTest
 	}
 
 	static public WebElement findFormLabelFor(WebElement one) {
-		WebElement row = AbstractLayoutTest.getParentTR(one, "ui-f4-row");
+		WebElement row = AbstractLayoutTest.getParentPair(one);
 		if(null == row) {
-			Assert.assertNotNull("The form's parent row cannot be located for testid one");
+			Assert.fail("The form's label/control pair cannot be located for the element");
 			throw new IllegalStateException();
 		}
 		WebElement label = row.findElement(By.tagName("label"));
@@ -152,28 +152,28 @@ abstract public class AbstractLayoutTest extends AbstractSinglePageWebDriverTest
 	}
 
 	/**
-	 * Find the TR on the vertical form that contains the element specified by testid.
+	 * Find the form row containing the element passed: the div with class ui-f5-pair
+	 * that the {@link to.etc.domui.component2.form4.ResponsiveFormLayouter} makes, or
+	 * the tr with class ui-f4-row from the {@link to.etc.domui.component2.form4.TableFormLayouter}.
+	 * Returns null if the element is not inside a form.
 	 */
 	@Nullable
-	public static WebElement getParentTR(@NonNull WebElement comp, @NonNull String needClass) {
+	public static WebElement getParentPair(@NonNull WebElement comp) {
 		WebElement current = comp;
 		for(;;) {
-			if(current == null) {
+			if(current.getTagName().equalsIgnoreCase("body")) {
 				return null;
 			}
 			current = current.findElement(By.xpath(".."));			// Get parent
 			if(null == current) {
 				return null;
 			}
-			if(current.getTagName().equalsIgnoreCase("tr")) {
-				String clz = current.getAttribute("class");
-				if(null != clz) {
-					for(String s : clz.split("\\s+")) {
-						if(s.equals(needClass)) {
-							return current;
-						}
+			String clz = current.getAttribute("class");
+			if(null != clz) {
+				for(String s : clz.split("\\s+")) {
+					if(s.equals("ui-f5-pair") || s.equals("ui-f4-row")) {
+						return current;
 					}
-
 				}
 			}
 		}

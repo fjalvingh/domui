@@ -62,16 +62,14 @@ public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements IIte
 			sp.setCssClass("ui-wa-nm");
 			sp.setText(si.getName());
 		}
-		if(true) {
-			Span sp = new Span();
-			root.add(sp);
-			sp.setCssClass("ui-wa-tm");
-			m_sb.setLength(0);
-			m_sb.append(age.getDateFormat().format(si.getStart()));
-			long duration = si.getEnd().getTime() - si.getStart().getTime();
-			age.appendDuration(m_sb, duration);
-			sp.setText(m_sb.toString());
-		}
+		Span time = new Span();
+		root.add(time);
+		time.setCssClass("ui-wa-tm");
+		m_sb.setLength(0);
+		m_sb.append(age.getDateFormat().format(si.getStart()));
+		long duration = si.getEnd().getTime() - si.getStart().getTime();
+		age.appendDuration(m_sb, duration);
+		time.setText(m_sb.toString());
 		if(si.getDetails() != null) {
 			if(si.getName() != null) { // If we have a name too go to the next line
 				root.add(new BR());

@@ -35,11 +35,10 @@ import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.DateConverter;
 import to.etc.domui.converter.DateTimeConverter;
 import to.etc.domui.dom.css.DisplayType;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.util.DateUtil;
 
 import java.util.Date;
@@ -108,9 +107,9 @@ public class DateInput extends Text<Date> {
 		appendAfterMe(m_selCalButton);
 		if(!m_hideTodayButton) {
 			if(m_todayButton == null) {
-				m_todayButton = new HoverButton("THEME/btnToday.png", new IClicked<HoverButton>() {
+				m_todayButton = new HoverButton("THEME/btnToday.png", new IExecute() {
 					@Override
-					public void clicked(@NonNull HoverButton b) throws Exception {
+					public void execute() throws Exception {
 						Date currentDate = new Date();
 						if(!m_withTime) {
 							currentDate = DateUtil.truncateDate(currentDate);
@@ -120,8 +119,9 @@ public class DateInput extends Text<Date> {
 						//modified flag must be set externaly
 						DomUtil.setModifiedFlag(DateInput.this);
 						DateInput.this.setValue(currentDate);
-						if(getOnValueChanged() != null) {
-							((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(DateInput.this);
+						IExecute ovc = getOnValueChanged();
+						if(ovc != null) {
+							ovc.execute();
 						}
 					}
 				});

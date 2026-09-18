@@ -28,31 +28,29 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
 
 /**
- * Factory which will create a theme instance from it's source files.
+ * The application's theme. Exactly one of these is in use; it is set at initialization
+ * time with {@link DomApplication#setThemeFactory(IThemeFactory)} and cannot change
+ * afterwards.
+ *
+ * <p>The single thing that can differ per user session is the {@link IThemeVariant}, so
+ * a factory creates one {@link ITheme} per variant.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 11, 2011
  */
 public interface IThemeFactory {
-	@NonNull String getFactoryName();
-
 	/**
-	 * Create the theme data for the theme passed. The result is cached by the application, so
+	 * Create the theme for the variant passed. The result is cached by the application, so
 	 * the factory should not do caching itself.
 	 */
 	@NonNull
-	ITheme getTheme(@NonNull DomApplication da, @NonNull String themeName) throws Exception;
+	ITheme getTheme(@NonNull DomApplication da, @NonNull IThemeVariant variant) throws Exception;
 
 	/**
-	 * Returns this factory's default theme name, INCLUDING the factory name!
+	 * The variant used for sessions that did not select one of their own.
 	 */
 	@NonNull
-	String getDefaultThemeName();
-
-	/**
-	 * Do whatever's necessary to add the variant indicator to the theme name.
-	 */
-	default String appendThemeVariant(String themeName, IThemeVariant variant) {
-		return themeName + "-" + variant.getVariantName();
+	default IThemeVariant getDefaultVariant() {
+		return DefaultThemeVariant.INSTANCE;
 	}
 }

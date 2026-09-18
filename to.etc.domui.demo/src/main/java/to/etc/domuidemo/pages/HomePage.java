@@ -4,13 +4,14 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.Para;
 import to.etc.domui.dom.html.Span;
+import to.etc.domui.fontawesome.FaIcon;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.vcs.GitOptions;
 import to.etc.domuidemo.ComponentListPage;
 import to.etc.domuidemo.TutorialListPage;
-import to.etc.domuidemo.components.SourceIcon;
 import to.etc.domuidemo.pages.cddb.AlbumListPage;
 import to.etc.domuidemo.pages.cddb.CdCollection;
+import to.etc.domuidemo.pages.cddb.CdShopMenuPage;
 import to.etc.domuidemo.pages.test.JUnitTestMenuPage;
 
 public class HomePage extends MenuPage {
@@ -39,11 +40,12 @@ public class HomePage extends MenuPage {
 		Para para = new Para();
 		DomUtil.renderHtmlString(para, text);
 		d.add(para);
-		d.add("At any time, you can press the following icon ");
-		d.add(new SourceIcon());
+		d.add("At any time, you can press the following icon in the top of the screen: ");
+		d.add(FaIcon.faCode.createNode());
 		d.add(" to get a window showing the Java source code for the screen in question. In this window you can click the underlined class names to go to their sources too.");
 
 		addCaption("Demo apps");
+		addLink(CdShopMenuPage.class, "The CD shop: a small application on the demo database");
 		addLink(AlbumListPage.class, "Find albums");
 		addLink(CdCollection.class, "Tracks for sale");
 

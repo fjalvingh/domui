@@ -10,10 +10,9 @@ import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 
 import java.io.IOException;
@@ -109,10 +108,10 @@ public class LogTailerFragment extends PollingDiv {
 		Div btn = new Div();
 		ttl.add(btn);
 		btn.setCssClass("ui-tlf-btn");
-		SmallImgButton ib = new SmallImgButton(Icon.faAngleDoubleLeft, (IClicked<SmallImgButton>) clickednode -> gotoLine(0));
+		SmallImgButton ib = new SmallImgButton(Icon.faAngleDoubleLeft, ()-> gotoLine(0));
 		btn.add(ib);
 
-		ib = new SmallImgButton(Icon.faAngleLeft, (IClicked<SmallImgButton>) clickednode -> {
+		ib = new SmallImgButton(Icon.faAngleLeft, ()-> {
 			int lnr = m_startLine - getLinesPerPage();
 			if(lnr < 0)
 				lnr = 0;
@@ -120,7 +119,7 @@ public class LogTailerFragment extends PollingDiv {
 		});
 		btn.add(ib);
 
-		ib = new SmallImgButton(Icon.faAngleRight, (IClicked<SmallImgButton>) clickednode -> {
+		ib = new SmallImgButton(Icon.faAngleRight, ()-> {
 			int last = m_task.getLastLine();
 			int lnr = m_startLine + getLinesPerPage();
 			if(lnr > last)
@@ -129,7 +128,7 @@ public class LogTailerFragment extends PollingDiv {
 		});
 		btn.add(ib);
 
-		ib = new SmallImgButton(Icon.faAngleDoubleRight, (IClicked<SmallImgButton>) clickednode -> gotoLine(m_task.getLastLine() - getLinesPerPage()));
+		ib = new SmallImgButton(Icon.faAngleDoubleRight, ()-> gotoLine(m_task.getLastLine() - getLinesPerPage()));
 		btn.add(ib);
 
 		btn.add(" Goto ");
@@ -137,8 +136,8 @@ public class LogTailerFragment extends PollingDiv {
 		btn.add(m_goto);
 		m_goto.setMaxLength(10);
 		m_goto.setSize(6);
-		m_goto.setOnValueChanged((IValueChanged<Text<Integer>>) component -> {
-			Integer value = component.getValue();
+		m_goto.setOnValueChanged(() -> {
+			Integer value = m_goto.getValue();
 			if(value != null)
 				gotoLine(value.intValue());
 		});
@@ -149,8 +148,8 @@ public class LogTailerFragment extends PollingDiv {
 		btn.add(" ");
 		btn.add(m_followBox);
 		btn.add("Follow ");
-		m_followBox.setOnValueChanged((IValueChanged<Checkbox>) component -> {
-			if(component.isChecked())
+		m_followBox.setOnValueChanged(() -> {
+			if(m_followBox.isChecked())
 				updateLinesPerPage();
 		});
 
@@ -161,7 +160,7 @@ public class LogTailerFragment extends PollingDiv {
 		m_linesCombo = new ComboFixed<>(szl);
 		m_linesCombo.setValue(Integer.valueOf(32));
 		m_linesCombo.setMandatory(true);
-		m_linesCombo.setOnValueChanged((IValueChanged<ComboFixed<Integer>>) component -> updateLinesPerPage());
+		m_linesCombo.setOnValueChanged(()-> updateLinesPerPage());
 		btn.add(m_linesCombo);
 		btn.add(" lines/page");
 

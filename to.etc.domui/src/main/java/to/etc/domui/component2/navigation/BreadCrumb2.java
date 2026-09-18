@@ -201,7 +201,7 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 			li.addCssClass("ui-brcr2-a");
 		ATag a = new ATag();
 		li.add(a);
-		a.setClicked(v -> {
+		a.setClicked(()-> {
 			item.clicked(item);
 		});
 		NodeBase icon = item.getIcon();
@@ -225,7 +225,7 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 		if(old instanceof IObservableList) {
 			((ObservableList<IItem>) old).removeChangeListener(this);
 		}
-		if(old != m_value) {                    // Do not use structural equals because it will be expensive
+		if(old != value) {                        // Do not use structural equals because it will be expensive
 			forceRebuild();
 		}
 		m_value = value;

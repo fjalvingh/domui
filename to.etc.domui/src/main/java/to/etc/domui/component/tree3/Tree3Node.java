@@ -3,12 +3,12 @@ package to.etc.domui.component.tree3;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Li;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.Ul;
+import to.etc.function.IExecute;
 
 import java.util.Objects;
 
@@ -86,7 +86,7 @@ final public class Tree3Node<V> extends Li {
 		m_foldingIcon.setCssClass(m_expanded ? "ui-tree3-fbtn ui-tree3-opened" : "ui-tree3-fbtn ui-tree3-closed");
 	}
 
-	void setFoldingClicked(@Nullable IClicked<? extends NodeBase> clicked) {
+	void setFoldingClicked(@Nullable IExecute clicked) {
 		m_foldingIcon.setClicked(clicked);
 	}
 

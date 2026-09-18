@@ -29,7 +29,6 @@ import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.layout.CaptionedPanel;
 import to.etc.domui.component.misc.ALink;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.MsgDiv;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
@@ -39,6 +38,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.MoveMode;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 
 public class ExpiredSessionPage extends UrlPage {
 	public static final String PARAM_CLOSE = "close";
@@ -78,10 +78,10 @@ public class ExpiredSessionPage extends UrlPage {
 			co.add(d);
 			String closeTxt = Msgs.BUNDLE.getString(Msgs.BTN_CLOSE);
 			closeTxt = closeTxt.replace("!", ""); //no need for hot key on link
-			LinkButton closeBtn = new LinkButton(closeTxt, new IClicked<LinkButton>() {
+			LinkButton closeBtn = new LinkButton(closeTxt, new IExecute() {
 
 				@Override
-				public void clicked(@NonNull LinkButton clickednode) throws Exception {
+				public void execute() throws Exception {
 					closeWindow();
 				}
 			});

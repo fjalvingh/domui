@@ -27,6 +27,7 @@ final public class HighlighterFactory {
 	}
 
 	static {
+		register("java", JavaHighlighter::new);
 		register("sql", SqlHighlighter::new);
 	}
 }

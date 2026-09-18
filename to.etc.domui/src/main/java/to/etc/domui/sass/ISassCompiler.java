@@ -14,4 +14,10 @@ public interface ISassCompiler {
 	void compiler(String rurl, Writer output, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception;
 
 	boolean available();
+
+	/**
+	 * Release whatever resources this compiler holds; called when the application terminates.
+	 */
+	default void close() {
+	}
 }

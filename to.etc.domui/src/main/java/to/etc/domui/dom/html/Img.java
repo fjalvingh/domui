@@ -27,6 +27,7 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.util.Objects;
 
@@ -193,7 +194,7 @@ public class Img extends NodeBase implements IActionControl {
 	}
 
 	@Override
-	public void setClicked(@Nullable IClicked<?> clicked) {
+	public void setClicked(@Nullable IExecute clicked) {
 		super.setClicked(clicked);
 		if(null != clicked) {
 			addCssClass("ui-clickable");
@@ -203,7 +204,7 @@ public class Img extends NodeBase implements IActionControl {
 	}
 
 	@Override
-	public void setClicked2(IClicked2<?> clicked) {
+	public void setClicked2(IClickedInfo clicked) {
 		super.setClicked2(clicked);
 		if(null != clicked) {
 			addCssClass("ui-clickable");
@@ -218,13 +219,18 @@ public class Img extends NodeBase implements IActionControl {
 	}
 
 	/**
-	 * When disabled the image renders by greying out the image.
+	 * A disabled image is greyed out by the theme, and does not call its click handler.
 	 */
 	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;
 		m_disabled = disabled;
+		if(disabled) {
+			addCssClass("ui-disabled");
+		} else {
+			removeCssClass("ui-disabled");
+		}
 		changed();
 	}
 

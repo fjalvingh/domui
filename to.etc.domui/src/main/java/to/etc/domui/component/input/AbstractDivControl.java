@@ -28,7 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
+import to.etc.function.IExecute;
 
 import java.util.Objects;
 
@@ -48,7 +48,7 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 
 	private boolean m_mandatory;
 
-	private IValueChanged< ? > m_valueChanged;
+	private IExecute m_valueChanged;
 
 	private T m_value;
 
@@ -192,12 +192,12 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_valueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_valueChanged = onValueChanged;
 	}
 

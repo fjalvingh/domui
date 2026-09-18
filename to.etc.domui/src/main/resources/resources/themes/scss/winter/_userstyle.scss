@@ -1,1 +1,12 @@
-// This file is meant to be updated by users after copying it into the local webapp.
+// The application's own rules. This file is meant to be replaced by a copy in the
+// application's webapp (themes/scss/winter/_userstyle.scss); DomUI's own stays empty.
+//
+// It is loaded after the theme is configured and before any component is styled, so a
+// theme variable read here has its final value. Reach them with
+//
+//	@use "theme" as *;
+//
+//	.myapp-toolbar {
+//		background: $surface-bg;
+//		padding: $vertical-padding $horizontal-padding;
+//	}

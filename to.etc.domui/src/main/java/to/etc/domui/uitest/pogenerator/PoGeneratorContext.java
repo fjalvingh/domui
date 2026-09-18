@@ -72,7 +72,6 @@ public class PoGeneratorContext {
 		PoClass empty = m_emptyClass = new PoClass(pkg, name, clz.asType(), Collections.emptyList());
 		m_classList.add(empty);
 		empty.addImport(WDCONNECTOR);
-		empty.addImport(URLPAGE);
 
 		cons = empty.addConstructor();
 		cons.addParameter(WDCONNECTOR, "connector");

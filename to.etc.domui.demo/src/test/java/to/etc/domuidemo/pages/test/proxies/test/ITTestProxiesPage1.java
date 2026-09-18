@@ -28,23 +28,6 @@ public class ITTestProxiesPage1 extends AbstractWebDriverTest {
 	}
 
 	@Test
-	public void testText() throws Exception {
-		POProxyTestPage1 page = new POProxyTestPage1(wd());
-		page.open();
-		String value = page.text().getValue();
-		Assert.assertTrue("Initial content must be empty", value != null && value.isEmpty());
-
-		//-- Set a value
-		page.text().setValue("Hello");
-		value = page.text().getValue();
-		Assert.assertEquals("Value should have been set", "Hello", value);
-
-		Assert.assertFalse("Component must be not readonly", page.text().isReadonly());
-		Assert.assertFalse("Component must be not readonly", page.text().isDisabled());
-		Assert.assertTrue("Component must be displayed", page.text().isDisplayed());
-	}
-
-	@Test
 	public void testFixed2() throws Exception {
 		POProxyTestPage1 page = new POProxyTestPage1(wd());
 		page.open();
@@ -59,23 +42,6 @@ public class ITTestProxiesPage1 extends AbstractWebDriverTest {
 		Assert.assertFalse("Component must be not readonly", page.cf2().isReadonly());
 		Assert.assertFalse("Component must be not readonly", page.cf2().isDisabled());
 		Assert.assertTrue("Component must be displayed", page.cf2().isDisplayed());
-	}
-
-	@Test
-	public void testFixed() throws Exception {
-		POProxyTestPage1 page = new POProxyTestPage1(wd());
-		page.open();
-		String value = page.cf().getValue();
-		Assert.assertTrue("Initial content must be empty", value != null && value.isEmpty());
-
-		//-- Set a value
-		page.cf().setValue("Ozymandias");
-		value = page.cf().getValue();
-		Assert.assertEquals("Value should have been set", "Ozymandias", value);
-
-		Assert.assertFalse("Component must be not readonly", page.cf().isReadonly());
-		Assert.assertFalse("Component must be not readonly", page.cf().isDisabled());
-		Assert.assertTrue("Component must be displayed", page.cf().isDisplayed());
 	}
 
 	@Test

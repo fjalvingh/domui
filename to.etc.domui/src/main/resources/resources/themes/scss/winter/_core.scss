@@ -1,7 +1,11 @@
-@import 'variables';
+@use "theme" as *;
 
 //-- Everything uses border-box model
 html {
+	//-- The browser's own canvas, scrollbars and native controls follow this; without it a
+	//-- dark page keeps light scrollbars and a white canvas until this sheet is parsed.
+	color-scheme: $color-scheme;
+
 	font-family: $font-family;
 	font-size: $font-size;
 	box-sizing: border-box;
@@ -15,7 +19,8 @@ html {
 body, html {
 	height: 100%;
 	margin: 0;
-	background: $bg_color;
+	background: $body-bg;
+	color: $body-color;
 }
 
 body {
@@ -24,6 +29,19 @@ body {
 	padding: 0;
 	margin: 0;
 	height: 100%;
+}
+
+//-- A link that no component styles itself falls back to the browser's own blue and
+//-- purple, and those are unreadable on the dark variant's near-black ground. Give it the
+//-- theme's link colours instead. Wrapped in :where() so the rule carries no specificity
+//-- of its own: any component that colours its own anchors still wins, exactly as it did
+//-- when the colour came from the browser.
+:where(a) {
+	color: $link-color;
+
+	&:visited {
+		color: $link-visited-color;
+	}
 }
 
 button img {
@@ -86,18 +104,19 @@ input[type=checkbox] {
 //}
 
 //input:hover, textarea:hover, select:hover {
-//	border-color: $bevel_hover_up $bevel_hover_down $bevel_hover_down $bevel_hover_up;
+//	border-color: $bevel-hover-up $bevel-hover-down $bevel-hover-down $bevel-hover-up;
 //}
 
 select {
-	background-color: #FFFFFF;
+	background-color: $input-bg;
+	color: $input-color;
 	height: 18px;
 }
 
 /*** HTML entities ***/
 pre {
-	font-family: $fixed_font_family;
-	font-size: $fixed_font_size;
+	font-family: $fixed-font-family;
+	font-size: $fixed-font-size;
 }
 
 td {
@@ -141,7 +160,7 @@ h1, h2, h3, h4, h5 {
 h1 {
 	font-size: 150%;
 	font-weight: bold;
-	border-bottom: 1px solid #777;
+	border-bottom: 1px solid $line-strong;
 }
 
 h2 {
@@ -175,11 +194,11 @@ li {
 
 code {
 	white-space: pre;
-	font-family: $fixed_font_family;
+	font-family: $fixed-font-family;
 	font-size: 11px;
-	background-color: #ddd;
+	background-color: $grey-lighter;
 	display: block;
-	border: 1px dotted #000;
+	border: 1px dotted $line-strong;
 	padding: 4px;
 }
 
@@ -192,12 +211,13 @@ i, em {
 }
 
 .listtbl {
-	background: white;
+	background: $surface-bg;
+	color: $surface-color;
 }
 
 .listtbl TD {
 	padding: 1px 2px;
-	border-left: 1px solid #aaaaaa;
+	border-left: 1px solid $line-color;
 	vertical-align: top;
 	//line-height: 130%; 20240417 Causes lines to overlap
 }
@@ -205,7 +225,7 @@ i, em {
 .listtbl THEAD TH {
 	font-weight: bold;
 	padding: 3px;
-	border-left: 1px solid #7c7c7c;
+	border-left: 1px solid $line-strong;
 	text-align: left;
 	white-space: nowrap;
 }

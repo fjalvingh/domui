@@ -38,7 +38,6 @@ import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.RequestContextParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
-import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.Constants;
@@ -46,6 +45,8 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.upload.UploadItem;
 import to.etc.util.WrappedException;
 import to.etc.webapp.crawlers.Crawlers;
+
+import jakarta.servlet.http.Cookie;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -123,13 +124,15 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	private ITheme m_currentTheme;
 
 	/**
-	 * The theme name for this user, lazily initialized.
+	 * The theme variant this session renders in, lazily initialized.
 	 */
 	@Nullable
-	private String m_themeName;
+	private IThemeVariant m_themeVariant;
 
-	@NonNull
-	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
+	/**
+	 * T once {@link #m_themeVariant} holds a stored choice instead of the application's default.
+	 */
+	private boolean m_themeVariantStored;
 
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
@@ -400,53 +403,99 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_browserVersion;
 	}
 
-	/**
-	 * This should be replaced by getThemeName below as that uniquely identifies the theme.
-	 */
 	@NonNull
 	@Override
 	final public ITheme getCurrentTheme() {
 		ITheme currentTheme = m_currentTheme;
 		if(null == currentTheme) {
-			try {
-				currentTheme = m_currentTheme = m_application.getTheme(getThemeName(), null);
-			} catch(Exception x) {
-				throw WrappedException.wrap(x);
-			}
+			currentTheme = m_currentTheme = m_application.getTheme(getThemeVariant(), null);
 		}
 		return currentTheme;
 	}
 
-	static private final String THEMENAME = "ctx$themename";
+	static private final String THEMEVARIANT = "ctx$themevariant";
 
-	@NonNull
-	public String getThemeName() {
-		String themeName = m_themeName;
-		if(null == themeName) {
-			themeName = (String) getSession().getAttribute(THEMENAME);
-			if(null == themeName) {
-				themeName = m_application.calculateUserTheme(this);
-			}
-			m_themeName = themeName;
-		}
-		return themeName;
-	}
+	/** How long the browser keeps the theme variant cookie: a year. */
+	static private final int THEMEVARIANT_COOKIE_MAXAGE = 365 * 24 * 60 * 60;
 
-	@Override
-	public void setThemeName(String userThemeName) {
-		m_themeName = userThemeName;
-		getSession().setAttribute(THEMENAME, userThemeName);
-	}
-
+	/**
+	 * The theme variant to render in. A choice made on one page holds for every page after
+	 * it: it is remembered in the session, and - when the application named a cookie for it
+	 * ({@link DomApplication#setThemeVariantCookieName(String)}) - in that cookie, so that it
+	 * survives the session too. When neither holds one the application decides, which by
+	 * default (and given that cookie) means asking the browser for its dark/light preference
+	 * (see {@link #isThemeVariantDefaulted()}).
+	 */
 	@Override
 	@NonNull
 	public IThemeVariant getThemeVariant() {
-		return m_themeVariant;
+		IThemeVariant variant = m_themeVariant;
+		if(null == variant) {
+			String name = (String) getSession().getAttribute(THEMEVARIANT);
+			if(null == name)
+				name = findThemeVariantCookie();
+			if(null == name) {
+				variant = m_application.calculateUserThemeVariant(this);
+			} else {
+				variant = IThemeVariant.of(name);
+				m_themeVariantStored = true;
+			}
+			m_themeVariant = variant;
+		}
+		return variant;
+	}
+
+	/**
+	 * The variant name in the theme cookie, or null when the application has no such cookie,
+	 * the browser did not send it, or its content is not a variant name - it comes from the
+	 * browser, so it can be anything at all.
+	 */
+	@Nullable
+	private String findThemeVariantCookie() {
+		String cookieName = m_application.getThemeVariantCookieName();
+		if(null == cookieName)
+			return null;
+		Cookie[] car = getRequestResponse().getCookies();
+		if(null == car)
+			return null;
+		for(Cookie c : car) {
+			if(cookieName.equals(c.getName())) {
+				String value = c.getValue();
+				return null == value || value.isEmpty() || value.indexOf('/') != -1 ? null : value;
+			}
+		}
+		return null;
 	}
 
 	@Override
 	public void setThemeVariant(@NonNull IThemeVariant themeVariant) {
 		m_themeVariant = themeVariant;
+		m_themeVariantStored = true;
+		m_currentTheme = null;
+		getSession().setAttribute(THEMEVARIANT, themeVariant.getVariantName());
+
+		String cookieName = m_application.getThemeVariantCookieName();
+		if(null == cookieName)
+			return;
+		Cookie k = new Cookie(cookieName, themeVariant.getVariantName());
+		k.setPath("/" + getRequestResponse().getWebappContext());
+		k.setMaxAge(THEMEVARIANT_COOKIE_MAXAGE);
+		k.setHttpOnly(true);
+		k.setSecure(getRequestResponse().isSecureCookies());
+		getRequestResponse().addCookie(k);
+	}
+
+	/**
+	 * T when nothing chose the variant we render in: no {@link #setThemeVariant(IThemeVariant)}
+	 * earlier in this session, and no cookie from an earlier one (if the application keeps
+	 * one). The page renderer asks the browser for its dark/light preference in that case,
+	 * and only then - which is also what keeps that question from being asked twice, because
+	 * answering it stores the choice.
+	 */
+	@Override
+	public boolean isThemeVariantDefaulted() {
+		getThemeVariant();
+		return !m_themeVariantStored;
 	}
 
 	public void flush() throws Exception {

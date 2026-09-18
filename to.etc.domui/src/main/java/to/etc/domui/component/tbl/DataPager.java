@@ -30,8 +30,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.function.IExecute;
 
 import java.util.function.Function;
 
@@ -65,8 +65,8 @@ final public class DataPager extends Div implements IDataTableChangeListener {
 		m_pager.selectionUIChanged(tbl);
 	}
 
-//	public void addButton(IIconRef image, final IClicked<DataPager> click, BundleRef bundle, final String ttlkey) {
-//		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager.this));
+//	public void addButton(IIconRef image, final IExecute click, BundleRef bundle, final String ttlkey) {
+//		SmallImgButton i = new SmallImgButton(image, (IExecute) b -> click.execute());
 //		if(bundle != null)
 //			i.setTitle(bundle.getString(ttlkey));
 //		else if(ttlkey != null)
@@ -99,7 +99,7 @@ final public class DataPager extends Div implements IDataTableChangeListener {
 		m_pager.addButton(sib);
 	}
 
-	public SmallImgButton addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
+	public SmallImgButton addButton(@NonNull IIconRef img, @NonNull IExecute clicked) {
 		SmallImgButton sib = new SmallImgButton(img, clicked);
 		addButton(sib);
 		return sib;

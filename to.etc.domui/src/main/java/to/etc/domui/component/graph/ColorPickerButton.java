@@ -6,11 +6,11 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HiddenInput;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasChangeListener;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.function.IExecute;
 
 /**
  * This is a Small button which shows a selected color, and which opens
@@ -23,9 +23,13 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 	private Input m_hidden = new HiddenInput();
 
 	private Div m_coldiv = new Div();
-	private IValueChanged< ? > m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	private boolean m_mandatory;
+
+	private boolean m_disabled;
+
+	private boolean m_readOnly;
 
 	/**
 	 * Create the required structure.
@@ -39,6 +43,11 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 		if(m_hidden.getRawValue() == null)
 			m_hidden.setRawValue("ffffff");
 		m_coldiv.setBackgroundColor("#" + m_hidden.getRawValue());
+		if(isOff()) {
+			//-- Do not attach the picker at all: the button then just shows the color.
+			addCssClass("ui-cpbt-off");
+			return;
+		}
 		appendCreateJS("WebUI.colorPickerButton('#" + getActualID() + "','#" + m_hidden.getActualID() + "','" + m_hidden.getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
 
 		//		appendCreateJS("$('#" + getActualID() + "').ColorPicker({flat: false, color:'" + m_hidden.getRawValue() + "', onChange: function(hsb,hex,rgb) { $('#" + m_hidden.getActualID() + "').val(hex); } });");
@@ -83,33 +92,46 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
+	}
+
+	/**
+	 * T when the button must not open the picker, for whatever reason.
+	 */
+	private boolean isOff() {
+		return m_disabled || m_readOnly;
 	}
 
 	@Override
 	public void setDisabled(boolean d) {
+		if(m_disabled == d)
+			return;
+		m_disabled = d;
+		forceRebuild();
 	}
 
 	@Override
 	public boolean isReadOnly() {
-		return isDisabled();
+		return m_readOnly;
 	}
 
 	@Override
 	public void setReadOnly(boolean ro) {
-		setDisabled(ro);
+		if(m_readOnly == ro)
+			return;
+		m_readOnly = ro;
+		forceRebuild();
 	}
 
 	@Override
 	public boolean isDisabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return m_disabled;
 	}
 
 	@Override

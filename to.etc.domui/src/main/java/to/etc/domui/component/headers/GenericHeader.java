@@ -5,8 +5,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.function.IExecute;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,7 +69,7 @@ public class GenericHeader extends Div {
 		}
 	}
 
-	public void addButton(IIconRef image, String hint, IClicked<NodeBase> handler) {
+	public void addButton(IIconRef image, String hint, IExecute handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setClicked(handler);
 		internallyAddButton(ib, hint);

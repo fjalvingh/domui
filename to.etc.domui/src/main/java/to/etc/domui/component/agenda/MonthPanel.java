@@ -26,12 +26,12 @@ package to.etc.domui.component.agenda;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
+import to.etc.function.IExecute;
 import to.etc.util.DateUtil;
 import to.etc.webapp.nls.NlsContext;
 
@@ -47,6 +47,9 @@ import java.util.Date;
  * Created on Oct 5, 2008
  */
 public class MonthPanel extends Div {
+	/** The css class added to a day cell by {@link #setMarked(Date, String)} when the caller passes none. */
+	public static final String MARKED = "ui-mp-mrk";
+
 	private Date m_date;
 
 	private int m_firstDay = Calendar.MONDAY;
@@ -56,8 +59,6 @@ public class MonthPanel extends Div {
 	private IDayClicked m_dayClicked;
 
 	private Date m_firstDayDate;
-
-	private IClicked<TD> m_clickHandler;
 
 	private TBody m_body;
 
@@ -79,16 +80,6 @@ public class MonthPanel extends Div {
 
 		//-- Create the top row (day labels)
 		createTopRow(b);
-
-		//-- If we need to act on clicks add a clickhandler for dayclicks.
-		if(getDayClicked() != null && m_clickHandler == null) {
-			m_clickHandler = new IClicked<TD>() {
-				@Override
-				public void clicked(@NonNull TD bx) throws Exception {
-					handleClick(bx);
-				}
-			};
-		}
 
 		//-- Create rows of weeks. End when the current week ends on a new month.
 
@@ -150,8 +141,10 @@ public class MonthPanel extends Div {
 			int mn = cal.get(Calendar.MONTH);
 			td.setText(Integer.toString(dn));
 			td.setCssClass(mn == m_month ? cssinm : cssexm);
-			if(getDayClicked() != null)
-				td.setClicked(m_clickHandler);
+			if(getDayClicked() != null) {
+				TD cell = td;
+				td.setClicked(() -> handleClick(cell));
+			}
 			cal.add(Calendar.DATE, 1);
 		}
 	}
@@ -173,7 +166,7 @@ public class MonthPanel extends Div {
 		for(int i = 0; i < 7; i++) {
 			String day = dfs.getShortWeekdays()[cday]; // Short day name
 			td = b.addCell();
-			td.setCssClass("ui-mp-d");
+			td.setCssClass("ui-mp-dh");
 			td.setText(day);
 
 			cday++;
@@ -261,6 +254,8 @@ public class MonthPanel extends Div {
 	public void unmarkAll(String css) {
 		if(m_body == null)
 			return;
+		if(css == null)
+			css = MARKED;
 		for(NodeBase row : m_body) {
 			TR tr = (TR) row;
 			for(NodeBase b2 : tr) {
@@ -277,7 +272,7 @@ public class MonthPanel extends Div {
 			return;
 
 		if(css == null)
-			css = "mp-ui-mrk";
+			css = MARKED;
 		build();
 
 		//-- Walk all month rows and check which one contains this date
@@ -287,11 +282,11 @@ public class MonthPanel extends Div {
 			if(rd == null)
 				continue;
 
-			long ets = rd.getTime() + 1000 * 7 * 86400l;
-			if(dt.getTime() >= rd.getTime() && dt.getTime() < ets) {
-				//-- Date is on this row; calculate the cell;
-				int cellix = (int) ((dt.getTime() - rd.getTime()) / 86400000l) + 1;
-				TD cell = (TD) tr.getChild(cellix);
+			//-- Day number inside this row's week. Counted in days, not in milliseconds: a week
+			//-- containing a daylight saving change is not 7 * 86400 seconds long.
+			int day = DateUtil.deltaInDays(rd, dt);
+			if(day >= 0 && day < 7) {
+				TD cell = (TD) tr.getChild(day + 1); // Cell 0 holds the week number
 				if(on)
 					cell.addCssClass(css);
 				else

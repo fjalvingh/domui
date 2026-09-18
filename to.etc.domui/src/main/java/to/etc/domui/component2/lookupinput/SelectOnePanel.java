@@ -6,12 +6,12 @@ import to.etc.domui.component.combobox.ComboBoxBase;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IHasChangeListener;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.util.IRenderInto;
+import to.etc.function.IExecute;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 	/** This is the current "value" which is set by a real selection (click) */
 	private int m_currentValue;
 
-	private IValueChanged< ? > m_valueChanged;
+	private IExecute m_valueChanged;
 
 	public SelectOnePanel(@NonNull List<T> itemList, @NonNull IRenderInto<T> renderer) {
 		m_itemList = itemList;
@@ -116,12 +116,12 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_valueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > valueChanged) {
+	public void setOnValueChanged(IExecute valueChanged) {
 		m_valueChanged = valueChanged;
 	}
 }

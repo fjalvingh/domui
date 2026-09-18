@@ -24,6 +24,9 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.function.IExecute;
+
 
 /**
  * DomUI nodes that have a change listener.
@@ -33,7 +36,36 @@ package to.etc.domui.dom.html;
  * Created on 4 Sep 2009
  */
 public interface IHasChangeListener {
-	IValueChanged< ? > getOnValueChanged();
+	/**
+	 * The handler used to mark a control as "immediate": it has no real change handler but its
+	 * changes must still be reported to the server as they happen.
+	 */
+	IExecute DUMMY = () -> {};
 
-	void setOnValueChanged(IValueChanged< ? > onValueChanged);
+	@Nullable
+	IExecute getOnValueChanged();
+
+	/**
+	 * Set the change handler: an action, because the control it is set on is a local variable of
+	 * createContent() that the lambda already captures.
+	 */
+	void setOnValueChanged(@Nullable IExecute onValueChanged);
+
+	/**
+	 * Remove the change handler set on this component, if any.
+	 */
+	default void clearOnValueChanged() {
+		setOnValueChanged(null);
+	}
+
+	/**
+	 * Call the change handler, if one is set. For component implementations: this is how a
+	 * control reports that the user changed its value.
+	 */
+	default void callOnValueChanged() throws Exception {
+		IExecute vc = getOnValueChanged();
+		if(null != vc) {
+			vc.execute();
+		}
+	}
 }

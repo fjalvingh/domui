@@ -26,10 +26,10 @@ package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.IDisplayControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 /**
  * Display-only checkbox which renders better than a disabled checkbox thingy.
@@ -125,12 +125,12 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean> {
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return null;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		throw new UnsupportedOperationException("Display control");
 	}
 

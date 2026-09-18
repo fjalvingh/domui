@@ -27,10 +27,10 @@ package to.etc.domui.component.misc;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.IDisplayControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 /**
  * Display-only radiobutton which renders better than a disabled radiobutton thingy.
@@ -130,12 +130,12 @@ public class DisplayRadiobutton extends Span implements IDisplayControl<Boolean>
 
 	@Override
 	@Nullable
-	public IValueChanged<?> getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return null;
 	}
 
 	@Override
-	public void setOnValueChanged(@Nullable IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(@Nullable IExecute onValueChanged) {
 		throw new UnsupportedOperationException("Display control");
 	}
 

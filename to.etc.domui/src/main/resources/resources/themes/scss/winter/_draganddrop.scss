@@ -1,0 +1,21 @@
+/*** Drag and drop ***/
+@use "theme" as *;
+
+/* Every node that has a drag handler */
+.ui-drgbl {
+	cursor: move;
+}
+
+/* A drop zone in DIV mode, while something acceptable hovers over it */
+.ui-drp-hover {
+	outline: 2px solid $drp-hover-border;
+	background-color: $drp-hover-bg;
+}
+
+/* In ROW mode: the cell of the placeholder row marking where the drop will land */
+.ui-drp-ins {
+	background: url(dnd-separator.png) repeat-x center;
+	font-size: x-small;
+	font-variant: small-caps;
+	text-align: center;
+}

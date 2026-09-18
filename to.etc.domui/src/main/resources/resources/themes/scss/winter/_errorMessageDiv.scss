@@ -1,10 +1,10 @@
 /*** ErrorMessageDiv helper for components that handle their error display ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-emd {
-	background-color: $errors_background;
-	color: $errors_foreground;
-	border-color: 1px solid $errors_border;
+	background-color: $errors-wash;
+	color: $errors-color;
+	border-color: 1px solid $errors-border;
 }
 .ui-emd-msg {
 	background: no-repeat 10px;
@@ -12,14 +12,16 @@
 	background-size: 11px 11px;
 }
 .ui-emd-info {
-	background: $info_bg url(mini-info.png);
-	color: $info_fg;
-	border-color: 1px solid $info_border;
+	background-color: $info-bg;
+	background-image: url(mini-info.png);
+	color: $info-color;
+	border-color: 1px solid $info-border;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
 }
 .ui-emd-warning {
-	background: $warnings_background url(mini-warning.png);
-	color: $warnings_foreground;
+	background-color: $warnings-bg;
+	background-image: url(mini-warning.png);
+	color: $warnings-color;
 }

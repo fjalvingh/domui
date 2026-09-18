@@ -1,0 +1,67 @@
+/*** MonthPanel: the small month calendar ***/
+@use "theme" as *;
+
+div.ui-mp {
+	display: inline-block;
+	margin: 0 10px 10px 0;
+	vertical-align: top;
+}
+
+table.ui-mp {
+	background-color: $mp-bg;
+	border: 1px solid $mp-border;
+	border-collapse: collapse;
+	font-size: 12px;
+
+	td {
+		padding: 2px 5px;
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	/* The month name, above everything */
+	.ui-mp-mn td {
+		background-color: $mp-hdr-bg;
+		color: $dt-hdr-color;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	/* The row of weekday names */
+	.ui-mp-top {
+		background-color: lighter($mp-hdr-bg, 12%);
+	}
+
+	td.ui-mp-dh {
+		font-weight: bold;
+		text-align: center;
+	}
+
+	/* The week number, in the first column of every week */
+	td.ui-mp-w {
+		background-color: lighter($mp-hdr-bg, 12%);
+		border-right: 1px solid $mp-border;
+		color: $mp-weeknr-color;
+		font-size: 10px;
+	}
+
+	/* A day from the month before or after the one being shown */
+	td.ui-mp-xd {
+		color: $mp-othermonth-color;
+	}
+
+	/* Days are only clickable when a day click handler is set */
+	td.ui-mp-ch {
+		cursor: pointer;
+
+		&:hover {
+			background-color: $dt-selected-bg;
+		}
+	}
+
+	/* The class setMarked() adds when the caller names none */
+	td.ui-mp-mrk {
+		background-color: $mp-marked-bg;
+		font-weight: bold;
+	}
+}

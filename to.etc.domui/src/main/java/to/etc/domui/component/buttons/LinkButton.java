@@ -31,10 +31,10 @@ import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IActionControl;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Objects;
@@ -55,7 +55,7 @@ public class LinkButton extends ATag implements IActionControl {
 	private boolean m_disabled;
 
 	@Nullable
-	private IUIAction<Void> m_action;
+	private IUIAction m_action;
 
 	@Nullable
 	private Object m_actionInstance;
@@ -66,13 +66,13 @@ public class LinkButton extends ATag implements IActionControl {
 	public LinkButton() {
 	}
 
-	public LinkButton(@NonNull String txt, @Nullable IIconRef image, @NonNull IClicked<LinkButton> clk) {
+	public LinkButton(@NonNull String txt, @Nullable IIconRef image, @NonNull IExecute clk) {
 		setClicked(clk);
 		setText(txt);
 		setImage(image);
 	}
 
-	public LinkButton(@NonNull IBundleCode code, @Nullable IIconRef image, @NonNull IClicked<LinkButton> clk) {
+	public LinkButton(@NonNull IBundleCode code, @Nullable IIconRef image, @NonNull IExecute clk) {
 		setClicked(clk);
 		setText(code.format());
 		setImage(image);
@@ -96,26 +96,19 @@ public class LinkButton extends ATag implements IActionControl {
 		setText(code.format());
 	}
 
-	public LinkButton(@NonNull String txt, @NonNull IClicked<LinkButton> clk) {
+	public LinkButton(@NonNull String txt, @NonNull IExecute clk) {
 		setClicked(clk);
 		setText(txt);
 	}
 
-	public LinkButton(@NonNull IBundleCode code, @NonNull IClicked<LinkButton> clk) {
+	public LinkButton(@NonNull IBundleCode code, @NonNull IExecute clk) {
 		setClicked(clk);
 		setText(code.format());
 	}
 
-	public LinkButton(@NonNull IUIAction<Void> action) throws Exception {
+	public LinkButton(@NonNull IUIAction action) throws Exception {
 		this();
 		m_action = action;
-		actionRefresh();
-	}
-
-	public LinkButton(@NonNull IUIAction<Void> action, @Nullable Object actionInstance) throws Exception {
-		this();
-		m_action = action;
-		m_actionInstance = actionInstance;
 		actionRefresh();
 	}
 
@@ -146,20 +139,20 @@ public class LinkButton extends ATag implements IActionControl {
 	 * EXPERIMENTAL - UNSTABLE INTERFACE - Refresh the button regarding the state of the action.
 	 */
 	private void actionRefresh() throws Exception {
-		final IUIAction<Object> action = (IUIAction<Object>) getAction();
+		final IUIAction action = getAction();
 		if(null == action)
 			return;
-		String dt = action.getDisableReason(getActionInstance());
+		String dt = action.getDisableReason();
 		if(null == dt) {
-			setTitle(action.getTitle(getActionInstance())); // The default tooltip or remove it if not present
+			setTitle(action.getTitle()); // The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
 			setTitle(dt);                        // Shot reason for being disabled
 			setDisabled(true);
 		}
-		setText(action.getName(getActionInstance()));
-		setImage(action.getIcon(getActionInstance()));
-		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this, getActionInstance()));
+		setText(action.getName());
+		setImage(action.getIcon());
+		setClicked(()-> action.execute(LinkButton.this));
 	}
 
 	public LinkButton setImage(@Nullable IIconRef url) {
@@ -175,7 +168,7 @@ public class LinkButton extends ATag implements IActionControl {
 		return this;
 	}
 
-	public LinkButton click(IClicked<LinkButton> b) {
+	public LinkButton click(IExecute b) {
 		setClicked(b);
 		return this;
 	}
@@ -214,7 +207,7 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	@Nullable
-	public IUIAction<?> getAction() {
+	public IUIAction getAction() {
 		return m_action;
 	}
 
@@ -223,7 +216,7 @@ public class LinkButton extends ATag implements IActionControl {
 		return m_actionInstance;
 	}
 
-	public void setAction(@NonNull IUIAction<Void> action) throws Exception {
+	public void setAction(@NonNull IUIAction action) throws Exception {
 		if(DomUtil.isEqual(m_action, action))
 			return;
 		m_action = action;

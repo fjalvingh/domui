@@ -5,12 +5,12 @@ import to.etc.domui.component.menu.PopupMenu.Item;
 import to.etc.domui.component.menu.PopupMenu.Submenu;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.function.IExecute;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +29,6 @@ public class SimplePopupMenu extends Div {
 
 	@NonNull
 	private NodeBase m_relativeTo;
-
-	private Object m_targetObject;
 
 	final private List<Item> m_actionList;
 
@@ -67,9 +65,8 @@ public class SimplePopupMenu extends Div {
 		m_relativeTo = relativeTo;
 	}
 
-	SimplePopupMenu(@NonNull NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
+	SimplePopupMenu(@NonNull NodeBase b, PopupMenu pm, List<Item> actionList) {
 		m_actionList = Collections.unmodifiableList(actionList);
-		m_targetObject = target;
 		m_relativeTo = b;
 		m_source = pm;
 	}
@@ -96,7 +93,7 @@ public class SimplePopupMenu extends Div {
 			if(a instanceof Submenu) {
 				renderSubmenu(items, (Submenu) a);
 			} else if(a.getAction() != null) {
-				renderAction(items, (IUIAction<Object>) a.getAction(), m_targetObject);
+				renderAction(items, a.getAction());
 			} else {
 				renderItem(items, a);
 			}
@@ -159,7 +156,7 @@ public class SimplePopupMenu extends Div {
 				if(s.getTarget() != null)
 					target = s.getTarget();
 
-				renderAction(items, (IUIAction<Object>) a.getAction(), target);
+				renderAction(items, a.getAction());
 			} else {
 				renderItem(items, a);
 			}
@@ -172,23 +169,19 @@ public class SimplePopupMenu extends Div {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Renderers.											*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param a
-	 */
 	protected void renderSubmenu(@NonNull NodeContainer into, final Submenu a) {
 		final Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
 		Img img = new Img("THEME/pmnu-submenu-open.png");
 		d.add(img);
-		d.setClicked(clickednode -> submenuClicked(d, a));
+		d.setClicked(()-> submenuClicked(d, a));
 	}
 
 	protected void renderItem(@NonNull NodeContainer into, final Item a) {
 		Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
-		d.setClicked(clickednode -> {
+		d.setClicked(()-> {
 			closeMenu();
 			if(null != a.getClicked())
-				a.getClicked().clicked(SimplePopupMenu.this);
+				a.getClicked().execute();
 		});
 	}
 
@@ -207,17 +200,17 @@ public class SimplePopupMenu extends Div {
 		return d;
 	}
 
-	protected <T> void renderAction(@NonNull NodeContainer into, final IUIAction<T> action, final T val) throws Exception {
-		String disa = action.getDisableReason(val);
+	protected <T> void renderAction(@NonNull NodeContainer into, final IUIAction action) throws Exception {
+		String disa = action.getDisableReason();
 		if(null != disa) {
-			renderItem(into, action.getName(val), disa, action.getIcon(val), true);
+			renderItem(into, action.getName(), disa, action.getIcon(), true);
 			return;
 		}
 
-		Div d = renderItem(into, action.getName(val), action.getTitle(val), action.getIcon(val), false);
-		d.setClicked(clickednode -> {
+		Div d = renderItem(into, action.getName(), action.getTitle(), action.getIcon(), false);
+		d.setClicked(()-> {
 			closeMenu();
-			action.execute(getRelativeTo(), val);
+			action.execute(getRelativeTo());
 		});
 	}
 
@@ -238,15 +231,15 @@ public class SimplePopupMenu extends Div {
 		return m_relativeTo;
 	}
 
-	public void addAction(IUIAction< ? > action) {
+	public void addAction(IUIAction action) {
 		getActionList().add(new Item(action));
 	}
 
-	public void addItem(String caption, IIconRef icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+	public void addItem(String caption, IIconRef icon, String hint, boolean disabled, IExecute clk) {
 		getActionList().add(new Item(icon, caption, hint, disabled, clk, null));
 	}
 
-	public void addItem(String caption, IIconRef icon, IClicked<NodeBase> clk) {
+	public void addItem(String caption, IIconRef icon, IExecute clk) {
 		getActionList().add(new Item(icon, caption, null, false, clk, null));
 	}
 
@@ -262,12 +255,7 @@ public class SimplePopupMenu extends Div {
 		return m_source;
 	}
 
-	public Object getTargetObject() {
-		return m_targetObject;
-	}
-
 	protected void clearPopinIf() {
 		getPage().clearPopIn();
 	}
-
 }

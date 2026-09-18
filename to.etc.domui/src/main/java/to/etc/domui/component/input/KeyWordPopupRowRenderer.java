@@ -38,13 +38,13 @@ import to.etc.domui.component.tbl.TableModelTableBase;
 import to.etc.domui.converter.IObjectToStringConverter;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueTransformer;
+import to.etc.function.IExecute;
 import to.etc.webapp.nls.NlsContext;
 
 /**
@@ -138,9 +138,9 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 	public void renderRow(final @NonNull TableModelTableBase<T> tbl, final @NonNull ColumnContainer<T> cc, final int index, final @NonNull T instance) throws Exception {
 		final ICellClicked<?> rowClicked = m_rowClicked;
 		if(rowClicked != null) {
-			cc.getTR().setClicked(new IClicked<TR>() {
+			cc.getTR().setClicked(new IExecute() {
 				@Override
-				public void clicked(final @NonNull TR b) throws Exception {
+				public void execute() throws Exception {
 					ICellClicked<?> rowClicked = getRowClicked();
 					if(null != rowClicked)
 						((ICellClicked<T>) rowClicked).cellClicked(instance);

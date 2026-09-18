@@ -73,7 +73,6 @@ final public class LoadedImage implements IUIImage {
 			if(null != resourceList)
 				resourceList.add(original);
 
-			LoadedImageInstance oli = new LoadedImageInstance(original, identify.getMime(), dimension);
 			return new LoadedImage(original, resized.getMime(), new Dimension(resized.getInfo().getPage(0).getWidth(), resized.getInfo().getPage(0).getHeight()), resourceList);
 		}
 

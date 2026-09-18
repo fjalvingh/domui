@@ -35,9 +35,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.parts.ComponentPartRenderer;
 import to.etc.domui.server.RequestContextImpl;
@@ -55,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import to.etc.function.IExecute;
 
 /**
  * Represents a file upload thingy which handles ajaxy uploads. This version only allows single file uploads.
@@ -93,7 +92,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	private FileInput m_input;
 
-	private IValueChanged<?> m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	private boolean m_disabled;
 
@@ -112,7 +111,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	private IIconRef m_clearButtonIcon = Icon.faWindowClose;
 
 	@Nullable
-	private IClicked<FileUpload2> m_onClearClicked;
+	private IExecute m_onClearClicked;
 
 	public FileUpload2() {
 		m_allowedExtensions = new ArrayList<>();
@@ -150,87 +149,51 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		valueD.add(value.getRemoteFileName());
 		IIconRef clearButtonIcon = m_clearButtonIcon;
 		if(clearButtonIcon != null) {
-			add(new DefaultButton("", clearButtonIcon, b -> clearClicked()));
+			add(new DefaultButton("", clearButtonIcon, () -> handleClearClicked()));
 		} else {
-			add(new DefaultButton(m_clearButtonText, b -> clearClicked()));
+			add(new DefaultButton(m_clearButtonText, () -> handleClearClicked()));
 		}
 	}
 
 	private void renderEmpty() {
-		if(true) {
-			Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
-			add(valueD);
+		Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
+		add(valueD);
 
-			Div buttonDiv = new Div("ui-fup2-button ui-button ui-control ui-input");
-			add(buttonDiv);
+		Div buttonDiv = new Div("ui-fup2-button ui-button ui-control ui-input");
+		add(buttonDiv);
 
-			Form f = new Form();
-			buttonDiv.add(f);
-			f.setCssClass("ui-szless");
-			f.setEnctype("multipart/form-data");
-			f.setMethod("POST");
-			StringBuilder sb = new StringBuilder();
-			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
-			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
-			f.setAction(sb.toString());
+		Form f = new Form();
+		buttonDiv.add(f);
+		f.setCssClass("ui-szless");
+		f.setEnctype("multipart/form-data");
+		f.setMethod("POST");
+		StringBuilder sb = new StringBuilder();
+		ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
+		sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
+		f.setAction(sb.toString());
 
-			//Div btn = new Div("ui-fup2-button ui-button ui-control");
-			Div btn = new Div("ui-fup2-button");
-			f.add(btn);
-			String buttonText = m_buttonText;
-			if(null != buttonText) {
-				btn.add(buttonText);
-			}
-
-			FileInput input = m_input = new FileInput(s -> forceRebuild());
-			f.add(input);
-			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
-			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
-			input.setDisabled(isDisabled() || isReadOnly());
-			if(!m_allowedExtensions.isEmpty()) {
-				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
-				input.setSpecialAttribute("fuallowed", values);
-				input.setSpecialAttribute("accept", values);
-			}
-			int maxSize = getMaxSize();
-			if(maxSize <= 0)
-				maxSize = 100 * 1024 * 1024;
-			input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
-		} else {
-			Form f = new Form();
-			add(f);
-			f.setCssClass("ui-szless");
-			f.setEnctype("multipart/form-data");
-			f.setMethod("POST");
-			StringBuilder sb = new StringBuilder();
-			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
-			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
-			f.setAction(sb.toString());
-
-			Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
-			f.add(valueD);
-			Div btn = new Div("ui-fup2-button ui-button ui-control ui-input");
-			f.add(btn);
-			String buttonText = m_buttonText;
-			if(null != buttonText) {
-				btn.add(buttonText);
-			}
-
-			FileInput input = m_input = new FileInput(s -> forceRebuild());
-			f.add(input);
-			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
-			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
-			input.setDisabled(isDisabled() || isReadOnly());
-			if(!m_allowedExtensions.isEmpty()) {
-				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
-				input.setSpecialAttribute("fuallowed", values);
-				input.setSpecialAttribute("accept", values);
-			}
-			int maxSize = getMaxSize();
-			if(maxSize <= 0)
-				maxSize = 100 * 1024 * 1024;
-			input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
+		//Div btn = new Div("ui-fup2-button ui-button ui-control");
+		Div btn = new Div("ui-fup2-button");
+		f.add(btn);
+		String buttonText = m_buttonText;
+		if(null != buttonText) {
+			btn.add(buttonText);
 		}
+
+		FileInput input = m_input = new FileInput(s -> forceRebuild());
+		f.add(input);
+		input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
+		input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
+		input.setDisabled(isDisabled() || isReadOnly());
+		if(!m_allowedExtensions.isEmpty()) {
+			String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
+			input.setSpecialAttribute("fuallowed", values);
+			input.setSpecialAttribute("accept", values);
+		}
+		int maxSize = getMaxSize();
+		if(maxSize <= 0)
+			maxSize = 100 * 1024 * 1024;
+		input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
 	}
 
 	@Nullable
@@ -297,12 +260,12 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		return DomUtil.getValueSafe(this);
 	}
 
-	private void clearClicked() throws Exception {
+	private void handleClearClicked() throws Exception {
 		if(m_value == null)
 			return;
-		IClicked<FileUpload2> onClearClicked = getOnClearClicked();
+		IExecute onClearClicked = getOnClearClicked();
 		if(null != onClearClicked) {
-			onClearClicked.clicked(this);
+			onClearClicked.execute();
 		} else {
 			clear();
 		}
@@ -316,9 +279,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 			return;
 		FileTool.closeAll(m_value.getFile());
 		setValue(null);
-		IValueChanged<FileUpload2> onValueChanged = (IValueChanged<FileUpload2>) getOnValueChanged();
+		IExecute onValueChanged = getOnValueChanged();
 		if(null != onValueChanged)
-			onValueChanged.onValueChanged(this);
+			onValueChanged.execute();
 	}
 
 	/**
@@ -358,12 +321,12 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	}
 
 	@Override
-	public IValueChanged<?> getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
@@ -411,7 +374,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		// We need this page reference since in onValueChanged() force rebuild might happen again
 		// and then we'll lose the page reference needed for renderOptimalDelta().
 		if(m_onValueChanged != null)
-			((IValueChanged<FileUpload2>) m_onValueChanged).onValueChanged(this);
+			m_onValueChanged.execute();
 		return true;
 	}
 
@@ -439,13 +402,14 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	 * set here should call clear() itself if the value is to be cleared.
 	 */
 	@Nullable
-	public IClicked<FileUpload2> getOnClearClicked() {
+	public IExecute getOnClearClicked() {
 		return m_onClearClicked;
 	}
 
-	public void setOnClearClicked(@Nullable IClicked<FileUpload2> onClearClicked) {
+	public void setOnClearClicked(@Nullable IExecute onClearClicked) {
 		m_onClearClicked = onClearClicked;
 	}
+
 
 }
 

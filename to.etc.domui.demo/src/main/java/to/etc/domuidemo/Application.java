@@ -4,6 +4,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.caches.images.ImageCache;
 import to.etc.domui.component.layout.BreadCrumb;
 import to.etc.domui.component.layout.ErrorMessageDiv;
+import to.etc.domui.component.misc.ExceptionDialog;
+import to.etc.domui.component.misc.ExceptionDialog.ExceptionPresentation;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.RowRenderer.ColumnWidth;
 import to.etc.domui.component.tbl.RowRenderer.IColumnListener;
@@ -22,10 +24,14 @@ import to.etc.domui.themes.sass.SassThemeFactory;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.Msgs;
+import to.etc.domui.util.bugs.DefaultBugListener;
 import to.etc.domuidemo.components.PageHeader;
 import to.etc.domuidemo.pages.HomePage;
+import to.etc.domuidemo.pages.tutorial.messages.OutOfStockException;
+import to.etc.domuidemo.pages.tutorial.messages.TutorialMsg;
 import to.etc.domuidemo.sourceviewer.SourcePage;
 import to.etc.testutil.TestUtil;
+import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 import to.etc.webapp.query.QContextManager;
 
@@ -45,7 +51,10 @@ public class Application extends DomApplication {
 		File imagecache = new File(FileTool.getTmpDir(), "imagecache");
 		ImageCache.initialize(32 * 1024L * 1024L, 5L * 1024L * 1024L * 1024L, imagecache);
 
-		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
+		setThemeFactory(SassThemeFactory.INSTANCE);
+		setThemeVariantCookieName("domuidemo-theme-variant");		// Keep the dark/light choice across sessions
+		addDefaultHTTPHeader("X-Frame-Options", null);
+
 
 		//-- Append the default style sheet.
 		addHeaderContributor(HeaderContributor.loadStylesheet("css/demostyle.scss"), 1000);	// Add default stylesheet for the app
@@ -56,6 +65,10 @@ public class Application extends DomApplication {
 		if(!DomUtil.isBlank(uacode)) {
 			addHeaderContributor(HeaderContributor.loadGoogleAnalytics(uacode), 0);
 		}
+
+		//-- The demo site does not use auto focus because that makes pages with embedded iframes scroll
+		if(!DeveloperOptions.isDeveloperWorkstation())
+			setAutoFocus(false);
 
 		slowInit();
 
@@ -73,6 +86,14 @@ public class Application extends DomApplication {
 		});
 
 		/*
+		 * Teach the exception dialog about an exception of our own: instead of a stack
+		 * trace the user gets the sentence that belongs to it.
+		 */
+		ExceptionDialog.register(x -> x instanceof OutOfStockException osx
+			? new ExceptionPresentation(TutorialMsg.orderOutOfStock.format(osx.getAlbum()))
+			: null);
+
+		/*
 		 * Add a new page listener. Every new page automatically gets a Breadcrumb injected @ it's start
 		 */
 		addNewPageInstantiatedListener(new INewPageInstantiated() {
@@ -85,6 +106,11 @@ public class Application extends DomApplication {
 			public void newPageCreated(@NonNull UrlPage body) throws Exception {
 			}
 		});
+
+		/*
+		 * Show the bug indicator when Bug.bug() is called - see BugIndicatorPage.
+		 */
+		DefaultBugListener.registerSessionListener(this);
 
 		/*
 		 * Add a generic listener for column width changed events.

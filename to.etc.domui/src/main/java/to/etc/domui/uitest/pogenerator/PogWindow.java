@@ -91,9 +91,4 @@ final public class PogWindow extends AbstractPoProxyGenerator implements IPoProx
 		String testID = Objects.requireNonNull(pair.getNode().getTestID(), "Unexpected: testID should not be null here ever");
 		pair.getGenerator().generateCode(context, rc, baseName, new PoSelectorTestId(testID));
 	}
-
-	@Override
-	public String identifier() {
-		return "Window";
-	}
 }

@@ -47,7 +47,7 @@ namespace WebUI {
 				maxSize = Number(s);
 			} catch(x) {
 			}
-			if(maxSize <= 0 || maxSize === NaN)
+			if(maxSize <= 0 || isNaN(maxSize))
 				maxSize = 100 * 1024 * 1024;						// Default max size is 100MB
 
 			var size = tgt.files[0].size;

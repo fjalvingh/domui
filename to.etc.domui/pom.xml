@@ -127,10 +127,10 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/io.bit3/jsass -->
+		<!-- https://mvnrepository.com/artifact/de.larsgrefer.sass/sass-embedded-host -->
 		<dependency>
-			<groupId>io.bit3</groupId>
-			<artifactId>jsass</artifactId>
+			<groupId>de.larsgrefer.sass</groupId>
+			<artifactId>sass-embedded-host</artifactId>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.owasp.esapi/esapi -->
@@ -138,31 +138,6 @@
 		<!--            <groupId>org.owasp.esapi</groupId>-->
 		<!--            <artifactId>esapi</artifactId>-->
 		<!--        </dependency>-->
-
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-transcoder</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>xml-apis</groupId>
-					<artifactId>xml-apis</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>xml-apis</groupId>
-					<artifactId>xml-apis-ext</artifactId>
-				</exclusion>
-				<!-- Below contains org.w3c.dom definitions which is not allowed after java 9 -->
-				<exclusion>
-					<groupId>org.apache.xmlgraphics</groupId>
-					<artifactId>batik-ext</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>xalan</groupId>
-					<artifactId>xalan</artifactId>
-				</exclusion>
-
-			</exclusions>
-		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
 		<dependency>
@@ -199,9 +174,9 @@
 							<goal>install-node-and-npm</goal>
 						</goals>
 						<configuration>
-							<!-- See https://nodejs.org/en/download/ for latest node and npm (lts) versions -->
-							<nodeVersion>v8.11.1</nodeVersion>
-							<npmVersion>5.6.0</npmVersion>
+							<!-- See https://nodejs.org/en/download/ for the current LTS. The npm
+							     bundled with node is used; do not pin npm separately. -->
+							<nodeVersion>v22.22.1</nodeVersion>
 						</configuration>
 					</execution>
 

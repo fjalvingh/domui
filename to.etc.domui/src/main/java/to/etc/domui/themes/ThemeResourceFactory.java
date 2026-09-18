@@ -33,11 +33,10 @@ import to.etc.domui.util.resources.IResourceRef;
 
 /**
  * This handles resource references that start with $THEME; indicating resources
- * to get from a theme. The name to get is split into two parts: the last part is
- * the <i>resource name</i>; it is the part after the last slash. The first part
- * is the <i>theme name</i>, it is everything after $THEME/ and before the last
- * slash. The <i>theme name</i> is provided to the current theme factory to get
- * that theme's {@link ITheme} which knows how to get resources for that theme.
+ * to get from the application's theme. The name is split in two on the first slash:
+ * the first part is the <i>variant name</i>, the rest is the resource name within
+ * that variant. The variant is handed to the application's theme factory to get the
+ * {@link ITheme} which knows how to locate resources.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 27, 2011
@@ -51,10 +50,8 @@ final public class ThemeResourceFactory implements IResourceFactory {
 	}
 
 	/**
-	 * A theme resource URL has the format: $THEME/themeName/aaa/bb/ccc. This call
-	 * returns the theme from that url in [0] and the rest string in [1].
-	 * @param name
-	 * @return
+	 * A theme resource URL has the format: $THEME/variantName/aaa/bb/ccc. This call
+	 * returns the variant name from that url in [0] and the rest string in [1].
 	 */
 	static public final String[] splitThemeResourceURL(String name) {
 		if(!name.startsWith(PREFIX))
@@ -62,12 +59,12 @@ final public class ThemeResourceFactory implements IResourceFactory {
 		String real = name.substring(PREFIX.length()); // Strip $THEME/
 		int pos = real.indexOf('/');
 		if(pos == -1)
-			throw new ThingyNotFoundException("Bad theme URL (missing current theme): " + name);
-		String themename = real.substring(0, pos);
+			throw new ThingyNotFoundException("Bad theme URL (missing theme variant): " + name);
+		String variantName = real.substring(0, pos);
 		String filename = real.substring(pos + 1);
-		if(themename.isEmpty())
-			throw new ThingyNotFoundException("Bad theme resource-URL (empty current theme): " + name);
-		return new String[]{themename, filename};
+		if(variantName.isEmpty())
+			throw new ThingyNotFoundException("Bad theme resource-URL (empty theme variant): " + name);
+		return new String[]{variantName, filename};
 	}
 
 	/**
@@ -77,11 +74,11 @@ final public class ThemeResourceFactory implements IResourceFactory {
 	@NonNull
 	public IResourceRef getResource(@NonNull DomApplication da, @NonNull String themeResourceURL, @NonNull IResourceDependencyList rdl) throws Exception {
 		String[] spl = splitThemeResourceURL(themeResourceURL);
-		String themename = spl[0];
+		String variantName = spl[0];
 		String filename = spl[1];
 
-		//-- Ask the theme manager for the theme represented by this RURL.
-		ITheme theme = da.getTheme(themename, rdl);
+		//-- Ask the theme manager for the theme variant represented by this RURL.
+		ITheme theme = da.getTheme(variantName, rdl);
 		if(null == theme)
 			throw new IllegalStateException("Unexpected null from theme factory");
 		IResourceRef rr = theme.getThemeResource(filename, rdl);

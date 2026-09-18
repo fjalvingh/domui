@@ -1,5 +1,5 @@
 /*** MsgBox ***/
-@import "variables";
+@use "theme" as *;
 
 .ui-mbx-top {
 	min-height: 50px;
@@ -53,6 +53,5 @@
 	//button {
 	//	margin-bottom: 2px !important;
 	//}
-
 
 }

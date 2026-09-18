@@ -7,15 +7,14 @@ import to.etc.domui.component.event.INotifyEvent;
 import to.etc.domui.component.layout.Window;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.PositionType;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IReturnPressed;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Select;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
+import to.etc.function.IExecute;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	public enum HAlign {LEFT, MIDDLE, RIGHT}
 
 	@Nullable
-	private IValueChanged<DropDownPicker<T>> m_onValueChanged;
+	private IExecute m_onValueChanged;
 
 	@Nullable
 	private List<T> m_data;
@@ -117,10 +116,10 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		}
 		m_picker.setSize(m_size);
 		m_picker.setHeight("auto");
-		m_picker.setClicked(new IClicked<NodeBase>() {
+		m_picker.setClicked(new IExecute() {
 
 			@Override
-			public void clicked(@NonNull NodeBase node) throws Exception {
+			public void execute() throws Exception {
 				handlePickerValueChanged();
 			}
 		});
@@ -159,16 +158,16 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	void handlePickerValueChanged() throws Exception {
 		appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'none');");
 		m_selected = m_picker.getValue();
-		IValueChanged<DropDownPicker<T>> onValueChanged = getOnValueChanged();
+		IExecute onValueChanged = getOnValueChanged();
 		if(onValueChanged != null) {
-			onValueChanged.onValueChanged(this);
+			onValueChanged.execute();
 		}
 	}
 
 	private final @NonNull
-	IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
+	IExecute m_defaultClickHandler = new IExecute() {
 		@Override
-		public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
+		public void execute() throws Exception {
 			INotifyEvent<DropDownPicker<T>, ComboLookup<T>> onBeforeShow = getOnBeforeShow();
 			if(onBeforeShow != null) {
 				onBeforeShow.onNotify(DropDownPicker.this, m_picker);
@@ -374,13 +373,13 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 
 	@Override
 	@Nullable
-	public IValueChanged<DropDownPicker<T>> getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(@Nullable IValueChanged< ? > onValueChanged) {
-		m_onValueChanged = (IValueChanged<DropDownPicker<T>>) onValueChanged;
+	public void setOnValueChanged(@Nullable IExecute onValueChanged) {
+		m_onValueChanged = onValueChanged;
 	}
 
 	@Override

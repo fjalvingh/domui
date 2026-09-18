@@ -42,9 +42,6 @@ public class Explanation extends Div {
 		setText(text);
 	}
 
-	public Explanation() {
-	}
-
 	public Explanation(final String txt) {
 		this(MsgType.INFO, txt);
 	}

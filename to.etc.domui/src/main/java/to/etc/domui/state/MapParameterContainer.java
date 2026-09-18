@@ -31,7 +31,7 @@ public class MapParameterContainer implements IBasicParameterContainer {
 	private BrowserVersion m_browserVersion = BrowserVersion.INSTANCE;
 
 	@Nullable
-	private String m_themeName;
+	private String m_themeVariant;
 
 	public MapParameterContainer() {
 	}
@@ -135,7 +135,7 @@ public class MapParameterContainer implements IBasicParameterContainer {
 			return false;
 		if(!m_browserVersion.equals(that.m_browserVersion))
 			return false;
-		return m_themeName != null ? m_themeName.equals(that.m_themeName) : that.m_themeName == null;
+		return m_themeVariant != null ? m_themeVariant.equals(that.m_themeVariant) : that.m_themeVariant == null;
 	}
 
 	@Override
@@ -145,7 +145,7 @@ public class MapParameterContainer implements IBasicParameterContainer {
 		result = 31 * result + m_dataLength;
 		result = 31 * result + m_inputPath.hashCode();
 		result = 31 * result + m_browserVersion.hashCode();
-		result = 31 * result + (m_themeName != null ? m_themeName.hashCode() : 0);
+		result = 31 * result + (m_themeVariant != null ? m_themeVariant.hashCode() : 0);
 		return result;
 	}
 
@@ -176,12 +176,12 @@ public class MapParameterContainer implements IBasicParameterContainer {
 
 	@Override
 	@Nullable
-	public String getThemeName() {
-		return m_themeName;
+	public String getThemeVariantName() {
+		return m_themeVariant;
 	}
 
-	public void setThemeName(@Nullable String themeName) {
-		m_themeName = themeName;
+	public void setThemeVariantName(@Nullable String themeVariant) {
+		m_themeVariant = themeVariant;
 	}
 
 	public void clear() {

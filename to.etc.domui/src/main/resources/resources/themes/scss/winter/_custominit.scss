@@ -1,1 +1,14 @@
-/** This file is meant to be used by clients to override default theme settings. It should remain empty in DomUI itself! */
+// The application's theme variables. This file is meant to be replaced by a copy in the
+// application's webapp (themes/scss/winter/_custominit.scss); DomUI's own stays empty.
+//
+// Write plain variable declarations, one per theme variable to change:
+//
+//	$link-color: #c00040;
+//	$font-size: 15px;
+//
+// style.scss configures the theme with every variable declared here, so the name must be
+// one the theme declares - a variable it does not know is a compile error. A value may be
+// derived from a request parameter by loading the parameters module first:
+//
+//	@use "parameters" as p;
+//	$link-color: if(p.$themeVariant == "dark", #ff80a0, #c00040);

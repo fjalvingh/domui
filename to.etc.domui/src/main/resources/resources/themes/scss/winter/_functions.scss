@@ -1,0 +1,153 @@
+// The theme's functions. They read the theme's variables, so this is a module over
+// _variables.scss - which is why it cannot read _derived-variables.scss: that file uses
+// these functions, and a module may not load a module that loads it.
+@use "sass:color";
+@use "sass:list";
+@use "sass:map";
+@use "sass:math";
+@use "variables" as *;
+
+// darken(), lighten() and saturate() as Sass had them before the sass:color module: the
+// channel is moved by $amount and clamped to 0..100%. color.adjust() does not clamp - darkening
+// black gives a lightness of -1%, saturating past 100% stays past it - so a theme written for
+// the old functions would compile to different colours with it. These keep the old meaning.
+@function darker($color, $amount) {
+	@return color.change($color, $lightness: math.clamp(0%, color.channel($color, "lightness", $space: hsl) - $amount, 100%), $space: hsl);
+}
+
+@function lighter($color, $amount) {
+	@return color.change($color, $lightness: math.clamp(0%, color.channel($color, "lightness", $space: hsl) + $amount, 100%), $space: hsl);
+}
+
+@function moreSaturated($color, $amount) {
+	@return color.change($color, $saturation: math.clamp(0%, color.channel($color, "saturation", $space: hsl) + $amount, 100%), $space: hsl);
+}
+
+@function powerNumber($number, $exp) {
+	$value: 1;
+	@if $exp > 0 {
+		@for $i from 1 through $exp {
+			$value: $value * $number;
+		}
+	} @else {
+		@if $exp < 0 {
+			@for $i from 1 through -$exp {
+				$value: math.div($value, $number);
+			}
+		}
+	}
+	@return $value;
+}
+
+@function colorLuminance($color) {
+	$color-rgb: (
+			'red': color.channel($color, "red", $space: rgb),
+			'green': color.channel($color, "green", $space: rgb),
+			'blue': color.channel($color, "blue", $space: rgb)
+	);
+	@each $name, $value in $color-rgb {
+		$adjusted: 0;
+		$value: math.div($value, 255);
+		@if $value < 0.03928 {
+			$value: math.div($value, 12.92);
+		} @else {
+			$value: math.div($value + .055, 1.055);
+			$value: powerNumber($value, 2);
+		}
+		$color-rgb: map.merge($color-rgb, ($name:$value));
+	}
+	@return (map.get($color-rgb, 'red') * .2126) + (map.get($color-rgb, 'green') * .7152) + (map.get($color-rgb, 'blue') * .0722);
+}
+
+// The WCAG contrast ratio between two colours, 1 (identical) to 21 (black on white).
+// 4.5 is the AA floor for ordinary text, 3 for large or bold text.
+//
+// It is built on colorLuminance() above, which squares the linearised channels where the
+// sRGB definition raises them to 2.4. That reads a little light - #f69231 measures 0.456
+// rather than 0.404 - but the error goes the same way for both colours of a pair, so the
+// comparisons below come out the same either way. Do not read an absolute contrast figure
+// off this function; use it to compare two.
+@function contrastRatio($one, $two) {
+	$a: colorLuminance($one);
+	$b: colorLuminance($two);
+	@if $a < $b {
+		$t: $a;
+		$a: $b;
+		$b: $t;
+	}
+	@return math.div($a + 0.05, $b + 0.05);
+}
+
+// The text colour to put ON $color: whichever of white and the theme's softened black
+// actually reads better against it.
+//
+// This used to be a single luminance cut - black above 0.55, white below - which is not
+// what legibility depends on. A mid-tone got white because it was not light enough to
+// cross the line, however badly white performed on it: $primary (#f69231) measures 0.456
+// and so took white, at 2.3:1, where black gives 5.5:1. Six of the theme's eleven palette
+// entries were wrong that way, which is why _cookiewarning hand-wrote `color: black` for
+// its accept button instead of using this.
+//
+// The black is softened to 70%, as it has been since this came from bulma, so the
+// comparison has to be made against what that actually paints: mix(#000, $color, 70%) is
+// the colour rgba(#000, 0.7) composites to over $color.
+@function findColorInvert($color) {
+	@if contrastRatio($color, color.mix(#000, $color, 70%)) > contrastRatio($color, #fff) {
+		@return rgba(#000, 0.7);
+	} @else {
+		@return #fff;
+	}
+}
+
+@function findColorHighlight($color, $percentage) {
+	@if (colorLuminance($color) > 0.30) {
+		@return darker($color, $percentage);
+	} @else {
+		@return lighter($color, $percentage);
+	}
+}
+
+// The focus border for a button of colour $color. A colour too dark to derive one from gets
+// $dark-fallback, which the caller takes from the derived variables ($button-focus-border-color)
+// because this module cannot read them - see the top of this file.
+@function findButtonFocusBorderColor($color, $dark-fallback) {
+	$newlum: colorLuminance($color);
+
+	@if($newlum < 0.1) {
+		@return $dark-fallback;
+	} @else if($newlum > 0.7) {
+		@return color.adjust($color, $hue: 180);
+	} @else {
+		@return moreSaturated(color.adjust($color, $hue: 90), 50%);
+	}
+}
+
+
+// One rung of a ladder: the step $level places along $grey-ramp from $from, walked in
+// whichever direction $ladder-direction says.
+//
+//	.ui-pmnu     { background-color: ladder($pmnu-bg);    }		// the ladder's own rung
+//	.ui-pmnu-sm1 { background-color: ladder($pmnu-bg, 1); }		// one level in
+//	.ui-pmnu-sm2 { background-color: ladder($pmnu-bg, 2); }		// two levels in
+//
+// A negative $level walks the other way, which is how something that belongs *under* the
+// ladder's own surface - a title band, a border - is expressed.
+//
+// Walking off either end of the ramp clamps rather than failing, so a component that
+// nests deeper than the ramp has steps degrades to a flat colour instead of breaking the
+// build. $from must be one of the ramp's own steps; anything else is a mistake worth
+// stopping for.
+@function ladder($from, $level: 0) {
+	$i: list.index($grey-ramp, $from);
+	@if $i == null {
+		@error "ladder(): #{$from} is not a step of $grey-ramp - pass one of $black ... $white";
+	}
+	$n: $i + $level * $ladder-direction;
+	@if $n < 1 {
+		$n: 1;
+	}
+	@if $n > list.length($grey-ramp) {
+		$n: list.length($grey-ramp);
+	}
+	@return list.nth($grey-ramp, $n);
+}

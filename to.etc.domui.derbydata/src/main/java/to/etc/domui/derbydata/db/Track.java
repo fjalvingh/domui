@@ -4,7 +4,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaObject;
+import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.MetaSearchItem;
+import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.converter.MsDurationConverter;
 
 import jakarta.persistence.Column;
@@ -24,11 +26,12 @@ import java.math.BigDecimal;
  * Created on Apr 20, 2010
  */
 @MetaObject(defaultColumns = {
-	@MetaDisplayProperty(name="name", displayLength = 30)
-	, @MetaDisplayProperty(name = "milliseconds", converterClass = MsDurationConverter.class)
+	@MetaDisplayProperty(name = "name", displayLength = 30)
+	, @MetaDisplayProperty(name = "milliseconds", displayLength = 12)
+	, @MetaDisplayProperty(name = "unitPrice", displayLength = 8)
 	, @MetaDisplayProperty(name = "album.title", displayLength = 20)
 	, @MetaDisplayProperty(name = "album.artist.name", displayLength = 40)
-}, searchProperties = {
+}, defaultSortColumn = "name", searchProperties = {
 	@MetaSearchItem(name = "name")
 	, @MetaSearchItem(name = "album")
 	, @MetaSearchItem(name = "album.artist")
@@ -69,7 +72,7 @@ public class Track extends DbRecordBase<Long> {
 		m_id = id;
 	}
 
-	@Column(name = "Name", length = 128, nullable = false)
+	@Column(name = "Name", length = 200, nullable = false)
 	public String getName() {
 		return m_name;
 	}
@@ -117,6 +120,7 @@ public class Track extends DbRecordBase<Long> {
 		m_composer = composer;
 	}
 
+	@MetaProperty(converterClass = MsDurationConverter.class)
 	@Column(name = "Milliseconds", precision = 10, scale = 0, nullable = false)
 	public long getMilliseconds() {
 		return m_milliseconds;
@@ -135,6 +139,7 @@ public class Track extends DbRecordBase<Long> {
 		m_bytes = bytes;
 	}
 
+	@MetaProperty(numericPresentation = NumericPresentation.MONEY_FULL)
 	@Column(name = "UnitPrice", precision = 10, scale = 2, nullable = false)
 	public BigDecimal getUnitPrice() {
 		return m_unitPrice;

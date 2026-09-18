@@ -12,10 +12,10 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IRenderInto;
+import to.etc.function.IExecute;
 import to.etc.util.WrappedException;
 import to.etc.webapp.nls.NlsContext;
 
@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
@@ -41,6 +40,8 @@ import static java.util.Objects.requireNonNull;
 public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	private final Class<T> m_actualClass;
 
+	/** The property of T whose value is shown as the label, or null to use the value itself. */
+	@Nullable
 	private final String m_property;
 
 	@NonNull
@@ -52,9 +53,6 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	private Function<T, String> m_converter;
 
 	@Nullable
-	private BiFunction<T, String, Boolean> m_predicate;
-
-	@Nullable
 	private IRenderInto<T> m_renderer;
 
 	private boolean m_addSingleMatch = true;
@@ -62,18 +60,19 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	@Nullable
 	private SearchAsYouType<T> m_input;
 
-	public EnumSetInput(Class<T> actualClass, String property) {
+	public EnumSetInput(Class<T> actualClass, @Nullable String property) {
 		m_actualClass = actualClass;
 		m_property = property;
 	}
 
-	public EnumSetInput(Class<T> actualClass, List<T> data, String property) {
+	public EnumSetInput(Class<T> actualClass, List<T> data, @Nullable String property) {
 		m_actualClass = actualClass;
 		m_property = property;
 		m_dataList = data;
 	}
 
-	@Override public void createContent() throws Exception {
+	@Override
+	public void createContent() throws Exception {
 		addCssClass("ui-esic");
 		m_displayMap.clear();
 		Set<T> set = getValue();
@@ -90,11 +89,21 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		SearchAsYouType<T> input = m_input = new SearchAsYouType<>(m_actualClass, m_property);
 		//input.setCssBase("ui-esic-input");
 		add(input);
+
+		//-- Search on exactly the text that is shown as a label: that also covers the
+		//-- cases the input cannot handle by itself - an enum, or a converter set here.
+		input.setConverter((loc, item) -> {
+			try {
+				return getLabelText(item);
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
+		});
 		input.setAddSingleMatch(isAddSingleMatch());
 		//input.setCssClass("ui-esic-input");
 		input.setData(getData());
 
-		input.setOnValueChanged(a -> {
+		input.setOnValueChanged(()-> {
 			T value = input.getValue();
 			if(null != value) {
 				addItem(value);
@@ -116,7 +125,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			value = Collections.emptySet();
 		if(null != source) {
 			for(T datum : source) {
-				if(! value.contains(datum))
+				if(!value.contains(datum))
 					list.add(datum);
 			}
 		}
@@ -139,7 +148,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			Button delBtn = new Button().css("ui-esic-del");
 			label.add(delBtn);
 			delBtn.add(Icon.faTimes.createNode());
-			delBtn.setClicked(a -> {
+			delBtn.setClicked(()-> {
 				removeItem(value);
 				SearchAsYouType<T> input = m_input;
 				if(input != null) {
@@ -149,7 +158,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 
 			});
 		}
-		m_displayMap.put(value, label);					// Register
+		m_displayMap.put(value, label);                    // Register
 		return label;
 	}
 
@@ -195,9 +204,9 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 
 
 	private void valueHasChanged() throws Exception {
-		IValueChanged<EnumSetInput<T>> listener = (IValueChanged<EnumSetInput<T>>) getOnValueChanged();
+		IExecute listener = getOnValueChanged();
 		if(null != listener) {
-			listener.onValueChanged(this);
+			listener.execute();
 		}
 	}
 
@@ -207,7 +216,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			String sb = getLabelText(b);
 			return sa.compareToIgnoreCase(sb);
 		} catch(Exception x) {
-			throw WrappedException.wrap(x);				// The idiot that defined this shit stream API should be shot.
+			throw WrappedException.wrap(x);                // The idiot that defined this shit stream API should be shot.
 		}
 	}
 
@@ -236,11 +245,14 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		return String.valueOf(value);
 	}
 
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return null;
 	}
 
-	@NonNull public List<T> getData() {
+	@NonNull
+	public List<T> getData() {
 		return m_dataList;
 	}
 
@@ -250,7 +262,8 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		return this;
 	}
 
-	@Nullable public Function<T, String> getConverter() {
+	@Nullable
+	public Function<T, String> getConverter() {
 		return m_converter;
 	}
 
@@ -258,7 +271,8 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		m_converter = converter;
 	}
 
-	@Nullable public IRenderInto<T> getRenderer() {
+	@Nullable
+	public IRenderInto<T> getRenderer() {
 		return m_renderer;
 	}
 
@@ -267,10 +281,10 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		return this;
 	}
 
-	public EnumSetInput<T> setMatcher(BiFunction<T, String, Boolean> matcher) {
-		m_predicate = matcher;
-		return this;
-	}
+	//public EnumSetInput<T> setMatcher(BiFunction<T, String, Boolean> matcher) {
+	//	m_predicate = matcher;
+	//	return this;
+	//}
 
 	public boolean isAddSingleMatch() {
 		return m_addSingleMatch;
@@ -284,7 +298,8 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	//	return this;
 	//}
 
-	@Override public void setHint(@Nullable String hintText) {
+	@Override
+	public void setHint(@Nullable String hintText) {
 		setTitle(hintText);
 	}
 }

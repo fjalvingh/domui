@@ -13,9 +13,15 @@
 	font-size: 16px;
 }
 
+/*
+ * The logo lines up with the page content below it: the home page indents by 20px, and
+ * the image carries two transparent columns of its own, so 18px puts the visible logo on
+ * the same line as the text. The box is border-box, so the padding stays inside the 290px.
+ */
 .d-sbc-logo {
 	flex: none;
 	width: 290px;
+	padding-left: 18px;
 }
 .d-sbc-l {
 	text-decoration: none;
@@ -25,6 +31,30 @@
 	color: red;
 	font-size: 2em;
 	padding-left: 20px;
+}
+
+.d-sbc-r {
+	flex: none;
+	display: flex;
+	align-items: center;
+}
+
+/*
+ * The bar keeps its dark ground in both theme variants, so its buttons cannot take the
+ * theme's button colour: in the light variant that is near-black, which makes the theme
+ * switch icon invisible on the bar. Paint them with the bar's own foreground instead.
+ */
+.d-sbc .ui-button {
+	&,
+	&:hover,
+	&:focus {
+		color: rgba(255, 255, 255, 0.75);
+	}
+
+	&:hover,
+	&:focus {
+		color: #fff;
+	}
 }
 
 .d-expl {
@@ -78,6 +108,44 @@
 	margin: 0 auto;
 }
 
+/*** Tutorial: "building your first page" pages ***/
+.dm-tut {
+	margin: 20px;
+	padding: 20px;
+	border: 1px solid #d0d0d0;
+}
+
+.dm-tut-hi {
+	background-color: #ffe9a0;
+}
+
+/*** Tutorial: the state colours a StyleBinding maps an order state onto ***/
+.dm-tut-new {
+	background-color: #f0f0f0;
+}
+
+.dm-tut-paid {
+	background-color: #d9f0d9;
+}
+
+.dm-tut-shipped {
+	background-color: #d9e4f5;
+}
+
+.dm-tut-cancelled {
+	background-color: #f5d9d9;
+}
+
+/*** The generated query text, shown next to a tutorial query result ***/
+.dm-tut-q {
+	margin: 20px 20px 0 20px;
+	padding: 10px;
+	background-color: #f4f4f4;
+	border: 1px solid #d0d0d0;
+	font-family: monospace;
+	white-space: pre-wrap;
+}
+
 /*** Wiki page data ***/
 .ui-wiki {
 	position: absolute;
@@ -125,4 +193,148 @@
 
 .lpf-content-links {
 
+}
+
+/*** Tutorial "layout": the reusable card fragment ***/
+.dm-cardrow {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.dm-card {
+	width: 280px;
+	margin: 0 20px 20px 0;
+	padding: 10px 15px;
+	border: 1px solid #d0d0d0;
+	background-color: #fbfbfb;
+}
+
+.dm-card h2 {
+	margin-top: 0;
+}
+
+/*** Tutorial "layout": the collapsible section fragment ***/
+.dm-cs {
+	margin-bottom: 10px;
+	border: 1px solid #d0d0d0;
+}
+
+.dm-cs-h {
+	padding: 4px 10px;
+	background-color: #f0f0f0;
+	border-bottom: 1px solid #d0d0d0;
+	font-weight: bold;
+}
+
+.dm-cs-c {
+	padding: 10px;
+}
+
+/*** Tutorial "writing a component": the star rating control ***/
+.dm-rating {
+	display: inline-block;
+	font-size: 20px;
+	line-height: 20px;
+	user-select: none;
+}
+
+.dm-rating span {
+	padding: 0 1px;
+	color: #e8a33d;
+}
+
+.dm-rating-off {
+	color: #c0c0c0;
+}
+
+.dm-rating:not(.dm-rating-ro):not(.dm-rating-disabled) span {
+	cursor: pointer;
+}
+
+.dm-rating-ro span {
+	color: #808080;
+}
+
+.dm-rating-disabled span {
+	color: #d0d0d0;
+}
+
+/*** Tutorial "writing a component": the album badge control ***/
+.dm-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border: 1px solid #d0d0d0;
+	border-radius: 10px;
+	background-color: #f4f4f4;
+}
+
+.dm-badge-i {
+	color: #909090;
+}
+
+.dm-badge-empty {
+	color: #909090;
+	font-style: italic;
+}
+
+/*** Drag and drop demo: the zones dragged between, and the things dragged ***/
+.dm-dnd-cols {
+	display: flex;
+	gap: 20px;
+	margin: 20px;
+}
+
+.dm-dnd-cols > .dm-dnd-zone {
+	flex: 1;
+	margin: 0;
+}
+
+.dm-dnd-zone {
+	min-height: 120px;
+	margin: 20px;
+	padding: 10px;
+	border: 1px dashed #b0b0b0;
+	background-color: #fbfbfb;
+}
+
+.dm-dnd-basket {
+	min-height: 160px;
+	background-color: #f2f7ff;
+}
+
+.dm-dnd-item {
+	display: inline-block;
+	margin: 4px;
+	padding: 4px 8px;
+	border: 1px solid #d0d0d0;
+	border-radius: 4px;
+	background-color: #ffffff;
+}
+
+/*** Agenda demo: the colour of an appointment is taken from its type ***/
+.dm-agenda-meeting {
+	background-color: #d9e4f5;
+}
+
+.dm-agenda-private {
+	background-color: #d9f0d9;
+}
+
+.dm-agenda-problem {
+	background-color: #f5d9d9;
+}
+
+.dm-dnd-item img {
+	max-height: 70px;
+}
+
+table.dm-dnd-list {
+	border-collapse: collapse;
+
+	td {
+		padding: 4px 8px;
+		border-bottom: 1px solid #e0e0e0;
+		background-color: #ffffff;
+	}
 }

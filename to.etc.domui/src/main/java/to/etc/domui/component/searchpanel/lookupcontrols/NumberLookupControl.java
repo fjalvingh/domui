@@ -32,10 +32,10 @@ import to.etc.domui.converter.MoneyUtil;
 import to.etc.domui.converter.NumericUtil;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.webapp.query.QOperation;
 
 import java.math.BigDecimal;
@@ -408,12 +408,12 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 	}
 
 	@Override
-	public IValueChanged<?> getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_input.getOnValueChanged();
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_input.setOnValueChanged(onValueChanged);
 	}
 

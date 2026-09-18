@@ -32,7 +32,6 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
@@ -41,6 +40,7 @@ import to.etc.domui.dom.html.Table;
 import to.etc.domui.dom.html.TableVAlign;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.IRenderInto;
+import to.etc.function.IExecute;
 
 import java.util.List;
 
@@ -81,12 +81,12 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 	static private final int INNERHEIGHT = 400;
 
-	static private IClicked<TD> C_CLICK = b -> {
-		if(b.hasCssClass("selected"))
-			b.removeCssClass("selected");
+	static private void toggleSelected(TD cell) {
+		if(cell.hasCssClass("selected"))
+			cell.removeCssClass("selected");
 		else
-			b.addCssClass("selected");
-	};
+			cell.addCssClass("selected");
+	}
 
 	@Override
 	public void createContent() throws Exception {
@@ -136,10 +136,10 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TBody b = new TBody();
 		t.add(b);
 
-		DefaultButton ib = new DefaultButton("", Icon.of("THEME/sh-up.png"), xb -> moveUp());
+		DefaultButton ib = new DefaultButton("", Icon.of("THEME/sh-up.png"), ()-> moveUp());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", Icon.of("THEME/sh-down.png"), xb -> moveDown());
+		ib = new DefaultButton("", Icon.of("THEME/sh-down.png"), ()-> moveDown());
 		b.addRowAndCell().add(ib);
 	}
 
@@ -153,16 +153,16 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TBody b = new TBody();
 		t.add(b);
 
-		DefaultButton ib = new DefaultButton("", Icon.of("THEME/sh-2ar-right.png"), clickednode -> moveRight());
+		DefaultButton ib = new DefaultButton("", Icon.of("THEME/sh-2ar-right.png"), ()-> moveRight());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", Icon.of("THEME/sh-1ar-right.png"), xb -> moveRight());
+		ib = new DefaultButton("", Icon.of("THEME/sh-1ar-right.png"), ()-> moveRight());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", Icon.of("THEME/sh-1ar-left.png"), xb -> moveLeft());
+		ib = new DefaultButton("", Icon.of("THEME/sh-1ar-left.png"), ()-> moveLeft());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", Icon.of("THEME/sh-2ar-left.png"), clickednode -> moveLeft());
+		ib = new DefaultButton("", Icon.of("THEME/sh-2ar-left.png"), ()-> moveLeft());
 		b.addRowAndCell().add(ib);
 
 	}
@@ -193,7 +193,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 				r = calculateSourceRenderer(value);
 			r.render(td, value);
 
-			td.setClicked(C_CLICK);
+			td.setClicked(() -> toggleSelected(td));
 		}
 	}
 
@@ -221,7 +221,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 			if(r == null)
 				r = calculateTargetRenderer(value);
 			r.render(td, value);
-			td.setClicked(C_CLICK);
+			td.setClicked(() -> toggleSelected(td));
 		}
 	}
 
@@ -409,7 +409,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TR tr = new TR();
 		TD td = new TD();
 		tr.add(td);
-		td.setClicked(C_CLICK);
+		td.setClicked(() -> toggleSelected(td));
 		IRenderInto<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
 		r.render(td, value);
 		b.add(index, tr);

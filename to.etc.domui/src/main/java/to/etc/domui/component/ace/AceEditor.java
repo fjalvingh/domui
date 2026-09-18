@@ -11,7 +11,6 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasChangeListener;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IManualFocus;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.parts.IComponentJsonProvider;
@@ -20,6 +19,7 @@ import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.function.IExecute;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -78,7 +78,7 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 	private boolean m_modified;
 
 	@Nullable
-	private IValueChanged<?> m_valueChanged;
+	private IExecute m_valueChanged;
 
 	@Nullable
 	private Predicate<Character> m_prefixValidator;
@@ -113,12 +113,12 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 		}
 
 		@Override
-		public IValueChanged<?> getOnValueChanged() {
+		public IExecute getOnValueChanged() {
 			return m_valueChanged;
 		}
 
 		@Override
-		public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+		public void setOnValueChanged(IExecute onValueChanged) {
 			m_valueChanged = onValueChanged;
 		}
 
@@ -445,7 +445,7 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 		if(m_tabSize == tabSize)
 			return;
 		m_tabSize = tabSize;
-		if(!isBuilt())
+		if(isBuilt())
 			updateTabSize();
 	}
 
@@ -472,7 +472,10 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 
 	public void selectWord(int line, int col) {
 		if(isBuilt()) {
-			callMethod("selection.getWordRange", Integer.toString(line), Integer.toString(col));
+			line--;
+			StringBuilder sb = new StringBuilder();
+			handle(sb).append("selection.getWordRange(").append(line).append(",").append(col).append(")");
+			callMethod("selection.setRange", sb.toString(), "true");
 		}
 	}
 
@@ -543,12 +546,12 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 	}
 
 	@Override
-	public IValueChanged<?> getOnValueChanged() {
+	public IExecute getOnValueChanged() {
 		return m_valueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	public void setOnValueChanged(IExecute onValueChanged) {
 		m_valueChanged = onValueChanged;
 	}
 

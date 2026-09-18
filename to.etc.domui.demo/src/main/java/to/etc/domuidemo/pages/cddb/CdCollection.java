@@ -1,29 +1,22 @@
 package to.etc.domuidemo.pages.cddb;
 
-import to.etc.domui.component.layout.Caption;
-import to.etc.domui.component.layout.ContentPanel;
-import to.etc.domui.component.searchpanel.SearchPanel;
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.derbydata.db.Track;
-import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.UIGoto;
 
 /**
+ * Find a track in the catalogue; clicking one opens what is known about it.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2-7-17.
  */
-public class CdCollection extends UrlPage {
-	@Override public void createContent() throws Exception {
-		add(new Caption("Find your favorite track"));
+public class CdCollection extends AbstractCdShopListPage<Track> {
+	public CdCollection() {
+		super(Track.class, "Tracks for sale");
+	}
 
-		ContentPanel cp = new ContentPanel();
-		add(cp);
-
-		SearchPanel<Track> lookup = new SearchPanel<>(Track.class);
-		cp.add(lookup);
-
-		TrackResultFragment<Track> resultFragment = new TrackResultFragment<>(lookup);
-		cp.add(resultFragment);
-
-		resultFragment.setOnClick(row -> UIGoto.moveSub(TrackDetails.class, row));
+	@Override
+	protected void onRowSelected(@NonNull Track instance) throws Exception {
+		UIGoto.moveSub(TrackDetails.class, "id", instance.getId());
 	}
 }
