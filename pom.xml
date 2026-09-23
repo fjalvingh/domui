@@ -135,7 +135,7 @@
         <jackson.databind.version>2.21.5</jackson.databind.version>
 
         <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
-        <jakarta.el.version>6.0.0</jakarta.el.version>
+        <jakarta.el.version>6.0.1</jakarta.el.version>
         <jakarta.jsp.version>4.0.0</jakarta.jsp.version>
 
         <!--        <jakarta.servlet.version>4.0.1</jakarta.servlet.version>-->
