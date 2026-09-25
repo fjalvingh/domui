@@ -33,9 +33,11 @@ namespace WebUI {
 		let eWidth = $(refid).outerWidth();
 		let mwidth = $(menu).outerWidth();
 
+		//-- Keep the menu inside the visible part of the browser window (not the physical screen, which can be wider)
 		let left = (pos.left);
-		if(left + mwidth > screen.width)
-			left = screen.width - mwidth - 10;
+		let viewRight = $(window).scrollLeft() + $(window).width();
+		if(left + mwidth > viewRight)
+			left = Math.max(0, viewRight - mwidth - 10);
 		let top = 3 + pos.top;
 
 		if(mode == 'below') {
