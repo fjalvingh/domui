@@ -177,14 +177,18 @@ public class SimplePopupMenu extends Div {
 	 * @param a
 	 */
 	protected void renderSubmenu(@NonNull NodeContainer into, final Submenu a) {
-		final Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
+		final Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), a.isDisabled());
 		Img img = new Img("THEME/pmnu-submenu-open.png");
 		d.add(img);
+		if(a.isDisabled())
+			return;
 		d.setClicked(clickednode -> submenuClicked(d, a));
 	}
 
 	protected void renderItem(@NonNull NodeContainer into, final Item a) {
-		Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
+		Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), a.isDisabled());
+		if(a.isDisabled())
+			return;
 		d.setClicked(clickednode -> {
 			closeMenu();
 			if(null != a.getClicked())
