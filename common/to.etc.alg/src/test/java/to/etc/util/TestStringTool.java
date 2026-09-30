@@ -519,6 +519,15 @@ public class TestStringTool {
 	}
 
 	@Test
+	public void testStrTruncate() {
+		Assert.assertNull(StringTool.strTruncate(null, 4));
+		Assert.assertEquals("ab", StringTool.strTruncate("ab", 4));
+		Assert.assertEquals("abcd", StringTool.strTruncate("abcd", 4));
+		Assert.assertEquals("abcd", StringTool.strTruncate("abcdef", 4));
+		Assert.assertEquals("", StringTool.strTruncate("abcdef", 0));
+	}
+
+	@Test
 	public void testIsValidJavaIdentifier() throws Exception {
 		String text = "_isThisValidName1";
 		assertThat(StringTool.isValidJavaIdentifier(text), is(true));

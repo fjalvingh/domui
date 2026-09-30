@@ -516,6 +516,19 @@ public class StringTool {
 	}
 
 	/**
+	 * Cuts the string to at most maxLength characters. Null and strings that are
+	 * already within the limit are returned unchanged.
+	 */
+	@Nullable
+	public static String strTruncate(@Nullable String s, int maxLength) {
+		if(maxLength < 0)
+			throw new IllegalArgumentException("maxLength must be >= 0");
+		if(s == null || s.length() <= maxLength)
+			return s;
+		return s.substring(0, maxLength);
+	}
+
+	/**
 	 * Returns a coordinate pair as a string.
 	 */
 	@NonNull
