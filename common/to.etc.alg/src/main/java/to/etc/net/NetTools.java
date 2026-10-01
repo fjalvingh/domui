@@ -99,10 +99,15 @@ final public class NetTools {
 	 * Return the host name/IP address of the remote side of the connection. This
 	 * is proxy safe: it checks for proxy headers on the request.
 	 */
-	static public String getRemoteHost(HttpServletRequest req) throws Exception {
+	static public String getRemoteHost(HttpServletRequest req) {
 		// Only allow proxy headers from non internet addresses (10.x, 172.16..31, 192.168..)
 		String remoteHost = req.getRemoteHost();
-		InetAddress remote = InetAddress.getByName(remoteHost);
+		InetAddress remote;
+		try {
+			remote = InetAddress.getByName(remoteHost);
+		} catch(Exception x) {
+			return "";
+		}
 		if(remote.isSiteLocalAddress() || remote.isLinkLocalAddress() || remote.isLoopbackAddress()) {
 			//-- Proxied?
 			String hdr = req.getHeader("X-real-ip");
