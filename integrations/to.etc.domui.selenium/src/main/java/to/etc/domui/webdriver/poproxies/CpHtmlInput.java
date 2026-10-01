@@ -21,8 +21,7 @@ public class CpHtmlInput extends AbstractCpComponent implements ICpControl<Strin
 
 	@Override
 	public String getValue() {
-		var elem = wd().getElement(getSelector());
-		return elem.getText();
+		return wd().getValue(getSelector());
 	}
 
 	@Override
