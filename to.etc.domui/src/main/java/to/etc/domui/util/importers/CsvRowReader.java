@@ -320,7 +320,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 							m_sb.append((char) c);
 						} else {
 							//-- We are done: end quote found, should be a field
-							if(m_treatEmptyStringAsNull)
+							if(m_treatEmptyStringAsNull && m_sb.isEmpty())
 								m_columns.add(null);
 							else
 								m_columns.add(m_sb.toString());      // "","" is empty string, not null
@@ -329,7 +329,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 						}
 					} else {
 						//-- We are done (no double quoting)
-						if(m_treatEmptyStringAsNull)
+						if(m_treatEmptyStringAsNull && m_sb.isEmpty())
 							m_columns.add(null);
 						else
 							m_columns.add(m_sb.toString());				// "","" is empty string, not null
