@@ -108,6 +108,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	private boolean m_dontSkipWs;
 
+	private boolean m_treatEmptyStringAsNull;
+
 	static public class CsvError {
 		private final ImporterErrorCodes m_code;
 
@@ -318,14 +320,20 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 							m_sb.append((char) c);
 						} else {
 							//-- We are done: end quote found, should be a field
-							m_columns.add(m_sb.toString());            // "","" is empty string, not null
+							if(m_treatEmptyStringAsNull && m_sb.isEmpty())
+								m_columns.add(null);
+							else
+								m_columns.add(m_sb.toString());      // "","" is empty string, not null
 							skipWhiteSpace();                        // Allow whitespace after " to next comma
 							return;
 						}
 					} else {
 						//-- We are done (no double quoting)
-						m_columns.add(m_sb.toString());            // "","" is empty string, not null
-						skipWhiteSpace();                        // Allow whitespace after " to next comma
+						if(m_treatEmptyStringAsNull && m_sb.isEmpty())
+							m_columns.add(null);
+						else
+							m_columns.add(m_sb.toString());				// "","" is empty string, not null
+						skipWhiteSpace();              					// Allow whitespace after " to next comma
 						return;
 					}
 				} else if(c != skipcr) {
@@ -540,6 +548,23 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	public CsvRowReader skipCr(boolean skip) {
 		m_skipCr = skip;
 		return this;
+	}
+
+	/**
+	 * When set, not only ,, is returned as null but ,"", too.
+	 */
+	public CsvRowReader treatEmptyStringAsNull() {
+		m_treatEmptyStringAsNull = true;
+		return this;
+	}
+
+	public CsvRowReader treatEmptyStringAsNull(boolean on) {
+		m_treatEmptyStringAsNull = on;
+		return this;
+	}
+
+	public boolean isTreatEmptyStringAsNull() {
+		return m_treatEmptyStringAsNull;
 	}
 
 	/*----------------------------------------------------------------------*/
