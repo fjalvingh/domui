@@ -1,0 +1,16 @@
+// The application's theme variables for the LIGHT variant only. This file is meant to be
+// replaced by a copy in the application's webapp (themes/scss/winter/_variant-custominit.scss);
+// DomUI's own stays empty. Its sibling for the dark variant is
+// themes/scss/winter/dark/_variant-custominit.scss.
+//
+// It is written like _custominit.scss - plain declarations of variables the theme declares:
+//
+//	$primary: #c06000;
+//	$link-color: #2200cc;
+//
+// and where both files declare a variable, this one wins.
+//
+// It applies to the light variant only because every variant directory holds its own copy:
+// DomUI ships an empty one in winter/dark/, which is found before this one when the dark
+// sheet is compiled. A variant directory an application adds itself needs one too, or it
+// takes this file.

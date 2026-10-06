@@ -2,8 +2,8 @@
 /*** DataTable default style ***/
 @use "theme" as *;
 
-// The variables are in _derived-variables.scss - the colours shared with _scrollableTable
-// and three others, and this component's own $dt-font-size and $dt-hdr-bg-img.
+// The colours are in _component-colors.scss, shared with _scrollableTable and three others;
+// this component's own $dt-font-size and $dt-hdr-bg-img are in _derived-variables.scss.
 div.ui-dt {
 	overflow: auto;
 	position: relative;

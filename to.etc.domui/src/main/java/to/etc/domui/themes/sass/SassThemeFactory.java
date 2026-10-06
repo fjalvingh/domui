@@ -27,9 +27,9 @@ import java.util.List;
  * </pre>
  * <p>Because a resource is taken from the first directory on that path that has it, a
  * variant overrides whatever it wants to and inherits the rest. A dark theme is a
- * <code>dark</code> directory holding its own <code>_color.scss</code>, plus any image
- * that needs to differ; <code>style.scss</code> keeps its plain
- * <code>&#64;import 'color'</code>. The variant name is also passed to the sheet as the
+ * <code>dark</code> directory holding its own copies of the two colour files,
+ * <code>_palette.scss</code> and <code>_component-colors.scss</code>, plus any image that
+ * needs to differ. The variant name is also passed to the sheet as the
  * scss variable <code>$themeVariant</code>, so a single file can branch on it instead.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

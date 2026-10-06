@@ -2,9 +2,9 @@
 // The jscalendar popup used by DateInput2 (calendar.js), converted from the vendor's
 // calendar-theme.css so its colours can come from variables like the rest of the theme.
 //
-// Its variables ($cal-*, in _derived-variables.scss) each default to the literal they
+// Its variables ($cal-*, in _component-colors.scss) each default to the literal they
 // replaced, so the light theme compiles to exactly what it did before; a theme variant
-// sets them in its own _color.scss.
+// sets them in its own _component-colors.scss.
 
 /* The main calendar widget.  DIV containing a table. */
 

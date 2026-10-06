@@ -1,11 +1,11 @@
-// The theme's functions. They read the theme's variables, so this is a module over
-// _variables.scss - which is why it cannot read _derived-variables.scss: that file uses
+// The theme's functions. They read the theme's colours, so this is a module over
+// _palette.scss - which is why it cannot read _component-colors.scss: that file uses
 // these functions, and a module may not load a module that loads it.
 @use "sass:color";
 @use "sass:list";
 @use "sass:map";
 @use "sass:math";
-@use "variables" as *;
+@use "palette" as *;
 
 // darken(), lighten() and saturate() as Sass had them before the sass:color module: the
 // channel is moved by $amount and clamped to 0..100%. color.adjust() does not clamp - darkening
@@ -108,7 +108,7 @@
 }
 
 // The focus border for a button of colour $color. A colour too dark to derive one from gets
-// $dark-fallback, which the caller takes from the derived variables ($button-focus-border-color)
+// $dark-fallback, which the caller takes from the component colours ($button-focus-border-color)
 // because this module cannot read them - see the top of this file.
 @function findButtonFocusBorderColor($color, $dark-fallback) {
 	$newlum: colorLuminance($color);
