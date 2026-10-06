@@ -254,6 +254,11 @@ $dt-hdr-color: black !default;
 // rather than fixed in passing: giving it a colour makes borders appear that never have.
 $dt-hdr-btm-border: undefined !default;
 
+// The sort indicator in a column header (_datatable and _scrollableTable): the arrow of the
+// sorted direction, and the pair shown on a column that is not sorted.
+$dt-sort-color: #232D30 !default;
+$dt-sort-idle-color: rgba(#232D30, 0.6) !default;
+
 $dt-border: $dt-hdr-bg !default;
 $dt-lines-border: lighter($dt-border, 20%) !default;
 
@@ -400,6 +405,10 @@ $lnkb-icon-color: $text !default;
 //-- helper compares contrast rather than cutting on luminance it answers correctly, so the
 //-- button asks it like every other coloured surface does.
 $ckw-accept-color: $primary-invert !default;
+
+//-- The spinner of the "waiting for the server" message (.ui-ioe-img, _asyio)
+$ioe-spinner-color: #0E601A !default;
+$ioe-spinner-track: #DCE8DD !default;
 
 //-- MonthPanel dims, which were written as lighter(#000000, 55%) and 65%
 $mp-weeknr-color: $text-muted !default;

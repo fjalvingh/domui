@@ -1,6 +1,7 @@
 // The common mixins. They are part of the theme module (index forwards this file), which
 // is why this reads the variables through color, the variant's configuration of them, and
 // not through "theme": a module may not load the module that forwards it.
+@use "sass:math";
 @use "../color" as *;
 
 @mixin ui-beveled-border {
@@ -184,4 +185,58 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+// The sort indicator of a column header: an up triangle above a down one, drawn with borders on
+// the two pseudo elements - no image, so nothing to load and nothing that moves the header while
+// it arrives, and the colours come from the variant. "Not sorted" shows both, quieter; ascending
+// shows only the up one, descending only the down one, each centred on the icon.
+@mixin sort-icon($width, $height, $tri-width, $tri-height, $gap) {
+	position: relative;
+	width: $width;
+	height: $height;
+
+	&::before,
+	&::after {
+		content: "";
+		position: absolute;
+		left: 2px;
+		border-left: math.div($tri-width, 2) solid transparent;
+		border-right: math.div($tri-width, 2) solid transparent;
+	}
+
+	&::before {
+		top: math.div($height - 2 * $tri-height - $gap, 2);
+		border-bottom: $tri-height solid $dt-sort-idle-color;
+	}
+
+	&::after {
+		top: math.div($height - 2 * $tri-height - $gap, 2) + $tri-height + $gap;
+		border-top: $tri-height solid $dt-sort-idle-color;
+	}
+
+	&.ui-sort-n:hover {
+		&::before { border-bottom-color: $dt-sort-color; }
+		&::after { border-top-color: $dt-sort-color; }
+	}
+
+	&.ui-sort-a {
+		&::before {
+			top: math.div($height - $tri-height, 2);
+			border-bottom-color: $dt-sort-color;
+		}
+		&::after { display: none; }
+	}
+
+	&.ui-sort-d {
+		&::before { display: none; }
+		&::after {
+			top: math.div($height - $tri-height, 2);
+			border-top-color: $dt-sort-color;
+		}
+	}
+
+	&.ui-sort-na {	// sort not applicable
+		display: none !important;
+	}
 }

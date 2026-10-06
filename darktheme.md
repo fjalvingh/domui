@@ -412,13 +412,14 @@ the cost noted.
 
 | Phase | State |
 | --- | --- |
-| §3 compile-and-diff harness, contrast check | done (image check, review page: not yet) |
+| §3 compile-and-diff harness, contrast check, image check | done (review page: not made; the demo's own pages served) |
 | 1 | done |
 | `_variant-custominit.scss` | done |
 | 2 | done |
 | 3 | done |
 | 4 | done |
-| 5-6 | not started |
+| 5 | done |
+| 6 | not started |
 
 ### 7.1 The harness (2026-10-06)
 
@@ -625,3 +626,68 @@ and Darcula's orange for the accent.
   in Chrome the states that need a click: PopupMenu2 open, the DateInput2 calendar, a
   floating window, a modal MsgBox with its overlay, and the HamburgerMenu open. The new
   Explanation in both variants.
+
+### 7.7 Phase 5 (2026-10-06): images
+
+**Deviation from §2.4, decided when the phase started.** §2.4 planned CSS for the surface
+images and one-colour SVGs for the glyphs. Both would have changed how the light theme
+renders, and the glyphs that Java code puts on the page (Tree, Tree2, Tree3, ExpandHeader,
+the `Theme` icons) would have needed every call site changed. Instead, every image that
+does not read on a dark page gets a **dark copy with the same name in `winter/dark/`**,
+which the theme's search path already prefers in the dark variant: for a `url()` in the
+stylesheet and for a `THEME/x.png` in Java alike. The light theme keeps its images
+untouched. The copies are not hand-made: `buildResources/dark-theme-images.sh` makes them
+from the light images, so a later palette or image change is a re-run. Converting the
+glyphs to SVG remains a possible improvement; it is no longer needed for dark.
+
+- **The transformation** turns lightness around in Lab and squeezes it into the palette's
+  range, `L' = 0.20 + (1 - L) * 0.72`, keeping hue and chroma. White lands just above
+  the page ground, black on light text, and a colour keeps its character. Lab rather
+  than HSL, because in HSL a near-white like `#FFF5F5` is fully saturated, and the
+  white arrows of a button turned maroon in the first try. Three faint glyphs, the
+  close crosses of the tab panels, use a brighter mapping (`0.45 + (1 - L) * 0.50`) so
+  that they stay visible on the dark tab grounds.
+- **60 dark copies**: the surface images (the error panel's wash, PercentageProgress, the
+  old Breadcrumb, the drag-and-drop separator, the DataPager sprite), the tree lines and
+  expanders of Tree/Tree2/Tree3 and ExpandingTable, the one-colour glyphs, the colour
+  icons with a white body (calendar, lookup, save, find, the ExpandHeader buttons, the
+  display checkboxes...), and the four animations with a white matte. Groups E and F of §1.3 have no copy: they read on dark as they are,
+  which the review on the demo pages confirmed. So do `close.png` and the two blue
+  72x24 title-bar buttons, which first were in the list. ScrollableTabPanel's scroll
+  arrows also have none: they are white on the grey scroll buttons in both variants.
+- **The inline images are now CSS, in both variants.** Eight images were `data:` URIs in
+  partials: the DataTable and ScrollableDataTable sort arrows, and the spinner of the
+  "waiting for the server" message. A variant cannot shadow a `data:` URI, and they
+  were inline on purpose: the spinner is shown exactly when the server is gone, so it
+  cannot be loaded from it, and a sort arrow that arrives late moves the header. A
+  first attempt turned them into files, which broke both; the decision was then that
+  they must need no image at all.
+  - The sort indicator is two border triangles on the icon's `::before`/`::after`
+    (mixin `sort-icon` in `bulmaish/_core_defs.scss`, with the original sizes: 11x6
+    with a 2px gap for DataTable, 7x4 with 1px for ScrollableDataTable). "Not
+    sorted" shows both, in `$dt-sort-idle-color`, and both in `$dt-sort-color` while
+    hovered; ascending shows the up one and descending the down one, centred. Light:
+    `#232D30` and 60% of it, as the images had. Dark: `#D4D4D4` and a quieter grey.
+  - The spinner (`.ui-ioe-img`, `_asyio.scss`) is a ring with one coloured quarter,
+    turned by a css animation: `$ioe-spinner-color` on `$ioe-spinner-track`, the
+    image's green in light and Darcula's green in dark.
+  - Verified with a static page holding the exact markup, against both compiled sheets,
+    and on the demo's DataTable in both variants.
+- **Deleted, unreferenced:** 38 images: `bg-expl`, `bg-horiz-separator`, `bg-new-ttl1`, `bg-new-ttl2`, `big-error`, `big-warning`, `blank`, `btn-hover-ClearMultipleLookup`, `btnHeaderMenuActive`, `btnMinus`, `bupl-cancel`, `defaultButton`, `exception-img-1`, `flare-important`, `hr-caption`, `iptLocation`, `iptSourceCode`, `lsel-delete`, `pan-down`, `pan-left`, `pan-right`, `pan-up`, `paneh`, `panehc`, `panev`, `panevc`, `small-delete`, `sort-asc`, `sort-desc`, `sort-none`, `tab-blue-header-bg`, `tab-blue-header2-bg`, `tab-norm-left-sel`, `tab-norm-right-sel`, `tab-off-err-left`, `tab-off-err-right`, `tab-off-left`, `tab-off-right`. Unreferenced means no Java, scss, css,
+  js or html file names them outside a comment, and no name that code builds
+  (`big-<type>`, `mini-<type>`, `btnHeader<state><size>`, `ipt*`) produces them.
+  `big-error`/`big-warning` were the Explanation's (Phase 4) and the `sort-*.png` were
+  referenced only in commented-out rules, which went too, with the two that named the
+  non-existent `hr-blue.png`. An application that used one of these by its `THEME/`
+  name gets a missing image and can copy it from the previous version.
+- **A bug the new check found:** `$tab-arrows-img` was `url(tab-scrl-icon.png)` and used
+  as `url($tab-arrows-img)`. That gave `url(url(...))`, which the browser drops, so the
+  ScrollableTabPanel's scroll arrows had never shown. It is a plain file name now, like
+  the other image variables, and the arrows show in both variants.
+- **`TestThemeVariants` has two more tests:** every image a compiled sheet refers to
+  exists for that variant, and every image in `dark/` has a light original.
+- Verified on the demo in dark: Tree3, DataCellTable, ListShuttle, the editable tables
+  and ExpandingEditTable, the display checkboxes and radio buttons, SearchPanel and
+  LookupInput2, the headers page with ExpandHeader, the ruler, TabPanel and
+  ScrollableTabPanel, and DataTable's sort arrows. ScrollableTabPanel's arrows in light
+  too.

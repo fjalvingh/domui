@@ -121,6 +121,48 @@ public class TestThemeVariants {
 		}
 	}
 
+	/**
+	 * Every image a compiled sheet refers to exists for that variant: in its own directory or in
+	 * the theme directory. This is what catches an image that was deleted while a rule still uses
+	 * it, and a dark copy that lost its light original.
+	 */
+	@Test
+	public void everyImageExists() throws Exception {
+		File theme = ThemeVariantCompiler.findThemeDir();
+		Pattern url = Pattern.compile("url\\(\\s*[\"']?([^\"')]+)[\"']?\\s*\\)");
+		for(String variant : new String[]{"default", "dark"}) {
+			Matcher m = url.matcher(m_compiler.compile(variant));
+			Set<String> missing = new TreeSet<>();
+			while(m.find()) {
+				String ref = m.group(1).trim();
+				if(ref.isEmpty() || ref.startsWith("data:") || ref.contains("://") || ref.startsWith("#"))
+					continue;
+				boolean found = new File(theme, ref).isFile() || (!"default".equals(variant) && new File(theme, variant + "/" + ref).isFile());
+				if(!found)
+					missing.add(ref);
+			}
+			Assert.assertEquals("Images the " + variant + " sheet refers to that do not exist", Set.of(), missing);
+		}
+	}
+
+	/**
+	 * Every image in a variant's directory shadows one of the theme's own: a dark copy of an image
+	 * that no longer exists in the light theme is left over.
+	 */
+	@Test
+	public void everyVariantImageHasALightOriginal() throws Exception {
+		File theme = ThemeVariantCompiler.findThemeDir();
+		Set<String> orphans = new TreeSet<>();
+		File[] files = new File(theme, "dark").listFiles();
+		Assert.assertNotNull(files);
+		for(File f : files) {
+			String n = f.getName();
+			if((n.endsWith(".png") || n.endsWith(".gif")) && !new File(theme, n).isFile())
+				orphans.add(n);
+		}
+		Assert.assertEquals("Images in dark/ without a light original", Set.of(), orphans);
+	}
+
 	static private void write(File f, String content) throws Exception {
 		Files.writeString(f.toPath(), content, StandardCharsets.UTF_8);
 	}

@@ -2,6 +2,7 @@
 /*** DataTable default style ***/
 @use "theme" as *;
 
+
 // The colours are in _component-colors.scss, shared with _scrollableTable and three others;
 // this component's own $dt-font-size and $dt-hdr-bg-img are in _derived-variables.scss.
 div.ui-dt {
@@ -18,7 +19,6 @@ div.ui-dt {
 }
 
 .ui-dt-separator {
-	//background: url('hr-blue.png') no-repeat;
 	padding: 1px;
 }
 
@@ -121,28 +121,7 @@ th.ui-dt-th.ui-numeric {
 	//margin-left: 10px;
 }
 .ui-dt-sorticon {
-	width: 18px;
-	height: 14px;
-	background-position: center right;
-	background-repeat: no-repeat;
-	&.ui-sort-n {
-		background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAOCAYAAADABlfOAAAABHNCSVQICAgIfAhkiAAAAIdJREFUOI3N1DEKgDAMBdAfPEKh0F3cLHhC8WbewMFNPEDp0CvUqYOlTVNc/GMIjyRDAGHGedmkvYMUjIRJaWODd/tnNIEAAIKSwCz6AlMEcBUtgkK4iLJgx8T/D5WKovUBUMR1n8ea14s3Dd7tShsLguoFq2gL5kAWrcEtsInmsATsSs9DeQBFcktcjx9jfAAAAABJRU5ErkJggg==);
-		//background: url(sort-none.png) no-repeat;
-		&:hover {
-			background-image: url(data:image/gif;base64,R0lGODlhFQAOAIABACMtMPX4/yH5BAEKAAEALAAAAAAVAA4AAAIfjI+AywnaYnhUMortwVzzr4XiaHydZT6iSZ6tSm5WAQA7);
-		}
-	}
-	&.ui-sort-a {
-		background-image: url(data:image/gif;base64,R0lGODlhFQAHAIABACMtMPX4/yH5BAEKAAEALAAAAAAVAAcAAAITjI8Bya2wnINUMortwVzzr4VGAQA7);
-		//background: url(sort-asc.png) no-repeat;
-	}
-	&.ui-sort-d {
-		background-image: url(data:image/gif;base64,R0lGODlhFQAHAIABACMtMPX4/yH5BAEKAAEALAAAAAAVAAcAAAISjI+pCe0PFoJPMmoVzMtxGVkFADs=);
-		//background: url(sort-desc.png) no-repeat;
-	}
-	&.ui-sort-na { //sort not applicable
-		display: none !important;
-	}
+	@include sort-icon(18px, 14px, 11px, 6px, 2px);
 }
 
 /*** Rows and columns ***/
