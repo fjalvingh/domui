@@ -2,13 +2,13 @@
 //
 // Every colour in this file is a foreground on the page ground, so all of them have to
 // change when the session renders dark - which is why the palette is a set of variables
-// picked here rather than a repaint in _darkstyle.scss. $themeVariant comes from the
-// "parameters" module DomUI synthesises per request.
+// picked here rather than a repaint in _darkstyle.scss. Whether the session renders dark is
+// the theme's own $color-scheme.
 //
 // The dark values are IntelliJ's Darcula scheme, which the dark theme variant is modelled
 // on, so the source viewer reads like the editor a Java developer already knows.
 
-@use "parameters" as p;
+@use "theme" as t;
 
 // The light palette is the default; the dark one overrides it.
 $s-text:        #222;
@@ -32,7 +32,7 @@ $s-diffnew:     #ebffd7;
 $s-diffline:    #b8dfff;
 $s-diffchar:    red;
 
-@if p.$themeVariant == "dark" {
+@if t.$color-scheme == dark {
 	// IntelliJ's Darcula, which the dark theme variant is modelled on
 	$s-text:        #A9B7C6;
 	$s-keyword1:    #CC7832;

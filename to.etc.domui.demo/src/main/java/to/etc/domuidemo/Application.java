@@ -20,7 +20,7 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.ConfigParameters;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.themes.sass.SassThemeFactory;
+import to.etc.domuidemo.pages.themereview.CandidateSchemes;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.Msgs;
@@ -51,7 +51,7 @@ public class Application extends DomApplication {
 		File imagecache = new File(FileTool.getTmpDir(), "imagecache");
 		ImageCache.initialize(32 * 1024L * 1024L, 5L * 1024L * 1024L * 1024L, imagecache);
 
-		setThemeFactory(SassThemeFactory.INSTANCE);
+		setThemeFactory(CandidateSchemes.INSTANCE);				// The stock theme, plus the candidate dark schemes of the theme review page
 		setThemeVariantCookieName("domuidemo-theme-variant");		// Keep the dark/light choice across sessions
 		addDefaultHTTPHeader("X-Frame-Options", null);
 

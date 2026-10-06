@@ -1,0 +1,54 @@
+// Candidate dark colour scheme "Midnight" for the theme review page (demo only).
+// Deep indigo grounds, electric blue structure, neon accents (after Tokyo Night).
+// The template in ../scheme/ reads these; everything not here is the same in every scheme.
+@use "sass:color";
+
+$page: #1A1B26;
+$panel: #1F2233;
+$window: #24283B;
+$field: #2A2F48;
+$raised: #333A58;
+$raised2: #3D4569;
+$stripe: #1D1F2E;
+$ro-bg: #222638;
+$text: #C0CAF5;
+$text-strong: #DDE3FF;
+$text-bright: #F2F4FF;
+$text-muted: #9AA5CE;
+$text-dim: #6B7399;
+$label: #A9B8F0;
+$line-soft: #262B40;
+$line: #2F3550;
+$line-strong: #414A70;
+$line-hard: #7A86B8;
+$control-border: #3B4365;
+$control-hover-border: #5A6595;
+$struct: #3D59A1;
+$struct-strip: #253463;
+$struct-tab: #3A5498;
+$struct-band: #4A6BC0;
+$struct-edge: #3D59A1;
+$struct-text: #EEF2FF;
+$struct-bar: #7AA2F7;
+$link: #7AA2F7;
+$visited: #BB9AF7;
+$focus: #7AA2F7;
+$heading: #7DCFFF;
+$heading2: #BB9AF7;
+$selection: #2E4A8F;
+$red: #F7768E;
+$orange: #FF9E64;
+$yellow: #E0AF68;
+$green: #9ECE6A;
+$cyan: #7DCFFF;
+$blue: #7AA2F7;
+$purple: #BB9AF7;
+$error-text: #FF8FA3;
+$warning-text: #F0C27A;
+$info-text: #9DBBFF;
+
+// The light theme's orange hints, put on this ground.
+$hint-wash: color.mix(#ffbb43, $page, 16%);		// a hovered row or menu entry
+$hint-outline: #F0A43A;							// ...and the outline drawn round it
+$hint-strong: color.mix(#f69231, $page, 42%);	// a selected tree item
+$highlight: color.mix(#ffbb43, $page, 30%);		// a marked row or day

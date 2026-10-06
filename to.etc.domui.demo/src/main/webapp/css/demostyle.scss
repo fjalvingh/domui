@@ -1,13 +1,15 @@
 /*
  * The demo application's own styling.
  *
- * Each partial that branches on the theme variant loads "parameters", the module DomUI
- * synthesises per request, and reads p.$themeVariant from it. The demo hardcodes a lot of
- * light colours of its own, and _darkstyle.scss repaints them when the session is rendering
- * dark.
+ * Each partial that branches on light or dark loads the theme module and reads its
+ * $color-scheme, which every variant of the theme states - so a variant with a name of its own,
+ * like the candidate schemes of the theme review page, is still recognised as dark. The demo
+ * hardcodes a lot of light colours of its own, and _darkstyle.scss repaints them when the
+ * session is rendering dark.
  */
 @use "panels";
 @use "syntax";
 @use "flextable";
+@use "themereview";
 
 @use "darkstyle";

@@ -8,10 +8,9 @@
  * The neutral colours are the theme's own roles, read from the theme module, so the demo
  * follows the dark palette instead of keeping a copy of it.
  */
-@use "parameters" as p;
 @use "theme" as t;
 
-@if p.$themeVariant == "dark" {
+@if t.$color-scheme == dark {
 	$dm-surface:   t.$body-bg;
 	$dm-raised:    t.$surface-bg;
 	$dm-raised-2:  t.$window-bg;

@@ -1,0 +1,116 @@
+/*
+ * The theme review page (ThemeReviewPage): every component on one page, in a grid of cells.
+ *
+ * The swatches take their colours from the theme module, so they show the colours of the
+ * variant the sheet was compiled for - the light theme, the dark variant or a candidate
+ * scheme alike.
+ */
+@use "theme" as t;
+
+.dm-tr-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 8px 0 12px 0;
+}
+
+.dm-tr-bar-lbl {
+	font-weight: bold;
+	margin-right: 6px;
+}
+
+.dm-tr-swatches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.dm-tr-sw {
+	width: 72px;
+	font-size: 11px;
+	text-align: center;
+	color: t.$text-muted;
+}
+
+.dm-tr-sw-c {
+	height: 32px;
+	border-radius: 4px;
+	border: 1px solid t.$line-color;
+	margin-bottom: 2px;
+}
+
+$dm-tr-roles: (
+	"body-bg": t.$body-bg, "surface-bg": t.$surface-bg, "window-bg": t.$window-bg, "ground-bg": t.$ground-bg,
+	"header-bg": t.$header-bg, "tab-hdr-bg": t.$tab-hdr-bg, "tab-bg": t.$tab-bg, "dt-selected-bg": t.$dt-selected-bg,
+	"primary": t.$primary, "row-hover-bg": t.$row-hover-bg, "highlight-bg": t.$highlight-bg, "link-color": t.$link-color,
+	"errors-border": t.$errors-border, "warnings-border": t.$warnings-border, "info-border": t.$info-border,
+	"green-accent": t.$green-accent,
+);
+
+@each $name, $colour in $dm-tr-roles {
+	.dm-tr-sw-#{$name} {
+		background-color: $colour;
+	}
+}
+
+.dm-tr-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+	gap: 16px;
+	align-items: start;
+	margin-bottom: 16px;
+}
+
+.dm-tr-wide {
+	grid-template-columns: repeat(auto-fill, minmax(640px, 1fr));
+}
+
+.dm-tr-cell {
+	border: 1px solid t.$line-color;
+	border-radius: 6px;
+	padding: 10px 12px;
+	min-width: 0;
+}
+
+.dm-tr-ttl {
+	font-weight: bold;
+	color: t.$text-muted;
+	text-transform: uppercase;
+	font-size: 11px;
+	letter-spacing: 0.05em;
+	margin-bottom: 8px;
+}
+
+.dm-tr-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 6px;
+}
+
+.dm-tr-muted {
+	color: t.$text-muted;
+}
+
+.dm-tr-code {
+	font-family: monospace;
+	color: t.$code;
+	background-color: t.$code-bg;
+	padding: 0.1em 0.3em;
+}
+
+.dm-tr-tree {
+	max-height: 260px;
+	overflow: auto;
+}
+
+.dm-tr-cell select, .dm-tr-cell .ui-cbb2 select {
+	max-width: 260px;
+}
+
+.dm-tr-cell .ui-cbb2 {
+	max-width: 100%;
+}

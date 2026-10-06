@@ -1,0 +1,54 @@
+// Candidate dark colour scheme "Lagoon" for the theme review page (demo only).
+// Deep sea-green grounds with vivid teal structure: the complement of the orange accent.
+// The template in ../scheme/ reads these; everything not here is the same in every scheme.
+@use "sass:color";
+
+$page: #0F1E24;
+$panel: #13272E;
+$window: #172F37;
+$field: #1C3A44;
+$raised: #234652;
+$raised2: #2B5361;
+$stripe: #122329;
+$ro-bg: #15303A;
+$text: #CFE3E6;
+$text-strong: #E6F3F4;
+$text-bright: #F5FBFB;
+$text-muted: #93B3B8;
+$text-dim: #5F8187;
+$label: #9FD3D6;
+$line-soft: #1A3138;
+$line: #22404A;
+$line-strong: #335A66;
+$line-hard: #6F9AA5;
+$control-border: #2E525D;
+$control-hover-border: #4A7783;
+$struct: #0E7C77;
+$struct-strip: #0A5552;
+$struct-tab: #107F7A;
+$struct-band: #11827C;
+$struct-edge: #127E79;
+$struct-text: #F0FFFD;
+$struct-bar: #2DD4BF;
+$link: #5CC8F0;
+$visited: #C3A6F2;
+$focus: #2DD4BF;
+$heading: #2DD4BF;
+$heading2: #5CC8F0;
+$selection: #1B5E7A;
+$red: #FF6B7A;
+$orange: #FF9F43;
+$yellow: #FFD166;
+$green: #4ADE80;
+$cyan: #22D3EE;
+$blue: #5CC8F0;
+$purple: #C3A6F2;
+$error-text: #FF8A95;
+$warning-text: #FFD98A;
+$info-text: #8EDBF7;
+
+// The light theme's orange hints, put on this ground.
+$hint-wash: color.mix(#ffbb43, $page, 16%);		// a hovered row or menu entry
+$hint-outline: #F0A43A;							// ...and the outline drawn round it
+$hint-strong: color.mix(#f69231, $page, 42%);	// a selected tree item
+$highlight: color.mix(#ffbb43, $page, 30%);		// a marked row or day

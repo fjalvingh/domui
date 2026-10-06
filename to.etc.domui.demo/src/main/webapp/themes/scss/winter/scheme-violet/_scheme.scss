@@ -1,0 +1,54 @@
+// Candidate dark colour scheme "Violet" for the theme review page (demo only).
+// Aubergine grounds, violet structure, pink and cyan accents (after Dracula).
+// The template in ../scheme/ reads these; everything not here is the same in every scheme.
+@use "sass:color";
+
+$page: #1E1A2E;
+$panel: #241F38;
+$window: #2A2442;
+$field: #312A4D;
+$raised: #3A325A;
+$raised2: #453B6A;
+$stripe: #221D33;
+$ro-bg: #2A2440;
+$text: #E0DAF5;
+$text-strong: #F0ECFF;
+$text-bright: #FAF8FF;
+$text-muted: #ABA2CC;
+$text-dim: #766C99;
+$label: #C9B8FF;
+$line-soft: #2C2645;
+$line: #372F55;
+$line-strong: #4A4172;
+$line-hard: #8E84BA;
+$control-border: #443B68;
+$control-hover-border: #63589A;
+$struct: #6A3DBA;
+$struct-strip: #46297F;
+$struct-tab: #6038AA;
+$struct-band: #7A4CD0;
+$struct-edge: #6A3DBA;
+$struct-text: #F7F2FF;
+$struct-bar: #BD93F9;
+$link: #8BE9FD;
+$visited: #FF92DF;
+$focus: #BD93F9;
+$heading: #FF79C6;
+$heading2: #BD93F9;
+$selection: #4B3A8F;
+$red: #FF5C6C;
+$orange: #FFB86C;
+$yellow: #F1FA8C;
+$green: #50FA7B;
+$cyan: #8BE9FD;
+$blue: #82AAFF;
+$purple: #BD93F9;
+$error-text: #FF8590;
+$warning-text: #F1FA8C;
+$info-text: #A6C4FF;
+
+// The light theme's orange hints, put on this ground.
+$hint-wash: color.mix(#ffbb43, $page, 16%);		// a hovered row or menu entry
+$hint-outline: #F0A43A;							// ...and the outline drawn round it
+$hint-strong: color.mix(#f69231, $page, 42%);	// a selected tree item
+$highlight: color.mix(#ffbb43, $page, 30%);		// a marked row or day

@@ -2,6 +2,7 @@ package to.etc.domuidemo;
 
 import to.etc.domui.dom.html.Div;
 import to.etc.domuidemo.pages.MenuPage;
+import to.etc.domuidemo.pages.themereview.ThemeReviewPage;
 import to.etc.domuidemo.pages.binding.editabletable.EditableTablePage;
 import to.etc.domuidemo.pages.components.lookup.LookupInput2LookPage;
 import to.etc.domuidemo.pages.components.lookup.LookupInput2Page;
@@ -101,7 +102,11 @@ public class ComponentListPage extends MenuPage {
 		Div main = new Div("dm-comp-page");
 		add(main);
 
-		ListFragment f = new ListFragment("Layout and page structure");
+		ListFragment f = new ListFragment("The theme");
+		main.add(f);
+		f.addLink(ThemeReviewPage.class, "Theme review: every component on one page, in each colour scheme");
+
+		f = new ListFragment("Layout and page structure");
 		main.add(f);
 		f.addLink(PanelsPage.class, "Panels");
 		f.addLink(HeadersPage.class, "Headers");

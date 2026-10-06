@@ -1,0 +1,54 @@
+// Candidate dark colour scheme "Nord" for the theme review page (demo only).
+// Arctic blue-grey grounds, frost blue structure, soft aurora colours: the calm one (after Nord).
+// The template in ../scheme/ reads these; everything not here is the same in every scheme.
+@use "sass:color";
+
+$page: #2E3440;
+$panel: #343B49;
+$window: #3B4252;
+$field: #434C5E;
+$raised: #4C566A;
+$raised2: #566179;
+$stripe: #313846;
+$ro-bg: #39404F;
+$text: #DEE3EC;
+$text-strong: #E5E9F0;
+$text-bright: #F2F4F8;
+$text-muted: #B0B9C8;
+$text-dim: #8994A8;
+$label: #A3C4DC;
+$line-soft: #3B4252;
+$line: #434C5E;
+$line-strong: #56607A;
+$line-hard: #8C98B0;
+$control-border: #5A657E;
+$control-hover-border: #6A7790;
+$struct: #4C6E99;
+$struct-strip: #3B5679;
+$struct-tab: #4F7099;
+$struct-band: #4F709B;
+$struct-edge: #5E81AC;
+$struct-text: #F2F6FB;
+$struct-bar: #88C0D0;
+$link: #88C0D0;
+$visited: #BE9AB7;
+$focus: #88C0D0;
+$heading: #88C0D0;
+$heading2: #81A1C1;
+$selection: #4C6A92;
+$red: #D06C75;
+$orange: #D08770;
+$yellow: #EBCB8B;
+$green: #A3BE8C;
+$cyan: #88C0D0;
+$blue: #81A1C1;
+$purple: #B48EAD;
+$error-text: #F0A0A7;
+$warning-text: #EBCB8B;
+$info-text: #9FC6E0;
+
+// The light theme's orange hints, put on this ground.
+$hint-wash: color.mix(#ffbb43, $page, 16%);		// a hovered row or menu entry
+$hint-outline: #F0A43A;							// ...and the outline drawn round it
+$hint-strong: color.mix(#f69231, $page, 42%);	// a selected tree item
+$highlight: color.mix(#ffbb43, $page, 30%);		// a marked row or day
