@@ -39,6 +39,8 @@ org.eclipse.m2e.core.prefs
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.apt.core.prefs
 
+.m2
+.mvn
 
 
 out
