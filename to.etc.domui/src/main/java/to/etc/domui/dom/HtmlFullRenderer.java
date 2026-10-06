@@ -507,14 +507,15 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	 * dark/light switch writes too, so choosing by hand ends the question as well. That
 	 * needs the theme variant cookie: an application that named none
 	 * ({@link DomApplication#setThemeVariantCookieName(String)}) cannot keep the answer past
-	 * the session, so it does not ask.</p>
+	 * the session, so it does not ask. Neither does an application that switched the question
+	 * off ({@link DomApplication#setColorSchemeDetection(boolean)}).</p>
 	 *
 	 * <p>The script sits at the top of the head, before the render blocking stylesheet, so the
 	 * browser leaves before it has painted anything: what the user sees is the page in the
 	 * scheme they wanted, not a flash of the other one.</p>
 	 */
 	protected void renderColorSchemeDetection(String scheme) throws Exception {
-		if(null == m_application.getThemeVariantCookieName() || !m_ctx.isThemeVariantDefaulted())
+		if(null == m_application.getThemeVariantCookieName() || !m_application.isColorSchemeDetection() || !m_ctx.isThemeVariantDefaulted())
 			return;
 		String other = "dark".equals(scheme) ? "light" : "dark";
 		IThemeVariant variant = m_application.getThemeVariantForColorScheme(other);

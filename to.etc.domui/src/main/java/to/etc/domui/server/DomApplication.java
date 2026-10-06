@@ -363,6 +363,12 @@ public abstract class DomApplication {
 	@Nullable
 	private volatile String m_themeVariantCookieName;
 
+	/**
+	 * Whether a session that never chose a theme variant asks the browser for its dark/light
+	 * preference. On by default; see {@link #setColorSchemeDetection(boolean)}.
+	 */
+	private volatile boolean m_colorSchemeDetection = true;
+
 	private IThemeVariablesCalculator m_themeVariablesCalculator = parameters -> Map.of();
 
 	private ConfigParameters m_configParameters;
@@ -2499,6 +2505,8 @@ public abstract class DomApplication {
 	 * no cookie: a variant set with {@link IRequestContext#setThemeVariant(IThemeVariant)}
 	 * then holds for the session only, and the browser is not asked for its colour scheme
 	 * (see {@link #getThemeVariantForColorScheme(String)}) - that answer could not be kept.
+	 * With a name, the browser is asked unless {@link #setColorSchemeDetection(boolean)}
+	 * switched that off.
 	 *
 	 * <p>There is no default because every application on a host would otherwise share the
 	 * one cookie, and a choice made in one would carry into the others.</p>
@@ -2516,6 +2524,27 @@ public abstract class DomApplication {
 	@Nullable
 	final public String getThemeVariantCookieName() {
 		return m_themeVariantCookieName;
+	}
+
+	/**
+	 * Switch asking the browser for its colour scheme on or off; call this from
+	 * {@link #initialize(ConfigParameters)}. It is on by default, but only has effect when the
+	 * application also named the theme variant cookie ({@link #setThemeVariantCookieName(String)}),
+	 * because the answer is kept there. Switch it off to offer dark mode as an explicit choice
+	 * only: a session that never chose a variant then renders in the one
+	 * {@link #calculateUserThemeVariant(IRequestContext)} returns, whatever the browser prefers.
+	 */
+	final public void setColorSchemeDetection(boolean on) {
+		m_colorSchemeDetection = on;
+	}
+
+	/**
+	 * T when the browser may be asked for its colour scheme - see
+	 * {@link #setColorSchemeDetection(boolean)}. The question is only actually asked when the
+	 * theme variant cookie is named too.
+	 */
+	final public boolean isColorSchemeDetection() {
+		return m_colorSchemeDetection;
 	}
 
 	/**
@@ -2587,13 +2616,14 @@ public abstract class DomApplication {
 	 * dark, without having to say so.
 	 *
 	 * <p>The question is only asked when the application named the theme variant cookie
-	 * ({@link #setThemeVariantCookieName(String)}), because the answer is kept there.</p>
+	 * ({@link #setThemeVariantCookieName(String)}), because the answer is kept there, and did not
+	 * switch it off with {@link #setColorSchemeDetection(boolean)}.</p>
 	 *
 	 * <p>The default maps onto the two variants DomUI itself ships, which is right for the theme
-	 * it ships too. A theme that has no dark variant must override this to return null, which
-	 * switches the whole question off; so must an application that decides the variant itself in
-	 * {@link #calculateUserThemeVariant(IRequestContext)}, because the browser would otherwise
-	 * overrule it.</p>
+	 * it ships too. A theme that has no dark variant must override this to return null for the
+	 * scheme it cannot render. An application that decides the variant itself in
+	 * {@link #calculateUserThemeVariant(IRequestContext)} should switch detection off, because the
+	 * browser would otherwise overrule it.</p>
 	 */
 	@Nullable
 	public IThemeVariant getThemeVariantForColorScheme(@NonNull String colorScheme) {
