@@ -37,10 +37,10 @@
 }
 
 .ui-sib:hover {
-	background-color: $header-bg !important;
+	background-color: $sib-hover-bg !important;
 }
 .ui-sib:focus {
-	background-color: lighter($header-bg, 20%) !important;
+	background-color: $sib-focus-bg !important;
 }
 
 .ui-sib[disabled] {

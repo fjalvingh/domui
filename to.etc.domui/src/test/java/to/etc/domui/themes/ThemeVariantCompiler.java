@@ -78,14 +78,22 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 	 * variant directory such as "dark".
 	 */
 	public String compile(String variant) throws Exception {
+		File file = locate("style.scss");
+		if(null == file)
+			throw new IllegalStateException("No style.scss in " + m_themeDir);
+		return compileSource(variant, "style.scss", Files.readString(file.toPath(), StandardCharsets.UTF_8));
+	}
+
+	/**
+	 * Compile a sheet of the caller's own as if it were the file <code>name</code> in the theme
+	 * directory, for the variant: it can <code>&#64;use "theme"</code> and read the variant's values.
+	 */
+	public String compileSource(String variant, String name, String source) throws Exception {
 		m_variant = variant;
 		try {
-			String url = SCHEME + variant + "/style.scss";
-			File file = locate("style.scss");
-			if(null == file)
-				throw new IllegalStateException("No style.scss in " + m_themeDir);
+			String url = SCHEME + variant + "/" + name;
 			CompileRequest.StringInput input = CompileRequest.StringInput.newBuilder()
-				.setSource(Files.readString(file.toPath(), StandardCharsets.UTF_8))
+				.setSource(source)
 				.setSyntax(Syntax.SCSS)
 				.setUrl(url)
 				.setImporter(CompileRequest.Importer.newBuilder().setImporterId(m_importer.getId()))

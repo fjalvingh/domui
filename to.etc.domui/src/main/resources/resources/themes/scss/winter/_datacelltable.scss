@@ -9,7 +9,7 @@
 }
 
 .ui-dct-selected {
-	background-color: cyan;
+	background-color: $dct-selected-bg;
 	border: 1px solid $dct-selected-border;
 }
 .ui-dct td {

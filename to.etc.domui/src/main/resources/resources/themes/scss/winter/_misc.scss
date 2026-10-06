@@ -21,35 +21,56 @@ div.ui-ipa img {
 	vertical-align: top;
 }
 
-/* Explanation box */
+/*
+ * Explanation: a callout. A bar on the left and a round marker in the severity's colour, on
+ * that severity's wash; the marker is drawn here, so there is no image to follow the variant.
+ */
+@mixin expl-severity($bg, $accent, $marker-color, $marker) {
+	background-color: $bg;
+	border-left-color: $accent;
+
+	&::before {
+		content: $marker;
+		background-color: $accent;
+		color: $marker-color;
+	}
+}
+
 .ui-expl {
-	border: 2px solid $expl-border;
-	padding: 5px;
-	-moz-border-radius: 10px;
-	border-radius: 10px;
-	-webkit-border-radius: 10px;
-	//background: linear-gradient(0deg, rgba(218,239,244,1) 0%, rgba(151,212,233,1) 100%);
-	color: $expl-color;
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
 	max-width: 600px;
+	margin: 8px 0;
+	padding: 8px 12px;
+	border-left: 4px solid transparent;
+	border-radius: 4px;
+	color: $expl-color;
+	line-height: 1.45;
 
-	img {
-		padding: 4px;
+	&::before {
+		flex: none;
+		width: 1.45em;
+		height: 1.45em;
+		border-radius: 50%;
+		text-align: center;
+		font-weight: bold;
+		line-height: 1.45em;
 	}
 
-	&.ui-warning {
-		border-color: $warnings-border;
-		background: $warnings-transparent; /* Old browsers */
-		background: linear-gradient(to bottom, $warnings-transparent 0%, $white-transparent 100%);
+	.ui-expl-txt {
+		flex: 1;
+		min-width: 0;
 	}
+
 	&.ui-info {
-		border-color: $info-border;
-		background: $info-transparent; /* Old browsers */
-		background: linear-gradient(to bottom, $info-border 0%, $white-transparent 100%);
+		@include expl-severity($expl-info-bg, $expl-info-accent, $expl-info-marker-color, "i");
+	}
+	&.ui-warning {
+		@include expl-severity($expl-warning-bg, $expl-warning-accent, $expl-warning-marker-color, "!");
 	}
 	&.ui-error {
-		border-color: $errors-border;
-		background: $errors-transparent; /* Old browsers */
-		background: linear-gradient(to bottom, $errors-transparent 0%, $white-transparent 100%);
+		@include expl-severity($expl-error-bg, $expl-error-accent, $expl-error-marker-color, "!");
 	}
 }
 

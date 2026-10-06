@@ -20,26 +20,26 @@
 			.ui-chkbb-sw {
 				background-color: $can-toggle-off-color;
 				&:after {
-					color: darker($can-toggle-off-color, 10%);
+					color: $ckb-off-knob-hover-color;
 					background-color: $can-toggle-button-off-color
 				}
 			}
 		}
-		&:hover ~label { color: lighter($can-toggle-off-color, 5%); }
+		&:hover ~label { color: $ckb-off-hover-color; }
 		&:checked {
 			~ label {
-				&:hover { color: darker($can-toggle-on-color, 3%); }
+				&:hover { color: $ckb-on-hover-color; }
                 &:before { color: $can-toggle-off-inactive-text; }
 				.ui-chkbb-sw {
 					background-color: $can-toggle-on-color;
-					border-color: darker($can-toggle-button-on-color, 10%);
+					border-color: $ckb-on-border;
 					border-width: 1px;
 					border-style: solid;
 					&:before { color: $can-toggle-on-inactive-text; }
 					&:after {
 						color: $can-toggle-on-color;
 						background-color: $can-toggle-button-on-color;
-						border-color: darker($can-toggle-button-on-color, 10%);
+						border-color: $ckb-on-border;
 						border-width: 1px;
 						border-style: solid;
 					}
@@ -49,8 +49,8 @@
 			&:focus, &:hover {
 				~ label {
 					.ui-chkbb-sw {
-						background-color: lighter($can-toggle-on-color, 10%);
-						&:after { color: darker($can-toggle-on-color, 10%); }
+						background-color: $ckb-on-hover-bg;
+						&:after { color: $ckb-on-knob-hover-color; }
 					}
 				}
 			}
@@ -60,7 +60,7 @@
 	label {
 		.ui-chkbb-sw {
 			transition: background-color 0.3s $can-toggle-transition;
-			background: lighter($can-toggle-off-color, 5%);
+			background: $ckb-off-track-bg;
 			&:before { color: $can-toggle-off-inactive-text; }
 			&:after {
 				// Autoprefixer choked here, so making the prefixes explicit

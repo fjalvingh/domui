@@ -33,17 +33,24 @@ import to.etc.domui.state.UIContext;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 final public class ThemeColor {
-	/** A filled area folds into [16%, 48%] lightness, with the palest light colour landing lowest. */
-	static private final double TINT_BASE = 0.16;
+	/**
+	 * A filled area folds into [20%, 44%] lightness, with the palest light colour landing lowest:
+	 * just above the dark variant's page (#2B2B2B, 17%), and below the point where its text
+	 * (#BBBBBB) drops under AA.
+	 */
+	static private final double TINT_BASE = 0.20;
 
-	static private final double TINT_RANGE = 0.32;
+	static private final double TINT_RANGE = 0.24;
 
 	static private final double TINT_MAX_SATURATION = 0.55;
 
-	/** Text folds into [50%, 85%] lightness, which clears WCAG AA against the grounds tint() produces. */
-	static private final double INK_BASE = 0.50;
+	/**
+	 * Text folds into [60%, 88%] lightness: a grey needs about 59% to clear WCAG AA on the dark
+	 * variant's page.
+	 */
+	static private final double INK_BASE = 0.60;
 
-	static private final double INK_RANGE = 0.35;
+	static private final double INK_RANGE = 0.28;
 
 	static private final double INK_MAX_SATURATION = 0.80;
 
@@ -53,10 +60,13 @@ final public class ThemeColor {
 	 */
 	static private final double INK_ALREADY_LIGHT = 0.70;
 
-	/** A border folds into [24%, 42%] lightness: flatter than ink(), or the page looks like a wireframe. */
-	static private final double EDGE_BASE = 0.24;
+	/**
+	 * A border folds into [30%, 44%] lightness - the range of the dark variant's own lines, #515151
+	 * to #6B6B6B - flatter than ink(), or the page looks like a wireframe.
+	 */
+	static private final double EDGE_BASE = 0.30;
 
-	static private final double EDGE_RANGE = 0.18;
+	static private final double EDGE_RANGE = 0.14;
 
 	static private final double EDGE_MAX_SATURATION = 0.40;
 

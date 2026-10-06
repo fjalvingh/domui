@@ -5,8 +5,8 @@
 // picked here rather than a repaint in _darkstyle.scss. $themeVariant comes from the
 // "parameters" module DomUI synthesises per request.
 //
-// The dark values keep the hue of their light counterpart and move the lightness to the
-// other side of the ground, so a reader who knows one palette recognises the other.
+// The dark values are IntelliJ's Darcula scheme, which the dark theme variant is modelled
+// on, so the source viewer reads like the editor a Java developer already knows.
 
 @use "parameters" as p;
 
@@ -33,20 +33,21 @@ $s-diffline:    #b8dfff;
 $s-diffchar:    red;
 
 @if p.$themeVariant == "dark" {
-	$s-text:        hsl(220, 14%, 85%);
-	$s-keyword1:    hsl(35, 95%, 62%);
-	$s-keyword2:    hsl(340, 75%, 70%);
-	$s-type:        hsl(210, 85%, 70%);
-	$s-comment:     hsl(141, 45%, 58%);
-	$s-comment-alt: hsl(195, 40%, 62%);
-	$s-string:      hsl(176, 55%, 58%);
-	$s-number:      hsl(20, 80%, 66%);
-	$s-punctuation: hsl(220, 12%, 62%);
-	$s-link:        hsl(210, 90%, 72%);
-	$s-literal:     hsl(180, 60%, 62%);
+	// IntelliJ's Darcula, which the dark theme variant is modelled on
+	$s-text:        #A9B7C6;
+	$s-keyword1:    #CC7832;
+	$s-keyword2:    #9876AA;
+	$s-type:        #FFC66D;
+	$s-comment:     #808080;
+	$s-comment-alt: #629755;
+	$s-string:      #6A8759;
+	$s-number:      #6897BB;
+	$s-punctuation: #A9B7C6;
+	$s-link:        #589DF6;
+	$s-literal:     #6897BB;
 
-	$s-lnr-bg:      hsl(220, 12%, 18%);
-	$s-lnr-color:   hsl(220, 10%, 55%);
+	$s-lnr-bg:      #313335;
+	$s-lnr-color:   #606366;
 
 	$s-diffstart:   hsl(55, 30%, 25%);
 	$s-diffold:     hsl(10, 30%, 22%);

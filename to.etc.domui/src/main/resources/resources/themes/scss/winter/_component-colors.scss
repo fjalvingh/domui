@@ -156,6 +156,9 @@ $hmbrg-disabled-color: $text-muted !default;
 $io-blk-bg: $shadow-color !default;
 
 //-- PopupMenu2 (.ui-pome2-*)
+$pome2-bg: $surface-bg !default;			// the menu: a raised surface
+$pome2-color: $surface-color !default;
+$pome2-hover-bg: $surface-alt-bg !default;			// the item under the pointer
 $pome2-disabled-bg: $fill-muted-bg !default;
 
 //-- SearchAsYouType (.ui-sayt-*)
@@ -200,12 +203,27 @@ $layout-content-color: $text-muted !default;
 $ckb-off-color: $text-muted !default;
 $ckb-on-bg: $alt-button-bg !default;
 $ckb-knob-bg: $surface-bg !default;
+$ckb-off-track-bg: lighter($ckb-off-color, 5%) !default;			// the track while off
+$ckb-off-hover-color: lighter($ckb-off-color, 5%) !default;			// the label while hovered, off
+$ckb-off-knob-hover-color: darker($ckb-off-color, 10%) !default;			// the knob's text while hovered, off
+$ckb-on-hover-color: darker($ckb-on-bg, 3%) !default;			// the label while hovered, on
+$ckb-on-border: darker($alt-button-color, 10%) !default;			// the track's and the knob's edge, on
+$ckb-on-hover-bg: lighter($ckb-on-bg, 10%) !default;			// the track while hovered, on
+$ckb-on-knob-hover-color: darker($ckb-on-bg, 10%) !default;			// the knob's text while hovered, on
 
 //-- InfoPanel (.ui-ipa) / ExplanationPanel (.ui-expl) / .ui-hor-divider /
 //-- the drag-drop table (.ui-dd-table), all in _misc.scss
 $ipa-border: $line-soft !default;
-$expl-border: $line-strong !default;
 $expl-color: $text !default;
+$expl-info-bg: $info-bg !default;				// each severity: its wash, its bar and marker,
+$expl-info-accent: $info-border !default;			// and the colour of the "i" or "!" on the marker
+$expl-info-marker-color: $white !default;
+$expl-warning-bg: $warnings-bg !default;
+$expl-warning-accent: $warnings-border !default;
+$expl-warning-marker-color: $black !default;
+$expl-error-bg: $errors-wash !default;
+$expl-error-accent: $errors-border !default;
+$expl-error-marker-color: $white !default;
 $hor-divider-bg: $fill-muted-bg !default;
 $dd-table-border: $line-color !default;
 $dd-table-hdr-border: $line-strong !default;
@@ -284,6 +302,10 @@ $generichd-blue-color: #4c5a6f !default;				// .ui-generichd-blue, a slate title
 $generichd-h2-color: $header-accent-color !default;
 $generichd-h3-color: #013686 !default;
 
+//-- SmallImgButton (.ui-sib)
+$sib-hover-bg: $header-bg !default;
+$sib-focus-bg: lighter($header-bg, 20%) !default;
+
 //-- ImageButton (.ui-ibtn-*)
 $ibtn-disabled-bg: $fill-muted-bg !default;
 
@@ -349,6 +371,7 @@ $ckc-accent: #EE4B5A !default;
 //-- line scale. $line-hard is $black (#0a0a0a) rather than #000, hence the hairline shift.
 $bug-ind-border: $line-hard !default;			// the bug badge's frame
 $wa-item-border: $line-hard !default;			// an appointment in the schedule grid
+$dct-selected-bg: cyan !default;			// a selected cell of a DataCellTable
 $dct-selected-border: $line-hard !default;		// a selected cell
 $oddchars-border: $line-hard !default;
 $pct-border: $line-hard !default;				// the progress bar's outline
@@ -394,6 +417,7 @@ $rbb-common-color: $alt-button-color !default;
 $rbb-common-bg: $alt-button-bg !default;
 $rbb-border-color: darker($rbb-common-color, 10%) !default;
 $rbb-disabled-color: $rbb-disabled-bg !default;
+$rbb-disabled-checked-color: darker($rbb-common-bg, 20%) !default;			// a disabled radio button's text, when it is the chosen one
 $rbb-disabled-border-color: darker($rbb-disabled-color, 15%) !default;
 
 // -- Buttons (bulmaish/_button_common)
@@ -410,11 +434,28 @@ $button-active-border-color: $link-active-border !default;
 $button-text-color: $text !default;
 $button-text-hover-background-color: $background !default;
 $button-text-hover-color: $text-strong !default;
+$button-text-active-background-color: darker($button-text-hover-background-color, 15%) !default;
 $button-disabled-background-color: $ground-bg !default;
 $button-disabled-border-color: $control-border !default;
 $button-static-color: $text-muted !default;
 $button-static-background-color: $ground-alt-bg !default;
 $button-static-border-color: $control-border !default;
+
+// The colour buttons (.is-primary, .is-danger ... one per entry of $colors): per colour, the
+// background while hovered, while pressed, the border while focused, and the background of
+// the .is-inverted form while hovered.
+$button-color-shades: (
+	"white": (findColorHighlight($white, 5%), findColorHighlight($white, 20%), findButtonFocusBorderColor($white, $button-focus-border-color), darker($black, 5%)),
+	"black": (findColorHighlight($black, 5%), findColorHighlight($black, 20%), findButtonFocusBorderColor($black, $button-focus-border-color), darker($white, 5%)),
+	"light": (findColorHighlight($light, 5%), findColorHighlight($light, 20%), findButtonFocusBorderColor($light, $button-focus-border-color), darker($light-invert, 5%)),
+	"dark": (findColorHighlight($dark, 5%), findColorHighlight($dark, 20%), findButtonFocusBorderColor($dark, $button-focus-border-color), darker($dark-invert, 5%)),
+	"primary": (findColorHighlight($primary, 5%), findColorHighlight($primary, 20%), findButtonFocusBorderColor($primary, $button-focus-border-color), darker($primary-invert, 5%)),
+	"link": (findColorHighlight($link, 5%), findColorHighlight($link, 20%), findButtonFocusBorderColor($link, $button-focus-border-color), darker($link-invert, 5%)),
+	"info": (findColorHighlight($info, 5%), findColorHighlight($info, 20%), findButtonFocusBorderColor($info, $button-focus-border-color), darker($info-invert, 5%)),
+	"success": (findColorHighlight($success, 5%), findColorHighlight($success, 20%), findButtonFocusBorderColor($success, $button-focus-border-color), darker($success-invert, 5%)),
+	"warning": (findColorHighlight($warning, 5%), findColorHighlight($warning, 20%), findButtonFocusBorderColor($warning, $button-focus-border-color), darker($warning-invert, 5%)),
+	"danger": (findColorHighlight($danger, 5%), findColorHighlight($danger, 20%), findButtonFocusBorderColor($danger, $button-focus-border-color), darker($danger-invert, 5%))
+) !default;
 
 // -- DataPager2
 $dp2-button-color: $alt-button-color !default;
@@ -452,12 +493,14 @@ $cal-today-border:         #f40 !default;
 $cal-tooltip-bg:           #fee !default;
 $cal-weekend-color:              #f00 !default;
 $cal-weekend-dim-color:          #fbb !default;
+$cal-month-title-color: $cal-body-bg !default;		// the "month, year" title, on $cal-band-active-bg
 $cal-invert:                #fff !default;
 
 // -- MonthPanel
 $mp-border: $dt-border !default;
 $mp-hdr-bg: $dt-hdr-bg !default;
 $mp-marked-bg: $highlight-bg !default;
+$mp-band-bg: lighter($mp-hdr-bg, 12%) !default;			// the weekday names and the week numbers
 
 // -- TabPanel
 $tab-selected-color: $tab-bg !default;

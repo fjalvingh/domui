@@ -27,10 +27,13 @@ package to.etc.domui.component.misc;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.Img;
-import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.XmlTextNode;
 
+/**
+ * A block of explanation with a severity: a remark, a warning or an error. It is drawn as a
+ * callout - a bar and a marker in the severity's colour on that severity's wash - entirely by
+ * the theme (.ui-expl), so it follows the theme variant.
+ */
 public class Explanation extends Div {
 	private MsgType m_type;
 
@@ -48,10 +51,10 @@ public class Explanation extends Div {
 
 	@Override
 	public void createContent() throws Exception {
-		Img i = new Img("THEME/big-" + m_type.name().toLowerCase() + ".png");
-		i.setAlign(ImgAlign.LEFT);
-		add(0, i);
-		add(1, m_text);
+		//-- The text gets its own block, so that the html it may contain flows as one paragraph beside the marker.
+		Div text = new Div("ui-expl-txt");
+		add(text);
+		text.add(m_text);
 	}
 
 	@Override

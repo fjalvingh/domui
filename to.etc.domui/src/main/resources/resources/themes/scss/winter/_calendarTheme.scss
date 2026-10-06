@@ -36,7 +36,7 @@ div.calendar { position: relative; }
     font-weight: bold;      /* Pressing it will take you to the current date */
     text-align: center;
     background: $cal-band-active-bg;
-    color: $cal-body-bg;
+    color: $cal-month-title-color;
     padding: 2px;
 }
 

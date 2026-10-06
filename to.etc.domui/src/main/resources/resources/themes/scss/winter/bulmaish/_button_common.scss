@@ -1,4 +1,5 @@
 @use "sass:list";
+@use "sass:map";
 @use "theme" as *;
 
 
@@ -143,7 +144,7 @@
 
 		&:active,
 		&.is-active {
-			background-color: darker($button-text-hover-background-color, 15%);
+			background-color: $button-text-active-background-color;
 			color: $button-text-hover-color;
 		}
 
@@ -157,6 +158,11 @@
 	@each $name, $pair in $colors {
 		$color: list.nth($pair, 1);
 		$color-invert: list.nth($pair, 2);
+		$shades: map.get($button-color-shades, $name);
+		$hover-bg: list.nth($shades, 1);
+		$active-bg: list.nth($shades, 2);
+		$focus-border: list.nth($shades, 3);
+		$inverted-hover-bg: list.nth($shades, 4);
 
 		&.is-#{$name} {
 			background-color: $color;
@@ -165,7 +171,7 @@
 
 			&:hover,
 			&.is-hovered {
-				background-color: findColorHighlight($color, 5%); //darker($color, 2.5%);
+				background-color: $hover-bg;
 				border-color: transparent;
 				color: $color-invert;
 			}
@@ -174,7 +180,7 @@
 			&.is-focused {
 				//border-color: transparent;
 				//border-color: $button-focus-border-color;
-				border-color: findButtonFocusBorderColor($color, $button-focus-border-color);
+				border-color: $focus-border;
 				color: $color-invert;
 
 				&:not(:active) {
@@ -185,7 +191,7 @@
 
 			&:active,
 			&.is-active {
-				background-color: findColorHighlight($color, 20%); //darker($color, 15%);
+				background-color: $active-bg;
 				border-color: transparent;
 				color: $color-invert;
 			}
@@ -201,7 +207,7 @@
 				color: $color;
 
 				&:hover {
-					background-color: darker($color-invert, 5%);
+					background-color: $inverted-hover-bg;
 				}
 
 				&[disabled] {

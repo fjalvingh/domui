@@ -230,9 +230,12 @@ commit.**
    also means no `lighter()`, `darker()`, `findColorInvert()` or `findColorHighlight()`
    in a partial. A hover, active or disabled shade that is visible gets its own variable
    (`$mp-hdr-hover-bg`, `$button-primary-hover-bg`).
-2. **The variant files hold no colour arithmetic.** The only function allowed in
-   `_palette.scss`/`_component-colors.scss` is `rgba($role, alpha)`, for something
-   that has to be see-through. A reference to a role *of the same file* is fine.
+2. **The dark files hold no colour arithmetic.** The only function allowed in
+   `dark/_palette.scss`/`dark/_component-colors.scss` is `rgba($role, alpha)`, for
+   something that has to be see-through. A reference to a role *of the same file* is
+   fine. The light files keep the expressions (`lighter()`, `findColorInvert()`…) that
+   produced the light theme as it was, so the light theme did not change. A new colour
+   may be computed in light, but it is stated in dark.
 3. **A new colour is added in both variants in the same commit.** The compiler enforces
    this.
 4. Contrast helpers (`contrastRatio`, `findColorInvert`) stay in `_functions.scss`. They
@@ -409,11 +412,13 @@ the cost noted.
 
 | Phase | State |
 | --- | --- |
-| §3 compile-and-diff harness | done (contrast check, image check, review page: not yet) |
+| §3 compile-and-diff harness, contrast check | done (image check, review page: not yet) |
 | 1 | done |
 | `_variant-custominit.scss` | done |
 | 2 | done |
-| 3-6 | not started |
+| 3 | done |
+| 4 | done |
+| 5-6 | not started |
 
 ### 7.1 The harness (2026-10-06)
 
@@ -514,3 +519,109 @@ the cost noted.
   `is-white`/`is-black` variants of buttons and icons, which in dark were the dark page
   colour and the light text colour, and are now white and black.
   `TestThemeVariants` passes.
+
+### 7.5 Phase 3 (2026-10-06): the Darcula palette
+
+The dark palette is modelled on IntelliJ's Darcula, as decided for this phase: dark but
+not black, neutral greys with a trace of blue-green, muted blue for selection and focus,
+and Darcula's orange for the accent.
+
+| Role | Value | Darcula's |
+| --- | --- | --- |
+| page (`$body-bg`) | `#2B2B2B` | editor ground |
+| panel (`$surface-bg`) | `#313335` | gutter |
+| window, popup, recessed control (`$window-bg`, `$ground-alt-bg`) | `#3C3F41` | panel grey |
+| field, button, band (`$ground-bg`, `$input-bg`, `$surface-alt-bg`) | `#45494A` | text field |
+| text / strong / muted | `#BBBBBB` / `#D4D4D4` / `#A0A0A0` | UI text |
+| form labels | `#A9B7C6` | editor text |
+| lines: soft / normal / strong / hard | `#464646` / `#515151` / `#6B6B6B` / `#9A9A9A` | separator `#515151` |
+| control border | `#646464` | text field border |
+| accent (`$primary`) | `#CC7832` | keyword orange |
+| links, focus | `#589DF6`, `#4A88C7` | hyperlink, focus border |
+| selection | `#4B6EAF`, DataTable `#214283` | menu / editor selection |
+| hover on menus and selected rows | `#2D4565` | (a muted selection blue) |
+| error / warning / info edge | `#BC3F3C` / `#BE9117` / `#4A88C7` | error, warning, focus |
+| named hues | `#CC7832`, `#C9A93B`, `#499C54`, `#299999`, `#4A88C7`, `#9876AA`, `#BC3F3C` | syntax colours |
+
+- **Pulled forward from Phase 4:** the 46 literals in `dark/_component-colors.scss` that
+  Phases 1-2 had kept from the old bluish palette, re-pointed to Darcula values so that
+  nothing on the page is left in the old hue. That covers the popup menu, the DataTable
+  palette, TabPanel, the breadcrumb, the jscalendar popup, and the one-offs listed in
+  §7.4. TabPanel and the breadcrumb were changed together with their text colours,
+  because one does not work without the other. That fixes the §1.2 TabPanel and
+  breadcrumb defects, and the white frames (`$line-hard` is `#9A9A9A`).
+- **Pulled forward from Phase 6:** the demo's `css/_darkstyle.scss` reads the theme's
+  roles (`@use "theme" as t`) instead of keeping its own copy of the old palette, and
+  the demo's source viewer (`css/_syntax.scss`) uses Darcula's syntax colours in dark.
+  The demo's top bar (`.d-sbc`, `#24292e`) is its own brand bar in both variants and
+  is left as it is.
+- **`TestThemeContrast`** is the §3 contrast check. A sheet compiled against the theme
+  for each variant writes out the channels of 30 text/ground pairs, and the test
+  computes the WCAG ratio exactly. The theme's own `contrastRatio()` approximates. Every
+  dark pair is at least 4.5:1, or 3:1 for the bold DataTable header and the primary
+  button. Three dark values were adjusted to get there: `$text-muted`, `$errors-wash`
+  with `$errors-input-bg`, and TabPanel's `$tab-color`. The light variant's existing
+  shortfalls are a pinned list in the test: muted text, the page title, error and info
+  text, TabPanel and the breadcrumb. The light theme is not changed by this work, and
+  the test fails when one of them is fixed, so that the list gets updated.
+- **`ThemeColor`'s bands** moved up with the page ground, from 11% to 17% lightness:
+  tint 16-48% → 20-44%, ink 50-85% → 60-88%, edge 24-42% → 30-44%. Nothing in this
+  repository calls it; applications do.
+- Verified with dark-mode screenshots of the demo (headless Chrome with
+  `--force-dark-mode`, which the demo's colour-scheme autodetect follows) of TabPanel,
+  DataTable, FormBuilder, buttons, the CD shop search pages, notices and error panels,
+  and PopupMenu2. The light sheet is unchanged.
+- Left for Phase 4, seen on those screenshots: the Explanation panel's glossy gradient
+  (`_misc`/`_messageline2`), and the remaining formulas made for light in
+  `dark/_component-colors.scss`. Left for Phase 5: ScrollableTabPanel's grey end blocks
+  (`tab-scrl-icon.png`) and the other images.
+
+### 7.6 Phase 4 (2026-10-06): components
+
+- **Explanation, redesigned** in both variants, which is the one deliberate change to the
+  light theme. It was a 2px border around a gradient that faded to white, with a 48px
+  PNG floated left that stuck out of the box. It is now a callout: a 4px bar and a round
+  marker ("i", or "!" for a warning or error) in the severity's colour, on that
+  severity's wash, with the text in a block of its own (`.ui-expl-txt`) so that the
+  html in it flows as one paragraph. The marker is drawn in CSS, so it has no image.
+  `Explanation.java` no longer adds the `big-<type>.png` image, so `big-error.png` and
+  `big-warning.png` are now unreferenced (§1.3 group G). New variables, per variant:
+  `$expl-{info,warning,error}-{bg,accent,marker-color}`. `$expl-border` is gone.
+- `_messageline2.scss` (`.ui-msgln2`) is deleted: nothing creates that class.
+- **No colour arithmetic in a partial any more.** Each computed colour became a component
+  variable, with the old expression as its light value: MonthPanel's band
+  (`$mp-band-bg`), SmallImgButton's hover and focus (`$sib-hover-bg`, `$sib-focus-bg`),
+  RadioButton's disabled-and-chosen text (`$rbb-disabled-checked-color`), the bulma text
+  button's pressed state (`$button-text-active-background-color`), the CheckboxButton
+  toggle's seven shades (`$ckb-off-track-bg` … `$ckb-on-knob-hover-color`), and the
+  bulma colour buttons. `$button-color-shades` gives each entry of `$colors` its hover,
+  active, focus-border and inverted-hover colour. In dark, the focus border of every
+  colour button is the theme's focus blue, where the formula rotated the hue: a
+  green ring around the orange button.
+- **No colour arithmetic in the dark files.** The bulma `-invert` colours, `$text-invert`
+  and everything read from it (the cookie banners, the mini DefaultButton), EnumSetInput's
+  label border and text, ExpandingTable's expanded row (light green before), and
+  RadioButton's borders are stated.
+- **Main-set colours read directly by a partial** got component variables where it
+  mattered in dark: PopupMenu2 (`$pome2-bg`/`-color`/`-hover-bg`: a raised `#3C3F41`
+  popup with the selection-blue hover), DataCellTable's selection (`$dct-selected-bg`,
+  the literal `cyan` before), and the jscalendar's month title (`$cal-month-title-color`:
+  it was drawn in the body colour, invisible on the dark band).
+- **Tier B and C dark values:** the ConditionPanel levels (ten dark tints of the same
+  hues), PopInPanel, the schedule's items and hour lines, the layout resizer feedback,
+  the Switch, the progress bar (Darcula red), DataPager2's hover text, the header blues
+  of GenericHeader and ExpandingHeader, the popup menu title, the cookie banner, the Ace
+  bar's rule, the read-only form wash, and the drag-and-drop table's stripes.
+- Dark now shares only four colour declarations with light, all deliberate: the
+  drag-and-drop table's own dark-green header, the cookie banner's "advanced" button,
+  which reads `var(--red)`, a custom property that now has a dark value, and the bug
+  badge's yellow count.
+- Verified: `TestThemeContrast` has six more pairs (the three explanation texts on their
+  washes at 4.5:1, the three markers at 3:1) and passes, as does `TestThemeVariants`.
+  Against the baseline, the light sheet differs only in `.ui-expl` and in the deleted
+  `.ui-msgln2`. In the running demo, in dark: the Tier B pages by headless screenshot
+  (headers, panels, checkbox, radio group, EnumSetInput, MonthPanel, WeekAgenda,
+  DateInput2, Text2, the ruler, Tree3, HamburgerMenu, the title bar, BreadCrumb2), and
+  in Chrome the states that need a click: PopupMenu2 open, the DateInput2 calendar, a
+  floating window, a modal MsgBox with its overlay, and the HamburgerMenu open. The new
+  Explanation in both variants.

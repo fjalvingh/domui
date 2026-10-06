@@ -29,7 +29,7 @@ table.ui-mp {
 
 	/* The row of weekday names */
 	.ui-mp-top {
-		background-color: lighter($mp-hdr-bg, 12%);
+		background-color: $mp-band-bg;
 	}
 
 	td.ui-mp-dh {
@@ -39,7 +39,7 @@ table.ui-mp {
 
 	/* The week number, in the first column of every week */
 	td.ui-mp-w {
-		background-color: lighter($mp-hdr-bg, 12%);
+		background-color: $mp-band-bg;
 		border-right: 1px solid $mp-border;
 		color: $mp-weeknr-color;
 		font-size: 10px;

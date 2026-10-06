@@ -22,15 +22,15 @@ $dark: $text-strong-color !default;
 
 // Invert colors
 
-$orange-invert: findColorInvert($orange) !default;
-$yellow-invert: findColorInvert($yellow) !default;
-$green-invert: findColorInvert($green) !default;
-$cyan-invert: findColorInvert($cyan) !default;
-$blue-invert: findColorInvert($blue) !default;
-$purple-invert: findColorInvert($purple) !default;
-$red-invert: findColorInvert($red) !default;
+$orange-invert: rgba(0, 0, 0, 0.7) !default;
+$yellow-invert: rgba(0, 0, 0, 0.7) !default;
+$green-invert: rgba(0, 0, 0, 0.7) !default;
+$cyan-invert: rgba(0, 0, 0, 0.7) !default;
+$blue-invert: rgba(0, 0, 0, 0.7) !default;
+$purple-invert: rgba(0, 0, 0, 0.7) !default;
+$red-invert: #F0F0F0 !default;
 
-$primary-invert: findColorInvert($primary) !default;
+$primary-invert: rgba(0, 0, 0, 0.7) !default;
 $info-invert: $cyan-invert !default;
 $success-invert: $green-invert !default;
 $warning-invert: $yellow-invert !default;
@@ -42,9 +42,9 @@ $dark-invert: $light !default;
 
 // Derived from the main set's $highlight-bg and $esic-label-bg. Here rather than next to
 // them because they need the theme's functions, which _palette.scss cannot load.
-$highlight2-bg: hsl(38, 60%, 32%) !default;
-$esic-label-border: darker($esic-label-bg, 20%) !default;
-$esic-label-color: findColorInvert($esic-label-bg) !default;
+$highlight2-bg: #4A3B16 !default;
+$esic-label-border: #6E8040 !default;
+$esic-label-color: #DDDDDD !default;
 
 $background: $ground-alt-bg !default;
 
@@ -54,7 +54,7 @@ $border-hover: $control-hover-border !default;
 // Text colors
 
 $text: $text-color !default;
-$text-invert: findColorInvert($text) !default;
+$text-invert: #DDDDDD !default;			// text on a strong fill
 $text-light: $text-muted !default;
 $text-strong: $text-strong-color !default;
 
@@ -96,7 +96,7 @@ $colors: ("white": ($white, $black)
 
 // Form
 $input-background-color: $ground-bg !default;
-$input-shadow: inset 0 1px 2px rgba(hsl(0, 0%, 96%), 0.1) !default;
+$input-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2) !default;
 
 $input-hover-color: $text-strong-color !default;
 $input-hover-border-color: $control-hover-border !default;
@@ -127,15 +127,15 @@ $tlf-hdr-bg: $primary !default;
 
 //-- SimplePopupMenu (.ui-pmnu-*). An inverted surface; each nested submenu is one step
 //-- lighter than the one it opens from.
-$pmnu-bg: hsl(220, 12%, 18%) !default;					// the menu itself
-$pmnu-sm1-bg: hsl(220, 11%, 27%) !default;				// a submenu, one level in
-$pmnu-sm2-bg: hsl(220, 10%, 36%) !default;
-$pmnu-sm3-bg: hsl(220, 10%, 58%) !default;
-$pmnu-color: findColorInvert($pmnu-bg) !default;	// item text, readable on the menu
-$pmnu-disabled-color: hsl(220, 10%, 58%) !default;			// disabled item text
-$pmnu-border: hsl(220, 13%, 11%) !default;					// title band and border
-$pmnu-title-color: #eeffee !default;
-$pmnu-hover-bg: $primary !default;
+$pmnu-bg: #3C3F41 !default;			// the menu itself
+$pmnu-sm1-bg: #45494A !default;			// a submenu, one level in
+$pmnu-sm2-bg: #4C5052 !default;
+$pmnu-sm3-bg: #565A5C !default;
+$pmnu-color: #BBBBBB !default;			// item text
+$pmnu-disabled-color: #777777 !default;			// disabled item text
+$pmnu-border: #2B2B2B !default;			// title band and border
+$pmnu-title-color: #D4D4D4 !default;
+$pmnu-hover-bg: #2D4565 !default;
 
 //-- LogTailer (.ui-tlf-*)
 $tlf-gutter-bg: $fill-muted-bg !default;			// the line-number gutter
@@ -161,6 +161,9 @@ $hmbrg-disabled-color: $text-muted !default;
 $io-blk-bg: $shadow-color !default;
 
 //-- PopupMenu2 (.ui-pome2-*)
+$pome2-bg: $window-bg !default;			// the menu: a raised surface
+$pome2-color: $surface-color !default;
+$pome2-hover-bg: $menu-hover-bg !default;			// the item under the pointer
 $pome2-disabled-bg: $fill-muted-bg !default;
 
 //-- SearchAsYouType (.ui-sayt-*)
@@ -186,18 +189,18 @@ $code-block-bg: $fill-muted-bg !default;
 //-- the levels have to stay apart from *each other*, which is not something the theme's
 //-- semantics can express. An application replaces the list to restyle all of them.
 $copa-level-bgs: (
-	#aff8a8, #dcd3ff, #85e3ff, #b5b9ff, #ffb5e8,
-	#b28dff, #ff9cee, #c5a3ff, #ffccf9, #d5aaff
+	#2F4A33, #3E3A5C, #23485A, #33395E, #5A2F4C,
+	#45335E, #5C2F55, #4A3B5E, #5C3550, #4B3866
 ) !default;
 
 //-- jquery-layout (.ui-layout-*). The resizer's feedback colours are a set of their own -
 //-- green you may drag, red at the size limit, amber click-to-open - so they keep their
 //-- own values for the same reason the panel levels above do.
 $layout-resizer-bg: $fill-muted-bg !default;
-$layout-resizer-hover-bg: #C4E1A4 !default;
-$layout-resizer-limit-bg: #E1A4A4 !default;
-$layout-resizer-closed-bg: #EBD5AA !default;
-$layout-toggler-hover-bg: #FC6 !default;
+$layout-resizer-hover-bg: #3E5A35 !default;
+$layout-resizer-limit-bg: #6B3A3A !default;
+$layout-resizer-closed-bg: #5E5134 !default;
+$layout-toggler-hover-bg: #8C6E2A !default;
 $layout-ghost-bg: $line-color !default;
 $layout-content-color: $text-muted !default;
 
@@ -205,12 +208,27 @@ $layout-content-color: $text-muted !default;
 $ckb-off-color: $text-muted !default;
 $ckb-on-bg: $alt-button-bg !default;
 $ckb-knob-bg: $surface-bg !default;
+$ckb-off-track-bg: #4E5254 !default;			// the track while off
+$ckb-off-hover-color: #BBBBBB !default;			// the label while hovered, off
+$ckb-off-knob-hover-color: #BBBBBB !default;			// the knob's text while hovered, off
+$ckb-on-hover-color: #6CA0DC !default;			// the label while hovered, on
+$ckb-on-border: #4A88C7 !default;			// the track's and the knob's edge, on
+$ckb-on-hover-bg: #34507A !default;			// the track while hovered, on
+$ckb-on-knob-hover-color: #1E2A38 !default;			// the knob's text while hovered, on
 
 //-- InfoPanel (.ui-ipa) / ExplanationPanel (.ui-expl) / .ui-hor-divider /
 //-- the drag-drop table (.ui-dd-table), all in _misc.scss
 $ipa-border: $line-soft !default;
-$expl-border: $line-strong !default;
 $expl-color: $text !default;
+$expl-info-bg: $info-bg !default;				// each severity: its wash, its bar and marker,
+$expl-info-accent: $info-border !default;			// and the colour of the "i" or "!" on the marker
+$expl-info-marker-color: #F0F0F0 !default;
+$expl-warning-bg: $warnings-bg !default;
+$expl-warning-accent: $warnings-border !default;
+$expl-warning-marker-color: #2B2B2B !default;
+$expl-error-bg: $errors-wash !default;
+$expl-error-accent: $errors-border !default;
+$expl-error-marker-color: #F0F0F0 !default;
 $hor-divider-bg: $fill-muted-bg !default;
 $dd-table-border: $line-color !default;
 $dd-table-hdr-border: $line-strong !default;
@@ -219,21 +237,21 @@ $dd-table-hdr-color: #77F6C9 !default;
 
 //-- CookieConfirm (#gdpr-cookie-message)
 $ckc-surface-bg: $surface-bg !default;
-$ckc-color: $text-invert !default;
+$ckc-color: #DDDDDD !default;
 
 //-- The DataTable palette (.ui-dt-*). Shared, not one component's: _datatable,
 //-- _scrollableTable, _expandingtable, _monthpanel and _dateinput all read it. It used to
 //-- be declared in _datatable.scss AND again, identically, in _scrollableTable.scss.
-$dt-selected-bg: hsl(215, 40%, 30%) !default;
-$dt-even-row-bg: hsl(220, 12%, 16%) !default;
-$dt-cell-highlight-bg: hsl(271, 45%, 40%) !default;
+$dt-selected-bg: #214283 !default;			// Darcula's editor selection
+$dt-even-row-bg: #303234 !default;
+$dt-cell-highlight-bg: #5D3F70 !default;
 $dt-cell-highlight-link-bg: $surface-bg !default;
-$dt-expanding-row-bg: lighter($green-accent, 20%) !default;
-$dt-hdr-bg: hsl(215, 30%, 26%) !default;
+$dt-expanding-row-bg: #2F4A33 !default;
+$dt-hdr-bg: #3C3F41 !default;
 // Deliberately black rather than $text: the header sits on its own coloured band, where
 // $text drops the contrast from 10.9:1 to 4.6:1 - on the AA threshold, for bold text
 // people scan.
-$dt-hdr-color: hsl(0, 0%, 92%) !default;
+$dt-hdr-color: #D4D4D4 !default;
 
 // FIXME This is used as a colour - "border-left: 1px solid $dt-hdr-btm-border" -
 // but "undefined" is not one, so those two rules emit invalid CSS and the browser drops
@@ -241,15 +259,15 @@ $dt-hdr-color: hsl(0, 0%, 92%) !default;
 // rather than fixed in passing: giving it a colour makes borders appear that never have.
 $dt-hdr-btm-border: undefined !default;
 
-$dt-border: $dt-hdr-bg !default;
-$dt-lines-border: lighter($dt-border, 20%) !default;
+$dt-border: #45494A !default;
+$dt-lines-border: #3A3A3A !default;
 
 //-- Calendar schedule (.ui-wa-*) - the week/day grid, not the date-picker popup
 $wa-band-bg: $surface-alt-bg !default;
-$wa-hour-bg: $fill-muted-bg !default;
+$wa-hour-bg: #3A3D3F !default;
 $wa-slot-bg: $surface-bg !default;
-$wa-item-bg: #00ffcc !default;					// an appointment's block
-$wa-note-bg: #ff4d00 !default;					// a note pinned to the grid
+$wa-item-bg: #2A6B5E !default;			// an appointment's block
+$wa-note-bg: #8C3A1E !default;			// a note pinned to the grid
 $wa-time-color: $link-color !default;			// blue text; not a link, but it takes the
 												// theme's blue so the variant corrects it
 
@@ -258,17 +276,17 @@ $cpick-label-color: $text-muted !default;
 $cpick-border: $line-strong !default;
 
 //-- CookieWarning (#cookie-msg)
-$ckw-bg: hsl(220, 10%, 58%) !default;
-$ckw-color: $text-invert !default;
+$ckw-bg: #3C3F41 !default;
+$ckw-color: #BBBBBB !default;
 
 //-- DataPager2 (.ui-dp2-*)
 $dp2-bg: $surface-bg !default;
 $dp2-disabled-bg: $fill-muted-bg !default;
 $dp2-disabled-color: $text-muted !default;
-$dp2-button-hover-color: #051cac !default;		// a button's text while hovered
+$dp2-button-hover-color: #6CA0DC !default;			// a button's text while hovered
 
 //-- DefaultButton (.ui-button)
-$button-text-invert: $text-invert !default;
+$button-text-invert: #DDDDDD !default;
 
 //-- DisplayRadiobutton (.ui-drbb-*)
 $drbb-gradient-from: $fill-muted-bg !default;
@@ -280,14 +298,18 @@ $xdt-ix-color: $link-color !default;			// the expand/collapse cell, an underline
 
 //-- The header blue: GenericHeader's level-2 title and ExpandingHeader's bar are one
 //-- colour used by two components, so both default to it rather than repeating it.
-$header-accent-color: #297bc0 !default;
+$header-accent-color: #6CA0DC !default;
 $xphd-bar-color: $header-accent-color !default;
 
 //-- GenericHeader (.ui-generichd-*)
 $generichd-border: $line-soft !default;
-$generichd-blue-color: #4c5a6f !default;				// .ui-generichd-blue, a slate title
+$generichd-blue-color: #8FA3BF !default;			// .ui-generichd-blue, a slate title
 $generichd-h2-color: $header-accent-color !default;
-$generichd-h3-color: #013686 !default;
+$generichd-h3-color: #6897BB !default;
+
+//-- SmallImgButton (.ui-sib)
+$sib-hover-bg: $header-bg !default;
+$sib-focus-bg: #565A5C !default;
 
 //-- ImageButton (.ui-ibtn-*)
 $ibtn-disabled-bg: $fill-muted-bg !default;
@@ -300,12 +322,12 @@ $lui-popup-border: $line-strong !default;
 $mp-bg: $surface-bg !default;
 
 //-- Drag-and-drop table striping (.ui-dd-table), in _misc.scss
-$dd-table-stripe-bg: rgba(160, 160, 160, 0.2) !default;
+$dd-table-stripe-bg: rgba(255, 255, 255, 0.04) !default;
 
 //-- PopInPanel (.ui-popin-*)
-$popin-border: hsl(220, 14%, 88%) !default;
-$popin-bg: #b8e59d !default;
-$popin-title-bg: #6af218 !default;
+$popin-border: #646464 !default;
+$popin-bg: #344134 !default;
+$popin-title-bg: #3E6B2E !default;
 
 //-- ScrollableTabPanel (.ui-stbp-*)
 $stbp-border: $line-strong !default;
@@ -313,61 +335,62 @@ $stbp-border: $line-strong !default;
 //-- Switch (.ui-swtch-*)
 $swtch-off-bg: $fill-muted-bg !default;
 $swtch-knob-bg: $surface-bg !default;
-$swtch-on-bg: #2196f3 !default;					// the track once the switch is on
+$swtch-on-bg: #4A88C7 !default;			// the track once the switch is on
 
 //-- TabPanel (.ui-tab-*)
-$tab-hdr-bg: hsl(220, 10%, 58%) !default;
-$tab-bg: hsl(220, 10%, 36%) !default;
-$tab-border: hsl(220, 12%, 76%) !default;
+$tab-hdr-bg: #3C3F41 !default;
+$tab-bg: #45494A !default;
+$tab-border: #515151 !default;
 $tab-content-bg: $surface-bg !default;
-$tab-color: $text-invert !default;
+$tab-color: #BBBBBB !default;
 
 //-- Tree2 / Tree3 (.ui-tree2-* / .ui-tree3-*)
 $tree2-shadow: $line-soft !default;
 $tree3-border: $line-strong !default;
-$tree3-color: $text-invert !default;
+$tree3-color: #BBBBBB !default;
 $tree2-hover-bg: $ground-alt-bg !default;
 $tree2-hover-color: $primary !default;
 $tree3-hover-outline: $row-hover-outline !default;
 
 //-- Breadcrumb (.ui-brc-* and .ui-brcr2-*)
-$brc-color: $text-invert !default;
+$brc-color: #DDDDDD !default;
 $brcr2-shadow: $shadow-color !default;
-$brc-link-color: #ffff99 !default;				// a crumb that is still a link
-$brcr2-bg: $alt-button-color !default;			// item bg colour
+$brc-link-color: #E0C46C !default;
+$brcr2-bg: #365880 !default;			// item bg colour
 $brcr2-color: $brc-color !default;
-$brcr2-hover-bg: lighter($brcr2-bg, 20%) !default;
-$brcr2-sel-bg: #eef5ff !default;				// the selected item's bg
-$brcr2-sel-color: $brcr2-bg !default;
+$brcr2-hover-bg: #4B6EAF !default;
+$brcr2-sel-bg: #2B2B2B !default;			// the selected item's bg
+$brcr2-sel-color: #589DF6 !default;
 
 //-- Ace editor bar (.ui-acedit-*)
-$acedit-bar-bg: hsl(0, 0%, 88%) !default;
-$acedit-border: #000088 !default;				// the navy rule under the editor
+$acedit-bar-bg: #313335 !default;
+$acedit-border: #3D6185 !default;			// the rule under the editor
 
 //-- CookieConfirm (#gdpr-cookie-message) - its own two-colour palette
-$ckc-bg: #3B3646 !default;
+$ckc-bg: #3C3F41 !default;
 $ckc-shadow: $shadow-color !default;
-$ckc-rule-color: $text-invert !default;
-$ckc-accent: #EE4B5A !default;
+$ckc-rule-color: #DDDDDD !default;
+$ckc-accent: #E06C6C !default;
 
 //-- Hard frames: components that drew a plain black border, now the third step of the
 //-- line scale. $line-hard is $black (#0a0a0a) rather than #000, hence the hairline shift.
 $bug-ind-border: $line-hard !default;			// the bug badge's frame
 $wa-item-border: $line-hard !default;			// an appointment in the schedule grid
+$dct-selected-bg: #214283 !default;			// a selected cell of a DataCellTable
 $dct-selected-border: $line-hard !default;		// a selected cell
 $oddchars-border: $line-hard !default;
 $pct-border: $line-hard !default;				// the progress bar's outline
 $popin-title-border: $line-hard !default;
 $stbp-pager-border: $line-hard !default;
-$tree3-fbtn-bg: hsl(0, 0%, 96%) !default;			// the fold button is an inverted square
+$tree3-fbtn-bg: #4C5052 !default;			// the fold button: a raised square
 
 //-- Forms, and the odd remaining component colour that is genuinely its own
-$f-display-bg: #eff7ff !default;				// .ui-f-display, the read-only field wash
+$f-display-bg: #33373A !default;			// .ui-f-display, the read-only field wash
 $bug-ind-bg: $errors-border !default;			// the bug badge's ground: the theme's error red
 $bug-count-color: yellow !default;				// the count on the red bug badge
 $oddchars-hover-bg: $row-hover-bg !default;
 $pct-rlr2-border: $line-color !default;
-$pct-bar-bg: red !default;						// the filled part of the progress bar
+$pct-bar-bg: #BC3F3C !default;			// the filled part of the progress bar
 
 //-- Text that was written as plain black and is the theme's ordinary text colour
 $generichd-color: $text !default;					// header levels 1, 4 and "simple"
@@ -385,7 +408,7 @@ $ckw-accept-color: $primary-invert !default;
 
 //-- MonthPanel dims, which were written as lighter(#000000, 55%) and 65%
 $mp-weeknr-color: $text-muted !default;
-$mp-othermonth-color: hsl(220, 10%, 36%) !default;
+$mp-othermonth-color: #6E6E6E !default;
 
 // =======================================================================================
 // Component variables that used to be declared by the component partials themselves. They
@@ -397,9 +420,10 @@ $mp-othermonth-color: hsl(220, 10%, 36%) !default;
 // -- RadioButton
 $rbb-common-color: $alt-button-color !default;
 $rbb-common-bg: $alt-button-bg !default;
-$rbb-border-color: darker($rbb-common-color, 10%) !default;
+$rbb-border-color: #4A88C7 !default;
 $rbb-disabled-color: $rbb-disabled-bg !default;
-$rbb-disabled-border-color: darker($rbb-disabled-color, 15%) !default;
+$rbb-disabled-checked-color: #2B2B2B !default;			// a disabled radio button's text, when it is the chosen one
+$rbb-disabled-border-color: #5A5E60 !default;
 
 // -- Buttons (bulmaish/_button_common)
 $button-color: $text-strong-color !default;
@@ -415,11 +439,28 @@ $button-active-border-color: $link-active-border !default;
 $button-text-color: $text !default;
 $button-text-hover-background-color: $background !default;
 $button-text-hover-color: $text-strong !default;
+$button-text-active-background-color: #4C5052 !default;
 $button-disabled-background-color: $ground-bg !default;
 $button-disabled-border-color: $control-border !default;
 $button-static-color: $text-muted !default;
 $button-static-background-color: $ground-alt-bg !default;
 $button-static-border-color: $control-border !default;
+
+// The colour buttons (.is-primary, .is-danger ... one per entry of $colors): per colour, the
+// background while hovered, while pressed, the border while focused, and the background of
+// the .is-inverted form while hovered.
+$button-color-shades: (
+	"white": (#F0F0F0, #DDDDDD, $button-focus-border-color, $black),
+	"black": (#222222, #2E2E2E, $button-focus-border-color, $white),
+	"light": (#45494A, #4C5052, $button-focus-border-color, $light-invert),
+	"dark": (#C4C4C4, #B0B0B0, $button-focus-border-color, $dark-invert),
+	"primary": (#D6874A, #B86A2C, $button-focus-border-color, $primary-invert),
+	"link": (#5A95D0, #3D73AB, $button-focus-border-color, $link-invert),
+	"info": (#33A6A6, #237F7F, $button-focus-border-color, $info-invert),
+	"success": (#55A960, #3D8547, $button-focus-border-color, $success-invert),
+	"warning": (#D3B54D, #B39530, $button-focus-border-color, $warning-invert),
+	"danger": (#C9514E, #A33532, $button-focus-border-color, $danger-invert)
+) !default;
 
 // -- DataPager2
 $dp2-button-color: $alt-button-color !default;
@@ -430,39 +471,41 @@ $drp-hover-border: $green-accent !default;
 $drp-hover-bg: rgba($green-accent, 0.1) !default;
 
 // -- The jscalendar popup used by DateInput2 (_calendarTheme)
-$cal-band-active-bg: hsl(220, 12%, 26%) !default;
-$cal-band-bg: hsl(220, 12%, 20%) !default;
-$cal-bg: hsl(220, 13%, 14%) !default;
-$cal-body-bg: hsl(220, 13%, 14%) !default;
-$cal-border: hsl(220, 11%, 30%) !default;
-$cal-combo-border: hsl(220, 11%, 32%) !default;
-$cal-combo-dim-color: hsl(220, 10%, 50%) !default;
-$cal-combo-hover-bg: hsl(38, 45%, 32%) !default;
-$cal-combo-color: hsl(30, 55%, 66%) !default;
-$cal-dim-color: hsl(220, 10%, 48%) !default;
-$cal-disabled-color: hsl(220, 10%, 42%) !default;
-$cal-drag-bg: hsl(120, 60%, 55%) !default;
-$cal-hilite-bg: hsl(215, 28%, 26%) !default;
-$cal-hilite2-bg: hsl(140, 20%, 22%) !default;
-$cal-hover-active-bg: hsl(220, 12%, 28%) !default;
-$cal-hover-bg: hsl(220, 12%, 24%) !default;
-$cal-selected-bg: hsl(38, 45%, 30%) !default;
-$cal-status-bg: hsl(220, 12%, 20%) !default;
-$cal-status-color: hsl(38, 70%, 62%) !default;
-$cal-color: hsl(220, 12%, 80%) !default;
-$cal-title-bg: hsl(220, 12%, 22%) !default;
-$cal-today-active-bg: hsl(0, 30%, 38%) !default;
-$cal-today-bg: hsl(0, 35%, 30%) !default;
-$cal-today-border: hsl(14, 70%, 50%) !default;
-$cal-tooltip-bg: hsl(220, 12%, 20%) !default;
-$cal-weekend-color: hsl(0, 75%, 66%) !default;
-$cal-weekend-dim-color: hsl(0, 35%, 48%) !default;
-$cal-invert: hsl(220, 14%, 90%) !default;
+$cal-band-active-bg: #4C5052 !default;
+$cal-band-bg: #45494A !default;
+$cal-bg: #3C3F41 !default;
+$cal-body-bg: #3C3F41 !default;
+$cal-border: #555555 !default;
+$cal-combo-border: #555555 !default;
+$cal-combo-dim-color: #777777 !default;
+$cal-combo-hover-bg: #4B6EAF !default;
+$cal-combo-color: #CC7832 !default;
+$cal-dim-color: #777777 !default;
+$cal-disabled-color: #666666 !default;
+$cal-drag-bg: #499C54 !default;
+$cal-hilite-bg: #34507A !default;
+$cal-hilite2-bg: #344134 !default;
+$cal-hover-active-bg: #565A5C !default;
+$cal-hover-bg: #4C5052 !default;
+$cal-selected-bg: #214283 !default;
+$cal-status-bg: #45494A !default;
+$cal-status-color: #CC7832 !default;
+$cal-color: #BBBBBB !default;
+$cal-title-bg: #45494A !default;
+$cal-today-active-bg: #704545 !default;
+$cal-today-bg: #5C3A3A !default;
+$cal-today-border: #BC3F3C !default;
+$cal-tooltip-bg: #4B4D4D !default;
+$cal-weekend-color: #E06C6C !default;
+$cal-weekend-dim-color: #8C5555 !default;
+$cal-month-title-color: #DDDDDD !default;		// the "month, year" title, on $cal-band-active-bg
+$cal-invert: #DDDDDD !default;
 
 // -- MonthPanel
 $mp-border: $dt-border !default;
 $mp-hdr-bg: $dt-hdr-bg !default;
 $mp-marked-bg: $highlight-bg !default;
+$mp-band-bg: #45494A !default;			// the weekday names and the week numbers
 
 // -- TabPanel
-$tab-selected-color: $tab-bg !default;
+$tab-selected-color: #DDDDDD !default;
