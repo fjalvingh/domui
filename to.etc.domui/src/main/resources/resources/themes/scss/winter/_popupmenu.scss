@@ -4,7 +4,7 @@
 .ui-pmnu {
 	display: none;
 	width: auto;
-	background-color: ladder($pmnu-bg);
+	background-color: $pmnu-bg;
 	border: 1px dotted $pmnu-border;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
@@ -57,11 +57,11 @@
  * enough that rounding each to its own nearest ramp step collapsed them into one colour.
  */
 .ui-pmnu-sm1 {
-	background-color: ladder($pmnu-bg, 1);
+	background-color: $pmnu-sm1-bg;
 }
 .ui-pmnu-sm2 {
-	background-color: ladder($pmnu-bg, 2);
+	background-color: $pmnu-sm2-bg;
 }
 .ui-pmnu-sm3 {
-	background-color: ladder($pmnu-bg, 3);
+	background-color: $pmnu-sm3-bg;
 }

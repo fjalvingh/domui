@@ -4,10 +4,9 @@
 //
 // The values the dark variant chose are the ones that differ from the light file; the others
 // are still the light file's own expressions, which resolve against the values in this file.
-// Most of the dark look still comes from one trick: the greyscale ramp ($white .. $black) is
-// turned upside down, so $white* are the darkest surfaces and $grey-darker is the lightest
-// text, and every rule that reaches for "the light end of the ramp" gets a dark colour. That
-// is the first thing darktheme.md (Phase 2) replaces.
+// The greyscale ramp ($white .. $black) means here what it means in the light file - $white
+// is white - and the dark surfaces, text and lines are roles ($ground-bg, $text-color,
+// $control-border ...) with their own dark values.
 //
 // =======================================================================================
 // How colours are named in this theme.
@@ -164,19 +163,19 @@ $blue: hsl(210, 90%, 68%) !default;
 $purple: hsl(271, 80%, 76%) !default;
 $red: hsl(348, 85%, 68%) !default;
 
-$black: hsl(0, 0%, 96%) !default;
-$black-bis: hsl(0, 0%, 93%) !default;
-$black-ter: hsl(0, 0%, 88%) !default;
+$black: hsl(0, 0%, 4%) !default;
+$black-bis: hsl(0, 0%, 7%) !default;
+$black-ter: hsl(0, 0%, 14%) !default;
 
-$grey-darker: hsl(220, 14%, 88%) !default;		// $text-strong, input text
-$grey-dark: hsl(220, 12%, 76%) !default;		// $text - the normal body colour
-$grey: hsl(220, 10%, 58%) !default;		// $text-light
-$grey-light: hsl(220, 10%, 36%) !default;		// hover borders
-$grey-lighter: hsl(220, 11%, 27%) !default;		// $border - normal borders
+$grey-darker: hsl(0, 0%, 21%) !default;
+$grey-dark: hsl(0, 0%, 29%) !default;
+$grey: hsl(0, 0%, 48%) !default;
+$grey-light: hsl(0, 0%, 71%) !default;
+$grey-lighter: hsl(0, 0%, 86%) !default;
 
-$white-ter: hsl(220, 12%, 18%) !default;		// two steps up: headers, striped rows
-$white-bis: hsl(220, 13%, 14%) !default;		// one step up: cards, panels
-$white: hsl(220, 13%, 11%) !default;		// page background
+$white-ter: hsl(0, 0%, 96%) !default;
+$white-bis: hsl(0, 0%, 98%) !default;
+$white: hsl(0, 0%, 100%) !default;
 
 $input-border-color: hsl(220, 11%, 30%) !default;
 
@@ -205,15 +204,27 @@ $line-color: hsl(220, 11%, 27%) !default;
 
 // The same idea one step darker, for a line that has to carry weight: the rule under an
 // h1, the divider between table header cells.
-$line-strong: $grey !default;
+$line-strong: hsl(220, 10%, 58%) !default;
 
 // And the hardest of the three: a frame that has to read as an edge - a selected cell, an
 // alert badge, the outline of a control. The theme wrote plain black for all of these.
-$line-hard: $black !default;
+$line-hard: hsl(0, 0%, 96%) !default;
 
 // Text that is present but is not the main thing: a label, a hint, an item that cannot
 // be used. The theme reached for #666, #777, #808080 and #999 for this; they are one idea.
-$text-muted: $grey !default;
+$text-muted: hsl(220, 10%, 58%) !default;
+
+// The roles the bulma mixins and the components read where they used to read a grey of the
+// ramp directly. In the light theme each is that grey; a variant states its own.
+$ground-bg: hsl(220, 13%, 11%) !default;			// what a control or button is filled with: the page ground
+$ground-alt-bg: hsl(220, 12%, 18%) !default;			// one step off the ground: a static control, a hovered tree item, a band
+$text-color: hsl(220, 12%, 76%) !default;			// ordinary text, as the bulma mixins draw it
+$text-strong-color: hsl(220, 14%, 88%) !default;			// emphasised text: a control's own text, a hovered link
+$control-border: hsl(220, 11%, 27%) !default;			// the edge of an input or button
+$control-hover-border: hsl(220, 10%, 36%) !default;			// ... while it is hovered
+$control-active-border: hsl(220, 12%, 76%) !default;			// ... while it is pressed
+$fill-muted-bg: hsl(220, 11%, 27%) !default;			// a quiet fill: a disabled control, a gutter, a switch that is off
+$line-soft: hsl(220, 11%, 27%) !default;			// the quietest line: an info panel's edge, the rule under a header
 
 // What a shadow is made of. Shadows take it through rgba(), so this is a colour and the
 // alpha stays at the point of use.
@@ -248,17 +259,3 @@ $input-color: hsl(220, 14%, 88%) !default;
 $input-ro-bg-top: hsl(215, 22%, 20%) !default;
 $input-ro-bg-bottom: hsl(215, 26%, 16%) !default;
 
-// --------------------------------------------------------------------------------------
-// The greyscale ramp as an ordered list, darkest first - the same eleven steps defined
-// above, in order.
-//
-// It exists so that anything which *nests* can walk the ramp instead of hand-picking a
-// grey per level: a submenu inside a submenu, a tree inside a tree, a panel inside a
-// panel. See ladder() in functions.scss.
-$grey-ramp: ($black, $black-bis, $black-ter, $grey-darker, $grey-dark, $grey,
-             $grey-light, $grey-lighter, $white-ter, $white-bis, $white) !default;
-
-// Which way along that list a ladder walks as it goes deeper. A variant that inverts the
-// ramp inverts this with it (winter/dark does), so every ladder in the theme keeps
-// stepping the same way *visually* - away from the page ground - in either variant.
-$ladder-direction: -1 !default;

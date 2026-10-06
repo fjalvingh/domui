@@ -193,8 +193,9 @@ Roughly 60-80 roles, named for what they are *for*, never derived across roles:
 **The ramp is no longer inverted.** `$white` is white in the dark variant too, because a
 name that means its opposite in one variant is where most of the §1.2 surprises came
 from. Everything that used the ramp to mean "a surface" or "a line" moves to a role
-(`$ground-*`, `$line-*`, `$text-*`). `ladder()` walks `$ground-0 … $ground-n`, which goes
-"away from the page" in both variants, and `$ladder-direction` is deleted.
+(`$ground-*`, `$line-*`, `$text-*`), and `ladder()`, `$grey-ramp` and `$ladder-direction`
+are deleted: the one component that walked the ramp, the popup menu, states its levels
+per variant instead.
 
 ### 2.3 Component colours (tier 2)
 
@@ -280,15 +281,21 @@ from dark values with formulas made for light; Phase 2 replaces those.
 
 ### Phase 2: roles instead of the inverted ramp
 
-1. Introduce `$ground-*`, the `$text-*`/`$line-*`/`$glyph-*` roles and the explicit accent
-   and state shades (§2.2) in both palettes. The light values are the current light
-   values, so the light sheet stays identical.
-2. Repoint every component variable that reads `$white`…`$black` or the bulma glue
-   (`$text-invert`, `$background`, `$border`) to a role, in both component files.
-   `ladder()` moves to `$ground-*`.
-3. Make `$white`…`$black` literal again in dark. Remove `$ladder-direction`.
-4. Verify: the light sheet is identical, and the dark sheet is identical except where a
-   §1.2 defect is deliberately fixed. Each such change is listed in the commit.
+1. Introduce the roles that stand for what the ramp greys were used for, in both
+   palettes. The light values are the same ramp expressions as before, so the light
+   sheet stays identical. Each dark value is the literal the inverted ramp gave, so
+   the dark sheet stays identical too.
+2. Repoint every component variable that reads `$white`…`$black` to a role, in both
+   component files. A grey that only one component uses keeps the light expression in
+   the light file and gets the literal in the dark file.
+3. Make `$white`…`$black` literal again in dark. Remove `ladder()`, `$grey-ramp` and
+   `$ladder-direction`.
+4. Verify: the light sheet is identical, and the dark sheet is identical except for what
+   changes because `$white` is white again.
+
+The phase preserves values: the §1.2 defects are still there afterwards, now as
+explicit dark values that Phases 3 and 4 replace. The accent and state shades and
+`$glyph-*` belong to the phases that need them (4 and 5).
 
 ### Phase 3: design the dark palette
 
@@ -405,7 +412,8 @@ the cost noted.
 | §3 compile-and-diff harness | done (contrast check, image check, review page: not yet) |
 | 1 | done |
 | `_variant-custominit.scss` | done |
-| 2-6 | not started |
+| 2 | done |
+| 3-6 | not started |
 
 ### 7.1 The harness (2026-10-06)
 
@@ -421,7 +429,7 @@ the cost noted.
 - `ThemeColorReport` (a `main`) writes `default.css`, `dark.css` and
   `same-colours.txt`, the list of colour declarations dark has exactly as light does. Run
   it from `to.etc.domui` with
-  `mvn21 -q exec:java -Dexec.classpathScope=test -Dexec.mainClass=to.etc.domui.themes.ThemeColorReport -Dexec.args=<dir>`.
+  `mvn21 -q test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=to.etc.domui.themes.ThemeColorReport -Dexec.args=<dir>`.
   Its count differs from §1.2 (1015 colour declarations, 207 the same in dark) because it
   counts `rgba()`/`hsl()` differently from the first experiment. The baseline for the
   later phases is its output.
@@ -468,3 +476,41 @@ the cost noted.
   (`themes/scss/winter/`, removed again). Each variant took its own value, and
   without a dark file the dark sheet was byte-identical to the baseline.
 - Unchanged sheets: both are still byte-identical to the baseline.
+
+### 7.4 Phase 2 (2026-10-06)
+
+- New roles in both palettes. Each is the ramp grey it replaces in light, and the
+  literal the inverted ramp gave in dark:
+
+  | Role | Light | Used for |
+  | --- | --- | --- |
+  | `$ground-bg` | `$white` | what a control or button is filled with |
+  | `$ground-alt-bg` | `$white-ter` | one step off the ground: bulma's `$background` and `$light`, static buttons, tree hover |
+  | `$text-color` | `$grey-dark` | bulma's `$text` |
+  | `$text-strong-color` | `$grey-darker` | bulma's `$text-strong`/`$dark`, link hover/focus/active, a control's text |
+  | `$control-border` | `$grey-lighter` | bulma's `$border`, button and input edges |
+  | `$control-hover-border` | `$grey-light` | the same, hovered |
+  | `$control-active-border` | `$grey-dark` | the same, pressed |
+  | `$fill-muted-bg` | `$grey-lighter` | disabled fills, the log gutter, the resizer, a switch that is off, `<code>` blocks |
+  | `$line-soft` | `$grey-lighter` | InfoPanel's edge, GenericHeader's rule, Tree2's shadow |
+
+  These names stand in for §2.2's indicative `$ground-0…5` and `$text-*` set. They are
+  named after what was there, and Phase 3 may merge or extend them.
+- `$line-strong`, `$line-hard` and `$text-muted` have their dark values as literals.
+- One-off greys stay a ramp expression in light and are a literal in dark: TabPanel
+  (`$tab-hdr-bg`, `$tab-bg`, `$tab-border`), the cookie warning, PopInPanel's border,
+  the Ace bar, Tree3's fold button, MonthPanel's other-month text and bulma's
+  `$input-shadow`.
+- The popup menu states its levels per variant (`$pmnu-sm1-bg`…`$pmnu-sm3-bg`,
+  `$pmnu-disabled-color`, `$pmnu-border`) instead of walking the ramp, and
+  `ladder()`, `$grey-ramp` and `$ladder-direction` are gone. `_functions.scss` now reads
+  no theme variable at all.
+- `<code>` blocks read `$code-block-bg` instead of `$grey-lighter` in `_core.scss`. The
+  unused `$shades` map is deleted.
+- In dark, `$white`…`$black` are the light theme's literal greys again. The dark files
+  use them only in bulma's `$colors` map, where "white" and "black" mean those colours.
+- Verified with `ThemeColorReport` against the Phase 1 baseline: the light sheet is
+  byte-identical. The dark sheet differs in 72 declarations, all of them the
+  `is-white`/`is-black` variants of buttons and icons, which in dark were the dark page
+  colour and the light text colour, and are now white and black.
+  `TestThemeVariants` passes.

@@ -1,11 +1,8 @@
-// The theme's functions. They read the theme's colours, so this is a module over
-// _palette.scss - which is why it cannot read _component-colors.scss: that file uses
-// these functions, and a module may not load a module that loads it.
+// The theme's functions. They read no theme variable - what a function needs is passed in -
+// so every variable module can use them; _component-colors.scss does.
 @use "sass:color";
-@use "sass:list";
 @use "sass:map";
 @use "sass:math";
-@use "palette" as *;
 
 // darken(), lighten() and saturate() as Sass had them before the sass:color module: the
 // channel is moved by $amount and clamped to 0..100%. color.adjust() does not clamp - darkening
@@ -109,7 +106,7 @@
 
 // The focus border for a button of colour $color. A colour too dark to derive one from gets
 // $dark-fallback, which the caller takes from the component colours ($button-focus-border-color)
-// because this module cannot read them - see the top of this file.
+// because this module reads no theme variable - see the top of this file.
 @function findButtonFocusBorderColor($color, $dark-fallback) {
 	$newlum: colorLuminance($color);
 
@@ -123,31 +120,3 @@
 }
 
 
-// One rung of a ladder: the step $level places along $grey-ramp from $from, walked in
-// whichever direction $ladder-direction says.
-//
-//	.ui-pmnu     { background-color: ladder($pmnu-bg);    }		// the ladder's own rung
-//	.ui-pmnu-sm1 { background-color: ladder($pmnu-bg, 1); }		// one level in
-//	.ui-pmnu-sm2 { background-color: ladder($pmnu-bg, 2); }		// two levels in
-//
-// A negative $level walks the other way, which is how something that belongs *under* the
-// ladder's own surface - a title band, a border - is expressed.
-//
-// Walking off either end of the ramp clamps rather than failing, so a component that
-// nests deeper than the ramp has steps degrades to a flat colour instead of breaking the
-// build. $from must be one of the ramp's own steps; anything else is a mistake worth
-// stopping for.
-@function ladder($from, $level: 0) {
-	$i: list.index($grey-ramp, $from);
-	@if $i == null {
-		@error "ladder(): #{$from} is not a step of $grey-ramp - pass one of $black ... $white";
-	}
-	$n: $i + $level * $ladder-direction;
-	@if $n < 1 {
-		$n: 1;
-	}
-	@if $n > list.length($grey-ramp) {
-		$n: list.length($grey-ramp);
-	}
-	@return list.nth($grey-ramp, $n);
-}

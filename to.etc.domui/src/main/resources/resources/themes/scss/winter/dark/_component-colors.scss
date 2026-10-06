@@ -17,8 +17,8 @@ $success: $green !default;
 $warning: $yellow !default;
 $danger: $red !default;
 
-$light: $white-ter !default;
-$dark: $grey-darker !default;
+$light: $ground-alt-bg !default;
+$dark: $text-strong-color !default;
 
 // Invert colors
 
@@ -46,17 +46,17 @@ $highlight2-bg: hsl(38, 60%, 32%) !default;
 $esic-label-border: darker($esic-label-bg, 20%) !default;
 $esic-label-color: findColorInvert($esic-label-bg) !default;
 
-$background: $white-ter !default;
+$background: $ground-alt-bg !default;
 
-$border: $grey-lighter !default;
-$border-hover: $grey-light !default;
+$border: $control-border !default;
+$border-hover: $control-hover-border !default;
 
 // Text colors
 
-$text: $grey-dark !default;
+$text: $text-color !default;
 $text-invert: findColorInvert($text) !default;
-$text-light: $grey !default;
-$text-strong: $grey-darker !default;
+$text-light: $text-muted !default;
+$text-strong: $text-strong-color !default;
 
 // Code colors
 $code: $red !default;
@@ -71,14 +71,14 @@ $link: $blue !default;
 $link-invert: $blue-invert !default;
 $link-visited: $purple !default;
 
-$link-hover: $grey-darker !default;
-$link-hover-border: $grey-light !default;
+$link-hover: $text-strong-color !default;
+$link-hover-border: $control-hover-border !default;
 
-$link-focus: $grey-darker !default;
+$link-focus: $text-strong-color !default;
 $link-focus-border: $blue !default;
 
-$link-active: $grey-darker !default;
-$link-active-border: $grey-dark !default;
+$link-active: $text-strong-color !default;
+$link-active-border: $control-active-border !default;
 
 // Lists and maps
 
@@ -93,16 +93,15 @@ $colors: ("white": ($white, $black)
 	, "warning": ($warning, $warning-invert)
 	, "danger": ($danger, $danger-invert)
 ) !default;
-$shades: ("black-bis": $black-bis, "black-ter": $black-ter, "grey-darker": $grey-darker, "grey-dark": $grey-dark, "grey": $grey, "grey-light": $grey-light, "grey-lighter": $grey-lighter, "white-ter": $white-ter, "white-bis": $white-bis) !default;
 
 // Form
-$input-background-color: $white !default;
-$input-shadow: inset 0 1px 2px rgba($black, 0.1) !default;
+$input-background-color: $ground-bg !default;
+$input-shadow: inset 0 1px 2px rgba(hsl(0, 0%, 96%), 0.1) !default;
 
-$input-hover-color: $grey-darker !default;
-$input-hover-border-color: $grey-light !default;
+$input-hover-color: $text-strong-color !default;
+$input-hover-border-color: $control-hover-border !default;
 
-$input-focus-color: $grey-darker !default;
+$input-focus-color: $text-strong-color !default;
 $input-focus-border-color: $link !default;
 $input-focus-box-shadow-color: rgba($link, 0.25) !default;
 
@@ -126,17 +125,20 @@ $input-arrow: $link !default;
 //-- LogTailer (.ui-tlf-*)
 $tlf-hdr-bg: $primary !default;
 
-//-- SimplePopupMenu (.ui-pmnu-*). An inverted surface whose nesting levels are a ladder:
-//-- everything is an offset from $pmnu-bg, so moving that moves the menu coherently.
-$pmnu-bg: $white-ter !default;
-$pmnu-color: findColorInvert($pmnu-bg) !default;	// item text, readable on that rung
-$pmnu-disabled-color: ladder($pmnu-bg, 3) !default;	// disabled item text: three rungs away
-$pmnu-border: ladder($pmnu-bg, -3) !default;			// title band and border: under the menu
+//-- SimplePopupMenu (.ui-pmnu-*). An inverted surface; each nested submenu is one step
+//-- lighter than the one it opens from.
+$pmnu-bg: hsl(220, 12%, 18%) !default;					// the menu itself
+$pmnu-sm1-bg: hsl(220, 11%, 27%) !default;				// a submenu, one level in
+$pmnu-sm2-bg: hsl(220, 10%, 36%) !default;
+$pmnu-sm3-bg: hsl(220, 10%, 58%) !default;
+$pmnu-color: findColorInvert($pmnu-bg) !default;	// item text, readable on the menu
+$pmnu-disabled-color: hsl(220, 10%, 58%) !default;			// disabled item text
+$pmnu-border: hsl(220, 13%, 11%) !default;					// title band and border
 $pmnu-title-color: #eeffee !default;
 $pmnu-hover-bg: $primary !default;
 
 //-- LogTailer (.ui-tlf-*)
-$tlf-gutter-bg: $grey-lighter !default;				// the line-number gutter
+$tlf-gutter-bg: $fill-muted-bg !default;			// the line-number gutter
 
 //-- FloatingWindow (.ui-flw-*)
 $flw-divider-border: $surface-alt-bg !default;				// the line under the title bar
@@ -147,7 +149,7 @@ $flw-label-color: $text-muted !default;
 $embc-border: $surface-alt-bg !default;
 
 //-- RadioButton (.ui-rbb-*)
-$rbb-disabled-bg: $grey-lighter !default;
+$rbb-disabled-bg: $fill-muted-bg !default;
 
 //-- HtmlEditor (.wysiwyg)
 $htmled-bg: $surface-bg !default;
@@ -159,7 +161,7 @@ $hmbrg-disabled-color: $text-muted !default;
 $io-blk-bg: $shadow-color !default;
 
 //-- PopupMenu2 (.ui-pome2-*)
-$pome2-disabled-bg: $grey-lighter !default;
+$pome2-disabled-bg: $fill-muted-bg !default;
 
 //-- SearchAsYouType (.ui-sayt-*)
 $sayt-popup-bg: $surface-bg !default;
@@ -176,11 +178,11 @@ $lnkb-disabled-color: $text-muted !default;
 $fupl-bg: $surface-bg !default;
 
 //-- Inline code, and the rule under a heading: base elements, not components, so these
-//-- take main-set values directly in _core.scss.
+//-- take main-set values directly in _core.scss - except the ground of a <code> block.
+$code-block-bg: $fill-muted-bg !default;
 
 //-- ConditionPanel (.ui-copa-*). A nested set of panels where each depth takes the next
-//-- colour, the same shape as the popup menu's ladder but with a palette instead of the
-//-- greyscale ramp. This is the documented exception to "default to a main-set value":
+//-- colour, like the popup menu's nested levels but with a palette instead of greys. This is the documented exception to "default to a main-set value":
 //-- the levels have to stay apart from *each other*, which is not something the theme's
 //-- semantics can express. An application replaces the list to restyle all of them.
 $copa-level-bgs: (
@@ -191,7 +193,7 @@ $copa-level-bgs: (
 //-- jquery-layout (.ui-layout-*). The resizer's feedback colours are a set of their own -
 //-- green you may drag, red at the size limit, amber click-to-open - so they keep their
 //-- own values for the same reason the panel levels above do.
-$layout-resizer-bg: $grey-lighter !default;
+$layout-resizer-bg: $fill-muted-bg !default;
 $layout-resizer-hover-bg: #C4E1A4 !default;
 $layout-resizer-limit-bg: #E1A4A4 !default;
 $layout-resizer-closed-bg: #EBD5AA !default;
@@ -206,10 +208,10 @@ $ckb-knob-bg: $surface-bg !default;
 
 //-- InfoPanel (.ui-ipa) / ExplanationPanel (.ui-expl) / .ui-hor-divider /
 //-- the drag-drop table (.ui-dd-table), all in _misc.scss
-$ipa-border: $grey-lighter !default;
+$ipa-border: $line-soft !default;
 $expl-border: $line-strong !default;
 $expl-color: $text !default;
-$hor-divider-bg: $grey-lighter !default;
+$hor-divider-bg: $fill-muted-bg !default;
 $dd-table-border: $line-color !default;
 $dd-table-hdr-border: $line-strong !default;
 $dd-table-hdr-bg: #0F3C2C !default;					// a deliberate dark green, not a theme colour
@@ -244,7 +246,7 @@ $dt-lines-border: lighter($dt-border, 20%) !default;
 
 //-- Calendar schedule (.ui-wa-*) - the week/day grid, not the date-picker popup
 $wa-band-bg: $surface-alt-bg !default;
-$wa-hour-bg: $grey-lighter !default;
+$wa-hour-bg: $fill-muted-bg !default;
 $wa-slot-bg: $surface-bg !default;
 $wa-item-bg: #00ffcc !default;					// an appointment's block
 $wa-note-bg: #ff4d00 !default;					// a note pinned to the grid
@@ -256,12 +258,12 @@ $cpick-label-color: $text-muted !default;
 $cpick-border: $line-strong !default;
 
 //-- CookieWarning (#cookie-msg)
-$ckw-bg: $grey !default;
+$ckw-bg: hsl(220, 10%, 58%) !default;
 $ckw-color: $text-invert !default;
 
 //-- DataPager2 (.ui-dp2-*)
 $dp2-bg: $surface-bg !default;
-$dp2-disabled-bg: $grey-lighter !default;
+$dp2-disabled-bg: $fill-muted-bg !default;
 $dp2-disabled-color: $text-muted !default;
 $dp2-button-hover-color: #051cac !default;		// a button's text while hovered
 
@@ -269,7 +271,7 @@ $dp2-button-hover-color: #051cac !default;		// a button's text while hovered
 $button-text-invert: $text-invert !default;
 
 //-- DisplayRadiobutton (.ui-drbb-*)
-$drbb-gradient-from: $grey-lighter !default;
+$drbb-gradient-from: $fill-muted-bg !default;
 
 //-- ExpandingTable (.ui-xdt-*)
 $xdt-border: $line-color !default;
@@ -282,13 +284,13 @@ $header-accent-color: #297bc0 !default;
 $xphd-bar-color: $header-accent-color !default;
 
 //-- GenericHeader (.ui-generichd-*)
-$generichd-border: $grey-lighter !default;
+$generichd-border: $line-soft !default;
 $generichd-blue-color: #4c5a6f !default;				// .ui-generichd-blue, a slate title
 $generichd-h2-color: $header-accent-color !default;
 $generichd-h3-color: #013686 !default;
 
 //-- ImageButton (.ui-ibtn-*)
-$ibtn-disabled-bg: $grey-lighter !default;
+$ibtn-disabled-bg: $fill-muted-bg !default;
 
 //-- LookupInput (.ui-lui-*)
 $lui-popup-bg: $surface-bg !default;
@@ -301,7 +303,7 @@ $mp-bg: $surface-bg !default;
 $dd-table-stripe-bg: rgba(160, 160, 160, 0.2) !default;
 
 //-- PopInPanel (.ui-popin-*)
-$popin-border: $grey-darker !default;
+$popin-border: hsl(220, 14%, 88%) !default;
 $popin-bg: #b8e59d !default;
 $popin-title-bg: #6af218 !default;
 
@@ -309,22 +311,22 @@ $popin-title-bg: #6af218 !default;
 $stbp-border: $line-strong !default;
 
 //-- Switch (.ui-swtch-*)
-$swtch-off-bg: $grey-lighter !default;
+$swtch-off-bg: $fill-muted-bg !default;
 $swtch-knob-bg: $surface-bg !default;
 $swtch-on-bg: #2196f3 !default;					// the track once the switch is on
 
 //-- TabPanel (.ui-tab-*)
-$tab-hdr-bg: $grey !default;
-$tab-bg: $grey-light !default;
-$tab-border: $grey-dark !default;
+$tab-hdr-bg: hsl(220, 10%, 58%) !default;
+$tab-bg: hsl(220, 10%, 36%) !default;
+$tab-border: hsl(220, 12%, 76%) !default;
 $tab-content-bg: $surface-bg !default;
 $tab-color: $text-invert !default;
 
 //-- Tree2 / Tree3 (.ui-tree2-* / .ui-tree3-*)
-$tree2-shadow: $grey-lighter !default;
+$tree2-shadow: $line-soft !default;
 $tree3-border: $line-strong !default;
 $tree3-color: $text-invert !default;
-$tree2-hover-bg: $white-ter !default;
+$tree2-hover-bg: $ground-alt-bg !default;
 $tree2-hover-color: $primary !default;
 $tree3-hover-outline: $row-hover-outline !default;
 
@@ -339,7 +341,7 @@ $brcr2-sel-bg: #eef5ff !default;				// the selected item's bg
 $brcr2-sel-color: $brcr2-bg !default;
 
 //-- Ace editor bar (.ui-acedit-*)
-$acedit-bar-bg: $black-ter !default;
+$acedit-bar-bg: hsl(0, 0%, 88%) !default;
 $acedit-border: #000088 !default;				// the navy rule under the editor
 
 //-- CookieConfirm (#gdpr-cookie-message) - its own two-colour palette
@@ -357,7 +359,7 @@ $oddchars-border: $line-hard !default;
 $pct-border: $line-hard !default;				// the progress bar's outline
 $popin-title-border: $line-hard !default;
 $stbp-pager-border: $line-hard !default;
-$tree3-fbtn-bg: $black !default;				// the fold button is an inverted square
+$tree3-fbtn-bg: hsl(0, 0%, 96%) !default;			// the fold button is an inverted square
 
 //-- Forms, and the odd remaining component colour that is genuinely its own
 $f-display-bg: #eff7ff !default;				// .ui-f-display, the read-only field wash
@@ -383,7 +385,7 @@ $ckw-accept-color: $primary-invert !default;
 
 //-- MonthPanel dims, which were written as lighter(#000000, 55%) and 65%
 $mp-weeknr-color: $text-muted !default;
-$mp-othermonth-color: $grey-light !default;
+$mp-othermonth-color: hsl(220, 10%, 36%) !default;
 
 // =======================================================================================
 // Component variables that used to be declared by the component partials themselves. They
@@ -400,9 +402,9 @@ $rbb-disabled-color: $rbb-disabled-bg !default;
 $rbb-disabled-border-color: darker($rbb-disabled-color, 15%) !default;
 
 // -- Buttons (bulmaish/_button_common)
-$button-color: $grey-darker !default;
-$button-background-color: $white !default;
-$button-border-color: $grey-lighter !default;
+$button-color: $text-strong-color !default;
+$button-background-color: $ground-bg !default;
+$button-border-color: $control-border !default;
 $button-hover-color: $link-hover !default;
 $button-hover-border-color: $link-hover-border !default;
 $button-focus-color: $link-focus !default;
@@ -413,11 +415,11 @@ $button-active-border-color: $link-active-border !default;
 $button-text-color: $text !default;
 $button-text-hover-background-color: $background !default;
 $button-text-hover-color: $text-strong !default;
-$button-disabled-background-color: $white !default;
-$button-disabled-border-color: $grey-lighter !default;
-$button-static-color: $grey !default;
-$button-static-background-color: $white-ter !default;
-$button-static-border-color: $grey-lighter !default;
+$button-disabled-background-color: $ground-bg !default;
+$button-disabled-border-color: $control-border !default;
+$button-static-color: $text-muted !default;
+$button-static-background-color: $ground-alt-bg !default;
+$button-static-border-color: $control-border !default;
 
 // -- DataPager2
 $dp2-button-color: $alt-button-color !default;
