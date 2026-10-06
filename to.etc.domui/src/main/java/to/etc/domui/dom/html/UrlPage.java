@@ -30,7 +30,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.BreadCrumb;
 import to.etc.domui.component.layout.Window;
-import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Page.AsyncMessageLink;
@@ -105,7 +104,7 @@ public class UrlPage extends AbstractPage {
 	}
 
 	/**
-	 * Get the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
+	 * Get the page name used by {@link BreadCrumb} related code. To set the head title use the
 	 * "title" property.
 	 */
 	@Nullable
@@ -120,7 +119,7 @@ public class UrlPage extends AbstractPage {
 	}
 
 	/**
-	 * Set the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
+	 * Set the page name used by {@link BreadCrumb} related code. To set the head title use the
 	 * "title" property.
 	 */
 	public void setPageTitle(@Nullable String pageTitle) {

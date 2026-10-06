@@ -48,11 +48,8 @@ NORMAL=(
 )
 
 GLYPH=(
-	tab-pnl-close.png tab-pnl-close-hover.png 22x11_tab-pnl-close.png
+	22x11_tab-pnl-close.png
 )
-
-# Not here on purpose: tab-scrl-icon.png, ScrollableTabPanel's scroll arrows. They are white on
-# the grey of the scroll buttons ($tab-sep-bg), which is a mid grey in both variants.
 
 darken() {
 	local name=$1 fx=$2

@@ -2,7 +2,8 @@ package to.etc.domuidemo.sourceviewer;
 
 import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.component.layout.ContentPanel;
-import to.etc.domui.component.misc.InfoPanel;
+import to.etc.domui.component.misc.Explanation;
+import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.TBody;
@@ -61,7 +62,7 @@ public class SourcePage extends UrlPage {
 		cp.add(new HTag(1, "Source for " + name));
 
 		if(sf == null) {
-			cp.add(new InfoPanel("The source code for " + name + " could not be found."));
+			cp.add(new Explanation(MsgType.WARNING, "The source code for " + name + " could not be found."));
 			return;
 		}
 

@@ -601,7 +601,13 @@ namespace WebUI {
 		});
 	}
 
-	class closeOnClick {
+	/**
+	 * A panel that closes itself when the mouse is pressed anywhere outside it, or escape is pressed
+	 * (CloseOnClickPanel on the server). Exported, because the server creates it as
+	 * "new WebUI.closeOnClick(id)" - unexported it was undefined there, and the TypeError that
+	 * gave also stopped every other create-script of the same panel.
+	 */
+	export class closeOnClick {
 		_id: string;
 		private _clickHandler: () => void;
 		private _keyUpHandler: (t: any) => any;
@@ -625,7 +631,8 @@ namespace WebUI {
 			$(document).unbind("keyup", this._keyUpHandler);
 		}
 
-		markClosed(id) {
+		/** Called by the server as WebUI.closeOnClick.markClosed(id) when it closes the panel itself. */
+		static markClosed(id) {
 			var inst = $('#' + id).data('inst');
 			if(inst) {
 				inst.unbind();

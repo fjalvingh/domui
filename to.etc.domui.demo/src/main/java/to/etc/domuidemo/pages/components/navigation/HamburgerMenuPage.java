@@ -65,10 +65,10 @@ public class HamburgerMenuPage extends UrlPage {
 			+ "pressed anywhere else on the page and when escape is pressed - and opening one closes "
 			+ "any other that is still up, so two of these menus are never open at the same time."));
 
-		cp.add(new Para().add("Notice where the menu appears: not under the button, but against the "
-			+ "right edge of the block the button is in. The menu is positioned absolutely at "
-			+ "right: 0, which is why it belongs to a button that sits at the right of its own "
-			+ "block - exactly the place ExpandHeader puts its three-bar button."));
+		cp.add(new Para().add("The menu appears just below whatever it was appended after, lined up "
+			+ "with its left edge - or with its right edge when there is no room to the right, which "
+			+ "is what happens with the three-bar button of an ExpandHeader. Pressing the button "
+			+ "again while the menu is open replaces it with a fresh one."));
 	}
 
 	/**

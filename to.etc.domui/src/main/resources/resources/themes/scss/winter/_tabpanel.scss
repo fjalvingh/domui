@@ -4,7 +4,10 @@
 .ui-tab-c {
 }
 
-.ui-tab-hdr ul {
+// The strip of tabs, for TabPanel and for ScrollableTabPanel alike: both render the same
+// li.ui-tab-li > .ui-tab-div, the scrollable one inside a strip that can slide.
+.ui-tab-hdr ul,
+.ui-stab-hdr ul {
 	display: flex;
 	list-style: none;
 	//justify-content: center;

@@ -2,6 +2,7 @@ package to.etc.domui.themes;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.CharIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.WrappedIconRef;
 import to.etc.domui.dom.html.NodeBase;
@@ -102,6 +103,14 @@ public enum Theme implements IIconRef {
 	}
 
 	/**
+	 * The big severity icons - of a MsgBox, a MessageFlare - are not images but a round marker
+	 * drawn by the theme (.ui-sev-mark), with a character on it, so they follow the theme variant.
+	 */
+	static private IIconRef severityMark(char character, String severityClass) {
+		return new CharIconRef(character, new String[]{"ui-sev-mark", severityClass});
+	}
+
+	/**
 	 * Set an (alternative) icon for a theme based icon.
 	 */
 	static public void update(Theme key, IIconRef icon) {
@@ -124,11 +133,11 @@ public enum Theme implements IIconRef {
 		update(DATA_EXPIRED, Icon.of("THEME/dataExpired.png"));
 		update(ICON_WARNING, Icon.of("THEME/warning.png"));
 		update(ICON_ERROR, Icon.of("THEME/error.png"));
-		update(ICON_MBX_ERROR, Icon.of("THEME/mbx-error.png"));
+		update(ICON_MBX_ERROR, severityMark('\u00d7', "ui-sev-error"));
 		update(ICON_BIG_ERROR, ICON_MBX_ERROR);
-		update(ICON_MBX_WARNING, Icon.of("THEME/mbx-warning.png"));
-		update(ICON_MBX_INFO, Icon.of("THEME/mbx-info.png"));
-		update(ICON_MBX_DIALOG, Icon.of("THEME/mbx-question.png"));
+		update(ICON_MBX_WARNING, severityMark('!', "ui-sev-warning"));
+		update(ICON_MBX_INFO, severityMark('i', "ui-sev-info"));
+		update(ICON_MBX_DIALOG, severityMark('?', "ui-sev-question"));
 		update(BTN_CLOSE, Icon.of("THEME/btnClose.png"));
 		update(ICON_PAW, Icon.of("THEME/paw.png"));
 		update(ICON_SECURED, Icon.of("THEME/secured.png"));
@@ -138,7 +147,7 @@ public enum Theme implements IIconRef {
 		update(ISCT_ERASE, Icon.of("THEME/48x16_isct_erase.png"));
 		update(ACCESS_DENIED, Icon.of("THEME/accessDenied.png"));
 		update(BIG_ACCESS_DENIED, ACCESS_DENIED);
-		update(ICON_BIG_INFO, Icon.of("THEME/big-info.png"));
+		update(ICON_BIG_INFO, ICON_MBX_INFO);
 		update(BTN_SHOW_CALENDAR, Icon.of("THEME/btn-datein.png"));
 		update(BTN_CLOCK, Icon.of("THEME/btnClock.png"));
 		update(BTN_CONFIRM, Icon.of("THEME/btnConfirm.png"));
@@ -155,8 +164,8 @@ public enum Theme implements IIconRef {
 		update(BTN_SPECIAL_CHARS, Icon.of("THEME/btnSpecialChar.png"));
 		update(BTN_TODAY, Icon.of("THEME/btnToday.png"));
 		update(ICON_CLOSE, Icon.of("THEME/close.png"));
-		update(ICON_BIG_WARNING, Icon.of("THEME/mbx-warning.png"));
-		update(ICON_BIG_QUESTION, Icon.of("THEME/mbx-question.png"));
+		update(ICON_BIG_WARNING, ICON_MBX_WARNING);
+		update(ICON_BIG_QUESTION, ICON_MBX_DIALOG);
 		update(ICON_MINI_ERROR, Icon.of("THEME/mini-error.png"));
 		update(ICON_MINI_WARNING, Icon.of("THEME/mini-warning.png"));
 		update(ICON_MINI_INFO, Icon.of("THEME/mini-info.png"));

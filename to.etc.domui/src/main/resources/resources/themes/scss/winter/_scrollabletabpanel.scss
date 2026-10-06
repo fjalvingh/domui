@@ -1,185 +1,95 @@
-/*** 170_scrollabletabpanel.frag.css ***/
+/*** ScrollableTabPanel ***/
 @use "theme" as *;
 
-.ui-stab-c {
+// The tabs themselves are TabPanel's (see _tabpanel.scss): the same li.ui-tab-li > .ui-tab-div,
+// styled by the same rules. What is this panel's own is the strip they slide in: a row of the
+// left button, the visible part of the tabs and the right button. The script in
+// domui.scrolltabpanel.ts slides the ul by its margin-left, hides both buttons when all tabs
+// fit, and marks a button that cannot scroll further with .ui-stab-dis.
+.ui-stab-scrl {
+	display: flex;
+	align-items: stretch;
+	background: $tab-hdr-bg;
 }
 
 .ui-stab-hdr {
-	float: left;
-	font-size: $font-size;
-	line-height: normal;
-	margin: 9px 0px 10px;
-	height: 32px;
+	order: 1;
+	flex: 1;
+	min-width: 0;
+	margin: 0;
+	float: none !important;
 }
 
-.ui-stab-hdr li {
-    background: url($tab-img) no-repeat scroll left -200px transparent;
-    float: left;
-    margin: 0;
-    padding: 0 0 0 8px;
-    cursor: pointer;
-    list-style: none;
+// The tab strip is the flex row's middle; the filler div of the old sprite layout is not needed.
+.ui-tab-ibte {
+	display: none;
 }
 
-.ui-stab-hdr li:hover {
-	background-position: left -300px;
+// The two scroll buttons: a bar in the strip's colour with an arrow drawn in css.
+.ui-stab-scrl-left,
+.ui-stab-scrl-right {
+	position: relative;
+	flex: none;
+	width: 18px;
+	float: none !important;
+	background-color: $stab-scroll-bg;
+	cursor: pointer;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		margin-top: -6px;
+		border-top: 6px solid transparent;
+		border-bottom: 6px solid transparent;
+	}
+
+	&:hover {
+		background-color: $stab-scroll-hover-bg;
+	}
 }
 
-.ui-stab-hdr li:hover div{
-	background-position: right -350px;
-	color: $tab-hover-inactive-color;
+.ui-stab-scrl-left {
+	order: 0;
+
+	&::before {
+		margin-left: -4px;
+		border-right: 7px solid $stab-scroll-color;
+	}
 }
 
-.ui-stab-hdr li.ui-stab-sel, 
-.ui-stab-hdr li.ui-stab-sel:hover {
-	background-position: left top;
+.ui-stab-scrl-right {
+	order: 2;
+
+	&::before {
+		margin-left: -3px;
+		border-left: 7px solid $stab-scroll-color;
+	}
 }
 
-.ui-stab-hdr li.ui-stab-sel div, 
-.ui-stab-hdr li.ui-stab-sel:hover div {
-	background-position: right -50px;
-	color: $tab-active-color;
+// A button that cannot scroll further: still there, so the strip does not jump, but quiet.
+.ui-stab-scrl-left.ui-stab-dis,
+.ui-stab-scrl-right.ui-stab-dis {
+	cursor: default;
+
+	&:hover {
+		background-color: $stab-scroll-bg;
+	}
+}
+.ui-stab-scrl-left.ui-stab-dis::before {
+	border-right-color: $stab-scroll-dis-color;
+}
+.ui-stab-scrl-right.ui-stab-dis::before {
+	border-left-color: $stab-scroll-dis-color;
 }
 
-li.ui-stab-err div {
-	color: $errors-color !important;
+// The pages: the same ground as a TabPanel's content area.
+.ui-stab-c > .ui-tab-pg {
+	padding: 10px;
+	background-color: $tab-content-bg;
 }
 
 .ui-stab-icon {
 	padding-right: 5px;
-}
-
-.ui-stab-tabbar {
-	margin: 0px;
-	padding: 0px;
-}
-
-.ui-stab-pag {
-	border-top: 1px solid $stbp-pager-border;
-}
-
-.ui-stab-ibte {
-	height: 31px;
-	background: $tab-sep-bg;
-	overflow: hidden;
-}
-
-li.ui-stab-ibt {
-	background: $tab-sep-bg;
-	height: 31px;
-	width: 3px;
-	padding: 0px;
-	margin: 0px;
-}
-
-li.ui-stab-ibt:FIRST-CHILD {
-	width: 10px;
-}
-
-.ui-stab-pg {
-	padding: 0px 10px;
-}
-
-.ui-stab-pg .ui-buttonbar, .ui-stab-pg .ui-szless {
-	margin-left: 0px;
-}
-
-.ui-stab-scrl-left {
-	background: url($tab-arrows-img) no-repeat transparent center;
-	background-position: 0px 0px;
-	background-color: $tab-sep-bg;
-	border:0 none;
-	margin:0;
-	display:block;
-	width: 15px;
-	height: 31px;
-}
-
-.ui-stab-scrl-left:hover {
-	background-position: -15px 0px;
-	cursor: pointer;
-}
-
-.ui-stab-scrl-right {
-	background: url($tab-arrows-img) no-repeat transparent center;
-	background-position: 0px -31px;
-	background-color: $tab-sep-bg;
-	border:0 none;
-	margin:0;
-	display:block;
-	width: 15px;
-	height: 31px;
-}
-
-.ui-stab-scrl-right:hover {
-	background-position: -15px -31px;
-	cursor: pointer;
-}
-
-.ui-stab-dis {
-	background: $tab-sep-bg;
-	cursor: default !important;
-}
-
-div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-stab-ibte {
-	border-bottom: $tab-btm-border-width solid $stbp-border;
-}
-
-.ui-stab-hdr li.ui-tab-sel {
-	background-position: left top;
-	border-bottom: 0px;
-}
-
-.ui-stab-hdr li.ui-tab-sel div{
-	background-position: right -50px;
-	color: $tab-active-color;
-}
-
-.ui-stab-hdr li.ui-tab-sel span, 
-.ui-stab-hdr li.ui-tab-sel:hover span {
-	background-position: right -50px;
-	color: $tab-active-color;
-}
-
-.ui-stab-close-li {
-	margin: 0;
-	padding: 0;
-	white-space: nowrap;
-}
-
-.ui-stab-div {
-	background: url($tab-img) no-repeat scroll right -250px transparent;
-    display: block;
-    font-weight: bold;
-    padding: 9px 14px 0px 6px;
-    text-decoration: none;
-	min-height: 22px;
-	color: $tab-inactive-color;
-	margin-right: 0px !important;
-}
-
-.ui-stab-div a {
-	vertical-align: middle;
-}
-
-.ui-stab-link {
-    display: inline-block;
-    font-weight: bold;
-    text-decoration: none;
-    color: $tab-inactive-color;
-	position: relative;    
-	padding: 2em;     
-	margin: -2em;
-}
-
-.ui-stab-close {
-    display: inline-block;
-	background-image: url($tab-close-img);
-    height: 11px;
-	width: 11px;
-	margin-left: 8px;
-}
-
-.ui-stab-close:hover {
-	background-image: url($tab-close-hover-img);
 }

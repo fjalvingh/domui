@@ -146,10 +146,18 @@ $embc-border: $surface-alt-bg !default;
 //-- RadioButton (.ui-rbb-*)
 $rbb-disabled-bg: $fill-muted-bg !default;
 
+//-- Panel (.ui-spnl): its ground, the bar on its left and its edge
+$spnl-bg: $surface-bg !default;
+$spnl-accent: transparent !default;
+$spnl-edge: transparent !default;
+
 //-- HtmlEditor (.wysiwyg)
 $htmled-bg: $surface-bg !default;
 
 //-- HamburgerMenu (.ui-hmbrg-*)
+$hmbrg-bg: $surface-bg !default;
+$hmbrg-color: $surface-color !default;
+$hmbrg-border: $line-color !default;
 $hmbrg-disabled-color: $text-muted !default;
 
 //-- ioHiderOverlay (.ui-io-blk-*)
@@ -211,9 +219,8 @@ $ckb-on-border: darker($alt-button-color, 10%) !default;			// the track's and th
 $ckb-on-hover-bg: lighter($ckb-on-bg, 10%) !default;			// the track while hovered, on
 $ckb-on-knob-hover-color: darker($ckb-on-bg, 10%) !default;			// the knob's text while hovered, on
 
-//-- InfoPanel (.ui-ipa) / ExplanationPanel (.ui-expl) / .ui-hor-divider /
+//-- Explanation (.ui-expl) / .ui-hor-divider /
 //-- the drag-drop table (.ui-dd-table), all in _misc.scss
-$ipa-border: $line-soft !default;
 $expl-color: $text !default;
 $expl-info-bg: $info-bg !default;				// each severity: its wash, its bar and marker,
 $expl-info-accent: $info-border !default;			// and the colour of the "i" or "!" on the marker
@@ -223,6 +230,8 @@ $expl-warning-accent: $warnings-border !default;
 $expl-warning-marker-color: $black !default;
 $expl-error-bg: $errors-wash !default;
 $expl-error-accent: $errors-border !default;
+$sev-question-bg: #2F4F9F !default;			// the big "?" marker of a question MsgBox (.ui-sev-mark)
+$sev-question-color: $white !default;
 $expl-error-marker-color: $white !default;
 $hor-divider-bg: $fill-muted-bg !default;
 $dd-table-border: $line-color !default;
@@ -329,8 +338,11 @@ $popin-border: $grey-darker !default;
 $popin-bg: #b8e59d !default;
 $popin-title-bg: #6af218 !default;
 
-//-- ScrollableTabPanel (.ui-stbp-*)
-$stbp-border: $line-strong !default;
+//-- ScrollableTabPanel (.ui-stab-*): the scroll buttons at both ends of its tab strip
+$stab-scroll-bg: #A9C1DB !default;
+$stab-scroll-hover-bg: #93AFCF !default;
+$stab-scroll-color: #1F3550 !default;
+$stab-scroll-dis-color: #7F97B3 !default;
 
 //-- Switch (.ui-swtch-*)
 $swtch-off-bg: $fill-muted-bg !default;
@@ -338,11 +350,11 @@ $swtch-knob-bg: $surface-bg !default;
 $swtch-on-bg: #2196f3 !default;					// the track once the switch is on
 
 //-- TabPanel (.ui-tab-*)
-$tab-hdr-bg: $grey !default;
-$tab-bg: $grey-light !default;
-$tab-border: $grey-dark !default;
+$tab-hdr-bg: #C9D8E8 !default;			// The header part containing the tabs
+$tab-bg: #A9C1DB !default;
+$tab-border: #8FA9C6 !default;
 $tab-content-bg: $surface-bg !default;
-$tab-color: $text-invert !default;
+$tab-color: #1F3550 !default;
 
 //-- Tree2 / Tree3 (.ui-tree2-* / .ui-tree3-*)
 $tree2-shadow: $line-soft !default;
@@ -381,7 +393,6 @@ $dct-selected-border: $line-hard !default;		// a selected cell
 $oddchars-border: $line-hard !default;
 $pct-border: $line-hard !default;				// the progress bar's outline
 $popin-title-border: $line-hard !default;
-$stbp-pager-border: $line-hard !default;
 $tree3-fbtn-bg: $black !default;				// the fold button is an inverted square
 
 //-- Forms, and the odd remaining component colour that is genuinely its own
@@ -409,6 +420,14 @@ $ckw-accept-color: $primary-invert !default;
 //-- The spinner of the "waiting for the server" message (.ui-ioe-img, _asyio)
 $ioe-spinner-color: #0E601A !default;
 $ioe-spinner-track: #DCE8DD !default;
+
+//-- MessageFlare (.ui-flare-*): solid and loud, it has to be noticed
+$flare-error-bg: #D32F2F !default;
+$flare-error-color: #FFFFFF !default;
+$flare-info-bg: #1F6FD1 !default;
+$flare-info-color: #FFFFFF !default;
+$flare-warning-bg: #F2B01E !default;
+$flare-warning-color: #1E1E1E !default;
 
 //-- MonthPanel dims, which were written as lighter(#000000, 55%) and 65%
 $mp-weeknr-color: $text-muted !default;
@@ -512,4 +531,4 @@ $mp-marked-bg: $highlight-bg !default;
 $mp-band-bg: lighter($mp-hdr-bg, 12%) !default;			// the weekday names and the week numbers
 
 // -- TabPanel
-$tab-selected-color: $tab-bg !default;
+$tab-selected-color: #1F3550 !default;

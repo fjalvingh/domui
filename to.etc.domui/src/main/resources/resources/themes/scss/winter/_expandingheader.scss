@@ -10,6 +10,7 @@
 }
 td.ui-xphd-ttl {
 	padding-left: 4px !important;
+	cursor: pointer;			/* the title folds the section, like the button */
 }
 .ui-xphd-normal .ui-xphd-bar {
 	color: $xphd-bar-color;

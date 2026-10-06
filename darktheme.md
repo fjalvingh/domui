@@ -691,3 +691,29 @@ glyphs to SVG remains a possible improvement; it is no longer needed for dark.
   LookupInput2, the headers page with ExpandHeader, the ruler, TabPanel and
   ScrollableTabPanel, and DataTable's sort arrows. ScrollableTabPanel's arrows in light
   too.
+
+### 7.8 First review (2026-10-06)
+
+The review of the demo in dark mode, and what was done about each remark:
+
+| Remark | Done |
+| --- | --- |
+| The tone is black-and-white, hardly any colour | A structural colour for dark: a steel blue taken from Darcula's button blue (`#365880`), on the caption bars (Caption, Caption2, CaptionedPanel, CaptionedHeader: `$header-bg`/`$title-bg` `#34506E`), the TabPanel strip and tabs, the DataTable and MonthPanel headers, the Panel's edge and the breadcrumb. The orange stays the colour of action, as in light. |
+| BreadCrumb: the current page reads as plain text | The current crumb is a light chip with dark-blue text (`#A9C7EB`/`#16304D`), the inverse of the others, as the light theme does it. |
+| TabPanel: the strip is too dark, the labels hard to see | Dark: strip `#2A3F57`, tabs `#3C5A7A` with `#E6EDF5` text, the selected tab in the content's ground with white bold text. Light had the same problem (2.05:1 in the contrast test): a pale steel strip `#C9D8E8`, tabs `#A9C1DB`, text `#1F3550`. Both pass now and leave the test's list of known light shortfalls. |
+| ScrollableTabPanel renders completely wrong | It was: its stylesheet styled the old sprite markup (`.ui-stab-div`, `tab-all-domui.png`), while `TabPanelBase` renders TabPanel's `li.ui-tab-li > .ui-tab-div`, so none of its tab rules applied. It now shares TabPanel's tab rules (`.ui-tab-hdr ul, .ui-stab-hdr ul`). The strip is a flex row of left button, tabs, right button, the scroll arrows are css triangles (`$stab-scroll-*`), and the pages get TabPanel's content ground. Gone: the sprite, `tab-pnl-close(-hover).png`, `tab-scrl-icon.png` and ten variables only the sprite layout read. |
+| Panels are boring and low-contrast on dark | `.ui-spnl` draws an edge and a 3px bar on its left as inset shadows (`$spnl-edge`, `$spnl-accent`), so they take no room. Transparent in light, blue in dark. |
+| ExpandHeader: content visible while folded, an error MessageLine about onExpand, two presses needed | `setContent()` content now stays and is only shown or hidden, starting folded. An `onExpand` handler fills the content afresh on every expand. Neither shows an empty section instead of an error. The whole title folds, not only the button. The demo starts expanded, as its text says. |
+| MsgBox2 icons have white edges on dark | The big severity icons (`Theme.ICON_MBX_*`, `ICON_BIG_*`, used by MsgBox, MsgBox2, MessageFlare and MessageLine2) are no longer images but a css marker (`.ui-sev-mark`, a `CharIconRef`): a 40px disc in the severity's colour with "×", "!", "i" or "?", the same family as the Explanation's marker. `mbx-*.png` and `big-info.png` are deleted. |
+| MessageFlare is too subdued | It has its own solid fills, in both variants: red and blue with white text, amber with dark text (`$flare-*`), rounded with a shadow, and its marker turned around (a disc of the text colour). AA in both, in the contrast test. |
+| Remove AppPageTitleBar and its demo | Removed with `BasePageTitleBar`, `DomApplication.getDefaultPageTitleBar()`, `_appTitle.scss`, `$title-bg-img`, `bg-ttl-domui.png` and `72x24_back.png`. `ServerLogPage` and `CurrentlyLoggedInUsersPage` show an `h1` instead. `72x24_close.png` stays: the ButtonKinds demo uses it for its HoverButton. |
+| Remove InfoPanel; Explanation replaces it | Removed with its css and `$ipa-border`. ServerLogPage and the demo's SourcePage use an Explanation, and the NoticePage shows a third Explanation instead of the InfoPanel. |
+| PopupMenu: text too small | The HamburgerMenu: page text size instead of 11px, more padding, a 1px edge with a shadow instead of the 2px groove, and in dark the raised popup ground (`$hmbrg-*`). |
+| PopupMenu: opened from a button it appears at the far right; pressing the button again throws | Two bugs. (1) `CloseOnClickPanel` removed the other open panels while it was being *built*: building walks the parent's child list, and the panel removed was a sibling (the same button pressed twice): `IndexOutOfBoundsException` in `Page.buildSubTree`. It does that when it is added to the page now (`onAddedToPage`). (2) `WebUI.closeOnClick` was not exported from the `WebUI` namespace, so `new WebUI.closeOnClick(id)` threw a TypeError on every panel: closing by an outside click never worked, and every other create-script of the panel was stopped. It is exported, and `markClosed` static, as the server calls it. HamburgerMenu now places itself against what opened it: just below it, left-aligned, or right-aligned when that would run past the window's right edge, as with ExpandHeader's three-bar button. |
+
+Verified in Chrome on the demo, in dark: ExpandHeader fold and unfold by title and button,
+the HamburgerMenu from the button (twice) and from ExpandHeader (closing by an outside
+click), MsgBox2's error box, the flares. Headless screenshots in both variants: TabPanel
+and ScrollableTabPanel, panels, headers, breadcrumb, DataTable, notices.
+`TestThemeVariants` and `TestThemeContrast` pass, with four new contrast pairs (the "?"
+marker and the three flares).

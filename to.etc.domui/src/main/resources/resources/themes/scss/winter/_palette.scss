@@ -74,7 +74,6 @@ $bevel-hover-down: #D7E8F8 !default;
 $readonly-bg: transparent !default;
 $readonly-border: #EEEEEF !default;        // bit darker grey
 
-$title-bg-img: "bg-ttl-domui.png" !default;
 $title-bg:  #7c7c7c !default;
 $title-color: #ffffff !default;
 
@@ -126,11 +125,7 @@ $lui-result-border: #a5c663 !default;			// Border of that
 $mli-label-border: #ffa21e !default;
 $mli-label-bg: #fff2ab !default;
 
-//-- ScrollableTabPanel FIXME REMOVE
-$tab-inactive-color: #ffffff !default;
-$tab-hover-inactive-color: #ffffff !default;
-$tab-active-color: #67267f !default;
-$tab-img: "tab-all-domui.png" !default;
+//-- ScrollableTabPanel
 $tab-sep-bg: #7c7c7c !default;
 
 

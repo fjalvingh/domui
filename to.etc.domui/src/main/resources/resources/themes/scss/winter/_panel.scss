@@ -2,7 +2,10 @@
 
 /*** Panel ***/
 .ui-spnl {
-	background-color: $surface-bg;
+	background-color: $spnl-bg;
 	color: $surface-color;
 	padding: 7px;
+	// The edge and the bar on the left are drawn inside the box, so they take no room and a
+	// variant can leave them out (transparent) without moving anything.
+	box-shadow: inset 3px 0 0 $spnl-accent, inset 0 0 0 1px $spnl-edge;
 }

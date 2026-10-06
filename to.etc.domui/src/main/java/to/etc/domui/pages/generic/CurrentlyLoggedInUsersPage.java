@@ -1,7 +1,7 @@
 package to.etc.domui.pages.generic;
 
 import to.etc.domui.annotations.UIRights;
-import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.tbl.DataPager;
@@ -128,6 +128,6 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 	}
 
 	protected void createHeader() {
-		add(new AppPageTitleBar("Users currently using this system", true));
+		add(new HTag(1, "Users currently using this system"));
 	}
 }

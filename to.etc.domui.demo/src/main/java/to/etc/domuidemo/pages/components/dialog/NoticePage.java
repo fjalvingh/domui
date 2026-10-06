@@ -3,7 +3,6 @@ package to.etc.domuidemo.pages.components.dialog;
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.layout.MessageLine;
 import to.etc.domui.component.misc.Explanation;
-import to.etc.domui.component.misc.InfoPanel;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.HTag;
@@ -12,7 +11,7 @@ import to.etc.domui.dom.html.UrlPage;
 
 /**
  * The three notices that are part of the page itself instead of being posted as
- * a message: MessageLine, InfoPanel and Explanation.
+ * a message: MessageLine and Explanation.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
@@ -46,18 +45,14 @@ public class NoticePage extends UrlPage {
 			+ "simple html. It is written into the page like any other node, so it says something "
 			+ "about the screen rather than about what just happened."));
 
-		cp.add(new HTag(2, "InfoPanel"));
-		cp.add(new InfoPanel("The CD shop sells albums, not tracks.<br/>"
-			+ "A track can only be bought as part of the album it is on."));
-
-		cp.add(new Para().add("An InfoPanel is the same idea with more room: a paragraph of "
-			+ "explanation with a large icon beside it."));
-
 		cp.add(new HTag(2, "Explanation"));
 		cp.add(new Explanation("Search is on the album title, and it is case insensitive."));
 		cp.add(new Explanation(MsgType.WARNING, "Deleting an artist deletes its albums with it."));
+		cp.add(new Explanation(MsgType.ERROR, "The CD shop sells albums, not tracks.<br/>"
+			+ "A track can only be bought as part of the album it is on."));
 
-		cp.add(new Para().add("An Explanation is an InfoPanel that also has a severity, so the "
-			+ "same block can be a remark, a warning or an error."));
+		cp.add(new Para().add("An Explanation is the same idea with more room: a block of "
+			+ "explanation, which may contain simple html, with a severity, so the same block can be "
+			+ "a remark, a warning or an error."));
 	}
 }

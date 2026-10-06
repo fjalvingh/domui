@@ -84,9 +84,8 @@ $bevel-hover-down: #3D6185 !default;
 $readonly-bg: transparent !default;
 $readonly-border: #4B4B4B !default;
 
-$title-bg-img: "" !default;		// the title gradient image is a light one
-$title-bg: #3C3F41 !default;
-$title-color: #DDDDDD !default;
+$title-bg: #34506E !default;
+$title-color: #E6EDF5 !default;
 
 $selected-bg: #4B6EAF !default;			// Darcula's menu selection
 
@@ -118,7 +117,7 @@ $info-transparent: rgba($info-border, 0.25) !default;
 
 $white-transparent: rgba(43, 43, 43, 0.25) !default;			// the end of a state gradient: the page ground, see-through
 
-$header-bg: #45494A !default;
+$header-bg: #34506E !default;			// caption bars: the steel blue of Darcula's buttons
 $green-accent: #499C54 !default;
 
 $sayt-ok-color: #8AB55A !default;
@@ -136,11 +135,7 @@ $lui-result-border: #5E7A44 !default;
 $mli-label-border: #8C6E2A !default;
 $mli-label-bg: #4A4228 !default;
 
-//-- ScrollableTabPanel FIXME REMOVE
-$tab-inactive-color: #A0A0A0 !default;
-$tab-hover-inactive-color: #DDDDDD !default;
-$tab-active-color: #6CA0DC !default;
-$tab-img: "" !default;
+//-- ScrollableTabPanel
 $tab-sep-bg: #515151 !default;
 
 

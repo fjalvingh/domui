@@ -41,8 +41,6 @@ import to.etc.domui.component.delayed.DelayedActivitiesExecutor;
 import to.etc.domui.component.delayed.DelayedActivitiesManager;
 import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.layout.ErrorPanel;
-import to.etc.domui.component.layout.title.AppPageTitleBar;
-import to.etc.domui.component.layout.title.BasePageTitleBar;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox2;
 import to.etc.domui.component.misc.MsgBox2.IAnswer2;
@@ -1581,21 +1579,6 @@ public abstract class DomApplication {
 	public void addDefaultErrorComponent(final NodeContainer page) {
 		ErrorPanel panel = new ErrorPanel();
 		page.add(0, panel);
-	}
-
-	/**
-	 * FIXME This code requires an absolute title which is not needed for the
-	 * DomUI framework. It's also only needed for the "BasicPage" and has no
-	 * meaning for any other part of the framework. It should move to some
-	 * BasicPage factory.
-	 * <p>
-	 * This returns default page title component.
-	 * {@link AppPageTitleBar} is default one used by framework.
-	 * To set some custom page title component override this method in your application specific class.
-	 */
-	@Deprecated
-	public BasePageTitleBar getDefaultPageTitleBar(String title) {
-		return new AppPageTitleBar(title, true);
 	}
 
 	/*--------------------------------------------------------------*/

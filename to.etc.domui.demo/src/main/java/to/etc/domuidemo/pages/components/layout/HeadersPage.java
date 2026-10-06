@@ -67,6 +67,7 @@ public class HeadersPage extends UrlPage {
 		content.add("This content belongs to the ExpandHeader above: pressing the header "
 			+ "folds it away and pressing it again brings it back.");
 		expand.setContent(content);
+		expand.setExpanded(true);
 
 		cp.add(new Para().add("The ExpandHeader owns what is under it: it is given the content "
 			+ "node, and shows or hides it. That is the difference with the other two, which "

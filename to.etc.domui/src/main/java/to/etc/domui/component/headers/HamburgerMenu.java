@@ -24,6 +24,10 @@ public class HamburgerMenu extends CloseOnClickPanel {
 	@Nullable
 	private INotify<IUIAction> m_onSelection;
 
+	/** What opened the menu; the menu is shown against it. Defaults to the node the menu was appended after. */
+	@Nullable
+	private NodeBase m_anchor;
+
 	public HamburgerMenu(List<IUIAction> actionList) {
 		m_actionList = actionList;
 	}
@@ -43,6 +47,33 @@ public class HamburgerMenu extends CloseOnClickPanel {
 			renderAction(action, hasicon);
 		}
 		super.createContent();
+
+		NodeBase anchor = findAnchor();
+		if(null != anchor) {
+			//-- Just below what opened it, left-aligned with it - or right-aligned with it when that would run past the window's right edge.
+			appendCreateJS("(function(){var a=$('#" + anchor.getActualID() + "'),m=$('#" + getActualID() + "');"
+				+ "var o=a.offset(),l=o.left;"
+				+ "if(l+m.outerWidth()>$(window).scrollLeft()+$(window).width()-4)l=Math.max(0,o.left+a.outerWidth()-m.outerWidth());"
+				+ "m.css({right:'auto'});m.offset({top:o.top+a.outerHeight()+2,left:l});})();");
+		}
+	}
+
+	@Nullable
+	private NodeBase findAnchor() {
+		NodeBase anchor = m_anchor;
+		if(null != anchor)
+			return anchor;
+		if(!hasParent())
+			return null;
+		int ix = getParent().findChildIndex(this);
+		return ix > 0 ? getParent().getChild(ix - 1) : null;
+	}
+
+	/**
+	 * Show the menu against this node instead of against the node it was appended after.
+	 */
+	public void setAnchor(@Nullable NodeBase anchor) {
+		m_anchor = anchor;
 	}
 
 	private void renderAction(IUIAction action, boolean hasicon) throws Exception {

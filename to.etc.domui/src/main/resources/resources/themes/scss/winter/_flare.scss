@@ -43,20 +43,34 @@
 //	left: auto;
 //}
 
+// A flare appears on its own to say that something happened, so it is loud on purpose: a
+// solid fill in the severity's colour, not the quiet wash of a message in the page. Its
+// marker turns around - the fill's colour on a disc of the text colour - so it does not
+// disappear into the fill.
+@mixin flare-severity($bg, $color) {
+	background: $bg;
+	color: $color;
+	border: 1px solid $bg;
+
+	.ui-sev-mark {
+		background-color: $color;
+		color: $bg;
+	}
+}
+.ui-flare-msg {
+	align-items: center;
+	border-radius: 6px;
+	box-shadow: 0 4px 16px rgba($shadow-color, 0.35);
+	opacity: 0.95;
+}
 .ui-flare-error {
-	background: $errors-wash;
-	color: $errors-color;
-	border: 1px solid $errors-border;
+	@include flare-severity($flare-error-bg, $flare-error-color);
 }
 .ui-flare-info {
-	background: $info-bg;
-	color: $info-color;
-	border: 1px solid $info-border;
+	@include flare-severity($flare-info-bg, $flare-info-color);
 }
 .ui-flare-warning {
-	background: $warnings-bg;
-	color: $warnings-color;
-	border: 1px solid $warnings-border;
+	@include flare-severity($flare-warning-bg, $flare-warning-color);
 }
 .ui-flare-msg img {
 	margin-right: 20px;

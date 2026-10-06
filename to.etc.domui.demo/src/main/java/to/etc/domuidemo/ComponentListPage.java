@@ -27,7 +27,6 @@ import to.etc.domuidemo.pages.components.dialog.WindowPage;
 import to.etc.domuidemo.pages.components.navigation.ALinkPage;
 import to.etc.domuidemo.pages.components.navigation.BreadCrumb2Page;
 import to.etc.domuidemo.pages.components.navigation.HamburgerMenuPage;
-import to.etc.domuidemo.pages.components.navigation.PageTitleBarPage;
 import to.etc.domuidemo.pages.components.navigation.PopupMenu2Page;
 import to.etc.domuidemo.pages.components.images.FileUploadPage;
 import to.etc.domuidemo.pages.components.images.IconsPage;
@@ -119,13 +118,12 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(MsgExceptionPage.class, "ExceptionDialog: showing an exception");
 		f.addLink(ErrorDisplayPage.class, "ErrorPanel and ErrorMessageDiv: showing messages");
 		f.addLink(FlarePage.class, "MessageFlare: a message that vanishes");
-		f.addLink(NoticePage.class, "MessageLine, InfoPanel and Explanation");
+		f.addLink(NoticePage.class, "MessageLine and Explanation");
 		f.addLink(BugIndicatorPage.class, "The bug indicator: reporting a broken assumption");
 
 		f = new ListFragment("Navigation and menus");
 		main.add(f);
 		f.addLink(BreadCrumb2Page.class, "BreadCrumb2: the path that led here");
-		f.addLink(PageTitleBarPage.class, "AppPageTitleBar: the bar at the top of a page");
 		f.addLink(PopupMenu2Page.class, "PopupMenu2: a menu at a component");
 		f.addLink(HamburgerMenuPage.class, "HamburgerMenu: the menu of an ExpandHeader");
 		f.addLink(ALinkPage.class, "ALink: a link to another page");

@@ -6,10 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.event.INotify;
-import to.etc.domui.component.layout.MessageLine;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.dom.css.DisplayType;
-import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
@@ -111,6 +109,7 @@ public class ExpandHeader extends Div {
 		}
 		td.setCssClass("ui-xphd-ttl");
 		td.setCellWidth("*");
+		td.setClicked(() -> toggleExpansion());		// The whole title folds, not only the button
 
 		if(!m_actionList.isEmpty()) {
 			td = body.addCell("ui-xphd-menubutton");
@@ -125,7 +124,7 @@ public class ExpandHeader extends Div {
 			td.add(sib);
 		}
 		add(m_content);
-
+		m_content.setDisplay(DisplayType.NONE);				// Folded until expanded
 		if(m_expanded) {
 			expand(true);
 		}
@@ -177,17 +176,18 @@ public class ExpandHeader extends Div {
 
 		expandButton.setSrc(getImage(expanded));		// Switch icon
 
-		//-- Render state
+		//-- Render state. Content given by setContent() stays and is only shown or hidden; with an
+		//-- onExpand handler the content is made afresh on every expand and dropped on collapse.
+		INotify<Div> onExpand = getOnExpand();
 		if(expanded) {
-			INotify<Div> onExpand = getOnExpand();
-			if(null == onExpand) {
-				m_content.add(new MessageLine(MsgType.ERROR, "The onExpand property, which tells me what to do when expand is pressed, is not set."));
-			} else {
+			if(null != onExpand) {
+				m_content.removeAllChildren();
 				onExpand.onNotify(m_content);
 			}
 			m_content.setDisplay(DisplayType.BLOCK);
 		} else {
-			m_content.removeAllChildren();
+			if(null != onExpand)
+				m_content.removeAllChildren();
 			m_content.setDisplay(DisplayType.NONE);
 		}
 	}

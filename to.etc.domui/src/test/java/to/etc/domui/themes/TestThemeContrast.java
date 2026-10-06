@@ -64,6 +64,10 @@ public class TestThemeContrast {
 		{"an info explanation's marker", "expl-info-marker-color", "expl-info-accent", AA_LARGE},
 		{"a warning explanation's marker", "expl-warning-marker-color", "expl-warning-accent", AA_LARGE},
 		{"an error explanation's marker", "expl-error-marker-color", "expl-error-accent", AA_LARGE},
+		{"a question box's marker", "sev-question-color", "sev-question-bg", AA_LARGE},
+		{"an error flare", "flare-error-color", "flare-error-bg", AA},
+		{"an info flare", "flare-info-color", "flare-info-bg", AA},
+		{"a warning flare", "flare-warning-color", "flare-warning-bg", AA},
 	};
 
 	/**
@@ -73,8 +77,7 @@ public class TestThemeContrast {
 	 */
 	static private final List<String> KNOWN_LIGHT = List.of(
 		"muted text on the page", "muted text on a panel", "the page title", "an error text on the page",
-		"an error message", "an info message", "a tab's title", "the selected tab's title",
-		"a breadcrumb", "the current breadcrumb"
+		"an error message", "an info message", "a breadcrumb", "the current breadcrumb"
 	);
 
 	static private ThemeVariantCompiler m_compiler;

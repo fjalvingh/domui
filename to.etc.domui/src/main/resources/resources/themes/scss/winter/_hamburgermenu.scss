@@ -1,19 +1,29 @@
 /*** HamburgerMenu fragment ***/
 @use "theme" as *;
 
+// A menu floating over the page. HamburgerMenu places it against what opened it (by script, so
+// right: 0 is only where it starts); it reads at the page's own text size.
 .ui-hmbrg-menu {
 	position: absolute;
 	right: 0px;
 	z-index: 100;
 	width: auto;
-	background: $surface-bg;
-	border: 2px groove $line-color;
-	font-size: 11px;
-	color: $surface-color;
+	min-width: 10em;
+	padding: 4px 0;
+	background: $hmbrg-bg;
+	border: 1px solid $hmbrg-border;
+	border-radius: 6px;
+	box-shadow: 0 2px 8px rgba($shadow-color, 0.25);
+	color: $hmbrg-color;
+	white-space: nowrap;
 }
 .ui-hmbrg-item {
 	border: 1px solid transparent;
-	padding: 2px 5px;
+	padding: 4px 12px;
+}
+.ui-hmbrg-item .ui-hmbrg-icon {
+	display: inline-block;
+	width: 1.4em;
 }
 .ui-hmbrg-item:hover {
 	background-color: $menu-hover-bg;
@@ -22,11 +32,11 @@
 }
 .ui-hmbrg-disabled {
 	border: 1px solid transparent;
-	padding: 2px 5px;
+	padding: 4px 12px;
 	color: $hmbrg-disabled-color;
 }
 .ui-hmbrg-disabled:hover {
-	background-color: $surface-bg;
+	background-color: transparent;
 	border: 1px solid transparent;
 	cursor: auto;
 }

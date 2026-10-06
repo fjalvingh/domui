@@ -4,23 +4,6 @@
 /* AccessDeniedPage */
 .ui-acd-ttl {}
 
-/* InfoPanel FIXME Move to own file */
-.ui-ipa {
-	padding: 4px;
-	margin: 4px;
-	@include border-radius(5px);
-	border: 1px solid $ipa-border;
-	font-style: italic;
-	vertical-align: top;
-	min-height: 48px;
-}
-
-div.ui-ipa img {
-	padding-right: 4px;
-	float: none;
-	vertical-align: top;
-}
-
 /*
  * Explanation: a callout. A bar on the left and a round marker in the severity's colour, on
  * that severity's wash; the marker is drawn here, so there is no image to follow the variant.
@@ -71,6 +54,42 @@ div.ui-ipa img {
 	}
 	&.ui-error {
 		@include expl-severity($expl-error-bg, $expl-error-accent, $expl-error-marker-color, "!");
+	}
+}
+
+/*
+ * The severity marker: the big icon of a MsgBox, a MessageFlare and MessageLine2
+ * (Theme.ICON_MBX_* and ICON_BIG_*). A round marker with a character on it, in the same
+ * colours as an Explanation's, drawn here so that it follows the variant.
+ */
+.ui-sev-mark {
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	margin: 4px;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 40px;
+	font-size: 24px;
+	font-weight: bold;
+	font-style: normal;
+
+	&.ui-sev-info {
+		background-color: $expl-info-accent;
+		color: $expl-info-marker-color;
+	}
+	&.ui-sev-question {
+		background-color: $sev-question-bg;
+		color: $sev-question-color;
+	}
+	&.ui-sev-warning {
+		background-color: $expl-warning-accent;
+		color: $expl-warning-marker-color;
+	}
+	&.ui-sev-error {
+		background-color: $expl-error-accent;
+		color: $expl-error-marker-color;
+		font-size: 32px;			// a multiplication sign is a small glyph
 	}
 }
 

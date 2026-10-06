@@ -151,10 +151,18 @@ $embc-border: $surface-alt-bg !default;
 //-- RadioButton (.ui-rbb-*)
 $rbb-disabled-bg: $fill-muted-bg !default;
 
+//-- Panel (.ui-spnl): its ground, the bar on its left and its edge
+$spnl-bg: $surface-bg !default;
+$spnl-accent: #4A88C7 !default;
+$spnl-edge: #3E5670 !default;
+
 //-- HtmlEditor (.wysiwyg)
 $htmled-bg: $surface-bg !default;
 
 //-- HamburgerMenu (.ui-hmbrg-*)
+$hmbrg-bg: $window-bg !default;
+$hmbrg-color: $surface-color !default;
+$hmbrg-border: $line-color !default;
 $hmbrg-disabled-color: $text-muted !default;
 
 //-- ioHiderOverlay (.ui-io-blk-*)
@@ -216,9 +224,8 @@ $ckb-on-border: #4A88C7 !default;			// the track's and the knob's edge, on
 $ckb-on-hover-bg: #34507A !default;			// the track while hovered, on
 $ckb-on-knob-hover-color: #1E2A38 !default;			// the knob's text while hovered, on
 
-//-- InfoPanel (.ui-ipa) / ExplanationPanel (.ui-expl) / .ui-hor-divider /
+//-- Explanation (.ui-expl) / .ui-hor-divider /
 //-- the drag-drop table (.ui-dd-table), all in _misc.scss
-$ipa-border: $line-soft !default;
 $expl-color: $text !default;
 $expl-info-bg: $info-bg !default;				// each severity: its wash, its bar and marker,
 $expl-info-accent: $info-border !default;			// and the colour of the "i" or "!" on the marker
@@ -228,6 +235,8 @@ $expl-warning-accent: $warnings-border !default;
 $expl-warning-marker-color: #2B2B2B !default;
 $expl-error-bg: $errors-wash !default;
 $expl-error-accent: $errors-border !default;
+$sev-question-bg: #6897BB !default;			// the big "?" marker of a question MsgBox (.ui-sev-mark)
+$sev-question-color: #2B2B2B !default;
 $expl-error-marker-color: #F0F0F0 !default;
 $hor-divider-bg: $fill-muted-bg !default;
 $dd-table-border: $line-color !default;
@@ -247,11 +256,11 @@ $dt-even-row-bg: #303234 !default;
 $dt-cell-highlight-bg: #5D3F70 !default;
 $dt-cell-highlight-link-bg: $surface-bg !default;
 $dt-expanding-row-bg: #2F4A33 !default;
-$dt-hdr-bg: #3C3F41 !default;
+$dt-hdr-bg: #34506E !default;
 // Deliberately black rather than $text: the header sits on its own coloured band, where
 // $text drops the contrast from 10.9:1 to 4.6:1 - on the AA threshold, for bold text
 // people scan.
-$dt-hdr-color: #D4D4D4 !default;
+$dt-hdr-color: #E6EDF5 !default;
 
 // FIXME This is used as a colour - "border-left: 1px solid $dt-hdr-btm-border" -
 // but "undefined" is not one, so those two rules emit invalid CSS and the browser drops
@@ -264,7 +273,7 @@ $dt-hdr-btm-border: undefined !default;
 $dt-sort-color: #D4D4D4 !default;
 $dt-sort-idle-color: rgba(187, 187, 187, 0.45) !default;
 
-$dt-border: #45494A !default;
+$dt-border: #3E5670 !default;
 $dt-lines-border: #3A3A3A !default;
 
 //-- Calendar schedule (.ui-wa-*) - the week/day grid, not the date-picker popup
@@ -334,8 +343,11 @@ $popin-border: #646464 !default;
 $popin-bg: #344134 !default;
 $popin-title-bg: #3E6B2E !default;
 
-//-- ScrollableTabPanel (.ui-stbp-*)
-$stbp-border: $line-strong !default;
+//-- ScrollableTabPanel (.ui-stab-*): the scroll buttons at both ends of its tab strip
+$stab-scroll-bg: #34506E !default;
+$stab-scroll-hover-bg: #3E5E80 !default;
+$stab-scroll-color: #E6EDF5 !default;
+$stab-scroll-dis-color: #6B7F95 !default;			// the arrow of a button that cannot scroll further
 
 //-- Switch (.ui-swtch-*)
 $swtch-off-bg: $fill-muted-bg !default;
@@ -343,11 +355,11 @@ $swtch-knob-bg: $surface-bg !default;
 $swtch-on-bg: #4A88C7 !default;			// the track once the switch is on
 
 //-- TabPanel (.ui-tab-*)
-$tab-hdr-bg: #3C3F41 !default;
-$tab-bg: #45494A !default;
-$tab-border: #515151 !default;
+$tab-hdr-bg: #2A3F57 !default;
+$tab-bg: #3C5A7A !default;
+$tab-border: #2A3F57 !default;
 $tab-content-bg: $surface-bg !default;
-$tab-color: #BBBBBB !default;
+$tab-color: #E6EDF5 !default;
 
 //-- Tree2 / Tree3 (.ui-tree2-* / .ui-tree3-*)
 $tree2-shadow: $line-soft !default;
@@ -358,14 +370,14 @@ $tree2-hover-color: $primary !default;
 $tree3-hover-outline: $row-hover-outline !default;
 
 //-- Breadcrumb (.ui-brc-* and .ui-brcr2-*)
-$brc-color: #DDDDDD !default;
+$brc-color: #E6EDF5 !default;
 $brcr2-shadow: $shadow-color !default;
 $brc-link-color: #E0C46C !default;
 $brcr2-bg: #365880 !default;			// item bg colour
 $brcr2-color: $brc-color !default;
 $brcr2-hover-bg: #4B6EAF !default;
-$brcr2-sel-bg: #2B2B2B !default;			// the selected item's bg
-$brcr2-sel-color: #589DF6 !default;
+$brcr2-sel-bg: #A9C7EB !default;			// the current page: a light crumb, like the light theme's
+$brcr2-sel-color: #16304D !default;
 
 //-- Ace editor bar (.ui-acedit-*)
 $acedit-bar-bg: #313335 !default;
@@ -386,7 +398,6 @@ $dct-selected-border: $line-hard !default;		// a selected cell
 $oddchars-border: $line-hard !default;
 $pct-border: $line-hard !default;				// the progress bar's outline
 $popin-title-border: $line-hard !default;
-$stbp-pager-border: $line-hard !default;
 $tree3-fbtn-bg: #4C5052 !default;			// the fold button: a raised square
 
 //-- Forms, and the odd remaining component colour that is genuinely its own
@@ -414,6 +425,14 @@ $ckw-accept-color: $primary-invert !default;
 //-- The spinner of the "waiting for the server" message (.ui-ioe-img, _asyio)
 $ioe-spinner-color: #499C54 !default;
 $ioe-spinner-track: #45494A !default;
+
+//-- MessageFlare (.ui-flare-*): solid and loud, it has to be noticed
+$flare-error-bg: #C93A35 !default;
+$flare-error-color: #FFFFFF !default;
+$flare-info-bg: #2F6CC8 !default;
+$flare-info-color: #FFFFFF !default;
+$flare-warning-bg: #E3A92B !default;
+$flare-warning-color: #1E1E1E !default;
 
 //-- MonthPanel dims, which were written as lighter(#000000, 55%) and 65%
 $mp-weeknr-color: $text-muted !default;
@@ -514,7 +533,7 @@ $cal-invert: #DDDDDD !default;
 $mp-border: $dt-border !default;
 $mp-hdr-bg: $dt-hdr-bg !default;
 $mp-marked-bg: $highlight-bg !default;
-$mp-band-bg: #45494A !default;			// the weekday names and the week numbers
+$mp-band-bg: #3E5A78 !default;			// the weekday names and the week numbers
 
 // -- TabPanel
-$tab-selected-color: #DDDDDD !default;
+$tab-selected-color: #FFFFFF !default;

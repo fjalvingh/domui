@@ -3,8 +3,9 @@ package to.etc.domui.log.tailer;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.layout.title.AppPageTitleBar;
-import to.etc.domui.component.misc.InfoPanel;
+import to.etc.domui.dom.html.HTag;
+import to.etc.domui.component.misc.Explanation;
+import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.state.PageParameters;
@@ -31,12 +32,12 @@ public class ServerLogPage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
-		add(new AppPageTitleBar("Follow a server log file", true));
+		add(new HTag(1, "Follow a server log file"));
 
 		//-- Get data.
 		String log = (String) UIContext.getRequestContext().getSession().getAttribute(getKey());
 		if(log == null) {
-			add(new InfoPanel("The key for the file to access is no longer valid. Please select another file to show."));
+			add(new Explanation(MsgType.WARNING, "The key for the file to access is no longer valid. Please select another file to show."));
 			return;
 		}
 
