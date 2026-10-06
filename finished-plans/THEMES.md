@@ -241,7 +241,8 @@ resolver:
   and `.css` suffixes when the name has none;
 - resolves through `DomApplication.getResource()`, so a name loaded from inside
   `$THEME/<variant>/style.scss` searches the theme's search path — this is how a variant
-  directory earlier in the path supplies `_color.scss`;
+  directory earlier in the path supplies its own `_palette.scss` and
+  `_component-colors.scss` (§13);
 - **synthesises `parameters`** rather than reading it from disk (see §7), and maps
   **`theme`** to `$THEME/<variant>/_index.scss`, the theme's own module (§15). Both are
   matched on the basename from whatever directory asks.
@@ -362,7 +363,7 @@ browser GET /$THEME/dark/style.scss?$hash=...
     DartSassCompiler + DartSassImporter + DartSassResolver
       style.scss: @use "custominit"; load-css("theme", $with: its variables); load-css("stylesheet")
       every @use resolves via DomApplication.getResource -> ThemeResourceFactory
-        -> SassTheme.getThemeResource -> search path -> winter/dark/_color.scss, else winter/_color.scss
+        -> SassTheme.getThemeResource -> search path -> winter/dark/_palette.scss, else winter/_palette.scss
       "theme"      -> $THEME/dark/_index.scss
       "parameters" -> $themeVariant + URL params + setThemeProperty + IThemeVariablesCalculator
 
@@ -496,8 +497,21 @@ Verified against a locally run demo, with a `dark` variant dropped into the demo
 
 ## 13. The dark variant
 
+> **Superseded in October 2026** - see `finished-plans/darktheme.md`, which reworked the
+> dark variant completely. What holds now: each variant has **its own two colour files**,
+> `_palette.scss` (the main set) and `_component-colors.scss` (one colour per thing a
+> component paints). `winter/dark/` holds complete copies of both, which replace the light
+> ones on the search path rather than configuring them, so nothing in dark is computed
+> from light, and a variable missing from a variant is a compile error. The greyscale ramp
+> is no longer inverted (`$white` is white in both variants) and `ladder()` is gone: the
+> surfaces, text and lines are roles (`$ground-bg`, `$text-color`, `$control-border`...).
+> The dark palette is modelled on IntelliJ's Darcula. Images that do not read on a dark
+> page have dark copies in `winter/dark/`, made by `buildResources/dark-theme-images.sh`.
+> An application sets per-variant values in `_variant-custominit.scss`. The rest of this
+> section is the account of the September design, which that replaced.
+
 DomUI ships one variant of its own: `dark`, selected with `DarkThemeVariant.INSTANCE`. It
-is **one file** — `resources/themes/scss/winter/dark/_color.scss` — and it repeats no rule
+was **one file** — `resources/themes/scss/winter/dark/_color.scss` — and it repeats no rule
 of the theme and copies no partial.
 
 **How one file can be enough.** `_color.scss` is where the theme's two variable modules
@@ -757,6 +771,10 @@ parameters of a vendor mixin rather than theme variables.
 
 ### Three rules the colour sweep produced
 
+> Since October 2026 the rules for adding a colour are the five in `finished-plans/darktheme.md`
+> §2.5: a colour is added to both variants' files, a variant states every value, and a
+> partial computes no colour itself. What follows is the September state.
+
 The sweep that replaced 214 colour literals in the partials with variables settled these,
 and they are how a new colour is added:
 
@@ -807,7 +825,9 @@ declares or forwards. `style.scss` is therefore four lines:
 ```
 
 Load the application's `_custominit.scss`; configure the theme with every variable it
-declares; load the stylesheet proper. The files:
+declares; load the stylesheet proper. (Since October 2026 `style.scss` also loads
+`_variant-custominit.scss`, and the colour variables moved to per-variant files - see the
+note at the head of §13. The table below is the September state.) The files:
 
 | File | Role |
 | --- | --- |

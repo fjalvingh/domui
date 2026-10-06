@@ -2202,7 +2202,36 @@ These were offered as input while the phase 0 items were being worked, and taken
       is written, a hand-typed `$colorscheme?scheme=dark` sets no cookie and leaves
       the session rendering `default`, and the demo-named cookie is ignored in turn.
 
+- [x] **Framework and documentation: the dark theme reworked.** Done 2026-10-06, as a
+      plan of its own: `finished-plans/darktheme.md` has the whole account, phase by
+      phase, and the review that followed. Each theme variant has its own colour files
+      (`_palette.scss`, `_component-colors.scss`) instead of configuring the light
+      ones; the dark variant is a Darcula-style palette in which every colour is
+      stated, its images have dark copies made by `buildResources/dark-theme-images.sh`,
+      and applications set per-variant values in `_variant-custominit.scss`.
+      `AppPageTitleBar` and `InfoPanel` were removed. On the documentation site:
+      `look-and-feel/themes` (how a variant is built), `the-winter-theme` (the files),
+      `overriding-the-theme` (`_variant-custominit.scss`), `moving-to-modules` (a variant
+      of your own, and what an application has to change after the rework),
+      `styling-your-component`, the ExpandHeader, HamburgerMenu, Explanation,
+      MessageLine, BreadCrumb2 and HoverButton pages, the UrlPage page, and the
+      component indexes; the InfoPanel and AppPageTitleBar pages are deleted. Verified:
+      the site generates, 162 pages, with no broken link.
+
 ## Decisions log
+
+### 2026-10-06 - A theme variant states its own colours
+
+The dark variant used to configure the light theme's variables with `with (...)` and let
+the light formulas compute the rest, which put formulas made for a white page on a dark
+one. A variant now has complete copies of the two colour files, which replace the light
+ones: nothing in it is computed from light, every colour is chosen, and a colour the
+theme adds later is a compile error until the variant has chosen it too. The component
+colours are duplicated per variant as well, because only then can a variant map a
+component onto different roles than light does. Images follow the same idea by name
+(dark copies, generated). An application changes a few colours per variant with
+`_variant-custominit.scss` instead of copying the files. Details:
+`finished-plans/darktheme.md`.
 
 ### 2026-09-17 - Cookies DomUI writes on its own are named by the application
 

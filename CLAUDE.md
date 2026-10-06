@@ -87,7 +87,8 @@ moves to the log, and what it decided becomes an entry in the log's decisions lo
 
 A plan that is finished as a whole moves to **`finished-plans/`**. What is there is
 done and is kept for the account it gives of how a part of the framework now works -
-`THEMES.md`, the theming write-up, is the first of them.
+`THEMES.md`, the theming write-up, is the first of them; `darktheme.md`, how the theme
+variants got their own colour files and the dark variant its Darcula look, the latest.
 
 The documentation website source is a separate repository at
 `/home/jal/git/update-domui/domui.github.io` (Markdown under `site/content`, static site

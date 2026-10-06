@@ -5,7 +5,7 @@
 # A file in themes/scss/winter/dark/ shadows the file of the same name in themes/scss/winter/
 # for the dark variant - both for a url() in the stylesheet and for a "THEME/x.png" in Java -
 # so an image that does not read on a dark page gets a dark copy here, and the light theme
-# keeps its own. See darktheme.md, Phase 5.
+# keeps its own. See finished-plans/darktheme.md, Phase 5.
 #
 # The transformation turns the lightness around and squeezes it into the dark palette's range,
 # leaving hue and chroma alone: it works in Lab, where a near-white has no chroma and so

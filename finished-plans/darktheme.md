@@ -1,6 +1,6 @@
 # Dark theme: separate colours and images per variant
 
-Status: **in progress** since 2026-10-06. §7 records progress.
+Status: **finished** 2026-10-06. §7 records how each phase went, and the first review after them.
 
 The dark variant looks poor because almost all of its colours are *worked out* from the
 light theme rather than *chosen*, and because its images are the light theme's images.
@@ -419,7 +419,7 @@ the cost noted.
 | 3 | done |
 | 4 | done |
 | 5 | done |
-| 6 | not started |
+| 6 | done |
 
 ### 7.1 The harness (2026-10-06)
 
@@ -717,3 +717,27 @@ click), MsgBox2's error box, the flares. Headless screenshots in both variants: 
 and ScrollableTabPanel, panels, headers, breadcrumb, DataTable, notices.
 `TestThemeVariants` and `TestThemeContrast` pass, with four new contrast pairs (the "?"
 marker and the three flares).
+
+### 7.9 Phase 6 (2026-10-06): documentation
+
+- **The documentation site** (`domui.github.io`, `site/content`):
+  - `look-and-feel/themes`: how a variant is built (per-variant colour files, dark image
+    copies, css-drawn images), the roles a variant sets, the two tiers in their new
+    files, nested levels instead of `ladder()`.
+  - `look-and-feel/the-winter-theme`: `style.scss` and the file table.
+  - `look-and-feel/overriding-the-theme`: `_variant-custominit.scss`.
+  - `look-and-feel/moving-to-modules`: a variant of your own, and a section listing what
+    an application has to change after this work: the variables, components, css classes
+    and images that are gone, and the light colours that changed.
+  - `look-and-feel/styling-your-component`, and the ExpandHeader (folding, `setOnExpand`),
+    HamburgerMenu (placement, `setAnchor`), Explanation, MessageLine, BreadCrumb2,
+    HoverButton and UrlPage pages; the component indexes and the navigation diagram.
+  - The InfoPanel and AppPageTitleBar pages are deleted.
+  - Verified: the site generates (sigeto), 162 pages, no broken link.
+- **`finished-plans/THEMES.md`**: §13 opens with what holds now and keeps the September
+  design below as the account of what it replaced; §14's rules and §15's file table
+  point to this plan. The resolver and live-path lines name the new files.
+- **The demo** (Phase 6's third item) was done in Phase 3: `css/_darkstyle.scss` reads
+  the theme's roles.
+- `IMPROVEMENT-LOG.md` has an entry for the work and one for the decision; this plan
+  moved to `finished-plans/`.
