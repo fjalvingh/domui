@@ -94,6 +94,32 @@ public class TestThemeVariants {
 	}
 
 	/**
+	 * Every scheme declares each token its nature's palette reads (<code>s.$...</code>), and no
+	 * token that palette does not read: the light scheme in the theme directory, the dark ones in
+	 * dark/ (Darcula) and in every <code>scheme-*</code> directory.
+	 */
+	@Test
+	public void schemesDeclareTheirNaturesTokens() throws Exception {
+		File theme = ThemeVariantCompiler.findThemeDir();
+		Set<String> light = tokensRead(new File(theme, "_palette.scss"));
+		Set<String> dark = tokensRead(new File(theme, "dark/_palette.scss"));
+		Assert.assertEquals("The light scheme's tokens", light, declared(new File(theme, "_scheme.scss")));
+		Assert.assertEquals("Darcula's tokens", dark, declared(new File(theme, "dark/_scheme.scss")));
+		File[] dirs = theme.listFiles(f -> f.isDirectory() && f.getName().startsWith(DarkSchemeVariant.PREFIX));
+		Assert.assertNotNull(dirs);
+		for(File dir : dirs)
+			Assert.assertEquals(dir.getName() + "'s tokens", dark, declared(new File(dir, "_scheme.scss")));
+	}
+
+	static private Set<String> tokensRead(File palette) throws Exception {
+		Matcher m = Pattern.compile("\\bs\\.\\$([a-z0-9-]+)").matcher(Files.readString(palette.toPath(), StandardCharsets.UTF_8));
+		Set<String> res = new TreeSet<>();
+		while(m.find())
+			res.add(m.group(1));
+		return res;
+	}
+
+	/**
 	 * Every exception names a component colour that _component-colors.scss declares; an
 	 * exception for a colour that no longer exists is a compile error.
 	 */

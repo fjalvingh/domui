@@ -1,3 +1,10 @@
+// The LIGHT nature's palette: the light theme's colours, worked out from the tokens of the light
+// scheme's _scheme.scss (`s.$...`), which is the one on the search path before this directory.
+// The colours that are not tokens are the light theme's own choices, the same for every light
+// scheme: the accent and the button gradient, the state washes, the greyscale ramp. Where
+// several colours share a token in the dark palette but differ in the light theme, only one
+// reads the token and the others keep their light value.
+//
 // =======================================================================================
 // How colours are named in this theme.
 //
@@ -51,8 +58,10 @@
 // one scheme. See _theme-configuration.scss.
 // =======================================================================================
 
-$body-bg: #ffffff !default;
-$background-color: #ffffff !default;
+@use "scheme" as s;
+
+$body-bg: s.$page !default;
+$background-color: s.$page !default;
 
 $alt-button-color: #428EFE !default;
 $alt-button-bg: #eef5ff !default;
@@ -68,27 +77,27 @@ $primary: #f69231 !default;
 
 $color-scheme: light !default;	// what the browser paints its canvas, scrollbars and native controls in
 
-$link-color: #2200cc !default;	// dark blue
-$link-visited-color: #551a8b !default;	// the browser's own visited purple
+$link-color: s.$link !default;	// dark blue
+$link-visited-color: s.$visited !default;	// the browser's own visited purple
 
 $bevel-up: #ABADB3 !default;
 $bevel-down: #BFCDD9 !default;
-$bevel-hover-up: #5794BF !default;
+$bevel-hover-up: s.$focus !default;
 $bevel-hover-down: #D7E8F8 !default;
 
 $readonly-bg: transparent !default;
 $readonly-border: #EEEEEF !default;        // bit darker grey
 
-$title-bg:  #7c7c7c !default;
-$title-color: #ffffff !default;
+$title-bg: s.$struct !default;
+$title-color: s.$struct-text !default;
 
 $selected-bg: $primary !default;			// selection follows the accent
 
-$highlight-bg: #ffbb43 !default; 	// row select: hard orange
+$highlight-bg: s.$highlight !default; 	// row select: hard orange
 
 // Error, warning, info colors
 $errors-border: #ff0000 !default; 			// red
-$errors-color: #ff0000 !default;		// red
+$errors-color: s.$error-text !default;		// red
 $errors-transparent: rgba($errors-border, 0.25) !default;
 
 $errors-input-bg: #ffe5e5 !default;	// error bg for input component
@@ -101,18 +110,18 @@ $errors-input-bg: #ffe5e5 !default;	// error bg for input component
 $errors-wash: #ffe5e5 !default;
 
 $warnings-bg: #fffeee !default; // light yellow
-$warnings-color: #8a6100 !default;	// dark amber: yellow is unreadable on $warnings-bg
+$warnings-color: s.$warning-text !default;	// dark amber: yellow is unreadable on $warnings-bg
 $warnings-border: goldenrod !default;
 $warnings-transparent: rgba($warnings-border, 0.25) !default;
 
 $info-bg: #e4eeff !default;		// blueish light
-$info-color: #4075db !default;
+$info-color: s.$info-text !default;
 $info-border: #4075db !default;
 $info-transparent: rgba($info-border, 0.25) !default;
 
 $white-transparent: rgba(255, 255, 255, 0.25) !default;
 
-$header-bg: #7c7c7c !default;
+$header-bg: s.$struct !default;
 $green-accent: #43b761 !default; 				//Main green
 
 $sayt-ok-color: #84C000 !default;			// Green for checkmark
@@ -141,17 +150,17 @@ $button-focus-top-color: #f6c381 !default;
 $button-focus-bot-color: #f69231 !default;
 $button-focus-glow-color: rgba($button-focus-top-color, .7) !default;
 $button-disabled-color: #999999 !default;
-$form-label-color: #363636 !default;
+$form-label-color: s.$label !default;
 
 // Bulma like
 // Colors
-$orange:       hsl(14,  100%, 53%) !default;
-$yellow:       hsl(48,  100%, 67%) !default;
-$green:        hsl(141, 71%,  48%) !default;
-$cyan:         hsl(204, 86%,  53%) !default;
-$blue:         hsl(217, 71%,  53%) !default;
-$purple:       hsl(271, 100%, 71%) !default;
-$red:          hsl(348, 100%, 61%) !default;
+$orange: s.$orange !default;
+$yellow: s.$yellow !default;
+$green: s.$green !default;
+$cyan: s.$cyan !default;
+$blue: s.$blue !default;
+$purple: s.$purple !default;
+$red: s.$red !default;
 
 $black:        hsl(0, 0%, 4%) !default;
 $black-bis:    hsl(0, 0%, 7%) !default;
@@ -191,31 +200,31 @@ $body-color: inherit !default;					// text on $body-bg
 //
 // Controls do not use this - inputs and buttons take $border, which comes from the
 // greyscale ramp and so already follows a variant.
-$line-color: #aaa !default;
+$line-color: s.$line !default;
 
 // The same idea one step darker, for a line that has to carry weight: the rule under an
 // h1, the divider between table header cells.
-$line-strong: $grey !default;
+$line-strong: s.$line-strong !default;
 
 // And the hardest of the three: a frame that has to read as an edge - a selected cell, an
 // alert badge, the outline of a control. The theme wrote plain black for all of these.
-$line-hard: $black !default;
+$line-hard: s.$line-hard !default;
 
 // Text that is present but is not the main thing: a label, a hint, an item that cannot
 // be used. The theme reached for #666, #777, #808080 and #999 for this; they are one idea.
-$text-muted: $grey !default;
+$text-muted: s.$text-muted !default;
 
 // The roles the bulma mixins and the components read where they used to read a grey of the
 // ramp directly. In the light theme each is that grey; a variant states its own.
-$ground-bg: $white !default;			// what a control or button is filled with: the page ground
+$ground-bg: s.$field !default;			// what a control or button is filled with: the page ground
 $ground-alt-bg: $white-ter !default;			// one step off the ground: a static control, a hovered tree item, a band
-$text-color: $grey-dark !default;			// ordinary text, as the bulma mixins draw it
-$text-strong-color: $grey-darker !default;			// emphasised text: a control's own text, a hovered link
-$control-border: $grey-lighter !default;			// the edge of an input or button
-$control-hover-border: $grey-light !default;			// ... while it is hovered
+$text-color: s.$text !default;			// ordinary text, as the bulma mixins draw it
+$text-strong-color: s.$text-strong !default;			// emphasised text: a control's own text, a hovered link
+$control-border: s.$control-border !default;			// the edge of an input or button
+$control-hover-border: s.$control-hover-border !default;			// ... while it is hovered
 $control-active-border: $grey-dark !default;			// ... while it is pressed
-$fill-muted-bg: $grey-lighter !default;			// a quiet fill: a disabled control, a gutter, a switch that is off
-$line-soft: $grey-lighter !default;			// the quietest line: an info panel's edge, the rule under a header
+$fill-muted-bg: s.$raised !default;			// a quiet fill: a disabled control, a gutter, a switch that is off
+$line-soft: s.$line-soft !default;			// the quietest line: an info panel's edge, the rule under a header
 
 // What a shadow is made of. Shadows take it through rgba(), so this is a colour and the
 // alpha stays at the point of use.
@@ -223,17 +232,17 @@ $shadow-color: #000 !default;
 
 // A surface raised off the page: panels, popups, floating windows, menus. Its edge is
 // $line-color, like every other line the theme draws.
-$surface-bg: $white !default;
+$surface-bg: s.$panel !default;
 $surface-color: $body-color !default;
 
 // Row hover in a table: a wash plus the outline drawn over it.
-$row-hover-bg: #fff4d3 !default;
-$row-hover-outline: #ffd55a !default;
+$row-hover-bg: s.$hint-wash !default;
+$row-hover-outline: s.$hint-outline !default;
 $row-select-hover-bg: #f1f9e1 !default;
 $row-select-hover-outline: #c3df8a !default;
 
 // A floating window has its own, slightly grey, ground.
-$window-bg: #f5f6f7 !default;
+$window-bg: s.$window !default;
 
 // A menu floating over the page.
 $menu-hover-bg: $row-hover-bg !default;
@@ -243,24 +252,24 @@ $menu-hover-border: #ffde7f !default;
 $surface-alt-bg: #eee !default;
 
 // Input controls that the theme colours itself.
-$input-bg: $white !default;
+$input-bg: s.$field !default;
 $input-color: inherit !default;
 
 // A read-only input: a pale wash instead of a plain field.
-$input-ro-bg-top: #f2f9fe !default;
+$input-ro-bg-top: s.$ro-bg !default;
 $input-ro-bg-bottom: #d6f0fd !default;
 
 // ---- Roles the component colours are expressed in, beyond the ones above. Every palette
 // declares them; _component-colors.scss refers to them, never to a literal.
-$fill-strong-bg: $grey-light !default;			// a stronger fill than $fill-muted-bg: a hovered or second-level fill
-$stripe-bg: #E5E5E5 !default;			// the alternate row of a striped table
-$text-bright-color: #fff !default;			// the brightest text: on a coloured or dark fill
-$text-dim: $grey-light !default;			// text that is out of the way: disabled, another month's day
-$header-strip-bg: #C9D8E8 !default;			// the strip a tab row or band stands on
-$header-tab-bg: #A9C1DB !default;			// a tab that is not selected
-$header-band-bg: #93AFCF !default;			// a band in a header: a breadcrumb, a month header's band
-$header-edge-color: transparent !default;			// the edge drawn along a header or a table's border
-$header-bar-color: transparent !default;			// the accent bar of a panel header
-$heading-color: #297bc0 !default;			// a heading's accent colour
-$heading2-color: #013686 !default;			// a second-level heading
-$selection-bg: #bed6f8 !default;			// a selected row, cell or day
+$fill-strong-bg: s.$raised2 !default;			// a stronger fill than $fill-muted-bg: a hovered or second-level fill
+$stripe-bg: s.$stripe !default;			// the alternate row of a striped table
+$text-bright-color: s.$text-bright !default;			// the brightest text: on a coloured or dark fill
+$text-dim: s.$text-dim !default;			// text that is out of the way: disabled, another month's day
+$header-strip-bg: s.$struct-strip !default;			// the strip a tab row or band stands on
+$header-tab-bg: s.$struct-tab !default;			// a tab that is not selected
+$header-band-bg: s.$struct-band !default;			// a band in a header: a breadcrumb, a month header's band
+$header-edge-color: s.$struct-edge !default;			// the edge drawn along a header or a table's border
+$header-bar-color: s.$struct-bar !default;			// the accent bar of a panel header
+$heading-color: s.$heading !default;			// a heading's accent colour
+$heading2-color: s.$heading2 !default;			// a second-level heading
+$selection-bg: s.$selection !default;			// a selected row, cell or day

@@ -1,0 +1,50 @@
+// The light colour scheme "winter": DomUI's light theme. The light palette, _palette.scss,
+// reads these. The tokens are the dark schemes' (see dark/_scheme.scss) but for hint-strong:
+// the light theme's selected item follows its accent, $primary, instead.
+
+$page: #ffffff;
+$panel: hsl(0, 0%, 100%);
+$window: #f5f6f7;
+$field: hsl(0, 0%, 100%);
+$raised: hsl(0, 0%, 86%);
+$raised2: hsl(0, 0%, 71%);
+$stripe: #E5E5E5;
+$ro-bg: #f2f9fe;
+$text: hsl(0, 0%, 29%);
+$text-strong: hsl(0, 0%, 21%);
+$text-bright: #fff;
+$text-muted: hsl(0, 0%, 48%);
+$text-dim: hsl(0, 0%, 71%);
+$label: #363636;
+$line-soft: hsl(0, 0%, 86%);
+$line: #aaa;
+$line-strong: hsl(0, 0%, 48%);
+$line-hard: hsl(0, 0%, 4%);
+$control-border: hsl(0, 0%, 86%);
+$control-hover-border: hsl(0, 0%, 71%);
+$struct: #7c7c7c;
+$struct-strip: #C9D8E8;
+$struct-tab: #A9C1DB;
+$struct-band: #93AFCF;
+$struct-edge: transparent;
+$struct-text: #ffffff;
+$struct-bar: transparent;
+$link: #2200cc;
+$visited: #551a8b;
+$focus: #5794BF;
+$heading: #297bc0;
+$heading2: #013686;
+$selection: #bed6f8;
+$red: hsl(348, 100%, 61%);
+$orange: hsl(14,  100%, 53%);
+$yellow: hsl(48,  100%, 67%);
+$green: hsl(141, 71%,  48%);
+$cyan: hsl(204, 86%,  53%);
+$blue: hsl(217, 71%,  53%);
+$purple: hsl(271, 100%, 71%);
+$error-text: #ff0000;
+$warning-text: #8a6100;
+$info-text: #4075db;
+$hint-wash: #fff4d3;
+$hint-outline: #ffd55a;
+$highlight: #ffbb43;
