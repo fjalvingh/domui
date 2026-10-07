@@ -74,8 +74,8 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 	}
 
 	/**
-	 * Compile style.scss for the variant: "default" for the light theme, or the name of a
-	 * variant directory such as "dark".
+	 * Compile style.scss for the variant: "default" for the light theme, the name of a
+	 * variant directory such as "dark", or the name of a {@link DarkSchemeVariant}.
 	 */
 	public String compile(String variant) throws Exception {
 		File file = locate("style.scss");
@@ -118,9 +118,14 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 		File app = m_appThemeDir;
 		String variant = m_variant;
 		if(null != variant && !"default".equals(variant)) {
-			if(null != app)
-				dirs.add(new File(app, variant));
-			dirs.add(new File(m_themeDir, variant));
+			List<String> variantDirs = variant.startsWith(DarkSchemeVariant.PREFIX)
+				? List.of(variant, "scheme", "dark")			// the search path SassThemeFactory gives a DarkSchemeVariant
+				: List.of(variant);
+			for(String vd : variantDirs) {
+				if(null != app)
+					dirs.add(new File(app, vd));
+				dirs.add(new File(m_themeDir, vd));
+			}
 		}
 		if(null != app)
 			dirs.add(app);

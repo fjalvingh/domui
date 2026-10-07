@@ -1,6 +1,7 @@
 package to.etc.domui.themes;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.Msgs;
 
 /**
  * The dark variant, which the winter theme that DomUI ships implements in
@@ -19,6 +20,12 @@ final public class DarkThemeVariant implements IThemeVariant {
 	@Override
 	public String getVariantName() {
 		return "dark";
+	}
+
+	@NonNull
+	@Override
+	public String getLabel() {
+		return Msgs.BUNDLE.getString(Msgs.THEME_DARK);
 	}
 
 	@NonNull

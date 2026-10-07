@@ -141,7 +141,7 @@ final public class ThemeManager {
 	 */
 	@NonNull
 	public ITheme getTheme(@NonNull String variantName, @Nullable IResourceDependencyList rdl) {
-		return getTheme(IThemeVariant.of(variantName), rdl);
+		return getTheme(m_application.findThemeVariant(variantName), rdl);
 	}
 
 	/**

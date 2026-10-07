@@ -27,6 +27,8 @@ package to.etc.domui.themes;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
 
+import java.util.List;
+
 /**
  * The application's theme. Exactly one of these is in use; it is set at initialization
  * time with {@link DomApplication#setThemeFactory(IThemeFactory)} and cannot change
@@ -52,5 +54,15 @@ public interface IThemeFactory {
 	@NonNull
 	default IThemeVariant getDefaultVariant() {
 		return DefaultThemeVariant.INSTANCE;
+	}
+
+	/**
+	 * The variants this theme has, in the order a user should be offered them. The default
+	 * variant is one of them. The application offers these unless it overrides
+	 * {@link DomApplication#getThemeVariants()}.
+	 */
+	@NonNull
+	default List<IThemeVariant> getVariants() {
+		return List.of(getDefaultVariant());
 	}
 }

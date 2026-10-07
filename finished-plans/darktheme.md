@@ -1,6 +1,9 @@
 # Dark theme: separate colours and images per variant
 
-Status: **finished** 2026-10-06. §7 records how each phase went, and the first review after them.
+Status: phases 1-6 **finished** 2026-10-06; §7 records how each phase went, and the first
+review after them. **Open:** §8, a fresher dark palette to replace the Darcula one - the
+review page and four schemes are made. They are no longer candidates for one choice: they
+ship in the framework as selectable dark colour schemes (8.5).
 
 The dark variant looks poor because almost all of its colours are *worked out* from the
 light theme rather than *chosen*, and because its images are the light theme's images.
@@ -741,3 +744,127 @@ marker and the three flares).
   the theme's roles.
 - `IMPROVEMENT-LOG.md` has an entry for the work and one for the decision; this plan
   moved to `finished-plans/`.
+
+## 8. A fresher dark palette (open, started 2026-10-06)
+
+### 8.1 Why
+
+The Darcula palette of §7.5 works, but it is dreary: neutral greys with muted, desaturated
+colours give the dark variant a depressing feel. The goal is a palette with fresh and
+vibrant colours. Some things are **kept from the light theme**, in every candidate:
+
+- the orange accent `#f69231` and the default-button gradient (`$button-top-color`
+  `#f69231` … `$button-focus-top-color` `#f6c381`);
+- the colour buttons (`is-primary`, `is-link`, `is-info`, `is-success`, `is-warning`,
+  `is-danger`) in the light theme's own hues and hover/active shades - Darcula had muted them;
+- the orange hints: the row and menu hover (an amber wash with an amber outline
+  `#F0A43A`), the selected tree item (orange) and the marked row or day (amber).
+
+### 8.2 What exists (the shipped `dark/` files are unchanged)
+
+- **`ThemeReviewPage`** (`to.etc.domuidemo.pages.themereview`, first link on the Component
+  Overview): every component on one page in a grid of cells, in a state worth judging -
+  a selected DataTable row, an expanded Tree3 with a selection, a field with an error, a
+  marked MonthPanel day, read-only and disabled controls, all notices, headers, TabPanel
+  and ScrollableTabPanel, BreadCrumb2. Popups, windows, MsgBox and flares open from one
+  button each. A bar at the top switches the session between Light, Dark (Darcula) and
+  the candidates; `?scheme=light|dark|<candidate>` opens the page in one scheme (also how
+  a headless screenshot gets there: load it twice with the same `--user-data-dir`, the
+  first load switches and reloads). A swatch strip shows the scheme's main colours,
+  from the theme module (`css/_themereview.scss`). This is the "theme review page" §3
+  asked for and §7 had not made.
+- **`DarkSchemeVariant`** (was the demo's `CandidateSchemes`, see 8.5): a variant named
+  `scheme-<name>` gets the search path `winter/scheme-<name>`, `winter/scheme`,
+  `winter/dark`, `winter`, `all` from `SassThemeFactory`.
+- **The template**, `to.etc.domui/src/main/resources/resources/themes/scss/winter/scheme/`:
+  `dark/_palette.scss` and `dark/_component-colors.scss` with every literal colour
+  replaced by a token of the scheme (`@use "scheme" as s`). Generated once by a script
+  that refused to finish while a literal was left unmapped; the kept-from-light colours
+  are written in the template itself. It **mixes** (`color.mix(hue, s.$page, n%)`) for
+  the washes - the ConditionPanel levels, state washes, schedule items and the like - which
+  §2.5 rule 2 forbids in the real dark files (see 8.4).
+- **A candidate is one file** of 47 tokens, `scheme-<name>/_scheme.scss`: grounds (`page`,
+  `panel`, `window`, `field`, `raised`, `raised2`, `stripe`, `ro-bg`), text (`text`,
+  `text-strong`, `text-bright`, `text-muted`, `text-dim`, `label`), lines, the
+  structural colour (`struct`, `struct-strip`, `struct-tab`, `struct-band`, `struct-edge`,
+  `struct-text`, `struct-bar`: caption bars, tabs, table and month headers, breadcrumb,
+  panel bar), `link`, `visited`, `focus`, `heading`, `heading2`, `selection`, seven
+  hues, three state texts, and the four orange-hint values.
+- **The four candidates:**
+
+  | Scheme | Grounds | Structure | Accents |
+  | --- | --- | --- | --- |
+  | Midnight | deep indigo `#1A1B26` | electric blue `#3D59A1` | blue links, cyan headings (after Tokyo Night) |
+  | Lagoon | deep sea-green `#0F1E24` | vivid teal `#0E7C77` | sky-blue links; teal is the complement of the orange |
+  | Violet | aubergine `#1E1A2E` | violet `#6A3DBA` | pink headings, cyan links (after Dracula) |
+  | Nord | arctic blue-grey `#2E3440` | frost blue `#4C6E99` | soft aurora colours: the calm one |
+
+  All four pass AA for body, muted, label and link text on every ground, header text on
+  every structural colour, the selection, the hover and marked washes and the three state
+  washes, checked with a scratch script from the tokens; values were adjusted until they did.
+- The demo's own sheets (`_darkstyle.scss`, `_syntax.scss`) now ask the theme
+  (`t.$color-scheme == dark`) instead of the variant name, so the candidates get the dark
+  demo styling too.
+- Verified: all four sheets compile under `jetty:run` and the dark images resolve for a
+  candidate; full-page headless screenshots of all six schemes. **Not yet looked at:**
+  the opened popups, dialogs, MsgBox and flares in the candidates.
+
+### 8.3 Seen on the review page, the same in Darcula (not caused by the candidates)
+
+- The HtmlEditor's editing area is white.
+- CheckboxButton with its own labels: one label is hardly readable.
+- RadioGroup `asButtons()` when disabled: the text is very faint.
+
+### 8.4 Still to do
+
+1. **Choose a scheme** (or a mix) on the review page; check its open popups and dialogs.
+2. **Make it the dark variant**: write its values into `dark/_palette.scss` and
+   `dark/_component-colors.scss` as literals, so rule 2 of §2.5 holds - the mixes of the
+   template resolved to colours. Keep the Darcula comments' intent, replace their values.
+   Then `TestThemeVariants` and `TestThemeContrast` (the contrast pairs will need new
+   values), `ThemeColorReport` against the current baseline, and screenshots.
+3. `ThemeColor`'s dark bands (§7.5) and the demo's syntax colours were tuned for Darcula;
+   check them against the new ground.
+4. Fix the three defects of 8.3.
+5. Then remove the candidates: `CandidateSchemes` (back to `SassThemeFactory.INSTANCE` in
+   `Application`), the `scheme*/` directories, and the scheme bar of the review page. The
+   review page itself stays, as the tool for the next palette change.
+6. Documentation: the dark variant's description on the site (`look-and-feel/themes`)
+   names Darcula.
+7. Not committed and not deployed yet. Deploying puts the schemes on demo.domui.org,
+   where a visitor's choice of one is kept in the theme cookie.
+
+Changed by 8.5: item 5 no longer removes the schemes, they stay as framework variants.
+Item 2 is now a choice of whether the dark variant itself changes at all, or stays Darcula
+next to the schemes; if a scheme becomes the dark variant, its scheme can go.
+
+### 8.5 The schemes became part of the framework (2026-10-07)
+
+Instead of choosing one scheme, the framework supports them all, and an application can
+offer its own:
+
+- The template (`winter/scheme/`) and the four `winter/scheme-<name>/_scheme.scss` moved
+  from the demo's webapp to `to.etc.domui`'s resources.
+- **`DarkSchemeVariant`** (`to.etc.domui.themes`): name, label, colour scheme `dark`;
+  constants `MIDNIGHT`, `LAGOON`, `VIOLET`, `NORD`. An application defines its own with
+  `new DarkSchemeVariant("ocean", "Ocean")` plus a `themes/scss/winter/scheme-ocean/_scheme.scss`.
+- **`IThemeVariant.getLabel()`**: what a picker shows; light and dark take theirs from
+  `Msgs` (`ui.theme.light`, `ui.theme.dark`).
+- **`IThemeFactory.getVariants()`**: the variants a theme has. `SassThemeFactory.INSTANCE`
+  lists light, dark and the four schemes; a `SassThemeFactory` for another style has only
+  its default, unless its variants are passed to the constructor.
+- **`DomApplication.getThemeVariants()`**: what a user is offered, by default the factory's.
+  Override to add schemes or leave some of DomUI's out. **`findThemeVariant(name)`** returns
+  the instance from that list; the request context uses it to restore a session's variant
+  from the session or the cookie, so a scheme keeps its `dark` colour scheme (before, it came
+  back as a nameless light variant: the `color-scheme` meta and `ThemeColor` were wrong after
+  the first request). `IThemeVariant.of()` also maps a `scheme-` name to a `DarkSchemeVariant`.
+- The demo: `CandidateSchemes` is gone, `Application` uses `SassThemeFactory.INSTANCE` again,
+  the review page's bar lists `getThemeVariants()`, and the moon/sun switch looks at the
+  colour scheme, so in a scheme it offers light.
+- `TestThemeVariants` compiles every scheme of `SassThemeFactory.INSTANCE`, checks that the
+  template declares the same variables as the light and dark files, and checks a scheme's images.
+- **Open:** the template mixes colours (8.2), against §2.5 rule 2 - accepted for the schemes
+  for now. The template is a copy of the dark files and must follow when they change; the
+  test catches a missing variable, not a changed value. Site documentation for the
+  schemes and for `getThemeVariants()` is not written yet.

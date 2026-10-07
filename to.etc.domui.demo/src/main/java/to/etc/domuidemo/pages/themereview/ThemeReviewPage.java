@@ -77,6 +77,8 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.DarkSchemeVariant;
 import to.etc.domui.themes.DarkThemeVariant;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
@@ -97,8 +99,8 @@ import java.util.Set;
 /**
  * Every component the theme paints, on one page, so that a colour scheme can be judged in
  * one go instead of by opening every demo page in turn. The bar at the top switches the
- * session between the light theme, the dark variant and the candidate dark schemes of
- * {@link CandidateSchemes}; the strip below it shows the scheme's main colours.
+ * session between the theme variants the application offers ({@link DomApplication#getThemeVariants()}):
+ * light, dark and the dark colour schemes. The strip below it shows the scheme's main colours.
  *
  * <p>Things that only exist after a click - menus, dialogs, flares - open from the buttons in
  * the "Popups" cell. Everything else is shown in a state worth looking at: a selected row, an
@@ -108,7 +110,7 @@ public class ThemeReviewPage extends UrlPage {
 	private String m_scheme;
 
 	/**
-	 * Optional: the scheme to switch to - "light", "dark" or the name of a candidate. It makes
+	 * Optional: the scheme to switch to - "light", "dark" or the name of a colour scheme. It makes
 	 * a link that opens the page in one scheme, which is also how a screenshot tool gets there.
 	 */
 	@UIUrlParameter(name = "scheme", mandatory = false)
@@ -128,7 +130,7 @@ public class ThemeReviewPage extends UrlPage {
 			IThemeVariant wanted = switch(scheme) {
 				case "light" -> DefaultThemeVariant.INSTANCE;
 				case "dark" -> DarkThemeVariant.INSTANCE;
-				default -> CandidateSchemes.variant(scheme);
+				default -> DomApplication.get().findThemeVariant(DarkSchemeVariant.PREFIX + scheme);
 			};
 			if(!wanted.getVariantName().equals(UIContext.getRequestContext().getThemeVariant().getVariantName())) {
 				UIContext.getRequestContext().setThemeVariant(wanted);
@@ -175,10 +177,8 @@ public class ThemeReviewPage extends UrlPage {
 		Div bar = new Div("dm-tr-bar");
 		String current = UIContext.getRequestContext().getThemeVariant().getVariantName();
 		bar.add(new Span("dm-tr-bar-lbl", "Colour scheme:"));
-		bar.add(schemeButton("Light", DefaultThemeVariant.INSTANCE, current));
-		bar.add(schemeButton("Dark (Darcula, current)", DarkThemeVariant.INSTANCE, current));
-		for(String[] scheme : CandidateSchemes.SCHEMES) {
-			bar.add(schemeButton(scheme[1], CandidateSchemes.variant(scheme[0]), current));
+		for(IThemeVariant variant : DomApplication.get().getThemeVariants()) {
+			bar.add(schemeButton(variant.getLabel(), variant, current));
 		}
 		return bar;
 	}

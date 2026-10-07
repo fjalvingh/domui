@@ -89,6 +89,10 @@ A plan that is finished as a whole moves to **`finished-plans/`**. What is there
 done and is kept for the account it gives of how a part of the framework now works -
 `THEMES.md`, the theming write-up, is the first of them; `darktheme.md`, how the theme
 variants got their own colour files and the dark variant its Darcula look, the latest.
+One part of it is open again: its **§8, a fresher dark palette** (the theme review page in
+the demo, and four dark colour schemes that now ship in the framework as `DarkSchemeVariant`s,
+offered through `DomApplication.getThemeVariants()`). Read §8 before working on the
+dark colours.
 
 The documentation website source is a separate repository at
 `/home/jal/git/update-domui/domui.github.io` (Markdown under `site/content`, static site

@@ -1,5 +1,8 @@
 package to.etc.domui.themes;
 
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.Msgs;
+
 /**
  * The default theme style for pages.
  *
@@ -15,5 +18,11 @@ final public class DefaultThemeVariant implements IThemeVariant {
 	@Override
 	public String getVariantName() {
 		return "default";
+	}
+
+	@NonNull
+	@Override
+	public String getLabel() {
+		return Msgs.BUNDLE.getString(Msgs.THEME_LIGHT);
 	}
 }

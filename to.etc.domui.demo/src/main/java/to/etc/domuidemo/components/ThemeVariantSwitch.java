@@ -10,7 +10,8 @@ import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
 
 /**
- * Switches this session between the light and the dark variant of the theme.
+ * Switches this session between the light and the dark variant of the theme. In one of the
+ * dark colour schemes (chosen on the theme review page) it switches to light.
  *
  * <p>Both are the <i>same</i> theme: the dark one is winter with its colour file replaced,
  * which the theme search path does as soon as the variant is set. Setting it on the request
@@ -25,7 +26,7 @@ public class ThemeVariantSwitch extends Div {
 	@Override
 	public void createContent() throws Exception {
 		IRequestContext ctx = UIContext.getRequestContext();
-		boolean dark = DarkThemeVariant.INSTANCE.getVariantName().equals(ctx.getThemeVariant().getVariantName());
+		boolean dark = "dark".equals(ctx.getThemeVariant().getColorScheme());		// the dark variant, or one of the dark colour schemes
 
 		SmallImgButton button = new SmallImgButton(dark ? Icon.faSunO : Icon.faMoonO, () -> switchTo(dark ? DefaultThemeVariant.INSTANCE : DarkThemeVariant.INSTANCE));
 		add(button);

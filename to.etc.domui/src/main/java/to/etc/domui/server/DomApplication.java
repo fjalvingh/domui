@@ -92,6 +92,7 @@ import to.etc.domui.state.UIGotoContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.subinjector.ISubPageInjector;
 import to.etc.domui.subinjector.SubPageInjector;
+import to.etc.domui.themes.DarkSchemeVariant;
 import to.etc.domui.themes.DarkThemeVariant;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
@@ -2578,6 +2579,46 @@ public abstract class DomApplication {
 	@NonNull
 	final public ITheme getTheme(@NonNull String variantName, @Nullable IResourceDependencyList rdl) {
 		return m_themeManager.getTheme(variantName, rdl);
+	}
+
+	/**
+	 * The theme variants a user can choose from, in the order they should be offered: what a
+	 * theme or colour scheme picker shows. By default these are the variants of the theme
+	 * factory ({@link IThemeFactory#getVariants()}), which for the theme DomUI ships are
+	 * light, dark and the dark colour schemes of {@link DarkSchemeVariant}.
+	 *
+	 * <p>Override to offer schemes of your own, or to leave out some of DomUI's:</p>
+	 * <pre>
+	 *	static private final IThemeVariant OCEAN = new DarkSchemeVariant("ocean", "Ocean");
+	 *
+	 *	&#64;Override public List&lt;IThemeVariant&gt; getThemeVariants() {
+	 *		return List.of(DefaultThemeVariant.INSTANCE, DarkThemeVariant.INSTANCE, OCEAN);
+	 *	}
+	 * </pre>
+	 * <p>A scheme of your own is a <code>themes/scss/winter/scheme-ocean/_scheme.scss</code>
+	 * in the webapp, a copy of one of DomUI's schemes with the colours changed.</p>
+	 *
+	 * <p>Leaving a variant out of this list does not make it unusable: a session or cookie that
+	 * holds its name still renders in it. The list is what is offered.</p>
+	 */
+	@NonNull
+	public List<IThemeVariant> getThemeVariants() {
+		return getThemeFactory().getVariants();
+	}
+
+	/**
+	 * The variant with the name passed: the one from {@link #getThemeVariants()} when it has
+	 * one by that name, so that what the application's own variant knows besides its name -
+	 * its label, its colour scheme - is kept, else {@link IThemeVariant#of(String)}. This is how
+	 * a session's variant is restored from the name kept in the session or the cookie.
+	 */
+	@NonNull
+	public IThemeVariant findThemeVariant(@NonNull String name) {
+		for(IThemeVariant variant : getThemeVariants()) {
+			if(variant.getVariantName().equals(name))
+				return variant;
+		}
+		return IThemeVariant.of(name);
 	}
 
 	/**

@@ -18,6 +18,15 @@ public interface IThemeVariant {
 	@NonNull String getVariantName();
 
 	/**
+	 * What a user is offered this variant as, when the application lets them choose from
+	 * {@link to.etc.domui.server.DomApplication#getThemeVariants()}.
+	 */
+	@NonNull
+	default String getLabel() {
+		return getVariantName();
+	}
+
+	/**
 	 * The CSS <code>color-scheme</code> this variant renders in: "light" or "dark". It is
 	 * written into the page head as a meta tag, before the stylesheet link, so that the
 	 * browser paints the right canvas - and picks the right scrollbars and native control
@@ -38,7 +47,11 @@ public interface IThemeVariant {
 	 * <p>The two variants that DomUI itself ships map back onto their instances: a variant
 	 * survives a session as its name only ({@link to.etc.domui.server.IRequestContext#getThemeVariant()}
 	 * reconstructs it with this method), so anything a variant knows besides its name - its
-	 * colour scheme - would be lost on the next request otherwise.</p>
+	 * colour scheme - would be lost on the next request otherwise. For the same reason a
+	 * name starting with {@link DarkSchemeVariant#PREFIX} becomes a {@link DarkSchemeVariant}.
+	 * The request context restores a session's variant with
+	 * {@link to.etc.domui.server.DomApplication#findThemeVariant(String)}, which returns the
+	 * application's own instance when it offers one by that name.</p>
 	 */
 	@NonNull
 	static IThemeVariant of(@NonNull String name) {
@@ -48,6 +61,10 @@ public interface IThemeVariant {
 			return DefaultThemeVariant.INSTANCE;
 		if(DarkThemeVariant.INSTANCE.getVariantName().equals(name))
 			return DarkThemeVariant.INSTANCE;
+		if(name.startsWith(DarkSchemeVariant.PREFIX) && name.length() > DarkSchemeVariant.PREFIX.length()) {
+			String scheme = name.substring(DarkSchemeVariant.PREFIX.length());
+			return new DarkSchemeVariant(scheme, scheme);
+		}
 		return () -> name;
 	}
 }

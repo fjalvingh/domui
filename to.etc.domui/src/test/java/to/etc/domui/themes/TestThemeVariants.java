@@ -6,17 +6,19 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import to.etc.domui.themes.sass.SassThemeFactory;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The variants of the winter theme: both compile, each states its own colours, and an
+ * The variants of the winter theme: light, dark and the dark colour schemes all compile, each states its own colours, and an
  * application's _custominit.scss still configures them.
  */
 public class TestThemeVariants {
@@ -49,6 +51,30 @@ public class TestThemeVariants {
 	}
 
 	/**
+	 * Every dark colour scheme the theme offers compiles, renders dark, and is not the dark
+	 * variant's own sheet; and a variant name restores to the scheme, so its colour scheme
+	 * survives the session.
+	 */
+	@Test
+	public void colourSchemesCompile() throws Exception {
+		String dark = m_compiler.compile("dark");
+		List<DarkSchemeVariant> schemes = SassThemeFactory.INSTANCE.getVariants().stream()
+			.filter(v -> v instanceof DarkSchemeVariant)
+			.map(v -> (DarkSchemeVariant) v)
+			.toList();
+		Assert.assertFalse("The theme offers no colour schemes", schemes.isEmpty());
+		for(DarkSchemeVariant scheme : schemes) {
+			String name = scheme.getVariantName();
+			Assert.assertTrue(name + ": no " + name + "/_scheme.scss", new File(ThemeVariantCompiler.findThemeDir(), name + "/_scheme.scss").isFile());
+			String css = m_compiler.compile(name);
+			Assert.assertTrue(name + ": the sheet is suspiciously small", css.length() > 100_000);
+			Assert.assertNotEquals(name + ": compiles to the dark variant's sheet", dark, css);
+			Assert.assertTrue(name + ": does not say color-scheme: dark", css.contains("color-scheme: dark"));
+			Assert.assertEquals(name + ": does not restore as dark", "dark", IThemeVariant.of(name).getColorScheme());
+		}
+	}
+
+	/**
 	 * A variant's colour files replace the light ones, so a variable that only one of them
 	 * declares is a compile error in the other - but only once some sheet reads it. This finds it
 	 * before that.
@@ -58,13 +84,15 @@ public class TestThemeVariants {
 		File theme = ThemeVariantCompiler.findThemeDir();
 		for(String name : new String[]{"_palette.scss", "_component-colors.scss"}) {
 			Set<String> light = declared(new File(theme, name));
-			Set<String> dark = declared(new File(theme, "dark/" + name));
-			Set<String> onlyLight = new TreeSet<>(light);
-			onlyLight.removeAll(dark);
-			Set<String> onlyDark = new TreeSet<>(dark);
-			onlyDark.removeAll(light);
-			Assert.assertEquals("Declared in " + name + " but not in dark/" + name, Set.of(), onlyLight);
-			Assert.assertEquals("Declared in dark/" + name + " but not in " + name, Set.of(), onlyDark);
+			for(String variant : new String[]{"dark", "scheme"}) {
+				Set<String> dark = declared(new File(theme, variant + "/" + name));
+				Set<String> onlyLight = new TreeSet<>(light);
+				onlyLight.removeAll(dark);
+				Set<String> onlyDark = new TreeSet<>(dark);
+				onlyDark.removeAll(light);
+				Assert.assertEquals("Declared in " + name + " but not in " + variant + "/" + name, Set.of(), onlyLight);
+				Assert.assertEquals("Declared in " + variant + "/" + name + " but not in " + name, Set.of(), onlyDark);
+			}
 		}
 	}
 
@@ -130,14 +158,15 @@ public class TestThemeVariants {
 	public void everyImageExists() throws Exception {
 		File theme = ThemeVariantCompiler.findThemeDir();
 		Pattern url = Pattern.compile("url\\(\\s*[\"']?([^\"')]+)[\"']?\\s*\\)");
-		for(String variant : new String[]{"default", "dark"}) {
+		for(String variant : new String[]{"default", "dark", DarkSchemeVariant.NORD.getVariantName()}) {
 			Matcher m = url.matcher(m_compiler.compile(variant));
 			Set<String> missing = new TreeSet<>();
 			while(m.find()) {
 				String ref = m.group(1).trim();
 				if(ref.isEmpty() || ref.startsWith("data:") || ref.contains("://") || ref.startsWith("#"))
 					continue;
-				boolean found = new File(theme, ref).isFile() || (!"default".equals(variant) && new File(theme, variant + "/" + ref).isFile());
+				String imageDir = variant.startsWith(DarkSchemeVariant.PREFIX) ? "dark" : variant;	// a scheme has the dark variant's images
+				boolean found = new File(theme, ref).isFile() || (!"default".equals(variant) && new File(theme, imageDir + "/" + ref).isFile());
 				if(!found)
 					missing.add(ref);
 			}

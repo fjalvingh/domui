@@ -368,6 +368,11 @@ public enum Msgs implements IBundleCode {
 
 	static public final String EXPORT_BUTTON = "ui.btn.export";
 
+	/*** Theme variants, as offered to the user ***/
+	static public final String THEME_LIGHT = "ui.theme.light";
+
+	static public final String THEME_DARK = "ui.theme.dark";
+
 	@Override public BundleRef getBundle() {
 		return BUNDLE;
 	}

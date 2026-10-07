@@ -438,7 +438,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			if(null == name) {
 				variant = m_application.calculateUserThemeVariant(this);
 			} else {
-				variant = IThemeVariant.of(name);
+				variant = m_application.findThemeVariant(name);
 				m_themeVariantStored = true;
 			}
 			m_themeVariant = variant;

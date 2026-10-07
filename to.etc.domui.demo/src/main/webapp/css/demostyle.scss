@@ -3,7 +3,7 @@
  *
  * Each partial that branches on light or dark loads the theme module and reads its
  * $color-scheme, which every variant of the theme states - so a variant with a name of its own,
- * like the candidate schemes of the theme review page, is still recognised as dark. The demo
+ * like the dark colour schemes (DarkSchemeVariant), is still recognised as dark. The demo
  * hardcodes a lot of light colours of its own, and _darkstyle.scss repaints them when the
  * session is rendering dark.
  */

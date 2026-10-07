@@ -74,7 +74,7 @@ final public class MarkerImagePartKey {
 
 		String icon = info.getString(PARAM_ICON, null);
 		String variantName = info.getThemeVariantName();
-		IThemeVariant variant = null == variantName ? da.getThemeFactory().getDefaultVariant() : IThemeVariant.of(variantName);
+		IThemeVariant variant = null == variantName ? da.getThemeFactory().getDefaultVariant() : da.findThemeVariant(variantName);
 		ITheme theme = da.internalGetThemeManager().getTheme(variant, null);
 		String url = da.internalGetThemeManager().getThemedResourceRURL(theme, icon == null || DomUtil.isBlank(icon) ? DEFAULT_ICON : icon.trim());
 		k.setIcon(url);
