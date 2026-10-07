@@ -49,20 +49,10 @@ public interface IThemeFactory {
 	ITheme getTheme(@NonNull DomApplication da, @NonNull IThemeVariant variant) throws Exception;
 
 	/**
-	 * The variant used for sessions that did not select one of their own.
-	 */
-	@NonNull
-	default IThemeVariant getDefaultVariant() {
-		return DefaultThemeVariant.INSTANCE;
-	}
-
-	/**
-	 * The variants this theme has, in the order a user should be offered them. The default
-	 * variant is one of them. The application offers these unless it overrides
+	 * The variants this theme has, in the order a user should be offered them: the first light
+	 * one is the default. The application offers these unless it overrides
 	 * {@link DomApplication#getThemeVariants()}.
 	 */
 	@NonNull
-	default List<IThemeVariant> getVariants() {
-		return List.of(getDefaultVariant());
-	}
+	List<IThemeVariant> getVariants();
 }

@@ -1,5 +1,6 @@
 // The LIGHT nature's palette: the light theme's colours, worked out from the tokens of the light
-// scheme's _scheme.scss (`s.$...`), which is the one on the search path before this directory.
+// scheme's _scheme.scss (`s.$...`): the one in the scheme's directory below this one
+// (light/winter/), which comes before this directory on the search path.
 // The colours that are not tokens are the light theme's own choices, the same for every light
 // scheme: the accent and the button gradient, the state washes, the greyscale ramp. Where
 // several colours share a token in the dark palette but differ in the light theme, only one
@@ -46,11 +47,10 @@
 // the rename that brought the last 79 names here was byte-for-byte inert.
 // =======================================================================================
 
-// Each nature has its own palette: the one in winter/ is the light theme's, and
-// winter/dark/_palette.scss works out every dark scheme's colours from that scheme's
-// _scheme.scss. A nature's palette replaces the light one completely - it is found first on the
-// theme's search path - so it declares every variable the light one declares, and a variable
-// missing from it is a compile error. Nothing in one nature is computed from the other.
+// Each nature has its own palette, in its own directory: light/_palette.scss and
+// dark/_palette.scss each work out every colour of their schemes from the scheme's
+// _scheme.scss (in light/winter/, dark/nord/ ...). The two declare the same variables, and a
+// variable missing from one is a compile error. Nothing in one nature is computed from the other.
 //
 // The component colours are one file for every variant, which refers to the main set only. A
 // colour that one nature or scheme wants different from what that file works out is an

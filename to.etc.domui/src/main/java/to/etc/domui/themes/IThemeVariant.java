@@ -5,11 +5,12 @@ import org.eclipse.jdt.annotation.NonNull;
 /**
  * A variant of the application's theme. The theme itself is fixed at application
  * initialization time (see {@link to.etc.domui.server.DomApplication#setThemeFactory}); the
- * variant is the one thing that can differ per user session, and it is what makes a
- * dark/light switch possible.
+ * variant is the one thing that can differ per user session: which colour scheme, light or
+ * dark, the page is rendered in. DomUI's variants are {@link SchemeVariant}s.
  *
- * <p>A variant is nothing but a name. It becomes part of every themed resource URL
- * ($THEME/[variantName]/...), so it must be usable inside an URL path segment.</p>
+ * <p>A variant's name becomes part of every themed resource URL ($THEME/[variantName]/...),
+ * so it must be usable inside an URL path segment. A session keeps its variant as that name
+ * only, and gets it back with {@link to.etc.domui.server.DomApplication#findThemeVariant(String)}.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 9/2/15.
@@ -34,37 +35,5 @@ public interface IThemeVariant {
 	 * white until the theme's stylesheet has arrived and been parsed.
 	 */
 	@NonNull
-	default String getColorScheme() {
-		return "light";
-	}
-
-	/**
-	 * Create a variant with the name passed. Define these as constants:
-	 * <pre>
-	 *	static public final IThemeVariant DARK = IThemeVariant.of("dark");
-	 * </pre>
-	 *
-	 * <p>The two variants that DomUI itself ships map back onto their instances: a variant
-	 * survives a session as its name only ({@link to.etc.domui.server.IRequestContext#getThemeVariant()}
-	 * reconstructs it with this method), so anything a variant knows besides its name - its
-	 * colour scheme - would be lost on the next request otherwise. For the same reason a
-	 * name starting with {@link DarkSchemeVariant#PREFIX} becomes a {@link DarkSchemeVariant}.
-	 * The request context restores a session's variant with
-	 * {@link to.etc.domui.server.DomApplication#findThemeVariant(String)}, which returns the
-	 * application's own instance when it offers one by that name.</p>
-	 */
-	@NonNull
-	static IThemeVariant of(@NonNull String name) {
-		if(name.isEmpty() || name.indexOf('/') != -1)
-			throw new IllegalArgumentException("Bad theme variant name: '" + name + "'");
-		if(DefaultThemeVariant.INSTANCE.getVariantName().equals(name))
-			return DefaultThemeVariant.INSTANCE;
-		if(DarkThemeVariant.INSTANCE.getVariantName().equals(name))
-			return DarkThemeVariant.INSTANCE;
-		if(name.startsWith(DarkSchemeVariant.PREFIX) && name.length() > DarkSchemeVariant.PREFIX.length()) {
-			String scheme = name.substring(DarkSchemeVariant.PREFIX.length());
-			return new DarkSchemeVariant(scheme, scheme);
-		}
-		return () -> name;
-	}
+	String getColorScheme();
 }

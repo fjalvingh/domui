@@ -18,14 +18,15 @@ import java.util.List;
 
 /**
  * Compiles the winter theme's style.scss for one variant straight from the source tree, without
- * a running DomApplication, so that both variants can be compiled and compared in a test.
+ * a running DomApplication, so that its variants can be compiled and compared in a test.
  *
  * <p>It reproduces what DomUI's own resolver does (see DartSassResolver and SassThemeFactory):
- * every sheet is known as <code>domui:/[variant]/[path]</code> and is looked up first in the
- * variant's directory and then in the theme directory, so a file in <code>dark/</code> shadows the
- * one with the same name; <code>theme</code> is the variant's <code>_index.scss</code>, from
- * whatever directory it is asked for; and <code>parameters</code> is generated, holding only
- * <code>$themeVariant</code>.</p>
+ * every sheet is known as <code>domui:/[variant]/[path]</code> and is looked up in the scheme's
+ * directory, the nature's and then the theme directory, so a file in <code>dark/</code> shadows
+ * the one with the same name in the theme directory; <code>theme</code> is the variant's
+ * <code>_index.scss</code>, from whatever directory it is asked for; and <code>parameters</code>
+ * is generated, holding <code>$themeVariant</code>, <code>$themeNature</code> and
+ * <code>$themeScheme</code>.</p>
  *
  * <p>An application's own theme directory - what its webapp has under themes/scss/winter - can
  * be passed as well. As in DomUI, a file there wins over the framework's file of the same name
@@ -80,8 +81,8 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 	}
 
 	/**
-	 * Compile style.scss for the variant: "default" for the light theme, the name of a
-	 * variant directory such as "dark", or the name of a {@link DarkSchemeVariant}.
+	 * Compile style.scss for the variant, named as a {@link SchemeVariant}: "light-winter",
+	 * "dark-nord".
 	 */
 	public String compile(String variant) throws Exception {
 		File file = locate("style.scss");
@@ -141,11 +142,12 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 		List<File> dirs = new ArrayList<>();
 		File app = m_appThemeDir;
 		String variant = m_variant;
-		if(null != variant && !"default".equals(variant)) {
-			List<String> variantDirs = variant.startsWith(DarkSchemeVariant.PREFIX)
-				? List.of(variant, "dark")			// the search path SassThemeFactory gives a DarkSchemeVariant
-				: List.of(variant);
-			for(String vd : variantDirs) {
+		if(null != variant) {
+			SchemeVariant scheme = SchemeVariant.parse(variant);
+			if(null == scheme)
+				throw new IllegalStateException("Not a variant name: " + variant);
+			String nature = scheme.getNature().getName();
+			for(String vd : List.of(nature + "/" + scheme.getSchemeName(), nature)) {	// the search path SassThemeFactory gives every variant
 				if(null != app)
 					dirs.add(new File(app, vd));
 				dirs.add(new File(m_themeDir, vd));
@@ -219,7 +221,7 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 			}
 			if(path.equals("parameters")) {
 				return ImportSuccess.newBuilder()
-					.setContents("$themeVariant: \"" + m_variant + "\";\n")
+					.setContents(parameters(m_variant))
 					.setSyntax(Syntax.SCSS)
 					.build();
 			}
@@ -233,6 +235,14 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 				.setSourceMapUrl(url)
 				.build();
 		}
+	}
+
+	/** The generated parameters module, as AbstractSassResolver writes it for the variant. */
+	static private String parameters(@Nullable String variant) {
+		SchemeVariant scheme = null == variant ? null : SchemeVariant.parse(variant);
+		if(null == scheme)
+			return "$themeVariant: \"" + variant + "\";\n";
+		return "$themeVariant: \"" + variant + "\";\n$themeNature: \"" + scheme.getNature().getName() + "\";\n$themeScheme: \"" + scheme.getSchemeName() + "\";\n";
 	}
 
 	@Override

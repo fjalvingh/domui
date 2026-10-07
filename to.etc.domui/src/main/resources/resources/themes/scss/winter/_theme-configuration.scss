@@ -4,12 +4,13 @@
 //
 // The application declares values in two files, both replaced by copies in its webapp:
 //
-//	_custominit.scss		for every variant
-//	_variant-custominit.scss	for one variant: the copy in themes/scss/winter/ is the
-//					light variant's, the one in themes/scss/winter/dark/ the dark one's
+//	_custominit.scss		for every scheme, in themes/scss/winter/
+//	_variant-custominit.scss	for the schemes of one nature, in themes/scss/winter/light/ or
+//					themes/scss/winter/dark/ - or for one scheme, in that scheme's
+//					directory (themes/scss/winter/dark/nord/), instead of the nature's
 //
 // Every variable in either becomes the value the theme's own !default declaration yields to;
-// where both declare one, the variant's file wins.
+// where both declare one, _variant-custominit.scss wins.
 //
 // Below the application's two files come the theme's own exceptions: component colours that do
 // not follow _component-colors.scss for one nature (_nature-exceptions.scss) or one scheme

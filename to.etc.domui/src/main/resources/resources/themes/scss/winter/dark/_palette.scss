@@ -1,6 +1,6 @@
 // The DARK nature's palette: every dark scheme's colours, worked out from the tokens of that
-// scheme's _scheme.scss (`s.$...`). Which scheme is the one on the search path before this
-// directory; this directory's own _scheme.scss is Darcula's, for the variant "dark".
+// scheme's _scheme.scss (`s.$...`): the one in the scheme's directory below this one
+// (dark/midnight/, dark/nord/ ...), which comes before this directory on the search path.
 // Colours that are deliberately the same in every dark scheme (the light theme's button
 // colours and orange hints, the greyscale ramp) are written here as they are. The greyscale
 // ramp ($white .. $black) means what it means in the light palette - $white is white - and the
@@ -47,11 +47,10 @@
 // the rename that brought the last 79 names here was byte-for-byte inert.
 // =======================================================================================
 
-// Each nature has its own palette: the one in winter/ is the light theme's, and
-// winter/dark/_palette.scss works out every dark scheme's colours from that scheme's
-// _scheme.scss. A nature's palette replaces the light one completely - it is found first on the
-// theme's search path - so it declares every variable the light one declares, and a variable
-// missing from it is a compile error. Nothing in one nature is computed from the other.
+// Each nature has its own palette, in its own directory: light/_palette.scss and
+// dark/_palette.scss each work out every colour of their schemes from the scheme's
+// _scheme.scss (in light/winter/, dark/nord/ ...). The two declare the same variables, and a
+// variable missing from one is a compile error. Nothing in one nature is computed from the other.
 //
 // The component colours are one file for every variant, which refers to the main set only. A
 // colour that one nature or scheme wants different from what that file works out is an
@@ -189,7 +188,7 @@ $esic-label-bg: color.mix(s.$green, s.$page, 30%) !default;
 // write "background: white" uses one of them. That is what makes a theme variant a
 // colour file and nothing else: set these in a variant's _palette.scss and the whole theme
 // follows, without a single rule having to be repeated to override it.
-// (In this file: the dark variant's values.)
+// (In this file: the dark nature's values.)
 // --------------------------------------------------------------------------------------
 
 // The page itself.

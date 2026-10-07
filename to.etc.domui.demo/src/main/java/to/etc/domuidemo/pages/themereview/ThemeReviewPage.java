@@ -78,9 +78,6 @@ import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.themes.DarkSchemeVariant;
-import to.etc.domui.themes.DarkThemeVariant;
-import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.bugs.Bug;
 import to.etc.domuidemo.pages.components.choice.Medium;
@@ -99,8 +96,8 @@ import java.util.Set;
 /**
  * Every component the theme paints, on one page, so that a colour scheme can be judged in
  * one go instead of by opening every demo page in turn. The bar at the top switches the
- * session between the theme variants the application offers ({@link DomApplication#getThemeVariants()}):
- * light, dark and the dark colour schemes. The strip below it shows the scheme's main colours.
+ * session between the colour schemes the application offers ({@link DomApplication#getThemeVariants()});
+ * the strip below it shows the scheme's main colours.
  *
  * <p>Things that only exist after a click - menus, dialogs, flares - open from the buttons in
  * the "Popups" cell. Everything else is shown in a state worth looking at: a selected row, an
@@ -110,7 +107,7 @@ public class ThemeReviewPage extends UrlPage {
 	private String m_scheme;
 
 	/**
-	 * Optional: the scheme to switch to - "light", "dark" or the name of a colour scheme. It makes
+	 * Optional: the colour scheme to switch to, as its variant name: "light-winter", "dark-nord". It makes
 	 * a link that opens the page in one scheme, which is also how a screenshot tool gets there.
 	 */
 	@UIUrlParameter(name = "scheme", mandatory = false)
@@ -127,11 +124,7 @@ public class ThemeReviewPage extends UrlPage {
 		setPageTitle("Theme review");
 		String scheme = m_scheme;
 		if(null != scheme) {
-			IThemeVariant wanted = switch(scheme) {
-				case "light" -> DefaultThemeVariant.INSTANCE;
-				case "dark" -> DarkThemeVariant.INSTANCE;
-				default -> DomApplication.get().findThemeVariant(DarkSchemeVariant.PREFIX + scheme);
-			};
+			IThemeVariant wanted = DomApplication.get().findThemeVariant(scheme);	// an unknown name gives the default
 			if(!wanted.getVariantName().equals(UIContext.getRequestContext().getThemeVariant().getVariantName())) {
 				UIContext.getRequestContext().setThemeVariant(wanted);
 				UIGoto.reload();					// the stylesheet link is in the head, which only a full render writes

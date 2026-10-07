@@ -1,6 +1,6 @@
 # Colour schemes: every theme variant is a scheme of a nature
 
-Status: phases 1 and 2 **done** 2026-10-07 (see 5.1, 5.2); phases 3-5 open. Follows `finished-plans/darktheme.md` §8,
+Status: phases 1-3 **done** 2026-10-07 (see 5.1-5.3); phases 4 (most of it done with 3) and 5 open. Follows `finished-plans/darktheme.md` §8,
 which made a theme review page and four dark schemes and then put those schemes into the
 framework as `DarkSchemeVariant`s, next to the old light and dark variants.
 
@@ -150,6 +150,32 @@ for every variant, `winter/<nature>/_variant-custominit.scss` for a nature,
   of phase 1; Darcula and Nord differ only by their phase-1 contrast fixes; the theme tests
   pass; all variants compile in the running demo.
 
+### 5.3 Phase 3, as done (2026-10-07)
+
+- **Layout** as in section 3: `light/_palette.scss`, `light/winter/` (`_scheme.scss`, light's
+  `_scheme-exceptions.scss`), `dark/_palette.scss`, `dark/_nature-exceptions.scss`,
+  `dark/{midnight,darcula,lagoon,violet,nord}/_scheme.scss`. The 58 images that have a dark copy
+  moved their light original into `light/`; `winter/` keeps the neutral images, the component
+  colours, `_theme-configuration.scss`, `_custominit.scss` and empty default exceptions.
+  `_variant-custominit.scss` is per nature (`light/`, `dark/`), or per scheme in a scheme's
+  directory, instead of the nature's.
+- **Java:** `SchemeVariant` (nature, scheme, label; constants `WINTER`, `MIDNIGHT`, `DARCULA`,
+  `LAGOON`, `VIOLET`, `NORD`) and the enum `ThemeNature` replace `DefaultThemeVariant`,
+  `DarkThemeVariant` and `DarkSchemeVariant`. `IThemeVariant.of()` is gone (`SchemeVariant.parse`
+  reads a name), and so is `IThemeFactory.getDefaultVariant()`: the default is
+  `DomApplication.getDefaultThemeVariant()`, the first light variant of `getThemeVariants()`.
+  `findThemeVariant(name)` returns the listed variant or that default. `getThemeVariantForColorScheme`
+  returns the first listed variant of that colour scheme. `SassThemeFactory` has one constructor,
+  `(style, variants)`; `INSTANCE` lists winter, Midnight, Darcula, Lagoon, Violet, Nord. The
+  labels are the schemes' names (the `ui.theme.*` messages are gone).
+- The parameters module also has `$themeNature` and `$themeScheme`.
+- Demo: the review page's bar lists `getThemeVariants()`, `?scheme=` takes a variant name
+  (`dark-nord`); the moon/sun switch goes to the first scheme of the other nature.
+- **Verified:** all six sheets byte for byte the phase-2 sheets under their new names; the
+  module's tests pass; in the running demo all six compile, a browser that prefers dark gets
+  `dark-midnight` and one that prefers light `light-winter`, an old `dark` cookie gets
+  `light-winter`, and the old URL `$THEME/dark/style.scss` serves the default's sheet.
+
 ## 6. Open
 
 - **Application sheets do not see the exceptions.** An application sheet that `@use`s
@@ -161,7 +187,11 @@ for every variant, `winter/<nature>/_variant-custominit.scss` for a nature,
   in its webapp (from the old layout) is found before the one component file. Phase 3's
   documentation must say to remove it. (A non-clean build does the same with deleted
   resources still in `target/classes`.)
-- `DarkSchemeVariant` and `SassThemeFactory` describe the phase-1 state; phase 3 replaces both.
+- **For applications (phase 5's documentation):** the old names are not recognised
+  (`DefaultThemeVariant`, `DarkThemeVariant`, `IThemeVariant.of`, `new SassThemeFactory(style)`
+  do not compile); their theme files move - `winter/_variant-custominit.scss` to
+  `winter/light/`, `winter/dark/_palette.scss` and `_component-colors.scss` are no longer read
+  (a copy left in the webapp shadows DomUI's files and must go).
 
 - Whether the dark template's mixes (forbidden in the old dark files by `darktheme.md` §2.5
   rule 2) stay. For Darcula they cannot: phase 2 needs its literals, as tokens or as the

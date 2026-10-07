@@ -41,7 +41,6 @@ import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.state.WindowSession;
-import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
@@ -78,8 +77,8 @@ public class UrlPage extends AbstractPage {
 	}
 
 	/**
-	 * Set the style of the theme to use for the entire page. The normal style is "default", represented
-	 * by {@link DefaultThemeVariant#INSTANCE}.
+	 * Set the theme variant - the colour scheme - for this session, from this page on. Without one
+	 * a session renders in the application's default, {@link to.etc.domui.server.DomApplication#getDefaultThemeVariant()}.
 	 */
 	public final void setThemeVariant(@NonNull IThemeVariant themeVariant) {
 		UIContext.getRequestContext().setThemeVariant(themeVariant);

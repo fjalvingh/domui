@@ -35,7 +35,7 @@ import to.etc.domui.server.IServerSession;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.WindowSession;
-import to.etc.domui.themes.DefaultThemeVariant;
+import to.etc.domui.themes.SchemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.resources.IResourceDependencyList;
@@ -180,7 +180,7 @@ public class TestRequestContext implements IRequestContext {
 	@NonNull @Override public ITheme getCurrentTheme() {
 		return new ITheme() {
 			@NonNull @Override public String getVariantName() {
-				return DefaultThemeVariant.INSTANCE.getVariantName();
+				return SchemeVariant.WINTER.getVariantName();
 			}
 
 			@NonNull @Override public ResourceDependencies getDependencies() {
@@ -199,7 +199,7 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@NonNull @Override public IThemeVariant getThemeVariant() {
-		return DefaultThemeVariant.INSTANCE;
+		return SchemeVariant.WINTER;
 	}
 
 	@Override public void setThemeVariant(@NonNull IThemeVariant variant) {

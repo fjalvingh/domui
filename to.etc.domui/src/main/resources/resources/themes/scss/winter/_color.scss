@@ -1,7 +1,7 @@
 // The theme's variables: the two tiers of each, colours and everything else. The same for every
-// variant - a variant does not replace this file but the two colour files it forwards,
-// _palette.scss and _component-colors.scss, which are found in the variant's directory first
-// because that comes first on the theme's search path. See the header of _palette.scss.
+// variant. The palette it forwards is the nature's (light/_palette.scss or dark/_palette.scss),
+// found there because the nature's directory comes first on the theme's search path; the
+// component colours are one file for all. See the header of light/_palette.scss.
 @forward "variables";
 @forward "palette";
 @forward "derived-variables";

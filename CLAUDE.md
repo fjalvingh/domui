@@ -94,7 +94,7 @@ the demo, and four dark colour schemes that now ship in the framework as `DarkSc
 offered through `DomApplication.getThemeVariants()`). Read §8 before working on the
 dark colours.
 
-### Colour schemes (designed, not built)
+### Colour schemes (phases 1-3 done)
 
 **[SCHEMES.md](SCHEMES.md)** replaces the light/dark/scheme variants by one model: every
 theme variant is a scheme of a nature, named `<nature>-<scheme>` (`dark-nord`). Read it

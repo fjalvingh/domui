@@ -1,9 +1,8 @@
 // The theme's variables that are not colours: fonts, sizes, spacing, and the images that are
 // the same in every variant. They are shared by all variants.
 //
-// The colours are in _palette.scss and _component-colors.scss, and those two files exist
-// once per variant: winter/ holds the light ones, a variant directory such as winter/dark
-// holds its own. See the header of _palette.scss.
+// The colours are in the nature's _palette.scss (light/, dark/) and in _component-colors.scss.
+// See the header of light/_palette.scss.
 
 $body-bg-img: "" !default;
 

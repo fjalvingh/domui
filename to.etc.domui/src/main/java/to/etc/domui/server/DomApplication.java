@@ -92,13 +92,12 @@ import to.etc.domui.state.UIGotoContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.subinjector.ISubPageInjector;
 import to.etc.domui.subinjector.SubPageInjector;
-import to.etc.domui.themes.DarkSchemeVariant;
-import to.etc.domui.themes.DarkThemeVariant;
-import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
 import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.themes.SchemeVariant;
 import to.etc.domui.themes.ThemeManager;
+import to.etc.domui.themes.ThemeNature;
 import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.themes.sass.IThemeVariablesCalculator;
 import to.etc.domui.themes.sass.SassThemeFactory;
@@ -2583,23 +2582,26 @@ public abstract class DomApplication {
 
 	/**
 	 * The theme variants a user can choose from, in the order they should be offered: what a
-	 * theme or colour scheme picker shows. By default these are the variants of the theme
-	 * factory ({@link IThemeFactory#getVariants()}), which for the theme DomUI ships are
-	 * light, dark and the dark colour schemes of {@link DarkSchemeVariant}.
+	 * theme or colour scheme picker shows. The first light one is the default
+	 * ({@link #getDefaultThemeVariant()}), and the first of each nature is what a browser that
+	 * prefers that colour scheme gets ({@link #getThemeVariantForColorScheme(String)}). By default
+	 * these are the variants of the theme factory ({@link IThemeFactory#getVariants()}), which for
+	 * the theme DomUI ships are the colour schemes of {@link SchemeVariant}: winter, then Midnight,
+	 * Darcula, Lagoon, Violet and Nord.
 	 *
 	 * <p>Override to offer schemes of your own, or to leave out some of DomUI's:</p>
 	 * <pre>
-	 *	static private final IThemeVariant OCEAN = new DarkSchemeVariant("ocean", "Ocean");
+	 *	static private final IThemeVariant OCEAN = new SchemeVariant(ThemeNature.DARK, "ocean", "Ocean");
 	 *
 	 *	&#64;Override public List&lt;IThemeVariant&gt; getThemeVariants() {
-	 *		return List.of(DefaultThemeVariant.INSTANCE, DarkThemeVariant.INSTANCE, OCEAN);
+	 *		return List.of(SchemeVariant.WINTER, OCEAN, SchemeVariant.NORD);
 	 *	}
 	 * </pre>
-	 * <p>A scheme of your own is a <code>themes/scss/winter/scheme-ocean/_scheme.scss</code>
-	 * in the webapp, a copy of one of DomUI's schemes with the colours changed.</p>
+	 * <p>A scheme of your own is a <code>themes/scss/winter/dark/ocean/_scheme.scss</code> in the
+	 * webapp, a copy of one of DomUI's schemes with the colours changed.</p>
 	 *
-	 * <p>Leaving a variant out of this list does not make it unusable: a session or cookie that
-	 * holds its name still renders in it. The list is what is offered.</p>
+	 * <p>A variant that is not in this list is not recognised: a session, cookie or URL that names
+	 * it gets the default variant instead (see {@link #findThemeVariant(String)}).</p>
 	 */
 	@NonNull
 	public List<IThemeVariant> getThemeVariants() {
@@ -2607,10 +2609,25 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * The variant with the name passed: the one from {@link #getThemeVariants()} when it has
-	 * one by that name, so that what the application's own variant knows besides its name -
-	 * its label, its colour scheme - is kept, else {@link IThemeVariant#of(String)}. This is how
-	 * a session's variant is restored from the name kept in the session or the cookie.
+	 * The variant a session gets when nothing chose one: the first light variant of
+	 * {@link #getThemeVariants()}, or its first variant when it has no light one.
+	 */
+	@NonNull
+	public IThemeVariant getDefaultThemeVariant() {
+		List<IThemeVariant> variants = getThemeVariants();
+		for(IThemeVariant variant : variants) {
+			if(ThemeNature.LIGHT.getName().equals(variant.getColorScheme()))
+				return variant;
+		}
+		return variants.get(0);
+	}
+
+	/**
+	 * The variant with the name passed, from {@link #getThemeVariants()}; when that has none by
+	 * that name, the default variant ({@link #getDefaultThemeVariant()}). This is how a session's
+	 * variant is restored from the name kept in the session or the cookie, and how a themed
+	 * resource URL's variant is found - so a name that is not recognised, an old one or one made
+	 * up, gets the default instead of an error.
 	 */
 	@NonNull
 	public IThemeVariant findThemeVariant(@NonNull String name) {
@@ -2618,7 +2635,7 @@ public abstract class DomApplication {
 			if(variant.getVariantName().equals(name))
 				return variant;
 		}
-		return IThemeVariant.of(name);
+		return getDefaultThemeVariant();
 	}
 
 	/**
@@ -2629,32 +2646,30 @@ public abstract class DomApplication {
 	 */
 	@NonNull
 	public IThemeVariant calculateUserThemeVariant(IRequestContext ctx) {
-		return getThemeFactory().getDefaultVariant();
+		return getDefaultThemeVariant();
 	}
 
 	/**
 	 * The variant to render in for a browser that says it prefers the CSS color-scheme passed
-	 * ("light" or "dark"). A session that never chose a variant of its own is asked this once,
-	 * by the script {@link to.etc.domui.dom.HtmlFullRenderer} writes into the page head, and the
-	 * answer becomes that session's choice - so a user gets the dark theme when their desktop is
-	 * dark, without having to say so.
+	 * ("light" or "dark"): the first variant of {@link #getThemeVariants()} with that colour
+	 * scheme, or null when there is none. A session that never chose a variant of its own is
+	 * asked this once, by the script {@link to.etc.domui.dom.HtmlFullRenderer} writes into the
+	 * page head, and the answer becomes that session's choice - so a user gets a dark scheme when
+	 * their desktop is dark, without having to say so.
 	 *
 	 * <p>The question is only asked when the application named the theme variant cookie
 	 * ({@link #setThemeVariantCookieName(String)}), because the answer is kept there, and did not
-	 * switch it off with {@link #setColorSchemeDetection(boolean)}.</p>
-	 *
-	 * <p>The default maps onto the two variants DomUI itself ships, which is right for the theme
-	 * it ships too. A theme that has no dark variant must override this to return null for the
-	 * scheme it cannot render. An application that decides the variant itself in
-	 * {@link #calculateUserThemeVariant(IRequestContext)} should switch detection off, because the
-	 * browser would otherwise overrule it.</p>
+	 * switch it off with {@link #setColorSchemeDetection(boolean)}. An application that decides
+	 * the variant itself in {@link #calculateUserThemeVariant(IRequestContext)} should switch
+	 * detection off, because the browser would otherwise overrule it.</p>
 	 */
 	@Nullable
 	public IThemeVariant getThemeVariantForColorScheme(@NonNull String colorScheme) {
-		IThemeVariant def = getThemeFactory().getDefaultVariant();
-		if(def.getColorScheme().equals(colorScheme))
-			return def;
-		return "dark".equals(colorScheme) ? DarkThemeVariant.INSTANCE : DefaultThemeVariant.INSTANCE;
+		for(IThemeVariant variant : getThemeVariants()) {
+			if(variant.getColorScheme().equals(colorScheme))
+				return variant;
+		}
+		return null;
 	}
 
 	/**

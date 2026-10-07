@@ -72,7 +72,7 @@ public class TestThemeContrast {
 	};
 
 	/**
-	 * Light-variant pairs that are below their minimum today. They are listed rather than fixed
+	 * Pairs of the light scheme that are below their minimum today. They are listed rather than fixed
 	 * because fixing them changes the light theme, which this work does not do; the test fails
 	 * when one of them is fixed, so the list is kept honest.
 	 */
@@ -94,20 +94,14 @@ public class TestThemeContrast {
 			m_compiler.close();
 	}
 
-	@Test
-	public void darkVariant() throws Exception {
-		List<String> failures = check("dark");
-		Assert.assertEquals("Pairs below their minimum contrast in the dark variant", List.of(), failures);
-	}
-
 	/**
-	 * Every dark colour scheme the theme offers, held to the same pairs as the dark variant.
+	 * Every dark colour scheme the theme offers.
 	 */
 	@Test
 	public void darkSchemes() throws Exception {
 		List<String> failures = new ArrayList<>();
 		for(IThemeVariant variant : SassThemeFactory.INSTANCE.getVariants()) {
-			if(variant instanceof DarkSchemeVariant)
+			if(ThemeNature.DARK.getName().equals(variant.getColorScheme()))
 				check(variant.getVariantName()).forEach(f -> failures.add(variant.getVariantName() + ": " + f));
 		}
 		Assert.assertEquals("Pairs below their minimum contrast in the dark schemes", List.of(), failures);
@@ -115,7 +109,7 @@ public class TestThemeContrast {
 
 	@Test
 	public void lightVariant() throws Exception {
-		List<String> failures = check("default");
+		List<String> failures = check(SchemeVariant.WINTER.getVariantName());
 		List<String> labels = failures.stream().map(f -> f.substring(0, f.indexOf(':'))).toList();
 		Assert.assertEquals("Light-variant pairs below their minimum, against the known list", KNOWN_LIGHT, labels);
 	}

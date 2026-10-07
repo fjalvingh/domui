@@ -5,7 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.IPageParameters;
-import to.etc.domui.themes.DefaultThemeVariant;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.SchemeVariant;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
@@ -75,7 +76,7 @@ abstract public class AbstractSassResolver<O> {
 	@NonNull
 	protected String getThemeVariantName() {
 		String variant = m_params.getThemeVariantName();
-		return null == variant ? DefaultThemeVariant.INSTANCE.getVariantName() : variant;
+		return null == variant ? DomApplication.get().getDefaultThemeVariant().getVariantName() : variant;
 	}
 
 	public O resolve(String original, String parentFile) {
@@ -246,10 +247,15 @@ abstract public class AbstractSassResolver<O> {
 	protected String generateParameterFile() {
 		StringBuilder sb = new StringBuilder();
 
-		//-- The theme variant this sheet is being compiled for, so a sheet can branch on it.
+		//-- The theme variant this sheet is being compiled for, and its nature and scheme, so a sheet can branch on them.
 		String variant = m_params.getThemeVariantName();
 		if(null != variant) {
 			sb.append("$themeVariant: ").append(StringTool.strToJavascriptString(variant, true)).append(";\n");
+			SchemeVariant scheme = SchemeVariant.parse(variant);
+			if(null != scheme) {
+				sb.append("$themeNature: ").append(StringTool.strToJavascriptString(scheme.getNature().getName(), true)).append(";\n");
+				sb.append("$themeScheme: ").append(StringTool.strToJavascriptString(scheme.getSchemeName(), true)).append(";\n");
+			}
 		}
 
 		for(String name : m_params.getParameterNames()) {

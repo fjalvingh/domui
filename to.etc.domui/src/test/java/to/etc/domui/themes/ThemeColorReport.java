@@ -50,8 +50,8 @@ final public class ThemeColorReport {
 				Files.writeString(new File(out, name + ".css").toPath(), css, StandardCharsets.UTF_8);
 			}
 		}
-		String light = sheets.get(DefaultThemeVariant.INSTANCE.getVariantName());
-		String dark = sheets.get(DarkThemeVariant.INSTANCE.getVariantName());
+		String light = sheets.get(SchemeVariant.WINTER.getVariantName());
+		String dark = sheets.get(SchemeVariant.DARCULA.getVariantName());
 
 		Map<String, String> l = declarations(light);
 		Map<String, String> d = declarations(dark);
