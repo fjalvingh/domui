@@ -1,5 +1,7 @@
 package to.etc.domui.themes;
 
+import to.etc.domui.themes.sass.SassThemeFactory;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,11 +14,11 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Compiles both variants of the winter theme and writes, to the directory given as the only
+ * Compiles every variant of the winter theme and writes, to the directory given as the only
  * argument:
  * <ul>
- *	<li><code>default.css</code> and <code>dark.css</code>, the compiled sheets, for diffing
- *		against an earlier run;</li>
+ *	<li><code>[variant].css</code> for each variant of {@link SassThemeFactory#INSTANCE}, the
+ *		compiled sheets, for diffing against an earlier run;</li>
  *	<li><code>same-colours.txt</code>, every colour declaration that the dark sheet has exactly as
  *		the light sheet has it - a light colour left on a dark page, unless it is something like
  *		<code>transparent</code> that is the same in both by nature.</li>
@@ -39,13 +41,17 @@ final public class ThemeColorReport {
 		File out = new File(args[0]);
 		out.mkdirs();
 
-		String light, dark;
+		Map<String, String> sheets = new LinkedHashMap<>();
 		try(ThemeVariantCompiler c = new ThemeVariantCompiler(ThemeVariantCompiler.findThemeDir())) {
-			light = c.compile("default");
-			dark = c.compile("dark");
+			for(IThemeVariant variant : SassThemeFactory.INSTANCE.getVariants()) {
+				String name = variant.getVariantName();
+				String css = c.compile(name);
+				sheets.put(name, css);
+				Files.writeString(new File(out, name + ".css").toPath(), css, StandardCharsets.UTF_8);
+			}
 		}
-		Files.writeString(new File(out, "default.css").toPath(), light, StandardCharsets.UTF_8);
-		Files.writeString(new File(out, "dark.css").toPath(), dark, StandardCharsets.UTF_8);
+		String light = sheets.get(DefaultThemeVariant.INSTANCE.getVariantName());
+		String dark = sheets.get(DarkThemeVariant.INSTANCE.getVariantName());
 
 		Map<String, String> l = declarations(light);
 		Map<String, String> d = declarations(dark);

@@ -35,8 +35,8 @@ import java.util.List;
  * scss variable <code>$themeVariant</code>, so a single file can branch on it instead.</p>
  *
  * <p>A {@link DarkSchemeVariant} - a variant named <code>scheme-[name]</code> - gets the
- * longer search path that class describes: its scheme, the scheme template, and the dark
- * variant, before the style's own directory.</p>
+ * longer search path that class describes: its scheme and then the dark nature's directory,
+ * before the style's own directory.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 17-4-17.
@@ -90,7 +90,6 @@ final public class SassThemeFactory implements IThemeFactory {
 		List<String> searchpath = new ArrayList<>();
 		if(name.startsWith(DarkSchemeVariant.PREFIX)) {
 			searchpath.add("$themes/scss/" + m_styleName + "/" + name);
-			searchpath.add("$themes/scss/" + m_styleName + "/scheme");
 			searchpath.add("$themes/scss/" + m_styleName + "/" + DarkThemeVariant.INSTANCE.getVariantName());
 		} else if(!DefaultThemeVariant.INSTANCE.getVariantName().equals(name))
 			searchpath.add("$themes/scss/" + m_styleName + "/" + name);

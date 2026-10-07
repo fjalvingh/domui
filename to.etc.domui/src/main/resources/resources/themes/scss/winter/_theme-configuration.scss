@@ -1,0 +1,28 @@
+// What the theme's variables are configured with before anything reads them: style.scss loads
+// the theme with this map, and so does anything else that needs the theme's values as a page
+// gets them (the theme's tests, for instance).
+//
+// The application declares values in two files, both replaced by copies in its webapp:
+//
+//	_custominit.scss		for every variant
+//	_variant-custominit.scss	for one variant: the copy in themes/scss/winter/ is the
+//					light variant's, the one in themes/scss/winter/dark/ the dark one's
+//
+// Every variable in either becomes the value the theme's own !default declaration yields to;
+// where both declare one, the variant's file wins.
+//
+// Below the application's two files come the theme's own exceptions: component colours that do
+// not follow _component-colors.scss for one nature (_nature-exceptions.scss) or one scheme
+// (_scheme-exceptions.scss, which outranks the nature's). Both are found on the search path,
+// so the nearest copy is used.
+@use "sass:map";
+@use "sass:meta";
+@use "nature-exceptions";
+@use "scheme-exceptions";
+@use "custominit";
+@use "variant-custominit";
+
+$configuration: map.merge(
+	map.merge(meta.module-variables("nature-exceptions"), meta.module-variables("scheme-exceptions")),
+	map.merge(meta.module-variables("custominit"), meta.module-variables("variant-custominit"))
+);

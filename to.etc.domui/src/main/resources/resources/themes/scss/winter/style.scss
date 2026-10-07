@@ -1,21 +1,9 @@
 // The theme's stylesheet: the entry point DomUI compiles as $THEME/<variant>/style.scss.
 //
-// Two steps. The theme's variables are *configured* with whatever the application declares,
-// and only then is the stylesheet itself loaded, so that every partial reads the configured
-// values. The application declares them in two files, both replaced by copies in its webapp:
-//
-//	_custominit.scss		for every variant
-//	_variant-custominit.scss	for one variant: the copy in themes/scss/winter/ is the
-//					light variant's, the one in themes/scss/winter/dark/ the dark one's
-//
-// Every variable in either becomes the value the theme's own !default declaration yields to;
-// where both declare one, the variant's file wins. A variant (a directory on the theme's
-// search path before this one) has its own copies of the colour files, _palette.scss and
-// _component-colors.scss, whose values are !default like the light ones, so both files of
-// the application outrank those too.
-@use "sass:map";
+// Two steps. The theme's variables are *configured* - with the values _theme-configuration.scss
+// gathers from the application's files and the theme's own exceptions - and only then is the
+// stylesheet itself loaded, so that every partial reads the configured values.
 @use "sass:meta";
-@use "custominit";
-@use "variant-custominit";
-@include meta.load-css("theme", $with: map.merge(meta.module-variables("custominit"), meta.module-variables("variant-custominit")));
+@use "theme-configuration" as c;
+@include meta.load-css("theme", $with: c.$configuration);
 @include meta.load-css("stylesheet");

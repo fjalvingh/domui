@@ -1,0 +1,51 @@
+// The dark colour scheme "Darcula", after IntelliJ's dark editor: neutral greys with muted,
+// desaturated colours. The variant "dark"; ../dark/_palette.scss reads these.
+@use "sass:color";
+
+$page: #2B2B2B;
+$panel: #313335;
+$window: #3C3F41;
+$field: #45494A;
+$raised: #4C5052;
+$raised2: #565A5C;
+$stripe: #303234;
+$ro-bg: #3C3F41;
+$text: #BBBBBB;
+$text-strong: #D4D4D4;
+$text-bright: #DDDDDD;
+$text-muted: #A0A0A0;
+$text-dim: #777777;
+$label: #A9B7C6;
+$line-soft: #464646;
+$line: #515151;
+$line-strong: #5A5A5A;
+$line-hard: #9A9A9A;
+$control-border: #646464;
+$control-hover-border: #7F7F7F;
+$struct: #34506E;
+$struct-strip: #2A3F57;
+$struct-tab: #3C5A7A;
+$struct-band: #3E5E80;
+$struct-edge: #3E5670;
+$struct-text: #E6EDF5;
+$struct-bar: #4A88C7;
+$link: #589DF6;
+$visited: #B294CC;
+$focus: #4A88C7;
+$heading: #6CA0DC;
+$heading2: #6897BB;
+$selection: #214283;
+$red: #E06C6C;						// Darcula's lighter red: its #BC3F3C is too dark for a marker on it
+$orange: #CC7832;
+$yellow: #BE9117;
+$green: #499C54;
+$cyan: #299999;
+$blue: #4A88C7;
+$purple: #9876AA;
+$error-text: #FF8A87;						// lighter than Darcula's #FF6B68, for the error wash of its lighter red
+$warning-text: #E0B44A;
+$info-text: #7FB0E8;
+$hint-wash: color.mix(#ffbb43, $page, 16%);
+$hint-outline: #F0A43A;
+$hint-strong: color.mix(#f69231, $page, 42%);
+$highlight: color.mix(#ffbb43, $page, 20%);	// 20%, not 30%: this page is lighter than the other schemes'

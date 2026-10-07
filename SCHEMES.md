@@ -1,0 +1,150 @@
+# Colour schemes: every theme variant is a scheme of a nature
+
+Status: phase 1 **done** 2026-10-07 (see 5.1); phases 2-5 open. Follows `finished-plans/darktheme.md` §8,
+which made a theme review page and four dark schemes and then put those schemes into the
+framework as `DarkSchemeVariant`s, next to the old light and dark variants.
+
+## 1. Why
+
+That result is lopsided. Light is the theme itself, the "empty" variant `default`. Dark is
+an override directory with its own literal colour files. The schemes are overrides of dark,
+which compile through a template that is a copy of dark's files. So there are three ways of
+being a variant, and the template has to follow the dark files whenever they change.
+
+The goal is one way: every selectable variant is a **scheme**, and every scheme belongs to a
+**nature**, light or dark. The directory a scheme sits in, and its name, say which nature it
+has.
+
+## 2. Decisions
+
+1. **Three concepts, one place each.**
+
+   | Concept | Decides | Lives in |
+   | --- | --- | --- |
+   | theme (`winter`) | structure: component sheets, layout, fonts, `_component-colors.scss` | `winter/` |
+   | nature (`light`, `dark`) | how the theme's colours are worked out from a scheme's tokens (`_palette.scss`), and the images that differ | `winter/light/`, `winter/dark/` |
+   | scheme | the base tokens, `_scheme.scss` | `winter/<nature>/<scheme>/` |
+
+2. **The variant name is `<nature>-<scheme>`**, for instance `light-winter`, `dark-midnight`,
+   `dark-nord`. It is what themed resource URLs carry (`$THEME/dark-nord/style.scss`), and
+   it is enough by itself to know the nature: no registry is needed to restore a variant.
+3. **Every variant has the same search path:**
+   `winter/<nature>/<scheme>`, `winter/<nature>`, `winter`, `all`.
+4. **An unrecognised variant name** - in the cookie, the session, a URL or anywhere else -
+   **becomes the first light scheme** of the application's list. This also covers the old
+   names `default`, `dark` and `scheme-*`: no aliases are kept.
+5. **Midnight is the first dark scheme**, so it is what colour-scheme detection picks for a
+   browser that prefers dark. The detection picks the first scheme of the wanted nature in
+   `DomApplication.getThemeVariants()`.
+6. **`_component-colors.scss` is one nature-neutral file**: it maps every component colour to
+   a role of the palette. A colour that a nature or a scheme wants different is an
+   **exception** (decided 2026-10-07, option 1 of three): plain declarations, configured into
+   the theme below the application's custominit files, in `_nature-exceptions.scss` (every
+   scheme of a nature) and `_scheme-exceptions.scss` (one scheme, outranks the nature). The
+   exceptions are visible debt: each one removed is a choice for the role instead.
+   (Expressing light's per-component colours as palette roles instead would have taken ~139
+   new palette colours with one user each; see 5.1.)
+7. **Light stays faithful** - for now byte for byte, through its exceptions. **Darcula may
+   change**: it is an ordinary scheme of the dark palette, with no exceptions of its own.
+
+## 3. The intended layout
+
+```
+winter/                            style.scss, component sheets, _component-colors.scss, neutral images
+winter/light/                      _palette.scss (the light template), light images
+winter/light/winter/_scheme.scss   today's light colours, as tokens
+winter/dark/                       _palette.scss (the dark template), dark images
+winter/dark/midnight/_scheme.scss
+winter/dark/darcula/_scheme.scss
+winter/dark/lagoon/_scheme.scss
+winter/dark/violet/_scheme.scss
+winter/dark/nord/_scheme.scss
+```
+
+An application's own files follow the same layout in its webapp: `winter/_custominit.scss`
+for every variant, `winter/<nature>/_variant-custominit.scss` for a nature,
+`winter/<nature>/<scheme>/` for a scheme of its own or for overriding one of DomUI's.
+
+## 4. Java
+
+- One variant class (replacing `DefaultThemeVariant`, `DarkThemeVariant` and
+  `DarkSchemeVariant`): nature, scheme name, label. Constants for DomUI's schemes.
+- `IThemeVariant.of(name)` parses `<nature>-<scheme>`; `DomApplication.findThemeVariant`
+  returns the listed instance (for its label), and the first light scheme for a name that is
+  not listed.
+- `SassThemeFactory` builds the one search path of 2.3; `IThemeFactory.getVariants()` and
+  `DomApplication.getThemeVariants()` stay. The default variant is the first light scheme.
+- `getThemeVariantForColorScheme(nature)`: the first listed scheme of that nature.
+- `ThemeColor`, the colour-scheme meta tag and the demo's moon/sun switch already go by the
+  variant's colour scheme, which now always comes from the name.
+
+## 5. Phases
+
+1. **Nature-neutral component colours.** Move the literals of `winter/_component-colors.scss`
+   and `dark/_component-colors.scss` into the two palettes; one `_component-colors.scss` is
+   left. Verify: both compiled sheets are identical to before.
+2. **Templates and the two exact schemes.** Make `light/_palette.scss` and `dark/_palette.scss`
+   templates that read `_scheme.scss`; write `light/winter` and `dark/darcula` so that the
+   sheets are still identical. Extend the dark template's tokens (2.7) and adapt the four
+   existing schemes to it, so that they look as they do now.
+3. **Layout, names and Java.** Move the files into the layout of section 3 (the images with a
+   dark copy move into `light/`), the Java model of section 4, the search path, unrecognised
+   names. Update `TestThemeVariants`, `TestThemeContrast`, `ThemeVariantCompiler`,
+   `ThemeColorReport`.
+4. **The demo.** Review page bar from `getThemeVariants()`, `?scheme=dark-nord`, the switch.
+5. **Documentation.** The theming pages on the site (`look-and-feel/themes`), `THEMES.md` and
+   `darktheme.md` §8 pointing here, `IMPROVEMENT-LOG.md`.
+
+### 5.1 Phase 1, as done (2026-10-07)
+
+- `winter/_component-colors.scss` is the one component file: the role mapping the scheme
+  template had (`s.$token` → the palette role), with light's own formula where the template had
+  a literal for every dark scheme. `dark/_component-colors.scss` and the `scheme/` directory are
+  gone. One variable branches on the nature: `$button-color-shades`
+  (`if($color-scheme == dark, ...)`), because the dark nature gives every colour button one
+  focus colour where light computes one per colour - that depends on scheme colours, so it
+  cannot be a literal exception. `$colors`' link entry reads two new component colours,
+  `$button-link-color` / `$button-link-invert`.
+- Twelve new palette roles, in both palettes: `$fill-strong-bg`, `$stripe-bg`,
+  `$text-bright-color`, `$text-dim`, `$header-strip-bg`, `$header-tab-bg`, `$header-band-bg`,
+  `$header-edge-color`, `$header-bar-color`, `$heading-color`, `$heading2-color`,
+  `$selection-bg`. Light's values were taken from its own component colours, so that as few
+  as possible need an exception.
+- `dark/_palette.scss` is the former template; `dark/_scheme.scss` is Darcula's scheme (its
+  tokens are the values the old dark files used most for each), so the variant `dark` is now
+  a scheme like the others.
+- `winter/_scheme-exceptions.scss`: light's **109** exceptions, as the values they compiled
+  to (an exception cannot read theme variables, so the 32 colours light calculated are frozen
+  there). `dark/_nature-exceptions.scss`: **20**, the literals every dark scheme shares (the
+  light theme's button hues and their inverts, the flares). Empty defaults for the others.
+- `_theme-configuration.scss` gathers the configuration (exceptions, then the application's
+  files); `style.scss` uses it, and so does the test compiler's new `compileConfigured`, so
+  `TestThemeContrast` measures the colours a page really gets.
+- **Verified:** the compiled sheets of light and of all four schemes are byte for byte the
+  sheets of before (`ThemeColorReport` now writes every variant); all six variants compile in
+  the running demo; the module's tests pass.
+- **Darcula changed:** everything the template decides for every dark scheme (the light
+  theme's orange accent, buttons and hints, mixed washes); and three values, for contrast:
+  red `#E06C6C` (was `#BC3F3C`), error text `#FF8A87` (was `#FF6B68`), marked-row wash 20%
+  instead of 30%.
+- `TestThemeContrast` now checks every dark scheme. That found **Nord**'s selected-row text at
+  4.31: its `$selection` is now `#48658C` (was `#4C6A92`).
+- `TestThemeVariants`: the two palettes declare the same colours; every exception names a
+  component colour that exists.
+
+## 6. Open
+
+- **Application sheets do not see the exceptions.** An application sheet that `@use`s
+  "theme" (the demo's `_themereview.scss`, for instance) gets the theme module unconfigured -
+  as it already did for an application's own `_custominit.scss`. For light that now means the
+  role value instead of the exception for those 109 colours. No demo sheet reads one of them;
+  the fix is for the resolver to serve "theme" configured as `_theme-configuration.scss` says.
+- **An application's old files shadow the new ones**: a `winter/dark/_component-colors.scss`
+  in its webapp (from the old layout) is found before the one component file. Phase 3's
+  documentation must say to remove it. (A non-clean build does the same with deleted
+  resources still in `target/classes`.)
+- `DarkSchemeVariant` and `SassThemeFactory` describe the phase-1 state; phase 3 replaces both.
+
+- Whether the dark template's mixes (forbidden in the old dark files by `darktheme.md` §2.5
+  rule 2) stay. For Darcula they cannot: phase 2 needs its literals, as tokens or as the
+  default of a token.

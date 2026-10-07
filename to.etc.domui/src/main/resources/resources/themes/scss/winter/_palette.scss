@@ -39,11 +39,16 @@
 // the rename that brought the last 79 names here was byte-for-byte inert.
 // =======================================================================================
 
-// Every variant has its own copy of both files: the ones in winter/ are the light theme, and
-// winter/dark/_palette.scss and winter/dark/_component-colors.scss are the dark theme. A
-// variant's copy replaces the light one completely - it is found first on the theme's search
-// path - so it declares every variable the light one declares, and a variable missing from it
-// is a compile error. Nothing in one variant is computed from the other.
+// Each nature has its own palette: the one in winter/ is the light theme's, and
+// winter/dark/_palette.scss works out every dark scheme's colours from that scheme's
+// _scheme.scss. A nature's palette replaces the light one completely - it is found first on the
+// theme's search path - so it declares every variable the light one declares, and a variable
+// missing from it is a compile error. Nothing in one nature is computed from the other.
+//
+// The component colours are one file for every variant, which refers to the main set only. A
+// colour that one nature or scheme wants different from what that file works out is an
+// exception: _nature-exceptions.scss for every scheme of a nature, _scheme-exceptions.scss for
+// one scheme. See _theme-configuration.scss.
 // =======================================================================================
 
 $body-bg: #ffffff !default;
@@ -245,3 +250,17 @@ $input-color: inherit !default;
 $input-ro-bg-top: #f2f9fe !default;
 $input-ro-bg-bottom: #d6f0fd !default;
 
+// ---- Roles the component colours are expressed in, beyond the ones above. Every palette
+// declares them; _component-colors.scss refers to them, never to a literal.
+$fill-strong-bg: $grey-light !default;			// a stronger fill than $fill-muted-bg: a hovered or second-level fill
+$stripe-bg: #E5E5E5 !default;			// the alternate row of a striped table
+$text-bright-color: #fff !default;			// the brightest text: on a coloured or dark fill
+$text-dim: $grey-light !default;			// text that is out of the way: disabled, another month's day
+$header-strip-bg: #C9D8E8 !default;			// the strip a tab row or band stands on
+$header-tab-bg: #A9C1DB !default;			// a tab that is not selected
+$header-band-bg: #93AFCF !default;			// a band in a header: a breadcrumb, a month header's band
+$header-edge-color: transparent !default;			// the edge drawn along a header or a table's border
+$header-bar-color: transparent !default;			// the accent bar of a panel header
+$heading-color: #297bc0 !default;			// a heading's accent colour
+$heading2-color: #013686 !default;			// a second-level heading
+$selection-bg: #bed6f8 !default;			// a selected row, cell or day

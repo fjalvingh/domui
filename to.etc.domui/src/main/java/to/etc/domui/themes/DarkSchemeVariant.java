@@ -10,13 +10,12 @@ import to.etc.domui.themes.sass.SassThemeFactory;
  * and {@link SassThemeFactory} gives it this search path:
  * <pre>
  *	$themes/scss/[style]/scheme-[name]	the scheme: _scheme.scss
- *	$themes/scss/[style]/scheme		the template: _palette.scss and _component-colors.scss
- *	$themes/scss/[style]/dark		the dark variant's images and _variant-custominit.scss
+ *	$themes/scss/[style]/dark		the dark nature: _palette.scss, which reads the scheme, the images
  *	$themes/scss/[style]
  *	$themes/scss/all
  * </pre>
- * <p>The template is the dark variant's two colour files with every colour read from the
- * scheme, so a scheme is that one file. The winter theme ships the template and the four
+ * <p>The dark nature's palette works every colour out from the scheme, so a scheme is that
+ * one file. The winter theme ships the four
  * schemes below. An application adds a scheme of its own by putting a
  * <code>themes/scss/winter/scheme-[name]/_scheme.scss</code> in its webapp, a copy of one
  * of DomUI's with the colours changed, and offering it in

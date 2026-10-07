@@ -75,24 +75,36 @@ public class TestThemeVariants {
 	}
 
 	/**
-	 * A variant's colour files replace the light ones, so a variable that only one of them
-	 * declares is a compile error in the other - but only once some sheet reads it. This finds it
-	 * before that.
+	 * Each nature has its own palette, which replaces the light one completely, so a variable
+	 * that only one of them declares is a compile error in the other - but only once some sheet
+	 * reads it. This finds it before that. The component colours are one file for every variant.
 	 */
 	@Test
-	public void variantsDeclareTheSameColours() throws Exception {
+	public void palettesDeclareTheSameColours() throws Exception {
 		File theme = ThemeVariantCompiler.findThemeDir();
-		for(String name : new String[]{"_palette.scss", "_component-colors.scss"}) {
-			Set<String> light = declared(new File(theme, name));
-			for(String variant : new String[]{"dark", "scheme"}) {
-				Set<String> dark = declared(new File(theme, variant + "/" + name));
-				Set<String> onlyLight = new TreeSet<>(light);
-				onlyLight.removeAll(dark);
-				Set<String> onlyDark = new TreeSet<>(dark);
-				onlyDark.removeAll(light);
-				Assert.assertEquals("Declared in " + name + " but not in " + variant + "/" + name, Set.of(), onlyLight);
-				Assert.assertEquals("Declared in " + variant + "/" + name + " but not in " + name, Set.of(), onlyDark);
-			}
+		Set<String> light = declared(new File(theme, "_palette.scss"));
+		Set<String> dark = declared(new File(theme, "dark/_palette.scss"));
+		Set<String> onlyLight = new TreeSet<>(light);
+		onlyLight.removeAll(dark);
+		Set<String> onlyDark = new TreeSet<>(dark);
+		onlyDark.removeAll(light);
+		Assert.assertEquals("Declared in _palette.scss but not in dark/_palette.scss", Set.of(), onlyLight);
+		Assert.assertEquals("Declared in dark/_palette.scss but not in _palette.scss", Set.of(), onlyDark);
+		Assert.assertFalse("dark/ still has its own component colours", new File(theme, "dark/_component-colors.scss").exists());
+	}
+
+	/**
+	 * Every exception names a component colour that _component-colors.scss declares; an
+	 * exception for a colour that no longer exists is a compile error.
+	 */
+	@Test
+	public void exceptionsNameComponentColours() throws Exception {
+		File theme = ThemeVariantCompiler.findThemeDir();
+		Set<String> component = declared(new File(theme, "_component-colors.scss"));
+		for(String name : new String[]{"_scheme-exceptions.scss", "dark/_nature-exceptions.scss", "dark/_scheme-exceptions.scss"}) {
+			Set<String> unknown = new TreeSet<>(declared(new File(theme, name)));
+			unknown.removeAll(component);
+			Assert.assertEquals("Exceptions in " + name + " for colours that do not exist", Set.of(), unknown);
 		}
 	}
 

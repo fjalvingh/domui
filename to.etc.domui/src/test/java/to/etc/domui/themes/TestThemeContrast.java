@@ -4,6 +4,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import to.etc.domui.themes.sass.SassThemeFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,6 +100,19 @@ public class TestThemeContrast {
 		Assert.assertEquals("Pairs below their minimum contrast in the dark variant", List.of(), failures);
 	}
 
+	/**
+	 * Every dark colour scheme the theme offers, held to the same pairs as the dark variant.
+	 */
+	@Test
+	public void darkSchemes() throws Exception {
+		List<String> failures = new ArrayList<>();
+		for(IThemeVariant variant : SassThemeFactory.INSTANCE.getVariants()) {
+			if(variant instanceof DarkSchemeVariant)
+				check(variant.getVariantName()).forEach(f -> failures.add(variant.getVariantName() + ": " + f));
+		}
+		Assert.assertEquals("Pairs below their minimum contrast in the dark schemes", List.of(), failures);
+	}
+
 	@Test
 	public void lightVariant() throws Exception {
 		List<String> failures = check("default");
@@ -122,7 +136,7 @@ public class TestThemeContrast {
 		for(int i = 0; i < PAIRS.length; i++) {
 			sb.append(".p").append(i).append(" { fg: ch(t.$").append(PAIRS[i][1]).append("); bg: ch(t.$").append(PAIRS[i][2]).append("); }\n");
 		}
-		String css = m_compiler.compileSource(variant, "contrast-check.scss", sb.toString());
+		String css = m_compiler.compileConfigured(variant, sb.toString());
 
 		double[] page = channels(css, "page", "c");
 		List<String> failures = new ArrayList<>();

@@ -48,6 +48,12 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 	@Nullable
 	private String m_variant;
 
+	/** The name of the in-memory module {@link #compileConfigured} loads, and its source while it runs. */
+	static private final String PROBE = "configured-probe";
+
+	@Nullable
+	private String m_probe;
+
 	public ThemeVariantCompiler(File themeDir) throws Exception {
 		this(themeDir, null);
 	}
@@ -89,7 +95,24 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 	 * directory, for the variant: it can <code>&#64;use "theme"</code> and read the variant's values.
 	 */
 	public String compileSource(String variant, String name, String source) throws Exception {
+		return compileRoot(variant, name, source, null);
+	}
+
+	/**
+	 * Compile a sheet of the caller's own that <code>&#64;use</code>s "theme", with the theme
+	 * configured as style.scss configures it (_theme-configuration.scss): the exceptions and the
+	 * application's custominit files applied. A plain <code>&#64;use "theme"</code> in
+	 * {@link #compileSource} reads the unconfigured values instead.
+	 */
+	public String compileConfigured(String variant, String source) throws Exception {
+		String root = "@use \"sass:meta\";\n@use \"theme-configuration\" as c;\n"
+			+ "@include meta.load-css(\"" + PROBE + "\", $with: c.$configuration);\n";
+		return compileRoot(variant, "probe-root.scss", root, "@forward \"theme\";\n" + source);
+	}
+
+	private String compileRoot(String variant, String name, String source, @Nullable String probe) throws Exception {
 		m_variant = variant;
+		m_probe = probe;
 		try {
 			String url = SCHEME + variant + "/" + name;
 			CompileRequest.StringInput input = CompileRequest.StringInput.newBuilder()
@@ -105,6 +128,7 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 			}
 		} finally {
 			m_variant = null;
+			m_probe = null;
 		}
 	}
 
@@ -119,7 +143,7 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 		String variant = m_variant;
 		if(null != variant && !"default".equals(variant)) {
 			List<String> variantDirs = variant.startsWith(DarkSchemeVariant.PREFIX)
-				? List.of(variant, "scheme", "dark")			// the search path SassThemeFactory gives a DarkSchemeVariant
+				? List.of(variant, "dark")			// the search path SassThemeFactory gives a DarkSchemeVariant
 				: List.of(variant);
 			for(String vd : variantDirs) {
 				if(null != app)
@@ -146,6 +170,8 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 			return "parameters";
 		if(bare.equals("theme") || bare.startsWith("theme."))
 			return "_index.scss";
+		if(bare.equals(PROBE) && null != m_probe)
+			return PROBE;
 
 		String dir = path.substring(0, path.length() - last.length());
 		List<String> candidates = new ArrayList<>();
@@ -184,6 +210,13 @@ final public class ThemeVariantCompiler implements AutoCloseable {
 		public ImportSuccess handleImport(String url) throws Exception {
 			String path = url.substring(SCHEME.length());
 			path = path.substring(path.indexOf('/') + 1);
+			String probe = m_probe;
+			if(path.equals(PROBE) && null != probe) {
+				return ImportSuccess.newBuilder()
+					.setContents(probe)
+					.setSyntax(Syntax.SCSS)
+					.build();
+			}
 			if(path.equals("parameters")) {
 				return ImportSuccess.newBuilder()
 					.setContents("$themeVariant: \"" + m_variant + "\";\n")
