@@ -4,6 +4,7 @@ import com.sass_lang.embedded_protocol.InboundMessage.CompileRequest;
 import com.sass_lang.embedded_protocol.InboundMessage.ImportResponse.ImportSuccess;
 import com.sass_lang.embedded_protocol.OutboundMessage.LogEventOrBuilder;
 import com.sass_lang.embedded_protocol.OutputStyle;
+import com.sass_lang.embedded_protocol.Syntax;
 import de.larsgrefer.sass.embedded.CompileSuccess;
 import de.larsgrefer.sass.embedded.SassCompilationFailedException;
 import de.larsgrefer.sass.embedded.SassCompiler;
@@ -13,6 +14,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.state.IPageParameters;
+import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.DeveloperOptions;
@@ -42,6 +44,12 @@ import java.util.Deque;
  */
 public class DartSassCompiler implements ISassCompiler {
 	static private final Logger LOG = LoggerFactory.getLogger(DartSassCompiler.class);
+
+	/** The theme's file that says what the theme module is configured with; see style.scss. */
+	static private final String THEME_CONFIGURATION = "_theme-configuration.scss";
+
+	/** Appended to an application sheet's url to give the root that configures the theme for it its own url. */
+	static private final String CONFIGURED_SUFFIX = "-configured-root";
 
 	/** Developer option/system property holding the path of the dart-sass executable to use instead of the bundled one. */
 	static public final String EXECUTABLE_PROPERTY = "domui.sass.executable";
@@ -97,6 +105,29 @@ public class DartSassCompiler implements ISassCompiler {
 
 		boolean sourceMap = params.getString("__nomap", null) == null;
 
+		/*
+		 * A sheet that is not the theme's own gets the theme configured the way style.scss
+		 * configures it: with _theme-configuration.scss, which holds the application's custominit
+		 * files and the theme's exceptions. Its "@use 'theme'" is otherwise the first load of the
+		 * theme module, unconfigured, and reads values the page does not show. A small root does
+		 * that first and then loads the sheet, whose "theme" is then the configured instance.
+		 */
+		String source = entry.getContents();
+		Syntax syntax = entry.getSyntax();
+		String rootUrl = url;
+		if(!rurl.startsWith(ThemeResourceFactory.PREFIX)) {
+			String configuration = ThemeResourceFactory.PREFIX + resolver.getThemeVariantName() + "/" + THEME_CONFIGURATION;
+			String configurationUrl = resolver.canonicalize(configuration);
+			if(null != configurationUrl) {
+				source = "@use \"sass:meta\";\n"
+					+ "@use \"" + configurationUrl + "\" as c;\n"
+					+ "@include meta.load-css(\"theme\", $with: c.$configuration);\n"
+					+ "@include meta.load-css(\"" + url + "\");\n";
+				syntax = Syntax.SCSS;
+				rootUrl = url + CONFIGURED_SUFFIX;
+			}
+		}
+
 		Instance instance = borrow();
 		boolean reusable = false;
 		try {
@@ -106,9 +137,9 @@ public class DartSassCompiler implements ISassCompiler {
 			instance.getImporter().setResolver(resolver);
 
 			CompileRequest.StringInput input = CompileRequest.StringInput.newBuilder()
-				.setSource(entry.getContents())
-				.setSyntax(entry.getSyntax())
-				.setUrl(url)
+				.setSource(source)
+				.setSyntax(syntax)
+				.setUrl(rootUrl)
 				.setImporter(CompileRequest.Importer.newBuilder().setImporterId(instance.getImporter().getId()))
 				.build();
 

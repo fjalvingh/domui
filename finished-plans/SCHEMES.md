@@ -195,20 +195,20 @@ for every variant, `winter/<nature>/_variant-custominit.scss` for a nature,
 
 ## 6. Open
 
-- **Application sheets do not see the exceptions.** An application sheet that `@use`s
-  "theme" (the demo's `_themereview.scss`, for instance) gets the theme module unconfigured -
-  as it already did for an application's own `_custominit.scss`. For light that now means the
-  role value instead of the exception for those 109 colours. No demo sheet reads one of them;
-  the fix is for the resolver to serve "theme" configured as `_theme-configuration.scss` says.
-- **An application's old files shadow the new ones**: a `winter/dark/_component-colors.scss`
-  in its webapp (from the old layout) is found before the one component file. Phase 3's
-  documentation must say to remove it. (A non-clean build does the same with deleted
-  resources still in `target/classes`.)
-- **For applications (phase 5's documentation):** the old names are not recognised
-  (`DefaultThemeVariant`, `DarkThemeVariant`, `IThemeVariant.of`, `new SassThemeFactory(style)`
-  do not compile); their theme files move - `winter/_variant-custominit.scss` to
-  `winter/light/`, `winter/dark/_palette.scss` and `_component-colors.scss` are no longer read
-  (a copy left in the webapp shadows DomUI's files and must go).
+Fixed since (2026-10-08):
+
+- *Application sheets did not see the exceptions* - nor an application's own custominit
+  files: an application sheet's `@use "theme"` was the first load of the theme module,
+  unconfigured. `DartSassCompiler` now compiles a sheet that is not the theme's own through a
+  small root that loads the theme configured with `_theme-configuration.scss` first (as
+  `style.scss` does), and then the sheet; its `theme` is that configured instance. Only when
+  the theme has a `_theme-configuration.scss`. Verified in the demo: a sheet reading
+  `t.$cal-bg` gets light's exception `#ffd` (was the role's `#f5f6f7`), and Nord's window
+  colour in a Nord session. The two documentation items that stood here were done in
+  phase 5.
+
+Still open:
+
 
 - **Three component defects** seen on the review page (`darktheme.md` §8.3), the same in
   every dark scheme: the HtmlEditor's editing area is white; CheckboxButton with its own
