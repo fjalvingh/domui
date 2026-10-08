@@ -58,7 +58,7 @@
 			cursor: default;
 			background-color: $rbb-disabled-color;
 			border-color: $rbb-disabled-border-color;
-			color: $button-disabled-color;
+			color: $rbb-disabled-label-color;
 			display: inline-block;
 		}
 		input[type="radio"][disabled="disabled"]:checked + label {

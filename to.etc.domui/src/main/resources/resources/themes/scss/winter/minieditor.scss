@@ -1,0 +1,28 @@
+// The stylesheet inside the HtmlEditor's editing area. The editor is an iframe, a document of its
+// own, so nothing of the page's stylesheet reaches it: this sheet paints it in the scheme's
+// colours, as an input field. It is a root sheet, compiled like an application sheet: DomUI
+// configures the theme for it as style.scss does.
+@use "theme" as *;
+
+html {
+	color-scheme: $color-scheme;				// the iframe's own canvas and scrollbars
+}
+
+body, html {
+	background-color: $input-bg;
+	color: $body-color;
+	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
+	font-size: 13px;
+}
+
+a {
+	color: $link-color;
+}
+
+code {
+	white-space: pre;
+	font-family: Courier New, Courier, monospace;
+	font-size: 13px;
+	background-color: $code-block-bg;
+	display: block;
+}

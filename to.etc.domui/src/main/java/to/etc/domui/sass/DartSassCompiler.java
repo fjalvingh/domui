@@ -93,6 +93,14 @@ public class DartSassCompiler implements ISassCompiler {
 	@Nullable
 	private Boolean m_available;
 
+	/**
+	 * T for the theme's own stylesheet, $THEME/[variant]/style.scss, which configures the theme
+	 * itself.
+	 */
+	static private boolean isThemeStyleSheet(String rurl) {
+		return rurl.startsWith(ThemeResourceFactory.PREFIX) && rurl.endsWith("/style.scss");
+	}
+
 	@Override
 	public void compiler(String rurl, Writer output, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception {
 		DartSassResolver resolver = new DartSassResolver(params, rdl);
@@ -106,7 +114,8 @@ public class DartSassCompiler implements ISassCompiler {
 		boolean sourceMap = params.getString("__nomap", null) == null;
 
 		/*
-		 * A sheet that is not the theme's own gets the theme configured the way style.scss
+		 * A sheet that is not the theme's style.scss - an application's, or another root sheet in
+		 * the theme such as minieditor.scss - gets the theme configured the way style.scss
 		 * configures it: with _theme-configuration.scss, which holds the application's custominit
 		 * files and the theme's exceptions. Its "@use 'theme'" is otherwise the first load of the
 		 * theme module, unconfigured, and reads values the page does not show. A small root does
@@ -115,7 +124,7 @@ public class DartSassCompiler implements ISassCompiler {
 		String source = entry.getContents();
 		Syntax syntax = entry.getSyntax();
 		String rootUrl = url;
-		if(!rurl.startsWith(ThemeResourceFactory.PREFIX)) {
+		if(!isThemeStyleSheet(rurl)) {
 			String configuration = ThemeResourceFactory.PREFIX + resolver.getThemeVariantName() + "/" + THEME_CONFIGURATION;
 			String configurationUrl = resolver.canonicalize(configuration);
 			if(null != configurationUrl) {

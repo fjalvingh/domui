@@ -206,15 +206,35 @@ Fixed since (2026-10-08):
   `t.$cal-bg` gets light's exception `#ffd` (was the role's `#f5f6f7`), and Nord's window
   colour in a Nord session. The two documentation items that stood here were done in
   phase 5.
+- *The three component defects* of `darktheme.md` §8.3, found to be four:
+  - the HtmlEditor's editing area: the iframe's sheet was a plain `minieditor.css` with no
+    colours, so the browser's white page. It is `minieditor.scss` now, a root sheet reading
+    the theme (input ground, text, links, code, `color-scheme`), which `DartSassCompiler`
+    configures like an application sheet - only the theme's `style.scss` configures itself.
+  - its toolbar and frame: `js/jquery.wysiwyg.css` is loaded after the theme and outranked
+    the theme's `.wysiwyg`. `_htmleditor.scss` repeats its selectors with `body` in front and
+    sets only colours (`$htmled-border`, `$htmled-toolbar-border`); in a dark scheme it drops
+    the editor's light gradient and inverts the toolbar icons (`filter: invert(1)
+    hue-rotate(180deg)`: lightness turned, hue kept).
+  - CheckboxButton: the other state's label was the knob's ground at 50% (off) and black
+    (on) - mixin parameters, not colours a scheme could set. Now `$ckb-off-idle-color`
+    (`$text-muted`) and `$ckb-on-idle-color` (`$text-color`), 3.1-9.2 in the dark schemes.
+    And the real cause of "hardly readable": the switch was a fixed width, so a label like
+    "Sold out" wrapped and spilled out below it, in light too. The switch is now a grid of
+    two equal columns as wide as the longer label, never narrower than its size class; the
+    knob slides by its own width.
+  - RadioGroup `asButtons()`, disabled: the text read the palette's `$button-disabled-color`
+    directly (a line colour, 1.2-1.35 on its ground in dark). Now `$rbb-disabled-label-color`
+    (`$text-muted`), 3.1-4.9.
+  Light keeps its values through five more exceptions (114 now). `TestThemeContrast` has the
+  three label pairs, at 3:1 (disabled and inactive labels are exempt from WCAG, but must be
+  readable); light's two faint ones are on its known list. Checked with screenshots of the
+  review page in Midnight and winter.
 
 Still open:
 
 
-- **Three component defects** seen on the review page (`darktheme.md` §8.3), the same in
-  every dark scheme: the HtmlEditor's editing area is white; CheckboxButton with its own
-  labels has one label that is hardly readable; RadioGroup `asButtons()` when disabled has
-  very faint text.
-- **Light's 109 exceptions** are the debt decision 6 describes: each one removed is a choice
+- **Light's 114 exceptions** are the debt decision 6 describes: each one removed is a choice
   for the component's role, to make on the review page.
 - `ThemeColor`'s dark bands and the demo's syntax colours were tuned for Darcula (see
   `darktheme.md` §7.5); check them against Midnight, now the first dark scheme.

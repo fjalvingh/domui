@@ -1,5 +1,32 @@
 @use "theme" as *;
 
-.wysiwyg {
-	background: $htmled-bg;
+// The HtmlEditor's frame and toolbar. Their layout and icons come from the editor's own
+// js/jquery.wysiwyg.css, loaded for every page and after the theme's sheet; these rules take
+// its colours over, so they repeat its selectors with "body" in front to outrank them. The
+// editing area is an iframe and has its own sheet, minieditor.scss.
+body div.wysiwyg {
+	background-color: $htmled-bg;
+	border-color: $htmled-border;
+
+	ul.toolbar {
+		border-bottom-color: $htmled-toolbar-border;
+
+		li.separator {
+			border-left-color: $htmled-toolbar-border;
+		}
+	}
+}
+
+// The toolbar's icons are a sprite of dark glyphs, drawn for a light page. On a dark one the
+// buttons are turned around - lightness inverted, hue kept, as the theme's dark images are -
+// and the editor's light gradient goes.
+@if $color-scheme == dark {
+	body div.wysiwyg {
+		background-image: none;
+
+		ul.toolbar li:not(.separator) {
+			background-color: transparent;
+			filter: invert(1) hue-rotate(180deg);
+		}
+	}
 }

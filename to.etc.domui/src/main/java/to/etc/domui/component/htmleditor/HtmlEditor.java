@@ -148,10 +148,10 @@ public class HtmlEditor extends TextArea {
 	/**
 	 * Contains the in-editor stylesheet to use, which determines the presentation\
 	 * of the document inside the editor. If not set it defaults to
-	 * THEME/minieditor.css.
+	 * THEME/minieditor.scss, which paints it in the session's colour scheme.
 	 */
 	protected String getStyleSheet() throws Exception {
-		return getThemedResourceRURL(m_styleSheet == null ? "THEME/minieditor.css" : m_styleSheet);
+		return getThemedResourceRURL(m_styleSheet == null ? "THEME/minieditor.scss" : m_styleSheet);
 	}
 
 	public void setStyleSheet(String styleSheet) {

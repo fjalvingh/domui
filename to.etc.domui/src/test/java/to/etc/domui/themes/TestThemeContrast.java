@@ -14,7 +14,9 @@ import java.util.regex.Pattern;
 
 /**
  * The text and ground colours of the theme that belong together have a WCAG contrast of at
- * least 4.5:1 (AA for ordinary text), or 3:1 where the text is large or bold, in every variant.
+ * least 4.5:1 (AA for ordinary text), or 3:1 where the text is large or bold, or is the label
+ * of a disabled or inactive control - which WCAG exempts, but which must still be readable -
+ * in every variant.
  *
  * <p>The colours are resolved by compiling a small sheet against the theme for the variant, which
  * writes out the red, green, blue and alpha channels of each pair; the ratio is computed here, with
@@ -69,6 +71,9 @@ public class TestThemeContrast {
 		{"an error flare", "flare-error-color", "flare-error-bg", AA},
 		{"an info flare", "flare-info-color", "flare-info-bg", AA},
 		{"a warning flare", "flare-warning-color", "flare-warning-bg", AA},
+		{"a switch's other label, off", "ckb-off-idle-color", "ckb-off-track-bg", AA_LARGE},
+		{"a switch's other label, on", "ckb-on-idle-color", "ckb-on-bg", AA_LARGE},
+		{"a disabled radio button", "rbb-disabled-label-color", "rbb-disabled-color", AA_LARGE},
 	};
 
 	/**
@@ -78,7 +83,8 @@ public class TestThemeContrast {
 	 */
 	static private final List<String> KNOWN_LIGHT = List.of(
 		"muted text on the page", "muted text on a panel", "the page title", "an error text on the page",
-		"an error message", "an info message", "a breadcrumb", "the current breadcrumb"
+		"an error message", "an info message", "a breadcrumb", "the current breadcrumb",
+		"a switch's other label, off", "a disabled radio button"
 	);
 
 	static private ThemeVariantCompiler m_compiler;

@@ -1,13 +1,12 @@
-@use "sass:math";
 @use "theme" as *;
 
 @mixin can-toggle-branding (
 	$can-toggle-off-color: $ckb-off-color,
 	$can-toggle-button-off-color: rgba($ckb-on-bg, 0.9),
-	$can-toggle-off-inactive-text: rgba($ckb-knob-bg, 0.5),
+	$can-toggle-off-inactive-text: $ckb-off-idle-color,
 	$can-toggle-on-color: $ckb-on-bg,
 	$can-toggle-button-on-color: $alt-button-color,
-	$can-toggle-on-inactive-text: rgba($shadow-color, 1),
+	$can-toggle-on-inactive-text: $ckb-on-idle-color,
 	$can-toggle-transition: cubic-bezier(0,1,0.5,1)
 ) {
 	input[type="checkbox"] {
@@ -80,12 +79,12 @@
 	$can-toggle-height: 30px,
 	$can-toggle-border-radius: 4px,
 	$can-toggle-offset: 1px,
-	$can-toggle-correction: 1px,
+	$can-toggle-correction: 1px,				// no longer used: the grid places the knob; kept for the callers that pass it
 	$can-toggle-label-font-size: 14px,
 	$can-toggle-switch-font-size: 12px,
 	$can-toggle-shadow: 0 2px 2px rgba($shadow-color, 0.4)
 ) {
-	$can-toggle-switch-width: math.div($can-toggle-width, 2) - $can-toggle-offset;
+	$can-toggle-label-padding: 12px;				// room round a label, so that it does not touch the edge
 
 	input[type="checkbox"] {
 
@@ -98,10 +97,9 @@
 		&:checked {
 			~ label {
 				.ui-chkbb-sw {
+					//-- The knob moves into the other column: its own width plus its two margins.
 					&:after {
-						transform: translate3d($can-toggle-width - $can-toggle-switch-width - $can-toggle-offset,0,0);
-						top: -$can-toggle-correction;
-						left: $can-toggle-correction;
+						transform: translate3d(calc(100% + #{2 * $can-toggle-offset}), 0, 0);
 					}
 				}
 			}
@@ -115,29 +113,28 @@
 
 	label {
 		font-size: $can-toggle-label-font-size;
-		width: $can-toggle-width + 10px;
 		padding: 0 !important;
 		display: flex !important;
 
 		.ui-chkbb-sw {
 			height: $can-toggle-height;
-			flex: 0 0 $can-toggle-width;
+			min-width: $can-toggle-width;				// the size of the switch; longer labels make it wider
+			flex: 0 0 auto;
+			margin-right: 10px;
 			border-radius: $can-toggle-border-radius;
 
 			&:before {
-				left: math.div($can-toggle-width, 2);
 				font-size: $can-toggle-switch-font-size;
 				line-height: $can-toggle-height;
-				width: math.div($can-toggle-width, 2);
-				padding: 0 12px;
+				padding: 0 $can-toggle-label-padding;
 			}
 
 			&:after {
-				top: $can-toggle-offset; left: $can-toggle-offset;
+				margin: $can-toggle-offset;
 				border-radius: $can-toggle-border-radius - 1;
-				width: $can-toggle-switch-width;
 				line-height: $can-toggle-height - ($can-toggle-offset * 2);
 				font-size: $can-toggle-switch-font-size;
+				padding: 0 ($can-toggle-label-padding - $can-toggle-offset);
 			}
 
 			&:hover {
@@ -168,17 +165,12 @@
 				.ui-chkbb-sw {
 					&:before {
 						content: attr(data-unchecked);
-						left: 0;
+						grid-column: 1;
 					}
 
 					&:after {
 						content: attr(data-checked);
 					}
-				}
-			}
-
-			&:focus, &:hover {
-				~ label {
 				}
 			}
 		}
@@ -190,23 +182,31 @@
 		display: flex;
 		align-items: center;
 
+		//-- Two columns of the same width, as wide as the longer of the two labels: the knob covers
+		//-- one and shows the state the switch is in, the other shows the label of the other state.
 		.ui-chkbb-sw {
 			position: relative;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
 
 			&:before {
 				content: attr(data-checked);
-				position: absolute;
-				top: 0;
+				grid-row: 1;
+				grid-column: 2;
 				text-transform: uppercase;
 				text-align: center;
+				white-space: nowrap;
 			}
 
 			&:after {
 				content: attr(data-unchecked);
-				position: absolute;
+				grid-row: 1;
+				grid-column: 1;
+				position: relative;
 				z-index: 5;
 				text-transform: uppercase;
 				text-align: center;
+				white-space: nowrap;
 				background: $ckb-knob-bg;
 				transform: translate3d(0,0,0);
 			}

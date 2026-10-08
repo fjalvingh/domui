@@ -155,6 +155,8 @@ $spnl-edge: $header-edge-color !default;
 
 //-- HtmlEditor (.wysiwyg)
 $htmled-bg: $surface-bg !default;
+$htmled-border: $control-border !default;			// the frame round the editor
+$htmled-toolbar-border: $line-color !default;			// the line under the toolbar, and between its groups
 
 //-- HamburgerMenu (.ui-hmbrg-*)
 $hmbrg-bg: $window-bg !default;
@@ -217,6 +219,8 @@ $ckb-on-hover-color: $link-color !default;			// the label while hovered, on
 $ckb-on-border: $bevel-hover-up !default;			// the track's and the knob's edge, on
 $ckb-on-hover-bg: color.mix($bevel-hover-up, $body-bg, 35%) !default;			// the track while hovered, on
 $ckb-on-knob-hover-color: $body-bg !default;			// the knob's text while hovered, on
+$ckb-off-idle-color: $text-muted !default;			// the other state's label, on the track, off
+$ckb-on-idle-color: $text-color !default;			// the other state's label, on the track, on
 
 //-- Explanation (.ui-expl) / .ui-hor-divider /
 //-- the drag-drop table (.ui-dd-table), all in _misc.scss
@@ -446,6 +450,7 @@ $rbb-border-color: $bevel-hover-up !default;
 $rbb-disabled-color: $rbb-disabled-bg !default;
 $rbb-disabled-checked-color: $body-bg !default;			// a disabled radio button's text, when it is the chosen one
 $rbb-disabled-border-color: $line-strong !default;
+$rbb-disabled-label-color: $text-muted !default;			// a disabled radio button's text
 
 // -- Buttons (bulmaish/_button_common)
 $button-color: $text-strong-color !default;
