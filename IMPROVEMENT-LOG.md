@@ -2218,7 +2218,38 @@ These were offered as input while the phase 0 items were being worked, and taken
       component indexes; the InfoPanel and AppPageTitleBar pages are deleted. Verified:
       the site generates, 162 pages, with no broken link.
 
+- [x] **Framework and documentation: colour schemes.** Done 2026-10-07, as a plan of
+      its own: `finished-plans/SCHEMES.md` has the account. Every theme variant is a
+      colour scheme of a nature, named `<nature>-<scheme>` (`light-winter`, `dark-nord`),
+      laid out as `winter/<nature>/<scheme>/_scheme.scss`; each nature's palette works the
+      theme's colours out from a scheme's tokens, and one nature-neutral
+      `_component-colors.scss` maps every component colour to a palette role, with
+      exceptions per nature or scheme. The winter theme ships winter, Midnight, Darcula,
+      Lagoon, Violet and Nord; `DomApplication.getThemeVariants()` is what is offered,
+      its first light scheme the default and its first dark one (Midnight) what a dark
+      desktop gets. `SchemeVariant`/`ThemeNature` replace `DefaultThemeVariant`,
+      `DarkThemeVariant` and `DarkSchemeVariant`. Light and the new schemes compile to
+      the same css as before, byte for byte. On the documentation site:
+      `look-and-feel/themes` (rewritten around schemes), `the-winter-theme`,
+      `overriding-the-theme`, `sass-scss-support`, `moving-to-modules` (a scheme of your
+      own, and what an application has to change), `styling-your-component`, the
+      BreadCrumb2, Explanation and UrlPage pages. The site generates without warnings.
+
 ## Decisions log
+
+### 2026-10-07 - Every variant is a colour scheme of a nature
+
+Asked to choose one of four candidate dark palettes, the user chose to support them all,
+and then to remove the asymmetry that left: light was the empty variant, dark an override
+directory, the schemes overrides of dark. Now a variant is a scheme (a file of tokens) of
+a nature (light or dark, which has the palette that works the colours out from them),
+named `<nature>-<scheme>`, all with the same search path. A variant name that is not
+offered gives the first light scheme - no aliases for the old names. The component
+colours became one file of roles; where light or a scheme wanted otherwise, that is an
+explicit exception rather than a copy of the file (option 1 of three: making every
+light per-component colour a palette role would have added ~139 colours with one user
+each). Light had to stay as it was; Darcula was allowed to change. Midnight is the first
+dark scheme. Details: `finished-plans/SCHEMES.md`.
 
 ### 2026-10-06 - A theme variant states its own colours
 

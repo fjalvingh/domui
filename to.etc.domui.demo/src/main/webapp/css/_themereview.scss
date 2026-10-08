@@ -2,8 +2,7 @@
  * The theme review page (ThemeReviewPage): every component on one page, in a grid of cells.
  *
  * The swatches take their colours from the theme module, so they show the colours of the
- * variant the sheet was compiled for - the light theme, the dark variant or a dark colour
- * scheme alike.
+ * colour scheme the sheet was compiled for.
  */
 @use "theme" as t;
 

@@ -1,9 +1,10 @@
 # Dark theme: separate colours and images per variant
 
 Status: phases 1-6 **finished** 2026-10-06; §7 records how each phase went, and the first
-review after them. **Open:** §8, a fresher dark palette to replace the Darcula one - the
-review page and four schemes are made. They are no longer candidates for one choice: they
-ship in the framework as selectable dark colour schemes (8.5).
+review after them. §8, a fresher dark palette, ended 2026-10-07 differently than planned:
+instead of one palette replacing Darcula, every variant became a colour scheme of a nature,
+Darcula one of them. That work is `finished-plans/SCHEMES.md`, which also describes the
+files as they now are - the variant directories this plan describes are gone.
 
 The dark variant looks poor because almost all of its colours are *worked out* from the
 light theme rather than *chosen*, and because its images are the light theme's images.
@@ -745,7 +746,7 @@ marker and the three flares).
 - `IMPROVEMENT-LOG.md` has an entry for the work and one for the decision; this plan
   moved to `finished-plans/`.
 
-## 8. A fresher dark palette (open, started 2026-10-06)
+## 8. A fresher dark palette (2026-10-06 - 2026-10-07, continued in SCHEMES.md)
 
 ### 8.1 Why
 

@@ -1,6 +1,7 @@
 # Colour schemes: every theme variant is a scheme of a nature
 
-Status: phases 1-3 **done** 2026-10-07 (see 5.1-5.3); phases 4 (most of it done with 3) and 5 open. Follows `finished-plans/darktheme.md` §8,
+Status: **finished** 2026-10-07 - all five phases (see 5.1-5.4). What is left open is in
+section 6. Follows `finished-plans/darktheme.md` §8,
 which made a theme review page and four dark schemes and then put those schemes into the
 framework as `DarkSchemeVariant`s, next to the old light and dark variants.
 
@@ -176,6 +177,22 @@ for every variant, `winter/<nature>/_variant-custominit.scss` for a nature,
   `dark-midnight` and one that prefers light `light-winter`, an old `dark` cookie gets
   `light-winter`, and the old URL `$THEME/dark/style.scss` serves the default's sheet.
 
+### 5.4 Phases 4 and 5, as done (2026-10-07)
+
+- Demo: the review page's bar and `?scheme=`, and the moon/sun switch, were done with
+  phase 3; the demo's sheets' comments followed.
+- Site (`domui.github.io`): `look-and-feel/themes` rewritten around colour schemes - the
+  schemes, `getThemeVariants()` and its order, the search path, a scheme's tokens, the
+  roles, exceptions, images; `the-winter-theme` (`style.scss`, the files);
+  `overriding-the-theme` (`_variant-custominit.scss` per nature or scheme, `$themeNature`);
+  `sass-scss-support` (the three variant parameters); `moving-to-modules` ("A colour
+  scheme of your own", and "After the colour schemes": what an application has to
+  change); `styling-your-component`, BreadCrumb2, Explanation, UrlPage. The site
+  generates without errors or warnings.
+- In this repository: `finished-plans/THEMES.md` points here for variants, and
+  `darktheme.md` §8 closes into this plan; `IMPROVEMENT-LOG.md` has the work and the
+  decision.
+
 ## 6. Open
 
 - **Application sheets do not see the exceptions.** An application sheet that `@use`s
@@ -193,6 +210,14 @@ for every variant, `winter/<nature>/_variant-custominit.scss` for a nature,
   `winter/light/`, `winter/dark/_palette.scss` and `_component-colors.scss` are no longer read
   (a copy left in the webapp shadows DomUI's files and must go).
 
+- **Three component defects** seen on the review page (`darktheme.md` §8.3), the same in
+  every dark scheme: the HtmlEditor's editing area is white; CheckboxButton with its own
+  labels has one label that is hardly readable; RadioGroup `asButtons()` when disabled has
+  very faint text.
+- **Light's 109 exceptions** are the debt decision 6 describes: each one removed is a choice
+  for the component's role, to make on the review page.
+- `ThemeColor`'s dark bands and the demo's syntax colours were tuned for Darcula (see
+  `darktheme.md` §7.5); check them against Midnight, now the first dark scheme.
 - Whether the dark template's mixes (forbidden in the old dark files by `darktheme.md` §2.5
   rule 2) stay. For Darcula they cannot: phase 2 needs its literals, as tokens or as the
   default of a token.

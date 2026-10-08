@@ -88,17 +88,10 @@ moves to the log, and what it decided becomes an entry in the log's decisions lo
 A plan that is finished as a whole moves to **`finished-plans/`**. What is there is
 done and is kept for the account it gives of how a part of the framework now works -
 `THEMES.md`, the theming write-up, is the first of them; `darktheme.md`, how the theme
-variants got their own colour files and the dark variant its Darcula look, the latest.
-One part of it is open again: its **§8, a fresher dark palette** (the theme review page in
-the demo, and four dark colour schemes that now ship in the framework as `DarkSchemeVariant`s,
-offered through `DomApplication.getThemeVariants()`). Read §8 before working on the
-dark colours.
-
-### Colour schemes (phases 1-3 done)
-
-**[SCHEMES.md](SCHEMES.md)** replaces the light/dark/scheme variants by one model: every
-theme variant is a scheme of a nature, named `<nature>-<scheme>` (`dark-nord`). Read it
-before working on theme variants or the theme's colour files.
+variants got their own colour files and the dark variant its Darcula look, came next.
+`SCHEMES.md`, the latest, is how every theme variant became a colour scheme of a nature
+(`light-winter`, `dark-nord`), with one file of tokens per scheme; its section 6 lists what
+it left open. Read it before working on theme variants or the theme's colour files.
 
 The documentation website source is a separate repository at
 `/home/jal/git/update-domui/domui.github.io` (Markdown under `site/content`, static site

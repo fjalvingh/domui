@@ -5,8 +5,8 @@
 // picked here rather than a repaint in _darkstyle.scss. Whether the session renders dark is
 // the theme's own $color-scheme.
 //
-// The dark values are IntelliJ's Darcula scheme, which the dark theme variant is modelled
-// on, so the source viewer reads like the editor a Java developer already knows.
+// The dark values are IntelliJ's Darcula editor colours, used in every dark colour scheme, so
+// the source viewer reads like the editor a Java developer already knows.
 
 @use "theme" as t;
 
@@ -33,7 +33,7 @@ $s-diffline:    #b8dfff;
 $s-diffchar:    red;
 
 @if t.$color-scheme == dark {
-	// IntelliJ's Darcula, which the dark theme variant is modelled on
+	// IntelliJ's Darcula editor colours, for every dark scheme
 	$s-text:        #A9B7C6;
 	$s-keyword1:    #CC7832;
 	$s-keyword2:    #9876AA;

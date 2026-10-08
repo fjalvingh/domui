@@ -1,12 +1,12 @@
 /*
- * The demo's own colours, repainted for the dark theme variant.
+ * The demo's own colours, repainted for the dark colour schemes.
  *
  * Loaded last by demostyle.scss, so these rules come after the ones in _panels.scss that
  * they correct. The whole file is inside the @if because a module is loaded
  * unconditionally - so the content is what is conditional.
  *
  * The neutral colours are the theme's own roles, read from the theme module, so the demo
- * follows the dark palette instead of keeping a copy of it.
+ * follows each dark scheme's colours instead of keeping a copy of them.
  */
 @use "theme" as t;
 

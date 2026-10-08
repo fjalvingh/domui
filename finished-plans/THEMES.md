@@ -20,11 +20,13 @@ setThemeFactory(SassThemeFactory.INSTANCE);      // DomApplication's own default
 
 There is no registry and no theme name: `DomApplication` holds a single
 `IThemeFactory` field. The one thing that varies is the **theme variant**, which is
-per user session and is what a dark/light switch is built from.
+per user session and is what a dark/light switch is built from. Since 2026-10-07 every
+variant is a colour scheme of a nature, `light-winter`, `dark-nord`: see
+`finished-plans/SCHEMES.md`, which replaces what this file says about variants.
 
 A theme is a **search path of directories** holding one `style.scss` plus the modules and
-images that stylesheet and the components refer to; the variant, when it is not `default`,
-puts one more directory in front of that path. Serving it is two things: compiling the SCSS
+images that stylesheet and the components refer to; the variant puts two more directories
+in front of that path, its nature's and its scheme's. Serving it is two things: compiling the SCSS
 to CSS on demand, and resolving `THEME/xxx` image references against the search path.
 
 ## 2. The two URL forms
@@ -67,15 +69,15 @@ Call sites that perform the translation during rendering:
 - `parts/MarkerImagePartKey.java:75-77` — the marker-image part's icon parameter
 
 After translation `IRequestContext.getRelativePath()` (`server/RequestContextImpl.java:486`)
-prefixes the webapp URL, giving e.g. `/demo/$THEME/default/btnCancel.png`.
+prefixes the webapp URL, giving e.g. `/demo/$THEME/light-winter/btnCancel.png`.
 
 ### There is no theme name
 
 The URL's first segment used to be a four- or five-part theme name whose leading word
 picked a factory out of a registry (`scss-winter-default-default`). That is gone: the
 factory is a field on `DomApplication`, and the segment is simply the variant name.
-`$THEME/default/btnCancel.png` and `$THEME/dark/btnCancel.png` are the same file in two
-variants.
+`$THEME/light-winter/btnCancel.png` and `$THEME/dark-nord/btnCancel.png` are the same file
+in two variants.
 
 Which style directory the factory reads is now the factory's own business —
 `SassThemeFactory` takes it as a constructor argument, defaulting to `winter` through
@@ -108,10 +110,11 @@ dev-mode reload, how to find one of its resources, and where its stylesheet live
 
 ### `IThemeVariant` (`themes/IThemeVariant.java`)
 
-A name, and nothing more. `IThemeVariant.of("dark")` makes one (`DefaultThemeVariant.INSTANCE`
-is "default"); the name must survive in a URL path segment, which `of()` checks.
+A name, a label and a colour scheme. DomUI's are `SchemeVariant`s (`SchemeVariant.WINTER`,
+`SchemeVariant.NORD` ...); a name is looked up with `DomApplication.findThemeVariant()`,
+which gives the default for a name the application does not offer.
 
-An application declares its variants as constants and switches with
+An application offers its variants in `DomApplication.getThemeVariants()` and switches with
 `IRequestContext.setThemeVariant()`, which stores the name in the **session**, so the
 choice holds for every following request. `DomApplication.calculateUserThemeVariant()`
 is the override point for deciding it per user instead.
@@ -142,8 +145,8 @@ registered at `server/DomApplication.java:616`. Resource factories are scored by
 `SimpleResourceFactory` (10 for any `$…`) and `ClassRefResourceFactory` (10 for `$RES/`).
 
 ```
-$THEME/dark/btnCancel.png
-       └──┘ └ file name ┘   (split on the FIRST slash; [0] is the variant)
+$THEME/dark-nord/btnCancel.png
+       └───────┘ └ file name ┘   (split on the FIRST slash; [0] is the variant)
 ```
 
 `getResource()` then asks `DomApplication.getTheme(variantName, rdl)` for the `ITheme` and

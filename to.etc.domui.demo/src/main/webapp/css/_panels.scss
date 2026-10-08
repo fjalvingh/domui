@@ -40,8 +40,8 @@
 }
 
 /*
- * The bar keeps its dark ground in both theme variants, so its buttons cannot take the
- * theme's button colour: in the light variant that is near-black, which makes the theme
+ * The bar keeps its dark ground in every colour scheme, so its buttons cannot take the
+ * theme's button colour: in the light scheme that is near-black, which makes the theme
  * switch icon invisible on the bar. Paint them with the bar's own foreground instead.
  */
 .d-sbc .ui-button {
