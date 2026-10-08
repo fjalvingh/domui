@@ -230,14 +230,27 @@ Fixed since (2026-10-08):
   three label pairs, at 3:1 (disabled and inactive labels are exempt from WCAG, but must be
   readable); light's two faint ones are on its known list. Checked with screenshots of the
   review page in Midnight and winter.
+- *The demo's syntax colours* were Darcula's editor colours on every page, below AA on several
+  (3.1 for strings on Nord), with line numbers at 2.1 and diff washes of a fixed lightness. Now
+  the hues stay and each colour is lifted in `_syntax.scss` until it has 4.5:1 on the scheme's
+  page; the line numbers take the scheme's panel and 3:1, the diff washes are the scheme's hues
+  mixed into its page, the text and links are the scheme's.
 
 Still open:
 
-
+- **`ThemeColor`'s dark bands** are still constants worked out for Darcula's page (17%), so
+  `tint()`, `ink()` and `edge()` fold onto the wrong lightness in the other dark schemes. Its
+  tint band also goes up to 44%, where Darcula's own text has 2.6:1 instead of the AA its comment
+  promises. Nothing in DomUI or the demo calls these methods; they are for applications. Folding
+  in Java means Java has to know the scheme's colours; a version that did (the theme stating
+  them in a sheet compiled for Java) was built and taken out again (2026-10-08). The direction
+  considered instead: Java writes what a colour means (a custom property), and the theme folds it
+  with CSS `color-mix()` against its own colours. To be done with the application that uses it in
+  view.
 - **Light's 114 exceptions** are the debt decision 6 describes: each one removed is a choice
   for the component's role, to make on the review page.
-- `ThemeColor`'s dark bands and the demo's syntax colours were tuned for Darcula (see
-  `darktheme.md` §7.5); check them against Midnight, now the first dark scheme.
-- Whether the dark template's mixes (forbidden in the old dark files by `darktheme.md` §2.5
-  rule 2) stay. For Darcula they cannot: phase 2 needs its literals, as tokens or as the
-  default of a token.
+- **Whether the dark palette's mixes stay.** `dark/_palette.scss` works the washes out by
+  mixing a hue into the page (`color.mix(s.$red, s.$page, 16%)`), which `darktheme.md` §2.5
+  rule 2 forbade in the old dark files, where every colour was chosen. With schemes it is what
+  lets one file of tokens redress everything; the alternative is a token per wash. A decision,
+  not a defect.

@@ -5,9 +5,12 @@
 // picked here rather than a repaint in _darkstyle.scss. Whether the session renders dark is
 // the theme's own $color-scheme.
 //
-// The dark values are IntelliJ's Darcula editor colours, used in every dark colour scheme, so
-// the source viewer reads like the editor a Java developer already knows.
+// The dark values keep the hues of IntelliJ's Darcula editor colours, so the source viewer reads
+// like the editor a Java developer already knows, and take the rest from the scheme: each colour
+// is lightened until it reads on the scheme's page, and the grounds are the scheme's own.
 
+@use "sass:color";
+@use "sass:math";
 @use "theme" as t;
 
 // The light palette is the default; the dark one overrides it.
@@ -32,28 +35,59 @@ $s-diffnew:     #ebffd7;
 $s-diffline:    #b8dfff;
 $s-diffchar:    red;
 
+// The WCAG contrast ratio of two colours, and a colour made lighter, keeping its hue, until it
+// has the ratio asked for on the ground passed - so that the dark palette below reads on every
+// dark scheme's page, from the deepest to the lightest.
+@function -luminance($c) {
+	$sum: 0;
+	$weights: ("red": 0.2126, "green": 0.7152, "blue": 0.0722);
+	@each $channel, $weight in $weights {
+		$v: math.div(color.channel($c, $channel, $space: rgb), 255);
+		$v: if($v <= 0.03928, math.div($v, 12.92), math.pow(math.div($v + 0.055, 1.055), 2.4));
+		$sum: $sum + $v * $weight;
+	}
+	@return $sum;
+}
+
+@function -contrast($a, $b) {
+	$la: -luminance($a);
+	$lb: -luminance($b);
+	@return math.div(math.max($la, $lb) + 0.05, math.min($la, $lb) + 0.05);
+}
+
+@function -readable($c, $ground, $ratio: 4.5) {
+	@while -contrast($c, $ground) < $ratio and color.channel($c, "lightness", $space: hsl) < 95% {
+		$c: color.adjust($c, $lightness: 2%, $space: hsl);
+	}
+	@return $c;
+}
+
 @if t.$color-scheme == dark {
-	// IntelliJ's Darcula editor colours, for every dark scheme
-	$s-text:        #A9B7C6;
-	$s-keyword1:    #CC7832;
-	$s-keyword2:    #9876AA;
-	$s-type:        #FFC66D;
-	$s-comment:     #808080;
-	$s-comment-alt: #629755;
-	$s-string:      #6A8759;
-	$s-number:      #6897BB;
-	$s-punctuation: #A9B7C6;
-	$s-link:        #589DF6;
-	$s-literal:     #6897BB;
+	// The hues of IntelliJ's Darcula editor colours, so the viewer reads like the editor a Java
+	// developer knows - each made light enough to read on this scheme's page.
+	$page: t.$body-bg;
+	$s-text:        t.$text-color;
+	$s-keyword1:    -readable(#CC7832, $page);
+	$s-keyword2:    -readable(#9876AA, $page);
+	$s-type:        -readable(#FFC66D, $page);
+	$s-comment:     -readable(#808080, $page);
+	$s-comment-alt: -readable(#629755, $page);
+	$s-string:      -readable(#6A8759, $page);
+	$s-number:      -readable(#6897BB, $page);
+	$s-punctuation: t.$text-color;
+	$s-link:        t.$link-color;
+	$s-literal:     -readable(#6897BB, $page);
 
-	$s-lnr-bg:      #313335;
-	$s-lnr-color:   #606366;
+	// The line numbers sit on a panel and are quieter than the code: 3:1.
+	$s-lnr-bg:      t.$surface-bg;
+	$s-lnr-color:   -readable(t.$text-dim, t.$surface-bg, 3);
 
-	$s-diffstart:   hsl(55, 30%, 25%);
-	$s-diffold:     hsl(10, 30%, 22%);
-	$s-diffnew:     hsl(90, 28%, 20%);
-	$s-diffline:    hsl(210, 35%, 25%);
-	$s-diffchar:    hsl(0, 80%, 70%);
+	// The diff washes are the scheme's own hues washed into its page, as the theme's states are.
+	$s-diffstart:   color.mix(t.$yellow, $page, 22%);
+	$s-diffold:     color.mix(t.$red, $page, 20%);
+	$s-diffnew:     color.mix(t.$green, $page, 18%);
+	$s-diffline:    color.mix(t.$blue, $page, 22%);
+	$s-diffchar:    -readable(t.$red, $page);
 }
 
 .dm-srcp-scrl {
