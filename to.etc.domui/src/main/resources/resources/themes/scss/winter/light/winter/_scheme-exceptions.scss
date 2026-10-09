@@ -3,10 +3,6 @@
 // palette's roles. Kept so that the light theme looks as it did; each one that goes is a choice
 // for the role instead. Plain declarations only: like _custominit.scss this file cannot read
 // the theme's variables, so a colour the light theme calculated is here as the value it had.
-$highlight2-bg: rgb(255, 223.89361702127653, 168.99999999999997);
-$esic-label-border: rgb(172.1311475409835, 217.62295081967213, 7.3770491803278375);
-$esic-label-color: rgba(0, 0, 0, 0.7);
-$link: hsl(217, 71%, 53%);
 $pmnu-bg: hsl(0, 0%, 21%);
 $pmnu-sm1-bg: hsl(0, 0%, 29%);
 $pmnu-sm2-bg: hsl(0, 0%, 48%);
@@ -63,7 +59,6 @@ $ckc-bg: #3B3646;
 $ckc-accent: #EE4B5A;
 $dct-selected-bg: cyan;
 $tree3-fbtn-bg: hsl(0, 0%, 4%);
-$f-display-bg: #eff7ff;
 $pct-bar-bg: red;
 $ioe-spinner-color: #0E601A;
 $ioe-spinner-track: #DCE8DD;

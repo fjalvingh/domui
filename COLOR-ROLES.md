@@ -351,6 +351,34 @@ is checked on the review page, and so is Midnight.
 - **Dark, for phase 5:** the toggles are each scheme's `$primary`, the light theme's orange,
   instead of its blue. Dark's rough `$disabled-text` is its `$text-muted`.
 
+**Inputs, lookup and search** (2026-10-09):
+- Bulma's input mixins (`bulmaish/_core_defs.scss`) no longer read palette names (`$border`,
+  `$link`, `$input-bg`, `$input-color`, `$input-ro-bg-*`, `$bevel-*`). They read the form's
+  component colours, which are field roles:
+  - a read-only input is the flat `$field-surface-readonly`, where it was a two-colour
+    gradient;
+  - focus is `$focus-ring`;
+  - the value typed in an input is `$text-strong` (was `inherit`);
+  - a combo's arrow is `$text-subtle` (was Bulma's link blue).
+- New component colours: `$input-value-color`, `$input-border`, `$input-ro-bg`,
+  `$input-error-bg`. Every partial that paints an input's error, read-only or border state
+  reads them (LookupInput, ErrorPanel, FileUpload2, ImageUpload, LabelSelector,
+  SearchAsYouType, the HtmlEditor's frame).
+- `$list-selected-bg` (was `$highlight2-bg`, a light exception of a pale orange) is the
+  selected item of any list: a table row, a lookup popup's row, SelectOnePanel, Tree3. It is
+  `$selected-wash`.
+- A chosen value shown as a tag (MultipleLookupInput, EnumSetInput, LabelSelector) is one set
+  of component colours, `$tag-*`, in the primary tint. They were yellow and lime.
+- LookupInput's popup saying how many results there are is `info` (was green); the one
+  saying none or too many is `warning` (was a loud red-orange). The popups of LookupInput,
+  SearchAsYouType and SelectOnePanel are `$surface-overlay` with a `$border-strong` frame.
+- Gone: Bulma's `$link`, `$link-*`, `$background`, `$border`, `$border-hover`,
+  `$text-invert`, `$text-light`, `$code`, `$pre` and their grounds, and light's `$link`
+  exception. Gone from both palettes: `$lui-result-*`, `$lui-warning-*`, `$mli-label-*`,
+  `$esic-label-bg`, `$sayt-ok-color`, which are component colours now.
+- **Dark, for phase 5:** the input shadow is 0.2, which dark's nature exception
+  `$input-shadow` always asked for. Before, the mixins wrote 0.1 themselves and never read it.
+
 ## 7. Decisions (2026-10-09)
 
 1. **Step words** `wash / tint / solid / on-solid / text / border`.

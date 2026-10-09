@@ -17,7 +17,7 @@
     }
 
     .mselected, .selected {
-        background-color: $highlight2-bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+        background-color: $list-selected-bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
     }
     & > table > tr > td {
         border: 0;

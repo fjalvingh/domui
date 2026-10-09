@@ -12,9 +12,9 @@
 .ui-esic-label {
 	display: inline-block;
 	@include border-radius(3px);
-	border: 1px solid $esic-label-border;
-	background-color: $esic-label-bg;
-	color: $esic-label-color;
+	border: 1px solid $tag-border;
+	background-color: $tag-bg;
+	color: $tag-color;
 	margin: 2px 1px 1px 6px;
 	padding: 2px;
 }
@@ -30,7 +30,7 @@ button.ui-esic-del {
 	-webkit-appearance: none;
 	align-items: center;
 	background-color: transparent;
-	color: $errors-color;
+	color: $sayt-error-color;
 	outline: none;
 	border: none;
 	margin: 1px 1px 1px 8px;

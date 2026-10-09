@@ -18,45 +18,17 @@
 
 // General colors
 
-// Derived from the main set's $highlight-bg and $esic-label-bg. Here rather than next to
-// them because they need the theme's functions, which _palette.scss cannot load.
-$highlight2-bg: $highlight-bg !default;
-$esic-label-border: color.mix($green, $body-bg, 60%) !default;
-$esic-label-color: $text-bright-color !default;
+// The selected item of a list: a row of a table or of a lookup's popup, a tree item.
+$list-selected-bg: $selected-wash !default;
 
-$background: $ground-alt-bg !default;
+// A chosen value shown as a tag: MultipleLookupInput, EnumSetInput, LabelSelector. Chosen is the
+// primary family, as for the toggles.
+$tag-bg: $primary-tint !default;
+$tag-border: $primary-border !default;
+$tag-color: $text-strong !default;
 
-$border: $control-border !default;
-$border-hover: $control-hover-border !default;
-
-// Text colors
-
+// Bulma's text colour, which several partials still read. It goes once they read roles.
 $text: $text-color !default;
-$text-invert: $text-bright-color !default;
-$text-light: $text-muted !default;
-
-// Code colors
-$code: $red !default;
-$code-bg: $background !default;
-
-$pre: $text !default;
-$pre-bg: $background !default;
-
-// Link colors
-
-$link: $link-color !default;
-
-
-$link-visited: $purple !default;
-
-$link-hover: $text-strong-color !default;
-$link-hover-border: $control-hover-border !default;
-
-$link-focus: $text-strong-color !default;
-$link-focus-border: $blue !default;
-
-$link-active: $text-strong-color !default;
-$link-active-border: $control-active-border !default;
 
 // Lists and maps
 
@@ -75,22 +47,27 @@ $colors: (
 	"danger": ($danger-solid, $danger-on-solid),
 ) !default;
 
-// Form
-$input-background-color: $ground-bg !default;
-$input-shadow: inset 0 1px 2px rgba($black, 0.1) !default;
+// Form: inputs, through the mixins of bulmaish/_core_defs.scss (.ui-input and the controls
+// built on it).
+$input-background-color: $field-surface !default;
+$input-value-color: $text-strong !default;			// the value typed in an input
+$input-border: $field-border !default;
+$input-shadow: inset 0 1px 2px rgba($shadow, 0.1) !default;
 
-$input-hover-color: $text-strong-color !default;
-$input-hover-border-color: $control-hover-border !default;
+$input-hover-color: $text-strong !default;
+$input-hover-border-color: $field-border-hover !default;
 
-$input-focus-color: $text-strong-color !default;
-$input-focus-border-color: $link !default;
-$input-focus-box-shadow-color: rgba($link, 0.25) !default;
+$input-focus-color: $text-strong !default;
+$input-focus-border-color: $focus-ring !default;
+$input-focus-box-shadow-color: rgba($focus-ring, 0.25) !default;
 
-$input-disabled-color: $text-light !default;
-$input-disabled-background-color: $background !default;
-$input-disabled-border-color: $background !default;
+$input-disabled-color: $disabled-text !default;
+$input-disabled-background-color: $disabled-surface !default;
+$input-disabled-border-color: $disabled-border !default;
 
-$input-arrow: $link !default;
+$input-ro-bg: $field-surface-readonly !default;			// a read-only input
+$input-error-bg: $danger-wash !default;			// an input with an error
+$input-arrow: $text-subtle !default;			// the arrow of a combo
 
 // =======================================================================================
 // Component colours.
@@ -156,12 +133,14 @@ $pome2-hover-bg: $menu-hover-bg !default;			// the item under the pointer
 $pome2-disabled-bg: $fill-muted-bg !default;
 
 //-- SearchAsYouType (.ui-sayt-*)
-$sayt-popup-bg: $surface-bg !default;
-$sayt-popup-border: $line-strong !default;
+$sayt-error-color: $danger-text !default;			// no match
+$sayt-ok-color: $success-text !default;			// the checkmark of a match
+$sayt-popup-bg: $surface-overlay !default;
+$sayt-popup-border: $border-strong !default;
 
 //-- SelectOnePanel (.ui-ssop-*)
-$ssop-bg: $surface-bg !default;
-$ssop-border: $line-strong !default;
+$ssop-bg: $surface-overlay !default;
+$ssop-border: $border-strong !default;
 
 //-- LinkButton (.ui-lnkb-* / .ui-lbtn-*)
 $lnkb-disabled-color: $disabled-text !default;
@@ -311,9 +290,14 @@ $sib-focus-bg: $neutral-tint !default;
 //-- ImageButton (.ui-ibtn-*)
 $ibtn-disabled-bg: $disabled-surface !default;
 
-//-- LookupInput (.ui-lui-*)
-$lui-popup-bg: $surface-bg !default;
-$lui-popup-border: $line-strong !default;
+//-- LookupInput (.ui-lui-*). The popup that says how many results there are is information;
+//-- the one that says there are none, or too many, a warning.
+$lui-result-bg: $info-wash !default;
+$lui-result-border: $info-border !default;
+$lui-warning-bg: $warning-tint !default;
+$lui-warning-border: $warning-border !default;
+$lui-popup-bg: $surface-overlay !default;
+$lui-popup-border: $border-strong !default;
 
 //-- MonthPanel (.ui-mp-*)
 $mp-bg: $surface-bg !default;
@@ -384,7 +368,7 @@ $popin-title-border: $line-hard !default;
 $tree3-fbtn-bg: $fill-muted-bg !default;				// the fold button is an inverted square
 
 //-- Forms, and the odd remaining component colour that is genuinely its own
-$f-display-bg: $input-ro-bg-top !default;				// .ui-f-display, the read-only field wash
+$f-display-bg: $field-surface-readonly !default;				// .ui-f-display, the read-only field wash
 $bug-ind-bg: $errors-border !default;			// the bug badge's ground: the theme's error red
 $bug-count-color: yellow !default;				// the count on the red bug badge
 $oddchars-hover-bg: $row-hover-bg !default;
@@ -393,10 +377,10 @@ $pct-bar-bg: $red !default;						// the filled part of the progress bar
 
 //-- Text that was written as plain black and is the theme's ordinary text colour
 $generichd-color: $text !default;					// header levels 1, 4 and "simple"
-$di-readonly-color: $text !default;
+$di-readonly-color: $text-default !default;
 $drbb-icon-color: $text-default !default;
 $xphd-color: $text !default;
-$f4-readonly-color: $text !default;
+$f4-readonly-color: $text-default !default;
 $lnkb-icon-color: $text-default !default;
 
 //-- The cookie warning's accept button sits on $primary. It used to hand-write `black`

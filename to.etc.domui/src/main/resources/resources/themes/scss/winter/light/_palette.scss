@@ -122,20 +122,8 @@ $white-transparent: rgba(255, 255, 255, 0.25) !default;
 $header-bg: #7c7c7c !default;
 $green-accent: #43b761 !default; 				//Main green
 
-$sayt-ok-color: #84C000 !default;			// Green for checkmark
 
 
-
-// LookupInput and LookupInput2
-$lui-warning-bg: #ff4f27 !default;				// Popup that shows 'no results'
-$lui-warning-border: #ff8d60 !default;			// Border of that popup
-$lui-result-bg: #d4ee9f !default;					// Popup showing "xxxx records"
-$lui-result-border: #a5c663 !default;			// Border of that
-
-
-//multiple lookup labels
-$mli-label-border: #ffa21e !default;
-$mli-label-bg: #fff2ab !default;
 
 //-- ScrollableTabPanel
 $tab-sep-bg: #7c7c7c !default;
@@ -175,9 +163,6 @@ $white-bis:    hsl(0, 0%, 98%) !default;
 $white:        hsl(0, 0%, 100%) !default;
 
 $input-border-color: #dbdbdb !default;
-
-//-- enumsetinput label colors
-$esic-label-bg: #d4f94e !default;
 
 // --------------------------------------------------------------------------------------
 // Surfaces and text.

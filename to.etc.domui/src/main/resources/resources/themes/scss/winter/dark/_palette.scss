@@ -125,20 +125,8 @@ $white-transparent: rgba(s.$page, 0.25) !default;			// the end of a state gradie
 $header-bg: s.$struct !default;			// caption bars: the steel blue of Darcula's buttons
 $green-accent: s.$green !default;
 
-$sayt-ok-color: s.$green !default;
 
 
-
-// LookupInput and LookupInput2
-$lui-warning-bg: color.mix(s.$red, s.$page, 35%) !default;
-$lui-warning-border: color.mix(s.$red, s.$page, 65%) !default;
-$lui-result-bg: color.mix(s.$green, s.$page, 25%) !default;
-$lui-result-border: color.mix(s.$green, s.$page, 55%) !default;
-
-
-//multiple lookup labels
-$mli-label-border: color.mix(#ffa21e, s.$page, 70%) !default;
-$mli-label-bg: color.mix(#ffbb43, s.$page, 22%) !default;
 
 //-- ScrollableTabPanel
 $tab-sep-bg: s.$line !default;
@@ -178,9 +166,6 @@ $white-bis: hsl(0, 0%, 98%) !default;
 $white: hsl(0, 0%, 100%) !default;
 
 $input-border-color: s.$control-border !default;
-
-//-- enumsetinput label colors
-$esic-label-bg: color.mix(s.$green, s.$page, 30%) !default;
 
 // --------------------------------------------------------------------------------------
 // Surfaces and text.

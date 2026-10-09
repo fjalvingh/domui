@@ -22,18 +22,18 @@
 	// States
 	&:hover {
 		&::after {
-			border-color: $input-hover-color;
+			border-color: $input-hover-border-color;
 		}
 	}
 
 	&.ui-input-err select {
-		background-color: $errors-input-bg;
+		background-color: $input-error-bg;
 	}
 
 	select {
 		@include ui-input-base;
 		@include ui-control-base;
-		border-color: $input-border-color;
+		border-color: $input-border;
 		cursor: pointer;
 		display: block;
 		font-size: 1em;
@@ -44,7 +44,7 @@
 		}
 		&:-moz-focusring {
 			color: transparent;
-			text-shadow: 0 0 0 $shadow-color;
+			text-shadow: 0 0 0 $input-value-color;
 		}
 		&[disabled]:hover {
 			border-color: $input-disabled-border-color;

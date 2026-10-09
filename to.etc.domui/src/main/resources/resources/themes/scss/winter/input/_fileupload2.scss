@@ -4,13 +4,13 @@
 	display: inline-block;
 	font-size: 1rem;
 	&.ui-input-err > div {
-		background-color: $errors-input-bg;
+		background-color: $input-error-bg;
 	}
 }
 .ui-fup2-value-empty, .ui-fup2-value {
 	@include ui-control-base;
 	display: inline-block;
-	border: 1px solid $border;
+	border: 1px solid $input-border;
 	min-height: 2.25em;
 	height: auto;
 	//position: relative;

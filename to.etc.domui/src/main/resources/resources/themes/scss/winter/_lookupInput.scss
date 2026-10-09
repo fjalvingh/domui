@@ -10,7 +10,7 @@
 	}
 
 	&.ui-input-err input {
-		background-color: $errors-input-bg;
+		background-color: $input-error-bg;
 	}
 }
 
@@ -23,7 +23,7 @@
 //}
 
 .ui-lui-selected-ro tbody {
-	background-color: $readonly-bg;
+	background-color: transparent;
 }
 
 .ui-lui-v {
@@ -79,7 +79,7 @@
 
 .ui-lui.ui-input-err {
 	.ui-lui-empty, .ui-lui-v, .ui-lui-keyword, .ui-srip-keyword {
-		background: $errors-input-bg;
+		background: $input-error-bg;
 	}
 }
 
@@ -183,11 +183,11 @@ img.ui-lui-waiting {
 
 tr.ui-keyword-popop-rowsel {
 	cursor: pointer;
-	background-color: $highlight2-bg !important;
+	background-color: $list-selected-bg !important;
 }
 
 tr.ui-keyword-popop-rowsel:hover {
-	background-color: $highlight2-bg !important;
+	background-color: $list-selected-bg !important;
 }
 
 tr.ui-keyword-popup-row {
@@ -216,11 +216,11 @@ tr.ui-keyword-popup-row {
 
 tr.uixx-keyword-popop-rowsel {
 	cursor: pointer;
-	background-color: $highlight2-bg !important;
+	background-color: $list-selected-bg !important;
 }
 
 tr.uixx-keyword-popop-rowsel:hover {
-	background-color: $highlight2-bg !important;
+	background-color: $list-selected-bg !important;
 }
 
 tr.uixx-keyword-popup-row {

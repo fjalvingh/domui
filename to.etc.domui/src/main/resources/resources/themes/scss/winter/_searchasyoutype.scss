@@ -10,14 +10,14 @@
 }
 
 .ui-sayt.ui-input-err input {
-	background-color: $errors-input-bg;
+	background-color: $input-error-bg;
 }
 
 .ui-sayt-error {
 	&::after {
 		content: "\f057";				// times-circle (x)
 		font-family: "FontAwesome";
-		color: $errors-color;
+		color: $sayt-error-color;
 		position: absolute !important;
 		right: 0.625em;
 		top: 0.625em;
