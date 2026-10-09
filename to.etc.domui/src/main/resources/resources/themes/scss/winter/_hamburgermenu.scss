@@ -13,7 +13,7 @@
 	background: $hmbrg-bg;
 	border: 1px solid $hmbrg-border;
 	border-radius: 6px;
-	box-shadow: 0 2px 8px rgba($shadow-color, 0.25);
+	box-shadow: 0 2px 8px rgba($shadow, 0.25);
 	color: $hmbrg-color;
 	white-space: nowrap;
 }
@@ -26,8 +26,8 @@
 	width: 1.4em;
 }
 .ui-hmbrg-item:hover {
-	background-color: $menu-hover-bg;
-	border: 1px solid $menu-hover-border;
+	background-color: $hmbrg-hover-bg;
+	border: 1px solid $hmbrg-hover-border;
 	cursor: pointer;
 }
 .ui-hmbrg-disabled {

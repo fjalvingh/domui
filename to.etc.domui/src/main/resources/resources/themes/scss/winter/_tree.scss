@@ -2,10 +2,12 @@
 @use "theme" as *;
 
 .ui-tree .selected {
-	background: $selected-bg !important;
+	background: $tree-selected-bg !important;
+	color: $tree-selected-color;
 }
 TD .ui-tree .selected:hover {
-	background: $selected-bg !important;
+	background: $tree-selected-bg !important;
+	color: $tree-selected-color;
 }
 
 .ui-tree TD {
@@ -25,13 +27,14 @@ TD .ui-tree .selected:hover {
 	vertical-align: middle;
 }
 td.ui-tr-sel:hover {
-	background-color: $highlight-bg !important;
+	background-color: $tree-hover-bg !important;
 }
 td.ui-tr-sel {
 	cursor: pointer;
 }
 td.ui-tr-selected {
-	background-color: $title-bg !important;
+	background-color: $tree-selected-bg !important;
+	color: $tree-selected-color;
 }
 
 .ui-tree {

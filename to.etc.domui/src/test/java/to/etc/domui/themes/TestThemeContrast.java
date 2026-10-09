@@ -43,7 +43,7 @@ public class TestThemeContrast {
 		{"text in an input", "input-color", "input-bg", AA},
 		{"a link", "link-color", "body-bg", AA},
 		{"a visited link", "link-visited-color", "body-bg", AA},
-		{"the page title", "title-color", "title-bg", AA},
+		{"a title bar", "caption-color", "caption-bg", AA},
 		{"an error text on the page", "error-text-color", "surface-page", AA},
 		{"an error message", "emd-error-color", "emd-error-bg", AA},
 		{"a warning message", "emd-warning-color", "emd-warning-bg", AA},
@@ -82,7 +82,6 @@ public class TestThemeContrast {
 	 * when one of them is fixed, so the list is kept honest.
 	 */
 	static private final List<String> KNOWN_LIGHT = List.of(
-		"the page title", "a breadcrumb", "the current breadcrumb"
 	);
 
 	static private ThemeVariantCompiler m_compiler;

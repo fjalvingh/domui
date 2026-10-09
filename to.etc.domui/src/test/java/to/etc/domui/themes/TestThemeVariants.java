@@ -139,12 +139,12 @@ public class TestThemeVariants {
 	@Test
 	public void customInitWinsOverTheVariant() throws Exception {
 		File app = m_tmp.newFolder("winter");
-		write(new File(app, "_custominit.scss"), "$link-color: #123456;\n$primary: #00aa00;\n");
+		write(new File(app, "_custominit.scss"), "$link-text: #123456;\n$primary-solid: #00aa00;\n");
 		try(ThemeVariantCompiler c = new ThemeVariantCompiler(ThemeVariantCompiler.findThemeDir(), app)) {
 			for(String variant : new String[]{LIGHT, DARK}) {
 				String css = c.compile(variant);
-				Assert.assertTrue(variant + ": the application's $link-color is not used", css.contains("#123456"));
-				Assert.assertTrue(variant + ": the application's $primary is not used", css.contains("#00aa00"));
+				Assert.assertTrue(variant + ": the application's $link-text is not used", css.contains("#123456"));
+				Assert.assertTrue(variant + ": the application's $primary-solid is not used", css.contains("#00aa00"));
 			}
 		}
 	}
@@ -162,25 +162,25 @@ public class TestThemeVariants {
 		File appNord = new File(appDark, "nord");
 		appNord.mkdirs();
 		appLight.mkdirs();
-		write(new File(app, "_custominit.scss"), "$primary: #00aa00;\n$link-color: #0000aa;\n");
-		write(new File(appLight, "_variant-custominit.scss"), "$link-color: #111111;\n");
-		write(new File(appDark, "_variant-custominit.scss"), "$link-color: #222222;\n$primary: #00bb00;\n");
-		write(new File(appNord, "_variant-custominit.scss"), "$link-color: #333333;\n");
+		write(new File(app, "_custominit.scss"), "$primary-solid: #00aa00;\n$link-text: #0000aa;\n");
+		write(new File(appLight, "_variant-custominit.scss"), "$link-text: #111111;\n");
+		write(new File(appDark, "_variant-custominit.scss"), "$link-text: #222222;\n$primary-solid: #00bb00;\n");
+		write(new File(appNord, "_variant-custominit.scss"), "$link-text: #333333;\n");
 		try(ThemeVariantCompiler c = new ThemeVariantCompiler(ThemeVariantCompiler.findThemeDir(), app)) {
 			String light = c.compile(LIGHT);
 			String dark = c.compile(DARK);
 			String nord = c.compile(SchemeVariant.NORD.getVariantName());
-			Assert.assertTrue("light: its own $link-color is not used", light.contains("#111111"));
+			Assert.assertTrue("light: its own $link-text is not used", light.contains("#111111"));
 			Assert.assertFalse("light: the dark nature's file is used", light.contains("#222222") || light.contains("#00bb00"));
 			Assert.assertFalse("light: _custominit wins over _variant-custominit", light.contains("#0000aa"));
-			Assert.assertTrue("light: _custominit's $primary is not used", light.contains("#00aa00"));
+			Assert.assertTrue("light: _custominit's $primary-solid is not used", light.contains("#00aa00"));
 
-			Assert.assertTrue("dark: its own $link-color is not used", dark.contains("#222222"));
+			Assert.assertTrue("dark: its own $link-text is not used", dark.contains("#222222"));
 			Assert.assertFalse("dark: the light nature's file is used", dark.contains("#111111"));
-			Assert.assertTrue("dark: its own $primary is not used", dark.contains("#00bb00"));
+			Assert.assertTrue("dark: its own $primary-solid is not used", dark.contains("#00bb00"));
 			Assert.assertFalse("dark: _custominit wins over _variant-custominit", dark.contains("#00aa00") || dark.contains("#0000aa"));
 
-			Assert.assertTrue("nord: its own $link-color is not used", nord.contains("#333333"));
+			Assert.assertTrue("nord: its own $link-text is not used", nord.contains("#333333"));
 			Assert.assertFalse("nord: the dark nature's file is used", nord.contains("#222222"));
 		}
 	}

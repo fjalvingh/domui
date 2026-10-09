@@ -59,6 +59,7 @@
 // =======================================================================================
 
 @use "sass:color";
+@use "functions" as f;
 @use "scheme" as s;
 
 $body-bg: s.$page !default;			// the page: Darcula's editor ground
@@ -264,6 +265,11 @@ $selection-bg: s.$selection !default;			// a selected row, cell or day
 // scheme's old tokens and this palette's old names: roughly, so that a sheet reading a role
 // compiles in every scheme. They are not yet chosen.
 // =======================================================================================
+// The text that reads best on a fill: the page's colour or white.
+@function -on($fill) {
+	@return if(f.contrastRatio($fill, s.$page) >= f.contrastRatio($fill, #ffffff), s.$page, #ffffff);
+}
+
 $surface-page: $body-bg !default;
 $surface-raised: $surface-bg !default;
 $surface-overlay: $window-bg !default;
@@ -308,7 +314,7 @@ $shadow: $shadow-color !default;
 $primary-wash: color.mix($primary, s.$page, 16%) !default;
 $primary-tint: color.mix($primary, s.$page, 35%) !default;
 $primary-solid: $primary !default;
-$primary-on-solid: s.$page !default;
+$primary-on-solid: -on($primary-solid) !default;
 $primary-text: $primary !default;
 $primary-border: $primary !default;
 
@@ -322,33 +328,33 @@ $neutral-border: $control-border !default;
 $info-wash: $info-bg !default;
 $info-tint: color.mix(s.$blue, s.$page, 35%) !default;
 $info-solid: s.$blue !default;
-$info-on-solid: s.$page !default;
+$info-on-solid: -on($info-solid) !default;
 $info-text: $info-color !default;
 // $info-border is declared with the other info colours above.
 
 $success-wash: color.mix(s.$green, s.$page, 16%) !default;
 $success-tint: color.mix(s.$green, s.$page, 35%) !default;
 $success-solid: s.$green !default;
-$success-on-solid: s.$page !default;
+$success-on-solid: -on($success-solid) !default;
 $success-text: s.$green !default;
 $success-border: s.$green !default;
 
 $warning-wash: $warnings-bg !default;
 $warning-tint: color.mix(s.$yellow, s.$page, 35%) !default;
 $warning-solid: s.$yellow !default;
-$warning-on-solid: s.$page !default;
+$warning-on-solid: -on($warning-solid) !default;
 $warning-text: $warnings-color !default;
 $warning-border: $warnings-border !default;
 
 $danger-wash: $errors-wash !default;
 $danger-tint: color.mix(s.$red, s.$page, 35%) !default;
 $danger-solid: s.$red !default;
-$danger-on-solid: s.$page !default;
+$danger-on-solid: -on($danger-solid) !default;
 $danger-text: $errors-color !default;
 $danger-border: $errors-border !default;
 
-$chrome-wash: s.$struct-strip !default;
-$chrome-tint: s.$struct-tab !default;
+$chrome-wash: color.mix(s.$struct-strip, s.$page, 50%) !default;
+$chrome-tint: color.mix(s.$struct-tab, s.$page, 75%) !default;
 $chrome-solid: s.$struct !default;
 $chrome-on-solid: s.$struct-text !default;
 $chrome-text: s.$heading !default;

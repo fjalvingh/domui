@@ -409,6 +409,59 @@ is checked on the review page, and so is Midnight.
 - **Dark, for phase 5:** the title bars are each scheme's rough `$neutral-solid` (its
   `$fill-strong-bg`), where they were its `$struct` blue.
 
+**Popups, navigation, calendar, tree, tabs, tables and editors** (2026-10-09). With these,
+**light has no exceptions left**: `light/winter/_scheme-exceptions.scss` is gone, and
+light's known list in `TestThemeContrast` is empty.
+- Every menu floats on `$surface-overlay`, with `$hover-wash` under the pointer: PopupMenu2,
+  HamburgerMenu and SimplePopupMenu. SimplePopupMenu was an inverted dark menu in light;
+  it is now like the other two. A FloatingWindow is `$surface-overlay` round
+  `$surface-raised` content. Modal veils (`$flw-hider-bg`, `$io-blk-bg`) are `$scrim`.
+- MessageFlare is each intent's `-solid` and `-on-solid`; light's flare colours were these
+  values already. The bug badge is `danger`. PopInPanel is an overlay with a `$chrome-tint`
+  title (was green), and the waiting spinner is `chrome`.
+- BreadCrumb2 is `chrome`: the crumbs are `$chrome-solid` with white, the current one
+  `$chrome-wash` with `$chrome-text`. It was the alternative-button blue, at 2.3:1.
+- Calendar:
+  - the jscalendar popup lost its brown palette for the theme's: overlay, a `chrome`
+    band, `$hover-wash`, `$selected-wash`, today in `primary`, the weekend in
+    `$danger-text`;
+  - MonthPanel's band is `$chrome-wash`, a marked day `$highlight`;
+  - in the schedule, an appointment is `$category-1-wash` and a note `$category-2-wash`.
+- PercentageCompleteRuler2's bar is `$chrome-solid` (was red).
+- Trees:
+  - Tree3's fold button is `$surface-inverse` with `$text-inverse`;
+  - Tree2's hover is `$neutral-wash` with `$primary-text`;
+  - the old Tree's selected item is `$selected-solid` (new `$tree-*` component colours).
+- TabPanel stands on `$chrome-wash`; a tab is `$chrome-tint` with `$text-strong`, the
+  selected tab the content's `$surface-raised`. ScrollableTabPanel's scroll buttons are
+  `$chrome-tint`.
+- DataTable:
+  - the header is `$chrome-tint` with `$text-strong`, edged in `$chrome-border`;
+  - the lines are `$border-subtle` and the even rows `$surface-band`;
+  - a selected cell is `$selected-solid` (was a purple), a selected row `$selected-wash`;
+  - hover is `$hover-wash` and `$hover-border`, through new `$dt-hover-*` and
+    `$dt-selected-hover-*` component colours instead of the palette's `$row-*` names.
+- DataCellTable's selected cell is `$selected-wash` (was cyan). DataPager2's buttons are
+  `$neutral-wash`.
+- HtmlEditor is a field. Ace's bar is `$surface-inverse`. The cookie banners are
+  `neutral` and `$surface-inverse`.
+- ConditionPanel's levels are the seven `$category-*-wash`. Light had ten pastels of
+  its own.
+- `TestThemeContrast` reads the title bar as `$caption-*`. `TestThemeVariants` checks that an
+  application's custominit configures the roles (`$link-text`, `$primary-solid`), not the old
+  names.
+- Found on the way: `mvn install` without `clean` keeps a deleted resource in
+  `target/classes` and so in the jar. The demo kept serving light's deleted exceptions
+  until the stale copy was removed by hand.
+- **Dark, for phase 5:**
+  - Dark's rough aliases had to be adjusted for the contrast test:
+    - each intent's `-on-solid` is whichever of the page and white reads best on its
+      `-solid`;
+    - `$chrome-wash` and `$chrome-tint` are mixed towards the page.
+  - The flares keep their dark literals as nature exceptions, because the dark intents'
+    solids are mid-light hues on which neither text colour reaches 4.5:1.
+  - Selection in dark is the rough magenta of its palette.
+
 ## 7. Decisions (2026-10-09)
 
 1. **Step words** `wash / tint / solid / on-solid / text / border`.

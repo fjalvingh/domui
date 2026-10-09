@@ -83,25 +83,29 @@ $input-arrow: $text-subtle !default;			// the arrow of a combo
 //-- LogTailer (.ui-tlf-*)
 $tlf-hdr-bg: $primary !default;
 
-//-- SimplePopupMenu (.ui-pmnu-*). An inverted surface; each nested submenu is one step
-//-- lighter than the one it opens from.
-$pmnu-bg: $window-bg !default;					// the menu itself
-$pmnu-sm1-bg: $ground-bg !default;				// a submenu, one level in
-$pmnu-sm2-bg: $fill-muted-bg !default;
-$pmnu-sm3-bg: $fill-strong-bg !default;
-$pmnu-color: $text-color !default;	// item text, readable on the menu
-$pmnu-disabled-color: $text-dim !default;			// disabled item text
-$pmnu-border: $body-bg !default;					// title band and border
-$pmnu-title-color: $text-strong-color !default;
-$pmnu-hover-bg: $row-hover-bg !default;
+//-- SimplePopupMenu (.ui-pmnu-*). A menu floats, like PopupMenu2's; each nested submenu is one
+//-- step further off it.
+$pmnu-bg: $surface-overlay !default;					// the menu itself
+$pmnu-sm1-bg: $surface-band !default;				// a submenu, one level in
+$pmnu-sm2-bg: $neutral-tint !default;
+$pmnu-sm3-bg: $neutral-tint !default;
+$pmnu-color: $text-default !default;	// item text, readable on the menu
+$pmnu-disabled-color: $disabled-text !default;			// disabled item text
+$pmnu-border: $border-default !default;					// title band and border
+$pmnu-title-color: $text-strong !default;
+$pmnu-hover-bg: $hover-wash !default;
 
 //-- LogTailer (.ui-tlf-*)
 $tlf-gutter-bg: $fill-muted-bg !default;			// the line-number gutter
 
 //-- FloatingWindow (.ui-flw-*)
-$flw-divider-border: $surface-alt-bg !default;				// the line under the title bar
-$flw-hider-bg: $shadow-color !default;				// the overlay that blocks the page behind
-$flw-label-color: $text-muted !default;
+$flw-divider-border: $border-subtle !default;				// the line under the title bar
+$flw-hider-bg: $scrim !default;				// the overlay that blocks the page behind
+$flw-label-color: $text-subtle !default;
+$flw-bg: $surface-overlay !default;			// the window, round its content
+$flw-content-bg: $surface-raised !default;
+$flw-color: $text-default !default;
+$flw-border: $border-default !default;
 
 //-- EmbeddedCode (.ui-embc-*)
 $embc-border: $surface-alt-bg !default;
@@ -122,24 +126,26 @@ $cpnl-bg: $surface-raised !default;
 $cpnl-color: $text-default !default;
 
 //-- HtmlEditor (.wysiwyg)
-$htmled-bg: $surface-bg !default;
-$htmled-border: $control-border !default;			// the frame round the editor
-$htmled-toolbar-border: $line-color !default;			// the line under the toolbar, and between its groups
+$htmled-bg: $field-surface !default;
+$htmled-border: $field-border !default;			// the frame round the editor
+$htmled-toolbar-border: $border-subtle !default;			// the line under the toolbar, and between its groups
 
 //-- HamburgerMenu (.ui-hmbrg-*)
-$hmbrg-bg: $window-bg !default;
-$hmbrg-color: $surface-color !default;
-$hmbrg-border: $line-color !default;
-$hmbrg-disabled-color: $text-muted !default;
+$hmbrg-bg: $surface-overlay !default;
+$hmbrg-color: $text-default !default;
+$hmbrg-border: $border-default !default;
+$hmbrg-disabled-color: $disabled-text !default;
+$hmbrg-hover-bg: $hover-wash !default;
+$hmbrg-hover-border: $hover-border !default;
 
 //-- ioHiderOverlay (.ui-io-blk-*)
-$io-blk-bg: $shadow-color !default;
+$io-blk-bg: $scrim !default;
 
 //-- PopupMenu2 (.ui-pome2-*)
-$pome2-bg: $window-bg !default;			// the menu: a raised surface
-$pome2-color: $surface-color !default;
-$pome2-hover-bg: $menu-hover-bg !default;			// the item under the pointer
-$pome2-disabled-bg: $fill-muted-bg !default;
+$pome2-bg: $surface-overlay !default;			// the menu: it floats
+$pome2-color: $text-default !default;
+$pome2-hover-bg: $hover-wash !default;			// the item under the pointer
+$pome2-disabled-bg: $disabled-surface !default;
 
 //-- SearchAsYouType (.ui-sayt-*)
 $sayt-error-color: $danger-text !default;			// no match
@@ -165,7 +171,7 @@ $code-block-bg: $surface-sunken !default;
 //-- colour, like the popup menu's nested levels but with a palette instead of greys. This is the documented exception to "default to a main-set value":
 //-- the levels have to stay apart from *each other*, which is not something the theme's
 //-- semantics can express. An application replaces the list to restyle all of them.
-$copa-level-bgs: ( color.mix($green, $body-bg, 28%), color.mix($purple, $body-bg, 28%), color.mix($cyan, $body-bg, 28%), color.mix($blue, $body-bg, 28%), color.mix($red, $body-bg, 28%), color.mix($yellow, $body-bg, 40%), color.mix($purple, $body-bg, 40%), color.mix($cyan, $body-bg, 40%), color.mix($green, $body-bg, 40%), color.mix($orange, $body-bg, 40%) ) !default;
+$copa-level-bgs: ($category-1-wash, $category-2-wash, $category-3-wash, $category-4-wash, $category-5-wash, $category-6-wash, $category-7-wash) !default;
 
 //-- jquery-layout (.ui-layout-*). The resizer's feedback colours are a set of their own -
 //-- green you may drag, red at the size limit, amber click-to-open - so they keep their
@@ -237,22 +243,31 @@ $dd-table-hdr-bg: #0F3C2C !default;					// a deliberate dark green, not a theme 
 $dd-table-hdr-color: #77F6C9 !default;
 
 //-- CookieConfirm (#gdpr-cookie-message)
-$ckc-surface-bg: $surface-bg !default;
-$ckc-color: $text-bright-color !default;
+$ckc-surface-bg: $surface-raised !default;
+$ckc-color: $text-inverse !default;
 
 //-- The DataTable palette (.ui-dt-*). Shared, not one component's: _datatable,
 //-- _scrollableTable, _expandingtable, _monthpanel and _dateinput all read it. It used to
 //-- be declared in _datatable.scss AND again, identically, in _scrollableTable.scss.
-$dt-selected-bg: $selection-bg !default;			// blue
-$dt-even-row-bg: $stripe-bg !default;			// greyish
-$dt-cell-highlight-bg: color.mix($purple, $body-bg, 40%) !default;		// cell select: purple
-$dt-cell-highlight-link-bg: $surface-bg !default;
-$dt-expanding-row-bg: color.mix($green, $body-bg, 20%) !default;
-$dt-hdr-bg: $header-bg !default;
+$dt-selected-bg: $selected-wash !default;
+$dt-hover-bg: $hover-wash !default;			// the row under the pointer
+$dt-hover-outline: $hover-border !default;
+$dt-selected-hover-bg: $selected-wash !default;			// a selected row under the pointer
+$dt-selected-hover-outline: $selected-border !default;
+$dt-link-color: $link-text !default;
+//-- Tree (.ui-tree, .ui-tr-*), the old one
+$tree-selected-bg: $selected-solid !default;
+$tree-selected-color: $selected-on-solid !default;
+$tree-hover-bg: $hover-wash !default;			// blue
+$dt-even-row-bg: $surface-band !default;			// greyish
+$dt-cell-highlight-bg: $selected-solid !default;		// cell select: purple
+$dt-cell-highlight-link-bg: $selected-on-solid !default;
+$dt-expanding-row-bg: $surface-sunken !default;
+$dt-hdr-bg: $chrome-tint !default;
 // Deliberately black rather than $text: the header sits on its own coloured band, where
 // $text drops the contrast from 10.9:1 to 4.6:1 - on the AA threshold, for bold text
 // people scan.
-$dt-hdr-color: $title-color !default;
+$dt-hdr-color: $text-strong !default;
 
 // FIXME This is used as a colour - "border-left: 1px solid $dt-hdr-btm-border" -
 // but "undefined" is not one, so those two rules emit invalid CSS and the browser drops
@@ -262,34 +277,33 @@ $dt-hdr-btm-border: undefined !default;
 
 // The sort indicator in a column header (_datatable and _scrollableTable): the arrow of the
 // sorted direction, and the pair shown on a column that is not sorted.
-$dt-sort-color: $title-color !default;
-$dt-sort-idle-color: rgba($title-color, 0.45) !default;
+$dt-sort-color: $text-strong !default;
+$dt-sort-idle-color: rgba($text-strong, 0.45) !default;
 
-$dt-border: $header-edge-color !default;
-$dt-lines-border: $line-soft !default;
+$dt-border: $chrome-border !default;
+$dt-lines-border: $border-subtle !default;
 
 //-- Calendar schedule (.ui-wa-*) - the week/day grid, not the date-picker popup
-$wa-band-bg: $surface-alt-bg !default;
-$wa-hour-bg: $window-bg !default;
-$wa-slot-bg: $surface-bg !default;
-$wa-item-bg: color.mix($cyan, $body-bg, 45%) !default;					// an appointment's block
-$wa-note-bg: color.mix($orange, $body-bg, 50%) !default;					// a note pinned to the grid
-$wa-time-color: $link-color !default;			// blue text; not a link, but it takes the
-												// theme's blue so the variant corrects it
+$wa-band-bg: $surface-band !default;
+$wa-hour-bg: $neutral-tint !default;
+$wa-slot-bg: $surface-raised !default;
+$wa-item-bg: $category-1-wash !default;					// an appointment's block
+$wa-note-bg: $category-2-wash !default;					// a note pinned to the grid
+$wa-time-color: $chrome-text !default;			// the hours
 
 //-- ColorPicker (.colorpicker*). Its #f00 swatches are samples and stay literal.
 $cpick-label-color: $text-muted !default;
 $cpick-border: $line-strong !default;
 
 //-- CookieWarning (#cookie-msg)
-$ckw-bg: $window-bg !default;
-$ckw-color: $text-color !default;
+$ckw-bg: $neutral-solid !default;
+$ckw-color: $neutral-on-solid !default;
 
 //-- DataPager2 (.ui-dp2-*)
-$dp2-bg: $surface-bg !default;
-$dp2-disabled-bg: $fill-muted-bg !default;
-$dp2-disabled-color: $text-muted !default;
-$dp2-button-hover-color: $link-color !default;		// a button's text while hovered
+$dp2-bg: $surface-raised !default;
+$dp2-disabled-bg: $disabled-surface !default;
+$dp2-disabled-color: $disabled-text !default;
+$dp2-button-hover-color: $link-text-hover !default;		// a button's text while hovered
 
 //-- DefaultButton (.ui-button)
 $button-text-invert: $text-inverse !default;
@@ -298,9 +312,9 @@ $button-text-invert: $text-inverse !default;
 $drbb-gradient-from: $neutral-tint !default;
 
 //-- ExpandingTable (.ui-xdt-*)
-$xdt-border: $line-color !default;
-$xdt-shadow: $line-color !default;
-$xdt-ix-color: $link-color !default;			// the expand/collapse cell, an underlined link
+$xdt-border: $border-default !default;
+$xdt-shadow: $border-default !default;
+$xdt-ix-color: $link-text !default;			// the expand/collapse cell, an underlined link
 
 //-- The header blue: GenericHeader's level-2 title and ExpandingHeader's bar are one
 //-- colour used by two components, so both default to it rather than repeating it.
@@ -330,21 +344,21 @@ $lui-popup-bg: $surface-overlay !default;
 $lui-popup-border: $border-strong !default;
 
 //-- MonthPanel (.ui-mp-*)
-$mp-bg: $surface-bg !default;
+$mp-bg: $surface-raised !default;
 
 //-- Drag-and-drop table striping (.ui-dd-table), in _misc.scss
 $dd-table-stripe-bg: rgba(160, 160, 160, 0.2) !default;
 
 //-- PopInPanel (.ui-popin-*)
-$popin-border: $control-border !default;
-$popin-bg: color.mix($green, $body-bg, 16%) !default;
-$popin-title-bg: color.mix($green, $body-bg, 45%) !default;
+$popin-border: $border-default !default;
+$popin-bg: $surface-overlay !default;
+$popin-title-bg: $chrome-tint !default;
 
 //-- ScrollableTabPanel (.ui-stab-*): the scroll buttons at both ends of its tab strip
-$stab-scroll-bg: $header-bg !default;
-$stab-scroll-hover-bg: $header-band-bg !default;
-$stab-scroll-color: $title-color !default;
-$stab-scroll-dis-color: color.mix($title-color, $header-bg, 45%) !default;
+$stab-scroll-bg: $chrome-tint !default;
+$stab-scroll-hover-bg: findColorHighlight($chrome-tint, 10%) !default;
+$stab-scroll-color: $text-strong !default;
+$stab-scroll-dis-color: $disabled-text !default;
 
 //-- Switch (.ui-swtch-*)
 $swtch-off-bg: $neutral-tint !default;
@@ -352,58 +366,58 @@ $swtch-knob-bg: $surface-raised !default;
 $swtch-on-bg: $primary-solid !default;					// the track once the switch is on
 
 //-- TabPanel (.ui-tab-*)
-$tab-hdr-bg: $header-strip-bg !default;			// The header part containing the tabs
-$tab-bg: $header-tab-bg !default;
-$tab-border: $header-strip-bg !default;
-$tab-content-bg: $surface-bg !default;
-$tab-color: $title-color !default;
+$tab-hdr-bg: $chrome-wash !default;			// The header part containing the tabs
+$tab-bg: $chrome-tint !default;
+$tab-border: $chrome-border !default;
+$tab-content-bg: $surface-raised !default;
+$tab-color: $text-strong !default;
 
 //-- Tree2 / Tree3 (.ui-tree2-* / .ui-tree3-*)
-$tree2-shadow: $line-soft !default;
-$tree3-border: $line-strong !default;
-$tree3-color: $text-color !default;
-$tree2-hover-bg: $ground-alt-bg !default;
-$tree2-hover-color: $primary !default;
-$tree3-hover-outline: $row-hover-outline !default;
+$tree2-shadow: $border-subtle !default;
+$tree3-border: $border-strong !default;
+$tree3-color: $text-inverse !default;
+$tree2-hover-bg: $neutral-wash !default;
+$tree2-hover-color: $primary-text !default;
+$tree3-hover-outline: $hover-border !default;
 
 //-- Breadcrumb (.ui-brc-* and .ui-brcr2-*)
-$brc-color: $title-color !default;
-$brcr2-shadow: $shadow-color !default;
-$brc-link-color: $yellow !default;				// a crumb that is still a link
-$brcr2-bg: $header-band-bg !default;			// item bg colour
-$brcr2-color: $brc-color !default;
-$brcr2-hover-bg: color.mix($header-band-bg, $title-color, 80%) !default;
-$brcr2-sel-bg: $title-color !default;				// the selected item's bg
-$brcr2-sel-color: $header-strip-bg !default;
+$brc-color: $chrome-on-solid !default;
+$brcr2-shadow: $shadow !default;
+$brc-link-color: $chrome-on-solid !default;				// a crumb that is still a link
+$brcr2-bg: $chrome-solid !default;			// item bg colour
+$brcr2-color: $chrome-on-solid !default;
+$brcr2-hover-bg: findColorHighlight($chrome-solid, 10%) !default;
+$brcr2-sel-bg: $chrome-wash !default;				// the selected item's bg
+$brcr2-sel-color: $chrome-text !default;
 
 //-- Ace editor bar (.ui-acedit-*)
-$acedit-bar-bg: $surface-bg !default;
-$acedit-border: $header-edge-color !default;				// the navy rule under the editor
+$acedit-bar-bg: $surface-inverse !default;
+$acedit-border: $chrome-solid !default;				// the navy rule under the editor
 
 //-- CookieConfirm (#gdpr-cookie-message) - its own two-colour palette
-$ckc-bg: $window-bg !default;
-$ckc-shadow: $shadow-color !default;
-$ckc-rule-color: $text-bright-color !default;
-$ckc-accent: $red !default;
+$ckc-bg: $surface-inverse !default;
+$ckc-shadow: $shadow !default;
+$ckc-rule-color: $text-inverse !default;
+$ckc-accent: $primary-solid !default;
 
 //-- Hard frames: components that drew a plain black border, now the third step of the
 //-- line scale. $line-hard is $black (#0a0a0a) rather than #000, hence the hairline shift.
-$bug-ind-border: $line-hard !default;			// the bug badge's frame
-$wa-item-border: $line-hard !default;			// an appointment in the schedule grid
-$dct-selected-bg: $selection-bg !default;			// a selected cell of a DataCellTable
-$dct-selected-border: $line-hard !default;		// a selected cell
+$bug-ind-border: $border-bold !default;			// the bug badge's frame
+$wa-item-border: $border-bold !default;			// an appointment in the schedule grid
+$dct-selected-bg: $selected-wash !default;			// a selected cell of a DataCellTable
+$dct-selected-border: $selected-border !default;		// a selected cell
 $oddchars-border: $line-hard !default;
-$pct-border: $line-hard !default;				// the progress bar's outline
-$popin-title-border: $line-hard !default;
-$tree3-fbtn-bg: $fill-muted-bg !default;				// the fold button is an inverted square
+$pct-border: $border-strong !default;				// the progress bar's outline
+$popin-title-border: $border-strong !default;
+$tree3-fbtn-bg: $surface-inverse !default;				// the fold button is an inverted square
 
 //-- Forms, and the odd remaining component colour that is genuinely its own
 $f-display-bg: $field-surface-readonly !default;				// .ui-f-display, the read-only field wash
-$bug-ind-bg: $errors-border !default;			// the bug badge's ground: the theme's error red
-$bug-count-color: yellow !default;				// the count on the red bug badge
+$bug-ind-bg: $danger-solid !default;			// the bug badge's ground
+$bug-count-color: $danger-on-solid !default;				// the count on the bug badge
 $oddchars-hover-bg: $row-hover-bg !default;
-$pct-rlr2-border: $line-color !default;
-$pct-bar-bg: $red !default;						// the filled part of the progress bar
+$pct-rlr2-border: $border-default !default;
+$pct-bar-bg: $chrome-solid !default;						// the filled part of the progress bar
 
 //-- Text that was written as plain black and is the theme's ordinary text colour
 $generichd-color: $text-default !default;					// header levels 1, 4 and "simple"
@@ -420,20 +434,20 @@ $lnkb-icon-color: $text-default !default;
 $ckw-accept-color: $primary-on-solid !default;
 
 //-- The spinner of the "waiting for the server" message (.ui-ioe-img, _asyio)
-$ioe-spinner-color: $green !default;
-$ioe-spinner-track: $ground-bg !default;
+$ioe-spinner-color: $chrome-solid !default;
+$ioe-spinner-track: $chrome-wash !default;
 
 //-- MessageFlare (.ui-flare-*): solid and loud, it has to be noticed
-$flare-error-bg: #D32F2F !default;
-$flare-error-color: #FFFFFF !default;
-$flare-info-bg: #1F6FD1 !default;
-$flare-info-color: #FFFFFF !default;
-$flare-warning-bg: #F2B01E !default;
-$flare-warning-color: #1E1E1E !default;
+$flare-error-bg: $danger-solid !default;
+$flare-error-color: $danger-on-solid !default;
+$flare-info-bg: $info-solid !default;
+$flare-info-color: $info-on-solid !default;
+$flare-warning-bg: $warning-solid !default;
+$flare-warning-color: $warning-on-solid !default;
 
 //-- MonthPanel dims, which were written as lighter(#000000, 55%) and 65%
-$mp-weeknr-color: $text-muted !default;
-$mp-othermonth-color: $text-dim !default;
+$mp-weeknr-color: $text-subtle !default;
+$mp-othermonth-color: $text-faint !default;
 
 // =======================================================================================
 // Component variables that used to be declared by the component partials themselves. They
@@ -495,49 +509,49 @@ $button-static-border-color: $field-border !default;
 $button-color-shades: -button-shades($colors) !default;
 
 // -- DataPager2
-$dp2-button-color: $alt-button-color !default;
-$dp2-button-bg: $alt-button-bg !default;
+$dp2-button-color: $text-strong !default;
+$dp2-button-bg: $neutral-wash !default;
 
 // -- Drag and drop
 $drp-hover-border: $green-accent !default;
 $drp-hover-bg: rgba($green-accent, 0.1) !default;
 
 // -- The jscalendar popup used by DateInput2 (_calendarTheme)
-$cal-band-active-bg: $fill-muted-bg !default;
-$cal-band-bg: $ground-bg !default;
-$cal-bg: $window-bg !default;
-$cal-body-bg: $window-bg !default;
-$cal-border: $line-color !default;
-$cal-combo-border: $line-color !default;
-$cal-combo-dim-color: $text-dim !default;
-$cal-combo-hover-bg: $selection-bg !default;
-$cal-combo-color: $primary !default;
-$cal-dim-color: $text-dim !default;
-$cal-disabled-color: $text-dim !default;
-$cal-drag-bg: $green !default;
-$cal-hilite-bg: $row-hover-bg !default;
-$cal-hilite2-bg: color.mix($green, $body-bg, 20%) !default;
-$cal-hover-active-bg: $fill-strong-bg !default;
-$cal-hover-bg: $fill-muted-bg !default;
-$cal-selected-bg: $selection-bg !default;
-$cal-status-bg: $ground-bg !default;
-$cal-status-color: $primary !default;
-$cal-color: $text-color !default;
-$cal-title-bg: $ground-bg !default;
-$cal-today-active-bg: color.mix($red, $body-bg, 40%) !default;
-$cal-today-bg: color.mix($red, $body-bg, 28%) !default;
-$cal-today-border: $red !default;
-$cal-tooltip-bg: $fill-muted-bg !default;
-$cal-weekend-color: $red !default;
-$cal-weekend-dim-color: color.mix($red, $body-bg, 55%) !default;
-$cal-month-title-color: $text-bright-color !default;		// the "month, year" title, on $cal-band-active-bg
-$cal-invert: $text-bright-color !default;
+$cal-band-active-bg: $chrome-solid !default;
+$cal-band-bg: $chrome-wash !default;
+$cal-bg: $surface-overlay !default;
+$cal-body-bg: $surface-overlay !default;
+$cal-border: $border-default !default;
+$cal-combo-border: $border-default !default;
+$cal-combo-dim-color: $text-faint !default;
+$cal-combo-hover-bg: $hover-wash !default;
+$cal-combo-color: $text-default !default;
+$cal-dim-color: $text-faint !default;
+$cal-disabled-color: $disabled-text !default;
+$cal-drag-bg: $success-text !default;
+$cal-hilite-bg: $hover-wash !default;
+$cal-hilite2-bg: $neutral-wash !default;
+$cal-hover-active-bg: $neutral-tint !default;
+$cal-hover-bg: $hover-wash !default;
+$cal-selected-bg: $selected-wash !default;
+$cal-status-bg: $surface-band !default;
+$cal-status-color: $text-subtle !default;
+$cal-color: $text-default !default;
+$cal-title-bg: $chrome-tint !default;
+$cal-today-active-bg: $primary-solid !default;
+$cal-today-bg: $primary-tint !default;
+$cal-today-border: $primary-border !default;
+$cal-tooltip-bg: $surface-band !default;
+$cal-weekend-color: $danger-text !default;
+$cal-weekend-dim-color: $text-faint !default;
+$cal-month-title-color: $chrome-on-solid !default;		// the "month, year" title, on $cal-band-active-bg
+$cal-invert: $chrome-on-solid !default;
 
 // -- MonthPanel
-$mp-border: $dt-border !default;
-$mp-hdr-bg: $dt-hdr-bg !default;
-$mp-marked-bg: $highlight-bg !default;
-$mp-band-bg: $header-band-bg !default;			// the weekday names and the week numbers
+$mp-border: $chrome-border !default;
+$mp-hdr-bg: $chrome-tint !default;
+$mp-marked-bg: $highlight !default;
+$mp-band-bg: $chrome-wash !default;			// the weekday names and the week numbers
 
 // -- TabPanel
-$tab-selected-color: $text-bright-color !default;
+$tab-selected-color: $text-strong !default;
