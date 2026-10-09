@@ -8,36 +8,13 @@
 // its own, that is an exception (_nature-exceptions.scss, _scheme-exceptions.scss), not a line
 // here.
 @use "sass:color";
+@use "sass:list";
+@use "sass:map";
 @use "variables" as *;
 @use "palette" as *;
 @use "functions" as *;
 @use "derived-variables" as *;
 
-$info: $cyan !default;
-$success: $green !default;
-$warning: $yellow !default;
-$danger: $red !default;
-
-$light: $ground-alt-bg !default;
-$dark: $text-strong-color !default;
-
-// Invert colors
-
-$orange-invert: findColorInvert($orange) !default;
-$yellow-invert: findColorInvert($yellow) !default;
-$green-invert: findColorInvert($green) !default;
-$cyan-invert: findColorInvert($cyan) !default;
-$blue-invert: findColorInvert($blue) !default;
-$purple-invert: findColorInvert($purple) !default;
-$red-invert: findColorInvert($red) !default;
-
-$primary-invert: findColorInvert($primary) !default;
-$info-invert: $cyan-invert !default;
-$success-invert: $green-invert !default;
-$warning-invert: $yellow-invert !default;
-$danger-invert: $red-invert !default;
-$light-invert: $dark !default;
-$dark-invert: $light !default;
 
 // General colors
 
@@ -68,12 +45,7 @@ $pre-bg: $background !default;
 // Link colors
 
 $link: $link-color !default;
-$link-invert: $blue-invert !default;
 
-// The "link" colour button: $link and its invert by default; the dark schemes keep the light
-// theme's blue (see dark/_nature-exceptions.scss).
-$button-link-color: $link !default;
-$button-link-invert: $link-invert !default;
 
 $link-visited: $purple !default;
 
@@ -88,7 +60,20 @@ $link-active-border: $control-active-border !default;
 
 // Lists and maps
 
-$colors: ("white": ($white, $black) , "black": ($black, $white) , "light": ($light, $light-invert) , "dark": ($dark, $dark-invert) , "primary": ($primary, $primary-invert) , "link": ($button-link-color, $button-link-invert) , "info": ($info, $info-invert) , "success": ($success, $success-invert) , "warning": ($warning, $warning-invert) , "danger": ($danger, $danger-invert) ) !default;
+// The colour buttons and tags (.is-primary, .is-danger ...): Bulma's colour names, each a pair
+// of a fill and the text on it, both colour roles.
+$colors: (
+	"white": ($surface-raised, $text-strong),
+	"black": ($surface-inverse, $text-inverse),
+	"light": ($neutral-wash, $text-strong),
+	"dark": ($neutral-solid, $neutral-on-solid),
+	"primary": ($primary-solid, $primary-on-solid),
+	"link": ($link-text, $surface-page),
+	"info": ($info-solid, $info-on-solid),
+	"success": ($success-solid, $success-on-solid),
+	"warning": ($warning-solid, $warning-on-solid),
+	"danger": ($danger-solid, $danger-on-solid),
+) !default;
 
 // Form
 $input-background-color: $ground-bg !default;
@@ -181,14 +166,14 @@ $ssop-bg: $surface-bg !default;
 $ssop-border: $line-strong !default;
 
 //-- LinkButton (.ui-lnkb-* / .ui-lbtn-*)
-$lnkb-disabled-color: $text-muted !default;
+$lnkb-disabled-color: $disabled-text !default;
 
 //-- FileUpload2 (.ui-fupl-*)
 $fupl-bg: $surface-bg !default;
 
 //-- Inline code, and the rule under a heading: base elements, not components, so these
 //-- take main-set values directly in _core.scss - except the ground of a <code> block.
-$code-block-bg: $fill-muted-bg !default;
+$code-block-bg: $surface-sunken !default;
 
 //-- ConditionPanel (.ui-copa-*). A nested set of panels where each depth takes the next
 //-- colour, like the popup menu's nested levels but with a palette instead of greys. This is the documented exception to "default to a main-set value":
@@ -297,7 +282,7 @@ $dp2-disabled-color: $text-muted !default;
 $dp2-button-hover-color: $link-color !default;		// a button's text while hovered
 
 //-- DefaultButton (.ui-button)
-$button-text-invert: $text-bright-color !default;
+$button-text-invert: $text-inverse !default;
 
 //-- DisplayRadiobutton (.ui-drbb-*)
 $drbb-gradient-from: $fill-muted-bg !default;
@@ -319,11 +304,11 @@ $generichd-h2-color: $header-accent-color !default;
 $generichd-h3-color: $heading2-color !default;
 
 //-- SmallImgButton (.ui-sib)
-$sib-hover-bg: $header-bg !default;
-$sib-focus-bg: $fill-strong-bg !default;
+$sib-hover-bg: $neutral-tint !default;
+$sib-focus-bg: $neutral-tint !default;
 
 //-- ImageButton (.ui-ibtn-*)
-$ibtn-disabled-bg: $fill-muted-bg !default;
+$ibtn-disabled-bg: $disabled-surface !default;
 
 //-- LookupInput (.ui-lui-*)
 $lui-popup-bg: $surface-bg !default;
@@ -411,13 +396,13 @@ $di-readonly-color: $text !default;
 $drbb-icon-color: $text !default;
 $xphd-color: $text !default;
 $f4-readonly-color: $text !default;
-$lnkb-icon-color: $text !default;
+$lnkb-icon-color: $text-default !default;
 
 //-- The cookie warning's accept button sits on $primary. It used to hand-write `black`
 //-- because findColorInvert($primary) returned #fff, at 2.3:1 on that orange; now that the
 //-- helper compares contrast rather than cutting on luminance it answers correctly, so the
 //-- button asks it like every other coloured surface does.
-$ckw-accept-color: $primary-invert !default;
+$ckw-accept-color: $primary-on-solid !default;
 
 //-- The spinner of the "waiting for the server" message (.ui-ioe-img, _asyio)
 $ioe-spinner-color: $green !default;
@@ -452,58 +437,40 @@ $rbb-disabled-border-color: $line-strong !default;
 $rbb-disabled-label-color: $text-muted !default;			// a disabled radio button's text
 
 // -- Buttons (bulmaish/_button_common)
-$button-color: $text-strong-color !default;
-$button-background-color: $ground-bg !default;
-$button-border-color: $control-border !default;
-$button-hover-color: $link-hover !default;
-$button-hover-border-color: $link-hover-border !default;
-$button-focus-color: $link-focus !default;
-$button-focus-border-color: $link-focus-border !default;
-$button-focus-box-shadow-color: rgba($link, 0.25) !default;
-$button-active-color: $link-active !default;
-$button-active-border-color: $link-active-border !default;
-$button-text-color: $text !default;
-$button-text-hover-background-color: $background !default;
+$button-color: $text-strong !default;
+$button-background-color: $surface-raised !default;
+$button-border-color: $field-border !default;
+$button-hover-color: $text-strong !default;
+$button-hover-border-color: $field-border-hover !default;
+$button-focus-color: $text-strong !default;
+$button-focus-border-color: $focus-ring !default;
+$button-focus-box-shadow-color: rgba($focus-ring, 0.25) !default;
+$button-active-color: $text-strong !default;
+$button-active-border-color: $border-strong !default;
+$button-text-color: $text-default !default;
+$button-text-hover-background-color: $neutral-wash !default;
 $button-text-hover-color: $text-strong !default;
-$button-text-active-background-color: $fill-muted-bg !default;
-$button-disabled-background-color: $ground-bg !default;
-$button-disabled-border-color: $control-border !default;
-$button-static-color: $text-muted !default;
-$button-static-background-color: $ground-alt-bg !default;
-$button-static-border-color: $control-border !default;
-
+$button-text-active-background-color: $neutral-tint !default;
+$button-disabled-background-color: $disabled-surface !default;
+$button-disabled-border-color: $disabled-border !default;
+$button-static-color: $text-subtle !default;
+$button-static-background-color: $neutral-wash !default;
+$button-static-border-color: $field-border !default;
 // The colour buttons (.is-primary, .is-danger ... one per entry of $colors): per colour, the
 // background while hovered, while pressed, the border while focused, and the background of
-// the .is-inverted form while hovered. The light nature works all of them out from each colour. The dark nature keeps the light theme's shades
-// for the coloured buttons and gives every one the same focus colour, because the colours
-// findButtonFocusBorderColor() turns to are garish on a dark page. if() evaluates only the
-// branch it takes.
-$button-color-shades: if($color-scheme == dark,
-	(
-		"white": (hsl(0, 0%, 95%), hsl(0, 0%, 80%), $button-focus-border-color, hsl(0, 0%, 0%)),
-		"black": (hsl(0, 0%, 9%), hsl(0, 0%, 24%), $button-focus-border-color, hsl(0, 0%, 95%)),
-		"light": ($fill-muted-bg, $fill-strong-bg, $button-focus-border-color, $light-invert),
-		"dark": (color.mix($text-strong-color, $body-bg, 90%), color.mix($text-strong-color, $body-bg, 80%), $button-focus-border-color, $dark-invert),
-		"primary": (#F58519, #B95F08, $button-focus-border-color, $primary-invert),
-		"link": (hsl(217, 71%, 58%), hsl(217, 71%, 73%), $button-focus-border-color, #F2F2F2),
-		"info": (hsl(204, 86%, 48%), hsl(204, 86%, 33%), $button-focus-border-color, $info-invert),
-		"success": (hsl(141, 71%, 43%), hsl(141, 71%, 28%), $button-focus-border-color, $success-invert),
-		"warning": (hsl(48, 100%, 62%), hsl(48, 100%, 47%), $button-focus-border-color, $warning-invert),
-		"danger": (hsl(348, 100%, 66%), hsl(348, 100%, 81%), $button-focus-border-color, $danger-invert)
-	),
-	(
-		"white": (findColorHighlight($white, 5%), findColorHighlight($white, 20%), findButtonFocusBorderColor($white, $button-focus-border-color), darker($black, 5%)),
-		"black": (findColorHighlight($black, 5%), findColorHighlight($black, 20%), findButtonFocusBorderColor($black, $button-focus-border-color), darker($white, 5%)),
-		"light": (findColorHighlight($light, 5%), findColorHighlight($light, 20%), findButtonFocusBorderColor($light, $button-focus-border-color), darker($light-invert, 5%)),
-		"dark": (findColorHighlight($dark, 5%), findColorHighlight($dark, 20%), findButtonFocusBorderColor($dark, $button-focus-border-color), darker($dark-invert, 5%)),
-		"primary": (findColorHighlight($primary, 5%), findColorHighlight($primary, 20%), findButtonFocusBorderColor($primary, $button-focus-border-color), darker($primary-invert, 5%)),
-		"link": (findColorHighlight($link, 5%), findColorHighlight($link, 20%), findButtonFocusBorderColor($link, $button-focus-border-color), darker($link-invert, 5%)),
-		"info": (findColorHighlight($info, 5%), findColorHighlight($info, 20%), findButtonFocusBorderColor($info, $button-focus-border-color), darker($info-invert, 5%)),
-		"success": (findColorHighlight($success, 5%), findColorHighlight($success, 20%), findButtonFocusBorderColor($success, $button-focus-border-color), darker($success-invert, 5%)),
-		"warning": (findColorHighlight($warning, 5%), findColorHighlight($warning, 20%), findButtonFocusBorderColor($warning, $button-focus-border-color), darker($warning-invert, 5%)),
-		"danger": (findColorHighlight($danger, 5%), findColorHighlight($danger, 20%), findButtonFocusBorderColor($danger, $button-focus-border-color), darker($danger-invert, 5%))
-	)
-) !default;
+// the .is-inverted form while hovered. Hover and pressed are not roles: they are the fill made
+// lighter or darker, whichever stands out from it - which works in either nature. Focus is
+// the focus ring, on every colour.
+@function -button-shades($colors) {
+	$res: ();
+	@each $name, $pair in $colors {
+		$fill: list.nth($pair, 1);
+		$on: list.nth($pair, 2);
+		$res: map.set($res, $name, (findColorHighlight($fill, 5%), findColorHighlight($fill, 20%), $focus-ring, findColorHighlight($on, 5%)));
+	}
+	@return $res;
+}
+$button-color-shades: -button-shades($colors) !default;
 
 // -- DataPager2
 $dp2-button-color: $alt-button-color !default;

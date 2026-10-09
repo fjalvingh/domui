@@ -57,7 +57,7 @@ public class TestThemeContrast {
 		{"a tab's title", "tab-color", "tab-bg", AA},
 		{"the selected tab's title", "tab-selected-color", "tab-content-bg", AA},
 		{"a popup menu item", "pmnu-color", "pmnu-bg", AA},
-		{"a primary button's text", "primary-invert", "primary", AA_LARGE},
+		{"a primary button's text", "primary-on-solid", "primary-solid", AA_LARGE},
 		{"a breadcrumb", "brcr2-color", "brcr2-bg", AA},
 		{"the current breadcrumb", "brcr2-sel-color", "brcr2-sel-bg", AA},
 		{"the calendar", "cal-color", "cal-bg", AA},

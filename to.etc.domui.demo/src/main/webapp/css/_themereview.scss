@@ -69,7 +69,7 @@ $dm-tr-roles: (
 
 .dm-tr-rg-ttl {
 	font-weight: bold;
-	color: t.$text-muted;
+	color: t.$text-subtle;
 	text-transform: uppercase;
 	font-size: 11px;
 	letter-spacing: 0.05em;
@@ -88,7 +88,7 @@ $dm-tr-roles: (
 
 .dm-tr-rs {
 	height: 36px;
-	border: 1px solid t.$line-color;
+	border: 1px solid t.$border-default;
 	border-radius: 4px;
 	display: flex;
 	align-items: center;
@@ -100,7 +100,7 @@ $dm-tr-roles: (
 
 .dm-tr-rl {
 	font-size: 11px;
-	color: t.$text-muted;
+	color: t.$text-subtle;
 	margin-top: 2px;
 	white-space: nowrap;
 	overflow: hidden;
@@ -127,7 +127,7 @@ $dm-tr-roles: (
 
 .dm-tr-fam-hd {
 	font-size: 11px;
-	color: t.$text-muted;
+	color: t.$text-subtle;
 }
 
 .dm-tr-fam-name {
@@ -148,7 +148,7 @@ $dm-tr-roles: (
 }
 
 .dm-tr-cell {
-	border: 1px solid t.$line-color;
+	border: 1px solid t.$border-default;
 	border-radius: 6px;
 	padding: 10px 12px;
 	min-width: 0;
@@ -156,7 +156,7 @@ $dm-tr-roles: (
 
 .dm-tr-ttl {
 	font-weight: bold;
-	color: t.$text-muted;
+	color: t.$text-subtle;
 	text-transform: uppercase;
 	font-size: 11px;
 	letter-spacing: 0.05em;
@@ -172,13 +172,13 @@ $dm-tr-roles: (
 }
 
 .dm-tr-muted {
-	color: t.$text-muted;
+	color: t.$text-subtle;
 }
 
 .dm-tr-code {
 	font-family: monospace;
-	color: t.$code;
-	background-color: t.$code-bg;
+	color: t.$text-strong;
+	background-color: t.$surface-sunken;
 	padding: 0.1em 0.3em;
 }
 

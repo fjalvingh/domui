@@ -299,6 +299,41 @@ released to the world has no aliases (decision 5).
   - the theme tests pass;
   - the review page renders in light-winter and dark-midnight.
 
+### 6.2 Phase 3, in progress
+
+How it goes: per group of the review page, the group's component colours in
+`_component-colors.scss` become roles, and so do the colours its partials read directly
+from the old palette. Since the roles replace that palette, a partial reads a role directly
+where it used to read a palette name. Light's exceptions for the group go. Every sheet is
+compiled before and after, and the declarations that changed are read one by one. Light
+is checked on the review page, and so is Midnight.
+
+**Text and headings, buttons** (2026-10-09):
+- `_core.scss`:
+  - body text is `$text-default` (was `inherit`: the browser's black);
+  - links, h1's rule, `.listtbl`, `select` and the code block read roles. The code block
+    is `$surface-sunken` with a `$border-default` dotted frame.
+- Buttons:
+  - `$colors`, the Bulma colour map, is built from the roles: `primary` ... `danger` are
+    the intents' `-solid` and `-on-solid`, `link` is `$link-text`, `white` / `black` /
+    `light` / `dark` are surfaces and `neutral`.
+  - `$button-color-shades` is worked out from `$colors` by one function for both natures:
+    hover and pressed are the fill made lighter or darker, whichever stands out (5%, 20%),
+    and focus is `$focus-ring` for every colour. Light used to rotate the hue for focus
+    (a green focus on the orange button); dark had literals. Section 3.1 said one function
+    per nature; one turned out to be enough.
+  - The plain, text, disabled and static buttons read roles.
+  - Gone: Bulma's `$info` / `$success` / `$warning` / `$danger` / `$light` / `$dark`, every
+    `*-invert`, `$link-invert`, `$button-link-color` / `-invert`. Light's exceptions for
+    `$colors`, `$button-color-shades`, `$sib-focus-bg` and `$button-text-active-background-color`
+    went with them, and so did 15 of dark's nature exceptions.
+- **Dark, for phase 5:**
+  - The colour buttons now take each scheme's own hues with `s.$page` text, instead of the
+    light theme's hues. They read well in Midnight, but there "link" and "info" are the
+    same blue.
+  - The code block is darker than the page (`$surface-sunken`), where it was lighter.
+  - The text in a `select` is `$text-strong`.
+
 ## 7. Decisions (2026-10-09)
 
 1. **Step words** `wash / tint / solid / on-solid / text / border`.

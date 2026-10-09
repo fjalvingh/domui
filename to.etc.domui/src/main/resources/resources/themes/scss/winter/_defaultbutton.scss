@@ -58,7 +58,7 @@
 
 /* support for disabled attribute */
 .ui-sdbtn-mini[disabled], .ui-sdbtn-mini[disabled]:hover, .ui-sdbtn-mini[disabled]:focus {
-	background: $button-disabled-color;
+	background: $button-disabled-background-color;
 }
 
 /** placement in button bar **/

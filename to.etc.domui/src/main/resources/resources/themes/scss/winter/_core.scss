@@ -19,8 +19,8 @@ html {
 body, html {
 	height: 100%;
 	margin: 0;
-	background: $body-bg;
-	color: $body-color;
+	background: $surface-page;
+	color: $text-default;
 }
 
 body {
@@ -37,10 +37,10 @@ body {
 //-- of its own: any component that colours its own anchors still wins, exactly as it did
 //-- when the colour came from the browser.
 :where(a) {
-	color: $link-color;
+	color: $link-text;
 
 	&:visited {
-		color: $link-visited-color;
+		color: $link-text-visited;
 	}
 }
 
@@ -108,8 +108,8 @@ input[type=checkbox] {
 //}
 
 select {
-	background-color: $input-bg;
-	color: $input-color;
+	background-color: $field-surface;
+	color: $text-strong;
 	height: 18px;
 }
 
@@ -160,7 +160,7 @@ h1, h2, h3, h4, h5 {
 h1 {
 	font-size: 150%;
 	font-weight: bold;
-	border-bottom: 1px solid $line-strong;
+	border-bottom: 1px solid $border-strong;
 }
 
 h2 {
@@ -198,7 +198,7 @@ code {
 	font-size: 11px;
 	background-color: $code-block-bg;
 	display: block;
-	border: 1px dotted $line-strong;
+	border: 1px dotted $border-default;
 	padding: 4px;
 }
 
@@ -211,13 +211,13 @@ i, em {
 }
 
 .listtbl {
-	background: $surface-bg;
-	color: $surface-color;
+	background: $surface-raised;
+	color: $text-default;
 }
 
 .listtbl TD {
 	padding: 1px 2px;
-	border-left: 1px solid $line-color;
+	border-left: 1px solid $border-default;
 	vertical-align: top;
 	//line-height: 130%; 20240417 Causes lines to overlap
 }
@@ -225,7 +225,7 @@ i, em {
 .listtbl THEAD TH {
 	font-weight: bold;
 	padding: 3px;
-	border-left: 1px solid $line-strong;
+	border-left: 1px solid $border-strong;
 	text-align: left;
 	white-space: nowrap;
 }
