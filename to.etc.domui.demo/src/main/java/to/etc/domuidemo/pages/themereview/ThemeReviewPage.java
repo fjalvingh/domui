@@ -97,7 +97,7 @@ import java.util.Set;
  * Every component the theme paints, on one page, so that a colour scheme can be judged in
  * one go instead of by opening every demo page in turn. The bar at the top switches the
  * session between the colour schemes the application offers ({@link DomApplication#getThemeVariants()});
- * the strip below it shows the scheme's main colours.
+ * the table below it shows the scheme's colour roles.
  *
  * <p>Things that only exist after a click - menus, dialogs, flares - open from the buttons in
  * the "Popups" cell. Everything else is shown in a state worth looking at: a selected row, an
@@ -163,7 +163,7 @@ public class ThemeReviewPage extends UrlPage {
 	}
 
 	/*----------------------------------------------------------------------*/
-	/*	CODING:	The scheme bar and the swatches.							*/
+	/*	CODING:	The scheme bar and the colour roles.						*/
 	/*----------------------------------------------------------------------*/
 
 	private Div schemeBar() {
@@ -187,24 +187,97 @@ public class ThemeReviewPage extends UrlPage {
 	}
 
 	/**
-	 * One chip per main colour of the scheme. The colours themselves come from the theme
-	 * module in the demo's stylesheet (_themereview.scss), so they are the compiled ones.
+	 * The scheme's colour roles (COLOR-ROLES.md), each shown with what goes on it: a surface
+	 * with body text, a fill with its own text colour, a line as a frame. The colours come from
+	 * the theme module in the demo's stylesheet (_themereview.scss), so they are the compiled
+	 * ones; a chip's classes say which role it shows as ground (bg-), text (fg-) and frame (bd-).
 	 */
 	private Div swatches() {
-		Div strip = new Div("dm-tr-swatches");
-		String[][] roles = {
-			{"body-bg", "page"}, {"surface-bg", "panel"}, {"window-bg", "window"}, {"ground-bg", "field"},
-			{"header-bg", "header"}, {"tab-hdr-bg", "tab strip"}, {"tab-bg", "tab"}, {"dt-selected-bg", "selection"},
-			{"primary", "accent"}, {"row-hover-bg", "hover"}, {"highlight-bg", "marked"}, {"link-color", "link"},
-			{"errors-border", "error"}, {"warnings-border", "warning"}, {"info-border", "info"}, {"green-accent", "green"},
-		};
-		for(String[] role : roles) {
-			Div chip = new Div("dm-tr-sw");
-			strip.add(chip);
-			chip.add(new Div("dm-tr-sw-c dm-tr-sw-" + role[0]));
-			chip.add(new Div("dm-tr-sw-l", role[1]));
+		Div roles = new Div("dm-tr-roles");
+		roleGroup(roles, "Surfaces",
+			chip("surface-page", "bg-surface-page fg-text-default"),
+			chip("surface-raised", "bg-surface-raised fg-text-default"),
+			chip("surface-overlay", "bg-surface-overlay fg-text-default"),
+			chip("surface-sunken", "bg-surface-sunken fg-text-default"),
+			chip("surface-band", "bg-surface-band fg-text-default"),
+			chip("surface-inverse", "bg-surface-inverse fg-text-inverse"));
+		roleGroup(roles, "Text",
+			chip("text-default", "bg-surface-page fg-text-default"),
+			chip("text-strong", "bg-surface-page fg-text-strong"),
+			chip("text-subtle", "bg-surface-page fg-text-subtle"),
+			chip("text-faint", "bg-surface-page fg-text-faint"),
+			chip("text-inverse", "bg-surface-inverse fg-text-inverse"));
+		roleGroup(roles, "Lines",
+			chip("border-subtle", "bg-surface-page fg-text-default bd-border-subtle"),
+			chip("border-default", "bg-surface-page fg-text-default bd-border-default"),
+			chip("border-strong", "bg-surface-page fg-text-default bd-border-strong"),
+			chip("border-bold", "bg-surface-page fg-text-default bd-border-bold"));
+		roleGroup(roles, "Fields and links",
+			chip("field-surface", "bg-field-surface fg-text-default bd-field-border"),
+			chip("field-surface-readonly", "bg-field-surface-readonly fg-text-default bd-field-border"),
+			chip("field-border-hover", "bg-field-surface fg-text-default bd-field-border-hover"),
+			chip("link-text", "bg-surface-page fg-link-text"),
+			chip("link-text-visited", "bg-surface-page fg-link-text-visited"),
+			chip("link-text-hover", "bg-surface-page fg-link-text-hover"));
+		roleGroup(roles, "States",
+			chip("hover-wash / -border", "bg-hover-wash fg-text-default bd-hover-border"),
+			chip("selected-wash", "bg-selected-wash fg-text-default"),
+			chip("selected-solid", "bg-selected-solid fg-selected-on-solid"),
+			chip("selected-border", "bg-surface-page fg-text-default bd-selected-border"),
+			chip("highlight", "bg-highlight fg-text-strong"),
+			chip("focus-ring", "bg-surface-page fg-text-default bd-focus-ring"),
+			chip("disabled-*", "bg-disabled-surface fg-disabled-text bd-disabled-border"),
+			chip("scrim", "bg-surface-page fg-text-default dm-tr-scrim"),
+			chip("shadow", "bg-surface-raised fg-text-default dm-tr-shadow"));
+
+		//-- The colour families: one row each, a column per step.
+		Div grid = new Div("dm-tr-fam");
+		roles.add(new Div("dm-tr-rg-ttl", "Intents and chrome"));
+		roles.add(grid);
+		grid.add(new Div("dm-tr-fam-hd"));
+		for(String step : new String[]{"wash", "tint", "solid", "text", "border"})
+			grid.add(new Div("dm-tr-fam-hd", "-" + step));
+		for(String f : new String[]{"primary", "neutral", "info", "success", "warning", "danger", "chrome"}) {
+			grid.add(new Div("dm-tr-fam-name", f));
+			grid.add(sample("bg-" + f + "-wash fg-" + f + "-text"));
+			grid.add(sample("bg-" + f + "-tint fg-text-strong"));
+			grid.add(sample("bg-" + f + "-solid fg-" + f + "-on-solid"));
+			grid.add(sample("bg-surface-page fg-" + f + "-text"));
+			grid.add(sample("bg-surface-page fg-text-default bd-" + f + "-border"));
 		}
-		return strip;
+
+		List<Div> accents = new ArrayList<>();
+		for(String hue : new String[]{"red", "orange", "yellow", "green", "cyan", "blue", "purple"}) {
+			accents.add(chip(hue + " -solid", "bg-accent-" + hue + "-solid"));
+			accents.add(chip(hue + " -wash", "bg-accent-" + hue + "-wash fg-text-default"));
+		}
+		roleGroup(roles, "Accents", accents.toArray(new Div[0]));
+		return roles;
+	}
+
+	private static void roleGroup(Div into, String title, Div... chips) {
+		into.add(new Div("dm-tr-rg-ttl", title));
+		Div row = new Div("dm-tr-rg");
+		into.add(row);
+		for(Div c : chips)
+			row.add(c);
+	}
+
+	/**
+	 * A role's chip: the sample, and the role's name under it.
+	 */
+	private static Div chip(String name, String roles) {
+		Div chip = new Div("dm-tr-rc");
+		chip.add(sample(roles));
+		chip.add(new Div("dm-tr-rl", name));
+		return chip;
+	}
+
+	private static Div sample(String roles) {
+		StringBuilder sb = new StringBuilder("dm-tr-rs");
+		for(String r : roles.split(" "))
+			sb.append(' ').append(r.startsWith("dm-") ? r : "dm-tr-" + r);
+		return new Div(sb.toString(), "Text");
 	}
 
 	private static Div cell(String title, NodeBase content) {

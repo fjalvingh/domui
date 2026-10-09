@@ -1,9 +1,12 @@
 /*
  * The theme review page (ThemeReviewPage): every component on one page, in a grid of cells.
  *
- * The swatches take their colours from the theme module, so they show the colours of the
+ * The colour roles take their colours from the theme module, so they show the colours of the
  * colour scheme the sheet was compiled for.
  */
+@use "sass:list";
+@use "sass:map";
+@use "sass:meta";
 @use "theme" as t;
 
 .dm-tr-bar {
@@ -19,39 +22,117 @@
 	margin-right: 6px;
 }
 
-.dm-tr-swatches {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
+// ---- The colour roles (COLOR-ROLES.md). Every role as a ground (dm-tr-bg-*), a text colour
+// (dm-tr-fg-*) and a frame (dm-tr-bd-*); the page combines them per chip. The colours are read
+// from the theme module by name, so a role the scheme does not have is a compile error here.
+$dm-tr-theme: meta.module-variables("t");
+
+$dm-tr-roles: (
+	"surface-page", "surface-raised", "surface-overlay", "surface-sunken", "surface-band", "surface-inverse",
+	"text-default", "text-strong", "text-subtle", "text-faint", "text-inverse",
+	"border-subtle", "border-default", "border-strong", "border-bold",
+	"field-surface", "field-surface-readonly", "field-border", "field-border-hover",
+	"link-text", "link-text-visited", "link-text-hover",
+	"hover-wash", "hover-border", "selected-wash", "selected-solid", "selected-on-solid", "selected-border",
+	"highlight", "focus-ring", "disabled-surface", "disabled-text", "disabled-border", "scrim", "shadow",
+);
+
+@each $family in ("primary", "neutral", "info", "success", "warning", "danger", "chrome") {
+	@each $step in ("wash", "tint", "solid", "on-solid", "text", "border") {
+		$dm-tr-roles: list.append($dm-tr-roles, "#{$family}-#{$step}", $separator: comma);
+	}
+}
+@each $hue in ("red", "orange", "yellow", "green", "cyan", "blue", "purple") {
+	$dm-tr-roles: list.append($dm-tr-roles, "accent-#{$hue}-solid", $separator: comma);
+	$dm-tr-roles: list.append($dm-tr-roles, "accent-#{$hue}-wash", $separator: comma);
+}
+
+@each $role in $dm-tr-roles {
+	$colour: map.get($dm-tr-theme, $role);
+	@if $colour == null {
+		@error "The theme has no colour role $#{$role}";
+	}
+	.dm-tr-bg-#{$role} {
+		background-color: $colour;
+	}
+	.dm-tr-fg-#{$role} {
+		color: $colour;
+	}
+	.dm-tr-bd-#{$role} {
+		border: 3px solid $colour !important;
+	}
+}
+
+.dm-tr-roles {
 	margin-bottom: 16px;
 }
 
-.dm-tr-sw {
-	width: 72px;
+.dm-tr-rg-ttl {
+	font-weight: bold;
+	color: t.$text-muted;
+	text-transform: uppercase;
 	font-size: 11px;
-	text-align: center;
+	letter-spacing: 0.05em;
+	margin: 10px 0 4px 0;
+}
+
+.dm-tr-rg {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.dm-tr-rc {
+	width: 110px;
+}
+
+.dm-tr-rs {
+	height: 36px;
+	border: 1px solid t.$line-color;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 500;
+	box-sizing: border-box;
+	position: relative;
+}
+
+.dm-tr-rl {
+	font-size: 11px;
+	color: t.$text-muted;
+	margin-top: 2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.dm-tr-scrim::after {
+	content: "";
+	position: absolute;
+	inset: 0 0 0 50%;
+	background-color: rgba(map.get($dm-tr-theme, "scrim"), 0.4);
+}
+
+.dm-tr-shadow {
+	box-shadow: 0 3px 8px rgba(map.get($dm-tr-theme, "shadow"), 0.3);
+}
+
+.dm-tr-fam {
+	display: grid;
+	grid-template-columns: 80px repeat(5, 110px);
+	gap: 6px 8px;
+	align-items: center;
+}
+
+.dm-tr-fam-hd {
+	font-size: 11px;
 	color: t.$text-muted;
 }
 
-.dm-tr-sw-c {
-	height: 32px;
-	border-radius: 4px;
-	border: 1px solid t.$line-color;
-	margin-bottom: 2px;
-}
-
-$dm-tr-roles: (
-	"body-bg": t.$body-bg, "surface-bg": t.$surface-bg, "window-bg": t.$window-bg, "ground-bg": t.$ground-bg,
-	"header-bg": t.$header-bg, "tab-hdr-bg": t.$tab-hdr-bg, "tab-bg": t.$tab-bg, "dt-selected-bg": t.$dt-selected-bg,
-	"primary": t.$primary, "row-hover-bg": t.$row-hover-bg, "highlight-bg": t.$highlight-bg, "link-color": t.$link-color,
-	"errors-border": t.$errors-border, "warnings-border": t.$warnings-border, "info-border": t.$info-border,
-	"green-accent": t.$green-accent,
-);
-
-@each $name, $colour in $dm-tr-roles {
-	.dm-tr-sw-#{$name} {
-		background-color: $colour;
-	}
+.dm-tr-fam-name {
+	font-size: 12px;
+	font-weight: bold;
 }
 
 .dm-tr-grid {

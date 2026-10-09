@@ -1,8 +1,8 @@
 # Colour roles: a theme vocabulary designed first, components mapped onto it
 
-Status: **role set decided** (2026-10-09, see section 7). Nothing in the theme is changed
-yet. The light values in section 3 are a first proposal, to be judged on the review page;
-the light theme is allowed to change.
+Status: **phases 1 and 2 done** (2026-10-09, see 6.1); the role set was decided in
+section 7. The light values in section 3 are a first proposal, to be judged on the review
+page; the light theme is allowed to change.
 
 ## 1. Why
 
@@ -267,6 +267,33 @@ released to the world has no aliases (decision 5).
    - in `moving-to-modules`, a complete table from every removed name to its role, since
      applications have to change at the upgrade;
    - IMPROVEMENT-LOG.
+
+### 6.1 Phases 1 and 2, as done (2026-10-09)
+
+- `light/winter/_scheme.scss` holds the 91 roles, and only them. Its old tokens are gone.
+  `light/_palette.scss` writes their values out where it used to read them, so for now
+  every old name keeps exactly the value it had.
+  - This is a small change from the plan, where phase 2 made the old names aliases of
+    the roles. Done that way, the light theme would have changed all at once. Instead it
+    changes group by group in phase 3, as the components move to roles.
+- Both palettes end with the 91 roles, so the theme module offers them (`t.$surface-page`)
+  and an application can set them.
+  - Light passes on its scheme's roles.
+  - Dark works them out roughly from its old names and tokens (`$surface-raised:
+    $surface-bg`, washes as mixes). These are the reverse aliases of phase 3, put in now,
+    because the review page reads the roles in every scheme.
+- Two roles existed already, with the same meaning and the same light value, and simply
+  became roles:
+  - `$info-border`, a palette name;
+  - `$text-strong`, Bulma's name in `_component-colors.scss`, which is gone from there.
+- Review page: the swatch strip is now a table of the roles. Each role is shown with what
+  goes on it: a surface with body text, a fill with its text colour, a line as a frame. The
+  intents and chrome are a grid of family × step. The demo sheet (`_themereview.scss`)
+  reads the roles from the theme module by name, so a missing role is a compile error.
+- **Verified:**
+  - all six compiled sheets are byte for byte the sheets of before;
+  - the theme tests pass;
+  - the review page renders in light-winter and dark-midnight.
 
 ## 7. Decisions (2026-10-09)
 

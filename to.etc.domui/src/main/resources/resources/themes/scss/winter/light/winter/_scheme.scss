@@ -1,50 +1,139 @@
-// The light colour scheme "winter": DomUI's light theme, the variant light-winter; ../_palette.scss
-// reads these. The tokens are the dark schemes' (see ../../dark/midnight/) but for hint-strong:
-// the light theme's selected item follows its accent, $primary, instead.
+// The light colour scheme "winter": DomUI's light theme, the variant light-winter.
+//
+// A scheme is the theme's colour ROLES and nothing else: what a colour is for, in the language
+// of design, never which component paints it. The names are $<family>-<step>; COLOR-ROLES.md
+// in the repository root has the whole set and why it is this set.
+//
+// Every colour family below (primary ... chrome) has the same six steps:
+//	-wash		the lightest tint: the ground of a message, an input in error. The family's
+//			-text and $text-default reach 4.5:1 on it.
+//	-tint		clearly coloured, still light: a tag, a label, a marked day. $text-strong
+//			reaches 4.5:1 on it.
+//	-solid		the full colour: a button, a flare, a badge, a title bar.
+//	-on-solid	text and icons on -solid, 4.5:1.
+//	-text		text in this family on an ordinary surface, 4.5:1 on the page and on -wash.
+//	-border		a border, accent bar or marker: decoration next to text saying the same.
+// Hover and pressed shades of a -solid are not roles; the nature works them out.
 
-$page: #ffffff;
-$panel: hsl(0, 0%, 100%);
-$window: #f5f6f7;
-$field: hsl(0, 0%, 100%);
-$raised: hsl(0, 0%, 86%);
-$raised2: hsl(0, 0%, 71%);
-$stripe: #E5E5E5;
-$ro-bg: #f2f9fe;
-$text: hsl(0, 0%, 29%);
-$text-strong: hsl(0, 0%, 21%);
-$text-bright: #fff;
-$text-muted: hsl(0, 0%, 48%);
-$text-dim: hsl(0, 0%, 71%);
-$label: #363636;
-$line-soft: hsl(0, 0%, 86%);
-$line: #aaa;
-$line-strong: hsl(0, 0%, 48%);
-$line-hard: hsl(0, 0%, 4%);
-$control-border: hsl(0, 0%, 86%);
-$control-hover-border: hsl(0, 0%, 71%);
-$struct: #7c7c7c;
-$struct-strip: #C9D8E8;
-$struct-tab: #A9C1DB;
-$struct-band: #93AFCF;
-$struct-edge: transparent;
-$struct-text: #ffffff;
-$struct-bar: transparent;
-$link: #2200cc;
-$visited: #551a8b;
-$focus: #5794BF;
-$heading: #297bc0;
-$heading2: #013686;
-$selection: #bed6f8;
-$red: hsl(348, 100%, 61%);
-$orange: hsl(14,  100%, 53%);
-$yellow: hsl(48,  100%, 67%);
-$green: hsl(141, 71%,  48%);
-$cyan: hsl(204, 86%,  53%);
-$blue: hsl(217, 71%,  53%);
-$purple: hsl(271, 100%, 71%);
-$error-text: #ff0000;
+// ---- Surfaces: what things stand on
+$surface-page: #ffffff;			// the page canvas
+$surface-raised: #ffffff;			// a panel, card or tab content on the page
+$surface-overlay: #f5f6f7;			// what floats: a popup, menu, dialog, floating window
+$surface-sunken: #f5f5f5;			// recessed: a gutter, a code block, a well
+$surface-band: #eeeeee;			// a strip one step off its surface: a table header band, an alternate row
+$surface-inverse: #363636;			// a dark spot in a light theme: a tooltip, a toast
+
+// ---- Text
+$text-default: #4a4a4a;			// body text
+$text-strong: hsl(0, 0%, 21%);			// emphasis, labels, a control's own text, text on a -tint
+$text-subtle: #6b6b6b;			// secondary: hints, helper text, week numbers
+$text-faint: #b5b5b5;			// out of the way: a placeholder, another month's day (exempt from AA)
+$text-inverse: #ffffff;			// on $surface-inverse
+
+// ---- Lines
+$border-subtle: #dbdbdb;			// dividers, the rule under a header, a table's inner lines
+$border-default: #aaaaaa;			// the edge of a panel, window, menu or pane
+$border-strong: #7a7a7a;			// a line with weight: under an h1, between header cells, a popup's frame
+$border-bold: #0a0a0a;			// a hard frame: a selected cell, a badge, an outline
+
+// ---- Fields: inputs
+$field-surface: #ffffff;			// an input's ground
+$field-surface-readonly: #f2f9fe;			// a read-only input or display value
+$field-border: #dbdbdb;			// an input's or a plain button's edge
+$field-border-hover: #b5b5b5;			// ... while hovered
+
+// ---- Links
+$link-text: #2200cc;
+$link-text-visited: #551a8b;
+$link-text-hover: #363636;
+
+// ---- States: they apply to anything, in any family
+$hover-wash: #fff4d3;			// under the pointer: a row, a menu item, a tree item
+$hover-border: #ffd55a;			// the outline drawn with it
+// Selection has a hue of its own, magenta, which no other role uses: a selected thing can
+// never be taken for a hovered, marked, informative or erroneous one.
+$selected-wash: #f5d0ea;			// a selected row, cell or day
+$selected-solid: #b0177d;			// the one chosen item, loudly: a selected tab or menu entry
+$selected-on-solid: #ffffff;
+$selected-border: #b0177d;			// the frame of a selected cell or item
+$highlight: #ffbb43;			// marked or found: a search hit, a marked day
+$focus-ring: #5794bf;			// keyboard focus, on anything
+$disabled-surface: #f5f5f5;
+$disabled-text: #999999;
+$disabled-border: #dbdbdb;
+$scrim: #000000;			// what dims the page behind a modal; alpha at the point of use
+$shadow: #000000;			// what shadows are made of; alpha at the point of use
+
+// ---- Intents: actions and messages (Bulma's is-*)
+// The theme's accent: the default action, "this one".
+$primary-wash: #fef3e7;
+$primary-tint: #fbd9a8;
+$primary-solid: #f69231;
+$primary-on-solid: #1e1e1e;
+$primary-text: #a65400;
+$primary-border: #f69231;
+
+// An ordinary action, a plain title bar.
+$neutral-wash: #f5f5f5;
+$neutral-tint: #dbdbdb;
+$neutral-solid: #6b6b6b;
+$neutral-on-solid: #ffffff;
+$neutral-text: #4a4a4a;
+$neutral-border: #b5b5b5;
+
+// Information, guidance.
+$info-wash: #e4eeff;
+$info-tint: #b9d0f7;
+$info-solid: #1f6fd1;
+$info-on-solid: #ffffff;
+$info-text: #2f63c4;
+$info-border: #4075db;
+
+// It worked, it is allowed.
+$success-wash: #e9f7ee;
+$success-tint: #d4ee9f;
+$success-solid: #1a7f45;
+$success-on-solid: #ffffff;
+$success-text: #1e7b43;
+$success-border: #43b761;
+
+// Caution, before a mistake.
+$warning-wash: #fff7dd;
+$warning-tint: #fff2ab;
+$warning-solid: #f2b01e;
+$warning-on-solid: #1e1e1e;
 $warning-text: #8a6100;
-$info-text: #4075db;
-$hint-wash: #fff4d3;
-$hint-outline: #ffd55a;
-$highlight: #ffbb43;
+$warning-border: #daa520;
+
+// An error, a destructive action.
+$danger-wash: #ffe5e5;
+$danger-tint: #f4b6b6;
+$danger-solid: #d32f2f;
+$danger-on-solid: #ffffff;
+$danger-text: #c81e1e;
+$danger-border: #e02424;
+
+// The application's frame: tab strips, tabs, header bands, headings.
+$chrome-wash: #e4ecf5;
+$chrome-tint: #c9d8e8;
+$chrome-solid: #3d6a99;
+$chrome-on-solid: #ffffff;
+$chrome-text: #1f6aa8;
+$chrome-border: #a9c1db;
+
+// ---- Accents: hues with no meaning, for things that only have to be told apart. Purple is
+// a blue-violet, away from the selection's magenta.
+$accent-red-solid: hsl(348, 100%, 61%);
+$accent-red-wash: #ffd6de;
+$accent-orange-solid: hsl(14, 100%, 53%);
+$accent-orange-wash: #ffd9cc;
+$accent-yellow-solid: hsl(48, 100%, 67%);
+$accent-yellow-wash: #fff6d9;
+$accent-green-solid: hsl(141, 71%, 48%);
+$accent-green-wash: #c8f4d7;
+$accent-cyan-solid: hsl(204, 86%, 53%);
+$accent-cyan-wash: #cfe9fb;
+$accent-blue-solid: hsl(217, 71%, 53%);
+$accent-blue-wash: #d3e0f8;
+$accent-purple-solid: hsl(265, 80%, 62%);
+$accent-purple-wash: #e6dafa;

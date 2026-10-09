@@ -272,3 +272,114 @@ $header-bar-color: s.$struct-bar !default;			// the accent bar of a panel header
 $heading-color: s.$heading !default;			// a heading's accent colour
 $heading2-color: s.$heading2 !default;			// a second-level heading
 $selection-bg: s.$selection !default;			// a selected row, cell or day
+
+// =======================================================================================
+// The colour ROLES (COLOR-ROLES.md), which the light scheme declares as its tokens. Until the
+// dark schemes declare them too (COLOR-ROLES.md phase 5), they are worked out here from each
+// scheme's old tokens and this palette's old names: roughly, so that a sheet reading a role
+// compiles in every scheme. They are not yet chosen.
+// =======================================================================================
+$surface-page: $body-bg !default;
+$surface-raised: $surface-bg !default;
+$surface-overlay: $window-bg !default;
+$surface-sunken: color.mix(#000000, s.$page, 20%) !default;
+$surface-band: $surface-alt-bg !default;
+$surface-inverse: s.$text-strong !default;
+
+$text-default: $text-color !default;
+$text-strong: $text-strong-color !default;
+$text-subtle: $text-muted !default;
+$text-faint: $text-dim !default;
+$text-inverse: s.$page !default;
+
+$border-subtle: $line-soft !default;
+$border-default: $line-color !default;
+$border-strong: $line-strong !default;
+$border-bold: $line-hard !default;
+
+$field-surface: $input-bg !default;
+$field-surface-readonly: $input-ro-bg-top !default;
+$field-border: $control-border !default;
+$field-border-hover: $control-hover-border !default;
+
+$link-text: $link-color !default;
+$link-text-visited: $link-visited-color !default;
+$link-text-hover: $text-strong-color !default;
+
+$hover-wash: $row-hover-bg !default;
+$hover-border: $row-hover-outline !default;
+$selected-wash: color.mix(#d64fae, s.$page, 30%) !default;
+$selected-solid: #c2399b !default;
+$selected-on-solid: #ffffff !default;
+$selected-border: #d65db1 !default;
+$highlight: $highlight-bg !default;
+$focus-ring: s.$focus !default;
+$disabled-surface: $fill-muted-bg !default;
+$disabled-text: $text-dim !default;
+$disabled-border: $control-border !default;
+$scrim: #000000 !default;
+$shadow: $shadow-color !default;
+
+$primary-wash: color.mix($primary, s.$page, 16%) !default;
+$primary-tint: color.mix($primary, s.$page, 35%) !default;
+$primary-solid: $primary !default;
+$primary-on-solid: s.$page !default;
+$primary-text: $primary !default;
+$primary-border: $primary !default;
+
+$neutral-wash: $ground-alt-bg !default;
+$neutral-tint: $fill-muted-bg !default;
+$neutral-solid: $fill-strong-bg !default;
+$neutral-on-solid: s.$text-strong !default;
+$neutral-text: $text-color !default;
+$neutral-border: $control-border !default;
+
+$info-wash: $info-bg !default;
+$info-tint: color.mix(s.$blue, s.$page, 35%) !default;
+$info-solid: s.$blue !default;
+$info-on-solid: s.$page !default;
+$info-text: $info-color !default;
+// $info-border is declared with the other info colours above.
+
+$success-wash: color.mix(s.$green, s.$page, 16%) !default;
+$success-tint: color.mix(s.$green, s.$page, 35%) !default;
+$success-solid: s.$green !default;
+$success-on-solid: s.$page !default;
+$success-text: s.$green !default;
+$success-border: s.$green !default;
+
+$warning-wash: $warnings-bg !default;
+$warning-tint: color.mix(s.$yellow, s.$page, 35%) !default;
+$warning-solid: s.$yellow !default;
+$warning-on-solid: s.$page !default;
+$warning-text: $warnings-color !default;
+$warning-border: $warnings-border !default;
+
+$danger-wash: $errors-wash !default;
+$danger-tint: color.mix(s.$red, s.$page, 35%) !default;
+$danger-solid: s.$red !default;
+$danger-on-solid: s.$page !default;
+$danger-text: $errors-color !default;
+$danger-border: $errors-border !default;
+
+$chrome-wash: s.$struct-strip !default;
+$chrome-tint: s.$struct-tab !default;
+$chrome-solid: s.$struct !default;
+$chrome-on-solid: s.$struct-text !default;
+$chrome-text: s.$heading !default;
+$chrome-border: s.$struct-band !default;
+
+$accent-red-solid: s.$red !default;
+$accent-red-wash: color.mix(s.$red, s.$page, 25%) !default;
+$accent-orange-solid: s.$orange !default;
+$accent-orange-wash: color.mix(s.$orange, s.$page, 25%) !default;
+$accent-yellow-solid: s.$yellow !default;
+$accent-yellow-wash: color.mix(s.$yellow, s.$page, 25%) !default;
+$accent-green-solid: s.$green !default;
+$accent-green-wash: color.mix(s.$green, s.$page, 25%) !default;
+$accent-cyan-solid: s.$cyan !default;
+$accent-cyan-wash: color.mix(s.$cyan, s.$page, 25%) !default;
+$accent-blue-solid: s.$blue !default;
+$accent-blue-wash: color.mix(s.$blue, s.$page, 25%) !default;
+$accent-purple-solid: s.$purple !default;
+$accent-purple-wash: color.mix(s.$purple, s.$page, 25%) !default;
