@@ -121,19 +121,21 @@ $chrome-on-solid: #ffffff;
 $chrome-text: #1f6aa8;
 $chrome-border: #a9c1db;
 
-// ---- Accents: hues with no meaning, for things that only have to be told apart. Purple is
-// a blue-violet, away from the selection's magenta.
-$accent-red-solid: hsl(348, 100%, 61%);
-$accent-red-wash: #ffd6de;
-$accent-orange-solid: hsl(14, 100%, 53%);
-$accent-orange-wash: #ffd9cc;
-$accent-yellow-solid: hsl(48, 100%, 67%);
-$accent-yellow-wash: #fff6d9;
-$accent-green-solid: hsl(141, 71%, 48%);
-$accent-green-wash: #c8f4d7;
-$accent-cyan-solid: hsl(204, 86%, 53%);
-$accent-cyan-wash: #cfe9fb;
-$accent-blue-solid: hsl(217, 71%, 53%);
-$accent-blue-wash: #d3e0f8;
-$accent-purple-solid: hsl(265, 80%, 62%);
-$accent-purple-wash: #e6dafa;
+// ---- Categories: colours with no meaning, for things that only have to be told apart - the
+// levels of a nested panel, the kinds of item in a schedule. Numbered, not named after a hue:
+// a scheme picks its own hues. Neighbours differ most, so 1, 2, 3 ... can be used in order.
+// None is the selection's magenta.
+$category-1-solid: hsl(217, 71%, 53%);
+$category-1-wash: #d3e0f8;
+$category-2-solid: hsl(14, 100%, 53%);
+$category-2-wash: #ffd9cc;
+$category-3-solid: hsl(141, 71%, 48%);
+$category-3-wash: #c8f4d7;
+$category-4-solid: hsl(265, 80%, 62%);
+$category-4-wash: #e6dafa;
+$category-5-solid: hsl(204, 86%, 53%);
+$category-5-wash: #cfe9fb;
+$category-6-solid: hsl(348, 100%, 61%);
+$category-6-wash: #ffd6de;
+$category-7-solid: hsl(48, 100%, 67%);
+$category-7-wash: #fff6d9;

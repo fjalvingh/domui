@@ -246,12 +246,12 @@ public class ThemeReviewPage extends UrlPage {
 			grid.add(sample("bg-surface-page fg-text-default bd-" + f + "-border"));
 		}
 
-		List<Div> accents = new ArrayList<>();
-		for(String hue : new String[]{"red", "orange", "yellow", "green", "cyan", "blue", "purple"}) {
-			accents.add(chip(hue + " -solid", "bg-accent-" + hue + "-solid"));
-			accents.add(chip(hue + " -wash", "bg-accent-" + hue + "-wash fg-text-default"));
+		List<Div> categories = new ArrayList<>();
+		for(int n = 1; n <= 7; n++) {
+			categories.add(chip("category-" + n + "-solid", "bg-category-" + n + "-solid"));
+			categories.add(chip("category-" + n + "-wash", "bg-category-" + n + "-wash fg-text-default"));
 		}
-		roleGroup(roles, "Accents", accents.toArray(new Div[0]));
+		roleGroup(roles, "Categories", categories.toArray(new Div[0]));
 		return roles;
 	}
 

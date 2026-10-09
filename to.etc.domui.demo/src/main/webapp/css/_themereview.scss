@@ -42,9 +42,9 @@ $dm-tr-roles: (
 		$dm-tr-roles: list.append($dm-tr-roles, "#{$family}-#{$step}", $separator: comma);
 	}
 }
-@each $hue in ("red", "orange", "yellow", "green", "cyan", "blue", "purple") {
-	$dm-tr-roles: list.append($dm-tr-roles, "accent-#{$hue}-solid", $separator: comma);
-	$dm-tr-roles: list.append($dm-tr-roles, "accent-#{$hue}-wash", $separator: comma);
+@for $n from 1 through 7 {
+	$dm-tr-roles: list.append($dm-tr-roles, "category-#{$n}-solid", $separator: comma);
+	$dm-tr-roles: list.append($dm-tr-roles, "category-#{$n}-wash", $separator: comma);
 }
 
 @each $role in $dm-tr-roles {

@@ -169,20 +169,24 @@ the family that makes the theme look like itself. That is why it is a family and
 Bulma's `link` colour button maps to `$link-text`. `white`, `black`, `light` and `dark`
 map to surfaces and text. Those six do not need families of their own.
 
-### 3.9 Accents: hues with no meaning
+### 3.9 Categories: colours with no meaning
 
-For things that only have to be told apart: ConditionPanel's nesting levels, appointments
-in the schedule, the layout resizer's feedback, the drag-and-drop table header.
+Some things only have to be told apart: ConditionPanel's nesting levels, the kinds of
+appointment in the schedule, the layout resizer's feedback, the drag-and-drop table header.
 
-`$accent-<hue>-solid` and `$accent-<hue>-wash` for `red`, `orange`, `yellow`, `green`,
-`cyan`, `blue`, `purple`. Two steps each, no more: anything between them uses the intent
-family that matches instead. The solids are Bulma's hues as now, except that `purple`
-moves to a blue-violet (about 265°), away from the selection's magenta. The washes are each
-hue at about 25% on the page.
+These colours are `$category-<n>-solid` and `$category-<n>-wash`, for n = 1 to 7. They are
+numbered, not named after a hue: "orange" would be a name that describes how a colour looks,
+and a scheme picks its own hues. The order is such that neighbours differ most, so a
+component that needs three of them takes 1, 2 and 3. No category is the selection's magenta.
+
+They have two steps each, no more. Anything in between uses the intent family that matches
+instead. In light, 1 to 7 are blue, orange, green, blue-violet, cyan, red and yellow:
+Bulma's hues as now, except that purple moved to a blue-violet (about 265°), away from the
+selection. The washes are each hue at about 25% on the page.
 
 ### 3.10 Count
 
-6 surfaces + 5 text + 4 lines + 4 fields + 3 links + 13 states + 7×6 intents + 7×2 accents
+6 surfaces + 5 text + 4 lines + 4 fields + 3 links + 13 states + 7×6 intents + 7×2 categories
 = **91 roles**.
 
 ## 4. What changes in the light theme if this is followed
@@ -301,7 +305,8 @@ released to the world has no aliases (decision 5).
 2. **`chrome`** is a family of its own, for the application's frame.
 3. **Selection** must be visually far from everything else, and must not be bluish. It
    does not have to be orange. It became magenta, a hue reserved for it (3.7).
-4. **Accents** have two steps, `-solid` and `-wash`. There are already many colours.
+4. **Categories** (first called accents) have two steps, `-solid` and `-wash`. There are
+   already many colours. They are numbered, not named after a hue (decided after phase 2).
 5. **The roles are the scheme files' tokens.** No old names are kept in a release, not even
    as deprecated aliases: an application renames when it takes the new version (section 5).
    During the work, aliases may live for a few commits, so that light can be done first
