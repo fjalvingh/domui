@@ -27,8 +27,6 @@ $tag-bg: $primary-tint !default;
 $tag-border: $primary-border !default;
 $tag-color: $text-strong !default;
 
-// Bulma's text colour, which several partials still read. It goes once they read roles.
-$text: $text-color !default;
 
 // Lists and maps
 
@@ -81,7 +79,7 @@ $input-arrow: $text-subtle !default;			// the arrow of a combo
 // =======================================================================================
 
 //-- LogTailer (.ui-tlf-*)
-$tlf-hdr-bg: $primary !default;
+$tlf-hdr-bg: $primary-solid !default;
 
 //-- SimplePopupMenu (.ui-pmnu-*). A menu floats, like PopupMenu2's; each nested submenu is one
 //-- step further off it.
@@ -96,7 +94,7 @@ $pmnu-title-color: $text-strong !default;
 $pmnu-hover-bg: $hover-wash !default;
 
 //-- LogTailer (.ui-tlf-*)
-$tlf-gutter-bg: $fill-muted-bg !default;			// the line-number gutter
+$tlf-gutter-bg: $surface-sunken !default;			// the line-number gutter
 
 //-- FloatingWindow (.ui-flw-*)
 $flw-divider-border: $border-subtle !default;				// the line under the title bar
@@ -108,7 +106,7 @@ $flw-color: $text-default !default;
 $flw-border: $border-default !default;
 
 //-- EmbeddedCode (.ui-embc-*)
-$embc-border: $surface-alt-bg !default;
+$embc-border: $border-subtle !default;
 
 
 //-- Panel (.ui-spnl): its ground, the bar on its left and its edge. A raised surface: where it
@@ -161,7 +159,7 @@ $ssop-border: $border-strong !default;
 $lnkb-disabled-color: $disabled-text !default;
 
 //-- FileUpload2 (.ui-fupl-*)
-$fupl-bg: $surface-bg !default;
+$fupl-bg: $field-surface !default;
 
 //-- Inline code, and the rule under a heading: base elements, not components, so these
 //-- take main-set values directly in _core.scss - except the ground of a <code> block.
@@ -237,10 +235,10 @@ $ioe-bg: $danger-wash !default;
 $ioe-border: $danger-border !default;
 $ioe-title-bg: $danger-solid !default;
 $ioe-title-color: $danger-on-solid !default;
-$dd-table-border: $line-color !default;
-$dd-table-hdr-border: $line-strong !default;
-$dd-table-hdr-bg: #0F3C2C !default;					// a deliberate dark green, not a theme colour
-$dd-table-hdr-color: #77F6C9 !default;
+$dd-table-border: $border-default !default;
+$dd-table-hdr-border: $border-strong !default;
+$dd-table-hdr-bg: $surface-inverse !default;
+$dd-table-hdr-color: $text-inverse !default;
 
 //-- CookieConfirm (#gdpr-cookie-message)
 $ckc-surface-bg: $surface-raised !default;
@@ -292,10 +290,12 @@ $wa-note-bg: $category-2-wash !default;					// a note pinned to the grid
 $wa-time-color: $chrome-text !default;			// the hours
 
 //-- ColorPicker (.colorpicker*). Its #f00 swatches are samples and stay literal.
-$cpick-label-color: $text-muted !default;
-$cpick-border: $line-strong !default;
+$cpick-label-color: $text-subtle !default;
+$cpick-border: $border-strong !default;
 
 //-- CookieWarning (#cookie-msg)
+$ckw-link-color: $primary-solid !default;			// its link, on the neutral bar
+$ckw-accept-bg: $primary-solid !default;			// the accept button
 $ckw-bg: $neutral-solid !default;
 $ckw-color: $neutral-on-solid !default;
 
@@ -347,7 +347,7 @@ $lui-popup-border: $border-strong !default;
 $mp-bg: $surface-raised !default;
 
 //-- Drag-and-drop table striping (.ui-dd-table), in _misc.scss
-$dd-table-stripe-bg: rgba(160, 160, 160, 0.2) !default;
+$dd-table-stripe-bg: $surface-band !default;
 
 //-- PopInPanel (.ui-popin-*)
 $popin-border: $border-default !default;
@@ -406,7 +406,7 @@ $bug-ind-border: $border-bold !default;			// the bug badge's frame
 $wa-item-border: $border-bold !default;			// an appointment in the schedule grid
 $dct-selected-bg: $selected-wash !default;			// a selected cell of a DataCellTable
 $dct-selected-border: $selected-border !default;		// a selected cell
-$oddchars-border: $line-hard !default;
+$oddchars-border: $border-bold !default;
 $pct-border: $border-strong !default;				// the progress bar's outline
 $popin-title-border: $border-strong !default;
 $tree3-fbtn-bg: $surface-inverse !default;				// the fold button is an inverted square
@@ -415,7 +415,7 @@ $tree3-fbtn-bg: $surface-inverse !default;				// the fold button is an inverted 
 $f-display-bg: $field-surface-readonly !default;				// .ui-f-display, the read-only field wash
 $bug-ind-bg: $danger-solid !default;			// the bug badge's ground
 $bug-count-color: $danger-on-solid !default;				// the count on the bug badge
-$oddchars-hover-bg: $row-hover-bg !default;
+$oddchars-hover-bg: $hover-wash !default;
 $pct-rlr2-border: $border-default !default;
 $pct-bar-bg: $chrome-solid !default;						// the filled part of the progress bar
 
@@ -513,8 +513,8 @@ $dp2-button-color: $text-strong !default;
 $dp2-button-bg: $neutral-wash !default;
 
 // -- Drag and drop
-$drp-hover-border: $green-accent !default;
-$drp-hover-bg: rgba($green-accent, 0.1) !default;
+$drp-hover-border: $success-border !default;
+$drp-hover-bg: $success-wash !default;
 
 // -- The jscalendar popup used by DateInput2 (_calendarTheme)
 $cal-band-active-bg: $chrome-solid !default;
@@ -555,3 +555,12 @@ $mp-band-bg: $chrome-wash !default;			// the weekday names and the week numbers
 
 // -- TabPanel
 $tab-selected-color: $text-strong !default;
+
+// -- The development-mode popup InternalParentTree (.ui-ipt-*, _devmode): a dark spot.
+$ipt-bg: $surface-inverse !default;
+$ipt-border: $border-bold !default;
+$ipt-color: $text-inverse !default;
+$ipt-link-color: $chrome-tint !default;
+$ipt-title-bg: $neutral-solid !default;
+$ipt-title-color: $neutral-on-solid !default;
+$ipt-item-border: $border-strong !default;

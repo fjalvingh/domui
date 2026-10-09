@@ -65,8 +65,8 @@ $s-diffchar:    red;
 @if t.$color-scheme == dark {
 	// The hues of IntelliJ's Darcula editor colours, so the viewer reads like the editor a Java
 	// developer knows - each made light enough to read on this scheme's page.
-	$page: t.$body-bg;
-	$s-text:        t.$text-color;
+	$page: t.$surface-page;
+	$s-text:        t.$text-default;
 	$s-keyword1:    -readable(#CC7832, $page);
 	$s-keyword2:    -readable(#9876AA, $page);
 	$s-type:        -readable(#FFC66D, $page);
@@ -74,20 +74,20 @@ $s-diffchar:    red;
 	$s-comment-alt: -readable(#629755, $page);
 	$s-string:      -readable(#6A8759, $page);
 	$s-number:      -readable(#6897BB, $page);
-	$s-punctuation: t.$text-color;
-	$s-link:        t.$link-color;
+	$s-punctuation: t.$text-default;
+	$s-link:        t.$link-text;
 	$s-literal:     -readable(#6897BB, $page);
 
 	// The line numbers sit on a panel and are quieter than the code: 3:1.
-	$s-lnr-bg:      t.$surface-bg;
-	$s-lnr-color:   -readable(t.$text-dim, t.$surface-bg, 3);
+	$s-lnr-bg:      t.$surface-raised;
+	$s-lnr-color:   -readable(t.$text-faint, t.$surface-raised, 3);
 
 	// The diff washes are the scheme's own hues washed into its page, as the theme's states are.
-	$s-diffstart:   color.mix(t.$yellow, $page, 22%);
-	$s-diffold:     color.mix(t.$red, $page, 20%);
-	$s-diffnew:     color.mix(t.$green, $page, 18%);
-	$s-diffline:    color.mix(t.$blue, $page, 22%);
-	$s-diffchar:    -readable(t.$red, $page);
+	$s-diffstart:   color.mix(t.$warning-solid, $page, 22%);
+	$s-diffold:     color.mix(t.$danger-solid, $page, 20%);
+	$s-diffnew:     color.mix(t.$success-solid, $page, 18%);
+	$s-diffline:    color.mix(t.$info-solid, $page, 22%);
+	$s-diffchar:    -readable(t.$danger-solid, $page);
 }
 
 .dm-srcp-scrl {

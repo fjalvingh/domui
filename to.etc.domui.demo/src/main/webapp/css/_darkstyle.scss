@@ -11,12 +11,12 @@
 @use "theme" as t;
 
 @if t.$color-scheme == dark {
-	$dm-surface:   t.$body-bg;
-	$dm-raised:    t.$surface-bg;
-	$dm-raised-2:  t.$window-bg;
-	$dm-line:      t.$line-color;
-	$dm-text:      t.$body-color;
-	$dm-text-dim:  t.$text-muted;
+	$dm-surface:   t.$surface-page;
+	$dm-raised:    t.$surface-raised;
+	$dm-raised-2:  t.$surface-overlay;
+	$dm-line:      t.$border-default;
+	$dm-text:      t.$text-default;
+	$dm-text-dim:  t.$text-subtle;
 
 	/*--- Tutorial "building your first page" -----------------------------------------*/
 	.dm-tut {

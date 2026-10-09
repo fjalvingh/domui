@@ -13,14 +13,14 @@
 	font-size: 16px;
 
 	a {
-		color: $primary;
+		color: $ckw-link-color;
 		text-decoration: underline;
 
 		&.btn-accept {
 			margin-left: 20px;
 			padding: 5px 10px;
 			border-radius: 5px;
-			background-color: $primary;
+			background-color: $ckw-accept-bg;
 			color: $ckw-accept-color;
 			text-decoration: none;
 		}

@@ -1,7 +1,7 @@
 # Colour roles: a theme vocabulary designed first, components mapped onto it
 
-Status: **phases 1 and 2 done** (2026-10-09, see 6.1); the role set was decided in
-section 7. The light values in section 3 are a first proposal, to be judged on the review
+Status: **phases 1 to 3 done** (2026-10-09, see 6.1 and 6.2); the role set was decided
+in section 7. The light values in section 3 are a first proposal, to be judged on the review
 page; the light theme is allowed to change.
 
 ## 1. Why
@@ -299,7 +299,7 @@ released to the world has no aliases (decision 5).
   - the theme tests pass;
   - the review page renders in light-winter and dark-midnight.
 
-### 6.2 Phase 3, in progress
+### 6.2 Phase 3, as done
 
 How it goes: per group of the review page, the group's component colours in
 `_component-colors.scss` become roles, and so do the colours its partials read directly
@@ -461,6 +461,26 @@ light's known list in `TestThemeContrast` is empty.
   - The flares keep their dark literals as nature exceptions, because the dark intents'
     solids are mid-light hues on which neither text colour reaches 4.5:1.
   - Selection in dark is the rough magenta of its palette.
+
+**The rest** (2026-10-09):
+- The last component colours that read old names are roles:
+  - LogTailer, EmbeddedCode, FileUpload2, ColorPicker, OddCharacters, drag and drop;
+  - the drag-drop table, whose header was a literal dark green and is now
+    `$surface-inverse`;
+  - CookieWarning's link and accept button, the HtmlEditor's iframe sheet, LabelSelector.
+- The development-mode popup (`_devmode.scss`) was all literals. It is `$ipt-*` component
+  colours on `$surface-inverse`.
+- Bulma's `$text`, the last Bulma colour name, is gone.
+- The demo's dark sheets (`_darkstyle.scss`, `_syntax.scss`) read roles. The syntax diff
+  washes mix the intents' solids into the page instead of Bulma's hues.
+- **Result:**
+  - No component colour, partial, demo sheet or integration reads an old palette name.
+    The old names live only in the two palettes: in light as the values they had, in dark
+    as what the rough roles are made from.
+  - The literals left in partials are ColorPicker's hue samples, which are samples.
+  - Light has no exceptions; dark has its nature exceptions (input shadow, the
+    drag-drop table's stripe, the flares).
+  - Every sheet compiles and the theme tests pass, with light's known contrast list empty.
 
 ## 7. Decisions (2026-10-09)
 

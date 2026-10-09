@@ -10,13 +10,13 @@ html {
 
 body, html {
 	background-color: $input-background-color;
-	color: $body-color;
+	color: $text-default;
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 13px;
 }
 
 a {
-	color: $link-color;
+	color: $link-text;
 }
 
 code {
