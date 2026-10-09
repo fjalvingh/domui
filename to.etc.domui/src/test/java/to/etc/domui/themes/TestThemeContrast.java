@@ -73,7 +73,7 @@ public class TestThemeContrast {
 		{"a warning flare", "flare-warning-color", "flare-warning-bg", AA},
 		{"a switch's other label, off", "ckb-off-idle-color", "ckb-off-track-bg", AA_LARGE},
 		{"a switch's other label, on", "ckb-on-idle-color", "ckb-on-bg", AA_LARGE},
-		{"a disabled radio button", "rbb-disabled-label-color", "rbb-disabled-color", AA_LARGE},
+		{"a disabled radio button", "rbb-disabled-label-color", "rbb-disabled-bg", AA_LARGE},
 	};
 
 	/**
@@ -83,8 +83,7 @@ public class TestThemeContrast {
 	 */
 	static private final List<String> KNOWN_LIGHT = List.of(
 		"muted text on the page", "muted text on a panel", "the page title", "an error text on the page",
-		"an error message", "an info message", "a breadcrumb", "the current breadcrumb",
-		"a switch's other label, off", "a disabled radio button"
+		"an error message", "an info message", "a breadcrumb", "the current breadcrumb"
 	);
 
 	static private ThemeVariantCompiler m_compiler;

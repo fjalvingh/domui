@@ -132,7 +132,7 @@ Focus is `$focus-ring` (3.7). An input in error is `$danger-wash` and `$danger-b
 | `$highlight` | marked or found: a search hit, a marked day | `#ffbb43` |
 | `$focus-ring` | keyboard focus, on anything | `#5794bf` |
 | `$disabled-surface` | a disabled control's ground | `#f5f5f5` |
-| `$disabled-text` | its text | `#999999` |
+| `$disabled-text` | its text (3:1 on `$disabled-surface`: exempt from AA, but readable) | `#858585` |
 | `$disabled-border` | its edge | `#dbdbdb` |
 | `$scrim` | what dims the page behind a modal (alpha at the point of use) | `#000000` |
 | `$shadow` | what shadows are made of (alpha at the point of use) | `#000000` |
@@ -333,6 +333,23 @@ is checked on the review page, and so is Midnight.
     same blue.
   - The code block is darker than the page (`$surface-sunken`), where it was lighter.
   - The text in a `select` is `$text-strong`.
+
+**Toggles and choices** (2026-10-09):
+- Whatever is switched on or chosen is the `primary` family: CheckboxButton's knob and track
+  while on, SwitchButton's track, the chosen item of `RadioGroup.asButtons()` and
+  `.ui-boolean-btn`. These were the alternative-button blue (`#428efe`). Off is `neutral`.
+  An unchosen item is a plain button.
+- RadioButton's component colours were renamed. `$rbb-common-bg` and `$rbb-common-color`
+  each served as both ground and text, swapped between chosen and not. They are now
+  `$rbb-bg`, `$rbb-color`, `$rbb-chosen-bg`, `$rbb-chosen-color` and the rest, and
+  `$rbb-disabled-color` (a ground) is `$rbb-disabled-bg`.
+- CheckboxButton has three new component colours: the knob's ground while hovered off
+  (it was the on-track at 90%), the knob on, and the knob's text on.
+- `$disabled-text` is `#858585` (was `#999999`): 3:1 on `$disabled-surface`, which the
+  contrast test asks of a disabled label. Light's "switch's other label, off" and "disabled
+  radio button" are off the known list of `TestThemeContrast`.
+- **Dark, for phase 5:** the toggles are each scheme's `$primary`, the light theme's orange,
+  instead of its blue. Dark's rough `$disabled-text` is its `$text-muted`.
 
 ## 7. Decisions (2026-10-09)
 

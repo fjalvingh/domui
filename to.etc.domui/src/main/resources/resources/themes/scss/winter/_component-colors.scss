@@ -129,8 +129,6 @@ $flw-label-color: $text-muted !default;
 //-- EmbeddedCode (.ui-embc-*)
 $embc-border: $surface-alt-bg !default;
 
-//-- RadioButton (.ui-rbb-*)
-$rbb-disabled-bg: $fill-muted-bg !default;
 
 //-- Panel (.ui-spnl): its ground, the bar on its left and its edge
 $spnl-bg: $surface-bg !default;
@@ -192,20 +190,23 @@ $layout-toggler-hover-bg: color.mix($yellow, $body-bg, 60%) !default;
 $layout-ghost-bg: $line-color !default;
 $layout-content-color: $text-muted !default;
 
-//-- CheckboxButton, the can-toggle switch (.ui-ckb-*)
-$ckb-off-color: $text-muted !default;
-$ckb-on-bg: $alt-button-bg !default;
-$ckb-knob-bg: $surface-bg !default;
-$ckb-off-track-bg: $fill-muted-bg !default;			// the track while off
-$ckb-off-hover-color: $text-color !default;			// the label while hovered, off
-$ckb-off-knob-hover-color: $text-color !default;			// the knob's text while hovered, off
-$ckb-on-hover-color: $link-color !default;			// the label while hovered, on
-$ckb-on-border: $bevel-hover-up !default;			// the track's and the knob's edge, on
-$ckb-on-hover-bg: color.mix($bevel-hover-up, $body-bg, 35%) !default;			// the track while hovered, on
-$ckb-on-knob-hover-color: $body-bg !default;			// the knob's text while hovered, on
-$ckb-off-idle-color: $text-muted !default;			// the other state's label, on the track, off
-$ckb-on-idle-color: $text-color !default;			// the other state's label, on the track, on
-
+//-- CheckboxButton, the can-toggle switch (.ui-ckb-*). Off is neutral; on is the primary family,
+//-- like every control that is switched on or chosen.
+$ckb-off-color: $text-subtle !default;			// the knob's text, off
+$ckb-knob-bg: $surface-raised !default;			// the knob, off
+$ckb-off-track-bg: $neutral-tint !default;			// the track while off
+$ckb-off-idle-color: $text-subtle !default;			// the other state's label, on the track, off
+$ckb-off-hover-color: $text-strong !default;			// the label while hovered, off
+$ckb-off-knob-hover-color: $text-strong !default;			// the knob's text while hovered, off
+$ckb-off-knob-hover-bg: $surface-raised !default;			// the knob while hovered, off
+$ckb-on-bg: $primary-wash !default;			// the track while on
+$ckb-on-knob-bg: $primary-solid !default;			// the knob, on
+$ckb-on-knob-color: $primary-on-solid !default;			// the knob's text, on
+$ckb-on-border: $primary-border !default;			// the track's and the knob's edge, on
+$ckb-on-idle-color: $primary-text !default;			// the other state's label, on the track, on
+$ckb-on-hover-color: $primary-text !default;			// the label while hovered, on
+$ckb-on-hover-bg: $primary-tint !default;			// the track while hovered, on
+$ckb-on-knob-hover-color: $primary-on-solid !default;			// the knob's text while hovered, on
 //-- Explanation (.ui-expl) / .ui-hor-divider /
 //-- the drag-drop table (.ui-dd-table), all in _misc.scss
 $expl-color: $text !default;
@@ -285,7 +286,7 @@ $dp2-button-hover-color: $link-color !default;		// a button's text while hovered
 $button-text-invert: $text-inverse !default;
 
 //-- DisplayRadiobutton (.ui-drbb-*)
-$drbb-gradient-from: $fill-muted-bg !default;
+$drbb-gradient-from: $neutral-tint !default;
 
 //-- ExpandingTable (.ui-xdt-*)
 $xdt-border: $line-color !default;
@@ -332,9 +333,9 @@ $stab-scroll-color: $title-color !default;
 $stab-scroll-dis-color: color.mix($title-color, $header-bg, 45%) !default;
 
 //-- Switch (.ui-swtch-*)
-$swtch-off-bg: $fill-muted-bg !default;
-$swtch-knob-bg: $surface-bg !default;
-$swtch-on-bg: $bevel-hover-up !default;					// the track once the switch is on
+$swtch-off-bg: $neutral-tint !default;
+$swtch-knob-bg: $surface-raised !default;
+$swtch-on-bg: $primary-solid !default;					// the track once the switch is on
 
 //-- TabPanel (.ui-tab-*)
 $tab-hdr-bg: $header-strip-bg !default;			// The header part containing the tabs
@@ -393,7 +394,7 @@ $pct-bar-bg: $red !default;						// the filled part of the progress bar
 //-- Text that was written as plain black and is the theme's ordinary text colour
 $generichd-color: $text !default;					// header levels 1, 4 and "simple"
 $di-readonly-color: $text !default;
-$drbb-icon-color: $text !default;
+$drbb-icon-color: $text-default !default;
 $xphd-color: $text !default;
 $f4-readonly-color: $text !default;
 $lnkb-icon-color: $text-default !default;
@@ -427,14 +428,21 @@ $mp-othermonth-color: $text-dim !default;
 // them. Each block is named after the partial that reads it.
 // =======================================================================================
 
-// -- RadioButton
-$rbb-common-color: $alt-button-color !default;
-$rbb-common-bg: $alt-button-bg !default;
-$rbb-border-color: $bevel-hover-up !default;
-$rbb-disabled-color: $rbb-disabled-bg !default;
-$rbb-disabled-checked-color: $body-bg !default;			// a disabled radio button's text, when it is the chosen one
-$rbb-disabled-border-color: $line-strong !default;
-$rbb-disabled-label-color: $text-muted !default;			// a disabled radio button's text
+// -- RadioButton: RadioGroup.asButtons() (.ui-rbb-*) and the on/off label (.ui-boolean-btn). An item
+// that is not chosen is a plain button; the chosen one is the primary family.
+$rbb-bg: $surface-raised !default;
+$rbb-color: $text-strong !default;
+$rbb-border-color: $field-border !default;
+$rbb-hover-bg: $neutral-wash !default;
+$rbb-chosen-bg: $primary-solid !default;
+$rbb-chosen-color: $primary-on-solid !default;
+$rbb-chosen-border-color: $primary-border !default;
+$rbb-disabled-bg: $disabled-surface !default;
+$rbb-disabled-border-color: $disabled-border !default;
+$rbb-disabled-label-color: $disabled-text !default;			// a disabled radio button's text
+$rbb-disabled-chosen-bg: $primary-tint !default;			// a disabled radio button, when it is the chosen one
+$rbb-disabled-chosen-color: $text-subtle !default;
+$rbb-error-bg: $danger-wash !default;			// every item, while the group has an error
 
 // -- Buttons (bulmaish/_button_common)
 $button-color: $text-strong !default;

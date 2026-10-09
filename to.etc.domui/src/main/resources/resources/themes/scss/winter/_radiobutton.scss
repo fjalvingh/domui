@@ -4,7 +4,7 @@
 	&.ui-rbb-empty.ui-ro {
 		@include ui-ro-base;
 		height: 2.25em;
-		border: 1px solid $border; // $input-border-color;
+		border: 1px solid $rbb-border-color;
 		border-radius: 3px;
 		font-size: 1rem;
 		font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
@@ -39,7 +39,8 @@
 			transition: background-color 0.5s ease;
 			display: inline-block;
 			cursor: pointer;
-			background-color: $rbb-common-bg;
+			background-color: $rbb-bg;
+			color: $rbb-color;
 			padding-left: 0.75em;
 			padding-right: 0.75em;
 			padding-top: 0.375em;
@@ -50,20 +51,20 @@
 			border-right: none;
 		}
 		input[type="radio"]:checked + label {
-			background-color: $rbb-common-color;
-			border-color: $rbb-border-color;
-			color: $rbb-common-bg;
+			background-color: $rbb-chosen-bg;
+			border-color: $rbb-chosen-border-color;
+			color: $rbb-chosen-color;
 		}
 		input[type="radio"][disabled="disabled"] + label {
 			cursor: default;
-			background-color: $rbb-disabled-color;
+			background-color: $rbb-disabled-bg;
 			border-color: $rbb-disabled-border-color;
 			color: $rbb-disabled-label-color;
 			display: inline-block;
 		}
 		input[type="radio"][disabled="disabled"]:checked + label {
-			background-color: $rbb-common-color;
-			color: $rbb-disabled-checked-color;
+			background-color: $rbb-disabled-chosen-bg;
+			color: $rbb-disabled-chosen-color;
 			display: inline-block;
 		}
 		input[type="radio"][readonly="readonly"] + label {
@@ -71,8 +72,8 @@
 		}
 		input[type="radio"][readonly="readonly"]:checked + label {
 			cursor: default;
-			background-color: $rbb-common-color;
-			color: $rbb-common-bg;
+			background-color: $rbb-chosen-bg;
+			color: $rbb-chosen-color;
 			border-color: $rbb-disabled-border-color;
 			display: inline-block;
 		}
@@ -83,7 +84,7 @@
 	}
 }
 .ui-rbb-buttons.ui-input-err label {
-	background-color: $errors-input-bg;
+	background-color: $rbb-error-bg;
 }
 
 /*** On/Off single state label that looks like an checkbox button ***/
@@ -97,20 +98,17 @@
 	align-content: center;
 
 	&.ui-on {
-		background-color: $rbb-common-color;
-		color: $background-color;
-		border-color: $rbb-border-color;
-		&:hover {
-			color: $rbb-common-bg;
-		}
+		background-color: $rbb-chosen-bg;
+		color: $rbb-chosen-color;
+		border-color: $rbb-chosen-border-color;
 	}
 
 	&.ui-off {
-		background-color: $rbb-common-bg;
-		color: $rbb-common-color;
+		background-color: $rbb-bg;
+		color: $rbb-color;
 		border-color: $rbb-border-color;
 		&:hover {
-			background-color: $background-color;
+			background-color: $rbb-hover-bg;
 		}
 	}
 }
