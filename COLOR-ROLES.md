@@ -379,6 +379,36 @@ is checked on the review page, and so is Midnight.
 - **Dark, for phase 5:** the input shadow is 0.2, which dark's nature exception
   `$input-shadow` always asked for. Before, the mixins wrote 0.1 themselves and never read it.
 
+**Notices** (2026-10-09):
+- Every severity is its intent family:
+  - ErrorMessageDiv: new `$emd-*` component colours, each severity's `-wash` and `-text`;
+  - Explanation: its bar and marker are the family's `-solid`, and the "i" or "!" on the
+    marker is `-on-solid`, so its contrast follows from the roles;
+  - the question MsgBox's "?" marker is `info`;
+  - ErrorPanel, a TabPanel tab with an error, and the Ace editor's error line share
+    `$error-text-color` and `$ace-error-border`;
+  - the dialog of a failed server call (`$ioe-*`) is `danger`, and its title bar has
+    `-on-solid` text, where it had none.
+- `.ui-hor-divider` reads `$hor-divider-bg` (`$border-subtle`) and `$hor-divider-border`
+  (`$border-strong`).
+- `TestThemeContrast` measures the message pairs on the new component colours, and the muted
+  text on `$text-subtle`. Five pairs are off light's known list: muted text twice, the error
+  text, the error message and the info message. Three are left on it: the page title and
+  the two breadcrumb pairs.
+
+**Panels and headers** (2026-10-09):
+- A plain title bar (Caption, Caption2, CaptionedPanel, CaptionedHeader) reads `$caption-bg`
+  and `$caption-color`: `$neutral-solid` (`#6b6b6b`, was `#7c7c7c`) with white.
+- Panel and CaptionedPanel are `$surface-raised`. A Panel in light now has an edge
+  (`$border-default`) and a bar (`$chrome-border`), where both were transparent: a raised
+  surface the colour of the page shows by its edge.
+- GenericHeader: level 2 and BLUE are `$chrome-text`, level 3 is `$text-strong` (was a navy
+  of its own); ExpandHeader's bar is `$chrome-text`.
+- jquery-layout's resizer is the intents: may drag `success`, at its limit `danger`, closed
+  `warning`, all `-tint`. Its panes read `$layout-pane-*` and `$layout-border`.
+- **Dark, for phase 5:** the title bars are each scheme's rough `$neutral-solid` (its
+  `$fill-strong-bg`), where they were its `$struct` blue.
+
 ## 7. Decisions (2026-10-09)
 
 1. **Step words** `wash / tint / solid / on-solid / text / border`.

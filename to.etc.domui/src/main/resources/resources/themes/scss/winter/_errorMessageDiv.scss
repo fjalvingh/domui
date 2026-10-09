@@ -2,9 +2,9 @@
 @use "theme" as *;
 
 .ui-emd {
-	background-color: $errors-wash;
-	color: $errors-color;
-	border-color: 1px solid $errors-border;
+	background-color: $emd-error-bg;
+	color: $emd-error-color;
+	border-color: 1px solid $emd-error-border;
 }
 .ui-emd-msg {
 	background: no-repeat 10px;
@@ -12,16 +12,16 @@
 	background-size: 11px 11px;
 }
 .ui-emd-info {
-	background-color: $info-bg;
+	background-color: $emd-info-bg;
 	background-image: url(mini-info.png);
-	color: $info-color;
-	border-color: 1px solid $info-border;
+	color: $emd-info-color;
+	border-color: 1px solid $emd-info-border;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
 }
 .ui-emd-warning {
-	background-color: $warnings-bg;
+	background-color: $emd-warning-bg;
 	background-image: url(mini-warning.png);
-	color: $warnings-color;
+	color: $emd-warning-color;
 }

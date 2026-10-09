@@ -2,20 +2,20 @@
 @use "theme" as *;
 
 .ui-pnl-outer {
-	background-color: $surface-bg;
-	color: $surface-color;
+	background-color: $cpnl-bg;
+	color: $cpnl-color;
 }
 
 .ui-pnl-caption {
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
 	font-size: 120%;
-	color: $title-color;
-	background: $header-bg;
+	color: $caption-color;
+	background: $caption-bg;
 }
 
 .ui-pnl-cont {
 	position: relative;
 	padding: 5px;
-	border: 1px solid $header-bg;
+	border: 1px solid $caption-bg;
 }

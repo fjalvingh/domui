@@ -12,9 +12,9 @@
 
 /*	PANES & CONTENT-DIVs */
 .ui-layout-pane { /* all 'panes' */
-	background:	$surface-bg;
-	color:		$surface-color;
-	border:		1px solid $line-color;
+	background:	$layout-pane-bg;
+	color:		$layout-pane-color;
+	border:		1px solid $layout-border;
 	/* DO NOT add scrolling (or padding) to 'panes' that have a content-div,
 	   otherwise you may get double-scrollbars - on the pane AND on the content-div
 	*/
@@ -31,7 +31,7 @@
 /* RESIZER-BARS */
 .ui-layout-resizer	{ /* all 'resizer-bars' */
 	background:		$layout-resizer-bg;
-	border: 0 solid $line-color;
+	border: 0 solid $layout-border;
 }
 .ui-layout-resizer-drag {		/* REAL resizer while resize in progress */
 }
@@ -44,8 +44,8 @@
 	background: $layout-resizer-hover-bg;
 }
 .ui-layout-resizer-dragging {	/* CLONED resizer being dragged */
-	border-left:  1px solid $line-color;
-	border-right: 1px solid $line-color;
+	border-left:  1px solid $layout-border;
+	border-right: 1px solid $layout-border;
 }
 /* NOTE: Add a 'dragging-limit' color to provide visual feedback when resizer hits min/max size limits */
 .ui-layout-resizer-dragging-limit {	/* CLONED resizer at min or max size-limit */
@@ -72,7 +72,7 @@
 
 /* TOGGLER-BUTTONS */
 .ui-layout-toggler {
-	border: 1px solid $line-color;
+	border: 1px solid $layout-border;
 	background-color: $layout-ghost-bg;
 }
 .ui-layout-resizer-hover .ui-layout-toggler {

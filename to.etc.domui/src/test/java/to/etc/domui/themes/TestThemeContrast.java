@@ -33,8 +33,8 @@ public class TestThemeContrast {
 	static private final Object[][] PAIRS = {
 		{"text on the page", "text-color", "body-bg", AA},
 		{"strong text on the page", "text-strong-color", "body-bg", AA},
-		{"muted text on the page", "text-muted", "body-bg", AA},
-		{"muted text on a panel", "text-muted", "surface-bg", AA},
+		{"muted text on the page", "text-subtle", "surface-page", AA},
+		{"muted text on a panel", "text-subtle", "surface-raised", AA},
 		{"body text on the page", "body-color", "body-bg", AA},
 		{"text on a panel", "surface-color", "surface-bg", AA},
 		{"text on a floating window", "surface-color", "window-bg", AA},
@@ -44,10 +44,10 @@ public class TestThemeContrast {
 		{"a link", "link-color", "body-bg", AA},
 		{"a visited link", "link-visited-color", "body-bg", AA},
 		{"the page title", "title-color", "title-bg", AA},
-		{"an error text on the page", "errors-color", "body-bg", AA},
-		{"an error message", "errors-color", "errors-wash", AA},
-		{"a warning message", "warnings-color", "warnings-bg", AA},
-		{"an info message", "info-color", "info-bg", AA},
+		{"an error text on the page", "error-text-color", "surface-page", AA},
+		{"an error message", "emd-error-color", "emd-error-bg", AA},
+		{"a warning message", "emd-warning-color", "emd-warning-bg", AA},
+		{"an info message", "emd-info-color", "emd-info-bg", AA},
 		{"text on a hovered menu entry", "surface-color", "menu-hover-bg", AA},
 		{"text on a hovered row", "body-color", "row-hover-bg", AA},
 		{"text on a marked row", "body-color", "highlight-bg", AA},
@@ -82,8 +82,7 @@ public class TestThemeContrast {
 	 * when one of them is fixed, so the list is kept honest.
 	 */
 	static private final List<String> KNOWN_LIGHT = List.of(
-		"muted text on the page", "muted text on a panel", "the page title", "an error text on the page",
-		"an error message", "an info message", "a breadcrumb", "the current breadcrumb"
+		"the page title", "a breadcrumb", "the current breadcrumb"
 	);
 
 	static private ThemeVariantCompiler m_compiler;

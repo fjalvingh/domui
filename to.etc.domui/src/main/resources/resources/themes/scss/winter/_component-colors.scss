@@ -107,10 +107,19 @@ $flw-label-color: $text-muted !default;
 $embc-border: $surface-alt-bg !default;
 
 
-//-- Panel (.ui-spnl): its ground, the bar on its left and its edge
-$spnl-bg: $surface-bg !default;
-$spnl-accent: $header-bar-color !default;
-$spnl-edge: $header-edge-color !default;
+//-- Panel (.ui-spnl): its ground, the bar on its left and its edge. A raised surface: where it
+//-- is the page's colour, the edge is what shows it.
+$spnl-bg: $surface-raised !default;
+$spnl-color: $text-default !default;
+$spnl-accent: $chrome-border !default;
+$spnl-edge: $border-default !default;
+//-- The title bar of a caption, a CaptionedPanel and a CaptionedHeader (.ui-cptn, .ui-cptn2,
+//-- .ui-cpnl-*, .ui-chdr-*): a plain title bar is the neutral family.
+$caption-bg: $neutral-solid !default;
+$caption-color: $neutral-on-solid !default;
+//-- CaptionedPanel (.ui-cpnl-*): a raised surface under its title bar
+$cpnl-bg: $surface-raised !default;
+$cpnl-color: $text-default !default;
 
 //-- HtmlEditor (.wysiwyg)
 $htmled-bg: $surface-bg !default;
@@ -161,13 +170,16 @@ $copa-level-bgs: ( color.mix($green, $body-bg, 28%), color.mix($purple, $body-bg
 //-- jquery-layout (.ui-layout-*). The resizer's feedback colours are a set of their own -
 //-- green you may drag, red at the size limit, amber click-to-open - so they keep their
 //-- own values for the same reason the panel levels above do.
-$layout-resizer-bg: $fill-muted-bg !default;
-$layout-resizer-hover-bg: color.mix($green, $body-bg, 35%) !default;
-$layout-resizer-limit-bg: color.mix($red, $body-bg, 35%) !default;
-$layout-resizer-closed-bg: color.mix($yellow, $body-bg, 30%) !default;
-$layout-toggler-hover-bg: color.mix($yellow, $body-bg, 60%) !default;
-$layout-ghost-bg: $line-color !default;
-$layout-content-color: $text-muted !default;
+$layout-resizer-bg: $neutral-tint !default;
+$layout-resizer-hover-bg: $success-tint !default;			// may be dragged
+$layout-resizer-limit-bg: $danger-tint !default;			// at its size limit
+$layout-resizer-closed-bg: $warning-tint !default;			// click to open
+$layout-toggler-hover-bg: $warning-solid !default;
+$layout-ghost-bg: $border-default !default;
+$layout-content-color: $text-subtle !default;
+$layout-pane-bg: $surface-raised !default;
+$layout-pane-color: $text-default !default;
+$layout-border: $border-default !default;
 
 //-- CheckboxButton, the can-toggle switch (.ui-ckb-*). Off is neutral; on is the primary family,
 //-- like every control that is switched on or chosen.
@@ -188,19 +200,37 @@ $ckb-on-hover-bg: $primary-tint !default;			// the track while hovered, on
 $ckb-on-knob-hover-color: $primary-on-solid !default;			// the knob's text while hovered, on
 //-- Explanation (.ui-expl) / .ui-hor-divider /
 //-- the drag-drop table (.ui-dd-table), all in _misc.scss
-$expl-color: $text !default;
-$expl-info-bg: $info-bg !default;				// each severity: its wash, its bar and marker,
-$expl-info-accent: $info-border !default;			// and the colour of the "i" or "!" on the marker
-$expl-info-marker-color: $body-bg !default;
-$expl-warning-bg: $warnings-bg !default;
-$expl-warning-accent: $warnings-border !default;
-$expl-warning-marker-color: $body-bg !default;
-$expl-error-bg: $errors-wash !default;
-$expl-error-accent: $errors-border !default;
-$sev-question-bg: $purple !default;			// the big "?" marker of a question MsgBox (.ui-sev-mark)
-$sev-question-color: $body-bg !default;
-$expl-error-marker-color: $body-bg !default;
-$hor-divider-bg: $fill-muted-bg !default;
+$expl-color: $text-default !default;
+$expl-info-bg: $info-wash !default;				// each severity: its wash, its bar and marker,
+$expl-info-accent: $info-solid !default;			// and the colour of the "i" or "!" on the marker
+$expl-info-marker-color: $info-on-solid !default;
+$expl-warning-bg: $warning-wash !default;
+$expl-warning-accent: $warning-solid !default;
+$expl-warning-marker-color: $warning-on-solid !default;
+$expl-error-bg: $danger-wash !default;
+$expl-error-accent: $danger-solid !default;
+$expl-error-marker-color: $danger-on-solid !default;
+$sev-question-bg: $info-solid !default;			// the big "?" marker of a question MsgBox (.ui-sev-mark)
+$sev-question-color: $info-on-solid !default;
+$hor-divider-bg: $border-subtle !default;
+$hor-divider-border: $border-strong !default;			// its dotted edge
+//-- ErrorMessageDiv (.ui-emd-*): a message line of each severity
+$emd-error-bg: $danger-wash !default;
+$emd-error-color: $danger-text !default;
+$emd-error-border: $danger-border !default;
+$emd-info-bg: $info-wash !default;
+$emd-info-color: $info-text !default;
+$emd-info-border: $info-border !default;
+$emd-warning-bg: $warning-wash !default;
+$emd-warning-color: $warning-text !default;
+//-- ErrorPanel, a TabPanel tab with an error, the Ace editor's error line
+$error-text-color: $danger-text !default;
+$ace-error-border: $danger-border !default;
+//-- The dialog of a failed server call (.ui-ioe-*, _asyio)
+$ioe-bg: $danger-wash !default;
+$ioe-border: $danger-border !default;
+$ioe-title-bg: $danger-solid !default;
+$ioe-title-color: $danger-on-solid !default;
 $dd-table-border: $line-color !default;
 $dd-table-hdr-border: $line-strong !default;
 $dd-table-hdr-bg: #0F3C2C !default;					// a deliberate dark green, not a theme colour
@@ -274,14 +304,14 @@ $xdt-ix-color: $link-color !default;			// the expand/collapse cell, an underline
 
 //-- The header blue: GenericHeader's level-2 title and ExpandingHeader's bar are one
 //-- colour used by two components, so both default to it rather than repeating it.
-$header-accent-color: $heading-color !default;
+$header-accent-color: $chrome-text !default;
 $xphd-bar-color: $header-accent-color !default;
 
 //-- GenericHeader (.ui-generichd-*)
-$generichd-border: $line-soft !default;
-$generichd-blue-color: color.mix($heading-color, $text-color, 50%) !default;				// .ui-generichd-blue, a slate title
+$generichd-border: $border-subtle !default;
+$generichd-blue-color: $chrome-text !default;				// .ui-generichd-blue
 $generichd-h2-color: $header-accent-color !default;
-$generichd-h3-color: $heading2-color !default;
+$generichd-h3-color: $text-strong !default;
 
 //-- SmallImgButton (.ui-sib)
 $sib-hover-bg: $neutral-tint !default;
@@ -376,10 +406,10 @@ $pct-rlr2-border: $line-color !default;
 $pct-bar-bg: $red !default;						// the filled part of the progress bar
 
 //-- Text that was written as plain black and is the theme's ordinary text colour
-$generichd-color: $text !default;					// header levels 1, 4 and "simple"
+$generichd-color: $text-default !default;					// header levels 1, 4 and "simple"
 $di-readonly-color: $text-default !default;
 $drbb-icon-color: $text-default !default;
-$xphd-color: $text !default;
+$xphd-color: $text-default !default;
 $f4-readonly-color: $text-default !default;
 $lnkb-icon-color: $text-default !default;
 
