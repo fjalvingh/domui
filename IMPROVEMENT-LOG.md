@@ -2262,6 +2262,14 @@ These were offered as input while the phase 0 items were being worked, and taken
 
 ## Decisions log
 
+### 2026-10-10 - `ThemeColor` stays as it is; applications are not meant to use it
+
+`SCHEMES.md` §6 left `ThemeColor`'s dark bands open: they are constants for Darcula's page, so
+`tint()`, `ink()` and `edge()` fold onto the wrong lightness in the other dark schemes. Giving
+Java the scheme's roles as swatches was considered. The user decided against reworking it:
+applications are not meant to use `ThemeColor`, so it stays as it is. A colour that means
+something belongs in the application's sheet, as a role.
+
 ### 2026-10-10 - Colours are designed roles, not names for what components paint
 
 Three attempts to name the theme's colours from what the components used ended with many

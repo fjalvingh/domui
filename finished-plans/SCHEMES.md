@@ -238,7 +238,9 @@ Fixed since (2026-10-08):
 
 Still open:
 
-- **`ThemeColor`'s dark bands** are still constants worked out for Darcula's page (17%), so
+- ~~**`ThemeColor`'s dark bands**~~ - settled 2026-10-10: applications are not meant to use
+  `ThemeColor` (a colour with a meaning is a role, in the application's sheet), so it stays as
+  it is and is not reworked. What stood here: they are still constants worked out for Darcula's page (17%), so
   `tint()`, `ink()` and `edge()` fold onto the wrong lightness in the other dark schemes. Its
   tint band also goes up to 44%, where Darcula's own text has 2.6:1 instead of the AA its comment
   promises. Nothing in DomUI or the demo calls these methods; they are for applications. Folding
