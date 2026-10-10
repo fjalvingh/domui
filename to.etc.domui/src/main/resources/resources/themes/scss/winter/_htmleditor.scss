@@ -15,6 +15,12 @@ body div.wysiwyg {
 			border-left-color: $htmled-toolbar-border;
 		}
 	}
+
+	// The editing area's ground: its document is transparent (minieditor.scss), so this shows,
+	// and HtmlEditor's ui-input-err on the iframe replaces it with the error ground.
+	iframe {
+		background-color: $input-background-color;
+	}
 }
 
 // The toolbar's icons are a sprite of dark glyphs, drawn for a light page. On a dark one the

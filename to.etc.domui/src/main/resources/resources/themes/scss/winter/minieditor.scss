@@ -4,12 +4,15 @@
 // configures the theme for it as style.scss does.
 @use "theme" as *;
 
+// The color-scheme is the page's, so the iframe's canvas stays transparent; the document has no
+// background of its own either. The ground is the iframe element's (_htmleditor.scss), where
+// the page's .ui-input-err can turn it into the error ground.
 html {
 	color-scheme: $color-scheme;				// the iframe's own canvas and scrollbars
 }
 
 body, html {
-	background-color: $input-background-color;
+	background-color: transparent;
 	color: $text-default;
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 13px;
