@@ -22,9 +22,9 @@
 $list-selected-bg: $selected-wash !default;
 
 // A chosen value shown as a tag: MultipleLookupInput, EnumSetInput, LabelSelector. Chosen is the
-// primary family, as for the toggles.
-$tag-bg: $primary-tint !default;
-$tag-border: $primary-border !default;
+// control family, as for the toggles.
+$tag-bg: $control-tint !default;
+$tag-border: $control-border !default;
 $tag-color: $text-strong !default;
 
 
@@ -185,7 +185,7 @@ $layout-pane-bg: $surface-raised !default;
 $layout-pane-color: $text-default !default;
 $layout-border: $border-default !default;
 
-//-- CheckboxButton, the can-toggle switch (.ui-ckb-*). Off is neutral; on is the primary family,
+//-- CheckboxButton, the can-toggle switch (.ui-ckb-*). Off is neutral; on is the control family,
 //-- like every control that is switched on or chosen.
 $ckb-off-color: $text-subtle !default;			// the knob's text, off
 $ckb-knob-bg: $surface-raised !default;			// the knob, off
@@ -194,14 +194,14 @@ $ckb-off-idle-color: $text-subtle !default;			// the other state's label, on the
 $ckb-off-hover-color: $text-strong !default;			// the label while hovered, off
 $ckb-off-knob-hover-color: $text-strong !default;			// the knob's text while hovered, off
 $ckb-off-knob-hover-bg: $surface-raised !default;			// the knob while hovered, off
-$ckb-on-bg: $primary-wash !default;			// the track while on
-$ckb-on-knob-bg: $primary-solid !default;			// the knob, on
-$ckb-on-knob-color: $primary-on-solid !default;			// the knob's text, on
-$ckb-on-border: $primary-border !default;			// the track's and the knob's edge, on
-$ckb-on-idle-color: $primary-text !default;			// the other state's label, on the track, on
-$ckb-on-hover-color: $primary-text !default;			// the label while hovered, on
-$ckb-on-hover-bg: $primary-tint !default;			// the track while hovered, on
-$ckb-on-knob-hover-color: $primary-on-solid !default;			// the knob's text while hovered, on
+$ckb-on-bg: $control-wash !default;			// the track while on
+$ckb-on-knob-bg: $control-solid !default;			// the knob, on
+$ckb-on-knob-color: $control-on-solid !default;			// the knob's text, on
+$ckb-on-border: $control-border !default;			// the track's and the knob's edge, on
+$ckb-on-idle-color: $control-text !default;			// the other state's label, on the track, on
+$ckb-on-hover-color: $control-text !default;			// the label while hovered, on
+$ckb-on-hover-bg: $control-tint !default;			// the track while hovered, on
+$ckb-on-knob-hover-color: $control-on-solid !default;			// the knob's text while hovered, on
 //-- Explanation (.ui-expl) / .ui-hor-divider /
 //-- the drag-drop table (.ui-dd-table), all in _misc.scss
 $expl-color: $text-default !default;
@@ -363,7 +363,7 @@ $stab-scroll-dis-color: $disabled-text !default;
 //-- Switch (.ui-swtch-*)
 $swtch-off-bg: $neutral-tint !default;
 $swtch-knob-bg: $surface-raised !default;
-$swtch-on-bg: $primary-solid !default;					// the track once the switch is on
+$swtch-on-bg: $control-solid !default;					// the track once the switch is on
 
 //-- TabPanel (.ui-tab-*)
 $tab-hdr-bg: $chrome-wash !default;			// The header part containing the tabs
@@ -457,18 +457,18 @@ $mp-othermonth-color: $text-faint !default;
 // =======================================================================================
 
 // -- RadioButton: RadioGroup.asButtons() (.ui-rbb-*) and the on/off label (.ui-boolean-btn). An item
-// that is not chosen is a plain button; the chosen one is the primary family.
+// that is not chosen is a plain button; the chosen one is the control family.
 $rbb-bg: $surface-raised !default;
 $rbb-color: $text-strong !default;
 $rbb-border-color: $field-border !default;
 $rbb-hover-bg: $neutral-wash !default;
-$rbb-chosen-bg: $primary-solid !default;
-$rbb-chosen-color: $primary-on-solid !default;
-$rbb-chosen-border-color: $primary-border !default;
+$rbb-chosen-bg: $control-solid !default;
+$rbb-chosen-color: $control-on-solid !default;
+$rbb-chosen-border-color: $control-border !default;
 $rbb-disabled-bg: $disabled-surface !default;
 $rbb-disabled-border-color: $disabled-border !default;
 $rbb-disabled-label-color: $disabled-text !default;			// a disabled radio button's text
-$rbb-disabled-chosen-bg: $primary-tint !default;			// a disabled radio button, when it is the chosen one
+$rbb-disabled-chosen-bg: $control-tint !default;			// a disabled radio button, when it is the chosen one
 $rbb-disabled-chosen-color: $text-subtle !default;
 $rbb-error-bg: $danger-wash !default;			// every item, while the group has an error
 
@@ -509,8 +509,8 @@ $button-static-border-color: $field-border !default;
 $button-color-shades: -button-shades($colors) !default;
 
 // -- DataPager2
-$dp2-button-color: $text-strong !default;
-$dp2-button-bg: $neutral-wash !default;
+$dp2-button-color: $control-text !default;
+$dp2-button-bg: $control-wash !default;
 
 // -- Drag and drop
 $drp-hover-border: $success-border !default;

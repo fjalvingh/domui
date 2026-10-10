@@ -73,6 +73,15 @@ $primary-on-solid: #1e1e1e;
 $primary-text: #a65400;
 $primary-border: #f69231;
 
+// The normal colour of a control in use: a toggle that is on, the chosen item of a choice, a
+// chip of a chosen value, a pager's buttons.
+$control-wash: #eaf1ff;
+$control-tint: #c7dafd;
+$control-solid: #2b6de8;
+$control-on-solid: #ffffff;
+$control-text: #1d4ed8;
+$control-border: #2b6de8;
+
 // An ordinary action, a plain title bar.
 $neutral-wash: #f5f5f5;
 $neutral-tint: #dbdbdb;
@@ -81,13 +90,13 @@ $neutral-on-solid: #ffffff;
 $neutral-text: #4a4a4a;
 $neutral-border: #b5b5b5;
 
-// Information, guidance.
-$info-wash: #e4eeff;
-$info-tint: #b9d0f7;
-$info-solid: #1f6fd1;
+// Information, guidance: a cyan-teal, apart from the control blue.
+$info-wash: #e3f4fa;
+$info-tint: #b5e3f2;
+$info-solid: #0b7285;
 $info-on-solid: #ffffff;
-$info-text: #2f63c4;
-$info-border: #4075db;
+$info-text: #0a6f91;
+$info-border: #1a9bc0;
 
 // It worked, it is allowed.
 $success-wash: #e9f7ee;

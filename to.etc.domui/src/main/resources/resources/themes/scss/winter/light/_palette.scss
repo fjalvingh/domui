@@ -203,7 +203,6 @@ $ground-bg: hsl(0, 0%, 100%) !default;			// what a control or button is filled w
 $ground-alt-bg: $white-ter !default;			// one step off the ground: a static control, a hovered tree item, a band
 $text-color: hsl(0, 0%, 29%) !default;			// ordinary text, as the bulma mixins draw it
 $text-strong-color: hsl(0, 0%, 21%) !default;			// emphasised text: a control's own text, a hovered link
-$control-border: hsl(0, 0%, 86%) !default;			// the edge of an input or button
 $control-hover-border: hsl(0, 0%, 71%) !default;			// ... while it is hovered
 $control-active-border: $grey-dark !default;			// ... while it is pressed
 $fill-muted-bg: hsl(0, 0%, 86%) !default;			// a quiet fill: a disabled control, a gutter, a switch that is off
@@ -304,6 +303,12 @@ $primary-solid: s.$primary-solid !default;
 $primary-on-solid: s.$primary-on-solid !default;
 $primary-text: s.$primary-text !default;
 $primary-border: s.$primary-border !default;
+$control-wash: s.$control-wash !default;
+$control-tint: s.$control-tint !default;
+$control-solid: s.$control-solid !default;
+$control-on-solid: s.$control-on-solid !default;
+$control-text: s.$control-text !default;
+$control-border: s.$control-border !default;
 $neutral-wash: s.$neutral-wash !default;
 $neutral-tint: s.$neutral-tint !default;
 $neutral-solid: s.$neutral-solid !default;

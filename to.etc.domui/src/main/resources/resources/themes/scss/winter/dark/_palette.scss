@@ -206,7 +206,6 @@ $ground-bg: s.$field !default;			// what a control or button is filled with: Dar
 $ground-alt-bg: s.$window !default;			// a recessed or static control: disabled input, static button
 $text-color: s.$text !default;
 $text-strong-color: s.$text-strong !default;
-$control-border: s.$control-border !default;			// Darcula's text field border
 $control-hover-border: s.$control-hover-border !default;
 $control-active-border: s.$line-hard !default;
 $fill-muted-bg: s.$raised !default;			// a quiet fill: a disabled control, a gutter, a switch that is off
@@ -290,7 +289,7 @@ $border-bold: $line-hard !default;
 
 $field-surface: $input-bg !default;
 $field-surface-readonly: $input-ro-bg-top !default;
-$field-border: $control-border !default;
+$field-border: s.$control-border !default;
 $field-border-hover: $control-hover-border !default;
 
 $link-text: $link-color !default;
@@ -307,7 +306,7 @@ $highlight: $highlight-bg !default;
 $focus-ring: s.$focus !default;
 $disabled-surface: $fill-muted-bg !default;
 $disabled-text: $text-muted !default;
-$disabled-border: $control-border !default;
+$disabled-border: s.$control-border !default;
 $scrim: #000000 !default;
 $shadow: $shadow-color !default;
 
@@ -318,12 +317,19 @@ $primary-on-solid: -on($primary-solid) !default;
 $primary-text: $primary !default;
 $primary-border: $primary !default;
 
+$control-wash: $alt-button-bg !default;
+$control-tint: color.mix($alt-button-color, s.$page, 35%) !default;
+$control-solid: $alt-button-color !default;
+$control-on-solid: -on($control-solid) !default;
+$control-text: $alt-button-color !default;
+$control-border: $alt-button-color !default;
+
 $neutral-wash: $ground-alt-bg !default;
 $neutral-tint: $fill-muted-bg !default;
 $neutral-solid: $fill-strong-bg !default;
 $neutral-on-solid: s.$text-strong !default;
 $neutral-text: $text-color !default;
-$neutral-border: $control-border !default;
+$neutral-border: s.$control-border !default;
 
 $info-wash: $info-bg !default;
 $info-tint: color.mix(s.$blue, s.$page, 35%) !default;

@@ -237,7 +237,7 @@ public class ThemeReviewPage extends UrlPage {
 		grid.add(new Div("dm-tr-fam-hd"));
 		for(String step : new String[]{"wash", "tint", "solid", "text", "border"})
 			grid.add(new Div("dm-tr-fam-hd", "-" + step));
-		for(String f : new String[]{"primary", "neutral", "info", "success", "warning", "danger", "chrome"}) {
+		for(String f : new String[]{"primary", "control", "neutral", "info", "success", "warning", "danger", "chrome"}) {
 			grid.add(new Div("dm-tr-fam-name", f));
 			grid.add(sample("bg-" + f + "-wash fg-" + f + "-text"));
 			grid.add(sample("bg-" + f + "-tint fg-text-strong"));

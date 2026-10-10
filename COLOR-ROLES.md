@@ -146,13 +146,14 @@ mistaken for a hovered, highlighted, informative or erroneous one. On `$selected
 
 ### 3.8 Intents (Bulma's `is-*`): actions and messages
 
-Seven families, each with the six steps of 3.1.
+Eight families, each with the six steps of 3.1.
 
 | Family | Means | `-wash` | `-tint` | `-solid` | `-on-solid` | `-text` | `-border` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `primary` | the theme's accent: the default action, "this one" | `#fef3e7` | `#fbd9a8` | `#f69231` | `#1e1e1e` | `#a65400` | `#f69231` |
+| `primary` | the theme's accent: the default action | `#fef3e7` | `#fbd9a8` | `#f69231` | `#1e1e1e` | `#a65400` | `#f69231` |
+| `control` | the normal colour of a control in use: a toggle that is on, a chosen item, a chip, a pager's buttons | `#eaf1ff` | `#c7dafd` | `#2b6de8` | `#ffffff` | `#1d4ed8` | `#2b6de8` |
 | `neutral` | an ordinary action, a plain title bar | `#f5f5f5` | `#dbdbdb` | `#6b6b6b` | `#ffffff` | `#4a4a4a` | `#b5b5b5` |
-| `info` | information, guidance | `#e4eeff` | `#b9d0f7` | `#1f6fd1` | `#ffffff` | `#2f63c4` | `#4075db` |
+| `info` | information, guidance (cyan-teal, apart from `control`) | `#e3f4fa` | `#b5e3f2` | `#0b7285` | `#ffffff` | `#0a6f91` | `#1a9bc0` |
 | `success` | it worked, it is allowed | `#e9f7ee` | `#d4ee9f` | `#1a7f45` | `#ffffff` | `#1e7b43` | `#43b761` |
 | `warning` | caution, before a mistake | `#fff7dd` | `#fff2ab` | `#f2b01e` | `#1e1e1e` | `#8a6100` | `#daa520` |
 | `danger` | an error, a destructive action | `#ffe5e5` | `#f4b6b6` | `#d32f2f` | `#ffffff` | `#c81e1e` | `#e02424` |
@@ -186,8 +187,8 @@ selection. The washes are each hue at about 25% on the page.
 
 ### 3.10 Count
 
-6 surfaces + 5 text + 4 lines + 4 fields + 3 links + 13 states + 7×6 intents + 7×2 categories
-= **91 roles**.
+6 surfaces + 5 text + 4 lines + 4 fields + 3 links + 13 states + 8×6 intents + 7×2 categories
+= **97 roles**.
 
 ## 4. What changes in the light theme if this is followed
 
@@ -207,7 +208,7 @@ Visible changes, all on purpose:
 ## 5. How it fits the scheme architecture
 
 **The role set is the scheme's tokens** (decided). A scheme's `_scheme.scss`
-(`light/winter/`, `dark/nord/`, ...) declares exactly the 91 roles, which replace today's
+(`light/winter/`, `dark/nord/`, ...) declares exactly the 97 roles, which replace today's
 `$page`, `$struct-strip`, `$raised2` and the rest.
 
 - `_component-colors.scss` maps every component colour to `r.$<role>`. Hover and pressed
@@ -238,7 +239,7 @@ released to the world has no aliases (decision 5).
 1. **Decide the role set** (this document): names, families, steps, the light values.
    Add a swatch table of the roles to the theme review page, so the light values can be
    judged on the page itself rather than as hex codes.
-2. **Light declares the roles.** `light/winter/_scheme.scss` declares the 91 roles in place
+2. **Light declares the roles.** `light/winter/_scheme.scss` declares the 97 roles in place
    of its old tokens. `light/_palette.scss` defines the old palette names as aliases of
    the roles, so that the components and the shared `_component-colors.scss` still
    compile.
@@ -256,7 +257,7 @@ released to the world has no aliases (decision 5).
      Where it does not, the difference is noted for phase 5 and not fixed in this phase.
 4. **Light contrast tests.** `TestThemeContrast` checks the rules of 3.1 on light's roles.
    That is about 30 pairs, instead of a list per component.
-5. **Dark declares the roles.** Every dark scheme's `_scheme.scss` gets the 91 roles,
+5. **Dark declares the roles.** Every dark scheme's `_scheme.scss` gets the 97 roles,
    chosen and judged on the review page, not just derived.
    - `dark/_palette.scss` loses its aliases, and so do dark's nature exceptions.
    - SCHEMES.md §6 left open whether the dark palette's mixes stay. That is decided
@@ -494,3 +495,11 @@ light's known list in `TestThemeContrast` is empty.
    as deprecated aliases: an application renames when it takes the new version (section 5).
    During the work, aliases may live for a few commits, so that light can be done first
    and dark later (section 6).
+6. **`control`** (2026-10-10): an eighth family, the normal colour of a control in use. It is
+   winter's hard blue of the alternative buttons, made dark enough for white text
+   (`#2b6de8`). Toggles that are on, chosen items, chips of chosen values and DataPager2's
+   buttons are `control`, not `primary`. Orange `primary` is the default action only, and
+   `neutral` stays the grey. Phase 3 had put those controls in `primary`, which made
+   them orange; the name `control` says what the family is for, where `secondary` would
+   rank it. `info` moved to a cyan-teal (`#0b7285`), because the control blue and the
+   old info blue were the same colour.

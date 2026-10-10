@@ -37,7 +37,7 @@ $dm-tr-roles: (
 	"highlight", "focus-ring", "disabled-surface", "disabled-text", "disabled-border", "scrim", "shadow",
 );
 
-@each $family in ("primary", "neutral", "info", "success", "warning", "danger", "chrome") {
+@each $family in ("primary", "control", "neutral", "info", "success", "warning", "danger", "chrome") {
 	@each $step in ("wash", "tint", "solid", "on-solid", "text", "border") {
 		$dm-tr-roles: list.append($dm-tr-roles, "#{$family}-#{$step}", $separator: comma);
 	}
