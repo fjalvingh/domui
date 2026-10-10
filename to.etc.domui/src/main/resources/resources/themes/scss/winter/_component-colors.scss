@@ -380,15 +380,16 @@ $tree2-hover-bg: $neutral-wash !default;
 $tree2-hover-color: $primary-text !default;
 $tree3-hover-outline: $hover-border !default;
 
-//-- Breadcrumb (.ui-brc-* and .ui-brcr2-*)
+//-- Breadcrumb (.ui-brc-*: text on its own background images) and BreadCrumb2 (.ui-brcr2-*: its
+//-- crumbs are clickable steps, so the control family; the current page is its wash)
 $brc-color: $chrome-on-solid !default;
 $brcr2-shadow: $shadow !default;
 $brc-link-color: $chrome-on-solid !default;				// a crumb that is still a link
-$brcr2-bg: $chrome-solid !default;			// item bg colour
-$brcr2-color: $chrome-on-solid !default;
-$brcr2-hover-bg: findColorHighlight($chrome-solid, 10%) !default;
-$brcr2-sel-bg: $chrome-wash !default;				// the selected item's bg
-$brcr2-sel-color: $chrome-text !default;
+$brcr2-bg: $control-solid !default;			// item bg colour
+$brcr2-color: $control-on-solid !default;
+$brcr2-hover-bg: findColorHighlight($control-solid, 10%) !default;
+$brcr2-sel-bg: $control-wash !default;				// the selected item's bg
+$brcr2-sel-color: $control-text !default;
 
 //-- Ace editor bar (.ui-acedit-*)
 $acedit-bar-bg: $surface-inverse !default;

@@ -547,3 +547,7 @@ light's known list in `TestThemeContrast` is empty.
    them orange; the name `control` says what the family is for, where `secondary` would
    rank it. `info` moved to a cyan-teal (`#0b7285`), because the control blue and the
    old info blue were the same colour.
+   BreadCrumb2 is `control` too (2026-10-10): its crumbs are clickable steps, so they are
+   `$control-solid` with `$control-on-solid`, and the current page is `$control-wash` with
+   `$control-text`. They had been `chrome` since phase 3. The old BreadCrumb keeps white text
+   on its own background images.
