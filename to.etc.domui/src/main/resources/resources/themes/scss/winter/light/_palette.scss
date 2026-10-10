@@ -9,8 +9,8 @@
 //	The ROLES are a scheme's tokens, in its _scheme.scss (light/winter/, dark/nord/ ...): what a
 //	colour is for, in the language of design, never which component paints it. They are
 //	$<family>-<step> - $surface-raised, $text-subtle, $border-strong, $danger-wash,
-//	$control-solid, $chrome-text - and every scheme declares the same set. COLOR-ROLES.md in the
-//	repository root has the whole set and why it is this set.
+//	$control-solid, $chrome-text - and every scheme declares the same set.
+//	finished-plans/COLOR-ROLES.md in the repository has the whole set and why it is this set.
 //
 //	COMPONENT COLOURS are in _component-colors.scss - one variable for each colour a
 //	component paints, each defaulting to a role. A component's own stylesheet reads its own

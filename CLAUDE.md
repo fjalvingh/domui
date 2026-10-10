@@ -89,9 +89,14 @@ A plan that is finished as a whole moves to **`finished-plans/`**. What is there
 done and is kept for the account it gives of how a part of the framework now works -
 `THEMES.md`, the theming write-up, is the first of them; `darktheme.md`, how the theme
 variants got their own colour files and the dark variant its Darcula look, came next.
-`SCHEMES.md`, the latest, is how every theme variant became a colour scheme of a nature
+`SCHEMES.md` is how every theme variant became a colour scheme of a nature
 (`light-winter`, `dark-nord`), with one file of tokens per scheme; its section 6 lists what
 it left open. Read it before working on theme variants or the theme's colour files.
+`COLOR-ROLES.md`, the most recent, is how the theme's colours became designed **colour
+roles** (`$surface-raised`, `$text-subtle`, `$danger-wash`, `$control-solid` ...): every scheme's
+`_scheme.scss` is its roles, every component colour is a role, and `TestThemeContrast` holds
+every scheme to the roles' contrast promises. Read it before changing a colour, a scheme or a
+component's colours.
 
 The documentation website source is a separate repository at
 `/home/jal/git/update-domui/domui.github.io` (Markdown under `site/content`, static site

@@ -22,7 +22,7 @@
 	margin-right: 6px;
 }
 
-// ---- The colour roles (COLOR-ROLES.md). Every role as a ground (dm-tr-bg-*), a text colour
+// ---- The colour roles (finished-plans/COLOR-ROLES.md). Every role as a ground (dm-tr-bg-*), a text colour
 // (dm-tr-fg-*) and a frame (dm-tr-bd-*); the page combines them per chip. The colours are read
 // from the theme module by name, so a role the scheme does not have is a compile error here.
 $dm-tr-theme: meta.module-variables("t");

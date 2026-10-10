@@ -247,9 +247,10 @@ Still open:
   considered instead: Java writes what a colour means (a custom property), and the theme folds it
   with CSS `color-mix()` against its own colours. To be done with the application that uses it in
   view.
-- **Light's 114 exceptions** are the debt decision 6 describes: each one removed is a choice
-  for the component's role, to make on the review page.
-- **Whether the dark palette's mixes stay.** `dark/_palette.scss` works the washes out by
+- ~~**Light's 114 exceptions**~~ - settled 2026-10-10 by `COLOR-ROLES.md`: every component
+  colour is a colour role in every scheme, and no nature or scheme has exceptions left.
+- ~~**Whether the dark palette's mixes stay.**~~ Settled 2026-10-10 by `COLOR-ROLES.md`: a
+  wash is a token each scheme states; no palette mixes anything. `dark/_palette.scss` works the washes out by
   mixing a hue into the page (`color.mix(s.$red, s.$page, 16%)`), which `darktheme.md` §2.5
   rule 2 forbade in the old dark files, where every colour was chosen. With schemes it is what
   lets one file of tokens redress everything; the alternative is a token per wash. A decision,

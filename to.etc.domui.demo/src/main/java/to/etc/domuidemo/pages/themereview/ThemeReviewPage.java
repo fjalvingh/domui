@@ -187,7 +187,7 @@ public class ThemeReviewPage extends UrlPage {
 	}
 
 	/**
-	 * The scheme's colour roles (COLOR-ROLES.md), each shown with what goes on it: a surface
+	 * The scheme's colour roles (finished-plans/COLOR-ROLES.md), each shown with what goes on it: a surface
 	 * with body text, a fill with its own text colour, a line as a frame. The colours come from
 	 * the theme module in the demo's stylesheet (_themereview.scss), so they are the compiled
 	 * ones; a chip's classes say which role it shows as ground (bg-), text (fg-) and frame (bd-).

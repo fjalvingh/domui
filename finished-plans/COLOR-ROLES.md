@@ -1,8 +1,9 @@
 # Colour roles: a theme vocabulary designed first, components mapped onto it
 
-Status: **phases 1 to 5 done**, and phase 6 except the documentation's old names (2026-10-10,
-see 6.1 to 6.3); the role set was decided in section 7. The light values in section 3 are a first proposal, to be judged on the review
-page; the light theme is allowed to change.
+Status: **finished** 2026-10-10 - all seven phases (6.1 to 6.3 for phases 1 to 6; the
+documentation, phase 7, is in IMPROVEMENT-LOG.md). The role set was decided in section 7.
+The light values in section 3 were the first proposal; the role tables show them, except where
+section 7 changed one (`control`, `info`).
 
 ## 1. Why
 

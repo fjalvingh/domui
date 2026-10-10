@@ -2235,7 +2235,54 @@ These were offered as input while the phase 0 items were being worked, and taken
       own, and what an application has to change), `styling-your-component`, the
       BreadCrumb2, Explanation and UrlPage pages. The site generates without warnings.
 
+- [x] **Framework and documentation: colour roles.** Done 2026-10-10, as a plan of its own:
+      `finished-plans/COLOR-ROLES.md` has the account. The theme's colours are 97 **colour
+      roles**, designed rather than collected from what components paint:
+      - surfaces, text, lines, fields, links, states;
+      - eight colour families (primary, control, neutral, info, success, warning, danger,
+        chrome), each with six steps (`-wash`, `-tint`, `-solid`, `-on-solid`, `-text`,
+        `-border`) and a contrast promise;
+      - seven numbered categories.
+
+      Every scheme's `_scheme.scss` is its roles, and every component colour in
+      `_component-colors.scss` is a role. The palettes keep only `$color-scheme` and pass
+      the roles on. Every old name is gone, with no aliases. Light's 114 exceptions and dark's
+      nature exceptions went with them. `TestThemeContrast` checks the roles' promises in
+      every scheme. The light theme changed on purpose:
+      - toggles, choices, chips and breadcrumbs are the control blue;
+      - selection is magenta, and menus float on the overlay grey;
+      - tab strips and table headers are a pale steel blue;
+      - info is a cyan-teal, and body text a dark grey.
+
+      On the documentation site, `look-and-feel/themes` describes the roles;
+      `overriding-the-theme`, `styling-your-component`, `sass-scss-support` and
+      `moving-to-modules` use them, and the last has the table from every removed name to
+      its role. The root page lost its work-in-progress notice. The site generates, 162
+      pages, without warnings.
+
 ## Decisions log
+
+### 2026-10-10 - Colours are designed roles, not names for what components paint
+
+Three attempts to name the theme's colours from what the components used ended with many
+colours of one user each and names that described places (`$struct-strip`,
+`$fill-strong-bg`). So the user turned it around: first a set of roles in the language of
+design, modelled on Primer, Atlassian, Carbon, Material 3 and Bulma; then values for light;
+then every component colour mapped to a role. Where no role fitted, the component changed
+its look, and the set did not grow.
+
+Decided on the way:
+- the step words are `wash`, `tint` and `solid`;
+- `chrome` is the family of the application's frame;
+- selection has a hue no other role uses, which must not be bluish (magenta);
+- categories are numbered, because a name like "orange-solid" describes a look;
+- `control` is an eighth family, the normal colour of a control in use, the winter blue.
+  `primary` stays the default action only;
+- the roles are the schemes' tokens, and no old name survives into a release (aliases
+  lived only between commits);
+- a dark wash is a token the scheme states, not a mix the palette computes.
+
+Details: `finished-plans/COLOR-ROLES.md`.
 
 ### 2026-10-07 - Every variant is a colour scheme of a nature
 

@@ -36,7 +36,7 @@ public class TestThemeContrast {
 	static private final Object[][] PAIRS = pairs();
 
 	/**
-	 * The pairs: first the contrast rules of the colour roles themselves (COLOR-ROLES.md 3.1),
+	 * The pairs: first the contrast rules of the colour roles themselves (finished-plans/COLOR-ROLES.md 3.1),
 	 * which every scheme must keep; then the pairs a component puts together, which hold as long
 	 * as the component colours map to the right roles.
 	 */
