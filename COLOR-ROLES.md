@@ -1,7 +1,7 @@
 # Colour roles: a theme vocabulary designed first, components mapped onto it
 
-Status: **phases 1 to 3 done** (2026-10-09, see 6.1 and 6.2); the role set was decided
-in section 7. The light values in section 3 are a first proposal, to be judged on the review
+Status: **phases 1 to 5 done**, and phase 6 except the documentation's old names (2026-10-10,
+see 6.1 to 6.3); the role set was decided in section 7. The light values in section 3 are a first proposal, to be judged on the review
 page; the light theme is allowed to change.
 
 ## 1. Why
@@ -482,6 +482,50 @@ light's known list in `TestThemeContrast` is empty.
   - Light has no exceptions; dark has its nature exceptions (input shadow, the
     drag-drop table's stripe, the flares).
   - Every sheet compiles and the theme tests pass, with light's known contrast list empty.
+
+### 6.3 Phases 4 and 5, and the palettes' part of 6, as done (2026-10-10)
+
+- **Every dark scheme declares the 97 roles** in its `_scheme.scss`, as plain values like
+  light's. Its old tokens are gone (`$page`, `$struct-strip`, `$hint-wash` ...). The values
+  were worked out once, by a script, from each scheme's old tokens:
+  - surfaces, text, lines, fields and links are the scheme's own tokens;
+  - each family's `-wash` and `-tint` are its hue mixed into the page, at most 16% and 35%,
+    and less where the text on them needs it;
+  - `-on-solid` is whichever of the page and white reads best, with the `-solid` moved
+    until that reaches 4.5:1;
+  - `-text` is lifted until it reaches 4.5:1 on the page and on its wash;
+  - `control` is the scheme's link colour, which is the alternative-button colour dark
+    always had. `info` is whichever of its cyan and blue is farther in hue from that.
+    `chrome` is its structure blue, `neutral` its greys;
+  - selection is one magenta (`#e070c0`), with a wash that keeps both text and links at
+    4.5:1. The categories are the scheme's hues.
+
+  This settles SCHEMES.md's open question about the dark palette's mixes: **a wash is a
+  token**. The scheme states it, and nothing works it out at compile time.
+- **Both palettes are what a nature decides:** `$color-scheme` and the roles passed on from
+  the scheme. Every old name is gone from them (`$surface-bg`, `$line-color`, `$primary`,
+  `$errors-*`, the greyscale ramp ...). Light's sheet compiled byte for byte the same
+  without them, which shows nothing read them.
+- **No exceptions are left in either nature.** `dark/_nature-exceptions.scss` is gone:
+  - the flares come from the dark intents, which now pass the contrast rules;
+  - the drag-drop table's stripe is `$surface-band`;
+  - the input shadow is a component colour that is 0.2 on a dark nature and 0.1 on a
+    light one.
+
+  The empty default files stay, for a scheme or an application that wants an exception.
+- **`TestThemeContrast` checks the roles themselves** (phase 4), in every scheme:
+  - the three kinds of text on the page, a panel, an overlay and a band;
+  - inverse text, input values, links;
+  - text and links on the hover, selection and highlight states, and the disabled text;
+  - for each of the eight families, its `-text` on the page and on its wash, text on the
+    wash, strong text on the tint, and `-on-solid` on its solid.
+
+  Next to those are 36 pairs that components put together, which guard the mapping.
+  Light's list of known failures is gone: every scheme passes every pair.
+- Checked on the review page: Midnight, Darcula and Nord.
+- **Left for phase 6/7:** the site's look-and-feel pages still name old variables in five
+  pages (34 mentions). They are rewritten with the documentation phase, together with a
+  table from every removed name to its role.
 
 ## 7. Decisions (2026-10-09)
 

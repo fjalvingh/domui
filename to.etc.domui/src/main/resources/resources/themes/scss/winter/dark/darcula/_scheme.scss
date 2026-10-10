@@ -1,51 +1,120 @@
 // The dark colour scheme "Darcula", after IntelliJ's dark editor: neutral greys with muted,
 // desaturated colours. The variant dark-darcula; ../_palette.scss reads these.
-@use "sass:color";
+//
+// Its colour roles, as light/winter/_scheme.scss has them: what each family and step means is
+// described there and in COLOR-ROLES.md. Each value was worked out from the scheme's own hues and
+// checked against the contrast rules: -text and text on a -wash 4.5:1, $text-strong on a -tint
+// 4.5:1, -on-solid on its -solid 4.5:1. Info is the scheme's cyan, control its link colour.
 
-$page: #2B2B2B;
-$panel: #313335;
-$window: #3C3F41;
-$field: #45494A;
-$raised: #4C5052;
-$raised2: #565A5C;
-$stripe: #303234;
-$ro-bg: #3C3F41;
-$text: #BBBBBB;
-$text-strong: #D4D4D4;
-$text-bright: #DDDDDD;
-$text-muted: #A0A0A0;
-$text-dim: #777777;
-$label: #A9B7C6;
-$line-soft: #464646;
-$line: #515151;
-$line-strong: #5A5A5A;
-$line-hard: #9A9A9A;
-$control-border: #646464;
-$control-hover-border: #7F7F7F;
-$struct: #34506E;
-$struct-strip: #2A3F57;
-$struct-tab: #3C5A7A;
-$struct-band: #3E5E80;
-$struct-edge: #3E5670;
-$struct-text: #E6EDF5;
-$struct-bar: #4A88C7;
-$link: #589DF6;
-$visited: #B294CC;
-$focus: #4A88C7;
-$heading: #6CA0DC;
-$heading2: #6897BB;
-$selection: #214283;
-$red: #E06C6C;						// Darcula's lighter red: its #BC3F3C is too dark for a marker on it
-$orange: #CC7832;
-$yellow: #BE9117;
-$green: #499C54;
-$cyan: #299999;
-$blue: #4A88C7;
-$purple: #9876AA;
-$error-text: #FF8A87;						// lighter than Darcula's #FF6B68, for the error wash of its lighter red
-$warning-text: #E0B44A;
-$info-text: #7FB0E8;
-$hint-wash: color.mix(#ffbb43, $page, 16%);
-$hint-outline: #F0A43A;
-$hint-strong: color.mix(#f69231, $page, 42%);
-$highlight: color.mix(#ffbb43, $page, 20%);	// 20%, not 30%: this page is lighter than the other schemes'
+// ---- Surfaces: what things stand on
+$surface-page: #2b2b2b;
+$surface-raised: #313335;
+$surface-overlay: #3c3f41;
+$surface-sunken: #222222;
+$surface-band: #3b3e40;
+$surface-inverse: #d4d4d4;
+
+// ---- Text
+$text-default: #bbbbbb;
+$text-strong: #d4d4d4;
+$text-subtle: #aaaaaa;
+$text-faint: #777777;
+$text-inverse: #2b2b2b;
+
+// ---- Lines
+$border-subtle: #464646;
+$border-default: #515151;
+$border-strong: #5a5a5a;
+$border-bold: #9a9a9a;
+
+// ---- Fields: inputs
+$field-surface: #45494a;
+$field-surface-readonly: #3c3f41;
+$field-border: #646464;
+$field-border-hover: #7f7f7f;
+
+// ---- Links
+$link-text: #589df6;
+$link-text-visited: #b294cc;
+$link-text-hover: #d4d4d4;
+
+// ---- States
+$hover-wash: #4d422f;
+$hover-border: #f0a43a;
+$selected-wash: #393137;
+$selected-solid: #e070c0;
+$selected-on-solid: #2b2b2b;
+$selected-border: #e070c0;
+$highlight: #6b5632;
+$focus-ring: #4a88c7;
+$disabled-surface: #4c5052;
+$disabled-text: #a0a0a0;
+$disabled-border: #646464;
+$scrim: #000000;
+$shadow: #000000;
+
+// ---- Intents, control and chrome
+$primary-wash: #4b3b2c;
+$primary-tint: #724f2d;
+$primary-solid: #f69231;
+$primary-on-solid: #2b2b2b;
+$primary-text: #f69231;
+$primary-border: #f69231;
+$control-wash: #323d4b;
+$control-tint: #3b5372;
+$control-solid: #589df6;
+$control-on-solid: #2b2b2b;
+$control-text: #6ca9f7;
+$control-border: #589df6;
+$neutral-wash: #3b3e40;
+$neutral-tint: #4c5052;
+$neutral-solid: #565a5c;
+$neutral-on-solid: #d4d4d4;
+$neutral-text: #bbbbbb;
+$neutral-border: #646464;
+$info-wash: #2b3d3d;
+$info-tint: #2a5252;
+$info-solid: #3aa1a1;
+$info-on-solid: #2b2b2b;
+$info-text: #7fb0e8;
+$info-border: #299999;
+$success-wash: #303d32;
+$success-tint: #365339;
+$success-solid: #54a25e;
+$success-on-solid: #2b2b2b;
+$success-text: #71b27a;
+$success-border: #499c54;
+$warning-wash: #433b28;
+$warning-tint: #5e4f24;
+$warning-solid: #be9117;
+$warning-on-solid: #2b2b2b;
+$warning-text: #e0b44a;
+$warning-border: #be9117;
+$danger-wash: #483535;
+$danger-tint: #6a4242;
+$danger-solid: #e16f6f;
+$danger-on-solid: #2b2b2b;
+$danger-text: #ff8a87;
+$danger-border: #e06c6c;
+$chrome-wash: #2a3541;
+$chrome-tint: #384e66;
+$chrome-solid: #34506e;
+$chrome-on-solid: #e6edf5;
+$chrome-text: #6ca0dc;
+$chrome-border: #3e5670;
+
+// ---- Categories
+$category-1-solid: #4a88c7;
+$category-1-wash: #334252;
+$category-2-solid: #cc7832;
+$category-2-wash: #533e2d;
+$category-3-solid: #499c54;
+$category-3-wash: #324735;
+$category-4-solid: #9876aa;
+$category-4-wash: #463e4b;
+$category-5-solid: #299999;
+$category-5-wash: #2a4646;
+$category-6-solid: #e06c6c;
+$category-6-wash: #583b3b;
+$category-7-solid: #be9117;
+$category-7-wash: #504426;

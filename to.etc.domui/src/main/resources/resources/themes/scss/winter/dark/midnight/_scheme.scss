@@ -1,54 +1,120 @@
-// The dark colour scheme "Midnight", the variant dark-midnight; ../_palette.scss reads these.
+// The dark colour scheme "Midnight", the variant dark-midnight.
 // Deep indigo grounds, electric blue structure, neon accents (after Tokyo Night).
-// The template in ../scheme/ reads these; everything not here is the same in every scheme.
-@use "sass:color";
+//
+// Its colour roles, as light/winter/_scheme.scss has them: what each family and step means is
+// described there and in COLOR-ROLES.md. Each value was worked out from the scheme's own hues and
+// checked against the contrast rules: -text and text on a -wash 4.5:1, $text-strong on a -tint
+// 4.5:1, -on-solid on its -solid 4.5:1. Info is the scheme's cyan, control its link colour.
 
-$page: #1A1B26;
-$panel: #1F2233;
-$window: #24283B;
-$field: #2A2F48;
-$raised: #333A58;
-$raised2: #3D4569;
-$stripe: #1D1F2E;
-$ro-bg: #222638;
-$text: #C0CAF5;
-$text-strong: #DDE3FF;
-$text-bright: #F2F4FF;
-$text-muted: #9AA5CE;
-$text-dim: #6B7399;
-$label: #A9B8F0;
-$line-soft: #262B40;
-$line: #2F3550;
-$line-strong: #414A70;
-$line-hard: #7A86B8;
-$control-border: #3B4365;
-$control-hover-border: #5A6595;
-$struct: #3D59A1;
-$struct-strip: #253463;
-$struct-tab: #3A5498;
-$struct-band: #4A6BC0;
-$struct-edge: #3D59A1;
-$struct-text: #EEF2FF;
-$struct-bar: #7AA2F7;
-$link: #7AA2F7;
-$visited: #BB9AF7;
-$focus: #7AA2F7;
-$heading: #7DCFFF;
-$heading2: #BB9AF7;
-$selection: #2E4A8F;
-$red: #F7768E;
-$orange: #FF9E64;
-$yellow: #E0AF68;
-$green: #9ECE6A;
-$cyan: #7DCFFF;
-$blue: #7AA2F7;
-$purple: #BB9AF7;
-$error-text: #FF8FA3;
-$warning-text: #F0C27A;
-$info-text: #9DBBFF;
+// ---- Surfaces: what things stand on
+$surface-page: #1a1b26;
+$surface-raised: #1f2233;
+$surface-overlay: #24283b;
+$surface-sunken: #15161e;
+$surface-band: #24283e;
+$surface-inverse: #dde3ff;
 
-// The light theme's orange hints, put on this ground.
-$hint-wash: color.mix(#ffbb43, $page, 16%);		// a hovered row or menu entry
-$hint-outline: #F0A43A;							// ...and the outline drawn round it
-$hint-strong: color.mix(#f69231, $page, 42%);	// a selected tree item
-$highlight: color.mix(#ffbb43, $page, 30%);		// a marked row or day
+// ---- Text
+$text-default: #c0caf5;
+$text-strong: #dde3ff;
+$text-subtle: #9aa5ce;
+$text-faint: #6b7399;
+$text-inverse: #1a1b26;
+
+// ---- Lines
+$border-subtle: #262b40;
+$border-default: #2f3550;
+$border-strong: #414a70;
+$border-bold: #7a86b8;
+
+// ---- Fields: inputs
+$field-surface: #2a2f48;
+$field-surface-readonly: #222638;
+$field-border: #3b4365;
+$field-border-hover: #5a6595;
+
+// ---- Links
+$link-text: #7aa2f7;
+$link-text-visited: #bb9af7;
+$link-text-hover: #dde3ff;
+
+// ---- States
+$hover-wash: #3f352b;
+$hover-border: #f0a43a;
+$selected-wash: #4a2f4b;
+$selected-solid: #e070c0;
+$selected-on-solid: #1a1b26;
+$selected-border: #e070c0;
+$highlight: #5f4b2f;
+$focus-ring: #7aa2f7;
+$disabled-surface: #333a58;
+$disabled-text: #9aa5ce;
+$disabled-border: #3b4365;
+$scrim: #000000;
+$shadow: #000000;
+
+// ---- Intents, control and chrome
+$primary-wash: #3d2e28;
+$primary-tint: #67452a;
+$primary-solid: #f69231;
+$primary-on-solid: #1a1b26;
+$primary-text: #f69231;
+$primary-border: #f69231;
+$control-wash: #293147;
+$control-tint: #3c4a6f;
+$control-solid: #7aa2f7;
+$control-on-solid: #1a1b26;
+$control-text: #7aa2f7;
+$control-border: #7aa2f7;
+$neutral-wash: #24283e;
+$neutral-tint: #333a58;
+$neutral-solid: #3d4569;
+$neutral-on-solid: #dde3ff;
+$neutral-text: #c0caf5;
+$neutral-border: #3b4365;
+$info-wash: #2a3849;
+$info-tint: #3d5a72;
+$info-solid: #7dcfff;
+$info-on-solid: #1a1b26;
+$info-text: #9dbbff;
+$info-border: #7dcfff;
+$success-wash: #2f3831;
+$success-tint: #485a3e;
+$success-solid: #9ece6a;
+$success-on-solid: #1a1b26;
+$success-text: #9ece6a;
+$success-border: #9ece6a;
+$warning-wash: #3a3331;
+$warning-tint: #5f4f3d;
+$warning-solid: #e0af68;
+$warning-on-solid: #1a1b26;
+$warning-text: #f0c27a;
+$warning-border: #e0af68;
+$danger-wash: #3d2a37;
+$danger-tint: #673b4a;
+$danger-solid: #f7768e;
+$danger-on-solid: #1a1b26;
+$danger-text: #ff8fa3;
+$danger-border: #f7768e;
+$chrome-wash: #202844;
+$chrome-tint: #32467c;
+$chrome-solid: #3d59a1;
+$chrome-on-solid: #eef2ff;
+$chrome-text: #7dcfff;
+$chrome-border: #4a6bc0;
+
+// ---- Categories
+$category-1-solid: #7aa2f7;
+$category-1-wash: #323d5a;
+$category-2-solid: #ff9e64;
+$category-2-wash: #533c36;
+$category-3-solid: #9ece6a;
+$category-3-wash: #3b4837;
+$category-4-solid: #bb9af7;
+$category-4-wash: #423b5a;
+$category-5-solid: #7dcfff;
+$category-5-wash: #33485c;
+$category-6-solid: #f7768e;
+$category-6-wash: #513240;
+$category-7-solid: #e0af68;
+$category-7-wash: #4c4036;

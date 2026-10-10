@@ -1,54 +1,120 @@
-// The dark colour scheme "Violet", the variant dark-violet; ../_palette.scss reads these.
+// The dark colour scheme "Violet", the variant dark-violet.
 // Aubergine grounds, violet structure, pink and cyan accents (after Dracula).
-// The template in ../scheme/ reads these; everything not here is the same in every scheme.
-@use "sass:color";
+//
+// Its colour roles, as light/winter/_scheme.scss has them: what each family and step means is
+// described there and in COLOR-ROLES.md. Each value was worked out from the scheme's own hues and
+// checked against the contrast rules: -text and text on a -wash 4.5:1, $text-strong on a -tint
+// 4.5:1, -on-solid on its -solid 4.5:1. Info is the scheme's blue, control its link colour.
 
-$page: #1E1A2E;
-$panel: #241F38;
-$window: #2A2442;
-$field: #312A4D;
-$raised: #3A325A;
-$raised2: #453B6A;
-$stripe: #221D33;
-$ro-bg: #2A2440;
-$text: #E0DAF5;
-$text-strong: #F0ECFF;
-$text-bright: #FAF8FF;
-$text-muted: #ABA2CC;
-$text-dim: #766C99;
-$label: #C9B8FF;
-$line-soft: #2C2645;
-$line: #372F55;
-$line-strong: #4A4172;
-$line-hard: #8E84BA;
-$control-border: #443B68;
-$control-hover-border: #63589A;
-$struct: #6A3DBA;
-$struct-strip: #46297F;
-$struct-tab: #6038AA;
-$struct-band: #7A4CD0;
-$struct-edge: #6A3DBA;
-$struct-text: #F7F2FF;
-$struct-bar: #BD93F9;
-$link: #8BE9FD;
-$visited: #FF92DF;
-$focus: #BD93F9;
-$heading: #FF79C6;
-$heading2: #BD93F9;
-$selection: #4B3A8F;
-$red: #FF5C6C;
-$orange: #FFB86C;
-$yellow: #F1FA8C;
-$green: #50FA7B;
-$cyan: #8BE9FD;
-$blue: #82AAFF;
-$purple: #BD93F9;
-$error-text: #FF8590;
-$warning-text: #F1FA8C;
-$info-text: #A6C4FF;
+// ---- Surfaces: what things stand on
+$surface-page: #1e1a2e;
+$surface-raised: #241f38;
+$surface-overlay: #2a2442;
+$surface-sunken: #181525;
+$surface-band: #2a2442;
+$surface-inverse: #f0ecff;
 
-// The light theme's orange hints, put on this ground.
-$hint-wash: color.mix(#ffbb43, $page, 16%);		// a hovered row or menu entry
-$hint-outline: #F0A43A;							// ...and the outline drawn round it
-$hint-strong: color.mix(#f69231, $page, 42%);	// a selected tree item
-$highlight: color.mix(#ffbb43, $page, 30%);		// a marked row or day
+// ---- Text
+$text-default: #e0daf5;
+$text-strong: #f0ecff;
+$text-subtle: #aba2cc;
+$text-faint: #766c99;
+$text-inverse: #1e1a2e;
+
+// ---- Lines
+$border-subtle: #2c2645;
+$border-default: #372f55;
+$border-strong: #4a4172;
+$border-bold: #8e84ba;
+
+// ---- Fields: inputs
+$field-surface: #312a4d;
+$field-surface-readonly: #2a2440;
+$field-border: #443b68;
+$field-border-hover: #63589a;
+
+// ---- Links
+$link-text: #8be9fd;
+$link-text-visited: #ff92df;
+$link-text-hover: #f0ecff;
+
+// ---- States
+$hover-wash: #423431;
+$hover-border: #f0a43a;
+$selected-wash: #58345a;
+$selected-solid: #e070c0;
+$selected-on-solid: #1e1a2e;
+$selected-border: #e070c0;
+$highlight: #624a34;
+$focus-ring: #bd93f9;
+$disabled-surface: #3a325a;
+$disabled-text: #aba2cc;
+$disabled-border: #443b68;
+$scrim: #000000;
+$shadow: #000000;
+
+// ---- Intents, control and chrome
+$primary-wash: #412d2e;
+$primary-tint: #6a442f;
+$primary-solid: #f69231;
+$primary-on-solid: #1e1a2e;
+$primary-text: #f69231;
+$primary-border: #f69231;
+$control-wash: #2f3b4f;
+$control-tint: #446276;
+$control-solid: #8be9fd;
+$control-on-solid: #1e1a2e;
+$control-text: #8be9fd;
+$control-border: #8be9fd;
+$neutral-wash: #2a2442;
+$neutral-tint: #3a325a;
+$neutral-solid: #453b6a;
+$neutral-on-solid: #f0ecff;
+$neutral-text: #e0daf5;
+$neutral-border: #443b68;
+$info-wash: #2e314f;
+$info-tint: #414c77;
+$info-solid: #82aaff;
+$info-on-solid: #1e1a2e;
+$info-text: #a6c4ff;
+$info-border: #82aaff;
+$success-wash: #263e3a;
+$success-tint: #306849;
+$success-solid: #50fa7b;
+$success-on-solid: #1e1a2e;
+$success-text: #50fa7b;
+$success-border: #50fa7b;
+$warning-wash: #403e3d;
+$warning-tint: #68684f;
+$warning-solid: #f1fa8c;
+$warning-on-solid: #1e1a2e;
+$warning-text: #f1fa8c;
+$warning-border: #f1fa8c;
+$danger-wash: #422538;
+$danger-tint: #6d3144;
+$danger-solid: #ff5c6c;
+$danger-on-solid: #1e1a2e;
+$danger-text: #ff8590;
+$danger-border: #ff5c6c;
+$chrome-wash: #322256;
+$chrome-tint: #50308b;
+$chrome-solid: #6a3dba;
+$chrome-on-solid: #f7f2ff;
+$chrome-text: #ff79c6;
+$chrome-border: #7a4cd0;
+
+// ---- Categories
+$category-1-solid: #82aaff;
+$category-1-wash: #373e62;
+$category-2-solid: #ffb86c;
+$category-2-wash: #56423e;
+$category-3-solid: #50fa7b;
+$category-3-wash: #2a5241;
+$category-4-solid: #bd93f9;
+$category-4-wash: #463861;
+$category-5-solid: #8be9fd;
+$category-5-wash: #394e62;
+$category-6-solid: #ff5c6c;
+$category-6-wash: #562a3e;
+$category-7-solid: #f1fa8c;
+$category-7-wash: #535246;

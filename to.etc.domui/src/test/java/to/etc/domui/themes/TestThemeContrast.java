@@ -29,60 +29,89 @@ public class TestThemeContrast {
 
 	static private final double AA_LARGE = 3.0;
 
+	/** The colour families of the roles: each has -wash, -tint, -solid, -on-solid, -text and -border. */
+	static private final String[] FAMILIES = {"primary", "control", "neutral", "info", "success", "warning", "danger", "chrome"};
+
 	/** label, foreground variable, ground variable, minimum ratio */
-	static private final Object[][] PAIRS = {
-		{"text on the page", "text-color", "body-bg", AA},
-		{"strong text on the page", "text-strong-color", "body-bg", AA},
-		{"muted text on the page", "text-subtle", "surface-page", AA},
-		{"muted text on a panel", "text-subtle", "surface-raised", AA},
-		{"body text on the page", "body-color", "body-bg", AA},
-		{"text on a panel", "surface-color", "surface-bg", AA},
-		{"text on a floating window", "surface-color", "window-bg", AA},
-		{"text on a band in a panel", "surface-color", "surface-alt-bg", AA},
-		{"a form label", "form-label-color", "body-bg", AA},
-		{"text in an input", "input-color", "input-bg", AA},
-		{"a link", "link-color", "body-bg", AA},
-		{"a visited link", "link-visited-color", "body-bg", AA},
-		{"a title bar", "caption-color", "caption-bg", AA},
-		{"an error text on the page", "error-text-color", "surface-page", AA},
-		{"an error message", "emd-error-color", "emd-error-bg", AA},
-		{"a warning message", "emd-warning-color", "emd-warning-bg", AA},
-		{"an info message", "emd-info-color", "emd-info-bg", AA},
-		{"text on a hovered menu entry", "surface-color", "menu-hover-bg", AA},
-		{"text on a hovered row", "body-color", "row-hover-bg", AA},
-		{"text on a marked row", "body-color", "highlight-bg", AA},
-		{"the DataTable header", "dt-hdr-color", "dt-hdr-bg", AA_LARGE},
-		{"text on a selected DataTable row", "body-color", "dt-selected-bg", AA},
-		{"text on an even DataTable row", "body-color", "dt-even-row-bg", AA},
-		{"a tab's title", "tab-color", "tab-bg", AA},
-		{"the selected tab's title", "tab-selected-color", "tab-content-bg", AA},
-		{"a popup menu item", "pmnu-color", "pmnu-bg", AA},
-		{"a primary button's text", "primary-on-solid", "primary-solid", AA_LARGE},
-		{"a breadcrumb", "brcr2-color", "brcr2-bg", AA},
-		{"the current breadcrumb", "brcr2-sel-color", "brcr2-sel-bg", AA},
-		{"the calendar", "cal-color", "cal-bg", AA},
-		{"an info explanation", "expl-color", "expl-info-bg", AA},
-		{"a warning explanation", "expl-color", "expl-warning-bg", AA},
-		{"an error explanation", "expl-color", "expl-error-bg", AA},
-		{"an info explanation's marker", "expl-info-marker-color", "expl-info-accent", AA_LARGE},
-		{"a warning explanation's marker", "expl-warning-marker-color", "expl-warning-accent", AA_LARGE},
-		{"an error explanation's marker", "expl-error-marker-color", "expl-error-accent", AA_LARGE},
-		{"a question box's marker", "sev-question-color", "sev-question-bg", AA_LARGE},
-		{"an error flare", "flare-error-color", "flare-error-bg", AA},
-		{"an info flare", "flare-info-color", "flare-info-bg", AA},
-		{"a warning flare", "flare-warning-color", "flare-warning-bg", AA},
-		{"a switch's other label, off", "ckb-off-idle-color", "ckb-off-track-bg", AA_LARGE},
-		{"a switch's other label, on", "ckb-on-idle-color", "ckb-on-bg", AA_LARGE},
-		{"a disabled radio button", "rbb-disabled-label-color", "rbb-disabled-bg", AA_LARGE},
-	};
+	static private final Object[][] PAIRS = pairs();
 
 	/**
-	 * Pairs of the light scheme that are below their minimum today. They are listed rather than fixed
-	 * because fixing them changes the light theme, which this work does not do; the test fails
-	 * when one of them is fixed, so the list is kept honest.
+	 * The pairs: first the contrast rules of the colour roles themselves (COLOR-ROLES.md 3.1),
+	 * which every scheme must keep; then the pairs a component puts together, which hold as long
+	 * as the component colours map to the right roles.
 	 */
-	static private final List<String> KNOWN_LIGHT = List.of(
-	);
+	static private Object[][] pairs() {
+		List<Object[]> res = new ArrayList<>();
+		//-- Text on the surfaces
+		for(String ground : new String[]{"surface-page", "surface-raised", "surface-overlay", "surface-band"}) {
+			res.add(new Object[]{"text on " + ground, "text-default", ground, AA});
+			res.add(new Object[]{"strong text on " + ground, "text-strong", ground, AA});
+			res.add(new Object[]{"subtle text on " + ground, "text-subtle", ground, AA});
+		}
+		res.add(new Object[]{"text on the inverse surface", "text-inverse", "surface-inverse", AA});
+		res.add(new Object[]{"a value in an input", "text-strong", "field-surface", AA});
+		res.add(new Object[]{"a value in a read-only input", "text-strong", "field-surface-readonly", AA});
+		res.add(new Object[]{"a link", "link-text", "surface-page", AA});
+		res.add(new Object[]{"a visited link", "link-text-visited", "surface-page", AA});
+		res.add(new Object[]{"a link on a panel", "link-text", "surface-raised", AA});
+		//-- States
+		res.add(new Object[]{"text on a hovered item", "text-default", "hover-wash", AA});
+		res.add(new Object[]{"text on a selected item", "text-default", "selected-wash", AA});
+		res.add(new Object[]{"a link on a selected item", "link-text", "selected-wash", AA});
+		res.add(new Object[]{"text on the selected solid", "selected-on-solid", "selected-solid", AA});
+		res.add(new Object[]{"strong text on a highlight", "text-strong", "highlight", AA});
+		res.add(new Object[]{"a disabled control's text", "disabled-text", "disabled-surface", AA_LARGE});
+		//-- Every family's steps
+		for(String f : FAMILIES) {
+			res.add(new Object[]{f + "-text on the page", f + "-text", "surface-page", AA});
+			res.add(new Object[]{f + "-text on its wash", f + "-text", f + "-wash", AA});
+			res.add(new Object[]{"text on " + f + "-wash", "text-default", f + "-wash", AA});
+			res.add(new Object[]{"strong text on " + f + "-tint", "text-strong", f + "-tint", AA});
+			res.add(new Object[]{f + "-on-solid on its solid", f + "-on-solid", f + "-solid", AA});
+		}
+
+		//-- What components put together
+		Object[][] components = {
+			{"a form label", "text-strong", "surface-page", AA},
+			{"a title bar", "caption-color", "caption-bg", AA},
+			{"an error text on the page", "error-text-color", "surface-page", AA},
+			{"an error message", "emd-error-color", "emd-error-bg", AA},
+			{"a warning message", "emd-warning-color", "emd-warning-bg", AA},
+			{"an info message", "emd-info-color", "emd-info-bg", AA},
+			{"the DataTable header", "dt-hdr-color", "dt-hdr-bg", AA},
+			{"text on a selected DataTable row", "text-default", "dt-selected-bg", AA},
+			{"text on an even DataTable row", "text-default", "dt-even-row-bg", AA},
+			{"text on a hovered DataTable row", "text-default", "dt-hover-bg", AA},
+			{"a tab's title", "tab-color", "tab-bg", AA},
+			{"the selected tab's title", "tab-selected-color", "tab-content-bg", AA},
+			{"a popup menu item", "pmnu-color", "pmnu-bg", AA},
+			{"a PopupMenu2 item", "pome2-color", "pome2-bg", AA},
+			{"a primary button's text", "primary-on-solid", "primary-solid", AA},
+			{"a breadcrumb", "brcr2-color", "brcr2-bg", AA},
+			{"the current breadcrumb", "brcr2-sel-color", "brcr2-sel-bg", AA},
+			{"the calendar", "cal-color", "cal-bg", AA},
+			{"the calendar's month title", "cal-month-title-color", "cal-band-active-bg", AA},
+			{"an info explanation", "expl-color", "expl-info-bg", AA},
+			{"a warning explanation", "expl-color", "expl-warning-bg", AA},
+			{"an error explanation", "expl-color", "expl-error-bg", AA},
+			{"an info explanation's marker", "expl-info-marker-color", "expl-info-accent", AA_LARGE},
+			{"a warning explanation's marker", "expl-warning-marker-color", "expl-warning-accent", AA_LARGE},
+			{"an error explanation's marker", "expl-error-marker-color", "expl-error-accent", AA_LARGE},
+			{"a question box's marker", "sev-question-color", "sev-question-bg", AA_LARGE},
+			{"an error flare", "flare-error-color", "flare-error-bg", AA},
+			{"an info flare", "flare-info-color", "flare-info-bg", AA},
+			{"a warning flare", "flare-warning-color", "flare-warning-bg", AA},
+			{"a switch's other label, off", "ckb-off-idle-color", "ckb-off-track-bg", AA_LARGE},
+			{"a switch's other label, on", "ckb-on-idle-color", "ckb-on-bg", AA_LARGE},
+			{"a switch's knob, on", "ckb-on-knob-color", "ckb-on-knob-bg", AA_LARGE},
+			{"the chosen radio button", "rbb-chosen-color", "rbb-chosen-bg", AA},
+			{"a disabled radio button", "rbb-disabled-label-color", "rbb-disabled-bg", AA_LARGE},
+			{"a chip", "tag-color", "tag-bg", AA},
+			{"a pager button", "dp2-button-color", "dp2-button-bg", AA},
+		};
+		res.addAll(List.of(components));
+		return res.toArray(new Object[0][]);
+	}
 
 	static private ThemeVariantCompiler m_compiler;
 
@@ -112,9 +141,7 @@ public class TestThemeContrast {
 
 	@Test
 	public void lightVariant() throws Exception {
-		List<String> failures = check(SchemeVariant.WINTER.getVariantName());
-		List<String> labels = failures.stream().map(f -> f.substring(0, f.indexOf(':'))).toList();
-		Assert.assertEquals("Light-variant pairs below their minimum, against the known list", KNOWN_LIGHT, labels);
+		Assert.assertEquals("Pairs below their minimum contrast in the light scheme", List.of(), check(SchemeVariant.WINTER.getVariantName()));
 	}
 
 	/**
@@ -129,7 +156,7 @@ public class TestThemeContrast {
 			.append("\t$c: color.to-space($c, rgb);\n")
 			.append("\t@return color.channel($c, \"red\", $space: rgb) color.channel($c, \"green\", $space: rgb) color.channel($c, \"blue\", $space: rgb) color.channel($c, \"alpha\");\n")
 			.append("}\n");
-		sb.append(".page { c: ch(t.$body-bg); }\n");
+		sb.append(".page { c: ch(t.$surface-page); }\n");
 		for(int i = 0; i < PAIRS.length; i++) {
 			sb.append(".p").append(i).append(" { fg: ch(t.$").append(PAIRS[i][1]).append("); bg: ch(t.$").append(PAIRS[i][2]).append("); }\n");
 		}

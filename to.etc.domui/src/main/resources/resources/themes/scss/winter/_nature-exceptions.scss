@@ -1,2 +1,3 @@
-// Component colours that every scheme of a nature has the same: see dark/_nature-exceptions.scss.
-// The light nature has none; this empty file is what a nature without exceptions finds.
+// Component colours that every scheme of a nature has differently from _component-colors.scss.
+// A nature that has some puts this file in its own directory (light/, dark/); neither does, so
+// this empty file is what both find.

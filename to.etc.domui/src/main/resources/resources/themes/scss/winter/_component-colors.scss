@@ -50,7 +50,7 @@ $colors: (
 $input-background-color: $field-surface !default;
 $input-value-color: $text-strong !default;			// the value typed in an input
 $input-border: $field-border !default;
-$input-shadow: inset 0 1px 2px rgba($shadow, 0.1) !default;
+$input-shadow: inset 0 1px 2px rgba($shadow, if($color-scheme == dark, 0.2, 0.1)) !default;			// stronger on a dark ground
 
 $input-hover-color: $text-strong !default;
 $input-hover-border-color: $field-border-hover !default;

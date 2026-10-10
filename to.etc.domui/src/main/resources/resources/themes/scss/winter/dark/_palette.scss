@@ -1,382 +1,135 @@
-// The DARK nature's palette: every dark scheme's colours, worked out from the tokens of that
-// scheme's _scheme.scss (`s.$...`): the one in the scheme's directory below this one
-// (dark/midnight/, dark/nord/ ...), which comes before this directory on the search path.
-// Colours that are deliberately the same in every dark scheme (the light theme's button
-// colours and orange hints, the greyscale ramp) are written here as they are. The greyscale
-// ramp ($white .. $black) means what it means in the light palette - $white is white - and the
-// dark grounds, text and lines are roles ($ground-bg, $text-color, $control-border ...).
+// The DARK nature's palette: what every dark scheme has in common, and the colour roles of the
+// scheme being compiled, passed on so that the theme module offers them.
 //
 // =======================================================================================
 // How colours are named in this theme.
 //
 // Colours live in two tiers.
 //
-//	The MAIN SET is in this file, _palette.scss. Its names say what a colour is in the theme's own
-//	vocabulary and never mention a component: $primary, $line-color, $surface-bg,
-//	$input-bg, the $errors-* / $warnings-* / $info-* states, and the $black .. $white
-//	greyscale ramp.
+//	The ROLES are a scheme's tokens, in its _scheme.scss (light/winter/, dark/nord/ ...): what a
+//	colour is for, in the language of design, never which component paints it. They are
+//	$<family>-<step> - $surface-raised, $text-subtle, $border-strong, $danger-wash,
+//	$control-solid, $chrome-text - and every scheme declares the same set. COLOR-ROLES.md in the
+//	repository root has the whole set and why it is this set.
 //
 //	COMPONENT COLOURS are in _component-colors.scss - one variable for each colour a
-//	component paints, each defaulting to a main-set value. A component's own stylesheet
-//	then reads only its own variables: never a literal, and never a main-set value
-//	directly. That is what lets an application restyle one component, or a variant
-//	restyle everything, without either of them editing a component.
+//	component paints, each defaulting to a role. A component's own stylesheet reads its own
+//	variables, or a role directly; never a literal. That is what lets an application restyle
+//	one component, or a scheme restyle everything, without either of them editing a component.
 //
-// Both tiers name variables the same way, in kebab-case:
+// Component colours are named, in kebab-case:
 //
-//		$<component>-<part>-<role>
+//		$<component>-<part>-<what>
 //
 //	<component>	the component's CSS class prefix with ui- removed - tlf for .ui-tlf-*,
-//			pmnu for .ui-pmnu-*. Omitted by the main set, which belongs to no
-//			component.
+//			pmnu for .ui-pmnu-*.
 //	<part>		the element inside it, where a component paints more than one thing:
 //			hdr, title, item. Omitted where it paints one.
-//	<role>		what the colour does. This is the part that must not vary:
-//				-bg		a background
-//				-color		text - the word CSS itself uses, and never
-//						used for a background
-//				-border		a border
-//				-outline	an outline
-//				-shadow		a shadow
+//	<what>		-bg (a background), -color (text), -border, -outline, -shadow.
 //
-// So the background of .ui-tlf-hdr is $tlf-hdr-bg, and the text of .ui-pmnu is
-// $pmnu-color.
-//
-// Underscores and hyphens are the same character to SCSS - $link_color and $link-color are
-// one variable - so an application that still writes the old spelling keeps working, and
-// the rename that brought the last 79 names here was byte-for-byte inert.
+// An application sets a role, or a component colour, in its _custominit.scss (every scheme) or
+// _variant-custominit.scss (one nature or one scheme); see _theme-configuration.scss.
 // =======================================================================================
 
-// Each nature has its own palette, in its own directory: light/_palette.scss and
-// dark/_palette.scss each work out every colour of their schemes from the scheme's
-// _scheme.scss (in light/winter/, dark/nord/ ...). The two declare the same variables, and a
-// variable missing from one is a compile error. Nothing in one nature is computed from the other.
-//
-// The component colours are one file for every variant, which refers to the main set only. A
-// colour that one nature or scheme wants different from what that file works out is an
-// exception: _nature-exceptions.scss for every scheme of a nature, _scheme-exceptions.scss for
-// one scheme. See _theme-configuration.scss.
-// =======================================================================================
-
-@use "sass:color";
-@use "functions" as f;
 @use "scheme" as s;
 
-$body-bg: s.$page !default;			// the page: Darcula's editor ground
-$background-color: s.$page !default;
+$color-scheme: dark !default;	// what the browser paints its canvas, scrollbars and native controls in
 
-$alt-button-color: s.$link !default;
-$alt-button-bg: color.mix(s.$link, s.$page, 16%) !default;			// a blue-tinted ground for the alternative buttons
-
-// colors
-// The theme's accent: the colour of a default button, of a selected row, of a hovered
-// menu entry. Everything that means "this one" takes it, directly or through $selected-bg.
-//
-// It used to be called $turquoise - a leftover from the bulma palette this section
-// borrows, where someone overrode the real turquoise with an orange in place rather than
-// renaming it, so the theme's brand colour was a variable named for a cyan.
-$primary: #f69231 !default;			// Darcula's keyword orange: the brand orange, muted
-
-$color-scheme: dark !default;
-
-$link-color: s.$link !default;			// Darcula's hyperlink blue
-$link-visited-color: s.$visited !default;
-
-$bevel-up: s.$control-border !default;
-$bevel-down: s.$line-strong !default;
-$bevel-hover-up: s.$focus !default;			// Darcula's focus blue
-$bevel-hover-down: color.mix(s.$focus, s.$page, 55%) !default;
-
-$readonly-bg: transparent !default;
-$readonly-border: s.$line !default;
-
-$title-bg: s.$struct !default;
-$title-color: s.$struct-text !default;
-
-$selected-bg: s.$hint-strong !default;			// Darcula's menu selection
-
-$highlight-bg: s.$highlight !default;			// a marked row or day: a dark amber, light text stays readable
-
-// Error, warning, info colors
-$errors-border: s.$red !default;			// Darcula's error red
-$errors-color: s.$error-text !default;			// Darcula's console error text
-$errors-transparent: rgba($errors-border, 0.25) !default;
-
-$errors-input-bg: color.mix(s.$red, s.$page, 16%) !default;
-
-// A surface that is itself an error: the message div, the flare, the async-IO dialog.
-// This is the error member of the same bg/fg/border triplet as $info-bg and
-// $warnings-bg, and it is levelled with them - all three are a tint at the same
-// weight, so a red band does not shout over a yellow one saying something worse.
-// (It used to be $errors-background, which was #a9c5f1 - blue.)
-$errors-wash: color.mix(s.$red, s.$page, 16%) !default;
-
-$warnings-bg: color.mix(s.$yellow, s.$page, 14%) !default;
-$warnings-color: s.$warning-text !default;
-$warnings-border: s.$yellow !default;			// Darcula's warning amber
-$warnings-transparent: rgba($warnings-border, 0.25) !default;
-
-$info-bg: color.mix(s.$blue, s.$page, 16%) !default;
-$info-color: s.$info-text !default;
-$info-border: s.$blue !default;
-$info-transparent: rgba($info-border, 0.25) !default;
-
-$white-transparent: rgba(s.$page, 0.25) !default;			// the end of a state gradient: the page ground, see-through
-
-$header-bg: s.$struct !default;			// caption bars: the steel blue of Darcula's buttons
-$green-accent: s.$green !default;
-
-
-
-
-//-- ScrollableTabPanel
-$tab-sep-bg: s.$line !default;
-
-
-//-- Buttons
-$button-top-color: #f69231 !default;
-$button-bottom-color: #f6ac3d !default;
-$button-focus-top-color: #f6c381 !default;
-$button-focus-bot-color: #f69231 !default;
-$button-focus-glow-color: rgba($button-focus-top-color, .7) !default;
-$button-disabled-color: s.$line-strong !default;
-$form-label-color: s.$label !default;			// Darcula's editor text: a label reads as the editor's own
-
-// Bulma like
-// Colors
-$orange: s.$orange !default;
-$yellow: s.$yellow !default;
-$green: s.$green !default;
-$cyan: s.$cyan !default;
-$blue: s.$blue !default;
-$purple: s.$purple !default;
-$red: s.$red !default;
-
-$black: hsl(0, 0%, 4%) !default;
-$black-bis: hsl(0, 0%, 7%) !default;
-$black-ter: hsl(0, 0%, 14%) !default;
-
-$grey-darker: hsl(0, 0%, 21%) !default;
-$grey-dark: hsl(0, 0%, 29%) !default;
-$grey: hsl(0, 0%, 48%) !default;
-$grey-light: hsl(0, 0%, 71%) !default;
-$grey-lighter: hsl(0, 0%, 86%) !default;
-
-$white-ter: hsl(0, 0%, 96%) !default;
-$white-bis: hsl(0, 0%, 98%) !default;
-$white: hsl(0, 0%, 100%) !default;
-
-$input-border-color: s.$control-border !default;
-
-// --------------------------------------------------------------------------------------
-// Surfaces and text.
-// These name what a colour is *for* instead of what it is, and every partial that used to
-// write "background: white" uses one of them. That is what makes a theme variant a
-// colour file and nothing else: set these in a variant's _palette.scss and the whole theme
-// follows, without a single rule having to be repeated to override it.
-// (In this file: the dark nature's values.)
-// --------------------------------------------------------------------------------------
-
-// The page itself.
-$body-color: s.$text !default;			// Darcula's UI text
-
-// Every line the theme draws that is not part of a control: the edge of a panel, floating
-// window, layout pane or menu, and the rules between table cells. The theme used four
-// near-identical greys for these; they are one colour.
-//
-// Controls do not use this - inputs and buttons take $border, which comes from the
-// greyscale ramp and so already follows a variant.
-$line-color: s.$line !default;			// Darcula's separator
-
-// The same idea one step darker, for a line that has to carry weight: the rule under an
-// h1, the divider between table header cells.
-$line-strong: s.$line-strong !default;
-
-// And the hardest of the three: a frame that has to read as an edge - a selected cell, an
-// alert badge, the outline of a control. The theme wrote plain black for all of these.
-$line-hard: s.$line-hard !default;
-
-// Text that is present but is not the main thing: a label, a hint, an item that cannot
-// be used. The theme reached for #666, #777, #808080 and #999 for this; they are one idea.
-$text-muted: s.$text-muted !default;			// AA on the page and on a panel; a hint, a label
-
-// The roles the bulma mixins and the components read where they used to read a grey of the
-// ramp directly. In the light theme each is that grey; a variant states its own.
-$ground-bg: s.$field !default;			// what a control or button is filled with: Darcula's field grey
-$ground-alt-bg: s.$window !default;			// a recessed or static control: disabled input, static button
-$text-color: s.$text !default;
-$text-strong-color: s.$text-strong !default;
-$control-hover-border: s.$control-hover-border !default;
-$control-active-border: s.$line-hard !default;
-$fill-muted-bg: s.$raised !default;			// a quiet fill: a disabled control, a gutter, a switch that is off
-$line-soft: s.$line-soft !default;
-
-// What a shadow is made of. Shadows take it through rgba(), so this is a colour and the
-// alpha stays at the point of use.
-$shadow-color: #000 !default;
-
-// A surface raised off the page: panels, popups, floating windows, menus. Its edge is
-// $line-color, like every other line the theme draws.
-$surface-bg: s.$panel !default;			// a panel on the page, one step up
-$surface-color: s.$text !default;
-
-// Row hover in a table: a wash plus the outline drawn over it.
-$row-hover-bg: s.$hint-wash !default;
-$row-hover-outline: s.$hint-outline !default;
-$row-select-hover-bg: color.mix(s.$green, s.$page, 18%) !default;
-$row-select-hover-outline: color.mix(s.$green, s.$page, 60%) !default;
-
-// A floating window has its own, slightly grey, ground.
-$window-bg: s.$window !default;			// a floating window or popup: Darcula's panel grey
-
-// A menu floating over the page.
-$menu-hover-bg: s.$hint-wash !default;			// a hovered menu entry: a muted Darcula selection blue
-$menu-hover-border: s.$hint-outline !default;
-
-// A second step up, or a band inside a surface: menu hovers, table headers.
-$surface-alt-bg: s.$field !default;			// a band inside a surface: a hovered menu item, a table header
-
-// Input controls that the theme colours itself.
-$input-bg: s.$field !default;
-$input-color: s.$text !default;
-
-// A read-only input: a pale wash instead of a plain field.
-$input-ro-bg-top: s.$ro-bg !default;			// read-only: the panel grey, so it reads as not a field
-$input-ro-bg-bottom: color.mix(s.$ro-bg, s.$page, 75%) !default;
-
-// ---- Roles the component colours are expressed in, beyond the ones above.
-$fill-strong-bg: s.$raised2 !default;			// a stronger fill than $fill-muted-bg: a hovered or second-level fill
-$stripe-bg: s.$stripe !default;			// the alternate row of a striped table
-$text-bright-color: s.$text-bright !default;			// the brightest text: on a coloured or dark fill
-$text-dim: s.$text-dim !default;			// text that is out of the way: disabled, another month's day
-$header-strip-bg: s.$struct-strip !default;			// the strip a tab row or band stands on
-$header-tab-bg: s.$struct-tab !default;			// a tab that is not selected
-$header-band-bg: s.$struct-band !default;			// a band in a header: a breadcrumb, a month header's band
-$header-edge-color: s.$struct-edge !default;			// the edge drawn along a header or a table's border
-$header-bar-color: s.$struct-bar !default;			// the accent bar of a panel header
-$heading-color: s.$heading !default;			// a heading's accent colour
-$heading2-color: s.$heading2 !default;			// a second-level heading
-$selection-bg: s.$selection !default;			// a selected row, cell or day
-
-// =======================================================================================
-// The colour ROLES (COLOR-ROLES.md), which the light scheme declares as its tokens. Until the
-// dark schemes declare them too (COLOR-ROLES.md phase 5), they are worked out here from each
-// scheme's old tokens and this palette's old names: roughly, so that a sheet reading a role
-// compiles in every scheme. They are not yet chosen.
-// =======================================================================================
-// The text that reads best on a fill: the page's colour or white.
-@function -on($fill) {
-	@return if(f.contrastRatio($fill, s.$page) >= f.contrastRatio($fill, #ffffff), s.$page, #ffffff);
-}
-
-$surface-page: $body-bg !default;
-$surface-raised: $surface-bg !default;
-$surface-overlay: $window-bg !default;
-$surface-sunken: color.mix(#000000, s.$page, 20%) !default;
-$surface-band: $surface-alt-bg !default;
-$surface-inverse: s.$text-strong !default;
-
-$text-default: $text-color !default;
-$text-strong: $text-strong-color !default;
-$text-subtle: $text-muted !default;
-$text-faint: $text-dim !default;
-$text-inverse: s.$page !default;
-
-$border-subtle: $line-soft !default;
-$border-default: $line-color !default;
-$border-strong: $line-strong !default;
-$border-bold: $line-hard !default;
-
-$field-surface: $input-bg !default;
-$field-surface-readonly: $input-ro-bg-top !default;
-$field-border: s.$control-border !default;
-$field-border-hover: $control-hover-border !default;
-
-$link-text: $link-color !default;
-$link-text-visited: $link-visited-color !default;
-$link-text-hover: $text-strong-color !default;
-
-$hover-wash: $row-hover-bg !default;
-$hover-border: $row-hover-outline !default;
-$selected-wash: color.mix(#d64fae, s.$page, 30%) !default;
-$selected-solid: #c2399b !default;
-$selected-on-solid: #ffffff !default;
-$selected-border: #d65db1 !default;
-$highlight: $highlight-bg !default;
-$focus-ring: s.$focus !default;
-$disabled-surface: $fill-muted-bg !default;
-$disabled-text: $text-muted !default;
-$disabled-border: s.$control-border !default;
-$scrim: #000000 !default;
-$shadow: $shadow-color !default;
-
-$primary-wash: color.mix($primary, s.$page, 16%) !default;
-$primary-tint: color.mix($primary, s.$page, 35%) !default;
-$primary-solid: $primary !default;
-$primary-on-solid: -on($primary-solid) !default;
-$primary-text: $primary !default;
-$primary-border: $primary !default;
-
-$control-wash: $alt-button-bg !default;
-$control-tint: color.mix($alt-button-color, s.$page, 35%) !default;
-$control-solid: $alt-button-color !default;
-$control-on-solid: -on($control-solid) !default;
-$control-text: $alt-button-color !default;
-$control-border: $alt-button-color !default;
-
-$neutral-wash: $ground-alt-bg !default;
-$neutral-tint: $fill-muted-bg !default;
-$neutral-solid: $fill-strong-bg !default;
-$neutral-on-solid: s.$text-strong !default;
-$neutral-text: $text-color !default;
-$neutral-border: s.$control-border !default;
-
-$info-wash: $info-bg !default;
-$info-tint: color.mix(s.$blue, s.$page, 35%) !default;
-$info-solid: s.$blue !default;
-$info-on-solid: -on($info-solid) !default;
-$info-text: $info-color !default;
-// $info-border is declared with the other info colours above.
-
-$success-wash: color.mix(s.$green, s.$page, 16%) !default;
-$success-tint: color.mix(s.$green, s.$page, 35%) !default;
-$success-solid: s.$green !default;
-$success-on-solid: -on($success-solid) !default;
-$success-text: s.$green !default;
-$success-border: s.$green !default;
-
-$warning-wash: $warnings-bg !default;
-$warning-tint: color.mix(s.$yellow, s.$page, 35%) !default;
-$warning-solid: s.$yellow !default;
-$warning-on-solid: -on($warning-solid) !default;
-$warning-text: $warnings-color !default;
-$warning-border: $warnings-border !default;
-
-$danger-wash: $errors-wash !default;
-$danger-tint: color.mix(s.$red, s.$page, 35%) !default;
-$danger-solid: s.$red !default;
-$danger-on-solid: -on($danger-solid) !default;
-$danger-text: $errors-color !default;
-$danger-border: $errors-border !default;
-
-$chrome-wash: color.mix(s.$struct-strip, s.$page, 50%) !default;
-$chrome-tint: color.mix(s.$struct-tab, s.$page, 75%) !default;
-$chrome-solid: s.$struct !default;
-$chrome-on-solid: s.$struct-text !default;
-$chrome-text: s.$heading !default;
-$chrome-border: s.$struct-band !default;
-
-$category-1-solid: s.$blue !default;
-$category-1-wash: color.mix(s.$blue, s.$page, 25%) !default;
-$category-2-solid: s.$orange !default;
-$category-2-wash: color.mix(s.$orange, s.$page, 25%) !default;
-$category-3-solid: s.$green !default;
-$category-3-wash: color.mix(s.$green, s.$page, 25%) !default;
-$category-4-solid: s.$purple !default;
-$category-4-wash: color.mix(s.$purple, s.$page, 25%) !default;
-$category-5-solid: s.$cyan !default;
-$category-5-wash: color.mix(s.$cyan, s.$page, 25%) !default;
-$category-6-solid: s.$red !default;
-$category-6-wash: color.mix(s.$red, s.$page, 25%) !default;
-$category-7-solid: s.$yellow !default;
-$category-7-wash: color.mix(s.$yellow, s.$page, 25%) !default;
+// ---- The scheme's colour roles
+$surface-page: s.$surface-page !default;
+$surface-raised: s.$surface-raised !default;
+$surface-overlay: s.$surface-overlay !default;
+$surface-sunken: s.$surface-sunken !default;
+$surface-band: s.$surface-band !default;
+$surface-inverse: s.$surface-inverse !default;
+$text-default: s.$text-default !default;
+$text-strong: s.$text-strong !default;
+$text-subtle: s.$text-subtle !default;
+$text-faint: s.$text-faint !default;
+$text-inverse: s.$text-inverse !default;
+$border-subtle: s.$border-subtle !default;
+$border-default: s.$border-default !default;
+$border-strong: s.$border-strong !default;
+$border-bold: s.$border-bold !default;
+$field-surface: s.$field-surface !default;
+$field-surface-readonly: s.$field-surface-readonly !default;
+$field-border: s.$field-border !default;
+$field-border-hover: s.$field-border-hover !default;
+$link-text: s.$link-text !default;
+$link-text-visited: s.$link-text-visited !default;
+$link-text-hover: s.$link-text-hover !default;
+$hover-wash: s.$hover-wash !default;
+$hover-border: s.$hover-border !default;
+$selected-wash: s.$selected-wash !default;
+$selected-solid: s.$selected-solid !default;
+$selected-on-solid: s.$selected-on-solid !default;
+$selected-border: s.$selected-border !default;
+$highlight: s.$highlight !default;
+$focus-ring: s.$focus-ring !default;
+$disabled-surface: s.$disabled-surface !default;
+$disabled-text: s.$disabled-text !default;
+$disabled-border: s.$disabled-border !default;
+$scrim: s.$scrim !default;
+$shadow: s.$shadow !default;
+$primary-wash: s.$primary-wash !default;
+$primary-tint: s.$primary-tint !default;
+$primary-solid: s.$primary-solid !default;
+$primary-on-solid: s.$primary-on-solid !default;
+$primary-text: s.$primary-text !default;
+$primary-border: s.$primary-border !default;
+$control-wash: s.$control-wash !default;
+$control-tint: s.$control-tint !default;
+$control-solid: s.$control-solid !default;
+$control-on-solid: s.$control-on-solid !default;
+$control-text: s.$control-text !default;
+$control-border: s.$control-border !default;
+$neutral-wash: s.$neutral-wash !default;
+$neutral-tint: s.$neutral-tint !default;
+$neutral-solid: s.$neutral-solid !default;
+$neutral-on-solid: s.$neutral-on-solid !default;
+$neutral-text: s.$neutral-text !default;
+$neutral-border: s.$neutral-border !default;
+$info-wash: s.$info-wash !default;
+$info-tint: s.$info-tint !default;
+$info-solid: s.$info-solid !default;
+$info-on-solid: s.$info-on-solid !default;
+$info-text: s.$info-text !default;
+$info-border: s.$info-border !default;
+$success-wash: s.$success-wash !default;
+$success-tint: s.$success-tint !default;
+$success-solid: s.$success-solid !default;
+$success-on-solid: s.$success-on-solid !default;
+$success-text: s.$success-text !default;
+$success-border: s.$success-border !default;
+$warning-wash: s.$warning-wash !default;
+$warning-tint: s.$warning-tint !default;
+$warning-solid: s.$warning-solid !default;
+$warning-on-solid: s.$warning-on-solid !default;
+$warning-text: s.$warning-text !default;
+$warning-border: s.$warning-border !default;
+$danger-wash: s.$danger-wash !default;
+$danger-tint: s.$danger-tint !default;
+$danger-solid: s.$danger-solid !default;
+$danger-on-solid: s.$danger-on-solid !default;
+$danger-text: s.$danger-text !default;
+$danger-border: s.$danger-border !default;
+$chrome-wash: s.$chrome-wash !default;
+$chrome-tint: s.$chrome-tint !default;
+$chrome-solid: s.$chrome-solid !default;
+$chrome-on-solid: s.$chrome-on-solid !default;
+$chrome-text: s.$chrome-text !default;
+$chrome-border: s.$chrome-border !default;
+$category-1-solid: s.$category-1-solid !default;
+$category-1-wash: s.$category-1-wash !default;
+$category-2-solid: s.$category-2-solid !default;
+$category-2-wash: s.$category-2-wash !default;
+$category-3-solid: s.$category-3-solid !default;
+$category-3-wash: s.$category-3-wash !default;
+$category-4-solid: s.$category-4-solid !default;
+$category-4-wash: s.$category-4-wash !default;
+$category-5-solid: s.$category-5-solid !default;
+$category-5-wash: s.$category-5-wash !default;
+$category-6-solid: s.$category-6-solid !default;
+$category-6-wash: s.$category-6-wash !default;
+$category-7-solid: s.$category-7-solid !default;
+$category-7-wash: s.$category-7-wash !default;
