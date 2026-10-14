@@ -137,13 +137,17 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 			}
 			index = eix;
 		}
-		if(added == m_selectedSet.size())
-			callSelectionAllChanged();
-		else {
+		//-- Notify freshly-added items individually so per-row listeners can update their presentation...
+		if(added != m_selectedSet.size()) {
 			for(T t : addedList) {
 				callChanged(t, true);
 			}
 		}
+		//-- ...but ALWAYS fire the bulk "selection all changed" event as well. selectAll is a bulk
+		//-- operation (like clearSelection), so listeners that (re-)establish invariants only on a bulk
+		//-- change must run on every invocation - even when some items were already selected beforehand.
+		//-- Without this a second "Select all" click would skip the bulk callback and bypass such rules.
+		callSelectionAllChanged();
 	}
 
 	@Override
