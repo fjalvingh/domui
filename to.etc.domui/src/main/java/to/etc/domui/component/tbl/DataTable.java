@@ -865,8 +865,13 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 				tableRow.remove();
 			}
 			if(m_visibleItemList.isEmpty()) {
-				calcIndices();								// Calculate visible nodes
-				setNoResults();
+				//-- This page is empty, but earlier pages may still have data: move to the last page that exists.
+				if(getModel().getRows() > 0) {
+					updateAllRows();						// Recalculates indices (moving to last valid page) and re-renders
+				} else {
+					calcIndices();							// Calculate visible nodes
+					setNoResults();
+				}
 				firePageChanged();
 				return;
 			}
