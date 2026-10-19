@@ -286,10 +286,11 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			if(qc == 0) {
 				if((c == '\n' || (c == '\r' && la1() == '\n')) || c == m_fieldSeparator) {
 					//-- End of record, end of field -> add content to list.
-					if(m_sb.length() == 0)
+					String val = m_sb.toString();
+					if(m_treatEmptyStringAsNull && val.isBlank())
 						m_columns.add(null);                                // ,, means null
 					else
-						m_columns.add(m_sb.toString());
+						m_columns.add(val);
 					return;
 				}
 				m_sb.append((char) c);
@@ -320,19 +321,21 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 							m_sb.append((char) c);
 						} else {
 							//-- We are done: end quote found, should be a field
-							if(m_treatEmptyStringAsNull && m_sb.isEmpty())
+							String val = m_sb.toString();
+							if(m_treatEmptyStringAsNull && val.isBlank())
 								m_columns.add(null);
 							else
-								m_columns.add(m_sb.toString());      // "","" is empty string, not null
-							skipWhiteSpace();                        // Allow whitespace after " to next comma
+								m_columns.add(val);					// "","" is empty string, not null
+							skipWhiteSpace();                       // Allow whitespace after " to next comma
 							return;
 						}
 					} else {
 						//-- We are done (no double quoting)
-						if(m_treatEmptyStringAsNull && m_sb.isEmpty())
+						String val = m_sb.toString();
+						if(m_treatEmptyStringAsNull && val.isBlank())
 							m_columns.add(null);
 						else
-							m_columns.add(m_sb.toString());				// "","" is empty string, not null
+							m_columns.add(val);							// "","" is empty string, not null
 						skipWhiteSpace();              					// Allow whitespace after " to next comma
 						return;
 					}
