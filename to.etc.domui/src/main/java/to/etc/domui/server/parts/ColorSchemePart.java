@@ -26,8 +26,9 @@ import to.etc.util.StringTool;
  * end it.</p>
  *
  * <p>All of this is only on when the application named the cookie
- * ({@link DomApplication#setThemeVariantCookieName(String)}): without one the renderer does
- * not ask, and this part ignores an answer that still arrives.</p>
+ * ({@link DomApplication#setThemeVariantCookieName(String)}) and did not switch detection off
+ * ({@link DomApplication#setColorSchemeDetection(boolean)}): otherwise the renderer does not
+ * ask, and this part ignores an answer that still arrives.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
@@ -45,7 +46,7 @@ final public class ColorSchemePart implements IUnbufferedPartFactory {
 
 	@Override
 	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl ctx) throws Exception {
-		if(null != app.getThemeVariantCookieName()) {
+		if(null != app.getThemeVariantCookieName() && app.isColorSchemeDetection()) {
 			String scheme = ctx.getPageParameters().getString(PARAM_SCHEME, "light");
 			IThemeVariant variant = app.getThemeVariantForColorScheme(null == scheme ? "light" : scheme);
 			if(null != variant) {

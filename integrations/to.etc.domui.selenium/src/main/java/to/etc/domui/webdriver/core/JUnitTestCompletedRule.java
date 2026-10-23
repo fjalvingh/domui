@@ -24,13 +24,15 @@ public class JUnitTestCompletedRule extends TestWatcher {
 		m_testBase.snapshot("Screen after test failure");		// ORDERED
 		m_testBase.internalClosePerTestResources();							// ORDERED
 
-		try {
-			String body = m_testBase.wd().getHtmlText(By.tagName("body"));
-			System.err.println("---- HTML ----");
-			System.err.println(body);
-			System.err.println("---- /HTML ----");
-		} catch(Exception x) {
-			System.err.println("debug: failed to get html: " + x);
+		if(System.getProperty("domui.webdriver.html") != null) {
+			try {
+				String body = m_testBase.wd().getHtmlText(By.tagName("body"));
+				System.err.println("---- HTML ----");
+				System.err.println(body);
+				System.err.println("---- /HTML ----");
+			} catch(Exception x) {
+				System.err.println("debug: failed to get html: " + x);
+			}
 		}
 	}
 
