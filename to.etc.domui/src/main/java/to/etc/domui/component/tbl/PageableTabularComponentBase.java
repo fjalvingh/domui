@@ -60,8 +60,9 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 		} else {
 			m_six = m_currentPage * pageSize; // Start index,
 			if(m_six >= size) {
-				//-- Move to the last page instead
-				int lp = (size / pageSize); // Page# of last element,
+				//-- Current page no longer exists: move to the last page that still has data
+				int lp = size <= 0 ? 0 : (size - 1) / pageSize; // Page# of last element,
+				m_currentPage = lp;
 				m_six = lp * pageSize; // Start of that page
 			}
 			m_eix = m_six + pageSize;
