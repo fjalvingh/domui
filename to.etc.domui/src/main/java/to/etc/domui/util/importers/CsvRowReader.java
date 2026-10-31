@@ -287,7 +287,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 				if((c == '\n' || (c == '\r' && la1() == '\n')) || c == m_fieldSeparator) {
 					//-- End of record, end of field -> add content to list.
 					String val = m_sb.toString();
-					if(m_treatEmptyStringAsNull && val.isBlank())
+					if(m_sb.isEmpty() || val.isBlank())
 						m_columns.add(null);                                // ,, means null
 					else
 						m_columns.add(val);
