@@ -92,6 +92,9 @@
         <ecj.version>3.36.0</ecj.version>
         <kotlin.version>2.2.20</kotlin.version>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
+        <!-- Since Kotlin 2.2 the Maven plugin compiles through a shared Kotlin daemon by default; in parallel builds the modules race to
+             connect to it and fail with "Failed connecting to the daemon in 4 retries". Compile in-process, as before 2.2. -->
+        <kotlin.compiler.daemon>false</kotlin.compiler.daemon>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <sonar.skip>true</sonar.skip>
