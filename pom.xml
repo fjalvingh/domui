@@ -125,7 +125,7 @@
         <hibernate.core.version>7.2.9.Final</hibernate.core.version>
         <javassist.version>3.23.1-GA</javassist.version>
 
-        <bouncy.version>1.84</bouncy.version>
+        <bouncy.version>1.86</bouncy.version>
         <org.slf4j.version>1.7.36</org.slf4j.version>
         <sass-embedded.version>4.4.0</sass-embedded.version>
         <cglib.version>2.2</cglib.version>
@@ -194,6 +194,12 @@
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-stdlib-jdk8</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <!-- okhttp 4.x (via selenium) depends on an older kotlin-stdlib -->
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib</artifactId>
                 <version>${kotlin.version}</version>
             </dependency>
             <dependency>
@@ -607,6 +613,12 @@
                 <artifactId>okio</artifactId>
                 <groupId>com.squareup.okio</groupId>
                 <version>3.4.0</version>
+            </dependency>
+            <!-- selenium-java 3.141.59 brings okhttp 3.11.0 (CVE-2021-0341); 4.x is binary compatible for Java callers -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>4.9.2</version>
             </dependency>
 
             <!--			<dependency>-->
