@@ -944,6 +944,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 			ColumnContainer<T> cc = new ColumnContainer<>(this);
 			cc.setParent(tr);
+			tr.setTestRepeatID("r" + index);
 			renderRow(tr, cc, index, value);
 		} catch(Exception x) {
 			LOG.error("Last DataTable actions:\n" + m_ml.getData());
