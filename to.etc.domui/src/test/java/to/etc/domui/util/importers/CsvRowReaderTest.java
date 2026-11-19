@@ -5,7 +5,11 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -65,4 +69,61 @@ public class CsvRowReaderTest {
 		}
 	}
 
+
+	/**
+	 * Every field of every record, as the reader returns them.
+	 */
+	static private List<List<String>> read(String csv, boolean treatEmptyStringAsNull) throws Exception {
+		CsvRowReader reader = new CsvRowReader(new StringReader(csv)).doubleQuotes().escapeChar('\\').multiLine().skipCr(false).treatEmptyStringAsNull(treatEmptyStringAsNull);
+		List<List<String>> rows = new ArrayList<>();
+		while(reader.readRecord()) {
+			List<String> row = new ArrayList<>();
+			for(int i = 0; i < reader.getColumnCount(); i++) {
+				row.add(reader.getColumnValue(i));
+			}
+			rows.add(row);
+		}
+		return rows;
+	}
+
+	static private final String NULLS_AND_BLANKS = "1,,\"a\"\r\n2,\"\",\"  \"\r\n3,\"x\",\r\n4,  ,\"x\"";
+
+	@Test
+	public void unquotedEmptyIsNullAndQuotedValuesAreKept() throws Exception {
+		Assert.assertEquals(List.of(
+			Arrays.asList("1", null, "a"),
+			Arrays.asList("2", "", "  "),
+			Arrays.asList("3", "x", null),
+			Arrays.asList("4", "  ", "x")
+		), read(NULLS_AND_BLANKS, false));
+	}
+
+	@Test
+	public void treatEmptyStringAsNullAlsoMakesEmptyAndBlankValuesNull() throws Exception {
+		Assert.assertEquals(List.of(
+			Arrays.asList("1", null, "a"),
+			Arrays.asList("2", null, null),
+			Arrays.asList("3", "x", null),
+			Arrays.asList("4", null, "x")
+		), read(NULLS_AND_BLANKS, true));
+	}
+
+	@Test
+	public void quotesEscapesAndNewlinesInsideQuotesAreKept() throws Exception {
+		Assert.assertEquals(List.of(
+			Arrays.asList("q\"q", "b\\s", "two\r\nlines")
+		), read("\"q\"\"q\",\"b\\\\s\",\"two\r\nlines\"\r\n", false));
+	}
+
+	@Test
+	public void theLineNumberCountsLinesIncludingThoseInsideQuotes() throws Exception {
+		CsvRowReader reader = new CsvRowReader(new StringReader("1,\"a\"\r\n2,\"two\r\nlines\"\r\n3,\"c\"\r\n")).doubleQuotes().multiLine().skipCr(false);
+		Assert.assertEquals(1, reader.getLineNumber());
+		Assert.assertTrue(reader.readRecord());
+		Assert.assertEquals(2, reader.getLineNumber());
+		Assert.assertTrue(reader.readRecord());
+		Assert.assertEquals(4, reader.getLineNumber());
+		Assert.assertTrue(reader.readRecord());
+		Assert.assertEquals(5, reader.getLineNumber());
+	}
 }

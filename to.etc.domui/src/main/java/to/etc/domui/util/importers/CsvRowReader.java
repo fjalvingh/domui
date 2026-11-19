@@ -192,6 +192,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	private void accept() {
 		if(m_eof)
 			return;
+		if(m_ix < m_bufferLen && m_buffer[m_ix] == '\n')
+			m_lineNumber++;
 		m_ix++;
 		m_totalCharactersRead++;
 	}
@@ -275,10 +277,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 					error(ImporterErrorCodes.csvEofInString, startLine);        // EOF in string started at line xxx
 				} else {
 					//-- Can be a line without a newline.
-					if(m_sb.length() == 0)
-						m_columns.add(null);                                // ,, means null
-					else
-						m_columns.add(m_sb.toString());
+					addUnquoted();
 				}
 				return;
 			}
@@ -286,11 +285,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			if(qc == 0) {
 				if((c == '\n' || (c == '\r' && la1() == '\n')) || c == m_fieldSeparator) {
 					//-- End of record, end of field -> add content to list.
-					String val = m_sb.toString();
-					if(m_treatEmptyStringAsNull && val.isBlank())
-						m_columns.add(null);                                // ,, means null
-					else
-						m_columns.add(val);
+					addUnquoted();
 					return;
 				}
 				m_sb.append((char) c);
@@ -344,6 +339,18 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 				}
 			}
 		}
+	}
+
+	/**
+	 * Add the unquoted field just read: an empty one is null; a blank one is null only
+	 * when {@link #treatEmptyStringAsNull()} is set.
+	 */
+	private void addUnquoted() {
+		String val = m_sb.toString();
+		if(val.isEmpty() || (m_treatEmptyStringAsNull && val.isBlank()))
+			m_columns.add(null);                                	// ,, means null
+		else
+			m_columns.add(val);
 	}
 
 	private void skipWhiteSpace() throws IOException {
@@ -470,6 +477,10 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		return m_errorList;
 	}
 
+	/**
+	 * The one-based number of the line that the reader is at: after a record was read,
+	 * the line after it.
+	 */
 	public int getLineNumber() {
 		return m_lineNumber;
 	}
@@ -554,7 +565,10 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	}
 
 	/**
-	 * When set, not only ,, is returned as null but ,"", too.
+	 * An empty unquoted field (,,) is always returned as null. By default a quoted
+	 * value is returned exactly as written, so "" is the empty string and "  " is two
+	 * spaces; when this is set, empty and blank values, quoted or not, are returned as
+	 * null too.
 	 */
 	public CsvRowReader treatEmptyStringAsNull() {
 		m_treatEmptyStringAsNull = true;
