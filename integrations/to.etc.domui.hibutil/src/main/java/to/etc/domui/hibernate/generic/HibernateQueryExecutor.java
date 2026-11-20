@@ -34,6 +34,8 @@ import org.hibernate.metamodel.mapping.EntityValuedModelPart;
 import org.hibernate.metamodel.mapping.PluralAttributeMapping;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.LazyInitializer;
 import org.hibernate.query.Query;
 import to.etc.domui.hibernate.model.GenericHibernateHandler;
 import to.etc.webapp.query.ICriteriaTableDef;
@@ -206,21 +208,49 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 
 	/**
 	 * Check whether two entity references (which may be proxies) refer to the same
-	 * persistent entity, comparing first by identity, then by class + primary key.
+	 * persistent entity, comparing first by identity, then by root entity + primary key.
+	 *
+	 * This must never initialize a proxy: a managed entity can legitimately reference a
+	 * proxy that belongs to another (possibly closed) session, and initializing it would
+	 * throw a LazyInitializationException, or at best cost a database round trip just to
+	 * compare identities. The proxy's entity name and identifier are available without
+	 * initialization. Comparing root entity names (instead of concrete classes) keeps the
+	 * check correct for inheritance, where a proxy's type is the declared association type.
 	 */
 	private boolean isSameEntity(SessionFactoryImplementor sfi, Session session, Object a, Object b) {
 		if(a == b) {
 			return true;
 		}
-		Class<?> classA = Hibernate.getClass(a);
-		Class<?> classB = Hibernate.getClass(b);
-		if(!classA.equals(classB)) {
+		EntityPersister persisterA = getPersister(sfi, a);
+		EntityPersister persisterB = getPersister(sfi, b);
+		if(!persisterA.getRootEntityName().equals(persisterB.getRootEntityName())) {
 			return false;
 		}
-		EntityPersister persister = sfi.getMappingMetamodel().getEntityDescriptor(classA);
-		Object idA = persister.getIdentifier(a, (SessionImpl) session);
-		Object idB = persister.getIdentifier(b, (SessionImpl) session);
+		Object idA = getIdentifier(persisterA, session, a);
+		Object idB = getIdentifier(persisterB, session, b);
 		return idA != null && idA.equals(idB);
+	}
+
+	/**
+	 * Get the persister for an entity or proxy without initializing the proxy.
+	 */
+	private static EntityPersister getPersister(SessionFactoryImplementor sfi, Object entityOrProxy) {
+		LazyInitializer lazyInitializer = HibernateProxy.extractLazyInitializer(entityOrProxy);
+		if(lazyInitializer != null) {
+			return sfi.getMappingMetamodel().getEntityDescriptor(lazyInitializer.getEntityName());
+		}
+		return sfi.getMappingMetamodel().getEntityDescriptor(entityOrProxy.getClass());
+	}
+
+	/**
+	 * Get the identifier of an entity or proxy without initializing the proxy.
+	 */
+	private static Object getIdentifier(EntityPersister persister, Session session, Object entityOrProxy) {
+		LazyInitializer lazyInitializer = HibernateProxy.extractLazyInitializer(entityOrProxy);
+		if(lazyInitializer != null) {
+			return lazyInitializer.getInternalIdentifier();
+		}
+		return persister.getIdentifier(entityOrProxy, (SessionImpl) session);
 	}
 
 	/**

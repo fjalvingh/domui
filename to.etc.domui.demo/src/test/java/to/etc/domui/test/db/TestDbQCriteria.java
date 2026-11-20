@@ -1,5 +1,6 @@
 package to.etc.domui.test.db;
 
+import org.hibernate.Hibernate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -122,6 +123,34 @@ public class TestDbQCriteria {
 		dc().delete(artist);
 		dc().flushIfPossible();		// Verify no TransientPropertyValueException during flush
 		dc().rollback();			// Don't permanently delete test data
+	}
+
+	/**
+	 * A managed entity may legitimately reference an uninitialized proxy that was
+	 * obtained from another, already closed, data context: storing it only needs
+	 * the foreign key. When delete() then scans the persistence context for entities
+	 * referencing the deleted one it must compare such a proxy without initializing
+	 * it, as initializing it throws a LazyInitializationException ("no session").
+	 */
+	@Test
+	public void testDeleteWithForeignProxyInContext() throws Exception {
+		//-- Get an uninitialized proxy from a context that we close immediately.
+		Artist foreignArtist;
+		try(QDataContext other = InitTestDB.createContext()) {
+			foreignArtist = other.getInstance(Artist.class, Long.valueOf(3));
+		}
+		Assert.assertFalse("The artist must be an uninitialized proxy", Hibernate.isInitialized(foreignArtist));
+
+		//-- Make a managed entity in our own context refer to that foreign proxy
+		Album album = dc().get(Album.class, Long.valueOf(1));
+		album.setArtist(foreignArtist);
+
+		//-- Deleting another entity scans the context, and must not touch the foreign proxy
+		Album toDelete = dc().get(Album.class, Long.valueOf(2));
+		dc().delete(toDelete);
+
+		Assert.assertFalse("delete() must not initialize the proxies it compares", Hibernate.isInitialized(foreignArtist));
+		dc().rollback();			// Don't permanently change test data
 	}
 
 	/**
