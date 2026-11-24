@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,6 +75,9 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 	private CellStyle m_dateStyle;
 
 	@Nullable
+	private CellStyle m_dateTimeStyle;
+
+	@Nullable
 	private CellStyle m_defaultCellStyle;
 
 	private int m_maxRows;
@@ -109,6 +113,10 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		CellStyle dates = m_dateStyle = wb.createCellStyle();
 		dates.setDataFormat(wb.createDataFormat().getFormat("d-m-yyyy"));
 		dates.setFont(defaultFont);
+
+		CellStyle dateTimes = m_dateTimeStyle = wb.createCellStyle();
+		dateTimes.setDataFormat(wb.createDataFormat().getFormat("d-m-yyyy hh:mm:ss"));
+		dateTimes.setFont(defaultFont);
 
 		CellStyle curs = m_currencyStyle = wb.createCellStyle();
 		curs.setDataFormat(wb.createDataFormat().getFormat("#,##0.00"));
@@ -195,16 +203,7 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 
 	@Override
 	public String getMimeType() {
-		switch(m_format) {
-			default:
-				throw new IllegalStateException("Excel format not implemented: " + m_format);
-
-			case XLS:
-				return "application/x-xls";
-
-			case XLSX:
-				return "appication/x-xlsx";
-		}
+		return m_format.getMimeType();
 	}
 
 	@Override
@@ -363,6 +362,20 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		}
 	};
 
+	/**
+	 * A timestamp keeps its time; DATE_CONVERTER would show only the date.
+	 */
+	static private final IExportCellRenderer<ExcelExportWriter<?>, Cell, Date> DATETIME_CONVERTER = new IExportCellRenderer<ExcelExportWriter<?>, Cell, Date>() {
+		@Override
+		public void renderCell(ExcelExportWriter<?> exporter, Cell cell, int cellIndex, @Nullable Date value) throws Exception {
+			cell.setCellStyle(exporter.m_dateTimeStyle);
+			if(null != value) {
+				cell.setCellValue(value);
+			}
+			exporter.setCellWidth(cellIndex, value);
+		}
+	};
+
 	static private final IExportCellRenderer<ExcelExportWriter<?>, Cell, Object> DEFAULT_RENDERER = new IExportCellRenderer<ExcelExportWriter<?>, Cell, Object>() {
 		@Override
 		public void renderCell(ExcelExportWriter<?> w, Cell cell, int cellIndex, @Nullable Object value) throws Exception {
@@ -407,5 +420,6 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 
 		register(Date.class, DATE_CONVERTER);
 		register(java.sql.Date.class, DATE_CONVERTER);
+		register(Timestamp.class, DATETIME_CONVERTER);
 	}
 }

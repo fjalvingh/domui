@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +34,7 @@ public class CsvExportWriter<T> implements IExportWriter<T> {
 
 	@Override
 	public String getMimeType() {
-		return "text/csv";
+		return "text/csv; charset=UTF-8";
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public class CsvExportWriter<T> implements IExportWriter<T> {
 				.map(this::calculateLabel)
 				.collect(Collectors.toList());
 
-			output = new OutputStreamWriter(new FileOutputStream(m_target));
+			output = new OutputStreamWriter(new FileOutputStream(m_target), StandardCharsets.UTF_8);
 			CsvOptions option = CsvOptions.create()
 				.delimiter(',')
 				.quote('"')
@@ -84,7 +86,9 @@ public class CsvExportWriter<T> implements IExportWriter<T> {
 			if(null == convertedValue) {
 				writer.printNull();
 			} else {
-				if(convertedValue instanceof Date) {
+				if(convertedValue instanceof Timestamp ts) {
+					writer.printTimestamp(ts);					// Before Date: a Timestamp is one, but printDate drops the time
+				} else if(convertedValue instanceof Date) {
 					writer.printDate((Date) convertedValue);
 				} else if(convertedValue instanceof Boolean) {
 					writer.printString(((Boolean) convertedValue) ? "true" : "false");
