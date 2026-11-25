@@ -55,6 +55,9 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 	private INotify<ITabHandle> m_onClose;
 
 	@Nullable
+	private final INotify<ITabHandle> m_onCloseRequested;
+
+	@Nullable
 	private INotify<ITabHandle> m_onDisplay;
 
 	@Nullable
@@ -74,6 +77,7 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 		m_lazy = b.isLazy();
 		m_closable = b.isClosable();
 		m_onClose = b.getOnClose();
+		m_onCloseRequested = b.getOnCloseRequested();
 		m_onDisplay = b.getOnDisplay();
 		m_onHide = b.getOnHide();
 		m_testId = b.getTestId();
@@ -133,6 +137,14 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 	@Nullable
 	public INotify<ITabHandle> getOnClose() {
 		return m_onClose;
+	}
+
+	/**
+	 * When set, the cross of a closable tab calls this instead of closing the tab.
+	 */
+	@Nullable
+	public INotify<ITabHandle> getOnCloseRequested() {
+		return m_onCloseRequested;
 	}
 
 	@Nullable public INotify<ITabHandle> getOnDisplay() {

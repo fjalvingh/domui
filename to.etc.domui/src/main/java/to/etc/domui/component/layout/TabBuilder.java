@@ -40,6 +40,9 @@ final public class TabBuilder {
 	private INotify<ITabHandle> m_onClose;
 
 	@Nullable
+	private INotify<ITabHandle> m_onCloseRequested;
+
+	@Nullable
 	private INotify<ITabHandle> m_onDisplay;
 
 	@Nullable
@@ -132,6 +135,23 @@ final public class TabBuilder {
 	public TabBuilder closable() {
 		m_closable = true;
 		return this;
+	}
+
+	/**
+	 * Make the tab closable, but let the cross call the handler instead of closing the tab.
+	 * The handler decides whether the tab closes, for instance after asking for confirmation,
+	 * and closes it with {@link ITabHandle#close()} or replaces the tabs altogether.
+	 */
+	@NonNull
+	public TabBuilder closable(INotify<ITabHandle> onCloseRequested) {
+		m_closable = true;
+		m_onCloseRequested = onCloseRequested;
+		return this;
+	}
+
+	@Nullable
+	public INotify<ITabHandle> getOnCloseRequested() {
+		return m_onCloseRequested;
 	}
 
 	@NonNull

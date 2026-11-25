@@ -187,7 +187,14 @@ public class TabPanelBase extends Div {
 			ATag x = new ATag();
 			d.add(x);
 			x.setCssClass("ui-tab-close");
-			x.setClicked(()-> closeTab(ti));
+			x.setClicked(() -> {
+				INotify<ITabHandle> onCloseRequested = ti.getOnCloseRequested();
+				if(null == onCloseRequested) {
+					closeTab(ti);
+				} else {
+					onCloseRequested.onNotify(ti);
+				}
+			});
 		}
 		li.add(d);
 	}
